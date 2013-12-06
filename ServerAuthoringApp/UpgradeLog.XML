@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="ServerSideAuthoring_latest">
+</Property><Property Name="Solution File" Value="C:\LADS2_ServerAuthoring-Yuting&amp;mme\ServerAuthoringApp\ServerSideAuthoring_latest.sln">
+</Property><Property Name="Date" Value="Monday, April 16, 2012">
+</Property><Property Name="Time" Value="18:04:42 PM">
+</Property></Properties><Event ErrorLevel="3" Project="fitzlib" Source="..\..\HumBub-mme\trunk\PageTurner\fitzlib.vcproj" Description="No Conversion Required">
+</Event></UpgradeLog>

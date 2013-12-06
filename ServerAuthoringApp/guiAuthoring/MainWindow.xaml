@@ -1,0 +1,38 @@
+﻿<Window x:Class="guiAuthoring.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:s="http://schemas.microsoft.com/surface/2008"
+        xmlns:m="clr-namespace:guiAuthoring"
+        Title="MainWindow" Height="700" Width="1000">
+    <Canvas>
+        <Canvas Name="tabCanvas" Height="672" Width="250" Background="Beige" >
+            
+            <Button Name="Artworks" Height="80" Width="250" Canvas.Left="0" Content="Artworks" FontSize="40" Click="Artworks_Click" Canvas.Top="6" />
+            <Button Name="Exhibitions" Height="80" Width="250" Canvas.Left="0" Canvas.Top="92" Content="Exhibitions" FontSize="40" Click="Exhibitions_Click" />
+        </Canvas>
+        <Canvas Name="listCanvas" Height="672" Width="328" Canvas.Left="250" Background="Chartreuse" Canvas.Top="0">
+            <Label Name="nameLabel" Content="Artworks" FontSize="30"/>
+            <Button Name="import" Content="Import New" Width="138" Height="32" FontSize="14" Canvas.Right="6" Canvas.Top="6" Click="import_Click" />
+            <ListBox Name="ExhibitionListBox" Width="328" Height="586" Canvas.Top="86" Background="White" Canvas.Left="0" SelectionChanged="ExhibitionListBox_SelectionChanged"></ListBox>
+            <ListBox Name="ArtworkListBox" Width="328" Height="586" Canvas.Top="86" Background="White" Canvas.Left="0" SelectionChanged="ArtworkListBox_SelectionChanged"></ListBox>
+        </Canvas>
+        <Canvas Name="fieldsCanvas" Height="672" Width="409" Canvas.Left="578" Background="Beige"  Canvas.Top="0">
+            <Image Name="thumbNail" Width="180" Height="96"/>
+            <!--exhibition settings-->
+            <Label Name="Name" Content="Name:" FontSize="20" Visibility="Hidden" Canvas.Top="370" Canvas.Left="6"/>
+            <Label Name="bg" Content="Background Image" FontSize="20" Visibility="Hidden" Canvas.Left="4" Canvas.Top="356" />
+            <Image Name="bgImage" Width="131" Height="39" Canvas.Top="354" Canvas.Left="202" Visibility="Hidden" />
+             <!--artwork settings-->
+            <Button Name="exhibition" Height="40" Width="152" Canvas.Right="19" FontSize="20" Canvas.Top="413"  Content="Add Exhibitions" Click="Add_Exhibitions_Click" />
+            <Button Name="Add" Content="Add Field" Height="40" Width="111" FontSize="18" Canvas.Top="413" Canvas.Left="4" Click="Add_Click" />
+            <Button Name="SaveField" Content="Save Field" Height="40" Width="111" FontSize="18" Canvas.Top="413" Canvas.Left="121" Click="SaveFields_Click" />
+            <ListBox Name="fieldList" Height="202" Width="394" Canvas.Top="459" Background="Beige"  Canvas.Left="6"></ListBox>
+            <ListBox Canvas.Left="6" Canvas.Top="237" Height="170" Name="ArtworkMetadataListBox" Width="384" />
+            <Label Canvas.Left="281" Canvas.Top="216" Content="Artwork Metadata" Height="30" Name="ArtworkMetadataLabel" Width="109" />
+            <ListBox Canvas.Left="8" Canvas.Top="112" Height="108" Name="ArtworkExhibitionList" Width="382" />
+            <Label Canvas.Left="320" Canvas.Top="92" Content="Exhibitions" Height="24" Name="ArtworkExhibitionListLabel" Width="70" />
+        </Canvas>
+    </Canvas>
+</Window>

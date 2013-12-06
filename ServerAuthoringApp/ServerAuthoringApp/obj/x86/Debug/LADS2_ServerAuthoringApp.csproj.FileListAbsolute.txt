@@ -1,0 +1,175 @@
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\ServerAuthoringApp.exe.config
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\XAMLConverter.exe
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\american-english
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\0_1.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\0_2.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\1_1.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\1_2.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\2_1.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\2_2.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\3_1.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\4_1.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\5_1.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\6_1.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\7_1.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\7_2.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\7_3.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\8_1.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\8_2.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\9_1.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\barbell.jpg
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\barbell.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\barbell_2.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\lexicon_sortedbyfrequency.txt
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\spring.jpg
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\spring.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\spring_1.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\squiggle.jpg
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\squiggle.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\squiggle_1.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\squiggle_10.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\squiggle_2.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\squiggle_9.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\westburylab_usenet_words_v3_trim.txt
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\yoyo.jpg
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\yoyo.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\yoyo_1.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarGestures\yoyo_2.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isoamsa.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isoamsb.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isoamsc.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isoamsn.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isoamso.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isoamsr.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isobox.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isocyr1.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isocyr2.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isodia.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isogrk3.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isolat1.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isolat2.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isomfrk.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isomopf.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isomscr.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isonum.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isopub.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\isotech.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\mathml2.dtd
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\mmlalias.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\mmlextra.ent
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathML dtd\mathml2-qname-1.mod
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DBFiles\Database_Generator.txt
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DBFiles\Database_PubGenerator.txt
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DBFiles\DoqDataTable_Generator.txt
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DBFiles\Local_Database_Generator.txt
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Properties\Settings.Designer.cs
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Properties\Settings.settings
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\WebKitBrowser.dll.manifest
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXGeneral.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXGeneralBol.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXGeneralBolIta.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXGeneralItalic.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXIntDis.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXIntDisBol.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXIntSma.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXIntSmaBol.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXIntUp.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXIntUpBol.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXIntUpDis.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXIntUpDisBol.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXIntUpSma.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXIntUpSmaBol.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXNonUni.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXNonUniBol.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXNonUniBolIta.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXNonUniIta.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXSiz1Sym.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXSiz1SymBol.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXSiz2Sym.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXSiz2SymBol.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXSiz3Sym.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXSiz3SymBol.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXSiz4Sym.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXSiz4SymBol.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXSiz5Sym.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXVar.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\STIXfonts\STIXVarBol.otf
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Cursor1.cur
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\AwesomiumDotNet.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\touchco.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\ServerAuthoringApp.exe
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\ServerAuthoringApp.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Adastra.RichEditorLibrary.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\AppLib.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\CharRecognizer.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarRecognizer.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Expr.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\ExprWPF.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\FileBrowser.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Geom.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\GraphSharp.Controls.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\GraphSharp.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\InputFramework.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\InputFrameworkBase.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Inq.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Kent.Boogaart.Windows.Controls.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathRecognizer.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\OfficeForms.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\PageTurner.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\UICommon.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Unicode.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Utils.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\WebKitBrowser.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\WorkTop.exe
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\WorkTopDB.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\WPFExtensions.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\WPFHelp.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\WPFInterop.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\RibbonControlsLibrary.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\WPFControlsLibrary.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\QuickGraph.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\WPFToolkit.Extended.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\FlickrNet.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\IAWinFX.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\3DTools.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\WebKit.Interop.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\TuioDLL.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\AxInterop.DIAMONDTOUCHLib.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\TouchcoCSharp.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Conoto.net.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\AnotoPen.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\AnotoPenRemoting.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\WPFControlsLibraryInterface.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Interop.DIAMONDTOUCHLib.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Franson.BlueTools.200.dll
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Adastra.RichEditorLibrary.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\FileBrowser.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\GraphSharp.Controls.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\GraphSharp.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\WorkTop.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\WPFExtensions.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\WPFInterop.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Kent.Boogaart.Windows.Controls.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\OfficeForms.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\AppLib.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\DollarRecognizer.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Geom.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\InputFrameworkBase.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\InputFramework.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Inq.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\CharRecognizer.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\ExprWPF.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Expr.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\MathRecognizer.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Unicode.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\Utils.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\WPFHelp.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\UICommon.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\WorkTopDB.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\PageTurner.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\XAMLConverter.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\3DTools.xml
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\obj\x86\Debug\ServerAuthoringApp.exe
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\obj\x86\Debug\ServerAuthoringApp.pdb
+C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ServerAuthoringApp\bin\Debug\WebKitBrowser.pdb

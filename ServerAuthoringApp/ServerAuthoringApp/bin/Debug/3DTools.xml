@@ -1,0 +1,931 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>3DTools</name>
+    </assembly>
+    <members>
+        <member name="M:_3DTools.MathUtils.GetViewMatrix(System.Windows.Media.Media3D.Camera)">
+            <summary>
+                Computes the effective view matrix for the given
+                camera.
+            </summary>
+        </member>
+        <member name="M:_3DTools.MathUtils.GetProjectionMatrix(System.Windows.Media.Media3D.Camera,System.Double)">
+            <summary>
+                Computes the effective projection matrix for the given
+                camera.
+            </summary>
+        </member>
+        <member name="M:_3DTools.MathUtils.TryWorldToViewportTransform(System.Windows.Media.Media3D.Viewport3DVisual,System.Boolean@)">
+            <summary>
+                Computes the transform from world space to the Viewport3DVisual's
+                inner 2D space.
+            
+                This method can fail if Camera.Transform is non-invertable
+                in which case the camera clip planes will be coincident and
+                nothing will render.  In this case success will be false.
+            </summary>
+        </member>
+        <member name="M:_3DTools.MathUtils.TryWorldToCameraTransform(System.Windows.Media.Media3D.Viewport3DVisual,System.Boolean@)">
+            <summary>
+                Computes the transform from world space to camera space
+            
+                This method can fail if Camera.Transform is non-invertable
+                in which case the camera clip planes will be coincident and
+                nothing will render.  In this case success will be false.
+            </summary>
+        </member>
+        <member name="M:_3DTools.MathUtils.GetWorldTransformationMatrix(System.Windows.DependencyObject,System.Windows.Media.Media3D.Viewport3DVisual@)">
+            <summary>
+            Gets the object space to world space transformation for the given DependencyObject
+            </summary>
+            <param name="visual">The visual whose world space transform should be found</param>
+            <param name="viewport">The Viewport3DVisual the Visual is contained within</param>
+            <returns>The world space transformation</returns>
+        </member>
+        <member name="M:_3DTools.MathUtils.TryTransformTo2DAncestor(System.Windows.DependencyObject,System.Windows.Media.Media3D.Viewport3DVisual@,System.Boolean@)">
+            <summary>
+                Computes the transform from the inner space of the given
+                Visual3D to the 2D space of the Viewport3DVisual which
+                contains it.
+            
+                The result will contain the transform of the given visual.
+            
+                This method can fail if Camera.Transform is non-invertable
+                in which case the camera clip planes will be coincident and
+                nothing will render.  In this case success will be false.
+            </summary>
+            <param name="visual"></param>
+            <param name="success"></param>
+            <returns></returns>
+        </member>
+        <member name="M:_3DTools.MathUtils.TryTransformToCameraSpace(System.Windows.DependencyObject,System.Windows.Media.Media3D.Viewport3DVisual@,System.Boolean@)">
+            <summary>
+                Computes the transform from the inner space of the given
+                Visual3D to the camera coordinate space
+            
+                The result will contain the transform of the given visual.
+            
+                This method can fail if Camera.Transform is non-invertable
+                in which case the camera clip planes will be coincident and
+                nothing will render.  In this case success will be false.
+            </summary>
+            <param name="visual"></param>
+            <param name="success"></param>
+            <returns></returns>
+        </member>
+        <member name="M:_3DTools.MathUtils.TransformBounds(System.Windows.Media.Media3D.Rect3D,System.Windows.Media.Media3D.Matrix3D)">
+            <summary>
+                Transforms the axis-aligned bounding box 'bounds' by
+                'transform'
+            </summary>
+            <param name="bounds">The AABB to transform</param>
+            <returns>Transformed AABB</returns>
+        </member>
+        <member name="M:_3DTools.MathUtils.TryNormalize(System.Windows.Media.Media3D.Vector3D@)">
+            <summary>
+                Normalizes v if |v| > 0.
+            
+                This normalization is slightly different from Vector3D.Normalize. Here
+                we just divide by the length but Vector3D.Normalize tries to avoid
+                overflow when finding the length.
+            </summary>
+            <param name="v">The vector to normalize</param>
+            <returns>'true' if v was normalized</returns>
+        </member>
+        <member name="M:_3DTools.MathUtils.GetCenter(System.Windows.Media.Media3D.Rect3D)">
+            <summary>
+                Computes the center of 'box'
+            </summary>
+            <param name="box">The Rect3D we want the center of</param>
+            <returns>The center point</returns>
+        </member>
+        <member name="T:_3DTools.Trackport3D">
+            <summary>
+                Trackport3D loads a Model3D from a xaml file and displays it.  The user
+                may rotate the view by dragging the mouse with the left mouse button.
+                Dragging with the right mouse button will zoom in and out.
+            
+                Trackport3D is primarily an example of how to use the Trackball utility
+                class, but it may be used as a custom control in your own applications.
+            </summary>
+            <summary>
+            Trackport3D
+            </summary>
+        </member>
+        <member name="M:_3DTools.Trackport3D.LoadModel(System.IO.Stream)">
+            <summary>
+                Loads and displays the given Xaml file.  Expects the root of
+                the Xaml file to be a Model3D.
+            </summary>
+        </member>
+        <member name="M:_3DTools.Trackport3D.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:_3DTools.MeshConverter`1">
+            <summary>
+                Abstract base class for all type converters that have a MeshGeometry3D source
+            </summary>
+        </member>
+        <member name="M:_3DTools.MeshConverter`1.System#Windows#Data#IValueConverter#Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">
+            <summary>
+                IValueConverter.Convert
+            </summary>
+            <param name="value">The binding source (should be a MeshGeometry3D)</param>
+            <param name="targetType">The binding target</param>
+            <param name="parameter">Optionaly parameter to the converter</param>
+            <param name="culture">(ignored)</param>
+            <returns>The converted value</returns>
+        </member>
+        <member name="M:_3DTools.MeshConverter`1.System#Windows#Data#IValueConverter#ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">
+            <summary>
+                IValueConverter.ConvertBack
+            
+                Not implemented
+            </summary>
+        </member>
+        <member name="M:_3DTools.MeshConverter`1.Convert(System.Windows.Media.Media3D.MeshGeometry3D,System.Object)">
+            <summary>
+                Subclasses should override this to do conversion
+            </summary>
+            <param name="mesh">The mesh source</param>
+            <param name="parameter">Optional converter argument</param>
+            <returns>The converted value</returns>
+        </member>
+        <member name="T:_3DTools.MeshTextureCoordinateConverter">
+            <summary>
+            MeshTextureCoordinateConverter
+            
+            A MeshConverter that returns a PointCollection and takes an optional direction argument
+            </summary>
+        </member>
+        <member name="M:_3DTools.MeshTextureCoordinateConverter.Convert(System.Windows.Media.Media3D.MeshGeometry3D,System.Object)">
+            <summary>
+                
+            </summary>
+            <param name="mesh">The source mesh</param>
+            <param name="parameter">The optional parameter</param>
+            <returns>The converted value</returns>
+        </member>
+        <member name="M:_3DTools.MeshTextureCoordinateConverter.Convert(System.Windows.Media.Media3D.MeshGeometry3D,System.Windows.Media.Media3D.Vector3D)">
+            <summary>
+                Subclasses should override this to do conversion
+            </summary>
+            <param name="mesh">The source mesh</param>
+            <param name="dir">The normalized direction parameter</param>
+            <returns></returns>
+        </member>
+        <member name="T:_3DTools.PlanarTextureCoordinateGenerator">
+            <summary>
+                IValueConverter that generates texture coordinates for a plane.
+            </summary>
+        </member>
+        <member name="T:_3DTools.SphericalTextureCoordinateGenerator">
+            <summary>
+                IValueConverter that generates texture coordinates for a sphere.
+            </summary>
+        </member>
+        <member name="T:_3DTools.CylindricalTextureCoordinateGenerator">
+            <summary>
+                IValueConverter that generates texture coordinates for a cylinder
+            </summary>
+        </member>
+        <member name="M:_3DTools.MeshUtils.GenerateCylindricalTextureCoordinates(System.Windows.Media.Media3D.MeshGeometry3D,System.Windows.Media.Media3D.Vector3D)">
+            <summary>
+                Generates texture coordinates as if mesh were a cylinder.
+            
+                Notes: 
+                    1) v is flipped for you automatically
+                    2) 'mesh' is not modified. If you want the generated coordinates
+                       to be assigned to mesh, do:
+            
+                       mesh.TextureCoordinates = GenerateCylindricalTextureCoordinates(mesh, foo)
+            
+            </summary>
+            <param name="mesh">The mesh</param>
+            <param name="dir">The axis of rotation for the cylinder</param>
+            <returns>The generated texture coordinates</returns>
+        </member>
+        <member name="M:_3DTools.MeshUtils.GenerateSphericalTextureCoordinates(System.Windows.Media.Media3D.MeshGeometry3D,System.Windows.Media.Media3D.Vector3D)">
+            <summary>
+                Generates texture coordinates as if mesh were a sphere.
+            
+                Notes: 
+                    1) v is flipped for you automatically
+                    2) 'mesh' is not modified. If you want the generated coordinates
+                       to be assigned to mesh, do:
+            
+                       mesh.TextureCoordinates = GenerateSphericalTextureCoordinates(mesh, foo)
+            
+            </summary>
+            <param name="mesh">The mesh</param>
+            <param name="dir">The axis of rotation for the sphere</param>
+            <returns>The generated texture coordinates</returns>
+        </member>
+        <member name="M:_3DTools.MeshUtils.GeneratePlanarTextureCoordinates(System.Windows.Media.Media3D.MeshGeometry3D,System.Windows.Media.Media3D.Vector3D)">
+            <summary>
+                Generates texture coordinates as if mesh were a plane.
+            
+                Notes: 
+                    1) v is flipped for you automatically
+                    2) 'mesh' is not modified. If you want the generated coordinates
+                       to be assigned to mesh, do:
+            
+                       mesh.TextureCoordinates = GeneratePlanarTextureCoordinates(mesh, foo)
+            
+            </summary>
+            <param name="mesh">The mesh</param>
+            <param name="dir">The normal of the plane</param>
+            <returns>The generated texture coordinates</returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:_3DTools.MeshUtils.TransformPoints(System.Windows.Media.Media3D.Rect3D@,System.Windows.Media.Media3D.Point3DCollection,System.Windows.Media.Media3D.Vector3D@)" -->
+        <member name="T:_3DTools.HitTestEdge">
+            <summary>
+            Helper class that encapsulates return data needed for the
+            hit test capture methods.
+            </summary>
+        </member>
+        <member name="M:_3DTools.HitTestEdge.#ctor(System.Windows.Media.Media3D.Point3D,System.Windows.Media.Media3D.Point3D,System.Windows.Point,System.Windows.Point)">
+            <summary>
+            Constructs a new hit test edge
+            </summary>
+            <param name="p1">First edge point</param>
+            <param name="p2">Second edge point</param>
+            <param name="uv1">Texture coordinate of first edge point</param>
+            <param name="uv2">Texture coordinate of second edge point</param>
+        </member>
+        <member name="M:_3DTools.HitTestEdge.Project(System.Windows.Media.Media3D.Matrix3D)">
+            <summary>
+            Projects the stored 3D points in to 2D.
+            </summary>
+            <param name="objectToViewportTransform">The transformation matrix to use</param>
+        </member>
+        <member name="T:_3DTools.InteractiveVisual3D">
+            <summary>
+            The InteractiveModelVisual3D class represents a model visual 3D that can 
+            be interacted with.  The class adds some properties that make it easy
+            to construct an interactive 3D object (geometry and visual), and also makes
+            it so those Visual3Ds that want to be interactive can explicitly state this
+            via their type.
+            </summary>
+        </member>
+        <member name="M:_3DTools.InteractiveVisual3D.#ctor">
+            <summary>
+            Constructs a new InteractiveModelVisual3D
+            </summary>
+        </member>
+        <member name="M:_3DTools.InteractiveVisual3D.OnPropertyChanged(System.Windows.DependencyPropertyChangedEventArgs)">
+            <summary>
+            When a property of the IMV3D changes we play it safe and invalidate the saved
+            corner cache.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="M:_3DTools.InteractiveVisual3D.GetVisualEdges(System.Windows.Point[])">
+            <summary>
+            Gets the visual edges that correspond to the passed in texture coordinates of interest.
+            </summary>
+            <param name="texCoordsOfInterest">The texture coordinates whose edges should be found</param>
+            <returns>The visual edges corresponding to the given texture coordinates</returns>
+        </member>
+        <member name="M:_3DTools.InteractiveVisual3D.GrabValidEdges(System.Windows.Point[])">
+            <summary>
+            Function takes the passed in list of texture coordinate points, and then finds the 
+            visible outline of the rectangle specified by those points and returns it.
+            </summary>
+            <param name="tc">The points specifying the rectangle to search for</param>
+            <returns>The edges of that rectangle</returns>
+        </member>
+        <member name="M:_3DTools.InteractiveVisual3D.ProcessTriangle(System.Windows.Media.Media3D.Point3D[],System.Windows.Point[],System.Windows.Point[],System.Collections.Generic.List{_3DTools.HitTestEdge},System.Collections.Generic.Dictionary{_3DTools.InteractiveVisual3D.Edge,_3DTools.InteractiveVisual3D.EdgeInfo},System.Windows.Media.Media3D.Point3D)">
+            <summary>
+            Processes the passed in triangle by checking to see if it is facing the camera and if
+            so searches to see if the texture coordinate edges intersect it.  It also looks
+            to see if there are any silhouette edges and processes these as well.
+            </summary>
+            <param name="p">The triangle's vertices</param>
+            <param name="uv">The texture coordinates for those vertices</param>   
+            <param name="tc">The texture coordinate edges to intersect with</param>
+            <param name="edgeList">The edge list that results should be placed on</param>
+            <param name="adjInformation">The adjacency information for the mesh</param>
+        </member>
+        <member name="M:_3DTools.InteractiveVisual3D.ProcessVisualBoundsIntersections(System.Windows.Media.Media3D.Point3D[],System.Windows.Point[],System.Windows.Point[],System.Collections.Generic.List{_3DTools.HitTestEdge})">
+            <summary>
+            Function intersects the edges specified by tc with the texture coordinates
+            on the passed in triangle.  If there are any intersections, the edges
+            of these intersections are added to the edgelist
+            </summary>
+            <param name="p">The vertices of the triangle</param>
+            <param name="uv">The texture coordinates for that triangle</param>
+            <param name="tc">The texture coordinate edges to be intersected against</param>
+            <param name="edgeList">The list of edges any intersecte edges should be added to</param>
+        </member>
+        <member name="M:_3DTools.InteractiveVisual3D.IsPointInTriangle(System.Windows.Point,System.Windows.Point[],System.Windows.Media.Media3D.Point3D[],System.Windows.Media.Media3D.Point3D@)">
+            <summary>
+            Function tests to see if the given texture coordinate point p is contained within the 
+            given triangle.  If it is it returns the 3D point corresponding to that intersection.
+            </summary>
+            <param name="p">The point to test</param>
+            <param name="triUVVertices">The texture coordinates of the triangle</param>
+            <param name="tri3DVertices">The 3D coordinates of the triangle</param>
+            <param name="inters3DPoint">The 3D point of intersection</param>
+            <returns>True if the point is in the triangle, false otherwise</returns>
+        </member>
+        <member name="M:_3DTools.InteractiveVisual3D.HandleCoincidentLines(System.Windows.Point,System.Windows.Point,System.Windows.Media.Media3D.Point3D,System.Windows.Media.Media3D.Point3D,System.Windows.Point,System.Windows.Point,System.Collections.Generic.List{_3DTools.HitTestEdge})">
+            <summary>
+            Handles adding an edge when the two line segments are coincident.
+            </summary>
+            <param name="visUV1">The texture coordinates of the boundary edge</param>
+            <param name="visUV2">The texture coordinates of the boundary edge</param>
+            <param name="tri3D1">The 3D coordinate of the triangle edge</param>
+            <param name="tri3D2">The 3D coordinates of the triangle edge</param>
+            <param name="triUV1">The texture coordinates of the triangle edge</param>
+            <param name="triUV2">The texture coordinates of the triangle edge</param>
+            <param name="edgeList">The edge list to add to</param>
+        </member>
+        <member name="M:_3DTools.InteractiveVisual3D.IntersectRayLine(System.Windows.Point,System.Windows.Vector,System.Windows.Point,System.Windows.Point,System.Boolean@)">
+            <summary>
+            Intersects a ray with the line specified by the passed in end points.  The parameterized coordinate along the ray of
+            intersection is returned.  
+            </summary>
+            <param name="o">The ray origin</param>
+            <param name="d">The ray direction</param>
+            <param name="p1">First point of the line to intersect against</param>
+            <param name="p2">Second point of the line to intersect against</param>
+            <param name="coinc">Whether the ray and line are coincident</param>        
+            <returns>
+            The parameter along the ray of the point of intersection.
+            If the ray and line are parallel and not coincident, this will be -1.
+            </returns>
+        </member>
+        <member name="M:_3DTools.InteractiveVisual3D.ProcessTriangleEdges(System.Windows.Media.Media3D.Point3D[],System.Windows.Point[],System.Windows.Point[],_3DTools.InteractiveVisual3D.PolygonSide,System.Collections.Generic.List{_3DTools.HitTestEdge},System.Collections.Generic.Dictionary{_3DTools.InteractiveVisual3D.Edge,_3DTools.InteractiveVisual3D.EdgeInfo})">
+            <summary>
+            Processes the edges of the given triangle.  It does so by updating
+            the adjacency information based on the direction the polygon is facing.
+            If there is a silhouette edge found, then this edge is added to the list
+            of edges if it is within the texture coordinate bounds passed to the function.
+            </summary>
+            <param name="p">The triangle's vertices</param>
+            <param name="uv">The texture coordinates for those vertices</param>
+            <param name="tc">The texture coordinate edges being searched for</param>
+            <param name="polygonSide">Which side the polygon is facing (greateer than 0 front, less than 0 back)</param>
+            <param name="edgeList">The list of edges comprosing the visual outline</param>
+            <param name="adjInformation">The adjacency information structure</param>
+        </member>
+        <member name="M:_3DTools.InteractiveVisual3D.HandleSilhouetteEdge(System.Windows.Point,System.Windows.Point,System.Windows.Media.Media3D.Point3D,System.Windows.Media.Media3D.Point3D,System.Windows.Point[],System.Collections.Generic.List{_3DTools.HitTestEdge})">
+            <summary>
+            Handles intersecting a silhouette edge against the passed in texture coordinate 
+            bounds.  It behaves similarly to the case of intersection the bounds with a triangle 
+            except the testing order is switched.
+            </summary>
+            <param name="uv1">The texture coordinates of the edge</param>
+            <param name="uv2">The texture coordinates of the edge</param>
+            <param name="p3D1">The 3D point of the edge</param>
+            <param name="p3D2">The 3D point of the edge</param>
+            <param name="bounds">The texture coordinate bounds</param>
+            <param name="edgeList">The list of edges</param>
+        </member>
+        <member name="M:_3DTools.InteractiveVisual3D.IsPointInPolygon(System.Windows.Point[],System.Windows.Point)">
+            <summary>
+            Function tests to see whether the point p is contained within the polygon
+            specified by the list of points passed to the function.  p is considered within
+            this polygon if it is on the same side of all the edges.  A point on any of
+            the edges of the polygon is not considered within the polygon.
+            </summary>
+            <param name="polygon">The polygon to test against</param>
+            <param name="p">The point to be tested against</param>
+            <returns>Whether the point is in the polygon</returns>
+        </member>
+        <member name="M:_3DTools.InteractiveVisual3D.GenerateMaterial">
+            <summary>
+            GenerateMaterial creates the material for the InteractiveModelVisual3D.  The
+            material is composed of the Visual, which is displayed on a VisualBrush on a 
+            DiffuseMaterial, as well as any post materials which are also applied.
+            </summary>
+        </member>
+        <member name="M:_3DTools.InteractiveVisual3D.CreateVisualBrush">
+            <summary>
+            Creates the VisualBrush that will be used to hold the interactive
+            2D content.
+            </summary>
+            <returns>The VisualBrush to hold the interactive 2D content</returns>
+        </member>
+        <member name="M:_3DTools.InteractiveVisual3D.SwapInVisualBrush(System.Windows.Media.Media3D.Material)">
+            <summary>
+            Replaces any instances of the sentinal brush with the internal visual brush
+            </summary>
+            <param name="material">The material to look through</param>
+        </member>
+        <member name="F:_3DTools.InteractiveVisual3D.VisualProperty">
+            <summary>
+            The visual applied to the VisualBrush, which is then used on the 3D object
+            </summary>
+        </member>
+        <member name="F:_3DTools.InteractiveVisual3D.IsBackVisibleProperty">
+            <summary>
+            The BackFaceVisibleProperty specifies whether or not the back face of the 3D object
+            should be considered visible.  If it is then when generating the material, the back material
+            is also set.
+            </summary>
+        </member>
+        <member name="F:_3DTools.InteractiveVisual3D._defaultMaterialPropertyValue">
+            <summary>
+            The emissive color of the material
+            </summary>
+        </member>
+        <member name="F:_3DTools.InteractiveVisual3D.GeometryProperty">
+            <summary>
+            The 3D geometry that the InteractiveModelVisual3D represents
+            </summary>
+        </member>
+        <member name="F:_3DTools.InteractiveVisual3D.IsInteractiveMaterialProperty">
+            <summary>
+            The attached dependency property used to indicate whether a material should be made
+            interactive.
+            </summary>
+        </member>
+        <member name="P:_3DTools.InteractiveVisual3D.InternalVisual">
+            <summary>
+            The actual visual being placed on the brush.
+            so that the patterns on visuals caused by tabbing, etc... work, 
+            we wrap the Visual DependencyProperty in a AdornerDecorator.
+            </summary>
+        </member>
+        <member name="P:_3DTools.InteractiveVisual3D.InternalVisualBrush">
+            <summary>
+            The visual brush that the internal visual is contained on.
+            </summary>
+        </member>
+        <member name="P:_3DTools.InteractiveVisual3D.Content">
+            <summary>
+            Done so that the Content property is not serialized and not visible by a visual designer
+            </summary>
+        </member>
+        <member name="T:_3DTools.InteractiveVisual3D.Edge">
+            <summary>
+            Helper structure to represent an edge
+            </summary>
+        </member>
+        <member name="T:_3DTools.InteractiveVisual3D.EdgeInfo">
+            <summary>
+            Information about an edge such as whether it belongs to a front/back facing
+            triangle, the texture coordinates for the edge, and how many polygons refer
+            to that edge.
+            </summary>
+        </member>
+        <member name="T:_3DTools.VisualDecorator">
+            <summary>
+            The VisualDecorator class simply holds one Visual as a child.  It is used
+            to provide a bridge between the AdornerDecorator and the Visual that 
+            is intended to be placed on the 3D mesh.  The reason being that AdornerDecorator
+            only takes a UIElement as a child - so in the case that a Visual (non UI/FE) 
+            is to be placed on the 3D mesh, a VisualDecorator is needed to provide that
+            bridge.
+            </summary>
+        </member>
+        <member name="M:_3DTools.VisualDecorator.GetVisualChild(System.Int32)">
+            <summary>
+            Returns the child at the specified index.
+            </summary>
+        </member>
+        <member name="P:_3DTools.VisualDecorator.Content">
+            <summary>
+            The content/child of the VisualDecorator.
+            </summary>
+        </member>
+        <member name="P:_3DTools.VisualDecorator.VisualChildrenCount">
+            <summary>
+            Returns the number of Visual children this element has.
+            </summary>
+        </member>
+        <member name="P:_3DTools.VisualDecorator.LogicalChildren">
+            <summary> 
+            Returns an enumertor to this element's logical children
+            </summary>
+        </member>
+        <member name="T:_3DTools.ScreenSpaceLines3D">
+            <summary>
+                ScreenSpaceLines3D are a 3D line primitive whose thickness
+                is constant in 2D space post projection.
+            
+                This means that the lines do not become foreshortened as
+                they receed from the camera as other 3D primitives do under
+                a typical perspective projection.
+            
+                Example Usage:
+            
+                &lt;tools:ScreenSpaceLines3D
+                    Points="0,0,0 0,1,0 0,1,0 1,1,0 1,1,0 0,0,1"
+                    Thickness="5" Color="Red"&gt;
+            
+                "Screen space" is a bit of a misnomer as the line thickness
+                is specified in the 2D coordinate system of the container
+                Viewport3D, not the screen.
+            </summary>
+        </member>
+        <member name="T:_3DTools.Trackball">
+            <summary>
+                Trackball is a utility class which observes the mouse events
+                on a specified FrameworkElement and produces a Transform3D
+                with the resultant rotation and scale.
+            
+                Example Usage:
+            
+                    Trackball trackball = new Trackball();
+                    trackball.EventSource = myElement;
+                    myViewport3D.Camera.Transform = trackball.Transform;
+            
+                Because Viewport3Ds only raise events when the mouse is over the
+                rendered 3D geometry (as opposed to not when the mouse is within
+                the layout bounds) you usually want to use another element as 
+                your EventSource.  For example, a transparent border placed on
+                top of your Viewport3D works well:
+                
+                    <Grid>
+                      <ColumnDefinition />
+                      <RowDefinition />
+                      <Viewport3D Name="myViewport" ClipToBounds="True" Grid.Row="0" Grid.Column="0" />
+                      <Border Name="myElement" Background="Transparent" Grid.Row="0" Grid.Column="0" />
+                    </Grid>
+                
+                NOTE: The Transform property may be shared by multiple Cameras
+                      if you want to have auxilary views following the trackball.
+            
+                      It can also be useful to share the Transform property with
+                      models in the scene that you want to move with the camera.
+                      (For example, the Trackport3D's headlight is implemented
+                      this way.)
+            
+                      You may also use a Transform3DGroup to combine the
+                      Transform property with additional Transforms.
+            </summary> 
+        </member>
+        <member name="P:_3DTools.Trackball.Transform">
+            <summary>
+                A transform to move the camera or scene to the trackball's
+                current orientation and scale.
+            </summary>
+        </member>
+        <member name="P:_3DTools.Trackball.EventSource">
+            <summary>
+                The FrameworkElement we listen to for mouse events.
+            </summary>
+        </member>
+        <member name="T:_3DTools.Viewport3DDecorator">
+            <summary>
+            This class enables a Viewport3D to be enhanced by allowing UIElements to be placed 
+            behind and in front of the Viewport3D.  These can then be used for various enhancements.  
+            For examples see the Trackball, or InteractiveViewport3D.
+            </summary>
+        </member>
+        <member name="M:_3DTools.Viewport3DDecorator.#ctor">
+            <summary>
+            Creates the Viewport3DDecorator
+            </summary>
+        </member>
+        <member name="M:_3DTools.Viewport3DDecorator.BindToContentsWidthHeight(System.Windows.UIElement)">
+            <summary>
+            Data binds the (Max/Min)Width and (Max/Min)Height properties to the same
+            ones as the content.  This will make it so we end up being sized to be
+            exactly the same ActualWidth and ActualHeight as waht is below us.
+            </summary>
+            <param name="newContent">What to bind to</param>
+        </member>
+        <member name="M:_3DTools.Viewport3DDecorator.OnViewport3DDecoratorContentChange(System.Windows.UIElement,System.Windows.UIElement)">
+            <summary>
+            Extenders of Viewport3DDecorator can override this function to be notified
+            when the Content property changes
+            </summary>
+            <param name="oldContent">The old value of the Content property</param>
+            <param name="newContent">The new value of the Content property</param>
+        </member>
+        <member name="M:_3DTools.Viewport3DDecorator.GetVisualChild(System.Int32)">
+            <summary>
+            Returns the child at the specified index.
+            </summary>
+        </member>
+        <member name="M:_3DTools.Viewport3DDecorator.MeasureOverride(System.Windows.Size)">
+            <summary>
+            Updates the DesiredSize of the Viewport3DDecorator
+            </summary>
+            <param name="constraint">The "upper limit" that the return value should not exceed</param>
+            <returns>The desired size of the Viewport3DDecorator</returns>
+        </member>
+        <member name="M:_3DTools.Viewport3DDecorator.MeasurePreViewportChildren(System.Windows.Size)">
+            <summary>
+            Measures the size of all the PreViewportChildren.  If special measuring behavior is needed, this
+            method should be overridden.
+            </summary>
+            <param name="constraint">The "upper limit" on the size of an element</param>
+        </member>
+        <member name="M:_3DTools.Viewport3DDecorator.MeasurePostViewportChildren(System.Windows.Size)">
+            <summary>
+            Measures the size of all the PostViewportChildren.  If special measuring behavior is needed, this
+            method should be overridden.
+            </summary>
+            <param name="constraint">The "upper limit" on the size of an element</param>
+        </member>
+        <member name="M:_3DTools.Viewport3DDecorator.MeasureUIElementCollection(System.Windows.Controls.UIElementCollection,System.Windows.Size)">
+            <summary>
+            Measures all of the UIElements in a UIElementCollection
+            </summary>
+            <param name="collection">The collection to measure</param>
+            <param name="constraint">The "upper limit" on the size of an element</param>
+        </member>
+        <member name="M:_3DTools.Viewport3DDecorator.ArrangeOverride(System.Windows.Size)">
+            <summary>
+            Arranges the Pre and Post Viewport children, and arranges itself
+            </summary>
+            <param name="arrangeSize">The final size to use to arrange itself and its children</param>
+        </member>
+        <member name="M:_3DTools.Viewport3DDecorator.ArrangePreViewportChildren(System.Windows.Size)">
+            <summary>
+            Arranges all the PreViewportChildren.  If special measuring behavior is needed, this
+            method should be overridden.
+            </summary>
+            <param name="arrangeSize">The final size to use to arrange each child</param>
+        </member>
+        <member name="M:_3DTools.Viewport3DDecorator.ArrangePostViewportChildren(System.Windows.Size)">
+            <summary>
+            Arranges all the PostViewportChildren.  If special measuring behavior is needed, this
+            method should be overridden.
+            </summary>
+            <param name="arrangeSize">The final size to use to arrange each child</param>
+        </member>
+        <member name="M:_3DTools.Viewport3DDecorator.ArrangeUIElementCollection(System.Windows.Controls.UIElementCollection,System.Windows.Size)">
+            <summary>
+            Arranges all the UIElements in the passed in UIElementCollection
+            </summary>
+            <param name="collection">The collection that should be arranged</param>
+            <param name="constraint">The final size that element should use to arrange itself and its children</param>
+        </member>
+        <member name="P:_3DTools.Viewport3DDecorator.Content">
+            <summary>
+            The content/child of the Viewport3DDecorator.  A Viewport3DDecorator only has one
+            child and this child must be either another Viewport3DDecorator or a Viewport3D.
+            </summary>
+        </member>
+        <member name="P:_3DTools.Viewport3DDecorator.Viewport3D">
+            <summary>
+            Property to get the Viewport3D that is being enhanced.
+            </summary>
+        </member>
+        <member name="P:_3DTools.Viewport3DDecorator.PreViewportChildren">
+            <summary>
+            The UIElements that occur before the Viewport3D
+            </summary>
+        </member>
+        <member name="P:_3DTools.Viewport3DDecorator.PostViewportChildren">
+            <summary>
+            The UIElements that occur after the Viewport3D
+            </summary>
+        </member>
+        <member name="P:_3DTools.Viewport3DDecorator.VisualChildrenCount">
+            <summary>
+            Returns the number of Visual children this element has.
+            </summary>
+        </member>
+        <member name="P:_3DTools.Viewport3DDecorator.LogicalChildren">
+            <summary> 
+            Returns an enumertor to this element's logical children
+            </summary>
+        </member>
+        <member name="P:_3DTools.TrackballDecorator.Transform">
+            <summary>
+                A transform to move the camera or scene to the trackball's
+                current orientation and scale.
+            </summary>
+        </member>
+        <member name="T:_3DTools.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:_3DTools.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:_3DTools.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="T:_3DTools.Matrix3DStack">
+            <summary>
+                Matrix3DStack is a stack of Matrix3Ds.
+            </summary>
+        </member>
+        <member name="T:_3DTools.Interactive3DDecorator">
+            <summary>
+            Class causes a Viewport3D to become interactive.  To cause the interactivity,
+            a hidden visual, corresponding to the Visual being interacted with, is placed
+            on the PostViewportChildren layer, and is then interacted with, giving the illusion
+            of interacting with the 3D object.
+            </summary>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.#ctor">
+            <summary>
+            Constructs the InteractiveViewport3D
+            </summary>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.MeasurePostViewportChildren(System.Windows.Size)">
+            <summary>
+            We want our visuals to size themselves to their desired size, so we impose no
+            constraint on them when measuring.
+            </summary>
+            <param name="Constraint"></param>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.ArrangePostViewportChildren(System.Windows.Size)">
+            <summary>
+            The hidden visuals are all set at their desired size.  The passed in 
+            arrangeSize is ignored.
+            </summary>
+            <param name="arrangeSize"></param>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.OnPreviewDragOver(System.Windows.DragEventArgs)">
+            <summary>
+            When a drag is in progress we do the same hit testing as in a 
+            regular mouse move, except we need to scale up the hidden visual
+            to "correct" for how mouse positions are calculated during a drag
+            and drop operation.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.OnDragOver(System.Windows.DragEventArgs)">
+            <summary>
+            Although the InteractiveViewport3D sets the AllowDrop flag to true
+            so that it can intercept preview drag moves, it doesn't actually
+            do anything with drag+drop, so if a DragOver event ever reaches us
+            set the effects to be none.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.OnDragEnter(System.Windows.DragEventArgs)">
+            <summary>
+            Although the InteractiveViewport3D sets the AllowDrop flag to true
+            so that it can intercept preview drag moves, it doesn't actually
+            do anything with drag+drop, so if a OnDragEnter event ever reaches us
+            set the effects to be none.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.OnPreviewMouseMove(System.Windows.Input.MouseEventArgs)">
+            <summary>
+            On a mouse move, we hit test the Viewport3D, and arrange the hidden visuals
+            to be in the correct locations.  This function is the core event that needs
+            to be handled so that the InteractiveViewport3D works.
+            </summary>
+            <param name="e">The mouse event arguments</param>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.ArrangeHiddenVisual(System.Windows.Point,System.Boolean)">
+            <summary>
+            Arranges the hidden visuals so that interactivity is achieved.
+            </summary>
+            <param name="mouseposition">The location of the mouse</param>
+            <returns>Whether a mouse resynch is necessary</returns>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.HandleMouseCaptureButOffMesh(_3DTools.InteractiveVisual3D,System.Windows.Point)">
+            <summary>
+            Function to deal with mouse capture when off the mesh.
+            </summary>
+            <param name="imv3DHit">The model hit</param>
+            <param name="mousePos">The location of the mouse</param>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.FindClosestIntersection(System.Windows.Point,System.Collections.Generic.List{_3DTools.HitTestEdge},_3DTools.InteractiveVisual3D)">
+            <summary>
+            Finds the point in edges that is closest ot the mouse position.  Updates closestIntersectionInfo
+            with the results of this calculation
+            </summary>
+            <param name="mousePos">The mouse position</param>
+            <param name="edges">The edges to test against</param>
+            <param name="imv3DHit">The model that has the visual on it with capture</param>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.InteractiveMV3DFilter(System.Windows.DependencyObject)">
+            <summary>
+            Filter for hit testing.  In the case that the hidden visual has capture
+            then all Visual3Ds are skipped except for the one it is on.  This gives the 
+            same behavior as capture in the 2D case.
+            </summary>
+            <param name="o"></param>
+            <returns></returns>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.UpdateHiddenVisual(_3DTools.Interactive3DDecorator.ClosestIntersectionInfo,System.Windows.Point,System.Boolean)">
+            <summary>
+            This function sets the passed in uiElem as the hidden visual, and aligns
+            it so that the point the uv coordinates map to on the visual are located
+            at the same location as mousePos.
+            </summary>
+            <param name="uiElem">The UIElement that should be the hidden visual</param>
+            <param name="uv">The uv coordinates on that UIElement that should be aligned with mousePos</param>
+            <param name="mousePos">The mouse location</param>
+            <param name="scaleHiddenVisual">Whether to scale the visual in addition to moving it</param>
+            <returns></returns>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.PositionHiddenVisual(System.Double,System.Double,System.Double,System.Windows.Point)">
+            <summary>
+            Positions the hidden visual based upon the offset and scale specified.
+            </summary>
+            <param name="newOffsetX">The new hidden visual x offset</param>
+            <param name="newOffsetY">The new hidden visual y offset</param>
+            <param name="newScale">The new scale to perform on the visual</param>
+            <param name="mousePosition">The position of the mouse</param>
+            <returns>Whether the new offset/scale was different than the previous</returns>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.TextureCoordsToVisualCoords(System.Windows.Point,System.Windows.UIElement)">
+            <summary>
+            Converts a point given in texture coordinates to the corresponding
+            2D point on the UIElement passed in.
+            </summary>
+            <param name="uv">The texture coordinate to convert</param>
+            <param name="uiElem">The UIElement whose coordinate system is to be used</param>
+            <returns>
+            The 2D point on the passed in UIElement cooresponding to the
+            passed in texture coordinate. 
+            </returns>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.VisualCoordsToTextureCoords(System.Windows.Point,System.Windows.UIElement)">
+            <summary>
+            Converts a point on the passed in UIElement to the corresponding
+            texture coordinate for that point.  The function assumes (0, 0)
+            is the upper-left texture coordinate and (1,1) is the lower-right.
+            </summary>
+            <param name="pt">The 2D point on the passed in UIElement to convert</param>
+            <param name="uiElem">The UIElement whose coordinate system is being used</param>
+            <returns>
+            The texture coordinate corresponding to the 2D point on the passed in UIElement
+            </returns>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.OnRenderSizeChanged(System.Windows.SizeChangedInfo)">
+            <summary>
+            we want to keep the _oldKeyboardFocusVisual and _oldHiddenVisual off screen at all 
+            times so that they can't be interacted with.  This method is overridden to know
+            when the size of the Viewport3D changes so that we can always keep the above two
+            hidden visuals off screen
+            </summary>
+            <param name="info"></param>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.HTResult(System.Windows.Media.HitTestResult)">
+            <summary>
+            The HTResult function simply takes the intersection closest to the origin and
+            and stores the intersection info for that closest intersection point.
+            </summary>
+            <param name="rawresult"></param>
+            <returns></returns>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.GetIntersectionInfo(System.Windows.Media.Media3D.RayHitTestResult)">
+            <summary>
+            Returns the intersection info for the given rayHitResult.  Intersection info
+            only exists for an InteractiveModelVisual3D, so if an InteractiveModelVisual3D
+            is not hit, then the return value is null.
+            </summary>
+            <param name="rayHitResult"></param>
+            <returns>
+            Returns ClosestIntersectionInfo if an InteractiveModelVisual3D is hit, otherwise
+            returns null.
+            </returns>
+        </member>
+        <member name="F:_3DTools.Interactive3DDecorator.DebugProperty">
+            <summary>
+            The following DP allows for the debugging of InteractiveViewport3D by making the
+            hidden visual no longer transparent, and also draws all of the edges created during 
+            capture.
+            </summary>
+        </member>
+        <member name="F:_3DTools.Interactive3DDecorator.ContainsInkProperty">
+            <summary>
+            The following DP indicates whether any of the 3D objects within the
+            Viewport3D will have 2D visuals with ink on them - special processing
+            is required in this case.
+            </summary>
+        </member>
+        <member name="T:_3DTools.Interactive3DDecorator.DebugEdgesAdorner">
+            <summary>
+            The DebugEdgesAdorner enables the edges returned when the mouse is captured
+            to be visualized on screen in order to debug where they are, and verify
+            it is working correctly.
+            </summary>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.DebugEdgesAdorner.#ctor(System.Windows.UIElement,System.Collections.Generic.List{_3DTools.HitTestEdge})">
+            <summary>
+            Constructs the DebugEdgesAdorner class
+            </summary>
+            <param name="adornedElement">The element being adorned</param>
+            <param name="edges">The edges that are to be displayed</param>
+        </member>
+        <member name="M:_3DTools.Interactive3DDecorator.DebugEdgesAdorner.OnRender(System.Windows.Media.DrawingContext)">
+            <summary>
+            Draws all of the edges.
+            </summary>
+            <param name="drawingContext"></param>
+        </member>
+        <member name="T:_3DTools.Interactive3DDecorator.ClosestIntersectionInfo">
+            <summary>
+            The ClosestIntersectionInfo class is a wrapper class that contains all the 
+            information necessary to process an intersection with an InteractiveModelVisual3D
+            </summary>
+        </member>
+    </members>
+</doc>

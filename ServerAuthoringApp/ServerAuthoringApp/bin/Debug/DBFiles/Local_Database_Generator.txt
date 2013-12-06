@@ -1,0 +1,132 @@
+USE [DATABASENAME]
+GO
+/****** Object:  Role [MSmerge_PAL_role]    Script Date: 06/27/2011 11:01:51 ******/
+CREATE ROLE [MSmerge_PAL_role] AUTHORIZATION [dbo]
+GO
+/****** Object:  Schema [MSmerge_PAL_role]    Script Date: 06/27/2011 11:01:51 ******/
+CREATE SCHEMA [MSmerge_PAL_role] AUTHORIZATION [dbo]
+GO
+/****** Object:  Table [dbo].[MetadataTable]    Script Date: 06/27/2011 11:01:51 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MetadataTable](
+	[DoqID] [uniqueidentifier] NULL,
+	[CreatorID] [uniqueidentifier] NULL,
+	[Name] [nvarchar](max) NULL,
+	[Value] [nvarchar](max) NULL,
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[LinqTable]    Script Date: 06/27/2011 11:01:51 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[LinqTable](
+	[ID] [uniqueidentifier] NULL,
+	[CreatorID] [uniqueidentifier] NULL,
+	[Created] [datetime] NULL,
+	[Target1] [nvarchar](max) NULL,
+	[Target2] [nvarchar](max) NULL,
+	[Offset] [nvarchar](max) NULL,
+	[Narrative] [uniqueidentifier] NULL,
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MarkupsTable]    Script Date: 07/01/2011 13:48:17 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_PADDING ON
+GO
+CREATE TABLE [dbo].[MarkupsTable](
+	[DoqID] [uniqueidentifier] NULL,
+	[CreatorID] [uniqueidentifier] NULL,
+	[VersionID] [uniqueidentifier] NULL,
+	[InitialVersionID] [uniqueidentifier] NULL,
+	[Markups] [nvarchar](max) NULL,
+	[Timestamp] [datetime] NULL
+) ON [PRIMARY]
+GO
+SET ANSI_PADDING OFF
+GO
+/****** Object:  Table [dbo].[LinqMetadataTable]    Script Date: 06/27/2011 11:01:51 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[LinqMetadataTable](
+	[LinqID] [uniqueidentifier] NULL,
+	[CreatorID] [uniqueidentifier] NULL,
+	[Name] [nvarchar](max) NULL,
+	[Value] [nvarchar](max) NULL,
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[KeywordsTable]    Script Date: 06/27/2011 11:01:51 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[KeywordsTable](
+	[DoqId] [uniqueidentifier] NULL,
+	[CreatorID] [uniqueidentifier] NULL,
+	[Name] [nvarchar](max) NULL,
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[FolderTable]    Script Date: 06/27/2011 11:01:51 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[FolderTable](
+	[DoqID] [uniqueidentifier] NULL,
+	[CreatorID] [uniqueidentifier] NULL,
+	[FolderID] [uniqueidentifier] NULL,
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[DoqTable]    Script Date: 06/27/2011 11:01:51 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_PADDING ON
+GO
+CREATE TABLE [dbo].[DoqTable](
+	[ID] [uniqueidentifier] NOT NULL,
+	[CreatorID] [uniqueidentifier] NULL,
+	[Name] [nvarchar](max) NULL,
+	[PrototypeID] [uniqueidentifier] NULL,
+	[URL] [nvarchar](max) NULL,
+	[Type] [nvarchar](max) NULL,
+	[Extension] [nvarchar](max) NULL,
+	[Thumbnail] [varbinary](max) NULL,
+ CONSTRAINT [PK_DoqTable] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+SET ANSI_PADDING OFF
+GO
+/****** Object:  Table [dbo].[DoqDataTable]    Script Date: 07/07/2011 11:23:04 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_PADDING OFF
+GO
+CREATE TABLE [dbo].[DoqDataTable](
+	[TheDoq] [varbinary](max) NULL,
+	[PreviewImage] [varbinary](max) NULL,
+	[DoqID] [uniqueidentifier] NULL,
+	[VersionID] [uniqueidentifier] NULL,
+	[InitialVersionID] [uniqueidentifier] NULL,
+	[CreatorID] [uniqueidentifier] NULL,
+	[Timestamp] [datetime] NULL,
+	[Dirty] [bit] NULL,
+	[SearchableText] [nvarchar](max) NULL
+) ON [PRIMARY]
+GO
+SET ANSI_PADDING OFF
+GO
