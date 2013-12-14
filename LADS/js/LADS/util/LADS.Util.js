@@ -1,11 +1,10 @@
-﻿
-var LADS = LADS || {};
+﻿var LADS = LADS || {};
 
 //LADS Utilities
 LADS.Util = (function () {
     "use strict";
 
-    var applicationData = Windows.Storage.ApplicationData.current;
+    //var applicationData = Windows.Storage.ApplicationData.current;
 
     //Hilarious that this is necessary.
     var alphabet = new Array(
@@ -18,8 +17,8 @@ LADS.Util = (function () {
     return {
         makeNamespace: namespace,
         setToDefaults: setToDefaults,
-        localSettings: applicationData.localSettings,
-        localFolder: applicationData.localFolder,
+        //localSettings: applicationData.localSettings,
+        //localFolder: applicationData.localFolder,
         getGestureRecognizer: getGestureRecognizer,
         makeXmlRequest: makeXmlRequest,
         makeManipulatable: makeManipulatable,

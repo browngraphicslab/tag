@@ -1,7 +1,6 @@
 ﻿
 (function () {
     "use strict";
-
     var UTILPATH = "js/";
     var UTILSCRIPTS = [         // the script filenames, in dependency order
         "raphael.js", // for easier svg manipulation (for inks)
@@ -33,7 +32,8 @@
         "utils/avltree.js",
         "utils/avlnode.js",
         "utils/binaryheap.js",
-        "utils/dataholder.js",		"utils/TwoStageTimer.js",        
+        "utils/dataholder.js",
+        "utils/TwoStageTimer.js",        
 		"utils/doubleLinkedList.js",
         "utils/hashtable.js",
         "d3/d3.v2.js",
@@ -118,6 +118,7 @@
         oHead.appendChild(oScript);
     }
     for (var i = 0; i < LADSSCRIPTS.length; i++) {
+        debugger;
         var oScript = document.createElement("script");
         oScript.type = "text/javascript";
         oScript.src = LADSPATH + LADSSCRIPTS[i];

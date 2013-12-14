@@ -2,6 +2,7 @@
 
 LADS.Layout.StartPage = function (options, startPageCallback, hideFirstPage) {
     "use strict";
+
     hideFirstPage = true; // FOR CERTIFICATION
     options = LADS.Util.setToDefaults(options, LADS.Layout.StartPage.default_options);
     var root = document.createElement('div');
@@ -22,6 +23,8 @@ LADS.Layout.StartPage = function (options, startPageCallback, hideFirstPage) {
     }
     var serverURL = 'http://' + (localStorage.ip ? localStorage.ip + ':8080' : "browntagserver.com:8080");
     console.log("checking server url: " + serverURL);
+
+    serverURL = "http://tagtestserver.cloudapp.net:8080";
 
     // double-ended priority queue testing 
     //var minComp = function (element) {
@@ -49,104 +52,36 @@ LADS.Layout.StartPage = function (options, startPageCallback, hideFirstPage) {
         p = { key: 78 },
         elements = [a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p];
 
-    // AVL tree testing
-    //var comparator = function (a, b) {
-    //    if (a.key < b.key) {
-    //        return -1;
-    //    } else if (a.key > b.key) {
-    //        return 1;
-    //    } else {
-    //        return 0;
-    //    }
-    //};
-
-    //var valuation = function (value, compareToNode) {
-    //    if (!compareToNode) {
-    //        return null;
-    //    } else if (value < compareToNode.key) {
-    //        return -1;
-    //    } else if (value > compareToNode.key) {
-    //        return 1;
-    //    } else {
-    //        return 0;
-    //    }
-    //}
-    
-    //var avltree = new AVLTree(comparator, valuation);
-    //for (var z = 0; z < elements.length; z++) {
-    //    avltree.add(elements[z]);
-    //}
-    //avltree.nearestNeighbors(52);
-    //avltree.nearestNeighbors(8);
-    //console.log(avltree.findNext(c).key);
-
-    //function test() {
-    //    var testArray = [];
-    //    testArray.push(1);
-    //    testArray.push(2);
-    //    testArray.push(3);
-    //    testArray.splice(0, 0, 4);
-    //    console.log(testArray);
-    //    return;
-    //}
-    //test();
-    
-    /*doubly linked list testing*/
-    //function testDLL() {
-    //    var dll1 = new DoublyLinkedList();
-    //    dll1.append(1);
-    //    dll1.append(2);
-    //    dll1.append(3);
-    //    dll1.prepend(0);
-    //    dll1.prepend(-1);
-    //    //dll1.printList();
-
-    //    dll1.remove(4);
-    //    dll1.printList();
-
-    //    dll1.remove(3);
-    //    dll1.printList();
-
-    //    dll1.remove(2);
-    //    dll1.printList();
-
-    //    dll1.remove(-1);
-    //    dll1.printList();
-
-    //    dll1.remove(5);
-    //    dll1.printList();
-
-    //    var dll2 = new DoublyLinkedList();
-    //    dll2.remove(0);
-    //    dll2.printList();
-    //    var dll3 = new DoublyLinkedList();
-    //} testDLL();
-
-
-
     // first test server connectivity, then internet connectivity
+
+    successConnecting();
+
+    function successConnecting() {
+        LADS.Worktop.Database.getMain(loadHelper, function () {
+            // TEMPORARY
+            $("body").empty();
+            $("body").append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
+        });
+        if (startPageCallback)
+            startPageCallback(root);
+        // if (!localStorage.acceptDataUsage && Windows.Networking.Connectivity.NetworkInformation.getInternetConnectionProfile() && Windows.Networking.Connectivity.NetworkInformation.getInternetConnectionProfile().getDataPlanStatus().dataLimitInMegabytes) {
+        //     $("body").append(new LADS.Layout.InternetFailurePage("Data Limit", true).getRoot());
+        // }
+    }
+
     $.ajax({
         url: serverURL,
         dataType: "text",
         async: true,
         cache: false,
         success: function () {
-            LADS.Worktop.Database.getMain(loadHelper, function () {
-                // TEMPORARY
-                $("body").empty();
-                $("body").append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
-            });
-            if (startPageCallback)
-                startPageCallback(root);
-            if (!localStorage.acceptDataUsage && Windows.Networking.Connectivity.NetworkInformation.getInternetConnectionProfile() && Windows.Networking.Connectivity.NetworkInformation.getInternetConnectionProfile().getDataPlanStatus().dataLimitInMegabytes) {
-                $("body").append(new LADS.Layout.InternetFailurePage("Data Limit", true).getRoot());
-            }
+            successConnecting();
         },
         error: function (err) {
             $.ajax({
-                url: "http://google.com",
+                url: "http://www.google.com/",
                 dataType: "text",
-                async: true,
+                async: false,
                 cache: false,
                 success: function () {
                     $("body").empty();
