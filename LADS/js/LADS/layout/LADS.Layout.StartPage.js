@@ -5,18 +5,18 @@ LADS.Layout.StartPage = function (options, startPageCallback, hideFirstPage) {
 
     hideFirstPage = true; // FOR CERTIFICATION
     options = LADS.Util.setToDefaults(options, LADS.Layout.StartPage.default_options);
-    var root = document.createElement('div');
-    var overlay = document.createElement('div');
-    var dialogOverlay = $(document.createElement('div'));
-    var passwdInput = $(document.createElement('input'));
-    var serverPasswdInput = $(document.createElement('input'));
-    var authoringTagBuffer = $(document.createElement('div'));
-    var authoringModeLabelContainer = $(document.createElement('div'));
-    var serverTagBuffer = $(document.createElement('div'));
-    var serverSetUpContainer = $(document.createElement('div'));
-    var serverDialogOverlay = $(document.createElement('div'));
-    var repository = options.repository;
-    var needPassword = false; //used to determine whether password input box appears
+    var root = document.createElement('div'),
+        overlay = document.createElement('div'),
+        dialogOverlay = $(document.createElement('div')),
+        passwdInput = $(document.createElement('input')),
+        serverPasswdInput = $(document.createElement('input')),
+        authoringTagBuffer = $(document.createElement('div')),
+        authoringModeLabelContainer = $(document.createElement('div')),
+        serverTagBuffer = $(document.createElement('div')),
+        serverSetUpContainer = $(document.createElement('div')),
+        serverDialogOverlay = $(document.createElement('div')),
+        repository = options.repository,
+        needPassword = false; //used to determine whether password input box appears
 
     if (localStorage.ip && localStorage.ip.indexOf(':') !== -1) {
         localStorage.ip = localStorage.ip.split(':')[0];
@@ -25,14 +25,6 @@ LADS.Layout.StartPage = function (options, startPageCallback, hideFirstPage) {
     console.log("checking server url: " + serverURL);
 
     serverURL = "http://tagtestserver.cloudapp.net:8080";
-
-    // double-ended priority queue testing 
-    //var minComp = function (element) {
-    //    return element.key;
-    //};
-    //var maxComp = function (element) {
-    //    return -1 * element.key;
-    //};
 
     var a = { key: 50 },
         b = { key: 17 },

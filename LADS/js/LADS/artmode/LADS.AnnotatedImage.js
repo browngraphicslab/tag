@@ -186,7 +186,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
         var canvas = that.viewer.canvas;
 
-        LADS.Util.makeManipulatableWin(canvas, {
+        LADS.Util.makeManipulatable(canvas, {
             onScroll: function (delta, pivot) {
                 dzScroll(delta, pivot);
             },
@@ -1170,7 +1170,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                     newhotspot.resizeControlElements();
                 }
             }
-            var gr = LADS.Util.makeManipulatableWin(currRoot, {
+            var gr = LADS.Util.makeManipulatable(currRoot, {
                 onManipulate: onManip,
                 onScroll: onScroll
             });

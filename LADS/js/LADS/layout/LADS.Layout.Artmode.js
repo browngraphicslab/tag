@@ -16,7 +16,6 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
     var root, doq, map, splitscreen, locsize, backButton,
         sideBar, toggler, togglerImage, locationHistoryDiv, info, //Need to be instance vars for splitscreen
         zoomimage = null,
-       // locationHistoryIcon,
         locationHistoryToggle,
         locationHistoryContainer,
         locationHistory,
@@ -753,7 +752,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             minimapContainer.append(minimap);
 
             //make the image manipulatable. 
-            var gr = LADS.Util.makeManipulatableWin(minimap[0],
+            var gr = LADS.Util.makeManipulatable(minimap[0],
             {
                 onManipulate: onMinimapManip,
                 onScroll: onMinimapScroll,
