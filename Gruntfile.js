@@ -6,7 +6,7 @@ module.exports = function(grunt) {
 					compress: false
 				},
 				files: {
-					// 'LADS/css/StartPage.css': 'LADS/css/StartPage.styl',
+					'LADS/css/StartPage.css': 'LADS/css/StartPage.styl',
 					// 'LADS/css/Artmode.css': 'LADS/css/Artmode.styl',
 					// 'LADS/css/NewCatalog.css': 'LADS/css/NewCatalog.styl',
 					// 'LADS/css/VideoPlayer.css': 'LADS/css/VideoPlayer.styl',
@@ -20,7 +20,7 @@ module.exports = function(grunt) {
 					pretty: true
 				},
 				files: {
-					// 'LADS/html/StartPage.html': 'LADS/html/StartPage.jade',
+					'LADS/html/StartPage.html': 'LADS/html/StartPage.jade',
 					// 'LADS/html/Artmode.html': 'LADS/html/Artmode.jade',
 					// 'LADS/html/NewCatalog.html': 'LADS/html/NewCatalog.jade',
 					// 'LADS/html/VideoPlayer.html': 'LADS/html/VideoPlayer.jade',
