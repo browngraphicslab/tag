@@ -83,7 +83,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         root = $(document.createElement('div'));
         root.addClass('root exhibition');
         root.css({
-            width: "100%", height: "100%", position: "relative",
+            width: "100%", height: "100%", position: "absolute",
             "background-color": "rgb(127,127,127)"
         });
 
