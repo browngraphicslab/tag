@@ -25,7 +25,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     }
     var serverURL = 'http://' + (localStorage.ip ? localStorage.ip + ':8080' : "browntagserver.com:8080");
 
-    serverURL = "http://tagtestserver.cloudapp.net:8080"; // HARD CODE TEST SERVER FOR NOW
+    //serverURL = "http://tagtestserver.cloudapp.net:8080"; // HARD CODE TEST SERVER FOR NOW
     console.log("checking server url: " + serverURL);
 
     var tagContainer = options.tagContainer || $('body');
