@@ -1,10 +1,12 @@
 ﻿LADS.Util.makeNamespace("LADS.Layout.StartPage");
 
-LADS.Layout.StartPage = function (options, startPageCallback, hideFirstPage) {
+LADS.Layout.StartPage = function (options, startPageCallback) {
     "use strict";
 
-    hideFirstPage = true; // FOR CERTIFICATION
     options = LADS.Util.setToDefaults(options, LADS.Layout.StartPage.default_options);
+    
+    options.tagContainer = $("#tagRoot");
+
     var root = document.createElement('div'),
         overlay = document.createElement('div'),
         dialogOverlay = $(document.createElement('div')),
@@ -22,70 +24,52 @@ LADS.Layout.StartPage = function (options, startPageCallback, hideFirstPage) {
         localStorage.ip = localStorage.ip.split(':')[0];
     }
     var serverURL = 'http://' + (localStorage.ip ? localStorage.ip + ':8080' : "browntagserver.com:8080");
-    console.log("checking server url: " + serverURL);
 
     serverURL = "http://tagtestserver.cloudapp.net:8080"; // HARD CODE TEST SERVER FOR NOW
+    console.log("checking server url: " + serverURL);
 
-    var a = { key: 50 },
-        b = { key: 17 },
-        c = { key: 17 },
-        d = { key: 72 },
-        e = { key: 12 },
-        f = { key: 23 },
-        g = { key: 10 },
-        h = { key: 15 },
-        i = { key: 19 },
-        j = { key: 25 },
-        k = { key: 54 },
-        l = { key: 52 },
-        m = { key: 67 },
-        n = { key: 76 },
-        o = { key: 74 },
-        p = { key: 78 },
-        elements = [a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p];
+    var tagContainer = options.tagContainer || $('body');
 
-    // first test server connectivity, then internet connectivity
+    testConnection();
 
-    successConnecting();
+    function testConnection(options) {
+        var internetURL = (options && options.internetURL) || "http://www.google.com/";
+        $.ajax({
+            url: serverURL,
+            dataType: "text",
+            async: true,
+            cache: false,
+            success: function () {
+                successConnecting();
+            },
+            error: function (err) {
+                $.ajax({  // TODO: not a good way to do this
+                    url: internetURL,
+                    dataType: "text",
+                    async: false,
+                    cache: false,
+                    success: function () {
+                        tagContainer.empty();
+                        tagContainer.append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
+                    },
+                    error: function (err) {
+                        tagContainer.empty();
+                        tagContainer.append((new LADS.Layout.InternetFailurePage("No Internet")).getRoot());
+                    }
+                });
+            }
+        });
+    }
 
     function successConnecting() {
         LADS.Worktop.Database.getMain(loadHelper, function () {
-            // TEMPORARY
-            $("body").empty();
-            $("body").append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
+            tagContainer.empty();
+            tagContainer.append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
         });
-        if (startPageCallback)
+        if (startPageCallback) {
             startPageCallback(root);
-        // if (!localStorage.acceptDataUsage && Windows.Networking.Connectivity.NetworkInformation.getInternetConnectionProfile() && Windows.Networking.Connectivity.NetworkInformation.getInternetConnectionProfile().getDataPlanStatus().dataLimitInMegabytes) {
-        //     $("body").append(new LADS.Layout.InternetFailurePage("Data Limit", true).getRoot());
-        // }
-    }
-
-    $.ajax({
-        url: serverURL,
-        dataType: "text",
-        async: true,
-        cache: false,
-        success: function () {
-            successConnecting();
-        },
-        error: function (err) {
-            $.ajax({
-                url: "http://www.google.com/",
-                dataType: "text",
-                async: false,
-                cache: false,
-                success: function () {
-                    $("body").empty();
-                    $("body").append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
-                },
-                error: function (err) {
-                    $("body").empty();
-                    $("body").append((new LADS.Layout.InternetFailurePage("No Internet")).getRoot());
-                }
-            });
         }
-    });
+    }
 
     var that = {};
 
@@ -571,223 +555,7 @@ LADS.Layout.StartPage = function (options, startPageCallback, hideFirstPage) {
             LADS.Util.UI.slidePageLeft(authoringMode.getRoot());
         }
 
-        // Uncomment following line if you want the startup window to always show
-        // localStorage.hideStartupWindow = "";
-
-        if (!hideFirstPage && !localStorage.hideStartupWindow) { // commented out for app store certification until we have server set-up package implemented
-
-            var firstOverlay = $(document.createElement('div'));
-            firstOverlay.css({
-                position: 'absolute',
-                left: '0px',
-                top: '0px',
-                width: '100%',
-                height: '100%',
-                'background-color': 'rgba(0,0,0,0.6)',
-                'z-index': 1000,
-            });
-            $(root).append(firstOverlay);
-
-            var box = $(document.createElement('div'));
-            box.css({
-                'height': '20%', // changed this from 60% CERTIFICATION
-                'width': '55%',
-                'position': 'absolute',
-                'top': '40%', // changed this from 20% CERTIFICATION
-                'left': '25%',
-                'background-color': 'black',
-                'border': '3px double white',
-            });
-            firstOverlay.append(box);
-
-            //var closeButton = $(document.createElement('img'));
-            //closeButton.attr('src', 'images/icons/x.svg');
-            //closeButton.css({
-            //    'position': 'absolute',
-            //    'right': '1%',
-            //    'top': '1%',
-            //    'width': '5%',
-            //    'height': 'auto',
-            //});
-            //closeButton.click(function () {
-            //    firstOverlay.detach();
-            //});
-            //box.append(closeButton);
-
-            var checkDiv = $(document.createElement('div'));
-            checkDiv.css({
-                'position': 'absolute',
-                'left': '4%',
-                'bottom': '2%',
-            });
-            var checkBox = $(document.createElement('input'));
-            checkBox.attr('type', 'checkbox');
-            checkBox.prop('checked', false);
-            checkBox.css({
-                '-ms-transform': 'scale(1.3)',
-
-            });
-            checkBox.click(function (evt) {
-                if (checkBox.prop('checked')) {
-                    localStorage.hideStartupWindow = "true";
-                } else {
-                    localStorage.hideStartupWindow = "";
-                }
-                evt.stopPropagation();
-            });
-            checkDiv.click(function () {
-                if (checkBox.prop('checked')) {
-                    localStorage.hideStartupWindow = "";
-                    checkBox.prop('checked', false);
-                } else {
-                    localStorage.hideStartupWindow = "true";
-                    checkBox.prop('checked', true);
-                }
-            });
-            var checkText = $(document.createElement('div'));
-            checkText.css({
-                'display': 'inline-block',
-                'font-size': '120%',
-            });
-            checkText.text("Don't show this menu again");
-            checkDiv.append(checkBox).append(checkText);
-            box.append(checkDiv);
-
-            var availSoonText = $(document.createElement('div'));
-            availSoonText.css({
-                'font-size': '120%',
-                'position': 'absolute',
-                'right': '1%',
-                'bottom': '2%',
-                'width': '50%',
-            });
-            availSoonText.html(
-                "TAG Server will be available for download shortly.  Contact us for server setup at <a href='mailto:brown.touchartgallery@outlook.com'>brown.touchartgallery@outlook.com</a>."
-                );
-            box.append(availSoonText);
-
-            var div1 = $(document.createElement('div'));
-            div1.css({
-                'position': 'absolute',
-                'top': '8%',
-                'left': '1%',
-                'width': '93%',
-                'height': '60%', //changed this from 22% while we only have one option CERTIFICATION
-                'color': 'white',
-            });
-            divHighlight(div1);
-            var goImage1 = $(document.createElement('img'));
-            goImage1.attr('src', 'images/back.svg');
-            goImage1.css({
-                'height': '44%',
-                'width': 'auto',
-                'position': 'absolute',
-                'right': '1%',
-                'top': '5%', // 28
-                '-ms-transform': 'scale(-1)',
-            });
-            div1.append(goImage1);
-            var title1 = $(document.createElement('label'));
-            title1.css({
-                'font-size': '250%',
-                'margin-left': '3%',
-                'width': '80%',
-            });
-            var sub1 = $(document.createElement('label'));
-            sub1.css({
-                'font-size': '160%',
-                'margin-left': '3%',
-                'width': '80%',
-            });
-            div1.append(title1).append('<br>').append(sub1);
-
-            var div2 = $(document.createElement('div'));
-            div2.css({
-                'position': 'absolute',
-                'top': '32%',
-                'left': '1%',
-                'width': '93%',
-                'height': '22%',
-                'color': 'gray',
-            });
-            //divHighlight(div2);
-            var goImage2 = $(document.createElement('img'));
-            goImage2.attr('src', 'images/Back_gray.svg');
-            goImage2.css({
-                'height': '44%',
-                'width': 'auto',
-                'position': 'absolute',
-                'right': '1%',
-                'top': '5%', // 28
-                '-ms-transform': 'scale(-1)',
-            });
-            div2.append(goImage2);
-            var title2 = $(document.createElement('label'));
-            title2.css({
-                'font-size': '250%',
-                'margin-left': '3%',
-                'width': '80%',
-            });
-            var sub2 = $(document.createElement('label'));
-            sub2.css({
-                'font-size': '160%',
-                'margin-left': '3%',
-                'width': '80%',
-            });
-            div2.append(title2).append('<br>').append(sub2);
-
-            var div3 = $(document.createElement('div'));
-            div3.css({
-                'position': 'absolute',
-                'top': '56%',
-                'left': '1%',
-                'width': '93%',
-                'height': '22%',
-                'color': 'gray',
-            });
-            //divHighlight(div3);
-            var goImage3 = $(document.createElement('img'));
-            goImage3.attr('src', 'images/Back_gray.svg');
-            goImage3.css({
-                'height': '44%',
-                'width': 'auto',
-                'position': 'absolute',
-                'right': '1%',
-                'top': '5%', // 28
-                '-ms-transform': 'scale(-1)',
-            });
-            div3.append(goImage3);
-            var title3 = $(document.createElement('label'));
-            title3.css({
-                'font-size': '250%',
-                'margin-left': '3%',
-                'width': '80%',
-            });
-            var sub3 = $(document.createElement('label'));
-            sub3.css({
-                'font-size': '160%',
-                'margin-left': '3%',
-                'width': '80%',
-            });
-            div3.append(title3).append('<br>').append(sub3);
-
-            title1.text('Try Out TAG Demo');
-            sub1.text('');
-            div1.click(function () {
-                firstOverlay.detach();
-                checkDataUsage();
-            });
-
-            title2.text('Set Up Your Own TAG Server');
-            sub2.text('');
-
-            title3.text('Connect to TAG Server');
-            sub3.text('');
-
-            box.append(div1);
-            //box.append(div2);
-            //box.append(div3);
-        }
+        
         function divHighlight(div) {
             div.mousedown(function () {
                 div.css({

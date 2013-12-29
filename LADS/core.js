@@ -10,6 +10,8 @@
 
     function init() {
 
+        var tagContainer = $('#tagRoot') || $("body"); // TODO more general
+
         //window.location = 'js/RIN/web/reload-test.html';
         //window.location = 'js/RIN/web/test.html';
         //window.location = 'js/RIN/web/index.html';
@@ -35,7 +37,7 @@
         //LADS.Worktop.Database.load();
         if (("" + page).toLowerCase() === "settings view") {
             //LADS.Worktop.Database.load();
-            $("body").append((new LADS.Authoring.NewSettingsView()).getRoot());
+            tagContainer.append((new LADS.Authoring.NewSettingsView()).getRoot());
         }
         else if (page) { // n.b. if your tour has the same name as an artwork, might fail
             //LADS.Worktop.Database.load();
@@ -45,13 +47,13 @@
                     if (tour.Name === page) {
                         LADS.Worktop.Database.getMain();
                         found = true;
-                        $('body').append((new LADS.Layout.TourAuthoringNew(tour)).getRoot());
+                        tagContainer.append((new LADS.Layout.TourAuthoringNew(tour)).getRoot());
                         return false;
                     }
                 });
                 if (!found) {
                     LADS.Layout.StartPage(null, function (x) {
-                        $("body").append(x);
+                        tagContainer.append(x);
                     });
                 }
             });
@@ -72,7 +74,7 @@
             //$("body").append((new LADS.Layout.StartPage()).getRoot());
             
             LADS.Layout.StartPage(null, function (page) {
-                $("body").append(page);
+                tagContainer.append(page);
             });
         }
         //$("body").append((new LADS.Layout.ArtworkEditor()).getRoot());

@@ -13,6 +13,8 @@ LADS.Util = (function () {
     'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
     'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
 
+    var tagContainer = $('#tagRoot') || $("body"); // TODO more general
+
     //LADS.Util public methods and members
     return {
         makeNamespace: namespace,
@@ -561,7 +563,7 @@ LADS.Util = (function () {
             'font-size': minFontSize + 'em',
         });
         testDiv.text(text);
-        $('body').append(testDiv);
+        tagContainer.append(testDiv);
 
         if (testDiv.width() >= maxWidth || testDiv.height() >= maxHeight) {
             return minFontSize + 'em';
@@ -1255,6 +1257,7 @@ LADS.Util.UI = (function () {
     var IGNORE_IN_SEARCH = ['visible', 'exhibits', 'selected', 'guid', 'url', 'comp'];
     var recentlyAssociated = []; // recently associated media
     var recentlyAssociatedGUIDs = []; // to more easily check if a media has been associated recently
+    var tagContainer = $('#tagRoot') || $("body"); // TODO more general
 
     return {
         slidePageLeftSplit: slidePageLeftSplit,
@@ -1568,7 +1571,7 @@ LADS.Util.UI = (function () {
                     display: 'none',
                     position: 'absolute',
                 });
-                $('body').append(unicorn);
+                tagContainer.append(unicorn);
                 unicorn.fadeIn(500);
                 setTimeout(function () {
                     $('img').attr('src', 'images/unicorn.jpg');
@@ -1621,7 +1624,7 @@ LADS.Util.UI = (function () {
         serverPasswordErrorMessage.html('Invalid authoring password entered. Please try again.');
         serverPasswordErrorMessage.hide();
 
-        $("body").append(serverDialogOverlay);
+        tagContainer.append(serverDialogOverlay);
         serverDialogInput.focus();
 
     }
@@ -1728,7 +1731,7 @@ LADS.Util.UI = (function () {
             $(dialogOverlay).css({ 'display': 'none' });
             $(commentBox).val('');
             var popup = LADS.Util.UI.popUpMessage(null, "Your feedback has been submitted, thank you for your feedback.");
-            $('body').append(popup);
+            tagContainer.append(popup);
             $(popup).css('z-index', 1000000);
             $(popup).show();
         }
@@ -2147,7 +2150,7 @@ LADS.Util.UI = (function () {
         var outgoingDone = false;
         var incomingDone = false;
 
-        var elements = $("body").children();
+        var elements = tagContainer.children();
         elements.remove();
 
         var outgoing = makeFullPage();
@@ -2158,8 +2161,8 @@ LADS.Util.UI = (function () {
         $(incoming).append(newpage);
         $(incoming).css({ left: "120%", display: "inline" });
 
-        $("body").append(outgoing);
-        $("body").append(incoming);
+        tagContainer.append(outgoing);
+        tagContainer.append(incoming);
 
         $(outgoing).animate({ left: "-120%" }, 1000, 'easeOutQuad', function () {
             $(outgoing).remove();
@@ -2168,7 +2171,7 @@ LADS.Util.UI = (function () {
         });
         $(incoming).animate({ left: "0%" }, 1000, 'easeOutQuad', function () {
             $(incoming).detach();
-            $("body").append(newpage);
+            tagContainer.append(newpage);
             incomingDone = true;
             makeCallback();
         });
@@ -2186,7 +2189,7 @@ LADS.Util.UI = (function () {
         var outgoingDone = false;
         var incomingDone = false;
 
-        var elements = $("body").children();
+        var elements = tagContainer.children();
         elements.remove();
 
         var outgoing = makeFullPage();
@@ -2197,8 +2200,8 @@ LADS.Util.UI = (function () {
         $(incoming).append(newpage);
         $(incoming).css({ left: "-120%", display: "inline" });
 
-        $("body").append(outgoing);
-        $("body").append(incoming);
+        tagContainer.append(outgoing);
+        tagContainer.append(incoming);
 
         $(outgoing).animate({ left: "120%" }, 1000, 'easeOutQuad', function () {
             $(outgoing).remove();
@@ -2207,7 +2210,7 @@ LADS.Util.UI = (function () {
         });
         $(incoming).animate({ left: "0%" }, 1000, 'easeOutQuad', function () {
             $(incoming).detach();
-            $("body").append(newpage);
+            tagContainer.append(newpage);
             incomingDone = true;
             makeCallback();
         });
