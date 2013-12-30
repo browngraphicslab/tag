@@ -7,15 +7,10 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     
     options.tagContainer = $("#tagRoot");
 
-    var root = LADS.Util.getHtmlAjax('startPage.html'), // document.createElement('div'),
-        overlay = root.find('#overlay'), // document.createElement('div'),
-        // dialogOverlay = $(document.createElement('div')),
-        // passwdInput = $(document.createElement('input')),
-        // serverPasswdInput = $(document.createElement('input')),
-        // authoringTagBuffer = $(document.createElement('div')),
-        // authoringModeLabelContainer = $(document.createElement('div')),
-        serverTagBuffer = $('#serverTagBuffer'), // $(document.createElement('div')),
-        serverSetUpContainer = $('#serverSetUpContainer'), // $(document.createElement('div')),
+    var root = LADS.Util.getHtmlAjax('startPage.html'),
+        overlay = root.find('#overlay'),
+        serverTagBuffer = $('#serverTagBuffer'),
+        serverSetUpContainer = $('#serverSetUpContainer'),
         serverDialogOverlay = $(document.createElement('div')),
         repository = options.repository;
 
@@ -24,7 +19,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     }
     var serverURL = 'http://' + (localStorage.ip ? localStorage.ip + ':8080' : "browntagserver.com:8080");
 
-    //serverURL = "http://tagtestserver.cloudapp.net:8080"; // HARD CODE TEST SERVER FOR NOW
     console.log("checking server url: " + serverURL);
 
     var tagContainer = options.tagContainer || $('body');
@@ -79,133 +73,70 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
     //sets up the entire visual layout and images of the splash screen
     function loadHelper(main) {
-        var fullScreen = root.find('#background');
-        //fullScreen.css({ 'width': '100%', 'height': '100%', 'position': 'absolute' });
         LADS.Util.Constants.set("START_PAGE_SPLASH", "images/birdtextile.jpg");
+
+        var fullScreen = root.find('#background');
         fullScreen.css('background-image', "url(" + LADS.Worktop.Database.fixPath(main.Metadata["BackgroundImage"]) + ")");
-        // fullScreen.css('background-position', "center");
-        // fullScreen.css('background-size', "cover");
-        // fullScreen.addClass('background');
-        // fullScreen.attr('id', 'background');
 
         var overlayColor = main.Metadata["OverlayColor"];
         var overlayTransparency = main.Metadata["OverlayTransparency"];
 
         var backgroundColor = LADS.Util.UI.hexToRGB(overlayColor) + overlayTransparency + ')';
 
-        // $(overlay).addClass('overlay');
-        // $(overlay).css({ 'width': '100%', 'height': '100%', 'position': 'relative' });
-
         var imageBgColor = '#' + main.Metadata["IconColor"];
-        var logoContainer = root.find('#logoContainer');// $(document.createElement('div'));
+        var logoContainer = root.find('#logoContainer');
         logoContainer.css({ 'background-color': imageBgColor });
-        // logoContainer.addClass('logoContainer');
-        // logoContainer.attr('id', 'logoContainer');
 
-        var logo = root.find('#logo');//$(document.createElement('img'));
+        var logo = root.find('#logo');
         logo.attr('src', LADS.Worktop.Database.fixPath(main.Metadata["Icon"]));
-        // logo.attr('id', 'logo');
-        // logo.css({ 'max-width': '85%', 'max-height': '85%', 'width': 'auto', 'height': 'auto', 'top': '7%', 'position': 'relative' });
-        // logoContainer.append(logo);
 
-        // $(root).css({ 'width': '100%', 'height': '100%', 'position': 'absolute' });
-        // $(root).append(fullScreen);
-        // $(root).append(overlay);
-        // $(overlay).append(logoContainer);
         logoContainer.on('click', function (evt) {
             evt.stopPropagation();
         });
 
-
         overlay.on('click', switchPage);
 
-        // var infoBgColor = 'rgba(0,0,0,1)';
-        var brownInfoBox = root.find('#brownInfoBox'); // document.createElement('div');
+        var brownInfoBox = root.find('#brownInfoBox');
         brownInfoBox.on('click', expandInfo);
 
-        var expandInfoButton = root.find('#expandInfoButton'); // $(document.createElement('div'));
-        // expandInfoButton.css({ background: infoBgColor, height: "100%", width: "15%", left: '0%', 'border-bottom-left-radius': '20px' });
-        // $(brownInfoBox).append(expandInfoButton);
+        var expandInfoButton = root.find('#expandInfoButton');
 
-        var expandImage = root.find('#expandImage'); // document.createElement('img');
-        // expandImage.attr('src', "images/icons/Left.png");
-        // $(expandImage).css({ "top": "35%", "left": "50%", "height": "30%", "width": "auto", "position": "relative" });
-        // expandInfoButton.append(expandImage);
+        var expandImage = root.find('#expandImage');
 
-        var tagName = root.find('#tagName'); // document.createElement('label');
-        // tagName.attr('innerText', 'TAG');
-        // $(tagName).css({ "left": "20%", top: '10%', "position": "absolute", "font-size": "250%", "font-family": "arial" });
-        // $(brownInfoBox).append(tagName);
+        var tagName = root.find('#tagName');
 
-        var fullTag = root.find('#fullTag'); // document.createElement('label');
-        // fullTag.attr('innerText', 'Touch Art Gallery');
-        // $(fullTag).css({ "left": '20%', top: '60%', 'position': "absolute", "font-size": '90%' });
-        // $(brownInfoBox).append(fullTag);
+        var fullTag = root.find('#fullTag');
 
         var infoExpanded = false; //used to expand/collapse info
         var brownPeople = $(document.createElement('div'));
         brownPeople.attr('id', 'brownPeople');
         brownPeople.text('Brown University \nAndy van Dam, Alex Hills, Yudi Fu, Karishma Bhatia, Gregory Chatzinoff, John Connuck, David Correa, Mohsan Elahi, Aisha Ferrazares, Jessica Fu, Kaijan Gao, Jessica Herron, Ardra Hren, Hak Rim Kim, Inna Komarovsky, Ryan Lester, Benjamin LeVeque, Josh Lewis, Jinqing Li, Jeffery Lu, Xiaoyi Mao, Ria Mirchandani, Julie Mond, Ben Most, Jonathan Poon, Dhruv Rawat, Jacob Rosenfeld, Anqi Wen, Dan Zhang, Libby Zorn');
-        // $(brownPeople).css({
-        //     "left": "100%",
-        //     "top": "50%",
-        //     "height": "40%",
-        //     "position": "absolute",
-        //     "font-size": "0%"
-        // });
 
         var sponsoredText = $(document.createElement('label'));
         sponsoredText.attr('id', 'sponsoredText');
         sponsoredText.text('Sponsored by');
-        // $(sponsoredText).css({ 'position': 'relative', 'width': '20%', 'height': 'auto', 'left': '68%', 'top': '-100%' }); //changed left 12%, top -35%
-
 
         var microsoftLogo = $(document.createElement('img'));
         microsoftLogo.attr('id', 'microsoftLogo');
         microsoftLogo.attr('src', 'images/icons/MicrosoftLogo.png');
-        // $(microsoftLogo).css({ 'position': 'relative', 'width': '20%', 'height': 'auto', 'left': '68%', 'top': '-90%' }); //changed left 12%, top -24.5%
 
-        var museumName = root.find('#museumName'); // document.createElement('div');
-        var museumNameSpan = root.find('#museumNameSpan'); // document.createElement('span');
+        var museumName = root.find('#museumName');
+        var museumNameSpan = root.find('#museumNameSpan');
 
         var tempName = main.Metadata["MuseumName"];
         if (tempName === undefined) {
             tempName = "";
         }
         museumNameSpan.text(tempName);
-        // $(museumNameSpan).attr('id', 'museumName');
-        // $(museumNameSpan).css('height', '100%');
-        // $(museumName).css({
-        //     'position': 'relative',
-        //     'word-wrap': 'break-word',
-        //     'width': '100%',
-        //     'height': '30%',
-        //     'outline-offset': '0',
-        //     'outline': '0',
-        //     'padding-top': '-4%'
-        // });
-        // $(museumName).addClass("startPageInfo");
-        // $(museumName).attr("id", "divName");
-        // $(museumName).append($(museumNameSpan));
 
-        var museumLoc = root.find('#museumLoc'); // document.createElement('div');
-        var museumLocSpan = root.find('#museumLocSpan'); // document.createElement('span');
+        var museumLoc = root.find('#museumLoc');
+        var museumLocSpan = root.find('#museumLocSpan');
 
         var tempLoc = main.Metadata["MuseumLoc"];
         if (tempLoc === undefined) {
             tempLoc = "";
         }
         museumLocSpan.text(tempLoc);
-        // $(museumLoc).css({
-        //     'position': 'relative',
-        //     'font-size': '3em',
-        //     'word-wrap': 'break-word',
-        //     'width': '100%',
-        //     'height': '20%'
-        // });
-        // $(museumLoc).attr("id", "subheading");
-        // $(museumLoc).addClass("startPageInfo");
-        // $(museumLoc).append($(museumLocSpan));
 
         var nameDivSize;
         var nameSpanSize;
@@ -234,26 +165,15 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         }
         that.fixText = fixText;
 
-        var museumInfoDiv = root.find('#museumInfoDiv'); // document.createElement('div');
+        var museumInfoDiv = root.find('#museumInfoDiv');
 
-        // $(museumInfoDiv).css({
-        //     'position': 'relative',
-        //     'word-wrap': 'break-word',
-        //     'width': '100%',
-        //     'height': '50% '
-        // });
-
-        // $(museumInfoDiv).addClass("startPageInfo");
-        // $(museumInfoDiv).attr("id", "spanContainer");
-        var museumInfoSpan = root.find('#museumInfoSpan'); // document.createElement('span');
+        var museumInfoSpan = root.find('#museumInfoSpan');
 
         var tempInfo = main.Metadata["MuseumInfo"];
         if (!tempInfo) {
             tempInfo = "";
         }
         museumInfoSpan.text(tempInfo);
-        // $(museumInfoSpan).attr('id', 'museumInfo');
-        // $(museumInfoDiv).append($(museumInfoSpan));
         var loadedInterval = setInterval(function () {
             if (LADS.Util.elementInDocument(museumInfoDiv)) {
                 var subheadingFont = parseInt(museumLoc.css('font-size'), 10);
@@ -262,59 +182,12 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             }
         });
 
-        var infoTextHolder = root.find('#infoTextHolder'); // document.createElement('div');
-        // infoTextHolder.css({
-        //     'top': "0%",
-        //     'position': 'relative',
-        //     'padding': '0% 4%',
-        //     'height': '100%'
-        // });
-        // infoTextHolder.addClass('infoTextHolder');
+        var infoTextHolder = root.find('#infoTextHolder');
 
-        var infoDiv = root.find('#infoDiv'); // document.createElement('div');
+        var infoDiv = root.find('#infoDiv');
         infoDiv.css({
             'background-color': backgroundColor
         });
-        // $(infoDiv).addClass('infoDiv');
-        // $(overlay).append(infoDiv);
-        // $(infoDiv).append(infoTextHolder);
-        // $(infoTextHolder).append(museumName);
-        // $(infoTextHolder).append(museumLoc);
-        // $(infoTextHolder).append(museumInfoDiv);
-
-        //Buffer around server tag to prevent misclicks
-        // serverTagBuffer.attr('id', 'serverTagBuffer');
-        // serverTagBuffer.css({
-        //     'width': '23.8%',
-        //     'bottom': '0%',
-        //     'height': '8%',
-        //     'right': '0%',
-        //     'position': 'absolute',
-        // });
-
-        // create server setup label in bottom right of splash screen
-        // $(serverSetUpContainer).attr('id', 'serverSetUpContainer');
-        // $(serverSetUpContainer).css({
-        //     'background-color': 'rgba(0,0,0,0.85)',
-        //     'position': 'absolute',
-        //     'width': '63%',
-        //     'bottom': '0%',
-        //     'height': '50%',
-        //     'right': '18.5%',
-        //     'border-top-left-radius': '10px',
-        //     'border-top-right-radius': '10px',
-        //     'text-align': 'center',
-        // });
-        // var serverSetUpLabel = $(document.createElement('label'));
-        // serverSetUpLabel.text('Change Server');
-        // serverSetUpLabel.css({
-        //     'color': 'white',
-        //     'text-align': 'center',
-        //     'font-size': '130%',
-        //     'top': '8%',
-        //     'position': 'relative'
-        // });
-        // serverSetUpContainer.append(serverSetUpLabel);
 
         serverSetUpContainer.on('click', LADS.Util.UI.ChangeServerDialog);
         serverTagBuffer.on('click', function (evt) {
@@ -324,58 +197,10 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             evt.stopPropagation();
         });
 
-        // serverTagBuffer.append(serverSetUpContainer);
-        // $(root).append(serverTagBuffer);
-
-
         function openServerChange() {
             serverPasswdInput.val('avd');
             serverDialogOverlay.fadeIn(500);
         }
-
-        // //Buffer around authoring tag to prevent misclicks
-        // authoringTagBuffer.attr('id', 'authoringTagBuffer');
-        // authoringTagBuffer.css({
-        //     'position': 'absolute',
-        //     'width': '23.8%',
-        //     'bottom': '0%',
-        //     'left': '0%',
-        //     'height': '8%',
-
-        // });
-        // // create enter authoring mode label: text
-        // authoringModeLabelContainer.attr('id', 'authoringModeLabelContainer');
-        // authoringModeLabelContainer.css({
-        //     'background-color': 'rgba(0,0,0,0.85)',
-        //     'position': 'absolute',
-        //     'width': '63%',
-        //     'bottom': '0%',
-        //     'height': '50%',
-        //     'left': '18.5%',
-        //     'border-top-left-radius': '10px',
-        //     'border-top-right-radius': '10px',
-        //     'text-align': 'center',
-        // });
-
-        // var authoringModeIcon = document.createElement('label');
-        // $(authoringModeIcon).text('Authoring Mode');
-        // $(authoringModeIcon).css({
-        //     'color': 'white',
-        //     'text-align': 'center',
-        //     'font-size': '130%',
-        //     'top': '8%',
-        //     'position': 'relative'
-        // });
-        // authoringModeLabelContainer.append(authoringModeIcon);
-
-        // authoringModeLabelContainer.on('click', openDialog);
-        // authoringTagBuffer.on('click', function (evt) {
-        //     evt.stopPropagation();
-        // });
-
-        // $(root).append(authoringTagBuffer);
-        // authoringTagBuffer.append(authoringModeLabelContainer);
-
 
         /**
          * Allow changing ip address of the server (shows up in bottom right corner of splash screen)
@@ -440,7 +265,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             serverPasswdInput.attr("value", "");
             serverDialogInput.attr("value", "");
         }
-        //serverSaveButton[0].onclick = ipSave;
 
         var serverCancelButton = $(document.createElement('button'));
         serverCancelButton.attr('type', 'button');
@@ -456,41 +280,12 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             serverDialogOverlay.fadeOut(500);
         };
 
+        var touchHint = root.find('#touchHint');
 
-        //////////////
-        //////////////
-        var touchHint = root.find('#touchHint'); // document.createElement('label');
-        // touchHint.innerText = 'Tap the screen to begin exploring artworks';
-        // $(touchHint).css({
-        //     'margin-top': '3%',
-        //     'margin-left': '10%',
-        //     float: 'left',
-        //     width: '50%',
-        //     'text-shadow': 'black 0.1em 0.1em 0.2em',
-        //     'font-size': '250%',
-        //     'opacity': '0.8'
-        // });
-
-        var handGif = root.find('#handGif'); // document.createElement('img');
-        // $(handGif).attr('src', 'images/RippleNewSmall.gif');
-        // $(handGif).css({
-        //     float: 'right',
-        //     'margin-top': '2%',
-        //     'margin-right': '20%',
-        //     'width': '9%',
-        //     'height': 'auto'
-        // });
-
-        // var touchHintDiv = $(document.createElement('div'));
-        // touchHintDiv.css({ top: "29%", width: '100%', position: 'absolute', height: '13%' });
-        // $(overlay).append(touchHintDiv);
-        // touchHintDiv.append(touchHint);
-        // touchHintDiv.append(handGif);
+        var handGif = root.find('#handGif');
         LADS.Util.fitText(touchHint, 2);
 
         handGif.onclick = switchPage;
-        //if (startPageCallback)
-        //    startPageCallback(that);
 
         function preventClickThrough(event) {
             event.cancelBubble = true;
@@ -498,7 +293,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         //this handes the animation for opening/closing the div that holds the information about the project
         function expandInfo(event) {
-            event.cancelBubble = true;
+            event.stopPropagation();
             if (infoExpanded) {
                 infoExpanded = false;
                 $(expandImage).css({ 'transform': 'scaleX(1)' });
@@ -528,58 +323,55 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         //opens the exhibitions page on touch/click
         function switchPage() {
-            //var exhibitions = new LADS.Layout.Exhibitions();
             var newCatalog = new LADS.Layout.NewCatalog();
-            overlay.onclick = null; //prevent repeated clicks while switch occurs
-            //LADS.Util.UI.slidePageLeft(exhibitions.getRoot());
+            overlay.on('click', function(){});
             LADS.Util.UI.slidePageLeft(newCatalog.getRoot());
         }
 
-        //opens the password dialog before allowing user to enter authoring mode
-        function openDialog() {
-            LADS.Auth.authenticate(enterAuthoringMode);
-            if (localStorage.ip === "tagtestserver.cloudapp.net") {
-                $("#password").attr('value', 'BrownGFX1');
-            } else if (localStorage.ip === "10.116.71.58") {
-                $("#password").attr('value', 'Browngfx1');
-            }
-            return;
-        }
+        // //opens the password dialog before allowing user to enter authoring mode
+        // function openDialog() {
+        //     LADS.Auth.authenticate(enterAuthoringMode);
+        //     if (localStorage.ip === "tagtestserver.cloudapp.net") {
+        //         $("#password").attr('value', 'BrownGFX1');
+        //     } else if (localStorage.ip === "10.116.71.58") {
+        //         $("#password").attr('value', 'Browngfx1');
+        //     }
+        //     return;
+        // }
 
-        function enterAuthoringMode() {
-            overlay.onclick = null; //prevent repeated clicks while switch occurs
-            authoringModeLabelContainer.off('click');
-            // authoringMode = new LADS.Layout.ContentAuthoring();
-            var authoringMode = new LADS.Authoring.NewSettingsView();
-            LADS.Util.UI.slidePageLeft(authoringMode.getRoot());
-        }
+        // function enterAuthoringMode() {
+        //     overlay.onclick = null; //prevent repeated clicks while switch occurs
+        //     authoringModeLabelContainer.off('click');
+        //     var authoringMode = new LADS.Authoring.NewSettingsView();
+        //     LADS.Util.UI.slidePageLeft(authoringMode.getRoot());
+        // }
 
         
-        function divHighlight(div) {
-            div.mousedown(function () {
-                div.css({
-                    'background-color': 'white',
-                    'color': 'black',
-                });
-            });
-            div.mouseup(function () {
-                div.css({
-                    'background-color': 'black',
-                    'color': 'white',
-                });
-            });
-            div.mouseleave(function () {
-                div.css({
-                    'background-color': 'black',
-                    'color': 'white',
-                });
-            });
-        }
+        // function divHighlight(div) {
+        //     div.mousedown(function () {
+        //         div.css({
+        //             'background-color': 'white',
+        //             'color': 'black',
+        //         });
+        //     });
+        //     div.mouseup(function () {
+        //         div.css({
+        //             'background-color': 'black',
+        //             'color': 'white',
+        //         });
+        //     });
+        //     div.mouseleave(function () {
+        //         div.css({
+        //             'background-color': 'black',
+        //             'color': 'white',
+        //         });
+        //     });
+        // }
     }
 
-    function checkDataUsage() {
-        console.log('');
-    }
+    // function checkDataUsage() {
+    //     console.log('');
+    // }
 
     function getRoot() {
         return root;
