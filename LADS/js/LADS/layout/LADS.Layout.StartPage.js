@@ -7,18 +7,17 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     
     options.tagContainer = $("#tagRoot");
 
-    var root = document.createElement('div'),
-        overlay = document.createElement('div'),
-        dialogOverlay = $(document.createElement('div')),
-        passwdInput = $(document.createElement('input')),
-        serverPasswdInput = $(document.createElement('input')),
-        authoringTagBuffer = $(document.createElement('div')),
-        authoringModeLabelContainer = $(document.createElement('div')),
-        serverTagBuffer = $(document.createElement('div')),
-        serverSetUpContainer = $(document.createElement('div')),
+    var root = LADS.Util.getHtmlAjax('startPage.html'), // document.createElement('div'),
+        overlay = root.find('#overlay'), // document.createElement('div'),
+        // dialogOverlay = $(document.createElement('div')),
+        // passwdInput = $(document.createElement('input')),
+        // serverPasswdInput = $(document.createElement('input')),
+        // authoringTagBuffer = $(document.createElement('div')),
+        // authoringModeLabelContainer = $(document.createElement('div')),
+        serverTagBuffer = $('#serverTagBuffer'), // $(document.createElement('div')),
+        serverSetUpContainer = $('#serverSetUpContainer'), // $(document.createElement('div')),
         serverDialogOverlay = $(document.createElement('div')),
-        repository = options.repository,
-        needPassword = false; //used to determine whether password input box appears
+        repository = options.repository;
 
     if (localStorage.ip && localStorage.ip.indexOf(':') !== -1) {
         localStorage.ip = localStorage.ip.split(':')[0];
@@ -32,6 +31,11 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
     testConnection();
 
+    /**
+     * Test internet and server connections
+     * @param options             Object
+     *            internetURL     url of alternate site against which we'll test connectivity
+     */
     function testConnection(options) {
         var internetURL = (options && options.internetURL) || "http://www.google.com/";
         $.ajax({
@@ -75,134 +79,133 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
     //sets up the entire visual layout and images of the splash screen
     function loadHelper(main) {
-        var fullScreen = $(document.createElement('div'));
-        fullScreen.css({ 'width': '100%', 'height': '100%', 'position': 'absolute' });
+        var fullScreen = root.find('#background');
+        //fullScreen.css({ 'width': '100%', 'height': '100%', 'position': 'absolute' });
         LADS.Util.Constants.set("START_PAGE_SPLASH", "images/birdtextile.jpg");
         fullScreen.css('background-image', "url(" + LADS.Worktop.Database.fixPath(main.Metadata["BackgroundImage"]) + ")");
-        fullScreen.css('background-position', "center");
-        fullScreen.css('background-size', "cover");
-        fullScreen.addClass('background');
-        fullScreen.attr('id', 'background');
+        // fullScreen.css('background-position', "center");
+        // fullScreen.css('background-size', "cover");
+        // fullScreen.addClass('background');
+        // fullScreen.attr('id', 'background');
 
         var overlayColor = main.Metadata["OverlayColor"];
         var overlayTransparency = main.Metadata["OverlayTransparency"];
 
         var backgroundColor = LADS.Util.UI.hexToRGB(overlayColor) + overlayTransparency + ')';
 
-        $(overlay).addClass('overlay');
-        $(overlay).css({ 'width': '100%', 'height': '100%', 'position': 'relative' });
+        // $(overlay).addClass('overlay');
+        // $(overlay).css({ 'width': '100%', 'height': '100%', 'position': 'relative' });
 
         var imageBgColor = '#' + main.Metadata["IconColor"];
-        var logoContainer = $(document.createElement('div'));
-        logoContainer.css({ top: "0%", "right": "0%", height: "10%", width: "20%", position: "absolute", 'background-color': imageBgColor, 'text-align': 'center' });
-        logoContainer.addClass('logoContainer');
-        logoContainer.attr('id', 'logoContainer');
+        var logoContainer = root.find('#logoContainer');// $(document.createElement('div'));
+        logoContainer.css({ 'background-color': imageBgColor });
+        // logoContainer.addClass('logoContainer');
+        // logoContainer.attr('id', 'logoContainer');
 
-        var logo = $(document.createElement('img'));
+        var logo = root.find('#logo');//$(document.createElement('img'));
         logo.attr('src', LADS.Worktop.Database.fixPath(main.Metadata["Icon"]));
-        logo.attr('id', 'logo');
-        logo.css({ 'max-width': '85%', 'max-height': '85%', 'width': 'auto', 'height': 'auto', 'top': '7%', 'position': 'relative' });
-        logoContainer.append(logo);
+        // logo.attr('id', 'logo');
+        // logo.css({ 'max-width': '85%', 'max-height': '85%', 'width': 'auto', 'height': 'auto', 'top': '7%', 'position': 'relative' });
+        // logoContainer.append(logo);
 
-        $(root).css({ 'width': '100%', 'height': '100%', 'position': 'absolute' });
-        $(root).append(fullScreen);
-        $(root).append(overlay);
-        $(overlay).append(logoContainer);
-        logoContainer.click(function (evt) {
+        // $(root).css({ 'width': '100%', 'height': '100%', 'position': 'absolute' });
+        // $(root).append(fullScreen);
+        // $(root).append(overlay);
+        // $(overlay).append(logoContainer);
+        logoContainer.on('click', function (evt) {
             evt.stopPropagation();
-
         });
 
 
-        overlay.onclick = switchPage;
+        overlay.on('click', switchPage);
 
-        var infoBgColor = 'rgba(0,0,0,1)';
-        var brownInfoBox = document.createElement('div');
-        $(brownInfoBox).css({ top: "10%", "right": "0%", height: "10%", width: "20%", position: "absolute", 'background-color': infoBgColor, 'border-bottom-left-radius': '20px' });
-        $(overlay).append(brownInfoBox);
-        brownInfoBox.onclick = expandInfo;
+        // var infoBgColor = 'rgba(0,0,0,1)';
+        var brownInfoBox = root.find('#brownInfoBox'); // document.createElement('div');
+        brownInfoBox.on('click', expandInfo);
 
-        var expandInfoButton = $(document.createElement('div'));
-        expandInfoButton.css({ background: infoBgColor, height: "100%", width: "15%", left: '0%', 'border-bottom-left-radius': '20px' });
-        $(brownInfoBox).append(expandInfoButton);
+        var expandInfoButton = root.find('#expandInfoButton'); // $(document.createElement('div'));
+        // expandInfoButton.css({ background: infoBgColor, height: "100%", width: "15%", left: '0%', 'border-bottom-left-radius': '20px' });
+        // $(brownInfoBox).append(expandInfoButton);
 
-        var expandImage = document.createElement('img');
-        expandImage.src = "images/icons/Left.png";
-        $(expandImage).css({ "top": "35%", "left": "50%", "height": "30%", "width": "auto", "position": "relative" });
-        expandInfoButton.append(expandImage);
+        var expandImage = root.find('#expandImage'); // document.createElement('img');
+        // expandImage.attr('src', "images/icons/Left.png");
+        // $(expandImage).css({ "top": "35%", "left": "50%", "height": "30%", "width": "auto", "position": "relative" });
+        // expandInfoButton.append(expandImage);
 
-        var tagName = document.createElement('label');
-        tagName.innerText = "TAG";
-        $(tagName).css({ "left": "20%", top: '10%', "position": "absolute", "font-size": "250%", "font-family": "arial" });
-        $(brownInfoBox).append(tagName);
+        var tagName = root.find('#tagName'); // document.createElement('label');
+        // tagName.attr('innerText', 'TAG');
+        // $(tagName).css({ "left": "20%", top: '10%', "position": "absolute", "font-size": "250%", "font-family": "arial" });
+        // $(brownInfoBox).append(tagName);
 
-        var fullTag = document.createElement('label');
-        fullTag.innerText = "Touch Art Gallery";
-        $(fullTag).css({ "left": '20%', top: '60%', 'position': "absolute", "font-size": '90%' });
-        $(brownInfoBox).append(fullTag);
+        var fullTag = root.find('#fullTag'); // document.createElement('label');
+        // fullTag.attr('innerText', 'Touch Art Gallery');
+        // $(fullTag).css({ "left": '20%', top: '60%', 'position': "absolute", "font-size": '90%' });
+        // $(brownInfoBox).append(fullTag);
 
         var infoExpanded = false; //used to expand/collapse info
-        var brownPeople = document.createElement('div');
-        $(brownPeople).addClass('brownPeople');
-        brownPeople.innerText = "Brown University \nAndy van Dam, Alex Hills, Yudi Fu, Karishma Bhatia, Gregory Chatzinoff, John Connuck, David Correa, Mohsan Elahi, Aisha Ferrazares, Jessica Fu, Kaijan Gao, Jessica Herron, Ardra Hren, Hak Rim Kim, Inna Komarovsky, Ryan Lester, Benjamin LeVeque, Josh Lewis, Jinqing Li, Jeffery Lu, Xiaoyi Mao, Ria Mirchandani, Julie Mond, Ben Most, Jonathan Poon, Dhruv Rawat, Jacob Rosenfeld, Anqi Wen, Dan Zhang, Libby Zorn";
-        $(brownPeople).css({
-            "left": "100%",
-            "top": "50%",
-            "height": "40%",
-            "position": "absolute",
-            "font-size": "0%"
-        });
+        var brownPeople = $(document.createElement('div'));
+        brownPeople.attr('id', 'brownPeople');
+        brownPeople.text('Brown University \nAndy van Dam, Alex Hills, Yudi Fu, Karishma Bhatia, Gregory Chatzinoff, John Connuck, David Correa, Mohsan Elahi, Aisha Ferrazares, Jessica Fu, Kaijan Gao, Jessica Herron, Ardra Hren, Hak Rim Kim, Inna Komarovsky, Ryan Lester, Benjamin LeVeque, Josh Lewis, Jinqing Li, Jeffery Lu, Xiaoyi Mao, Ria Mirchandani, Julie Mond, Ben Most, Jonathan Poon, Dhruv Rawat, Jacob Rosenfeld, Anqi Wen, Dan Zhang, Libby Zorn');
+        // $(brownPeople).css({
+        //     "left": "100%",
+        //     "top": "50%",
+        //     "height": "40%",
+        //     "position": "absolute",
+        //     "font-size": "0%"
+        // });
 
-        var sponsoredText = document.createElement('label');
-        $(sponsoredText).text('Sponsored by');
-        $(sponsoredText).css({ 'position': 'relative', 'width': '20%', 'height': 'auto', 'left': '68%', 'top': '-100%' }); //changed left 12%, top -35%
+        var sponsoredText = $(document.createElement('label'));
+        sponsoredText.attr('id', 'sponsoredText');
+        sponsoredText.text('Sponsored by');
+        // $(sponsoredText).css({ 'position': 'relative', 'width': '20%', 'height': 'auto', 'left': '68%', 'top': '-100%' }); //changed left 12%, top -35%
 
 
-        var microsoftLogo = document.createElement('img');
-        $(microsoftLogo).attr('src', 'images/icons/MicrosoftLogo.png');
-        $(microsoftLogo).css({ 'position': 'relative', 'width': '20%', 'height': 'auto', 'left': '68%', 'top': '-90%' }); //changed left 12%, top -24.5%
+        var microsoftLogo = $(document.createElement('img'));
+        microsoftLogo.attr('id', 'microsoftLogo');
+        microsoftLogo.attr('src', 'images/icons/MicrosoftLogo.png');
+        // $(microsoftLogo).css({ 'position': 'relative', 'width': '20%', 'height': 'auto', 'left': '68%', 'top': '-90%' }); //changed left 12%, top -24.5%
 
-        var museumName = document.createElement('div');
-        var museumNameSpan = document.createElement('span');
+        var museumName = root.find('#museumName'); // document.createElement('div');
+        var museumNameSpan = root.find('#museumNameSpan'); // document.createElement('span');
 
         var tempName = main.Metadata["MuseumName"];
         if (tempName === undefined) {
             tempName = "";
         }
-        museumNameSpan.innerText = tempName;
-        $(museumNameSpan).attr('id', 'museumName');
-        $(museumNameSpan).css('height', '100%');
-        $(museumName).css({
-            'position': 'relative',
-            'word-wrap': 'break-word',
-            'width': '100%',
-            'height': '30%',
-            'outline-offset': '0',
-            'outline': '0',
-            'padding-top': '-4%'
-        });
-        $(museumName).addClass("startPageInfo");
-        $(museumName).attr("id", "divName");
-        $(museumName).append($(museumNameSpan));
+        museumNameSpan.text(tempName);
+        // $(museumNameSpan).attr('id', 'museumName');
+        // $(museumNameSpan).css('height', '100%');
+        // $(museumName).css({
+        //     'position': 'relative',
+        //     'word-wrap': 'break-word',
+        //     'width': '100%',
+        //     'height': '30%',
+        //     'outline-offset': '0',
+        //     'outline': '0',
+        //     'padding-top': '-4%'
+        // });
+        // $(museumName).addClass("startPageInfo");
+        // $(museumName).attr("id", "divName");
+        // $(museumName).append($(museumNameSpan));
 
-        var museumLoc = document.createElement('div');
-        var museumLocSpan = document.createElement('span');
+        var museumLoc = root.find('#museumLoc'); // document.createElement('div');
+        var museumLocSpan = root.find('#museumLocSpan'); // document.createElement('span');
 
         var tempLoc = main.Metadata["MuseumLoc"];
         if (tempLoc === undefined) {
             tempLoc = "";
         }
-        museumLocSpan.innerText = tempLoc;
-        $(museumLoc).css({
-            'position': 'relative',
-            'font-size': '3em',
-            'word-wrap': 'break-word',
-            'width': '100%',
-            'height': '20%'
-        });
-        $(museumLoc).attr("id", "subheading");
-        $(museumLoc).addClass("startPageInfo");
-        $(museumLoc).append($(museumLocSpan));
+        museumLocSpan.text(tempLoc);
+        // $(museumLoc).css({
+        //     'position': 'relative',
+        //     'font-size': '3em',
+        //     'word-wrap': 'break-word',
+        //     'width': '100%',
+        //     'height': '20%'
+        // });
+        // $(museumLoc).attr("id", "subheading");
+        // $(museumLoc).addClass("startPageInfo");
+        // $(museumLoc).append($(museumLocSpan));
 
         var nameDivSize;
         var nameSpanSize;
@@ -213,109 +216,105 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             clearInterval(loadedInterval2);
         });
 
-        function fixText() {
-            if (LADS.Util.elementInDocument($(museumName))) {
-                var subheadingFont = parseInt($(museumLoc).css('font-size'), 10);
+        function fixText() { // TODO fix this up, make it cleaner
+            if (LADS.Util.elementInDocument(museumName)) {
+                var subheadingFont = parseInt(museumLoc.css('font-size'), 10);
                 //here we are going to construct the function
-                nameDivSize = $(museumName).height();
-                fontSizeSpan = $(museumName).height();
-                $(museumNameSpan).css('font-size', nameDivSize + 'px');
-                nameSpanSize = $(museumNameSpan).height();
+                nameDivSize = museumName.height();
+                fontSizeSpan = museumName.height();
+                museumNameSpan.css('font-size', nameDivSize + 'px');
+                nameSpanSize = museumNameSpan.height();
                 while (nameDivSize < nameSpanSize) {
                     fontSizeSpan--;
-                    $(museumNameSpan).css('font-size', fontSizeSpan + 'px');
-                    nameSpanSize = $(museumNameSpan).height();
+                    museumNameSpan.css('font-size', fontSizeSpan + 'px');
+                    nameSpanSize = museumNameSpan.height();
                 }
-                $(museumNameSpan).css('height', nameSpanSize);
+                museumNameSpan.css('height', nameSpanSize);
             }
         }
         that.fixText = fixText;
 
-        var museumInfoDiv = document.createElement('div');
+        var museumInfoDiv = root.find('#museumInfoDiv'); // document.createElement('div');
 
-        $(museumInfoDiv).css({
-            'position': 'relative',
-            'word-wrap': 'break-word',
-            'width': '100%',
-            'height': '50% '
-        });
+        // $(museumInfoDiv).css({
+        //     'position': 'relative',
+        //     'word-wrap': 'break-word',
+        //     'width': '100%',
+        //     'height': '50% '
+        // });
 
-        $(museumInfoDiv).addClass("startPageInfo");
-        $(museumInfoDiv).attr("id", "spanContainer");
-        var museumInfoSpan = document.createElement('span');
+        // $(museumInfoDiv).addClass("startPageInfo");
+        // $(museumInfoDiv).attr("id", "spanContainer");
+        var museumInfoSpan = root.find('#museumInfoSpan'); // document.createElement('span');
 
         var tempInfo = main.Metadata["MuseumInfo"];
-        if (tempInfo === undefined) {
+        if (!tempInfo) {
             tempInfo = "";
         }
-        museumInfoSpan.innerText = tempInfo;
-        $(museumInfoSpan).attr('id', 'museumInfo');
-        $(museumInfoDiv).append($(museumInfoSpan));
+        museumInfoSpan.text(tempInfo);
+        // $(museumInfoSpan).attr('id', 'museumInfo');
+        // $(museumInfoDiv).append($(museumInfoSpan));
         var loadedInterval = setInterval(function () {
-            if (LADS.Util.elementInDocument($(museumInfoDiv))) {
-                var subheadingFont = parseInt($(museumLoc).css('font-size'), 10);
-                LADS.Util.UI.fitTextInDiv($(museumInfoSpan), Math.round(subheadingFont * 2 / 3), Math.round(subheadingFont * 1 / 3));
+            if (LADS.Util.elementInDocument(museumInfoDiv)) {
+                var subheadingFont = parseInt(museumLoc.css('font-size'), 10);
+                LADS.Util.UI.fitTextInDiv(museumInfoSpan, Math.round(subheadingFont * 2 / 3), Math.round(subheadingFont * 1 / 3));
                 clearInterval(loadedInterval);
             }
         });
 
-        var infoTextHolder = document.createElement('div');
-        $(infoTextHolder).css({
-            'top': "0%",
-            'position': 'relative',
-            'padding': '0% 4%',
-            'height': '100%'
-        });
-        $(infoTextHolder).addClass('infoTextHolder');
+        var infoTextHolder = root.find('#infoTextHolder'); // document.createElement('div');
+        // infoTextHolder.css({
+        //     'top': "0%",
+        //     'position': 'relative',
+        //     'padding': '0% 4%',
+        //     'height': '100%'
+        // });
+        // infoTextHolder.addClass('infoTextHolder');
 
-        var infoDiv = document.createElement('div');
-        $(infoDiv).css({
-            'width': '100%',
-            'top': "42%",
-            'height': '45%',
-            'position': 'absolute',
+        var infoDiv = root.find('#infoDiv'); // document.createElement('div');
+        infoDiv.css({
             'background-color': backgroundColor
         });
-        $(infoDiv).addClass('infoDiv');
-        $(overlay).append(infoDiv);
-        $(infoDiv).append(infoTextHolder);
-        $(infoTextHolder).append(museumName);
-        $(infoTextHolder).append(museumLoc);
-        $(infoTextHolder).append(museumInfoDiv);
+        // $(infoDiv).addClass('infoDiv');
+        // $(overlay).append(infoDiv);
+        // $(infoDiv).append(infoTextHolder);
+        // $(infoTextHolder).append(museumName);
+        // $(infoTextHolder).append(museumLoc);
+        // $(infoTextHolder).append(museumInfoDiv);
 
         //Buffer around server tag to prevent misclicks
-        serverTagBuffer.attr('id', 'serverTagBuffer');
-        serverTagBuffer.css({
-            'width': '23.8%',
-            'bottom': '0%',
-            'height': '8%',
-            'right': '0%',
-            'position': 'absolute',
-        });
+        // serverTagBuffer.attr('id', 'serverTagBuffer');
+        // serverTagBuffer.css({
+        //     'width': '23.8%',
+        //     'bottom': '0%',
+        //     'height': '8%',
+        //     'right': '0%',
+        //     'position': 'absolute',
+        // });
 
         // create server setup label in bottom right of splash screen
-        $(serverSetUpContainer).attr('id', 'serverSetUpContainer');
-        $(serverSetUpContainer).css({
-            'background-color': 'rgba(0,0,0,0.85)',
-            'position': 'absolute',
-            'width': '63%',
-            'bottom': '0%',
-            'height': '50%',
-            'right': '18.5%',
-            'border-top-left-radius': '10px',
-            'border-top-right-radius': '10px',
-            'text-align': 'center',
-        });
-        var serverSetUpLabel = $(document.createElement('label'));
-        serverSetUpLabel.text('Change Server');
-        serverSetUpLabel.css({
-            'color': 'white',
-            'text-align': 'center',
-            'font-size': '130%',
-            'top': '8%',
-            'position': 'relative'
-        });
-        serverSetUpContainer.append(serverSetUpLabel);
+        // $(serverSetUpContainer).attr('id', 'serverSetUpContainer');
+        // $(serverSetUpContainer).css({
+        //     'background-color': 'rgba(0,0,0,0.85)',
+        //     'position': 'absolute',
+        //     'width': '63%',
+        //     'bottom': '0%',
+        //     'height': '50%',
+        //     'right': '18.5%',
+        //     'border-top-left-radius': '10px',
+        //     'border-top-right-radius': '10px',
+        //     'text-align': 'center',
+        // });
+        // var serverSetUpLabel = $(document.createElement('label'));
+        // serverSetUpLabel.text('Change Server');
+        // serverSetUpLabel.css({
+        //     'color': 'white',
+        //     'text-align': 'center',
+        //     'font-size': '130%',
+        //     'top': '8%',
+        //     'position': 'relative'
+        // });
+        // serverSetUpContainer.append(serverSetUpLabel);
 
         serverSetUpContainer.on('click', LADS.Util.UI.ChangeServerDialog);
         serverTagBuffer.on('click', function (evt) {
@@ -325,8 +324,8 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             evt.stopPropagation();
         });
 
-        serverTagBuffer.append(serverSetUpContainer);
-        $(root).append(serverTagBuffer);
+        // serverTagBuffer.append(serverSetUpContainer);
+        // $(root).append(serverTagBuffer);
 
 
         function openServerChange() {
@@ -334,48 +333,48 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             serverDialogOverlay.fadeIn(500);
         }
 
-        //Buffer around authoring tag to prevent misclicks
-        authoringTagBuffer.attr('id', 'authoringTagBuffer');
-        authoringTagBuffer.css({
-            'position': 'absolute',
-            'width': '23.8%',
-            'bottom': '0%',
-            'left': '0%',
-            'height': '8%',
+        // //Buffer around authoring tag to prevent misclicks
+        // authoringTagBuffer.attr('id', 'authoringTagBuffer');
+        // authoringTagBuffer.css({
+        //     'position': 'absolute',
+        //     'width': '23.8%',
+        //     'bottom': '0%',
+        //     'left': '0%',
+        //     'height': '8%',
 
-        });
-        // create enter authoring mode label: text
-        authoringModeLabelContainer.attr('id', 'authoringModeLabelContainer');
-        authoringModeLabelContainer.css({
-            'background-color': 'rgba(0,0,0,0.85)',
-            'position': 'absolute',
-            'width': '63%',
-            'bottom': '0%',
-            'height': '50%',
-            'left': '18.5%',
-            'border-top-left-radius': '10px',
-            'border-top-right-radius': '10px',
-            'text-align': 'center',
-        });
+        // });
+        // // create enter authoring mode label: text
+        // authoringModeLabelContainer.attr('id', 'authoringModeLabelContainer');
+        // authoringModeLabelContainer.css({
+        //     'background-color': 'rgba(0,0,0,0.85)',
+        //     'position': 'absolute',
+        //     'width': '63%',
+        //     'bottom': '0%',
+        //     'height': '50%',
+        //     'left': '18.5%',
+        //     'border-top-left-radius': '10px',
+        //     'border-top-right-radius': '10px',
+        //     'text-align': 'center',
+        // });
 
-        var authoringModeIcon = document.createElement('label');
-        $(authoringModeIcon).text('Authoring Mode');
-        $(authoringModeIcon).css({
-            'color': 'white',
-            'text-align': 'center',
-            'font-size': '130%',
-            'top': '8%',
-            'position': 'relative'
-        });
-        authoringModeLabelContainer.append(authoringModeIcon);
+        // var authoringModeIcon = document.createElement('label');
+        // $(authoringModeIcon).text('Authoring Mode');
+        // $(authoringModeIcon).css({
+        //     'color': 'white',
+        //     'text-align': 'center',
+        //     'font-size': '130%',
+        //     'top': '8%',
+        //     'position': 'relative'
+        // });
+        // authoringModeLabelContainer.append(authoringModeIcon);
 
-        authoringModeLabelContainer.on('click', openDialog);
-        authoringTagBuffer.on('click', function (evt) {
-            evt.stopPropagation();
-        });
+        // authoringModeLabelContainer.on('click', openDialog);
+        // authoringTagBuffer.on('click', function (evt) {
+        //     evt.stopPropagation();
+        // });
 
-        $(root).append(authoringTagBuffer);
-        authoringTagBuffer.append(authoringModeLabelContainer);
+        // $(root).append(authoringTagBuffer);
+        // authoringTagBuffer.append(authoringModeLabelContainer);
 
 
         /**
@@ -460,33 +459,33 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         //////////////
         //////////////
-        var touchHint = document.createElement('label');
-        touchHint.innerText = 'Tap the screen to begin exploring artworks';
-        $(touchHint).css({
-            'margin-top': '3%',
-            'margin-left': '10%',
-            float: 'left',
-            width: '50%',
-            'text-shadow': 'black 0.1em 0.1em 0.2em',
-            'font-size': '250%',
-            'opacity': '0.8'
-        });
+        var touchHint = root.find('#touchHint'); // document.createElement('label');
+        // touchHint.innerText = 'Tap the screen to begin exploring artworks';
+        // $(touchHint).css({
+        //     'margin-top': '3%',
+        //     'margin-left': '10%',
+        //     float: 'left',
+        //     width: '50%',
+        //     'text-shadow': 'black 0.1em 0.1em 0.2em',
+        //     'font-size': '250%',
+        //     'opacity': '0.8'
+        // });
 
-        var handGif = document.createElement('img');
-        $(handGif).attr('src', 'images/RippleNewSmall.gif');
-        $(handGif).css({
-            float: 'right',
-            'margin-top': '2%',
-            'margin-right': '20%',
-            'width': '9%',
-            'height': 'auto'
-        });
+        var handGif = root.find('#handGif'); // document.createElement('img');
+        // $(handGif).attr('src', 'images/RippleNewSmall.gif');
+        // $(handGif).css({
+        //     float: 'right',
+        //     'margin-top': '2%',
+        //     'margin-right': '20%',
+        //     'width': '9%',
+        //     'height': 'auto'
+        // });
 
-        var touchHintDiv = $(document.createElement('div'));
-        touchHintDiv.css({ top: "29%", width: '100%', position: 'absolute', height: '13%' });
-        $(overlay).append(touchHintDiv);
-        touchHintDiv.append(touchHint);
-        touchHintDiv.append(handGif);
+        // var touchHintDiv = $(document.createElement('div'));
+        // touchHintDiv.css({ top: "29%", width: '100%', position: 'absolute', height: '13%' });
+        // $(overlay).append(touchHintDiv);
+        // touchHintDiv.append(touchHint);
+        // touchHintDiv.append(handGif);
         LADS.Util.fitText(touchHint, 2);
 
         handGif.onclick = switchPage;

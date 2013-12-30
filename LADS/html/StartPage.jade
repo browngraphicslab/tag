@@ -1,2 +1,28 @@
 #startPageRoot
-	
+	#background
+		#overlay
+			#logoContainer
+				img#logo
+			#brownInfoBox
+				#expandInfoButton
+					img#expandImage(src='images/icons/Left.png')
+				label#tagName
+					| TAG
+				label#fullTag
+					| Touch Art Gallery
+			#infoDiv
+				#infoTextHolder
+					#museumName.startPageInfo
+						span#museumNameSpan
+					#museumLoc.startPageInfo
+						span#museumLocSpan
+					#museumInfoDiv.startPageInfo
+						span#museumInfoSpan
+			#touchHintDiv
+				label#touchHint
+					| Tap the screen to begin exploring artworks
+				img#handGif(src='images/RippleNewSmall.gif')
+		#serverTagBuffer
+			#serverSetUpContainer
+				label#serverSetUpLabel
+					| Change Server

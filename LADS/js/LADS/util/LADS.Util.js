@@ -54,7 +54,8 @@ LADS.Util = (function () {
         saveThumbnail: saveThumbnail,
         htmlEntityEncode: htmlEntityEncode,
         htmlEntityDecode: htmlEntityDecode,
-        videoErrorHandler: videoErrorHandler
+        videoErrorHandler: videoErrorHandler,
+        getHtmlAjax: getHtmlAjax
     };
 
     /* 
@@ -1244,6 +1245,24 @@ LADS.Util = (function () {
             container.append(msgdiv);
             videoElt[0].onerror = function (err) {  }; // get rid of the error handler afterwards
         }
+    }
+
+    function getHtmlAjax(path) {
+        var ret;
+        $.ajax({
+            async: false, // essentially the same as putting everything below in the success handler, easier to type...
+            url: "html/"+path,//htmlDir + path,
+            success: function (data) {
+                ret = $(data);
+            },
+            error: function (err) {
+                console.log("url = " + htmlDir + path);
+                console.log("error: "+err.statusText);
+                ret = null;
+            },
+            dataType: 'html'
+        });
+        return ret;
     }
 
 })();
