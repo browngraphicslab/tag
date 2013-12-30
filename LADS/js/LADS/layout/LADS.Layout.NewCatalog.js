@@ -1,9 +1,8 @@
 ﻿LADS.Util.makeNamespace("LADS.Layout.NewCatalog");
 //catalog should only get artworks and exhibitions
 //LADS.Layout.NewCatalog = function (options, newCatalogCallback) {//needs to receive'split'
-LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSplitscreen) {//needs to receive'split'
-
-"use strict";
+LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSplitscreen) {
+    "use strict";
     ////vars from exhibition
     //options = LADS.Util.setToDefaults(options, LADS.Layout.Exhibitions.default_options);
     var root, leftbar, displayarea, displayHelp, exhibitarea, currentfolder, currentExhElements, img1,

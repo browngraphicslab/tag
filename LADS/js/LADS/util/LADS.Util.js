@@ -13,7 +13,7 @@ LADS.Util = (function () {
     'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
     'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
 
-    var tagContainer = $('#tagRoot') || $("body"); // TODO more general
+    var tagContainerId = 'tagRoot';
 
     //LADS.Util public methods and members
     return {
@@ -552,6 +552,7 @@ LADS.Util = (function () {
 */
     function getMaxFontSizeEM(text, minFontSize, maxWidth, maxHeight, step) {
         var testDiv = $(document.createElement('div'));
+        var tagContainer = $('#'+tagContainerId) || $('body');
         step = step || 0.1;
         var currSize = minFontSize;
 
@@ -1257,7 +1258,7 @@ LADS.Util.UI = (function () {
     var IGNORE_IN_SEARCH = ['visible', 'exhibits', 'selected', 'guid', 'url', 'comp'];
     var recentlyAssociated = []; // recently associated media
     var recentlyAssociatedGUIDs = []; // to more easily check if a media has been associated recently
-    var tagContainer = $('#tagRoot') || $("body"); // TODO more general
+    var tagContainerId = 'tagRoot'; // TODO more general
 
     return {
         slidePageLeftSplit: slidePageLeftSplit,
@@ -1414,6 +1415,7 @@ LADS.Util.UI = (function () {
 
     function ChangeServerDialog() {
         var serverDialogOverlay = $(document.createElement('div'));
+        var tagContainer = $('#'+tagContainerId) || $('body');
         serverDialogOverlay.attr('id', 'serverDialogOverlay');
         serverDialogOverlay.css({
             display: 'block',
@@ -1632,6 +1634,7 @@ LADS.Util.UI = (function () {
 
     function FeedbackBox(sourceType, sourceID) {
         var dialogOverlay = $(document.createElement('div'));
+        var tagContainer = $('#'+tagContainerId) || $('body');
         $(dialogOverlay).attr('id', 'dialogOverlay');
 
         $(dialogOverlay).css({
@@ -2149,6 +2152,7 @@ LADS.Util.UI = (function () {
     function slidePageLeft(newpage, callback) {
         var outgoingDone = false;
         var incomingDone = false;
+        var tagContainer = $('#'+tagContainerId) || $('body');
 
         var elements = tagContainer.children();
         elements.remove();
@@ -2188,6 +2192,7 @@ LADS.Util.UI = (function () {
     function slidePageRight(newpage, callback) {
         var outgoingDone = false;
         var incomingDone = false;
+        var tagContainer = $('#'+tagContainerId) || $('body');
 
         var elements = tagContainer.children();
         elements.remove();
