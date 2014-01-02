@@ -49,7 +49,11 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 assets = zoomimage.getAssets();
                 hotspots.sort(function (a, b) { return a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1; });
                 assets.sort(function (a, b) { return a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1; });
-                zoomimage.loadDoq(doq);
+                try { // TODO figure out why loadDoq sometimes causes a NetworkError
+                    zoomimage.loadDoq(doq);
+                } catch(err) {
+                    console.log(err);
+                }
                 LADS.Util.Splitscreen.setViewers(root, zoomimage);
                 makeSidebar();
                 initialized = true;
