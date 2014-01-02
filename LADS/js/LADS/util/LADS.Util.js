@@ -1247,11 +1247,15 @@ LADS.Util = (function () {
         }
     }
 
+    /**
+     * Used by web app code to slide in pages given their html files
+     * @param path     the path to the html file within the html directory
+     */
     function getHtmlAjax(path) {
         var ret;
         $.ajax({
-            async: false, // essentially the same as putting everything below in the success handler, easier to type...
-            url: "html/"+path,//htmlDir + path,
+            async: false,
+            url: "html/"+path,
             success: function (data) {
                 ret = $(data);
             },

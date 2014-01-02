@@ -173,7 +173,9 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
     }
 
     function init() {
-        Seadragon.Config.visibilityRatio = 0.8;
+        if(Seadragon.Config) {
+            Seadragon.Config.visibilityRatio = 0.8; // TODO see why Seadragon.Config isn't defined; should it be?
+        }
 
         var viewerelt = $(document.createElement('div'));
         viewerelt.css({ height: "100%", width: "100%", position: "absolute", 'z-index': 0 });

@@ -1472,6 +1472,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             LADS.Util.UI.slidePageLeftSplit(root, video.getRoot());//have the page sliding to left and 
         }
         else {//if it's an image
+            
             deepZoom = new LADS.Layout.Artmode("catalog", curOpts, currExhibition);
             LADS.Util.UI.slidePageLeftSplit(root, deepZoom.getRoot());//have the page sliding to left and 
             //var video = new LADS.Layout.VideoPlayer(currentImage, currExhibition);
