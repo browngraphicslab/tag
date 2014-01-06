@@ -32,7 +32,8 @@
   height: 40%;
   left: 100%;
   position: absolute;
-  top: 50%;
+  top: 53%;
+  font-family: sans-serif;
 }
 #startPageRoot #expandImage {
   height: 30%;
@@ -54,6 +55,7 @@
   left: 20%;
   position: absolute;
   top: 60%;
+  font-family: sans-serif;
 }
 #startPageRoot #handGif {
   float: right;
@@ -92,8 +94,8 @@
 #startPageRoot #microsoftLogo {
   height: auto;
   left: 68%;
-  position: relative;
-  top: -90%;
+  position: absolute;
+  top: 10%;
   width: 20%;
 }
 #startPageRoot #museumInfoDiv {
@@ -110,6 +112,7 @@
   position: relative;
   width: 100%;
   word-wrap: break-word;
+  font-family: sans-serif;
 }
 #startPageRoot #museumName {
   color: #fff;
@@ -120,6 +123,7 @@
   position: relative;
   width: 100%;
   word-wrap: break-word;
+  font-family: sans-serif;
 }
 #startPageRoot #museumNameSpan {
   height: 100%;
@@ -134,7 +138,7 @@
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   bottom: 0%;
-  height: 50%;
+  height: 60%;
   position: absolute;
   right: 18.5%;
   text-align: center;
@@ -142,10 +146,11 @@
 }
 #startPageRoot #serverSetUpLabel {
   color: #fff;
-  font-size: 130%;
+  font-size: 115%;
   position: relative;
   text-align: center;
   top: 8%;
+  font-family: sans-serif;
 }
 #startPageRoot #serverTagBuffer {
   bottom: 0%;
@@ -157,13 +162,13 @@
 #startPageRoot #sponsoredText {
   height: auto;
   left: 68%;
-  position: relative;
-  top: -100%;
+  position: absolute;
+  top: 20%;
   width: 20%;
 }
 #startPageRoot #tagName {
   color: #fff;
-  font-size: 250%;
+  font-size: 200%;
   font-family: 'arial';
   left: 20%;
   position: absolute;
@@ -177,6 +182,7 @@
   opacity: 0.8;
   text-shadow: #000 0.1em 0.1em 0.2em;
   width: 50%;
+  font-family: sans-serif;
 }
 #startPageRoot #touchHintDiv {
   height: 13%;

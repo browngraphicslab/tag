@@ -242,7 +242,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
                 sponsoredText.remove();
                 microsoftLogo.remove();
                 fullTag.animate({ left: '20%', top: '60%', 'font-size': '90%' }, 700);
-                tagName.animate({ left: '20%', top: '10%', 'font-size': '250%' }, 700);
+                tagName.animate({ left: '20%', top: '10%', 'font-size': '200%' }, 700);
                 brownPeople.animate({ "left": "75%", "top": "75%", 'font-size': '0%' }, 500);
             }
             else {
@@ -254,9 +254,9 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
                 brownInfoBox.append(microsoftLogo);
                 expandImage.css({ 'transform': 'scaleX(-1)' });
                 brownPeople.css({ "right": "0%", "bottom": "0%", "position": "absolute", "font-size": "0%" });
-                brownPeople.animate({ "left": "12%", "top": "40%", "position": "absolute", "font-size": "80%" }, 700, 'swing', function () { $(brownPeople).fitText(5); });
+                brownPeople.animate({ "left": "12%", "top": "51%", "position": "absolute", "font-size": "81%" }, 700, 'swing', function () { $(brownPeople).fitText(5); });
                 tagName.animate({ left: '12%', top: '3%', 'font-size': '300%' }, 700);
-                fullTag.animate({ left: '12%', top: '25%', 'font-size': '150%' }, 700);
+                fullTag.animate({ left: '12%', top: '35%', 'font-size': '130%' }, 700);
             }
         }
 
