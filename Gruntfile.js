@@ -8,7 +8,7 @@ module.exports = function(grunt) {
 				files: {
 					'LADS/css/StartPage.css': 'LADS/css/StartPage.styl',
 					// 'LADS/css/Artmode.css': 'LADS/css/Artmode.styl',
-					// 'LADS/css/NewCatalog.css': 'LADS/css/NewCatalog.styl',
+					'LADS/css/NewCatalog.css': 'LADS/css/NewCatalog.styl',
 					// 'LADS/css/VideoPlayer.css': 'LADS/css/VideoPlayer.styl',
 					// 'LADS/css/TourPlayer.css': 'LADS/css/TourPlayer.styl'
 				}
@@ -22,7 +22,7 @@ module.exports = function(grunt) {
 				files: {
 					'LADS/html/StartPage.html': 'LADS/html/StartPage.jade',
 					// 'LADS/html/Artmode.html': 'LADS/html/Artmode.jade',
-					// 'LADS/html/NewCatalog.html': 'LADS/html/NewCatalog.jade',
+					'LADS/html/NewCatalog.html': 'LADS/html/NewCatalog.jade',
 					// 'LADS/html/VideoPlayer.html': 'LADS/html/VideoPlayer.jade',
 					// 'LADS/html/TourPlayer.html': 'LADS/html/TourPlayer.jade'
 				}
