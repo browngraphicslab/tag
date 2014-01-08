@@ -25,6 +25,7 @@
 
     var oHead = document.getElementsByTagName('HEAD').item(0);
     for (var i = 0; i < SCRIPTS.length; i++) {
+        debugger;
         var oScript = document.createElement("script");
         oScript.type = "text/javascript";
         oScript.src = PATH + SCRIPTS[i];
