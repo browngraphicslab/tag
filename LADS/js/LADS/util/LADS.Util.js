@@ -603,7 +603,7 @@ LADS.Util = (function () {
         var request = new XMLHttpRequest();
         request.open("GET", url, false);
         request.send(null);
-        // if (!request.getResponseHeader("Date")) { // TODO figure out why this causes errors
+        if (false && !request.getResponseHeader("Date")) { // TODO figure out why this causes network errors
             var cached = request;
             request = new XMLHttpRequest();
             var ifModifiedSince = cached.getResponseHeader("Last-Modified") || new Date(0); // January 1, 1970
@@ -613,7 +613,7 @@ LADS.Util = (function () {
             if (request.status === 304) {
                 request = cached;
             }
-        // }
+        }
         return request;
     }
 
