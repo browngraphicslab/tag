@@ -1457,8 +1457,7 @@ LADS.Util.UI = (function () {
 
         //
 
-        var serverDialogSpecs = LADS.Util.constrainAndPosition($(window).width(), $(window).height(),
-
+        var serverDialogSpecs = LADS.Util.constrainAndPosition($(tagContainer).width(), $(tagContainer).height(),
         {
             center_h: true,
             center_v: true,
