@@ -82,9 +82,9 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
             reconnectButton.click(function () {
                 localStorage.acceptDataUsage = "true";
                 if (!detach) {
-                    $("body").empty();
+                    $("#tagRoot").empty();
                     LADS.Layout.StartPage(null, function (page) {
-                        $("body").append(page);
+                        $("#tagRoot").append(page);
                     });
                 } else {
                     root.remove();
