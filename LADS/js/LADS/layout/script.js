@@ -27,7 +27,6 @@ LADS.Layout.Exhibitions = function (options, exhibitionCallback) {
         loadExhibit: loadExhibit,
     };
 
-
     init();
 
     return that;

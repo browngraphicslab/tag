@@ -710,22 +710,23 @@ LADS.Util = (function () {
             swipe: false,
         });
 
-        var lastTouched = null;
-        var that = this;
-        //var gr = LADS.Util.getGestureRecognizer();
-        var manipulating = false;
-        var isDown = false;
-        var $element = $(element);
+        var lastTouched = null,
+            that = this,
+            manipulating = false,
+            isDown = false,
+            $element = $(element);
 
-        var lastPos = {};
-        var lastEvt;
-        var timer;
-        var currentAccelId = 0;
-        var lastScale = 1;
+        var lastPos = {},
+            lastEvt,
+            timer,
+            currentAccelId = 0,
+            lastScale = 1;
+
         // general event handler
         function manipulationHandler(evt) {
+            debugger;
             var translation;
-            if (evt.gesture !== null) {
+            if (evt.gesture) {
                 // Update Dir
                 getDir(evt, true);
                 var pivot = { x: evt.gesture.center.pageX - $element.offset().left, y: evt.gesture.center.pageY - $element.offset().top };
@@ -741,9 +742,9 @@ LADS.Util = (function () {
                 lastPos.x = evt.gesture.center.pageX;
                 lastPos.y = evt.gesture.center.pageY;
                 lastEvt = evt;
-                if (typeof functions.onManipulate === "function")
+                if (typeof functions.onManipulate === "function") {
                     functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: 1 + scale }, evt);
-
+                }
                 clearTimeout(timer);
                 timer = setTimeout(function () {
                     var dir = getDir(evt);
@@ -752,6 +753,31 @@ LADS.Util = (function () {
                 }, 5);
                 //if ((evt.type === "pinch" || evt.type === "pinchin" || evt.type === "pinchout") && typeof functions.onScroll === "function")
                 //    functions.onScroll(1 + scale, pivot);
+            } else {
+                // Update Dir
+                getDir(evt, true);
+                var pivot = { x: evt.pageX - $element.offset().left, y: evt.pageY - $element.offset().top };
+                // var rotation = evt.gesture.rotation; // In degrees // Don't need rotation...
+                if (false && !lastPos.x && lastPos.x !== 0) { // TODO need this?
+                    translation = { x: evt.gesture.deltaX, y: evt.gesture.deltaY };
+                } else {
+                    translation = { x: evt.pageX - lastPos.x, y: evt.pageY - lastPos.y };
+                    console.log('translation.y = '+translation.y);
+                }
+                var scale = evt.gesture.scale - lastScale; /////////////////// HEREHEHEHEHEHRHERIEREIRHER ///
+                lastScale = evt.gesture.scale;
+                lastPos.x = evt.pageX;
+                lastPos.y = evt.pageY;
+                lastEvt = evt;
+                if (typeof functions.onManipulate === "function") {
+                    functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: 1 + scale }, evt);
+                }
+                clearTimeout(timer);
+                timer = setTimeout(function () {
+                    var dir = getDir(evt);
+                    if (evt.gesture.pointerType !== "mouse" && !noAccel)
+                        accel(30 * dir.vx, 30 * dir.vy, null, currentAccelId);
+                }, 5);
             }
         }
 
@@ -791,12 +817,6 @@ LADS.Util = (function () {
 
         // mouse move
         function processMove(evt) {
-            //if (stopOutside) {
-            //    if (evt.gesture.center.pageX < 0 || evt.gesture.center.pageY < 0 || evt.gesture.center.pageX > $(element).width() || evt.gesture.center.pageY > $(element).height()) {
-            //        return;
-            //    }
-            //}
-
             manipulationHandler(evt);
         }
 
@@ -876,6 +896,7 @@ LADS.Util = (function () {
         }
 
         function getDir(evt, noReturn) {
+            debugger;
             if (!firstEvtX) {
                 firstEvtX = evt;
                 //console.log("firstEvtX SETA");
@@ -930,7 +951,10 @@ LADS.Util = (function () {
         }
 
         hammer.on('touch', processDown);
-        hammer.on('drag', processMove);
+        hammer.on('drag', function(evt){
+            debugger;
+            processMove(evt);
+        });
         hammer.on('pinch', processPinch);
         hammer.on('release', processUp);
         element.onmousewheel = processScroll;
@@ -1517,7 +1541,7 @@ LADS.Util.UI = (function () {
         serverDialogContact.css({ 'margin-top': '7%' , 'color':'white','margin-left': '10%'  });
         serverDialogContact.html(
             "Contact us for server setup at <a href='mailto:brown.touchartgallery@outlook.com'>brown.touchartgallery@outlook.com</a>."
-            );
+        );
         serverDialog.append(serverDialogContact);
 
         var serverButtonRow = $(document.createElement('div'));
@@ -1726,7 +1750,8 @@ LADS.Util.UI = (function () {
             'display': 'inline-block',
         });
         $(submitButton).text('Send ');
-        $(submitButton).click(submitFeedback);
+        $(submitButton).on('click', submitFeedback);
+
         function submitFeedback() {
             var type = (typeof sourceType === 'function') ? sourceType() : sourceType;
             var id = (typeof sourceID === 'function') ? sourceID() : sourceID;

@@ -187,19 +187,21 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         that.viewer.clearControls();
 
         var canvas = that.viewer.canvas;
-
         LADS.Util.makeManipulatable(canvas, {
             onScroll: function (delta, pivot) {
                 dzScroll(delta, pivot);
             },
-            onManipulate: function (res) { dzManip(res.pivot, res.translation, res.scale); }
+            onManipulate: function (res) {
+                debugger;
+                dzManip(res.pivot, res.translation, res.scale);
+            }
         });
 
         assetCanvas = $(document.createElement('div'));
         assetCanvas.css({
             height: "100%", width: "100%",
             position: "absolute",
-            "overflow-x": "hidden", "overflow-y": "hidden", 'z-index': 50
+            "overflow-x": "hidden", "overflow-y": "hidden", 'z-index': 50, 'pointer-events':'none'
         });
         $(rootElement).append(assetCanvas);
 
