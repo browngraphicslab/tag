@@ -22,40 +22,43 @@
 */
 
 window.rin = window.rin || {};
-window.rin.internal = window.rin.internal || {};
 
-rin.internal.DemoRinDataProxy = function () {
-};
+(function (rin) {
+    /*global $:true*/
+    "use strict";
+    rin.internal = rin.internal || {};
+    rin.internal.DemoRinDataProxy = function () {
+    };
 
-rin.internal.DemoRinDataProxy.prototype = {
-    getRinDataAsync: function (narrativeUrl, onSetStatusMessage, onComplete) {
-        var self = this,
-            rinData;
-        if (onSetStatusMessage) {
-            onSetStatusMessage("Loading Narrative...");
-        }
-
-        // Download the narrative.
-        var options = {
-            url: narrativeUrl,
-            dataType: "json",
-            error: function (jqxhr, textStatus, errorThrown) {
-                if (typeof onComplete == "function") {
-                    rinData = { error: errorThrown.message || errorThrown };
-                    if (onComplete) {
-                        onComplete(rinData);
-                    }
-                }
-            },
-            success: function (data, textStatus, jqxhr) {
-                if (typeof onComplete == "function") {
-                    rinData = data[0];
-                    if (onComplete) {
-                        onComplete(rinData);
-                    }
-                }
+    rin.internal.DemoRinDataProxy.prototype = {
+        getRinDataAsync: function (narrativeUrl, onSetStatusMessage, onComplete) {
+            var rinData;
+            if (onSetStatusMessage) {
+                onSetStatusMessage("Loading Narrative...");
             }
-        };
-        $.ajax(options);
-    },
-}; 
+
+            // Download the narrative.
+            var options = {
+                url: narrativeUrl,
+                dataType: "json",
+                error: function (jqxhr, textStatus, errorThrown) {
+                    if (typeof onComplete === "function") {
+                        rinData = { error: errorThrown.message || errorThrown };
+                        if (onComplete) {
+                            onComplete(rinData);
+                        }
+                    }
+                },
+                success: function (data, textStatus, jqxhr) {
+                    if (typeof onComplete === "function") {
+                        rinData = data[0];
+                        if (onComplete) {
+                            onComplete(rinData);
+                        }
+                    }
+                }
+            };
+            $.ajax(options);
+        }
+    };
+}(window.rin));

@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script type="text/javascript">
+        function loaded() {
+            //placeholder to experiment on load ideas.
+        }
+
+        function onPlayVideoClick() {
+            document.getElementById("myvid").src = document.getElementById("vidSource").value;
+        }
+
+    </script>
+</head>
+<body onload="loaded()">
+    <div>Video to play <input type="text" style="width:500px" id="vidSource" value="http://cdn-media.glacierworks.org/videos/intro-beta-v1.mp4" /> <input type="button" value="Play Video" onclick="onPlayVideoClick()" />
+        </div>
+    <video id="myvid" style="height: 500px; position: absolute; z-index: 20000; opacity: 1;" controls="controls" autoplay="autoplay" ES_ID="_ES_508_Popup">Sorry, Your browser does not support HTML5 video.
+        </video>
+</body>
+</html>

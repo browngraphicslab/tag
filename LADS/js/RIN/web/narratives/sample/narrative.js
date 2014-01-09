@@ -16,7 +16,7 @@
     },
     "providers": {
         "ImageProvider": {
-            "name": "MicrosoftResearch.Rin.ImageExperienceStream",
+            "name": "MicrosoftResearch.Rin.SampleImageExperienceStream",
             "version": 0.0
         },
         "FadeInOutTransitionService": {
@@ -53,6 +53,25 @@
                 "defaultStream": {
                     "duration": 30,
                     "keyframes": [
+                        {
+                            "offset": 0,
+                            "holdDuration": 0,
+                            "state": {
+                                "viewport": {
+                                    "region": {
+                                        "center": {
+                                            "x": 50,
+                                            "y": 50
+                                        },
+                                        "span": {
+                                            "x": 100,
+                                            "y": 100
+                                        }
+                                    },
+                                    "rotation": 90
+                                }
+                            }
+                        },
                         {
                             "offset": 2,
                             "holdDuration": 0,

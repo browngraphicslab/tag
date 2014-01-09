@@ -16,10 +16,10 @@
 /// <reference path="embeddedArtifactTypes.d.ts"/>
 
 module rin.embeddedArtifacts.BuiltinPolicies.base2DGroupPolicy {
-
+    "use strict";
     interface WorkingArtifactEx extends WorkingArtifact {
         inactiveCount: number;
-    };
+    }
 
     export function newInstance(collection: DataCollection, provider: ProviderProxy): GroupEnvironmentalPolicy {
 
@@ -80,7 +80,7 @@ module rin.embeddedArtifacts.BuiltinPolicies.base2DGroupPolicy {
 
             //return interval_intersects(r1.center.x - r1.span.x / 2, r1.center.x + r1.span.x / 2, r2.center.x - r2.span.x / 2, r2.center.x + r2.span.x / 2)
             //&& interval_intersects(r1.center.y - r1.span.y / 2, r1.center.y + r1.span.y / 2, r2.center.y - r2.span.y / 2, r2.center.y + r2.span.y / 2);
-        };
+        }
 
 
         function copyPoint(from: Point2D, to: Point2D): void {
@@ -182,7 +182,7 @@ module rin.embeddedArtifacts.BuiltinPolicies.base2DGroupPolicy {
 
                             workingItem.active = true;
 
-                            if (workingItem.sourceItem != item) {
+                            if (workingItem.sourceItem !== item) {
                                 // Hmm, the previous mapping between working item and source item is broken. 
                                 // This can happen if the source Item list has been re-built, which can happen in
                                 // editing scenarios.
@@ -237,6 +237,6 @@ module rin.embeddedArtifacts.BuiltinPolicies.base2DGroupPolicy {
                     }
                 });
             }
-        };
-    };
+        }
+    }
 }

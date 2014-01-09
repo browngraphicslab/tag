@@ -8,7 +8,9 @@
 //
 
 module rin.Ext.Interpolators {
+    /*jshint validthis:true*/
 
+    "use strict";
     interface Quaternion {
         x: number;
         y: number;
@@ -16,6 +18,11 @@ module rin.Ext.Interpolators {
         w: number;
     }
 
+    class Ease {
+        constructor(t: number) {
+            return (3 - 2 * t) * t * t;
+        }
+    }
    
     // Private module containing some Quaternion-specific code....
     //
@@ -129,8 +136,8 @@ module rin.Ext.Interpolators {
         // TODO: Deal with "tilt" or "roll" aspect. For now, we assume zero-tilt.
         //
         private static quaternionToCenter(q: Quaternion, c: Point2D): void {
-            if (q.w != 0) {
-                if (typeof (console) != "undefined" && console && console.log) console.log("vectorBased interpolation: quaternions with q.w = 0?");
+            if (q.w !== 0) {
+                if (typeof (console) !== "undefined" && console && console.log) console.log("vectorBased interpolation: quaternions with q.w = 0?");
             }
             var pitch = Math.asin(q.z);
             var heading = Math.atan2(q.x,  q.y);
@@ -189,11 +196,10 @@ module rin.Ext.Interpolators {
                 case EasingOption.outEasing:
                     this.ease = this.outCubicEasing;
                     break;
-                case EasingOption.noEasing:
                 default:
                     this.ease = this.linearEasing;
             }
-            if (this.ease == this.piecewiseInOutCubicEasing) {
+            if (this.ease === this.piecewiseInOutCubicEasing) {
                 // set up all the needed constants
                 // Calculate normalized inTransitionStart and outTransitionEnd
                 var invDuration = 1.0 / interpolationDuration;
@@ -267,7 +273,7 @@ module rin.Ext.Interpolators {
         constructor(iState: InterpolationState, type: string, easing: bool) {
 
             var postKfState = iState.postKf ? iState.postKf.state[this.sliverId] : null;
-            var preKfState = iState.preKf ? iState.preKf.state[this.sliverId] : null;;
+            var preKfState = iState.preKf ? iState.preKf.state[this.sliverId] : null;
  
             if (type)
                 this.interpolatorType = type;
@@ -311,37 +317,36 @@ module rin.Ext.Interpolators {
             //
             var qh;
             var easingHelper: PiecewiseCubicEasingHelper;
-            switch (this.interpolatorType) {
-                case "vectorBased":
-                    qh = new QuaternionHelperVectorBased(preKfRegion, postKfRegion);
-                    if (this.usePiecewiseCubicEasing) {
-                        var easingOption: EasingOption = EasingOption.noEasing;
-                        //Figure out the easingoption, based on whether prepre and postPost keyframes are present,  and whether they have any holdduration specified
-                        
-                        // We want easing coming in if there is no prePreKf or there is some non-zero holdduration defined on preKf
-                        var easingOnIn = (iState.preKf.holdDuration != undefined && iState.preKf.holdDuration > 1E-5) || !iState.prePreKf;
+            if (this.interpolatorType === "vectorBased") {
+                qh = new QuaternionHelperVectorBased(preKfRegion, postKfRegion);
+                if (this.usePiecewiseCubicEasing) {
+                    var easingOption: EasingOption = EasingOption.noEasing;
+                    //Figure out the easingoption, based on whether prepre and postPost keyframes are present,  and whether they have any holdduration specified
 
-                        // We want easing going out if there is no postPostKf or there is some non-zero holdduration defined on postKf
-                        var easingOnOut = (iState.postKf.holdDuration != undefined && iState.postKf.holdDuration > 1E-5 ) || !iState.postPostKf;
-                        if (easingOnIn) {
-                            if (easingOnOut) {
-                                easingOption = EasingOption.inOutEasing
-                            }
-                            else {
-                                easingOption = EasingOption.inEasing;
-                            }
+                    // We want easing coming in if there is no prePreKf or there is some non-zero holdduration defined on preKf
+                    var easingOnIn = (iState.preKf.holdDuration !== undefined && iState.preKf.holdDuration > 1E-5) || !iState.prePreKf;
+
+                    // We want easing going out if there is no postPostKf or there is some non-zero holdduration defined on postKf
+                    var easingOnOut = (iState.postKf.holdDuration !== undefined && iState.postKf.holdDuration > 1E-5) || !iState.postPostKf;
+                    if (easingOnIn) {
+                        if (easingOnOut) {
+                            easingOption = EasingOption.inOutEasing
                         }
                         else {
-                            if (easingOnOut) {
-                                easingOption = EasingOption.outEasing;
-                            }
-                            else {
-                                easingOption = EasingOption.noEasing;
-                            }
+                            easingOption = EasingOption.inEasing;
                         }
-                        easingHelper = new PiecewiseCubicEasingHelper(iState, iState.preKf.easingDuration ? iState.preKf.easingDuration : this.defaultEasingDuation, easingOption);
                     }
-                    break;
+                    else {
+                        if (easingOnOut) {
+                            easingOption = EasingOption.outEasing;
+                        }
+                        else {
+                            easingOption = EasingOption.noEasing;
+                        }
+                    }
+                    easingHelper = new PiecewiseCubicEasingHelper(iState, iState.preKf.easingDuration ? iState.preKf.easingDuration : this.defaultEasingDuation, easingOption);
+                }
+
             }
 
             //
@@ -397,11 +402,8 @@ module rin.Ext.Interpolators {
                 }
                 else {
                     var rawProgress = (t - preTime) / timeDelta;
-                    return easingHelper ? easingHelper.ease(rawProgress) : Ease(rawProgress);
+                    return easingHelper ? easingHelper.ease(rawProgress) : new Ease(rawProgress);
                 }
-            }
-            var Ease = function (t: number): number {
-                return (3 - 2 * t) * t * t;
             }
             //
             //  Computes the relative progress ([0.0->1.0]) of the orientation animation. Needs to account for
@@ -417,7 +419,7 @@ module rin.Ext.Interpolators {
                 }
                 else {
                     var rawProgress = (t - preTime) / timeDelta;
-                    return easingHelper ? easingHelper.ease(rawProgress) : Ease(rawProgress);
+                    return easingHelper ? easingHelper.ease(rawProgress) : new Ease(rawProgress);
                 }
             }
 

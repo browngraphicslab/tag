@@ -189,15 +189,17 @@ var PriorityNetworkDownloader = function(useCORS, tileDownloadFailedCallback, ti
         img.src = url;
     }
 
+    function sortByPriority(l, r) {
+        return r.priority - l.priority;
+    }
+
     /**
      * Call this from the run-loop of the application.
      * This will process any completed downloads and trigger new downloads.
      */
     self.update = function() {
         self.completed = [];
-        _queue.sort(function(l, r) {
-            return r.priority - l.priority;
-        });
+        _queue.sort(sortByPriority);
 
         var blockedDownloads = 0;
 

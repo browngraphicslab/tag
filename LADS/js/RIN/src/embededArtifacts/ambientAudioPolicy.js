@@ -19,18 +19,21 @@
             */
             /// <reference path="embeddedArtifactTypes.d.ts"/>
             (function (ambientAudioPolicy) {
-                ;
+                "use strict";
                 function emptySoundStateInstance() {
                     return {
                         level: 0
                     };
                 }
-                function OriginPoint() {
-                    return {
-                        x: 0,
-                        y: 0
-                    };
-                }
+                var OriginPoint = (function () {
+                    function OriginPoint() {
+                        return {
+                            x: 0,
+                            y: 0
+                        };
+                    }
+                    return OriginPoint;
+                })();                
                 function getRegion(r) {
                     return r.span.x * r.span.y;
                 }
@@ -44,12 +47,12 @@
                 }
                 function newInstance(collection, provider) {
                     var screenDimensions = {
-                        center: OriginPoint(),
-                        span: OriginPoint()
+                        center: new OriginPoint(),
+                        span: new OriginPoint()
                     };
-                    var tmpPoint1 = OriginPoint();// WARNING: Used by convertRegionToScreen
+                    var tmpPoint1 = new OriginPoint();// WARNING: Used by convertRegionToScreen
                     
-                    var tmpPoint2 = OriginPoint();// WARNING: Used by convertRegionToScreen
+                    var tmpPoint2 = new OriginPoint();// WARNING: Used by convertRegionToScreen
                     
                     var convertRegionToScreen = provider.convertRegionToScreen2D || function (inRegion, outRegion) {
                         var ret;
@@ -70,15 +73,15 @@
                     };
                     function evaluate(workingList, experienceSmallState) {
                         provider.getScreenDimensions(screenDimensions);
-                        var maxArea = getRegion(screenDimensions), maxDistance = getDistance(screenDimensions.center, OriginPoint());
+                        var maxArea = getRegion(screenDimensions), maxDistance = getDistance(screenDimensions.center, new OriginPoint());
                         workingList.forEach(function (workingItem, id) {
                             if(!workingItem.state.sound) {
                                 workingItem.state.sound = emptySoundStateInstance();
                             }
                             if(workingItem.active) {
                                 var itemRegion = {
-                                    center: OriginPoint(),
-                                    span: OriginPoint()
+                                    center: new OriginPoint(),
+                                    span: new OriginPoint()
                                 };
                                 convertRegionToScreen(workingItem.sourceItem.region, itemRegion);
                                 var itemIntersectArea = getIntersectRegion(screenDimensions, itemRegion), volumeLevel = ((itemIntersectArea) / maxArea) * ((maxDistance - getDistance(itemRegion.center, screenDimensions.center)) / maxDistance);
@@ -93,7 +96,6 @@
                     };
                 }
                 ambientAudioPolicy.newInstance = newInstance;
-                ;
             })(BuiltinPolicies.ambientAudioPolicy || (BuiltinPolicies.ambientAudioPolicy = {}));
             var ambientAudioPolicy = BuiltinPolicies.ambientAudioPolicy;
         })(embeddedArtifacts.BuiltinPolicies || (embeddedArtifacts.BuiltinPolicies = {}));

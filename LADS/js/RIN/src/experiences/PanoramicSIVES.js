@@ -19,6 +19,7 @@
 
 window.rin = window.rin || {};
 (function (rin) {
+    "use strict";
     // ES for displaying 360 degree panoramas using the SharedImmersiveViewer(SIV)
     var SharedImmersiveViewerES = function (orchestrator, esData) {
         SharedImmersiveViewerES.parentConstructor.apply(this, arguments);
@@ -57,13 +58,13 @@ window.rin = window.rin || {};
 
         // Handle key events for panning
         this._userInterfaceControl.addEventListener('keydown', function (e) {
-            if (e.keyCode == '37') //left arrow
+            if (e.keyCode === '37') //left arrow
                 self.panLeftCommand();
-            else if (e.keyCode == '38') //up arrow
+            else if (e.keyCode === '38') //up arrow
                 self.panUpCommand();
-            else if (e.keyCode == '39') //right arrow
+            else if (e.keyCode === '39') //right arrow
                 self.panRightCommand();
-            else if (e.keyCode == '40') //down arrow 
+            else if (e.keyCode === '40') //down arrow 
                 self.panDownCommand();
         }, true);
 
@@ -110,7 +111,7 @@ window.rin = window.rin || {};
         // Display a keyframe.
         displayKeyframe: function (keyframeData) {
             //if not ready, do nothing
-            if (this.getState() != rin.contracts.experienceStreamState.ready || !keyframeData.state)
+            if (this.getState() !== rin.contracts.experienceStreamState.ready || !keyframeData.state)
                 return; 
             var viewportFOV = keyframeData.state.viewport.region.span.y; //we will ignore the span.x (horizontal FOV)
             var viewportHeading = keyframeData.state.viewport.region.center.x;
@@ -131,9 +132,8 @@ window.rin = window.rin || {};
             dataSources.push(dataSource);
             var getAbsoluteUrl;
             var useNewFormat = false;
-            dataSource.createFromJsonUri(self._url, instantiateViewer, getAbsoluteUrl, useNewFormat, useNewFormat);
             function instantiateViewer(worldConfiguration, error) {
-                if (worldConfiguration == null) {
+                if (worldConfiguration === null) {
                     if (error instanceof JsonDownloadFailedError) {
                         //Failed to download
                         alert("JsonDownloadFailedError");
@@ -173,12 +173,12 @@ window.rin = window.rin || {};
                             self._viewer.height = self._userInterfaceControl.offsetHeight;
 
                             self._viewer.setViewportSize(self._userInterfaceControl.offsetWidth, self._userInterfaceControl.offsetHeight);
-                        };
+                        }
                     }, 300); // using 300 so that its not too slow nor too fast to eat up cpu cycles
 
                 }
             }
-
+            dataSource.createFromJsonUri(self._url, instantiateViewer, getAbsoluteUrl, useNewFormat, useNewFormat);
         },
 
         _viewer: null,
@@ -200,11 +200,11 @@ window.rin = window.rin || {};
         },
         // Zoom and pan commands.
         zoomInCommand: function () {
-            var newfov = Math.max(.05, this._viewer.getVerticalFov() * (1 - this._zoomFactor));
+            var newfov = Math.max(0.05, this._viewer.getVerticalFov() * (1 - this._zoomFactor));
             this._viewer.setVerticalFov(newfov, true);
         },
         zoomOutCommand: function () {
-            var newfov = Math.max(.05, this._viewer.getVerticalFov() * (1 + this._zoomFactor));
+            var newfov = Math.max(0.05, this._viewer.getVerticalFov() * (1 + this._zoomFactor));
             this._viewer.setVerticalFov(newfov, true);
         },
         panLeftCommand: function () {
@@ -225,8 +225,8 @@ window.rin = window.rin || {};
         },
 
         _interactionControls: null,
-        _zoomFactor: .2,
-        _panDistance: .3
+        _zoomFactor: 0.2,
+        _panDistance: 0.3
     };
 
     SharedImmersiveViewerES.elementHTML = "<div style='height:100%;width:100%;background-color:black;position:absolute;'></div>";

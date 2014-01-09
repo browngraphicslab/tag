@@ -17,11 +17,13 @@
 /// <reference path="../core/ResourcesResolver.js" />
 /// <reference path="../core/TaskTimer.js" />
 
-window.rin = window.rin || {};
-(function (rin) {
+(function (rin, ko) {
+    /*globals PhotosynthRml:true, RwwViewer:true, JsonDownloadFailedError:true, JsonMalformedError:true, $:true, ko:true*/
+    "use strict";
     // ES for displaying 360 degree panoramas.
     var PanoramicES = function (orchestrator, esData) {
         PanoramicES.parentConstructor.apply(this, arguments);
+        var isLowEndMachine;
         var self = this;
         this._orchestrator = orchestrator;
         this._userInterfaceControl = rin.util.createElementWithHtml(PanoramicES.elementHTML).firstChild;
@@ -35,34 +37,34 @@ window.rin = window.rin || {};
 
         this._skipPanoHint = false;
 
-        if (!isLowEndMachine && typeof esData.data.showLowerFidelityWhileMoving != "undefined") {
+        if (!isLowEndMachine && typeof esData.data.showLowerFidelityWhileMoving !== "undefined") {
             // Always use low fidility images while moving if running on iPad or Surface RT
-            var isLowEndMachine = window.navigator.userAgent.indexOf("iPad;") > -1 || window.navigator.userAgent.indexOf("ARM;") > -1;
+            isLowEndMachine = window.navigator.userAgent.indexOf("iPad;") > -1 || window.navigator.userAgent.indexOf("ARM;") > -1;
             if (!isLowEndMachine)
                 this._lowFidilityWhileMoving = esData.data.showLowerFidelityWhileMoving;
         }
 
-        if (typeof esData.data.minFieldOfView != "undefined")
-            this._minFieldOfView = esData.data.minFieldOfView;
+        if (typeof esData.data.maxPixelScaleFactor !== "undefined")
+            this._maxPixelScaleFactor = esData.data.maxPixelScaleFactor;
 
-        if (typeof esData.data.interpolatorType != "undefined")
+        if (typeof esData.data.interpolatorType !== "undefined")
             this._interpolatorType = esData.data.interpolatorType;
         else
             this._interpolatorType = "linear";
 
-        if (typeof esData.data.enforceViewLimits != "undefined")
+        if (typeof esData.data.enforceViewLimits !== "undefined")
             this._enforceViewLimits = esData.data.enforceViewLimits;
 
-        if ((typeof esData.data.smoothTransitions != "undefined") && esData.data.smoothTransitions)
+        if ((typeof esData.data.smoothTransitions !== "undefined") && esData.data.smoothTransitions)
             this.overrideTransientTrajectoryFunction = true;
 
-        if (typeof esData.data.viewShrinkFactor != "undefined")
+        if (typeof esData.data.viewShrinkFactor !== "undefined")
             this._viewShrinkFactor = esData.data.viewShrinkFactor;
 
-        if (typeof esData.data.transitionDurationOverrides != "undefined") {
+        if (typeof esData.data.transitionDurationOverrides !== "undefined") {
             this._durationScaleOverride = esData.data.transitionDurationOverrides.durationScaleOverride;
             this._transitionPauseDurationInSec = esData.data.transitionDurationOverrides.transitionPauseDurationInSec;
-            if (typeof esData.data.transitionDurationOverrides.simplePathOnly != "undefined")
+            if (typeof esData.data.transitionDurationOverrides.simplePathOnly !== "undefined")
             {
                 this._simplePathOnly = esData.data.transitionDurationOverrides.simplePathOnly;
             }
@@ -72,13 +74,13 @@ window.rin = window.rin || {};
         var adaptiveDataOverride = this._orchestrator.getResourceResolver().resolveData("R-DefaultAdaptiveTransitionProfile", this._esData.id);
         if (adaptiveDataOverride)
         {
-            if (adaptiveDataOverride.durationScaleOverride != undefined) {
+            if (adaptiveDataOverride.durationScaleOverride !== undefined) {
                 this._adaptiveDurationScaleOverride = adaptiveDataOverride.durationScaleOverride;
             }
-            if (adaptiveDataOverride.capAdaptiveOffset != undefined) {
+            if (adaptiveDataOverride.capAdaptiveOffset !== undefined) {
                 this._capAdaptiveOffset = adaptiveDataOverride.capAdaptiveOffset;
             }
-            if (adaptiveDataOverride.maxAdaptiveDuration != undefined) {
+            if (adaptiveDataOverride.maxAdaptiveDuration !== undefined) {
                 this._maxAdaptiveDuration = adaptiveDataOverride.maxAdaptiveDuration;
             }
             else
@@ -90,7 +92,7 @@ window.rin = window.rin || {};
 
         // Check for any interactions on the ES and pause the player.
         // Clicking on EAs cause mousedown and interaction mode to start. Ignore mousedown for now.
-        $(this._panoPlaceHolder).bind("MSPointerDown mousedown mousewheel", function (e) {
+        $(this._panoPlaceHolder).bind("MSPointerDown pointerdown mousedown mousewheel", function (e) {
             //Code to get the world coordinates for a mouse location
             //Don't delete
             //if (self._viewer && self._tryCalculate) {
@@ -148,20 +150,12 @@ window.rin = window.rin || {};
             var self = this;
 
             this.addSliverInterpolator("viewport", function (sliverId, state) {
-                if (self._interpolatorType)
-                {
-                    switch (self._interpolatorType)
-                    {
-                        case "vectorBased":
-                            return new rin.Ext.Interpolators.viewportInterpolator2D(state, self._interpolatorType);
-                        case "linear":
-                        default:
-                            return new rin.Ext.Interpolators.linearViewportInterpolator(state);
-                            break;
-                    }
+                if (self._interpolatorType && self._interpolatorType === "vectorBased") {
+                    return new rin.Ext.Interpolators.viewportInterpolator2D(state, self._interpolatorType);
                 }
-                else
+                else {
                     return new rin.Ext.Interpolators.linearViewportInterpolator(state);
+                }
             });
 
 
@@ -237,14 +231,15 @@ window.rin = window.rin || {};
             this.setState(rin.contracts.experienceStreamState.ready);
             return;
 
+            /*
             var keyframesToLoad = this.getKeyframes(0, 10, 0.2);
             var camController = this._viewer.getActiveCameraController();
-            var allTiles = {}, downloadQueue = new Array();
+            var allTiles = {}, downloadQueue = [];
             var loadedCount = 0, totalCount = 0, failedCount = 0, allTilesAdded = false;
-            var images = new Array();
+            var images = [];
             var self = this;
-
-            for (var i = 0; i < keyframesToLoad.length; i++) {
+            var i;
+            for (i = 0; i < keyframesToLoad.length; i++) {
                 var keyframeData = keyframesToLoad[i];
                 // set camera params
                 var viewportFOV = keyframeData.state.viewport.region.span.y;
@@ -291,12 +286,12 @@ window.rin = window.rin || {};
                 }
             };
 
-            for (var i in allTiles) {
+            for (i in allTiles) {
                 var img = new Image();
                 img.onload = loadComp;
                 img.onerror = loadFailed;
                 img.src = allTiles[i].url;
-            }
+            }*/
         },
 
         // Pause the ES.
@@ -307,7 +302,7 @@ window.rin = window.rin || {};
         // Display a keyframe.
         displayKeyframe: function (keyframeData) {
             //if not ready, do nothing
-            if (this.getState() != rin.contracts.experienceStreamState.ready || !keyframeData.state)
+            if (this.getState() !== rin.contracts.experienceStreamState.ready || !keyframeData.state)
                 return; 
             var viewportFOV = keyframeData.state.viewport.region.span.y; //we will ignore the span.x (horizontal FOV)
             var viewportHeading = keyframeData.state.viewport.region.center.x;
@@ -415,7 +410,7 @@ window.rin = window.rin || {};
             var self = this;
             var experienceStreamData = self._esData.experienceStreams[experienceStreamId];
             //Check the flags on ES 
-            if (!experienceStreamData || experienceStreamData.transitionType == "noAnimation" || experienceStreamData.transitionType == "adaptiveFirstDuration") {
+            if (!experienceStreamData || experienceStreamData.transitionType === "noAnimation" || experienceStreamData.transitionType === "adaptiveFirstDuration") {
                 //Case C or E above
                 // no animation so call seekUrl right away
                 self._orchestrator.seekUrl(seekUrl);
@@ -427,18 +422,18 @@ window.rin = window.rin || {};
             //Check if the transitionDurationoverrides are mentioned in the given experiencestream as well. If so, we will use those instead
             // of the defaults for this experience.
             var esTransitionOverrides = experienceStreamData.transitionDurationOverrides;
-            var transitionPause = (esTransitionOverrides && esTransitionOverrides.transitionPauseDurationInSec != undefined) ? esTransitionOverrides.transitionPauseDurationInSec :
+            var transitionPause = (esTransitionOverrides && esTransitionOverrides.transitionPauseDurationInSec !== undefined) ? esTransitionOverrides.transitionPauseDurationInSec :
                 self._transitionPauseDurationInSec;
-            var durationScaleOverride = ( esTransitionOverrides && esTransitionOverrides.durationScaleOverride != undefined)? esTransitionOverrides.durationScaleOverride :
+            var durationScaleOverride = ( esTransitionOverrides && esTransitionOverrides.durationScaleOverride !== undefined)? esTransitionOverrides.durationScaleOverride :
                 self._durationScaleOverride;
-            var simplePathOnly = (esTransitionOverrides && esTransitionOverrides.simplePathOnly != undefined) ? esTransitionOverrides.simplePathOnly :
+            var simplePathOnly = (esTransitionOverrides && esTransitionOverrides.simplePathOnly !== undefined) ? esTransitionOverrides.simplePathOnly :
                 self._simplePathOnly;
             var noZoomOutDuringTransition = false;
-            if (experienceStreamData.transitionType == "noZoomOut")
+            if (experienceStreamData.transitionType === "noZoomOut")
             {
                 noZoomOutDuringTransition = true;
             }
-            else if (experienceStreamData.transitionType == "fastZoom") {
+            else if (experienceStreamData.transitionType === "fastZoom") {
                 // Case D above
                 //TODO Read these values from a data object from the resourceTable
                 transitionPause = 0;
@@ -495,12 +490,12 @@ window.rin = window.rin || {};
                     }
                     else {
                         // Case A above
-                        var sourceHeading = this.pickStartHeadingToTakeShortestPath(currentKF.state.viewport.region.center.x, viewportHeading)
+                        var sourceHeading = this.pickStartHeadingToTakeShortestPath(currentKF.state.viewport.region.center.x, viewportHeading);
                         var headingDiff = Math.abs(sourceHeading - viewportHeading);
                         var pitchDiff = Math.abs(currentKF.state.viewport.region.center.y - viewportPitch);
                         var fovDelta = Math.min(currentFOV, viewportFOV) / Math.max(currentFOV, viewportFOV);
                         var tendegreesInRadian = 10.0 * Math.PI / 180.0; // TODO: take into account screen resolution
-                        if ((experienceStreamData.transitionType == "fastZoom") || Math.abs(fovDelta - 1.0) > 0.1 || headingDiff > tendegreesInRadian || pitchDiff > tendegreesInRadian) {
+                        if ((experienceStreamData.transitionType === "fastZoom") || Math.abs(fovDelta - 1.0) > 0.1 || headingDiff > tendegreesInRadian || pitchDiff > tendegreesInRadian) {
                             // Current view is NOT very close to the target view, call animateToPose and call the seekUrl in the callback
                             this._isInResumeFromMode = true;
                             this._viewer.getActiveCameraController().animateToPose(viewportPitch, viewportHeading, viewportFOV, callback, simplePathOnly, durationScaleOverride);
@@ -541,7 +536,7 @@ window.rin = window.rin || {};
                 rightBoundFactor: self._viewShrinkFactor,
                 topBoundFactor: self._viewShrinkFactor,
                 bottomBoundFactor: self._viewShrinkFactor,
-                minClientPreferredFieldOfView: self._minFieldOfView,
+                maxPixelScaleFactor: self._maxPixelScaleFactor,
                 enforceViewLimits: self._enforceViewLimits
             };
             this._viewer = new RwwViewer(this._panoPlaceHolder, {
@@ -570,9 +565,9 @@ window.rin = window.rin || {};
             this._viewer.setShowLowerFidelityWhileMoving(this._lowFidilityWhileMoving);
             var cameraController = this._viewer.getActiveCameraController();
             cameraController.viewChangeCallback = function () {
-                if (self.updateEA != null)
+                if (self.updateEA !== null)
                     self.updateEA();
-            }
+            };
             
 
             // Keep updating the viewer size to its parent size. Using below method as onresize if not fired on div consistantly on all browsers
@@ -585,7 +580,7 @@ window.rin = window.rin || {};
                     self._viewer.height = self._userInterfaceControl.offsetHeight;
 
                     self._viewer.setViewportSize(self._userInterfaceControl.offsetWidth, self._userInterfaceControl.offsetHeight);
-                };
+                }
             }, 300); // using 300 so that its not too slow nor too fast to eat up cpu cycles
         },
         // Get interaction controls for panorama.
@@ -606,7 +601,7 @@ window.rin = window.rin || {};
         // Zoom and pan commands.
         zoomInCommand: function () {
             var cameraController = this._viewer.getActiveCameraController();
-            cameraController.setVerticalFov(Math.max(.05, cameraController.getVerticalFov() * (1 - this._zoomFactor)), true);
+            cameraController.setVerticalFov(Math.max(0.05, cameraController.getVerticalFov() * (1 - this._zoomFactor)), true);
         },
         zoomOutCommand: function () {
             var cameraController = this._viewer.getActiveCameraController();
@@ -681,7 +676,7 @@ window.rin = window.rin || {};
         getEmbeddedArtifactsProxy: function (layoutEngine) {
             var provider = this;
             this.updateEA = function () { layoutEngine.render({}); };
-            return new function () {
+            var EAProxy = function () {
                 this.getEmbeddedArtifactsContainer = function () {
                     return provider._userInterfaceControl;
                 };
@@ -690,7 +685,7 @@ window.rin = window.rin || {};
                     var pitch = inPoint.y;
                     var cameraController = provider._viewer.getActiveCameraController();
                     var pointInScreen2D = cameraController.tryPitchHeadingToPixel(pitch, heading);
-                    if (!pointInScreen2D || pointInScreen2D.x == NaN || pointInScreen2D.y == NaN)
+                    if (!pointInScreen2D || isNaN(pointInScreen2D.x) || isNaN(pointInScreen2D.y))
                         return false;
                     outPoint.x = pointInScreen2D.x;
                     outPoint.y = pointInScreen2D.y;
@@ -723,6 +718,7 @@ window.rin = window.rin || {};
                     }
                 };
             };
+            return new EAProxy();
         },
         // Unload the ES.
         unload: function () {
@@ -796,7 +792,7 @@ window.rin = window.rin || {};
             var pitch1 = firstRegion.center.y;
             var pitch2 = secondRegion.center.y;
             var heading2 = secondRegion.center.x;
-            var heading1 = this.pickStartHeadingToTakeShortestPath(firstRegion.center.x, heading2)
+            var heading1 = this.pickStartHeadingToTakeShortestPath(firstRegion.center.x, heading2);
             var middleFov = Math.abs(pitch1 - pitch2) + Math.abs(heading1 - heading2);
             if (middleFov > maxFov) {
                 // the difference in pitch & heading is more than the fov difference
@@ -808,12 +804,12 @@ window.rin = window.rin || {};
                 var maxAdaptiveDuration = this._maxAdaptiveDuration;
                 var adaptiveDurationScaleOverride = this._adaptiveDurationScaleOverride;
                 // Check if adaptiveTransitionProfileOverride was mentioned on the experience
-                if (experienceStream.adaptiveTransitionProfileOverride != undefined) {
-                    if (experienceStream.adaptiveTransitionProfileOverride.maxAdaptiveDuration != undefined) {
+                if (experienceStream.adaptiveTransitionProfileOverride !== undefined) {
+                    if (experienceStream.adaptiveTransitionProfileOverride.maxAdaptiveDuration !== undefined) {
                         maxAdaptiveDuration = experienceStream.adaptiveTransitionProfileOverride.maxAdaptiveDuration;
                     }
 
-                    if (experienceStream.adaptiveTransitionProfileOverride.durationScaleOverride != undefined) {
+                    if (experienceStream.adaptiveTransitionProfileOverride.durationScaleOverride !== undefined) {
                         adaptiveDurationScaleOverride = experienceStream.adaptiveTransitionProfileOverride.durationScaleOverride;
                     }
                 }
@@ -838,8 +834,8 @@ window.rin = window.rin || {};
             }
         },
         _interactionControls: null,
-        _zoomFactor: .2,
-        _panDistance: .3,
+        _zoomFactor: 0.2,
+        _panDistance: 0.3,
         isExplorable: true,
         _tryCalculate: false,
         _lowFidilityWhileMoving: true,
@@ -851,6 +847,7 @@ window.rin = window.rin || {};
         _transitionPauseDurationInSec: 0,
         _simplePathOnly: false,
         _viewShrinkFactor: null,
+        _maxPixelScaleFactor: null,
         _isInResumeFromMode: false
     };
 
@@ -862,4 +859,4 @@ window.rin = window.rin || {};
 
     rin.util.overrideProperties(PanoramicES.prototypeOverrides, PanoramicES.prototype);
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.PanoramicExperienceStream", function (orchestrator, esData) { return new PanoramicES(orchestrator, esData); });
-})(rin);
+})(window.rin = window.rin || {}, window.ko);

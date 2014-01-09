@@ -1,4 +1,4 @@
-﻿ //
+ //
 // Code to invoke the suite of NonlinearStoryboard tests...
 //
 // Copyright (C) 2013 Microsoft Research 
@@ -7,7 +7,7 @@
 /// <reference path="diagnostics.d.ts"/>
 
 module rin.embeddedArtifactTests {
-
+    "use strict";
     var debug = rin.diagnostics.newDiagnosticsModule("EA-TESTS2");
 
     interface TestDataItem extends DataItem {
@@ -328,7 +328,7 @@ module rin.embeddedArtifactTests {
             collectionId: id,
             forEach: function (func: (item: DataItem, id: string, collection?: DataCollection) => void ): void {
                 a.forEach(function (val, index) {
-                    func(val, val["id"], collection);
+                    func(val, val.id, collection);
                 })
             }
         };

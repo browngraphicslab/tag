@@ -20,6 +20,8 @@
 window.rin = window.rin || {};
 
 (function (rin) {
+    /*global $:true, ko:true*/
+    "use strict";
     // ES for playing video clips.
     var VideoES = function (orchestrator, esData) {
         VideoES.parentConstructor.apply(this, arguments);
@@ -32,7 +34,7 @@ window.rin = window.rin || {};
         this._url = orchestrator.getResourceResolver().resolveResource(esData.resourceReferences[0].resourceId, esData.experienceId);
 
         // Handle any interaction on the video and pause the player.
-        $(this._userInterfaceControl).bind("mousedown", function (e) {
+        $(this._userInterfaceControl).bind("mousedown", function () {
             self._orchestrator.pause();
         });
     };
@@ -87,8 +89,7 @@ window.rin = window.rin || {};
             };
 
             // Handle ready state change and change the ES state accordingly.
-            this._video.onreadystatechange = function (args) {
-                var state = self._video.state();
+            this._video.onreadystatechange = function () {
                 self.readyStateCheck();
             };
 
@@ -165,7 +166,7 @@ window.rin = window.rin || {};
             this._updateMute();
         },
 
-        onESEvent: function (sender, eventId, eventData) {
+        onESEvent: function (sender, eventId) {
             if (eventId === rin.contracts.esEventIds.playerConfigurationChanged) {
                 this._updateMute();
             }
@@ -175,7 +176,7 @@ window.rin = window.rin || {};
         },
 
         // Handle seeking of video.
-        _seek: function (offset, experienceStreamId) {
+        _seek: function (offset) {
             offset += this._startMarker;
 
             // See if the video element is ready.
@@ -205,10 +206,6 @@ window.rin = window.rin || {};
             if (keyframe && keyframe.state && keyframe.state.sound) {
                 return keyframe.state.sound.volume;
             }
-            else if (keyframe && keyframe.data && keyframe.data["default"]) {
-                var data = rin.internal.XElement(keyframeData.data["default"]);
-                if (data) return parseFloat(curData.attributeValue("Volume"));
-            }
             return 1;
         },
         _setAudioVolume: function (value) {
@@ -237,4 +234,4 @@ window.rin = window.rin || {};
     VideoES.elementHTML = "<video style='height:100%;width:100%;position:absolute' preload='auto'>Sorry, Your browser does not support HTML5 video.</video>";
     rin.util.overrideProperties(VideoES.prototypeOverrides, VideoES.prototype);
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.VideoExperienceStream", function (orchestrator, esData) { return new VideoES(orchestrator, esData); });
-})(rin);
+})(window.rin);

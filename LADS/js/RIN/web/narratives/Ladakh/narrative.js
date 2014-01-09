@@ -1,4 +1,4 @@
-﻿[{
+[{
     "version": 1.0,
     "defaultScreenplayId": "SCP1",
     "screenplayProviderId": "MicrosoftResearch.Rin.DefaultScreenPlayInterpreter",
@@ -49,7 +49,7 @@
         },
         "MicrosoftResearch.Rin.DefaultScreenPlayInterpreter": {
             "name": "MicrosoftResearch.Rin.DefaultScreenPlayInterpreter",
-            "version" : 0.0
+            "version": 0.0
         }
     },
     "resources": {
@@ -271,12 +271,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-51\" Viewport_X=\"0.061030028542737376\" Viewport_Y=\"0.15039224734981105\" Viewport_Width=\"0.75352044753086411\" Viewport_Height=\"0.42258241314230893\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.74999997764825888\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>bde62252-a274-42b0-a4cb-af59b42ebae4_keyframe_c210262b-3033-4414-85f9-b1e3f1e6fd3d.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -295,12 +289,6 @@
                         {
                             "offset": 5,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-51\" Viewport_X=\"0.11925254885611936\" Viewport_Y=\"0.26967462846221418\" Viewport_Width=\"0.69444444444444453\" Viewport_Height=\"0.389451951951952\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.74999997764825888\" />",
-                                "TransitionTime": "<TransitionTime>5</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>bde62252-a274-42b0-a4cb-af59b42ebae4_keyframe_195d3a72-ea62-4503-87bc-7ac8e5f42b45.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -338,12 +326,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-50\" Viewport_X=\"0.24707287866838998\" Viewport_Y=\"0.15148008383574202\" Viewport_Width=\"0.48225308641975323\" Viewport_Height=\"0.27045274441107781\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.74999997764825888\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>5fde1671-5bfe-4073-aea1-716590534a14_keyframe_4158da00-0c0d-4311-81b6-2e0e1b586471.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -362,12 +344,6 @@
                         {
                             "offset": 5,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-50\" Viewport_X=\"0.12208777161950291\" Viewport_Y=\"0.30303392370318055\" Viewport_Width=\"0.75352044753086433\" Viewport_Height=\"0.42258241314230904\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.74999997764825888\" />",
-                                "TransitionTime": "<TransitionTime>5</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>5fde1671-5bfe-4073-aea1-716590534a14_keyframe_2c3bb872-088a-42ec-a8f3-e0178885c2b2.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -405,12 +381,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 1.7999999999999998,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-44\" Viewport_X=\"0.13954497919469996\" Viewport_Y=\"0.29645507085104006\" Viewport_Width=\"0.81762201337984419\" Viewport_Height=\"0.45853126426031804\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"1.3333333333333333\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>1.7999999999999998</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>1ba88c0e-ce02-41d0-a97f-9850d3477a5b_keyframe_92a3af7b-d19d-4a17-b5cb-1c5cf0c969cf.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -448,12 +418,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 1.7999999999999998,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-47\" Viewport_X=\"0.11558424538995789\" Viewport_Y=\"0.090445787321169813\" Viewport_Width=\"0.817622013379844\" Viewport_Height=\"0.45853126426031787\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.74999997764825888\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>1.7999999999999998</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>a9ff0902-7553-454c-a6b0-32b378c1e892_keyframe_5c7a8cd8-3fef-40ab-9111-8cc5b8272a33.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -491,12 +455,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 1.75,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-46\" Viewport_X=\"0.0011261261261261268\" Viewport_Y=\"0.091216216216216228\" Viewport_Width=\"1\" Viewport_Height=\"0.56081081081081086\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.74999997764825888\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>1.75</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>853316c8-fae2-4f21-b82c-5d6d095b8d64_keyframe_6f8660f6-4b3b-41c1-9a58-964a5bc1a9f3.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -534,12 +492,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 1.65,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-48\" Viewport_X=\"0.221318811232704\" Viewport_Y=\"0.19486694580271136\" Viewport_Width=\"0.69444444444444453\" Viewport_Height=\"0.389451951951952\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.74999997764825888\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>1.65</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>62e4a39a-0cfe-41b2-be4a-5dcbe2addf45_keyframe_b2817f1b-9dfc-49ec-b264-46a439b6180e.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -577,12 +529,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 1.7999999999999998,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-49\" Viewport_X=\"0.0011261261261261268\" Viewport_Y=\"0.018018018018018018\" Viewport_Width=\"1\" Viewport_Height=\"0.56081081081081086\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.74999997764825888\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>1.7999999999999998</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>8ad92a47-6f93-463e-9150-0049951b144e_keyframe_b38616db-6e0c-4b41-8264-dd87ea516a1d.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -620,12 +566,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 1.75,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-45\" Viewport_X=\"0\" Viewport_Y=\"0\" Viewport_Width=\"1\" Viewport_Height=\"0.56081081081081086\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.74999997764825888\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>1.75</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>75b8000f-578c-4181-abe1-a47641e322a3_keyframe_437cf249-c8b0-41c0-a8d9-20224b146358.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -663,12 +603,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 4.55,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-43\" Viewport_X=\"0.26664663520367737\" Viewport_Y=\"0.049896005403890664\" Viewport_Width=\"0.56779306484711389\" Viewport_Height=\"0.31842448906966525\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.45873484761733829\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>4.55</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>a05b3098-fb38-4ff5-bafb-31fdb9b8eff7_keyframe_9eb14809-5c79-44c4-953a-c320b20c4e93.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -687,12 +621,6 @@
                         {
                             "offset": 13.5,
                             "holdDuration": 9.4,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-43\" Viewport_X=\"0.043295124570809237\" Viewport_Y=\"0.0673524247133677\" Viewport_Width=\"0.39430073947716243\" Viewport_Height=\"0.22112811740948976\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.45873484761733829\" />",
-                                "TransitionTime": "<TransitionTime>8.95</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>9.4</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>a05b3098-fb38-4ff5-bafb-31fdb9b8eff7_keyframe_b0519472-734c-4f85-958b-4908db2a930b.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -730,12 +658,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 3,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-52\" Viewport_X=\"0.10568963588266928\" Viewport_Y=\"0.13752421043636223\" Viewport_Width=\"0.75352044753086422\" Viewport_Height=\"0.42406644020234735\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.74999997764825888\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>3</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>e431fe44-315e-40b1-80a7-a53023b478c7_keyframe_0bfb061b-5e04-44f1-afdc-5a4bab24e739.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -773,12 +695,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 3,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-53\" Viewport_X=\"0.04597627684662918\" Viewport_Y=\"0.14419255334230605\" Viewport_Width=\"0.69444444444444453\" Viewport_Height=\"0.389451951951952\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.74999997764825888\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>3</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>12d966f8-cc1a-4f0a-a02a-5b2c07b593ec_keyframe_dfb0f262-7dd0-4a6f-8092-debf655bc771.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -816,12 +732,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 3,
-                            "data": {
-                                "default": "<MapKeyframes><MapBoundsKeyframe North=\"34.494247987103535\" West=\"76.6934524182841\" South=\"34.352080756260875\" East=\"76.999696314768471\" /><MapStyleKeyframe Style=\"Aerial\" /></MapKeyframes>",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>3</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>9b14ef8a-f523-42fe-80b4-fee91f0fd103_keyframe_4e0d7a47-8dd3-40aa-ab80-4913a7ecee55.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -843,12 +753,6 @@
                         {
                             "offset": 6.05,
                             "holdDuration": 0.79999999999999993,
-                            "data": {
-                                "default": "<MapKeyframes><MapBoundsKeyframe North=\"34.497553722769609\" West=\"76.780380423795975\" South=\"34.426503140311183\" East=\"76.933502372038163\" /><MapStyleKeyframe Style=\"Aerial\" /></MapKeyframes>",
-                                "TransitionTime": "<TransitionTime>3.05</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0.79999999999999993</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>9b14ef8a-f523-42fe-80b4-fee91f0fd103_keyframe_8749fb21-aac4-4098-997c-384e6a88cc7a.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -870,12 +774,6 @@
                         {
                             "offset": 11.85,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<MapKeyframes><MapBoundsKeyframe North=\"34.443752187006716\" West=\"76.714319766832773\" South=\"34.372655827833348\" East=\"76.86744171507496\" /><MapStyleKeyframe Style=\"Aerial\" /></MapKeyframes>",
-                                "TransitionTime": "<TransitionTime>5</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>9b14ef8a-f523-42fe-80b4-fee91f0fd103_keyframe_9fda59d3-2e4e-4bec-a64c-53ee7ebd82d9.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -916,12 +814,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-54\" Viewport_X=\"0.12777184918133569\" Viewport_Y=\"0.35131893341329051\" Viewport_Width=\"0.75352044753086422\" Viewport_Height=\"0.422582413142309\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"1.4999999552965178\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>f22d4266-6296-46e1-b075-2bea1feb940d_keyframe_2ec6eaff-2e26-419e-92c0-766698f59ffd.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -940,12 +832,6 @@
                         {
                             "offset": 5,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-54\" Viewport_X=\"0.20329360574692906\" Viewport_Y=\"0.24185481434630685\" Viewport_Width=\"0.75352044753086422\" Viewport_Height=\"0.422582413142309\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"1.4999999552965178\" />",
-                                "TransitionTime": "<TransitionTime>5</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>f22d4266-6296-46e1-b075-2bea1feb940d_keyframe_b9e4feb1-8029-4c33-969f-b81a273a4bc0.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -983,12 +869,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 8.45,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-56\" Viewport_X=\"0.60878321154540349\" Viewport_Y=\"0.075434089268912832\" Viewport_Width=\"0.33489797668038418\" Viewport_Height=\"0.18781440584102624\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.38239910054288712\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>8.45</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>23b06e1e-51fb-4c4a-8c88-1981ecb6e300_keyframe_009a7223-f7aa-4617-aded-2e01443472a9.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -1007,12 +887,6 @@
                         {
                             "offset": 18.45,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-56\" Viewport_X=\"0.55593051996796528\" Viewport_Y=\"0.11595443701916103\" Viewport_Width=\"0.26958109558244342\" Viewport_Height=\"0.1511839927928568\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.38239910054288712\" />",
-                                "TransitionTime": "<TransitionTime>10</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>23b06e1e-51fb-4c4a-8c88-1981ecb6e300_keyframe_8eee56c7-e02f-4c5d-9467-f91ac1144869.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -1031,12 +905,6 @@
                         {
                             "offset": 28.45,
                             "holdDuration": 9.4,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-56\" Viewport_X=\"0.44464441782665115\" Viewport_Y=\"0.20127367855539802\" Viewport_Width=\"0.13205051985448096\" Viewport_Height=\"0.074055359107580543\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.38239910054288712\" />",
-                                "TransitionTime": "<TransitionTime>10</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>9.4</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>23b06e1e-51fb-4c4a-8c88-1981ecb6e300_keyframe_c72dc150-bbeb-4a2b-971b-5fed00742638.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -1074,12 +942,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 3,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-20\" Viewport_X=\"0.41440547691700963\" Viewport_Y=\"0.17056417256361919\" Viewport_Width=\"0.13205051985448096\" Viewport_Height=\"0.074055359107580543\" Highlight_Visible=\"true\" Highlight_X=\"0.44954955520396178\" Highlight_Y=\"0.22025614538637384\" Highlight_Width=\"0.027409405202227406\" Highlight_Height=\"0.027409405202227406\" Highlight_Render_Style=\"StarBlue\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.33909074806130385\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>3</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>65c1d0f7-c72e-4d54-ae05-59a63678e362_keyframe_20f575b7-1d22-4796-8d6b-14da38032dea.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -1098,12 +960,6 @@
                         {
                             "offset": 13,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-20\" Viewport_X=\"0.20926505748371291\" Viewport_Y=\"0.11646692635147947\" Viewport_Width=\"0.20632893727262647\" Viewport_Height=\"0.11571149860559457\" Highlight_Visible=\"true\" Highlight_X=\"0.311500116492672\" Highlight_Y=\"0.17385797084059967\" Highlight_Width=\"0.046470481367708663\" Highlight_Height=\"0.046470481367708663\" Highlight_Render_Style=\"StarBlue\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.33909074806130385\" />",
-                                "TransitionTime": "<TransitionTime>10</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>65c1d0f7-c72e-4d54-ae05-59a63678e362_keyframe_4b982ff2-08f5-451d-b25d-25f8e7081625.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -1122,12 +978,6 @@
                         {
                             "offset": 23,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-20\" Viewport_X=\"0.21735980282814191\" Viewport_Y=\"0.12785562489000707\" Viewport_Width=\"0.14328398421710173\" Viewport_Height=\"0.080355207364996253\" Highlight_Visible=\"true\" Highlight_X=\"0.311500116492672\" Highlight_Y=\"0.17385797084059967\" Highlight_Width=\"0.046470481367708663\" Highlight_Height=\"0.046470481367708663\" Highlight_Render_Style=\"StarBlue\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.33909074806130385\" />",
-                                "TransitionTime": "<TransitionTime>10</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>65c1d0f7-c72e-4d54-ae05-59a63678e362_keyframe_6d0089ff-838d-4b38-8ac9-70d2780cb90f.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -1146,12 +996,6 @@
                         {
                             "offset": 33,
                             "holdDuration": 13.399999999999999,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-20\" Viewport_X=\"0.16557195508685263\" Viewport_Y=\"0.058980174186606865\" Viewport_Width=\"0.14328398421710173\" Viewport_Height=\"0.080355207364996253\" Highlight_Visible=\"true\" Highlight_X=\"0.23237327205293384\" Highlight_Y=\"0.10109404792609286\" Highlight_Width=\"0.032271167616464355\" Highlight_Height=\"0.032271167616464355\" Highlight_Render_Style=\"StarBlue\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.33909074806130385\" />",
-                                "TransitionTime": "<TransitionTime>10</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>13.399999999999999</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>65c1d0f7-c72e-4d54-ae05-59a63678e362_keyframe_4a75ac19-c607-4c78-a197-f1ce12acf9d3.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -1189,12 +1033,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-57\" Viewport_X=\"0.0028850627281604355\" Viewport_Y=\"0.039331335066317988\" Viewport_Width=\"0.2325680393613779\" Viewport_Height=\"0.1304266707229349\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.18708842637297071\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>c347af1d-4e1f-4a1a-9cbc-4289a0d91f5a_keyframe_bf5801d2-00d6-468d-a7fb-8806ec690422.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -1213,12 +1051,6 @@
                         {
                             "offset": 5,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-57\" Viewport_X=\"0.19064358828417582\" Viewport_Y=\"0.077939697324436\" Viewport_Width=\"0.11215665478461513\" Viewport_Height=\"0.062898664507588214\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.18708842637297071\" />",
-                                "TransitionTime": "<TransitionTime>5</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>c347af1d-4e1f-4a1a-9cbc-4289a0d91f5a_keyframe_63a39f16-d46d-4a9d-81c7-93b8b21c1e84.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -1237,12 +1069,6 @@
                         {
                             "offset": 10,
                             "holdDuration": 28.549999999999997,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-57\" Viewport_X=\"0.201664942468816\" Viewport_Y=\"0.049206412913272747\" Viewport_Width=\"0.2063289372726265\" Viewport_Height=\"0.11611785483280102\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.18708842637297071\" />",
-                                "TransitionTime": "<TransitionTime>5</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>28.549999999999997</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>c347af1d-4e1f-4a1a-9cbc-4289a0d91f5a_keyframe_5a437aa3-acb5-48cc-94db-6062fdc419fc.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -1261,12 +1087,6 @@
                         {
                             "offset": 48.55,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-57\" Viewport_X=\"0.58903636503167656\" Viewport_Y=\"0.069556113134831\" Viewport_Width=\"0.11215665478461512\" Viewport_Height=\"0.062898664507588214\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.18708842637297071\" />",
-                                "TransitionTime": "<TransitionTime>10</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>c347af1d-4e1f-4a1a-9cbc-4289a0d91f5a_keyframe_1f13dd10-df1a-41e9-af60-358bab8dc0a1.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -1285,12 +1105,6 @@
                         {
                             "offset": 58.55,
                             "holdDuration": 3.3499999999999996,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-57\" Viewport_X=\"0.68676331096112464\" Viewport_Y=\"0.067498222466218852\" Viewport_Width=\"0.11215665478461512\" Viewport_Height=\"0.062898664507588214\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.18708842637297071\" />",
-                                "TransitionTime": "<TransitionTime>10</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>3.3499999999999996</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>c347af1d-4e1f-4a1a-9cbc-4289a0d91f5a_keyframe_cb7f8585-0281-4469-b67e-215b0745132f.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -1316,430 +1130,6 @@
                 {
                     "resourceId": "R-83",
                     "required": true
-                },
-                {
-                    "resourceId": "R-84",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-85",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-86",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-87",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-88",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-89",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-90",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-91",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-92",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-93",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-94",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-95",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-96",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-97",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-98",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-99",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-100",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-101",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-102",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-103",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-104",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-105",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-106",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-107",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-108",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-109",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-110",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-111",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-112",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-113",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-114",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-115",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-116",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-117",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-118",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-119",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-120",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-121",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-122",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-123",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-124",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-125",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-126",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-127",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-128",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-129",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-130",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-131",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-132",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-133",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-134",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-135",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-136",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-137",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-138",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-139",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-140",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-141",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-142",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-143",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-144",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-145",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-146",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-147",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-148",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-149",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-150",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-151",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-152",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-153",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-154",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-155",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-156",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-157",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-158",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-159",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-160",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-161",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-162",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-163",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-164",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-165",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-166",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-167",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-168",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-169",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-170",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-171",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-172",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-173",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-174",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-175",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-176",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-177",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-178",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-179",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-180",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-181",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-182",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-183",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-184",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-185",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-186",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-187",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-188",
-                    "required": true
-                },
-                {
-                    "resourceId": "R-189",
-                    "required": true
                 }
             ],
             "data": {
@@ -1754,7 +1144,7 @@
                         {
                             "offset": 0,
                             "holdDuration": 3,
-                            "data": {
+                            "state": {
                                 "kf-selstate": {
                                     "item": {
                                         "itemid": "RinItem_25",
@@ -1764,17 +1154,13 @@
                                             }
                                         }
                                     }
-                                },
-                                "default": "<kf SelectedItem=\"RinItem_25\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>3</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>85d2d491-7e54-430e-86d2-9deec316e25f_keyframe_09a5f748-cfcd-4a7f-b483-ec5ccd2af141.bmp</Thumbnail>"
+                                }
                             }
                         },
                         {
                             "offset": 8,
                             "holdDuration": 0,
-                            "data": {
+                            "state": {
                                 "kf-selstate": {
                                     "item": {
                                         "itemid": "RinItem_14",
@@ -1784,17 +1170,13 @@
                                             }
                                         }
                                     }
-                                },
-                                "default": "<kf SelectedItem=\"RinItem_14\" />",
-                                "TransitionTime": "<TransitionTime>5</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>85d2d491-7e54-430e-86d2-9deec316e25f_keyframe_87c3c766-546d-4dbf-9052-cbb8aca73af0.bmp</Thumbnail>"
+                                }
                             }
                         },
                         {
                             "offset": 13,
                             "holdDuration": 11.299999999999999,
-                            "data": {
+                            "state": {
                                 "kf-selstate": {
                                     "item": {
                                         "itemid": "RinItem_28",
@@ -1804,11 +1186,7 @@
                                             }
                                         }
                                     }
-                                },
-                                "default": "<kf SelectedItem=\"RinItem_28\" />",
-                                "TransitionTime": "<TransitionTime>5</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>11.299999999999999</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>85d2d491-7e54-430e-86d2-9deec316e25f_keyframe_eeab081b-7321-4eb0-980b-b99064f4830d.bmp</Thumbnail>"
+                                }
                             }
                         }
                     ]
@@ -1833,12 +1211,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 3,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-58\" Viewport_X=\"0.036454600565001563\" Viewport_Y=\"0.077290036383336092\" Viewport_Width=\"0.36338756150215296\" Viewport_Height=\"0.20379167300458578\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.33060359474216011\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>3</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>11f4c637-dc1d-4363-bee8-f57fad3c547d_keyframe_f0c30fdb-1ad9-42df-abd6-e5b5e43002e2.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -1857,12 +1229,6 @@
                         {
                             "offset": 8,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-58\" Viewport_X=\"0.24566052379033798\" Viewport_Y=\"0.098977910785468637\" Viewport_Width=\"0.36338756150215296\" Viewport_Height=\"0.20379167300458578\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.33060359474216011\" />",
-                                "TransitionTime": "<TransitionTime>5</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>11f4c637-dc1d-4363-bee8-f57fad3c547d_keyframe_36fe26b9-507d-4897-8d5d-9f6c478aae95.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -1881,12 +1247,6 @@
                         {
                             "offset": 13,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-58\" Viewport_X=\"0.596996025558791\" Viewport_Y=\"0.097329320746221457\" Viewport_Width=\"0.36338756150215296\" Viewport_Height=\"0.20379167300458578\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.33060359474216011\" />",
-                                "TransitionTime": "<TransitionTime>5</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>11f4c637-dc1d-4363-bee8-f57fad3c547d_keyframe_bfe3c6bd-288f-40cb-a08a-816f06089e01.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -1905,12 +1265,6 @@
                         {
                             "offset": 22.6,
                             "holdDuration": 20.2,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-58\" Viewport_X=\"0.71473104292284861\" Viewport_Y=\"0.03871276555146054\" Viewport_Width=\"0.252352473265384\" Viewport_Height=\"0.14152199514207348\" Highlight_Visible=\"true\" Highlight_X=\"0.90257449430620318\" Highlight_Y=\"0.062583945454942808\" Highlight_Width=\"0.056836142627338743\" Highlight_Height=\"0.056836142627338743\" Highlight_Render_Style=\"StarBlue\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.33060359474216011\" />",
-                                "TransitionTime": "<TransitionTime>9.6</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>20.2</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>11f4c637-dc1d-4363-bee8-f57fad3c547d_keyframe_81117e26-9e5a-44b9-a534-f9d51c27ea7f.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -1948,12 +1302,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 1.95,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-59\" Viewport_X=\"0.20639009034429373\" Viewport_Y=\"0.10106576509899506\" Viewport_Width=\"0.37957293250057883\" Viewport_Height=\"0.21286860403748678\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.33908334645023497\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>1.95</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>35f23701-254c-460d-ad4c-588cc90a25e1_keyframe_78ff2cf5-b324-409f-8295-f7884a3f183d.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -1972,12 +1320,6 @@
                         {
                             "offset": 11.95,
                             "holdDuration": 21.349999999999998,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-59\" Viewport_X=\"0.42314436617167017\" Viewport_Y=\"0.12246287207547722\" Viewport_Width=\"0.1830502182198008\" Viewport_Height=\"0.10265654129894235\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.33908334645023497\" />",
-                                "TransitionTime": "<TransitionTime>10</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>21.349999999999998</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>35f23701-254c-460d-ad4c-588cc90a25e1_keyframe_889be0d1-9b1e-4e22-bd10-bd1bf85fb635.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -1996,12 +1338,6 @@
                         {
                             "offset": 38.3,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-59\" Viewport_X=\"0.61257778291738307\" Viewport_Y=\"0.11113912017384492\" Viewport_Width=\"0.1830502182198008\" Viewport_Height=\"0.10265654129894235\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.33908334645023497\" />",
-                                "TransitionTime": "<TransitionTime>5</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>35f23701-254c-460d-ad4c-588cc90a25e1_keyframe_b31e4da0-8bb5-482d-af39-ec35cd0ec412.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -2039,12 +1375,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-62\" Viewport_X=\"0.17715285508489764\" Viewport_Y=\"0.098866626441174138\" Viewport_Width=\"0.2325680393613779\" Viewport_Height=\"0.1304266707229349\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.50568532243813569\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>0ca1dd58-343e-475f-bea4-86d6375527de_keyframe_68b40f84-0fa0-4a8a-bdc9-f25cc6f2feb1.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -2063,12 +1393,6 @@
                         {
                             "offset": 5,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-62\" Viewport_X=\"0.24245939335640412\" Viewport_Y=\"0.1317719974346086\" Viewport_Width=\"0.23256803936137788\" Viewport_Height=\"0.13042667072293487\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.50568532243813569\" />",
-                                "TransitionTime": "<TransitionTime>5</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>0ca1dd58-343e-475f-bea4-86d6375527de_keyframe_dea88d99-9395-4921-8215-5d6e565f46e4.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -2106,12 +1430,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 22.849999999999998,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-61\" Viewport_X=\"0.25404330595089336\" Viewport_Y=\"0.1823118677518511\" Viewport_Width=\"0.12169775909788967\" Viewport_Height=\"0.068249418953546234\" Highlight_Visible=\"true\" Highlight_X=\"0.30406547044495841\" Highlight_Y=\"0.21177697834424558\" Highlight_Width=\"0.027409405202227403\" Highlight_Height=\"0.027409405202227403\" Highlight_Render_Style=\"StarBlue\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.39310133725368984\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>22.849999999999998</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>ed8f2f64-f799-447c-a918-dd425a947343_keyframe_b78b329a-b127-4170-8d66-21574179e97b.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -2130,12 +1448,6 @@
                         {
                             "offset": 27.849999999999998,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-61\" Viewport_X=\"0.23681117792416564\" Viewport_Y=\"0.16543752186392177\" Viewport_Width=\"0.17524477310096112\" Viewport_Height=\"0.098279163293106583\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.39310133725368984\" />",
-                                "TransitionTime": "<TransitionTime>5</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>ed8f2f64-f799-447c-a918-dd425a947343_keyframe_eebf7ba5-d8e4-410f-a709-35a77d75cd5b.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -2154,12 +1466,6 @@
                         {
                             "offset": 32.849999999999994,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-61\" Viewport_X=\"0.31280845287153475\" Viewport_Y=\"0.13263272843875976\" Viewport_Width=\"0.46424010886340944\" Viewport_Height=\"0.26035087186258771\" Highlight_Visible=\"false\" Highlight_X=\"0.30406547044495841\" Highlight_Y=\"0.21177697834424558\" Highlight_Width=\"0.027409405202227403\" Highlight_Height=\"0.027409405202227403\" Highlight_Render_Style=\"StarBlue\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.39310133725368984\" />",
-                                "TransitionTime": "<TransitionTime>5</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>ed8f2f64-f799-447c-a918-dd425a947343_keyframe_b305bc11-5142-428a-b2b4-70da4966191c.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -2178,12 +1484,6 @@
                         {
                             "offset": 37.849999999999994,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-61\" Viewport_X=\"0.7907680718464476\" Viewport_Y=\"0.25055215671756975\" Viewport_Width=\"0.074977369382830408\" Viewport_Height=\"0.042048119316046781\" Highlight_Visible=\"true\" Highlight_X=\"0.81956005716125058\" Highlight_Y=\"0.26946536701233781\" Highlight_Width=\"0.016886794906042887\" Highlight_Height=\"0.016886794906042887\" Highlight_Render_Style=\"StarBlue\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.39310133725368984\" />",
-                                "TransitionTime": "<TransitionTime>5</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>ed8f2f64-f799-447c-a918-dd425a947343_keyframe_309909f8-ba89-49f5-953d-c8c3f83d5499.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -2310,12 +1610,6 @@
                         {
                             "offset": 0,
                             "holdDuration": 3,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-63\" Viewport_X=\"0.058486876480179167\" Viewport_Y=\"0.068694715898685685\" Viewport_Width=\"0.48225308641975323\" Viewport_Height=\"0.27045274441107781\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.38254279307503625\" />",
-                                "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>3</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>c6a0da7f-beb5-423c-b901-a89d7b16bae1_keyframe_5104e55e-b769-4c56-8e82-b9c6e5d8c32b.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -2334,12 +1628,6 @@
                         {
                             "offset": 13,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-63\" Viewport_X=\"0.26020476329666631\" Viewport_Y=\"0.0342755457188406\" Viewport_Width=\"0.48225308641975323\" Viewport_Height=\"0.27045274441107781\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.38254279307503625\" />",
-                                "TransitionTime": "<TransitionTime>10</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>c6a0da7f-beb5-423c-b901-a89d7b16bae1_keyframe_f33efd12-3684-4c75-8f32-28a1e9d1c531.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -2358,12 +1646,6 @@
                         {
                             "offset": 23,
                             "holdDuration": 0,
-                            "data": {
-                                "default": "<ZoomableMediaKeyframe KeyTimePosition=\"1\" Media_Type=\"SingleDeepZoomImage\" Media_Source=\"R-63\" Viewport_X=\"0.52540297117078438\" Viewport_Y=\"0.13568536035684753\" Viewport_Width=\"0.2325680393613779\" Viewport_Height=\"0.1304266707229349\" Highlight_Visible=\"false\" Highlight_X=\"0\" Highlight_Y=\"0\" Highlight_Width=\"0\" Highlight_Height=\"0\" Highlight_Render_Style=\"Rectangle\" Highlight_Render_Attribs=\"\" Media_AspRatio=\"0.38254279307503625\" />",
-                                "TransitionTime": "<TransitionTime>10</TransitionTime>",
-                                "PauseDuration": "<PauseDuration>0</PauseDuration>",
-                                "keyframeThumbnail": "<Thumbnail>c6a0da7f-beb5-423c-b901-a89d7b16bae1_keyframe_ace2a167-bf71-4f52-9ca9-622a3540cf27.bmp</Thumbnail>"
-                            },
                             "state": {
                                 "viewport": {
                                     "region": {
@@ -3064,22 +2346,6 @@
                                     }
                                 }
                             }
-                        },
-                        {
-                            "offset": 9.8,
-                            "holdDuration": 0.2,
-                            "data": {
-                                "ea-selstate": {
-                                    "Overlay1": {
-                                        "itemid": "Overlay1",
-                                        "view": {
-                                            "display": {
-                                                "show": false
-                                            }
-                                        }
-                                    }
-                                }
-                            }
                         }
                     ]
                 }
@@ -3110,22 +2376,6 @@
                                         "view": {
                                             "display": {
                                                 "show": true
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            "offset": 9,
-                            "holdDuration": 0.2,
-                            "data": {
-                                "ea-selstate": {
-                                    "Overlay2": {
-                                        "itemid": "Overlay2",
-                                        "view": {
-                                            "display": {
-                                                "show": false
                                             }
                                         }
                                     }
@@ -3166,22 +2416,6 @@
                                     }
                                 }
                             }
-                        },
-                        {
-                            "offset": 9.8,
-                            "holdDuration": 0.2,
-                            "data": {
-                                "ea-selstate": {
-                                    "Overlay3": {
-                                        "itemid": "Overlay3",
-                                        "view": {
-                                            "display": {
-                                                "show": false
-                                            }
-                                        }
-                                    }
-                                }
-                            }
                         }
                     ]
                 }
@@ -3212,22 +2446,6 @@
                                         "view": {
                                             "display": {
                                                 "show": true
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            "offset": 23.8,
-                            "holdDuration": 0.2,
-                            "data": {
-                                "ea-selstate": {
-                                    "Overlay4": {
-                                        "itemid": "Overlay4",
-                                        "view": {
-                                            "display": {
-                                                "show": false
                                             }
                                         }
                                     }
@@ -3268,22 +2486,6 @@
                                     }
                                 }
                             }
-                        },
-                        {
-                            "offset": 29.8,
-                            "holdDuration": 0.2,
-                            "data": {
-                                "ea-selstate": {
-                                    "Overlay5": {
-                                        "itemid": "Overlay5",
-                                        "view": {
-                                            "display": {
-                                                "show": false
-                                            }
-                                        }
-                                    }
-                                }
-                            }
                         }
                     ]
                 }
@@ -3314,22 +2516,6 @@
                                         "view": {
                                             "display": {
                                                 "show": true
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            "offset": 19.8,
-                            "holdDuration": 0.2,
-                            "data": {
-                                "ea-selstate": {
-                                    "Overlay6": {
-                                        "itemid": "Overlay6",
-                                        "view": {
-                                            "display": {
-                                                "show": false
                                             }
                                         }
                                     }
@@ -3370,22 +2556,6 @@
                                     }
                                 }
                             }
-                        },
-                        {
-                            "offset": 19.8,
-                            "holdDuration": 0.2,
-                            "data": {
-                                "ea-selstate": {
-                                    "Overlay7": {
-                                        "itemid": "Overlay7",
-                                        "view": {
-                                            "display": {
-                                                "show": false
-                                            }
-                                        }
-                                    }
-                                }
-                            }
                         }
                     ]
                 }
@@ -3416,22 +2586,6 @@
                                         "view": {
                                             "display": {
                                                 "show": true
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            "offset": 19.8,
-                            "holdDuration": 0.2,
-                            "data": {
-                                "ea-selstate": {
-                                    "Overlay8": {
-                                        "itemid": "Overlay8",
-                                        "view": {
-                                            "display": {
-                                                "show": false
                                             }
                                         }
                                     }
@@ -3668,7 +2822,7 @@
                         "experienceStreamId": "defaultStream",
                         "begin": 0.54999999999999993,
                         "duration": 10,
-                        "layer": "foreground",
+                        "layer": "background",
                         "dominantMedia": "audio",
                         "volume": 0.5
                     },
@@ -3677,7 +2831,7 @@
                         "experienceStreamId": "defaultStream",
                         "begin": 11.95,
                         "duration": 5,
-                        "layer": "foreground",
+                        "layer": "background",
                         "dominantMedia": "audio",
                         "volume": 0.3
                     },
@@ -3686,7 +2840,7 @@
                         "experienceStreamId": "defaultStream",
                         "begin": 16.95,
                         "duration": 19,
-                        "layer": "foreground",
+                        "layer": "background",
                         "dominantMedia": "audio",
                         "volume": 1
                     },
@@ -3695,7 +2849,7 @@
                         "experienceStreamId": "defaultStream",
                         "begin": 38.51,
                         "duration": 11,
-                        "layer": "foreground",
+                        "layer": "background",
                         "dominantMedia": "audio",
                         "volume": 0.2
                     },
@@ -3704,7 +2858,7 @@
                         "experienceStreamId": "defaultStream",
                         "begin": 57.4,
                         "duration": 38,
-                        "layer": "foreground",
+                        "layer": "background",
                         "dominantMedia": "audio",
                         "volume": 1
                     },
@@ -3713,7 +2867,7 @@
                         "experienceStreamId": "defaultStream",
                         "begin": 116.401,
                         "duration": 11,
-                        "layer": "foreground",
+                        "layer": "background",
                         "dominantMedia": "audio",
                         "volume": 0.95
                     },
@@ -3722,7 +2876,7 @@
                         "experienceStreamId": "defaultStream",
                         "begin": 127.401,
                         "duration": 31,
-                        "layer": "foreground",
+                        "layer": "background",
                         "dominantMedia": "audio",
                         "volume": 0.9
                     },
@@ -3731,7 +2885,7 @@
                         "experienceStreamId": "defaultStream",
                         "begin": 158.40099999999998,
                         "duration": 23,
-                        "layer": "foreground",
+                        "layer": "background",
                         "dominantMedia": "audio",
                         "volume": 1
                     },
@@ -3740,7 +2894,7 @@
                         "experienceStreamId": "defaultStream",
                         "begin": 185.513,
                         "duration": 26,
-                        "layer": "foreground",
+                        "layer": "background",
                         "dominantMedia": "audio",
                         "volume": 1
                     },
@@ -3749,7 +2903,7 @@
                         "experienceStreamId": "defaultStream",
                         "begin": 212.56199999999998,
                         "duration": 9,
-                        "layer": "foreground",
+                        "layer": "background",
                         "dominantMedia": "audio",
                         "volume": 1
                     },
@@ -3758,7 +2912,7 @@
                         "experienceStreamId": "defaultStream",
                         "begin": 222.48,
                         "duration": 10,
-                        "layer": "foreground",
+                        "layer": "background",
                         "dominantMedia": "audio",
                         "volume": 1
                     },
@@ -3767,7 +2921,7 @@
                         "experienceStreamId": "defaultStream",
                         "begin": 232.48,
                         "duration": 5,
-                        "layer": "foreground",
+                        "layer": "background",
                         "dominantMedia": "audio",
                         "volume": 1
                     },

@@ -11,6 +11,9 @@
 /// <reference path="../contracts/IExperienceStream.js" />
 
 (function (rin) {
+    /*global $:true*/
+    "use strict";
+
     // Behavior for expanding a overlay to fullscreen.
     var PopupBehavior = function (orchestrator) {
         this.orchestrator = orchestrator;
@@ -23,7 +26,7 @@
             var popup = new rin.PopupControl(this.orchestrator);
             popup.load(dataContext.esData, dataContext);
 
-            $(popup).bind('onclose', function (e) {
+            $(popup).bind('onclose', function () {
                 if (typeof (completionCallback) === 'function')
                     completionCallback();
             });

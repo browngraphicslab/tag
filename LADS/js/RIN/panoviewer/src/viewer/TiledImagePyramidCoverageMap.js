@@ -50,7 +50,7 @@ TiledImagePyramidCoverageMap.prototype = {
 
 	// Marks a tile as an occluder.
 	markAsOccluder: function(tileId, occluder) {
-		this.setOccluderFlag(tileId.toString(), occluder);
+		this.setOccluderFlag(tileId.id, occluder);
 	},
 
 	// Must be called after initialize and before doing occlusion queries.
@@ -142,7 +142,7 @@ TiledImagePyramidCoverageMap.prototype = {
 			for (tileid in this.occluderFlags[lod]) {
 				if (bounds.lodX0 <= tileid.x && tileid.x <= bounds.lodX1 &&
 					bounds.lodY0 <= tileid.y && tileid.y <= bounds.lodY1)
-					result.push(tileId.toString());
+					result.push(tileId.id);
 			}
 
 		}

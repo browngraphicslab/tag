@@ -41,7 +41,7 @@ TiledImagePyramidCuller.prototype = {
 				for (var i=0; i<prevVisibleTiles[prefix].length; i++) {
 					var j;
 					for (j=0; j<tileResult.visibleTiles.length; j++)
-						if (tileResult.visibleTiles[j].toString() == prevVisibleTiles[prefix][i].toString())
+						if (tileResult.visibleTiles[j].id == prevVisibleTiles[prefix][i].id)
 							break;
 					if (j==tileResult.visibleTiles.length)
 						Utils.log("frame="+frameCount+" getVisibleTiles remove "+prefix+":"+prevVisibleTiles[prefix][i]);
@@ -49,7 +49,7 @@ TiledImagePyramidCuller.prototype = {
 				for (var i=0; i<tileResult.visibleTiles.length; i++) {
 					var j;
 					for (j=0; j<prevVisibleTiles[prefix].length; j++)
-						if (tileResult.visibleTiles[i].toString() == prevVisibleTiles[prefix][j].toString())
+						if (tileResult.visibleTiles[i].id == prevVisibleTiles[prefix][j].id)
 							break;
 					if (j==prevVisibleTiles[prefix].length)
 						Utils.log("frame="+frameCount+" getVisibleTiles added "+prefix+":"+tileResult.visibleTiles[i]);
@@ -76,7 +76,7 @@ TiledImagePyramidCuller.prototype = {
         var modelToScreen = viewportTransform.multiply(viewProjection.multiply(modelTransform));
 
         var visibleTiles = [];
-        visibleTiles.byId = {};
+        var visibleTilesById = {};
         for (var i = 0; i < tileResult.visibleTiles.length; ++i) {
             var tileId = tileResult.visibleTiles[i];
 			tileId.isTemp = false;
@@ -86,7 +86,7 @@ TiledImagePyramidCuller.prototype = {
             var priority = 0;
             visibleTiles.push(tileId);
             visibleTiles[visibleTiles.length-1].priority = priority;
-            visibleTiles.byId[tileId.toString()] = true;
+            visibleTilesById[tileId.id] = true;
 
 			// Add ancestors just in case that they can be available before the
 			// proper tile, e.g. the proper tile is not downloaded yet but an
@@ -105,32 +105,30 @@ TiledImagePyramidCuller.prototype = {
 			// measure.
 			// Add ancestors ONLY IF this is a new tile not in the current visibleSet yet
 			// Otherwise this ancestors will be repeated added every frame
-            if (! visibleSet.byId[prefix + tileId.toString()]) {
+            if (! visibleSet.byId[prefix + tileId.id]) {
 				var ancestorId = tileId;
 				var maxDepth = 1, depth=1;
 				while (ancestorId.levelOfDetail > tilePyramid.minimumLod
 						&& depth++ <= maxDepth) {
 					ancestorId = ancestorId.getParent();
-					if (!visibleTiles.byId[ancestorId.toString()]) {
+					if (!visibleTilesById[ancestorId.id]) {
 						// This is a temp (i.e. temoprary) tile because this is
 						// not exactly what we want; however if it's available
 						// we'll use it temporarily until the proper tile comes
 						// in
 						ancestorId.isTemp = true;
+                        ancestorId.priority = priority;
 						visibleTiles.push(ancestorId);
-						visibleTiles.byId[ancestorId.toString()] = true;
-						visibleTiles[visibleTiles.length-1].priority = priority;
+						visibleTilesById[ancestorId.id] = true;
                         ancestorId.cached = isTileAvailable(ancestorId.x, ancestorId.y, ancestorId.levelOfDetail);
 					}
 				}
 			}
         }
 
-        visibleTiles.byId = null;
-
         for (var i = 0; i < visibleTiles.length; ++i) {
             var tileId = visibleTiles[i];
-            var id = prefix + tileId.toString();
+            var id = prefix + tileId.id;
             if (!visibleSet.byId[id]) {
                 var tileDimension = tilePyramid.getTileDimensions(tileId);
                 var tileTransform = tilePyramid.getTileTransform(tileId);
@@ -237,8 +235,8 @@ TiledImagePyramidCuller.prototype = {
 					var ancestorId = tile.tileId;
 					while (ancestorId.levelOfDetail > tilePyramid.minimumLod) {
 						ancestorId = ancestorId.getParent();
-						if (visibleSet.byId[prefix+ancestorId] != undefined) {
-							visibleSet.byId[prefix+ancestorId].keep = true;
+						if (visibleSet.byId[prefix+ancestorId.id] != undefined) {
+							visibleSet.byId[prefix+ancestorId.id].keep = true;
 						}
 					}
 				}

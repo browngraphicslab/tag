@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 * RIN Experience Provider JavaScript Library v1.0
 * http://research.microsoft.com/rin
 *
@@ -8,9 +8,8 @@
 * Date: <placeholder for SDK release date>
 */
 
-window.rin = window.rin || {};
 (function (rin, $) {
-
+    "use strict";
     // ES for displaying a Image Comparison Slider
     var ImageCompareES = function (orchestrator, esData) {
         ImageCompareES.parentConstructor.apply(this, arguments);
@@ -54,7 +53,7 @@ window.rin = window.rin || {};
 
         // listen to slide start drag by user
         this.$slider = this.$el.find('.rin-ic-slider')
-            .on('pointerstart', $.proxy(function() {
+            .on('pxpointerstart', $.proxy(function() {
                 orchestrator.startInteractionMode();
                 this.interactiveSlide = true;
             }, this));
@@ -63,16 +62,16 @@ window.rin = window.rin || {};
         // slider element is too narrow, its easy for the user to
         // drag faster than we can update the position. we don't
         // want the drag to end until they leave the parent element
-        this.$el.on('pointerstart pointermove pointerend', $.proxy(function(event) {
+        this.$el.on('pxpointerstart pxpointermove pxpointerend', $.proxy(function(event) {
 
             // stop event propagation to prevent manipulation of page
-            if (event.type === 'pointermove') {
+            if (event.type === 'pxpointermove') {
                 event.preventDefault();
             }
 
             if (!this.interactiveSlide) {
                 return;
-            } else if (event.type === 'pointerend') {
+            } else if (event.type === 'pxpointerend') {
                 this.interactiveSlide = false;
             }
 
@@ -233,4 +232,4 @@ window.rin = window.rin || {};
             return new ImageCompareES(orchestrator, esData);
         });
 
-})(rin, jQuery);
+})(window.rin = window.rin || {}, jQuery);

@@ -20,10 +20,10 @@
 window.rin = window.rin || {};
 
 (function (rin) {
+    "use strict";
     // ES for playing video clips.
     var RinES = function (orchestrator, esData) {
         RinES.parentConstructor.apply(this, arguments);
-        var self = this;
         this._orchestrator = orchestrator;
         this._userInterfaceControl = rin.util.createElementWithHtml(RinES.elementHTML).firstChild;
         this._esData = esData;        
@@ -34,7 +34,7 @@ window.rin = window.rin || {};
 
     RinES.prototypeOverrides = {        
         // Load and initialize the video.
-        load: function (experienceStreamId) {
+        load: function () {
             var self = this,
                 loadComplete = function () {
                     if (self.getState() === rin.contracts.experienceStreamState.ready) {
@@ -74,10 +74,10 @@ window.rin = window.rin || {};
             });
 
             // Load the internal rin.
-            if(this._esData.narrativeData != null) {
+            if(this._esData.narrativeData) {
                 self._rinPlayer.loadData(this._esData.narrativeData, loadComplete);
             }
-            else if(this._url != null) {
+            else if(this._url !== null) {
                 self._rinPlayer.load(this._url, loadComplete);
             }
         },
@@ -115,4 +115,4 @@ window.rin = window.rin || {};
     RinES.elementHTML = "<div class='rinPlayer' style='height:100%;width:100%;position:absolute'></div>";
     rin.util.overrideProperties(RinES.prototypeOverrides, RinES.prototype);
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.RinExperienceStream", function (orchestrator, esData) { return new RinES(orchestrator, esData); });
-})(rin);
+})(window.rin);

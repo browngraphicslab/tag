@@ -1,4 +1,4 @@
-﻿<div data-bind="visible: showControls">
+<div data-bind="visible: showControls">
     <div class="rin_TroubleShootButtonHolder">
         <input type="button" title="Edit Narrative" class="rin_TroubleShootingControl rin_EditNarrativeButton" data-bind="click: editNarrativeClick" />
         <input type="button" title="Self Test" class="rin_TroubleShootingControl rin_SelfTestDialogButton" data-bind="click: showSelfTestDialogClick" />
@@ -21,7 +21,10 @@
         seconds.
         <input type="button" style="float: right" value="Stop" data-bind="click: stopSelfTestClick" />
         <input type="button" style="float: right" value="Start" data-bind="click: startSelfTestClick" />
+        <br />
+        <input type="checkbox" data-bind="checked: useReload" />Use load/unload for deepstate
     </div>
+    <div class="rin_TroubleshooterLogHolder" data-bind="html: logMessage"/>
     <div class="rin_deepstateCapture" data-bind="visible: showDeepstateDialog">
         <textarea class="rin_EditNarrativeText" data-bind="value:capturedDeepState"></textarea>
         <input type="button" style="float: right" value="Capture State" data-bind="click: captureDeepStateClick" />

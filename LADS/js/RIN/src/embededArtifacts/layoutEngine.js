@@ -1,28 +1,33 @@
-﻿/*!
-*
-* RIN Core JavaScript Library v1.0
-* http://research.microsoft.com/rin
-*
-* Copyright (c)  2013, Microsoft Research
-* By using this source you agree to the terms and conditions detailed in the following licence:
-*     http://rinjs.org/licenses/v1.0/
-*
-* Date: 2013-MARCH-01
-*
-* This file  implements the  Layout Engine for Embedded Artifacts
-*
-*/
-/// <reference path="embeddedArtifactTypes.d.ts"/>
-/// <reference path="diagnostics.d.ts"/>
-var rin;
+﻿var rin;
 (function (rin) {
     (function (embeddedArtifacts) {
-            })(rin.embeddedArtifacts || (rin.embeddedArtifacts = {}));
+        /*!
+        *
+        * RIN Core JavaScript Library v1.0
+        * http://research.microsoft.com/rin
+        *
+        * Copyright (c)  2013, Microsoft Research
+        * By using this source you agree to the terms and conditions detailed in the following licence:
+        *     http://rinjs.org/licenses/v1.0/
+        *
+        * Date: 2013-MARCH-01
+        *
+        * This file  implements the  Layout Engine for Embedded Artifacts
+        *
+        */
+        /// <reference path="embeddedArtifactTypes.d.ts"/>
+        /// <reference path="diagnostics.d.ts"/>
+        (function (BuiltinPolicies) {
+            "use strict";
+        })(embeddedArtifacts.BuiltinPolicies || (embeddedArtifacts.BuiltinPolicies = {}));
+        var BuiltinPolicies = embeddedArtifacts.BuiltinPolicies;
+    })(rin.embeddedArtifacts || (rin.embeddedArtifacts = {}));
     var embeddedArtifacts = rin.embeddedArtifacts;
 })(rin || (rin = {}));
 var rin;
 (function (rin) {
     (function (embeddedArtifacts) {
+        "use strict";
         var debug = rin.diagnostics.newDiagnosticsModule("EA-LE");
         //
         // Private WorkingArtifactsList class
@@ -102,7 +107,6 @@ var rin;
             };
             return EmbeddedArtifactsPipeline;
         })();        
-        ; ;
         function newLayoutEngine(helper) {
             var pipelines = {
             };
@@ -115,7 +119,6 @@ var rin;
                     if(pipelines.hasOwnProperty(collectionId)) {
                         debug.throwDuplicateException("Already have pipeline with collection id " + collection.collectionId);
                     }
-                    ; ;
                     var newPipeline = new EmbeddedArtifactsPipeline(helper, collection, groupPolicyIds, /*itemPolicyIds,*/ provider, host);
                     pipelines[collectionId] = (newPipeline);
                 },
@@ -135,7 +138,6 @@ var rin;
             };
         }
         embeddedArtifacts.newLayoutEngine = newLayoutEngine;
-        ; ;
         function newDefaultGroupPolicy(policyId, collection, provider) {
             var policyFactory = rin.embeddedArtifacts.BuiltinPolicies[policyId];
             return policyFactory && policyFactory.newInstance(collection, provider);

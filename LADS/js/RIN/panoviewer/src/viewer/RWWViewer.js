@@ -589,6 +589,10 @@ var RwwViewer = function (parentDiv, options) {
         }
     };
 
+    function sortTilesByLOD(a, b) {
+        return b.tileId.levelOfDetail - a.tileId.levelOfDetail
+    }
+
     // Downloads all assets of the mediaType at the view setup as specified
     // by cameraParameters. Since runtime LOD calculations (computing the
     // average LODs for pano faces under perspective projection) can result
@@ -624,7 +628,7 @@ var RwwViewer = function (parentDiv, options) {
                     //    }
                     //}
 
-                    newTiles.sort(function (a, b) { return b.tileId.levelOfDetail - a.tileId.levelOfDetail });
+                    newTiles.sort(sortTilesByLOD);
                     var lod = newTiles[0] && newTiles[0].tileId.levelOfDetail;
                     for (var i = 0; i < newTiles.length; i++) {
                         if (newTiles[i].tileId.levelOfDetail == lod)

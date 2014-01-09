@@ -15,10 +15,11 @@
 /// <reference path="embeddedArtifactTypes.d.ts"/>
 /// <reference path="diagnostics.d.ts"/>
 
-module rin.embeddedArtifacts.BuiltinPolicies { }
+module rin.embeddedArtifacts.BuiltinPolicies { "use strict"; }
 
 module rin.embeddedArtifacts {
-
+    
+    "use strict";
     var debug = rin.diagnostics.newDiagnosticsModule("EA-LE");
 
     //
@@ -110,7 +111,7 @@ module rin.embeddedArtifacts {
         extractItemStateFromExperienceState(experienceState: SmallState, collectionId: string, itemId: string): SmallState {
             return {};
         };
-    };
+    }
 
 
     export function newLayoutEngine(helper: LayoutEngineHelper): LayoutEngine {
@@ -128,7 +129,7 @@ module rin.embeddedArtifacts {
                 var collectionId = collection.collectionId;
                 if (pipelines.hasOwnProperty(collectionId)) {
                     debug.throwDuplicateException("Already have pipeline with collection id " + collection.collectionId);
-                };
+                }
                 var newPipeline = new EmbeddedArtifactsPipeline(helper, collection, groupPolicyIds, /*itemPolicyIds,*/ provider, host);
                 pipelines[collectionId] = (newPipeline);
             },
@@ -150,7 +151,7 @@ module rin.embeddedArtifacts {
                 });
             }
         };
-    };
+    }
 
     export function newDefaultGroupPolicy(policyId: string, collection: DataCollection, provider: ProviderProxy): GroupEnvironmentalPolicy {
         var policyFactory = rin.embeddedArtifacts.BuiltinPolicies[policyId];

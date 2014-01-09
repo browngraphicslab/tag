@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2013-10-20 */
+/*! RIN | http://research.microsoft.com/rin | 2014-01-05 */
 (function(){
 "use strict";
 
@@ -2881,9 +2881,6 @@ extend(TexturedQuadRenderable, Renderable);
  */
 function MemoryCache(maxEntries) {
 
-    var Debug = {};
-    Debug.assert = function(a, b) {};
-
     var _cache = {},
         _keys = [], // FIFO queue of key names for cached objects
         _disposer = null;
@@ -2895,7 +2892,8 @@ function MemoryCache(maxEntries) {
      * @param {boolean=} refresh
      */
     this.get = function(key, refresh) {
-        Debug.assert(typeof key === 'string', 'Argument: key');
+        
+        //console.assert(typeof key === 'string', 'Argument: key');
 
         var value = _cache[key];
 
@@ -2919,8 +2917,8 @@ function MemoryCache(maxEntries) {
      * @param {Object} value
      */
     this.insert = function(key, value) {
-        Debug.assert(typeof key === 'string', 'Argument: key');
-        Debug.assert(value !== undefined, 'Argument: value');
+        //console.assert(typeof key === 'string', 'Argument: key');
+        //console.assert(value !== undefined, 'Argument: value');
 
         // see if the value exists and always update cache
         var existingValue = this.get(key, true);
@@ -3210,15 +3208,17 @@ var PriorityNetworkDownloader = function(useCORS, tileDownloadFailedCallback, ti
         img.src = url;
     }
 
+    function sortByPriority(l, r) {
+        return r.priority - l.priority;
+    }
+
     /**
      * Call this from the run-loop of the application.
      * This will process any completed downloads and trigger new downloads.
      */
     self.update = function() {
         self.completed = [];
-        _queue.sort(function(l, r) {
-            return r.priority - l.priority;
-        });
+        _queue.sort(sortByPriority);
 
         var blockedDownloads = 0;
 
@@ -3352,28 +3352,38 @@ var PolygonTileFloodFiller = {
         var tileQueue = [startingTile];
         var tilesEnqueued = new Array(gridWidth * gridHeight);
         tilesEnqueued[startingTile.y * gridWidth + startingTile.x] = true;
-        //var tileGrid = [];
-        var result = [];
+        
+        var result = [],
+            neighbors = new Array(4),
+            neighbor, tile, i, len, enqueueIndex;
 
         while (tileQueue.length > 0) {
-            var tile = tileQueue.shift();
+            tile = tileQueue.shift();
             result.push(tile);
 
-            var neighbors = [];
+            /* Experiment to see which is more common
+            var tileCenterInPolygon = this.tileCenterInPolygon(tile, polygon);
+            console.count('tileCenterInPolygon:' + tileCenterInPolygon);
+            var gridCrossesPolygon = this.gridCrossesPolygon(tile, polygon);
+            console.count('gridCrossesPolygon:' + gridCrossesPolygon);
+            */
 
-            if (this.tileCenterInPolygon(tile, polygon) || this.gridCrossesPolygon(tile, polygon)) {
-                neighbors.push(this.getLeftNeighbor(tile));
-                neighbors.push(this.getRightNeighbor(tile));
-                neighbors.push(this.getTopNeighbor(tile));
-                neighbors.push(this.getBottomNeighbor(tile));
-            }
+            // NOTE: following checks are both very expensive, but gridCrossesPolygon
+            // tends to be true more often so it should go first
+            if (this.gridCrossesPolygon(tile, polygon) || this.tileCenterInPolygon(tile, polygon)) {
 
-            for (var i = 0; i < neighbors.length; i++) {
-                var neighbor = neighbors[i];
+                neighbors[0] = this.getLeftNeighbor(tile);
+                neighbors[1] = this.getRightNeighbor(tile);
+                neighbors[2] = this.getTopNeighbor(tile);
+                neighbors[3] = this.getBottomNeighbor(tile);
 
-                if (this.isValidTile(neighbor, gridWidth, gridHeight) && !tilesEnqueued[neighbor.y * gridWidth + neighbor.x]) {
-                    tileQueue.push(neighbor);
-                    tilesEnqueued[neighbor.y * gridWidth + neighbor.x] = true;
+                for (i = 0; i < 4; i++) {
+                    neighbor = neighbors[i];
+                    enqueueIndex = neighbor.y * gridWidth + neighbor.x;
+                    if (!tilesEnqueued[enqueueIndex] && this.isValidTile(neighbor, gridWidth, gridHeight)) {
+                        tileQueue.push(neighbor);
+                        tilesEnqueued[enqueueIndex] = true;
+                    }
                 }
             }
         }
@@ -3422,123 +3432,114 @@ var PolygonTileFloodFiller = {
 
     tileCenterInPolygon: function (tile, polygon) {
         //check center of tile
-        return this.pointInPolygon({x: tile.x + 0.5, y: tile.y + 0.5}, polygon);
+        return this.pointInPolygon(tile.x + 0.5, tile.y + 0.5, polygon);
     },
 
     isValidTile: function (tile, gridWidth, gridHeight) {
-        if (isNaN(tile.x) || isNaN(tile.y) || tile.x < 0 || tile.y < 0 || tile.x >= gridWidth || tile.y >= gridHeight) {
+        if (tile.x < 0 || tile.y < 0 || tile.x >= gridWidth || tile.y >= gridHeight || isNaN(tile.x) || isNaN(tile.y) ) {
             return false;
         }
         return true;
     },
 
-    normalizeNumber: function (number) {
-        if (number >= 0) {
-            return 1;
-        }
+    gridCrossesPolygon: function (upperLeftPoint, polygon) {
 
-        return -1;
-    },
+        // origin at upper left point
+        var x = upperLeftPoint.x,
+            y = upperLeftPoint.y,
+            rightX = x + 1,
+            bottomY = y + 1;
 
-    gridCrossesPolygon: function (gridUpperLeftPoint, polygon) {
-        //Assume gridUpperLeftPoint has x and y properties and that they are ints
-        var gridUpperRightPoint = {x: gridUpperLeftPoint.x + 1, y: gridUpperLeftPoint.y};
-        var gridLowerRightPoint = {x: gridUpperLeftPoint.x + 1, y: gridUpperLeftPoint.y + 1};
-        var gridLowerLeftPoint = {x: gridUpperLeftPoint.x, y: gridUpperLeftPoint.y + 1};
-
-        //var result = {};
-        //
-        //if (countCrossings(gridUpperLeftPoint, polygon) !== countCrossings(gridUpperRightPoint, polygon)) {
-        //    result.top = true;
-        //}
-        //if (countCrossings(gridLowerLeftPoint, polygon) !== countCrossings(gridLowerRightPoint, polygon)) {
-        //    result.bottom = true;
-        //}
-        //if (countCrossings(gridUpperLeftPoint, polygon, true) !== countCrossings(gridLowerLeftPoint, polygon, true)) {
-        //    result.left = true;
-        //}
-        //if (countCrossings(gridUpperRightPoint, polygon, true) !== countCrossings(gridLowerRightPoint, polygon, true)) {
-        //    result.right = true;
-        //}
-        //
-        //return result;
-
-        if (this.countCrossings(gridUpperLeftPoint, polygon) !== this.countCrossings(gridUpperRightPoint, polygon)) {
+        // upper left vs upper right
+        if (this.countCrossings(x, y, polygon, false) !== this.countCrossings(rightX, y, polygon, false)) {
             return true;
         }
-        else if (this.countCrossings(gridLowerLeftPoint, polygon) !== this.countCrossings(gridLowerRightPoint, polygon)) {
+        // lower left vs lower right 
+        else if (this.countCrossings(x, bottomY, polygon, false) !== this.countCrossings(rightX, bottomY, polygon, false)) {
             return true;
         }
-        else if (this.countCrossings(gridUpperLeftPoint, polygon, true) !== this.countCrossings(gridLowerLeftPoint, polygon, true)) {
+        // upper left vs lower left
+        else if (this.countCrossings(x, y, polygon, true) !== this.countCrossings(x, bottomY, polygon, true)) {
             return true;
         }
-        else if (this.countCrossings(gridUpperRightPoint, polygon, true) !== this.countCrossings(gridLowerRightPoint, polygon, true)) {
+        // upper right vs lower right
+        else if (this.countCrossings(rightX, y, polygon, true) !== this.countCrossings(rightX, bottomY, polygon, true)) {
             return true;
         }
-        else {
-            return false;
-        }
+        
+        return false;
     },
 
     //Use crossing test.  If a ray going out from the point crosses an odd number of polygon line segments, then it's inside the polygon.  Else it's outside.
     //Logic is simple if we cast a ray to the right (positive x) direction
     //Short description: http://erich.realtimerendering.com/ptinpoly/
     //Longer description: Graphics Gems IV, Edited by Paul S Heckbert 1994, page 26
-    pointInPolygon: function (point, polygon) {
-        var crossCount = this.countCrossings(point, polygon);
+    pointInPolygon: function (x, y, polygon) {
+        var crossCount = this.countCrossings(x, y, polygon, false);
 
         //If the ray crossed an odd number of segments, then the point is inside the polygon.
         return (crossCount % 2 === 1);
     },
 
-    //var cachedHorizontalCrossings = {};
-    //var cachedVerticalCrossings = {};
     cachedCrossings: {},
 
-    countCrossings: function (point, polygon, castRayDown) {
-        var adjustedPolygon = [];
-        var i, j;
-        var crossCount = 0;
+    // cache temporary arrays used for adjusted points for better perf. 
+    _countCrossingsAdjustedX: [],
+    _countCrossingsAdjustedY: [],
 
-        var hash = point.x + ',' + point.y + ((castRayDown) ? ',down' : ',right');
-
-        if (this.cachedCrossings[hash] != null) {
-            return this.cachedCrossings[hash];
+    countCrossings: function (x, y, polygon, castRayDown) {
+        
+        // check cache first        
+        var hash = x + ',' + y + ((castRayDown) ? '-D' : '-R'),
+            crossCount = this.cachedCrossings[hash];
+        if (crossCount !== undefined) {
+            return crossCount;
         }
 
-        if (castRayDown) {
-            //if (cachedVerticalCrossings(
+        crossCount = 0;
+        var numPoints = polygon.length,
+            adjustedX = this._countCrossingsAdjustedX,
+            adjustedY = this._countCrossingsAdjustedY,
+            i, j, currentPoint,
+            x0, y0, x1, y1,
+            ySign0, ySign1, xSign0, xSign1,
+            m, b;
 
+        if (castRayDown) {
             //just switch the x and y of the polygon, then the rest of the math works out correctly
-            for (i = 0; i < polygon.length; i++) {
-                adjustedPolygon.push({x: polygon[i].y - point.y, y: polygon[i].x - point.x});
+            for (i = 0; i < numPoints; i++) {
+                currentPoint = polygon[i];
+                adjustedX[i] = currentPoint.y - y;
+                adjustedY[i] = currentPoint.x - x;
             }
         }
         else {
-            for (i = 0; i < polygon.length; i++) {
-                adjustedPolygon.push({x: polygon[i].x - point.x, y: polygon[i].y - point.y});
+            for (i = 0; i < numPoints; i++) {
+                currentPoint = polygon[i];
+                adjustedX[i] = currentPoint.x - x;
+                adjustedY[i] = currentPoint.y - y;
             }
         }
 
-        for (i = 0; i < adjustedPolygon.length; i++) {
+        for (i = 0; i < numPoints; i++) {
             j = i + 1;
-            if (j >= adjustedPolygon.length) {
+            if (j >= numPoints) {
                 j = 0;
             }
+            
+            x0 = adjustedX[i];
+            y0 = adjustedY[i];
 
-            var y0 = adjustedPolygon[i].y;
-            var y1 = adjustedPolygon[j].y;
-            var x0 = adjustedPolygon[i].x;
-            var x1 = adjustedPolygon[j].x;
+            x1 = adjustedX[j];
+            y1 = adjustedY[j];
 
-            var ySign0 = this.normalizeNumber(y0);
-            var ySign1 = this.normalizeNumber(y1);
-            var xSign0 = this.normalizeNumber(x0);
-            var xSign1 = this.normalizeNumber(x1);
-
-            if (ySign0 != ySign1) {
+            ySign0 = y0 >= 0 ? 1 : -1;
+            ySign1 = y1 >= 0 ? 1 : -1;
+            if (ySign0 !== ySign1) {
                 //Points are on opposite sides of the ray being cast to the right, then the segment may cross.
 
+                xSign0 = x0 >= 0 ? 1 : -1;
+                xSign1 = x1 >= 0 ? 1 : -1;
                 if (xSign0 === 1 && xSign1 === 1) {
                     //Points are both to the right of the point, so the segment must cross the ray.
                     crossCount++;
@@ -3549,8 +3550,8 @@ var PolygonTileFloodFiller = {
                     //If the x-intercept is positive, then the segment must cross the ray.
 
                     //Note, since we know x0 and x1 have different signs, we don't need to check (x0-x1) for being 0
-                    var m = (y0 - y1) / (x0 - x1);
-                    var b = y0 - (m * x0);
+                    m = (y0 - y1) / (x0 - x1);
+                    b = y0 - (m * x0);
                     if (b >= 0) {
                         crossCount++;
                     }
@@ -3564,7 +3565,9 @@ var PolygonTileFloodFiller = {
 };
 
 // Original Source (MIT License): https://github.com/arian/CSSMatrix
-// Browserified Version: https://raw.github.com/camupod/CSSMatrix/browserified/CSSMatrix.js
+
+// Modified to wrap code inside an anonymous function and also only
+// enable the shim if native support isn't available (see end of file)
 
 (function () {
 
@@ -3574,41 +3577,40 @@ var PolygonTileFloodFiller = {
 // http://www.w3.org/TR/css3-3d-transforms/#cssmatrix-interface
 // http://www.w3.org/TR/css3-2d-transforms/#cssmatrix-interface
 
-
-// decimal values in WebKitCSSMatrix.prototype.toString are truncated to 6 digits
-var SMALL_NUMBER = 1e-6;
-
 /**
  * CSSMatrix Shim
  * @constructor
  */
-function CSSMatrix() {
+var CSSMatrix = function(){
     var a = [].slice.call(arguments),
         m = this;
-    if (a.length) for (var i = a.length; i--;) {
-        if (Math.abs(a[i]) < SMALL_NUMBER) a[i] = 0;
+    if (a.length) for (var i = a.length; i--;){
+        if (Math.abs(a[i]) < CSSMatrix.SMALL_NUMBER) a[i] = 0;
     }
-    setIdentity(m);
-    if (a.length == 16) {
+    m.setIdentity();
+    if (a.length == 16){
         m.m11 = m.a = a[0];  m.m12 = m.b = a[1];  m.m13 = a[2];  m.m14 = a[3];
         m.m21 = m.c = a[4];  m.m22 = m.d = a[5];  m.m23 = a[6];  m.m24 = a[7];
         m.m31 = a[8];  m.m32 = a[9];  m.m33 = a[10]; m.m34 = a[11];
         m.m41 = m.e = a[12]; m.m42 = m.f = a[13]; m.m43 = a[14]; m.m44 = a[15];
     } else if (a.length == 6) {
-        m.m11 = m.a = a[0]; m.m12 = m.b = a[1];
-        m.m21 = m.c = a[2]; m.m22 = m.d = a[3];
-        m.m41 = m.e = a[4]; m.m42 = m.f = a[5];
-    } else if (typeof a[0] == 'string') {
+        this.affine = true;
+        m.m11 = m.a = a[0]; m.m12 = m.b = a[1]; m.m14 = m.e = a[4];
+        m.m21 = m.c = a[2]; m.m22 = m.d = a[3]; m.m24 = m.f = a[5];
+    } else if (a.length === 1 && typeof a[0] == 'string') {
         m.setMatrixValue(a[0]);
     } else if (a.length > 0) {
         throw new TypeError('Invalid Matrix Value');
     }
-}
+};
+
+// decimal values in WebKitCSSMatrix.prototype.toString are truncated to 6 digits
+CSSMatrix.SMALL_NUMBER = 1e-6;
 
 // Transformations
 
 // http://en.wikipedia.org/wiki/Rotation_matrix
-function rotate(rx, ry, rz) {
+CSSMatrix.Rotate = function(rx, ry, rz){
     rx *= Math.PI / 180;
     ry *= Math.PI / 180;
     rz *= Math.PI / 180;
@@ -3631,16 +3633,15 @@ function rotate(rx, ry, rz) {
     m.m33 = cosx * cosy;
 
     return m;
-}
+};
 
-
-function rotateAxisAngle(x, y, z, angle) {
+CSSMatrix.RotateAxisAngle = function(x, y, z, angle){
     angle *= Math.PI / 360;
 
     var sinA = Math.sin(angle), cosA = Math.cos(angle), sinA2 = sinA * sinA;
     var length = Math.sqrt(x * x + y * y + z * z);
 
-    if (length === 0) {
+    if (length === 0){
         // bad vector length, use something reasonable
         x = 0;
         y = 0;
@@ -3668,49 +3669,57 @@ function rotateAxisAngle(x, y, z, angle) {
     m.m44 = 1;
 
     return m;
-}
+};
 
+CSSMatrix.ScaleX = function(x){
+    var m = new CSSMatrix();
+    m.m11 = m.a = x;
+    return m;
+};
 
-function scale(x, y, z) {
+CSSMatrix.ScaleY = function(y){
+    var m = new CSSMatrix();
+    m.m22 = m.d = y;
+    return m;
+};
+
+CSSMatrix.ScaleZ = function(z){
+    var m = new CSSMatrix();
+    m.m33 = z;
+    return m;
+};
+
+CSSMatrix.Scale = function(x, y, z){
     var m = new CSSMatrix();
     m.m11 = m.a = x;
     m.m22 = m.d = y;
     m.m33 = z;
     return m;
-}
+};
 
-
-function skewX(angle) {
+CSSMatrix.SkewX = function(angle){
     angle *= Math.PI / 180;
     var m = new CSSMatrix();
     m.m21 = m.c = Math.tan(angle);
     return m;
-}
+};
 
-
-function skewY(angle) {
+CSSMatrix.SkewY = function(angle){
     angle *= Math.PI / 180;
     var m = new CSSMatrix();
     m.m12 = m.b = Math.tan(angle);
     return m;
-}
+};
 
-
-function translate(x, y, z) {
+CSSMatrix.Translate = function(x, y, z){
     var m = new CSSMatrix();
     m.m41 = m.e = x;
     m.m42 = m.f = y;
     m.m43 = z;
     return m;
-}
+};
 
-
-function inverse(m) {
-    throw new Error('the inverse() method is not implemented (yet).');
-}
-
-
-function multiply(m1, m2) {
+CSSMatrix.multiply = function(m1, m2){
 
     var m11 = m2.m11 * m1.m11 + m2.m12 * m1.m21 + m2.m13 * m1.m31 + m2.m14 * m1.m41,
         m12 = m2.m11 * m1.m12 + m2.m12 * m1.m22 + m2.m13 * m1.m32 + m2.m14 * m1.m42,
@@ -3738,36 +3747,7 @@ function multiply(m1, m2) {
         m31, m32, m33, m34,
         m41, m42, m43, m44
     );
-}
-
-// Helpers
-
-/**
- * Set the specified matrix to the identity form
- *
- * @return {CSSMatrix} the matrix
- */
-function setIdentity(m) {
-    m.m11 = m.a = 1; m.m12 = m.b = 0; m.m13 = 0; m.m14 = 0;
-    m.m21 = m.c = 0; m.m22 = m.d = 1; m.m23 = 0; m.m24 = 0;
-    m.m31 = 0; m.m32 = 0; m.m33 = 1; m.m34 = 0;
-    m.m41 = m.e = 0; m.m42 = m.f = 0; m.m43 = 0; m.m44 = 1;
-    return m;
-}
-
-/**
- * Returns true of the given matrix is affine
- *
- * @return {boolean} affine
- */
-function isAffine(m) {
-    if (!(m.m13 || m.m14 ||
-        m.m23 || m.m24 ||
-        m.m31 || m.m32 || m.m33 !== 1 || m.m34 ||
-        m.m43 || m.m44 !== 1)) return true;
-    return false;
-}
-
+};
 
 // w3c defined methods
 
@@ -3777,35 +3757,30 @@ function isAffine(m) {
  * transform property in a CSS style rule.
  * @param {String} string The string to parse.
  */
-CSSMatrix.prototype.setMatrixValue = function(string) {
-    var i, m = this,
-        parts = [],
-        patternNone = /^none$/,
-        patternMatrix = /^matrix\((.*)\)/,
-        patternMatrix3d = /^matrix3d\((.*)\)/;
-
+CSSMatrix.prototype.setMatrixValue = function(string){
     string = String(string).trim();
-    setIdentity(m);
-
-    if (patternNone.test(string)) return m;
-
-    parts = string.replace(/^.*\((.*)\)$/g, "$1").split(/\s*,\s*/);
-    for (i = parts.length; i--;) parts[i] = parseFloat(parts[i]);
-
-    if (patternMatrix.test(string) && parts.length === 6) {
-        m.m11 = m.a = parts[0]; m.m12 = m.b = parts[2]; m.m41 = m.e = parts[4];
-        m.m21 = m.c = parts[1]; m.m22 = m.d = parts[3]; m.m42 = m.f = parts[5];
-    } else if (patternMatrix3d.test(string) && parts.length === 16) {
+    var m = this;
+    m.setIdentity();
+    if (string == 'none') return m;
+    var type = string.slice(0, string.indexOf('(')), parts, i;
+    if (type == 'matrix3d'){
+        parts = string.slice(9, -1).split(',');
+        for (i = parts.length; i--;) parts[i] = parseFloat(parts[i]);
         m.m11 = m.a = parts[0]; m.m12 = m.b = parts[1]; m.m13 = parts[2];  m.m14 = parts[3];
         m.m21 = m.c = parts[4]; m.m22 = m.d = parts[5]; m.m23 = parts[6];  m.m24 = parts[7];
         m.m31 = parts[8]; m.m32 = parts[9]; m.m33 = parts[10]; m.m34 = parts[11];
         m.m41 = m.e = parts[12]; m.m42 = m.f = parts[13]; m.m43 = parts[14]; m.m44 = parts[15];
+    } else if (type == 'matrix'){
+        m.affine = true;
+        parts = string.slice(7, -1).split(',');
+        for (i = parts.length; i--;) parts[i] = parseFloat(parts[i]);
+        m.m11 = m.a = parts[0]; m.m12 = m.b = parts[2]; m.m41 = m.e = parts[4];
+        m.m21 = m.c = parts[1]; m.m22 = m.d = parts[3]; m.m42 = m.f = parts[5];
     } else {
         throw new TypeError('Invalid Matrix Value');
     }
     return m;
 };
-
 
 /**
  * The multiply method returns a new CSSMatrix which is the result of this
@@ -3815,10 +3790,9 @@ CSSMatrix.prototype.setMatrixValue = function(string) {
  * @param {CSSMatrix} m2
  * @return {CSSMatrix} The result matrix.
  */
-CSSMatrix.prototype.multiply = function(m2) {
-    return multiply(this, m2);
+CSSMatrix.prototype.multiply = function(m2){
+    return CSSMatrix.multiply(this, m2);
 };
-
 
 /**
  * The inverse method returns a new matrix which is the inverse of this matrix.
@@ -3826,10 +3800,9 @@ CSSMatrix.prototype.multiply = function(m2) {
  *
  * method not implemented yet
  */
-CSSMatrix.prototype.inverse = function() {
-    return inverse(this);
+CSSMatrix.prototype.inverse = function(){
+    throw new Error('the inverse() method is not implemented (yet).');
 };
-
 
 /**
  * The translate method returns a new matrix which is this matrix post
@@ -3842,11 +3815,10 @@ CSSMatrix.prototype.inverse = function() {
  * @param {number=} z Z component of the translation value.
  * @return {CSSMatrix} The result matrix
  */
-CSSMatrix.prototype.translate = function(x, y, z) {
-    if (typeof z == 'undefined') z = 0;
-    return multiply(this, translate(x, y, z));
+CSSMatrix.prototype.translate = function(x, y, z){
+    if (z == null) z = 0;
+    return CSSMatrix.multiply(this, CSSMatrix.Translate(x, y, z));
 };
-
 
 /**
  * The scale method returns a new matrix which is this matrix post multiplied by
@@ -3859,12 +3831,11 @@ CSSMatrix.prototype.translate = function(x, y, z) {
  * @param {number=} z The Z component of the scale value.
  * @return {CSSMatrix} The result matrix
  */
-CSSMatrix.prototype.scale = function(x, y, z) {
-    if (typeof y == 'undefined') y = x;
-    if (typeof z == 'undefined') z = 1;
-    return multiply(this, scale(x, y, z));
+CSSMatrix.prototype.scale = function(x, y, z){
+    if (y == null) y = x;
+    if (z == null) z = 1;
+    return CSSMatrix.multiply(this, CSSMatrix.Scale(x, y, z));
 };
-
 
 /**
  * The rotate method returns a new matrix which is this matrix post multiplied
@@ -3878,12 +3849,11 @@ CSSMatrix.prototype.scale = function(x, y, z) {
  * @param {number=} rz The (optional) Z component of the rotation value.
  * @return {CSSMatrix} The result matrix
  */
-CSSMatrix.prototype.rotate = function(rx, ry, rz) {
-    if (typeof ry == 'undefined') ry = rx;
-    if (typeof rz == 'undefined') rz = rx;
-    return multiply(this, rotate(rx, ry, rz));
+CSSMatrix.prototype.rotate = function(rx, ry, rz){
+    if (ry == null) ry = rx;
+    if (rz == null) rz = rx;
+    return CSSMatrix.multiply(this, CSSMatrix.Rotate(rx, ry, rz));
 };
-
 
 /**
  * The rotateAxisAngle method returns a new matrix which is this matrix post
@@ -3897,41 +3867,11 @@ CSSMatrix.prototype.rotate = function(rx, ry, rz) {
  * @param {number} angle The angle of rotation about the axis vector, in degrees.
  * @return {CSSMatrix} The result matrix
  */
-CSSMatrix.prototype.rotateAxisAngle = function(x, y, z, angle) {
-    if (typeof y == 'undefined') y = x;
-    if (typeof z == 'undefined') z = x;
-    return multiply(this, rotateAxisAngle(x, y, z, angle));
+CSSMatrix.prototype.rotateAxisAngle = function(x, y, z, angle){
+    if (y == null) y = x;
+    if (z == null) z = x;
+    return CSSMatrix.multiply(this, CSSMatrix.RotateAxisAngle(x, y, z, angle));
 };
-
-
-/**
- * Returns a string representation of the matrix.
- * @return {string}
- */
-CSSMatrix.prototype.toString = function() {
-    var affine, m = this,
-        fix = function (val) {
-            return val.toFixed(6);
-        };
-
-    if (isAffine(m)) affine = true;
-
-    if (affine) {
-        return  'matrix(' + [
-            m.a, m.b,
-            m.c, m.d,
-            m.e, m.f
-        ].map(fix).join(', ') + ')';
-    }
-    // note: the elements here are transposed
-    return  'matrix3d(' + [
-        m.m11, m.m12, m.m13, m.m14,
-        m.m21, m.m22, m.m23, m.m24,
-        m.m31, m.m32, m.m33, m.m34,
-        m.m41, m.m42, m.m43, m.m44
-    ].map(fix).join(', ') + ')';
-};
-
 
 // Defined in WebKitCSSMatrix, but not in the w3c draft
 
@@ -3941,8 +3881,8 @@ CSSMatrix.prototype.toString = function() {
  * @param {number} angle The angle amount in degrees to skew.
  * @return {CSSMatrix} The result matrix
  */
-CSSMatrix.prototype.skewX = function(angle) {
-    return multiply(skewX(angle), this);
+CSSMatrix.prototype.skewX = function(angle){
+    return CSSMatrix.multiply(this, CSSMatrix.SkewX(angle));
 };
 
 /**
@@ -3951,8 +3891,79 @@ CSSMatrix.prototype.skewX = function(angle) {
  * @param {number} angle The angle amount in degrees to skew.
  * @return {CSSMatrix} The result matrix
  */
-CSSMatrix.prototype.skewY = function(angle) {
-    return multiply(skewY(angle), this);
+CSSMatrix.prototype.skewY = function(angle){
+    return CSSMatrix.multiply(this, CSSMatrix.SkewY(angle));
+};
+
+/**
+ * Returns a string representation of the matrix.
+ * @return {string}
+ */
+CSSMatrix.prototype.toString = function(){
+    var m = this;
+
+    if (this.affine){
+        return  'matrix(' + [
+            m.a, m.b,
+            m.c, m.d,
+            m.e, m.f
+        ].join(', ') + ')';
+    }
+    // note: the elements here are transposed
+    return  'matrix3d(' + [
+        m.m11, m.m12, m.m13, m.m14,
+        m.m21, m.m22, m.m23, m.m24,
+        m.m31, m.m32, m.m33, m.m34,
+        m.m41, m.m42, m.m43, m.m44
+    ].join(', ') + ')';
+};
+
+
+// Additional methods
+
+/**
+ * Set the current matrix to the identity form
+ *
+ * @return {CSSMatrix} this matrix
+ */
+CSSMatrix.prototype.setIdentity = function(){
+    var m = this;
+    m.m11 = m.a = 1; m.m12 = m.b = 0; m.m13 = 0; m.m14 = 0;
+    m.m21 = m.c = 0; m.m22 = m.d = 1; m.m23 = 0; m.m24 = 0;
+    m.m31 = 0; m.m32 = 0; m.m33 = 1; m.m34 = 0;
+    m.m41 = m.e = 0; m.m42 = m.f = 0; m.m43 = 0; m.m44 = 1;
+    return this;
+};
+
+/**
+ * Transform a tuple (3d point) with this CSSMatrix
+ *
+ * @param {Tuple} an object with x, y, z and w properties
+ * @return {Tuple} the passed tuple
+ */
+CSSMatrix.prototype.transform = function(t /* tuple */ ){
+    var m = this;
+
+    var x = m.m11 * t.x + m.m12 * t.y + m.m13 * t.z + m.m14 * t.w,
+        y = m.m21 * t.x + m.m22 * t.y + m.m23 * t.z + m.m24 * t.w,
+        z = m.m31 * t.x + m.m32 * t.y + m.m33 * t.z + m.m34 * t.w,
+        w = m.m41 * t.x + m.m42 * t.y + m.m43 * t.z + m.m44 * t.w;
+
+    t.x = x / w;
+    t.y = y / w;
+    t.z = z / w;
+
+    return t;
+};
+
+CSSMatrix.prototype.toFullString = function(){
+    var m = this;
+    return [
+        [m.m11, m.m12, m.m13, m.m14].join(', '),
+        [m.m21, m.m22, m.m23, m.m24].join(', '),
+        [m.m31, m.m32, m.m33, m.m34].join(', '),
+        [m.m41, m.m42, m.m43, m.m44].join(', ')
+    ].join('\n');
 };
 
 if (typeof exports !== 'undefined') {
@@ -3961,7 +3972,13 @@ if (typeof exports !== 'undefined') {
     }
     exports.CSSMatrix = CSSMatrix;
 } else {
-    window.CSSMatrix = CSSMatrix;
+    // prefer native implementations of the matrix
+    window.CSSMatrix = 
+        window.CSSMatrix ||
+        window.WebKitCSSMatrix || 
+        window.MSCSSMatrix || 
+        window.MozCSSMatrix || 
+        CSSMatrix;
 }
 
 })();
@@ -4073,38 +4090,22 @@ var updateCSS = function(e, t) {
     e.style.msTransform = t;
     e.style.MozTransform = t;
 };
+
 /**
  * This updates the leave node transforms with any
  * intermediate transforms. Note: This is only used when quirks.supportsPreserve3D = false.
  */
 RendererCSS3D.prototype.updateTransforms = function (node, transform) {
-    var node, current, transform, i, identity,
-    q = [];
-    identity = new CSSMatrix();
-    identity.m11 = 1.0;
-    identity.m12 = 0.0;
-    identity.m13 = 0.0;
-    identity.m14 = 0.0;
-    identity.m21 = 0.0;
-    identity.m22 = 1.0;
-    identity.m23 = 0.0;
-    identity.m24 = 0.0;
-    identity.m31 = 0.0;
-    identity.m32 = 0.0;
-    identity.m33 = 1.0;
-    identity.m34 = 0.0;
-    identity.m41 = 0.0;
-    identity.m42 = 0.0;
-    identity.m43 = 0.0;
-    identity.m44 = 1.0;
-
+    var node, transform, i, len;
+    
     if(!node) {
         node = this._rootElement;
     }
 
     if(!transform) {
-        transform = identity;
+        transform = new CSSMatrix();
     }
+
     if(node['$$matrixTransform']) {
         transform = transform.multiply(node['$$matrixTransform']);
     }
@@ -4113,8 +4114,8 @@ RendererCSS3D.prototype.updateTransforms = function (node, transform) {
         updateCSS(node, transform);
     }
     else {
-        updateCSS(node, identity);
-        for(i = 0; i < node.childNodes.length; ++i) {
+        updateCSS(node, new CSSMatrix());
+        for(i = 0, len = node.childNodes.length; i < len; ++i) {
             this.updateTransforms(node.childNodes[i], transform);
         }
     }
@@ -4457,7 +4458,6 @@ RendererCSS3D.prototype.setCSS3DTransform = function (elem, image, transform, or
 RendererCSS3D.prototype.setCSS3DViewProjection = function (viewProjection) {
     var m = viewProjection.transpose();
 
-    //TODO:Webkit specific, need to abstract for other browsers
     var mCss = new CSSMatrix();
     mCss.m11 = m.m11;
     mCss.m12 = m.m12;
@@ -6109,7 +6109,7 @@ function BallisticPath(pitch1, heading1, fov1, pitch2, heading2, fov2, maxAllowe
 * This controls camera
 * @constructor
 */
-function RotationalFixedPositionCameraController(camera, upperPitchLimit, lowerPitchLimit, upperHeadingLimit, lowerHeadingLimit, enforceViewLimits, minClientPreferredFieldOfView, dimension) {
+function RotationalFixedPositionCameraController(camera, upperPitchLimit, lowerPitchLimit, upperHeadingLimit, lowerHeadingLimit, enforceViewLimits, maxPixelScaleFactor, dimension) {
 
     this._camera = camera;
     this._enforceViewLimits = (enforceViewLimits == null) ? true : enforceViewLimits;
@@ -6135,10 +6135,9 @@ function RotationalFixedPositionCameraController(camera, upperPitchLimit, lowerP
     this._headingSpring.setCurrentAndTarget(pitchAndHeading[1]);
     this._fieldOfViewSpring.setCurrentAndTarget(this._camera.getVerticalFov());
 
-    this._maxPixelScaleFactor = 2; //Set max zoom such that each source pixel is expanded to 2x2 screen pixels
+    this._maxPixelScaleFactor = maxPixelScaleFactor ? maxPixelScaleFactor : 1; //Set max zoom such that each source pixel is mapped to a single screen pixel
     this._dimension = dimension;
-    this._minClientPreferredFieldOfView = minClientPreferredFieldOfView;
-    this._minFieldOfView = minClientPreferredFieldOfView ? minClientPreferredFieldOfView : MathHelper.degreesToRadians(20);
+    this._minFieldOfView = MathHelper.degreesToRadians(20);
     //****** TODO: Ideally we should take min of pitch range and (corrected value of) the heading range
     this._maxFieldOfView = (this._upperPitchLimit - this._lowerPitchLimit); 
     this.setViewportSize(this._camera.getViewport().getWidth(), this._camera.getViewport().getHeight());
@@ -6855,20 +6854,20 @@ RotationalFixedPositionCameraController.prototype = {
         for (i = 0; i < unprocessedEvents.length; ++i) {
             e = unprocessedEvents[i];
             switch (e.type) {
-                case 'gesturestart':
+                case 'pxgesturestart':
                     this.onGestureStart(e);
                     break;
-                case 'gesturemove':
+                case 'pxgesturemove':
                     this.onGestureMove(e);
                     break;
-                case 'gestureend':
+                case 'pxgestureend':
                     this.onGestureEnd();
                     break;
-                case 'pinchstart':
-                case 'pinchmove':
+                case 'pxpinchstart':
+                case 'pxpinchmove':
                     this.onPinchStartMove(e);
                     break;
-                case 'pinchend':
+                case 'pxpinchend':
                     this.onPinchEnd(e);
                     break;
                 case 'mousewheel':
@@ -6878,13 +6877,13 @@ RotationalFixedPositionCameraController.prototype = {
                     zoomOut = (e.delta < 0);
                     this.onDiscreteZoom(e.x, e.y, zoomOut);
                     break;
-                case 'doubletap':
+                case 'pxdoubletap':
                     this._cancelCameraMovements(false);
                     this._userInteracted();
                     zoomOut = false;
                     this.pick(e.x, e.y, zoomOut, this.tapZoomFactor);
                     break;
-                case 'holdstart':
+                case 'pxholdstart':
                     // limit tap and hold gesture to touch
                     if (e.pointerType === 'touch') {
                         $.event.trigger('panohold');
@@ -6990,16 +6989,16 @@ RotationalFixedPositionCameraController.prototype = {
     },
 
     _updateMinFov: function () {
-        // if _minClientPreferredFieldOfView was specified then honor it, else update the MinFOV
-        if (this._dimension && !this._minClientPreferredFieldOfView) {
+        if (this._dimension) {
             this._minFieldOfView = this._height * MathHelper.degreesToRadians(90) / (this._dimension * this._maxPixelScaleFactor); //let them zoom in until each pixel is expanded to 2x2
         }
     },
 
     setMaxPixelScaleFactor: function (factor) {
-        if (factor < 1) {
-            throw "Max pixel scale factor must be 1 or greater";
-        }
+        // Removing the following condition, since we do want to set the maxPixelScaleFactor to a value less than one so as to limit the zoom sometimes.
+        //if (factor < 1) {
+        //    throw "Max pixel scale factor must be 1 or greater";
+        //}
 
         this._maxPixelScaleFactor = factor;
         this._updateMinFov();
@@ -7098,10 +7097,10 @@ RotationalFixedPositionCameraController.prototype = {
  */
 
 var TileId = function(levelOfDetail, x, y) {
-    var self = this;
-    self.x = Math.floor(x);
-    self.y = Math.floor(y);
-    self.levelOfDetail = Math.floor(levelOfDetail);
+    this.x = Math.floor(x);
+    this.y = Math.floor(y);
+    this.levelOfDetail = Math.floor(levelOfDetail);
+    this.id = '(' + this.x + ',' + this.y + ',' + this.levelOfDetail + ')';
 };
 
 TileId.prototype = {
@@ -7126,21 +7125,20 @@ TileId.prototype = {
     },
 
     isChildOf : function (other) {
-        if(this.levelOfDetail <  other.levelOfDetail) {
+        if(this.levelOfDetail < other.levelOfDetail) {
             return false;
         }
-
-        var lodDifference = this.levelOfDetail - other.levelOfDetail;
+        
         return (this.x >> this.levelOfDetail) === other.x &&
                (this.y >> this.levelOfDetail) === other.y;
     },
 
     equals : function(other) {
-        return this.x === other.x && this.y === other.y && this.levelOfDetail  === this.levelOfDetail;
+        return this.x === other.x && this.y === other.y && this.levelOfDetail === this.levelOfDetail;
     },
 
     toString: function() {
-        return '(' + this.x + ',' + this.y + ',' + this.levelOfDetail + ')';
+        return this.id;
     }
 };
 
@@ -7893,7 +7891,7 @@ TiledImagePyramidCoverageMap.prototype = {
 
 	// Marks a tile as an occluder.
 	markAsOccluder: function(tileId, occluder) {
-		this.setOccluderFlag(tileId.toString(), occluder);
+		this.setOccluderFlag(tileId.id, occluder);
 	},
 
 	// Must be called after initialize and before doing occlusion queries.
@@ -7985,7 +7983,7 @@ TiledImagePyramidCoverageMap.prototype = {
 			for (tileid in this.occluderFlags[lod]) {
 				if (bounds.lodX0 <= tileid.x && tileid.x <= bounds.lodX1 &&
 					bounds.lodY0 <= tileid.y && tileid.y <= bounds.lodY1)
-					result.push(tileId.toString());
+					result.push(tileId.id);
 			}
 
 		}
@@ -8037,7 +8035,7 @@ TiledImagePyramidCuller.prototype = {
 				for (var i=0; i<prevVisibleTiles[prefix].length; i++) {
 					var j;
 					for (j=0; j<tileResult.visibleTiles.length; j++)
-						if (tileResult.visibleTiles[j].toString() == prevVisibleTiles[prefix][i].toString())
+						if (tileResult.visibleTiles[j].id == prevVisibleTiles[prefix][i].id)
 							break;
 					if (j==tileResult.visibleTiles.length)
 						Utils.log("frame="+frameCount+" getVisibleTiles remove "+prefix+":"+prevVisibleTiles[prefix][i]);
@@ -8045,7 +8043,7 @@ TiledImagePyramidCuller.prototype = {
 				for (var i=0; i<tileResult.visibleTiles.length; i++) {
 					var j;
 					for (j=0; j<prevVisibleTiles[prefix].length; j++)
-						if (tileResult.visibleTiles[i].toString() == prevVisibleTiles[prefix][j].toString())
+						if (tileResult.visibleTiles[i].id == prevVisibleTiles[prefix][j].id)
 							break;
 					if (j==prevVisibleTiles[prefix].length)
 						Utils.log("frame="+frameCount+" getVisibleTiles added "+prefix+":"+tileResult.visibleTiles[i]);
@@ -8072,7 +8070,7 @@ TiledImagePyramidCuller.prototype = {
         var modelToScreen = viewportTransform.multiply(viewProjection.multiply(modelTransform));
 
         var visibleTiles = [];
-        visibleTiles.byId = {};
+        var visibleTilesById = {};
         for (var i = 0; i < tileResult.visibleTiles.length; ++i) {
             var tileId = tileResult.visibleTiles[i];
 			tileId.isTemp = false;
@@ -8082,7 +8080,7 @@ TiledImagePyramidCuller.prototype = {
             var priority = 0;
             visibleTiles.push(tileId);
             visibleTiles[visibleTiles.length-1].priority = priority;
-            visibleTiles.byId[tileId.toString()] = true;
+            visibleTilesById[tileId.id] = true;
 
 			// Add ancestors just in case that they can be available before the
 			// proper tile, e.g. the proper tile is not downloaded yet but an
@@ -8101,32 +8099,30 @@ TiledImagePyramidCuller.prototype = {
 			// measure.
 			// Add ancestors ONLY IF this is a new tile not in the current visibleSet yet
 			// Otherwise this ancestors will be repeated added every frame
-            if (! visibleSet.byId[prefix + tileId.toString()]) {
+            if (! visibleSet.byId[prefix + tileId.id]) {
 				var ancestorId = tileId;
 				var maxDepth = 1, depth=1;
 				while (ancestorId.levelOfDetail > tilePyramid.minimumLod
 						&& depth++ <= maxDepth) {
 					ancestorId = ancestorId.getParent();
-					if (!visibleTiles.byId[ancestorId.toString()]) {
+					if (!visibleTilesById[ancestorId.id]) {
 						// This is a temp (i.e. temoprary) tile because this is
 						// not exactly what we want; however if it's available
 						// we'll use it temporarily until the proper tile comes
 						// in
 						ancestorId.isTemp = true;
+                        ancestorId.priority = priority;
 						visibleTiles.push(ancestorId);
-						visibleTiles.byId[ancestorId.toString()] = true;
-						visibleTiles[visibleTiles.length-1].priority = priority;
+						visibleTilesById[ancestorId.id] = true;
                         ancestorId.cached = isTileAvailable(ancestorId.x, ancestorId.y, ancestorId.levelOfDetail);
 					}
 				}
 			}
         }
 
-        visibleTiles.byId = null;
-
         for (var i = 0; i < visibleTiles.length; ++i) {
             var tileId = visibleTiles[i];
-            var id = prefix + tileId.toString();
+            var id = prefix + tileId.id;
             if (!visibleSet.byId[id]) {
                 var tileDimension = tilePyramid.getTileDimensions(tileId);
                 var tileTransform = tilePyramid.getTileTransform(tileId);
@@ -8233,8 +8229,8 @@ TiledImagePyramidCuller.prototype = {
 					var ancestorId = tile.tileId;
 					while (ancestorId.levelOfDetail > tilePyramid.minimumLod) {
 						ancestorId = ancestorId.getParent();
-						if (visibleSet.byId[prefix+ancestorId] != undefined) {
-							visibleSet.byId[prefix+ancestorId].keep = true;
+						if (visibleSet.byId[prefix+ancestorId.id] != undefined) {
+							visibleSet.byId[prefix+ancestorId.id].keep = true;
 						}
 					}
 				}
@@ -8981,7 +8977,7 @@ Panorama.prototype = {
                                                                        Math.min(maxAllowedFov, maxFovAsHorizontal));
 
             //negative top and bottom because rml uses a different convention than the camera controller
-            cameraController = new RotationalFixedPositionCameraController(camera, -topBound, -bottomBound, rightBound, leftBound, enforceViewLimits, cameraParameters.minClientPreferredFieldOfView, cubeSource.dimension);
+            cameraController = new RotationalFixedPositionCameraController(camera, -topBound, -bottomBound, rightBound, leftBound, enforceViewLimits, cameraParameters.maxPixelScaleFactor, cubeSource.dimension);
             cameraController.setVerticalFov(finalFov);
         }
         return cameraController;
@@ -9210,7 +9206,7 @@ Panorama.prototype = {
             for (var j = 0; j < this._neighborOffsets.length; j++) {
                 var neighborOffset = this._neighborOffsets[j];
                 var neighbor = new TileId(tileId.levelOfDetail, tileId.x + neighborOffset[0], tileId.y + neighborOffset[1]);
-                var neighborEntityId = entity.face + neighbor.toString();
+                var neighborEntityId = entity.face + neighbor.id;
                 var neighborRenderableId = entityIdToRenderable[neighborEntityId];
                 if (neighborRenderableId && renderer._renderables[neighborRenderableId]) {
                     var neighborTexture = renderer._renderables[neighborRenderableId]._material._texture;
@@ -9998,17 +9994,20 @@ function PanoTouchHelper(el) {
     }
 
     var eventListeners = {
-        pointerstart: function(e) { activePointers++; },
-        pointerend: function(e) { activePointers--; },
-        gesturestart: queueEventAndPreventDefault,
-        gesturemove: queueEventAndPreventDefault,
-        gestureend: queueEventAndPreventDefault,
-        pinchstart: queueEventAndPreventDefault,
-        pinchmove: queueEventAndPreventDefault,
-        pinchend: queueEventAndPreventDefault,
-        tap: queueEventAndPreventDefault,
-        doubletap: queueEventAndPreventDefault,
-        holdstart: queueEventAndPreventDefault,
+
+        // PxTouch events
+        pxpointerstart: function(e) { activePointers++; },
+        pxpointerend: function(e) { activePointers--; },
+        pxgesturestart: queueEventAndPreventDefault,
+        pxgesturemove: queueEventAndPreventDefault,
+        pxgestureend: queueEventAndPreventDefault,
+        pxpinchstart: queueEventAndPreventDefault,
+        pxpinchmove: queueEventAndPreventDefault,
+        pxpinchend: queueEventAndPreventDefault,
+        pxtap: queueEventAndPreventDefault,
+        pxdoubletap: queueEventAndPreventDefault,
+        pxholdstart: queueEventAndPreventDefault,
+
         mousewheel:  onMouseWheel,
         DOMMouseScroll: onMouseWheel,
         zoompoint: onZoom
@@ -10019,9 +10018,6 @@ function PanoTouchHelper(el) {
         keyup: queueKeyEvent
     };
 
-    // TODO: (Joel) need to enable / disable pxtouch events
-    $(el).on(eventListeners);
-
     var useTopDocument = false;
     try {
         useTopDocument = (document !== top.document);
@@ -10031,10 +10027,7 @@ function PanoTouchHelper(el) {
 
     this.enable = function () {
         if (!enabled) {
-
-            // TODO: (Joel) re-enable
-            //$(el).on(eventListeners);
-
+            $(el).on(eventListeners);
             $(document).on(docListeners);
             if (useTopDocument) {
                 $(top.document).on(docListeners);
@@ -10045,10 +10038,7 @@ function PanoTouchHelper(el) {
 
     this.disable = function () {
         if (enabled) {
-
-            // TODO: (Joel) re-enable
-            //$(el).off(eventListeners);
-
+            $(el).off(eventListeners);
             $(document).off(docListeners);
             if (useTopDocument) {
                 $(top.document).off(docListeners);
@@ -10669,6 +10659,10 @@ var RwwViewer = function (parentDiv, options) {
         }
     };
 
+    function sortTilesByLOD(a, b) {
+        return b.tileId.levelOfDetail - a.tileId.levelOfDetail
+    }
+
     // Downloads all assets of the mediaType at the view setup as specified
     // by cameraParameters. Since runtime LOD calculations (computing the
     // average LODs for pano faces under perspective projection) can result
@@ -10704,7 +10698,7 @@ var RwwViewer = function (parentDiv, options) {
                     //    }
                     //}
 
-                    newTiles.sort(function (a, b) { return b.tileId.levelOfDetail - a.tileId.levelOfDetail });
+                    newTiles.sort(sortTilesByLOD);
                     var lod = newTiles[0] && newTiles[0].tileId.levelOfDetail;
                     for (var i = 0; i < newTiles.length; i++) {
                         if (newTiles[i].tileId.levelOfDetail == lod)

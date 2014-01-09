@@ -8,6 +8,26 @@ module.exports = function(grunt) {
     // banners for JS and HTML
     var bannerTemplate = '<%= pkg.name %> | <%= pkg.homepage %> | <%= grunt.template.today("yyyy-mm-dd") %>',
         jsBanner = '/*! ' + bannerTemplate + ' */\n',
+        jsCoreLicense =
+        '/*!<%= grunt.util.linefeed %>' +
+        ' * RIN Core JavaScript Library v1.0 <%= grunt.util.linefeed %>' +
+        ' * http://research.microsoft.com/rin<%= grunt.util.linefeed %>' +
+        ' *<%= grunt.util.linefeed %>' +
+        ' * Copyright 2012-2013, Microsoft Research<%= grunt.util.linefeed %>' +
+        ' * <placeholder for RIN License><%= grunt.util.linefeed %>' +
+        ' *<%= grunt.util.linefeed %>' +
+        ' * Date: <%= grunt.template.today("yyyy-mm-dd") %><%= grunt.util.linefeed %>' +
+        ' */<%= grunt.util.linefeed %>',
+        jsExperiencesLicense =
+        '/*! <%= grunt.util.linefeed %>' +
+        ' * RIN Experience Provider JavaScript Library v1.0<%= grunt.util.linefeed %>' +
+        ' * http://research.microsoft.com/rin<%= grunt.util.linefeed %>' +
+        ' *<%= grunt.util.linefeed %>' +
+        ' * Copyright 2012-2013, Microsoft Research<%= grunt.util.linefeed %>' +
+        ' * <placeholder for RIN License><%= grunt.util.linefeed %>' +
+        ' *<%= grunt.util.linefeed %>' +
+        ' * Date: <%= grunt.template.today("yyyy-mm-dd") %><%= grunt.util.linefeed %>' +
+        ' */<%= grunt.util.linefeed %>',
         htmlBanner = '<!-- ' + bannerTemplate + ' -->\n';
 
     // generate a timestamped rin directory name for cdn deployment
@@ -164,59 +184,6 @@ module.exports = function(grunt) {
             rinStyles: {
                 src: ['web/systemResources/themeResources/**/*.part.css'],
                 dest: 'web/systemResources/themeResources/rin.css'
-            },
-            everestLibs: {
-                src: [
-                    'everest/libs/underscore-1.4.4.min.js',
-                    'everest/libs/backbone.dev.js',
-                    'everest/libs/transit-0.9.9.js',
-                    'everest/libs/pxloader-all.min.js',
-                    'everest/libs/modernizr-custom.js',
-                    'everest/libs/detectizr.js',
-                    'everest/libs/jquery.pxtouch.min.js',
-                    'everest/libs/jquery.base64.js',
-                    'everest/libs/knob.js'
-                ],
-                dest: 'everest/web/scripts/everest-libs.js'
-            },
-            everestApp: {
-                src: [
-                    'everest/web/scripts/templates.js',
-                    'everest/js/namespace.js',
-                    'everest/js/views/*.js',
-                    'everest/js/data/*.js',
-                    'everest/js/start.js'
-                ],
-                dest: 'everest/web/scripts/app.js'
-            },
-            everestRinLibs: {
-                src: [
-                    'everest/libs/modernizr-custom.js',
-                    'everest/libs/detectizr-1.4.3.min.js',
-                    'web/lib/seadragon-0.8.9-rin.js',
-                    'web/lib/knockout-2.2.1.js',
-                    'web/lib/jquery.easing.1.3.js',
-                    'web/lib/jquery.pxtouch.min.js',
-                    'everest/libs/purl.js',
-                    'everest/libs/rinLoad.js'
-                ],
-                dest: 'everest/web/scripts/rin-libs.js'
-            },
-            everestRinIframe: {
-                src: [
-                    'everest/js/iframe/namespace.js',
-                    'everest/js/data/AudioState.js',
-                    'everest/js/iframe/playerControl.js',
-                    'everest/js/iframe/GestureStroke.js',
-                    'everest/js/iframe/PanoCircleZoom.js',
-                    'everest/js/iframe/panoUrls.js',
-                    'everest/js/iframe/rinMain.js'
-                ],
-                dest: 'everest/web/scripts/rin-iframe.js'
-            },
-            everestRinStyles: {
-                src: ['everest/web/rin/systemResources/themeResources/**/*.part.css'],
-                dest: 'everest/web/rin/systemResources/themeResources/rin.css'
             }
         },
         concatTmpl: {
@@ -226,257 +193,197 @@ module.exports = function(grunt) {
             rin: {
                 src: ['web/systemResources/themeResources/**/*.tmpl.htm'],
                 dest: 'web/systemResources/themeResources/rinTemplates.htm'
-            },
-            everestRin: {
-                src: ['everest/web/rin/systemResources/themeResources/**/*.tmpl.htm'],
-                dest: 'everest/web/rin/systemResources/themeResources/rinTemplates.htm'
             }
         },
-        jshint: {
-            // js hint
-            options: {
-                curly: true,
-                eqeqeq: true,
-                immed: true,
-                latedef: true,
-                newcap: true,
-                noarg: true,
-                sub: true,
-                undef: true,
-                boss: true,
-                eqnull: true,
-                browser: true,
-                globals: {
-                    jQuery: true,
-                    console: true,
-                    module: true,
-                    rin: true,
-                    everest: true,
-                    Backbone: true,
-                    _: true,
-                    PxLoader: true,
-                    PxLoaderVideo: true,
-                    Video: true,
-                    THREE: true,
-                    Modernizr: true
-                }
-            },
-            all: [
-                'Gruntfile.js',
+        // jshint: {
+        //     // js hint
+        //     options: {
+        //         curly: false,
+        //         eqeqeq: true,
+        //         immed: true,
+        //         latedef: true,
+        //         newcap: true,
+        //         noarg: true,
+        //         sub: true,
+        //         undef: true,
+        //         boss: true,
+        //         eqnull: true,
+        //         browser: true,
+        //         loopfunc: true,
+        //         laxbreak: true,
+        //         laxcomma: true,
+        //         globals: {
+        //             jQuery: true,
+        //             console: true,
+        //             module: true,
+        //             rin: true,
+        //             Backbone: true,
+        //             _: true,
+        //             PxLoader: true,
+        //             PxLoaderVideo: true,
+        //             Video: true,
+        //             THREE: true,
+        //             Stats: true,
+        //             Modernizr: true,
+        //             i18n: true
+        //         }
+        //     },
+        //     all: [
+        //         'Gruntfile.js',
+        //         'tools/grunt/*.js',
 
-                'everest/js/**/*.js',
-                'everest/web/rin/narratives/intro/narrative.js',
-                'everest/web/rin/systemResources/themeResources/popup/popup.js',
+        //         // opting in for new or revised files
+        //         'panoviewer/src/common/MemoryCache.js',
+        //         'panoviewer/src/viewer/PanoTouchHelper.js',
+        //         'src/experiences/ImageCompareES.js',
+        //         'web/narratives/imagecompare/narrative.js'
 
-                // opting in for new or revised files
-                'panoviewer/src/common/MemoryCache.js',
-                'panoviewer/src/viewer/PanoTouchHelper.js',
-                'src/experiences/ImageCompareES.js',
-                'web/narratives/imagecompare/narrative.js'
+        //         // TODO: enable JSHint for RIN sources
+        //         , '<%= concat.core.src %>'
+        //         , '<%= concat.experiences.src %>'
+        //     ],
 
-                // TODO: enable JSHint for RIN sources
-                //, '<%= concat.core.src %>'
-                //, '<%= concat.experiences.src %>'
-            ],
-
-            // TODO: fix mixed tabs/spaces and merge with section above
-            ignoreMixedTabsAndSpaces: {
-                options: { smarttabs: true },
-                files: {
-                    src: [
-                        'web/narratives/everest3m/**/*.js'
-                    ]
-                }
-            }
-        },
-        jst: {
-            everestTemplates: {
+        //     // TODO: fix mixed tabs/spaces and merge with section above
+        //     ignoreMixedTabsAndSpaces: {
+        //         options: { smarttabs: true },
+        //         files: {
+        //             src: [
+        //                 'web/narratives/everest3m/**/*.js'
+        //             ]
+        //         }
+        //     }
+        // },
+        uglify: {
+            core: {
                 options: {
-                    templateSettings: {
-                        variable: 'data'
-                    },
-                    prettify: true,
-                    namespace: 'everest.templates',
-                    processName: function(filename) {
-                        return filename.split('/').pop().split('.')[0];
-                    }
+                    banner: jsBanner + jsCoreLicense
                 },
                 files: {
-                    'everest/web/scripts/templates.js': ['everest/templates/*.html']
+                    '<%= concat.core.dest %>': ['<%= concat.core.dest %>']
                 }
-            }
-        },
-        less: {
-            everest: {
+            },
+            experiences: {
+                options: {
+                    banner: jsBanner + jsExperiencesLicense
+                },
                 files: {
-                    'everest/web/css/app.css': [
-                        'everest/css/reset.less',
-                        'everest/css/app.less'
-                    ],
-                    'everest/web/css/rin.css': 'everest/css/rin.less'
+                    '<%= concat.experiences.dest %>': ['<%= concat.experiences.dest %>']
                 }
-            }
-        },
-        uglify: {
-            all: {
+            },
+            helperLibs: {
                 options: {
                     banner: jsBanner
                 },
                 files: {
-                    '<%= concat.core.dest %>': ['<%= concat.core.dest %>'],
-                    '<%= concat.experiences.dest %>': ['<%= concat.experiences.dest %>'],
-                    '<%= concat.panoviewer.dest %>': ['<%= concat.panoviewer.dest %>'],
-                    '<%= concat.everestApp.dest %>': ['<%= concat.everestApp.dest %>'],
-                    '<%= concat.everestRinIframe.dest %>': ['<%= concat.everestRinIframe.dest %>']
-                }
-            },
-            libs : {
-                // don't include the RIN specific header
-                files: {
-                    '<%= concat.everestLibs.dest %>': ['<%= concat.everestLibs.dest %>'],
-                    '<%= concat.everestRinLibs.dest %>': ['<%= concat.everestRinLibs.dest %>']
+                    '<%= concat.panoviewer.dest %>': ['<%= concat.panoviewer.dest %>']
                 }
             }
         },
         clean: {
-
-            everestScripts: [ 'everest/web/scripts/' ],
-
-            // remove temporary templates.js file (after merged into app.js)
-            everestTemplates: [ 'everest/web/scripts/templates.js' ],
-
-            // clear the entire cdn directory
-            azureCdn: [ 'everest/cdn/' ]
-        },
-        ver: {
-            azure: {
-                phases: [
-                    {
-                        files: [
-                            'everest/cdn/images/**'
-                        ],
-                        references: [
-                            'everest/cdn/css/*.css',
-                            'everest/EverestAzure/Views/Home/Index.cshtml',
-                            'everest/EverestAzure/Views/Home/Privacy.cshtml',
-                            'everest/EverestAzure/Views/Account/Login.cshtml',
-                            'everest/cdn/rin-' + rinTime + '/index.html'
-                        ]
-                    },
-                    {
-                        files: [
-                            'everest/cdn/css/*.css',
-                            'everest/cdn/scripts/*.js'
-                        ],
-                        references: [
-                            'everest/EverestAzure/Views/Home/Index.cshtml',
-                            'everest/EverestAzure/Views/Home/Privacy.cshtml',
-                            'everest/EverestAzure/Views/Account/Login.cshtml',
-                            'everest/cdn/rin-' + rinTime + '/index.html'
-                        ]
-                    }
-                ]
-            }
+            sdk: [
+                'sdk-archives/rin-sdk/',
+                'sdk-archives/rin-sdk-Azure/'
+            ]
         },
         copy: {
-            everest: {
+            sdk: {
                 files: [
+                    {
+                        expand: true,
+                        cwd: 'doc/',
+                        src: [
+                            //Documentation
+                            'RIN JavaScript Player Documentation.docx',
+                            'RIN JavaScript SDK Documentation.docx'
+                        ],
+                        dest: 'sdk-archives/rin-sdk/doc/'
+                    },
                     {
                         expand: true,
                         cwd: 'web/lib/',
                         src: [
+                            //Required Libraries
+                            'jquery.easing.1.3.js',
+                            'jquery.pxtouch.min.js',
                             'pano-viewer.js',
+                            'seadragon-0.8.9-rin.js',
                             'rin-core-1.0.js',
                             'rin-experiences-1.0.js'
                         ],
-                        dest: 'everest/web/scripts/'
+                        dest: 'sdk-archives/rin-sdk/web/lib/'
                     },
                     {
-                        // fallback copy of jquery
+                        // System Resources
                         expand: true,
-                        cwd: 'everest/libs/',
-                        src: [ 'jquery.min.js' ],
-                        dest: 'everest/web/scripts/'
-                    },
-                    {
-                        expand: true,
-                        cwd: 'web/narratives/everest3m/',
+                        cwd: 'web/systemResources/',
                         src: [ '**' ],
-                        dest: 'everest/web/rin/narratives/everest3m/'
-                    }
-                ]
-            },
-            azure: {
-                files: [
-                    {
-                        src: ['everest/web/index.html'],
-                        dest: 'everest/EverestAzure/Views/Home/Index.cshtml'
+                        dest: 'sdk-archives/rin-sdk/web/systemResources/'
                     },
                     {
-                        src: ['everest/web/privacy.html'],
-                        dest: 'everest/EverestAzure/Views/Home/Privacy.cshtml'
+                        // Sample Html files
+                        expand: true,
+                        cwd: 'web/sdkFiles',
+                        src: [ '**[!Azure*]' ],
+                        dest: 'sdk-archives/rin-sdk/web/'
                     },
                     {
-                        src: ['everest/html/Login.cshtml'],
-                        dest: 'everest/EverestAzure/Views/Account/Login.cshtml'
+                        // Sample Experiences
+                        expand: true,
+                        cwd: 'web/lib/',
+                        src: [
+                            'HelloWorldExperience.js',
+                            'SampleImageES.js'
+                        ],
+                        dest: 'sdk-archives/rin-sdk/web/lib/'
                     },
+                    {
+                        // Sample narratives
+                        expand: true,
+                        cwd: 'web/narratives/',
+                        src: [
+                            'lite/**',
+                            'sample/**'
+                        ],
+                        dest: 'sdk-archives/rin-sdk/web/narratives/'
+                    },
+
+                    //Azure Version
                     {
                         expand: true,
-                        cwd: 'everest/web/rin/',
-                        src: ['**'],
-                        dest: 'everest/cdn/rin-' + rinTime + '/'
+                        cwd: 'doc/',
+                        src: [
+                            //Documentation
+                            'RIN JavaScript Player Documentation.docx',
+                            'RIN JavaScript SDK Documentation.docx'
+                        ],
+                        dest: 'sdk-archives/rin-sdk-Azure/doc/'
                     },
                     {
+                        // Sample Html files
                         expand: true,
-                        cwd: 'everest/web/images/',
-                        src: ['**'],
-                        dest: 'everest/cdn/images/'
+                        cwd: 'web/sdkFiles/Azure',
+                        src: [ '**' ],
+                        dest: 'sdk-archives/rin-sdk-Azure/web/'
                     },
                     {
+                        // Sample Experiences
                         expand: true,
-                        cwd: 'everest/web/css/',
-                        src: ['**'],
-                        dest: 'everest/cdn/css/'
-                    },
-                        {
-                        expand: true,
-                        cwd: 'everest/web/scripts/',
-                        src: ['**'],
-                        dest: 'everest/cdn/scripts/'
-                    }
-                ]
-            }
-        },
-        replace: {
-            azure: {
-                options: {
-                    variables: {
-                        'src="scripts/': 'src="http://cdn-site.glacierworks.org/site/scripts/',
-                        'href="css/': 'href="http://cdn-site.glacierworks.org/site/css/',
-                        'data-cdn=""': 'data-cdn="http://cdn-site.glacierworks.org/site/"',
-                        '"images/': '"http://cdn-site.glacierworks.org/site/images/',
-                        'data-rin-time=""': 'data-rin-time="' + rinTime + '"'
-                    },
-                    prefix: ''
-                },
-                files: [
-                    {
-                        expand: true,
-                        flatten: true,
-                        src: [ 'everest/EverestAzure/Views/Home/Index.cshtml' ],
-                        dest: 'everest/EverestAzure/Views/Home/'
+                        cwd: 'web/lib/',
+                        src: [
+                            'HelloWorldExperience.js',
+                            'SampleImageES.js'
+                        ],
+                        dest: 'sdk-archives/rin-sdk-Azure/web/lib/'
                     },
                     {
+                        // Sample narratives
                         expand: true,
-                        flatten: true,
-                        src: [ 'everest/EverestAzure/Views/Home/Privacy.cshtml' ],
-                        dest: 'everest/EverestAzure/Views/Home/'
-                    },
-                    {
-                        expand: true,
-                        flatten: true,
-                        src: [ 'everest/EverestAzure/Views/Account/Login.cshtml' ],
-                        dest: 'everest/EverestAzure/Views/Account/'
+                        cwd: 'web/narratives/',
+                        src: [
+                            'lite/**',
+                            'sample/**'
+                        ],
+                        dest: 'sdk-archives/rin-sdk-Azure/web/narratives/'
                     }
                 ]
             }
@@ -485,46 +392,34 @@ module.exports = function(grunt) {
             rin: {
                 src: '<%= concat.rinStyles.dest %>',
                 dest: '<%= concat.rinStyles.dest %>'
-            },
-            everest: {
-                src: '<%= concat.everestRinStyles.dest %>',
-                dest: '<%= concat.everestRinStyles.dest %>'
             }
         },
-        
-        sprite: {
-            standard: {
-                'src': ['everest/psd/export/*.png','!everest/psd/export/*2x.png'],
-                'destImg': 'everest/web/images/sprites.png',
-                'destCSS': 'everest/css/sprites.less',
-                'imgPath': '../images/sprites.png',
-                'engine': 'auto',
-                'algorithm': 'diagonal'
-            }
-            // high DPI not supported in V1
-            // highdpi: {
-            //     'src': ['everest/psd/export/*2x.png'],
-            //     'destImg': 'everest/web/images/sprites@2x.png',
-            //     'destCSS': 'everest/css/sprites-ignore.less',
-            //     'imgPath': '../images/sprites.png',
-            //     'engine' : 'auto',
-            //     'algorithm': 'diagonal'
-            // },
-
-        },
-        imagemin: {
-            dist: {
+        compress:{
+            sdk: {
                 options: {
-                    // 0 (min) - 7 (max)
-                    // details: https://github.com/gruntjs/grunt-contrib-imagemin
-                    optimizationLevel: 2
+                    archive: 'sdk-archives/rin-sdk.zip'
                 },
-                files: {
-                    'everest/web/images/sprites.png': 'everest/web/images/sprites.png'
-                }
+                files: [
+                  {
+                      expand: true,
+                      cwd: 'sdk-archives/rin-sdk/',
+                      src: ['**']
+                  }
+                ]
+            },
+            sdkAzure: {
+                options: {
+                    archive: 'sdk-archives/rin-sdk-Azure.zip'
+                },
+                files: [
+                  {
+                      expand: true,
+                      cwd: 'sdk-archives/rin-sdk-Azure/',
+                      src: ['**']
+                  }
+                ]
             }
         },
-
         qunit: {
             options: {
                 // some tests take longer than 5 sec default
@@ -552,10 +447,7 @@ module.exports = function(grunt) {
                 'Gruntfile.js',
                 '<%= concat.core.src %>',
                 '<%= concat.experiences.src %>',
-                '<%= concat.panoviewer.src %>',
-                'everest/js/**/*.js',
-                'everest/css/*.less',
-                'everest/templates/*.html'
+                '<%= concat.panoviewer.src %>'
             ],
             tasks: ['default']
         }
@@ -577,7 +469,7 @@ module.exports = function(grunt) {
 
     // load plugins
     grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-jshint');
+    // grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-less');
@@ -587,18 +479,10 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
-    grunt.loadNpmTasks('grunt-replace');
-    grunt.loadNpmTasks('grunt-ver');
-    grunt.loadNpmTasks('grunt-contrib-imagemin');
+    grunt.loadNpmTasks('grunt-contrib-compress');
     
-    // don't load this on windows (because of difficult installation of the package)
-    if (require('os').platform() !== 'win32') {
-        grunt.loadNpmTasks('grunt-spritesmith');
-    }
-
-    grunt.registerTask('rin', [
-        'jshint',
-        'clean:everestScripts',
+    grunt.registerTask('default', [
+        // 'jshint',
         'concat:core',
         'concat:experiences',
         'concat:panoviewer',
@@ -606,50 +490,26 @@ module.exports = function(grunt) {
         'concatTmpl:rin'
     ]);
 
-    grunt.registerTask('everest-base', [
-        'rin',
-        'jst:everestTemplates',
-        'concat:everestApp',
-        'concat:everestLibs',
-        'clean:everestTemplates',
-        'concat:everestRinLibs',
-        'concat:everestRinIframe',
-        'concat:everestRinStyles',
-        'concatTmpl:everestRin'
-    ]);
-
-    // default task (everest debug)
-    grunt.registerTask('default', [
-        'rin',
-        'everest-base',
-        'copy:everest',
-        'less'
-    ]);
-
     // ship version with minified sources
     grunt.registerTask('ship', [
-        'rin',
-        'everest-base',
+        'default',
         'uglify',
-        'copy:everest',
-        'less',
         'cssmin',
         'test'
     ]);
 
     grunt.registerTask('test', ['connect', 'qunit']);
 
-    // azure build
-    grunt.registerTask('azure', [
-        'ship',
-        'clean:azureCdn',
-        'copy:azure',
-        'ver:azure',
-        'replace:azure'
+    // sdk shipping
+    grunt.registerTask('sdk-ship', [
+        'default',
+        'clean:sdk', //Remove the temporary directory
+        'uglify',
+        'cssmin',
+        'test',
+        'copy:sdk',
+        'compress:sdk',
+        'compress:sdkAzure',
+        'clean:sdk' //Remove the temporary directory
     ]);
-
-    // sprite generation
-    grunt.registerTask('images', ['sprite', 'imagemin']);
-
-
 };

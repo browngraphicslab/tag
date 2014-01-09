@@ -17,11 +17,10 @@
 /// <reference path="../core/ResourcesResolver.js" />
 /// <reference path="../core/TaskTimer.js" />
 
-window.rin = window.rin || {};
-
 (function (rin) {
+    "use strict";
     // Dummy ES to replace with any ES which cannot be displayed or missing.
-    var PlaceholderES = function (orchestrator, esData) {
+    var PlaceholderES = function () {
         PlaceholderES.parentConstructor.apply(this, arguments);
         this._userInterfaceControl = rin.util.createElementWithHtml(PlaceholderES.elementHTML).firstChild;
     };
@@ -46,4 +45,4 @@ window.rin = window.rin || {};
     PlaceholderES.elementHTML = "<div style='position:absolute;width:100%;height:100%'><div style='color:red;position:absolute;width:100%;height:100%'></div><div style='color:white;position:absolute;right:20px;top:20px;' class='rinPlaceholderValue'></div></div>";
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.PlaceholderExperienceStream", function (orchestrator, esData) { return new PlaceholderES(orchestrator, esData); });
     rin.ext.setDefaultFactory(rin.contracts.systemFactoryTypes.esFactory, function (orchestrator, esData) { return new PlaceholderES(orchestrator, esData); });
-})(rin);
+})(window.rin = window.rin || {});

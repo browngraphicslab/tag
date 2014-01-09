@@ -17,44 +17,45 @@
 /// <reference path="../core/ResourcesResolver.js" />
 /// <reference path="../core/TaskTimer.js" />
 
-window.rin = window.rin || {};
+(function (rin) {
+    "use strict";
+    var PhotosynthES = function (orchestrator, esData) {
+        this.stateChangedEvent = new rin.contracts.Event();
+        this._orchestrator = orchestrator;
+        this._userInterfaceControl = rin.util.createElementWithHtml(PhotosynthES.elementHTML).firstChild;
+        this._esData = esData;
+    };
 
-rin.PhotosynthES = function (orchestrator, esData) {
-    this.stateChangedEvent = new rin.contracts.Event();
-    this._orchestrator = orchestrator;
-    this._userInterfaceControl = rin.util.createElementWithHtml(rin.PhotosynthES.elementHTML);
-    this._esData = esData;
-};
+    PhotosynthES.prototype = {
+        load: function (experienceStreamId) {
+            this.setState(rin.contracts.experienceStreamState.ready);
+        },
+        play: function () {
+        },
+        pause: function () {
+        },
+        unload: function () {
+        },
+        getState: function () {
+            return this._state;
+        },
+        setState: function (value) {
+            if (this._state === value) return;
+            var previousState = this._state;
+            this._state = value;
+            this.stateChangedEvent.publish(new rin.contracts.ESStateChangedEventArgs(previousState, value, this));
+        },
+        stateChangedEvent: new rin.contracts.Event(),
+        getUserInterfaceControl: function () { return this._userInterfaceControl; },
 
-rin.PhotosynthES.prototype = {
-    load: function (experienceStreamId) {
-        this.setState(rin.contracts.experienceStreamState.ready);
-    },
-    play: function (offset, experienceStreamId) {
-    },
-    pause: function (offset, experienceStreamId) {
-    },
-    unload: function () {
+        _userInterfaceControl: rin.util.createElementWithHtml(""),
+        _orchestrator: null,
+        _esData: null
+    };
 
-    },
-    getState: function () {
-        return this._state;
-    },
-    setState: function (value) {
-        if (this._state == value) return;
-        var previousState = this._state;
-        this._state = value;
-        this.stateChangedEvent.publish(new rin.contracts.ESStateChangedEventArgs(previousState, value, this));
-    },
-    stateChangedEvent: new rin.contracts.Event(),
-    getUserInterfaceControl: function () { return this._userInterfaceControl; },
+    PhotosynthES.elementHTML = "<div style='width:100%;height:100%;position:absolute;color:white;font-size:24px'>Photosynth ES Placeholder: This is placeholder ES until we get HTML5 version...</div>";
 
-    _userInterfaceControl: rin.util.createElementWithHtml(""),
-    _orchestrator: null,
-    _esData: null
-};
+    rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.PhotosynthExperienceStream", function (orchestrator, esData) { return new PhotosynthES(orchestrator, esData); });
+    rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.PhotosynthES", function (orchestrator, esData) { return new PhotosynthES(orchestrator, esData); });
 
-rin.PhotosynthES.elementHTML = "<div style='width:100%;height:100%;color:white;font-size:24px'>Photosynth ES Placeholder: This is placeholder ES until we get HTML5 version...</div>";
-
-rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.PhotosynthExperienceStream", function (orchestrator, esData) { return new rin.PhotosynthES(orchestrator, esData); });
-rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.PhotosynthES", function (orchestrator, esData) { return new rin.PhotosynthES(orchestrator, esData); });
+})(window.rin = window.rin || {});

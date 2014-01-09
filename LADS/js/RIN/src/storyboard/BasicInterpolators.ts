@@ -8,7 +8,8 @@
 // Copyright (C) 2013 Microsoft Research 
 //
 module rin.Ext.Interpolators {
-
+    /*jshint validthis:true*/
+    "use strict";
     // Class to interpolate a viewport.
     export class linearViewportInterpolator {
         private sliverId: string = "viewport";
@@ -31,7 +32,7 @@ module rin.Ext.Interpolators {
                 var d = this.iState.postKf.offset - this.iState.preKf.offset;
                 var t = time - this.iState.preKf.offset;
 
-                function doubleInterpolate(pre, post) {
+                var doubleInterpolate = function (pre, post) {
                     return (post - pre) * t / d + pre;
                 }
 

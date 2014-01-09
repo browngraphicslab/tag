@@ -11,6 +11,8 @@
         // Copyright (C) 2013 Microsoft Research
         //
         (function (Interpolators) {
+            /*jshint validthis:true*/
+            "use strict";
             // Class to interpolate a viewport.
             var linearViewportInterpolator = (function () {
                 function linearViewportInterpolator(iState) {
@@ -18,10 +20,6 @@
                     this.iState = iState;
                 }
                 linearViewportInterpolator.prototype.interpolate = function (time, kf) {
-                    function doubleInterpolate(pre, post) {
-                        return (post - pre) * t / d + pre;
-                    }
-
                     if(!kf) {
                         return null;
                     }
@@ -31,7 +29,9 @@
                         var preKfState = this.iState.preKf.state[this.sliverId];
                         var d = this.iState.postKf.offset - this.iState.preKf.offset;
                         var t = time - this.iState.preKf.offset;
-                        
+                        var doubleInterpolate = function (pre, post) {
+                            return (post - pre) * t / d + pre;
+                        };
                         kfState.region.center.x = doubleInterpolate(preKfState.region.center.x, postKfState.region.center.x);
                         kfState.region.center.y = doubleInterpolate(preKfState.region.center.y, postKfState.region.center.y);
                         kfState.region.span.x = doubleInterpolate(preKfState.region.span.x, postKfState.region.span.x);

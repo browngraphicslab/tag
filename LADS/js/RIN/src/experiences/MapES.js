@@ -18,9 +18,9 @@
 /// <reference path="../core/TaskTimer.js" />
 /// <reference path="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0"/>
 
-window.rin = window.rin || {};
-
-(function (rin) {
+(function (rin, ko) {
+    /*globals Microsoft:true*/
+    "use strict";
     // ES for displaying bing maps.
     var MapES = function (orchestrator, esData) {
         MapES.parentConstructor.apply(this, arguments);
@@ -62,7 +62,7 @@ window.rin = window.rin || {};
         },
         load: function (experienceStreamId) {
             var self = this;
-            if (window.MSApp && WinJS) {
+            if (window.MSApp && window.WinJS) {
                 // Create the map control.
                 Microsoft.Maps.loadModule('Microsoft.Maps.Map', {
                     callback: function () {
@@ -78,16 +78,16 @@ window.rin = window.rin || {};
         },
         unload: function () {
             MapES.parentPrototype.unload.call(this);
-            if (typeof this._map != 'undefined' && this._map != null) {
+            if (typeof this._map !== 'undefined' && this._map !== null) {
                 this._map.dispose();
                 this._map = null;
             }
         },
         displayKeyframe: function (keyframeData) {
+            var viewOptions = { animate: true };
             if (keyframeData.state.viewport && keyframeData.state.viewport.region) {
-                var viewOptions = { animate: true };
                 var north = (keyframeData.state.viewport.region.center.y * 2 + keyframeData.state.viewport.region.span.y) / 2;
-                var west = (keyframeData.state.viewport.region.center.x * 2 - keyframeData.state.viewport.region.span.x) / 2
+                var west = (keyframeData.state.viewport.region.center.x * 2 - keyframeData.state.viewport.region.span.x) / 2;
                 var south = (keyframeData.state.viewport.region.center.y * 2 - keyframeData.state.viewport.region.span.y) / 2;
                 var east = (keyframeData.state.viewport.region.center.x * 2 + keyframeData.state.viewport.region.span.x) / 2;
                 viewOptions.bounds = Microsoft.Maps.LocationRect.fromCorners(new Microsoft.Maps.Location(north, west), new Microsoft.Maps.Location(south, east));
@@ -115,12 +115,12 @@ window.rin = window.rin || {};
 
             // [Aldo] There is some issue with the way we are organizing the div's i guess, in IE9, map keyframes are not rendered properly.
             //        Below changes in height and width is a hack to fix the issue. This makes the browser relayout the divs and it works fine.
-            this._userInterfaceControl.style["height"] = "99.9999%";
-            this._userInterfaceControl.style["width"] = "99.9999%";
+            this._userInterfaceControl.style.height = "99.9999%";
+            this._userInterfaceControl.style.width = "99.9999%";
             var self = this;
             setTimeout(function () {
-                self._userInterfaceControl.style["height"] = "100%";
-                self._userInterfaceControl.style["width"] = "100%";
+                self._userInterfaceControl.style.height = "100%";
+                self._userInterfaceControl.style.width = "100%";
                 self._map.setView(viewOptions);
             }, 1);
         },
@@ -248,4 +248,4 @@ window.rin = window.rin || {};
     MapES.elementHtml = "<div style='height:100%;width:100%;position:absolute;background:black;'></div>";
     rin.util.overrideProperties(MapES.prototypeOverrides, MapES.prototype);
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.MapExperienceStream", function (orchestrator, esData) { return new MapES(orchestrator, esData); });
-})(rin);
+})(window.rin = window.rin || {}, window.ko);

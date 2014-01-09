@@ -12,9 +12,6 @@
  */
 function MemoryCache(maxEntries) {
 
-    var Debug = {};
-    Debug.assert = function(a, b) {};
-
     var _cache = {},
         _keys = [], // FIFO queue of key names for cached objects
         _disposer = null;
@@ -26,7 +23,8 @@ function MemoryCache(maxEntries) {
      * @param {boolean=} refresh
      */
     this.get = function(key, refresh) {
-        Debug.assert(typeof key === 'string', 'Argument: key');
+        
+        //console.assert(typeof key === 'string', 'Argument: key');
 
         var value = _cache[key];
 
@@ -50,8 +48,8 @@ function MemoryCache(maxEntries) {
      * @param {Object} value
      */
     this.insert = function(key, value) {
-        Debug.assert(typeof key === 'string', 'Argument: key');
-        Debug.assert(value !== undefined, 'Argument: value');
+        //console.assert(typeof key === 'string', 'Argument: key');
+        //console.assert(value !== undefined, 'Argument: value');
 
         // see if the value exists and always update cache
         var existingValue = this.get(key, true);

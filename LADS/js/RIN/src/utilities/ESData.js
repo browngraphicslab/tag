@@ -17,131 +17,129 @@
 * Date: <placeholder for SDK release date>
 */
 
-window.rin = window.rin || {};
-window.rin.internal = window.rin.internal || {};
+(function (rin) {
+    "use strict";
+    rin.internal = rin.internal || {};
 
-rin.internal.esDataGenerator = {
-    _narrativeData: {
-        "version": 1.0,
-        "defaultScreenplayId": "SCP1",
-        "screenplayProviderId": "MicrosoftResearch.Rin.DefaultScreenPlayInterpreter",
-        "data": {
-            "narrativeData": {
-                "guid": "6aa09d19-cf2b-4c8e-8b57-7ea8701794f7",
-                "aspectRatio": "$ASPECTRATIO$",
-                "estimatedDuration": "$DURATION$",
-                "branding": null
-            }
-        },
-        "providers": {
-            "$ESPROVIDER$": {
-                "name": "$ESPROVIDER$",
-                "version": 0.0
+    rin.internal.esDataGenerator = {
+        _narrativeData: {
+            "version": 1.0,
+            "defaultScreenplayId": "SCP1",
+            "screenplayProviderId": "MicrosoftResearch.Rin.DefaultScreenPlayInterpreter",
+            "data": {
+                "narrativeData": {
+                    "guid": "6aa09d19-cf2b-4c8e-8b57-7ea8701794f7",
+                    "aspectRatio": "$ASPECTRATIO$",
+                    "estimatedDuration": "$DURATION$",
+                    "branding": null
+                }
             },
-            "MicrosoftResearch.Rin.DefaultScreenPlayInterpreter": {
-                "name": "MicrosoftResearch.Rin.DefaultScreenPlayInterpreter",
-                "version": 0.0
-            }
-        },
-        "resources": {
-            "R-1": {
-                "uriReference": "$RESOURCEREF$"
-            }
-        },
-        "experiences": {
-            "$ESID$": {
-                "providerId": "$ESPROVIDER$",
-                "data": {
-                    "markers": {
-                        "beginAt": '$STARTOFFSET$',
-                        "endAt": '$ENDOFFSET$'
-                    }
+            "providers": {
+                "$ESPROVIDER$": {
+                    "name": "$ESPROVIDER$",
+                    "version": 0.0
                 },
-                "resourceReferences": [
-                        {
-                            "resourceId": "R-1",
-                            "required": true
+                "MicrosoftResearch.Rin.DefaultScreenPlayInterpreter": {
+                    "name": "MicrosoftResearch.Rin.DefaultScreenPlayInterpreter",
+                    "version": 0.0
+                }
+            },
+            "resources": {
+                "R-1": {
+                    "uriReference": "$RESOURCEREF$"
+                }
+            },
+            "experiences": {
+                "$ESID$": {
+                    "providerId": "$ESPROVIDER$",
+                    "data": {
+                        "markers": {
+                            "beginAt": '$STARTOFFSET$',
+                            "endAt": '$ENDOFFSET$'
                         }
+                    },
+                    "resourceReferences": [
+                            {
+                                "resourceId": "R-1",
+                                "required": true
+                            }
                     ],
-                "experienceStreams": {
-                    "defaultStream": {
-                        "duration": "0",
-                        "data": {
-                            "ContentType": "<$CONTENTTYPE$/>"
-                        },
-                        "keyframes": ["$KEYFRAMES$"]
+                    "experienceStreams": {
+                        "defaultStream": {
+                            "duration": "0",
+                            "data": {
+                                "ContentType": "<$CONTENTTYPE$/>"
+                            }
+                        }
+                    }
+                }
+            },
+            "screenplays": {
+                "SCP1": {
+                    "data": {
+                        "experienceStreamReferences": [
+                        {
+                            "experienceId": "$ESID$",
+                            "experienceStreamId": "defaultStream",
+                            "begin": "0",
+                            "duration": "$DURATION$",
+                            "layer": "foreground",
+                            "dominantMedia": "visual",
+                            "volume": '$VOLUME$'
+                        }]
                     }
                 }
             }
         },
-        "screenplays": {
-            "SCP1": {
-                "data": {
-                    "experienceStreamReferences": [
-					{
-					    "experienceId": "$ESID$",
-					    "experienceStreamId": "defaultStream",
-					    "begin": "0",
-					    "duration": "$DURATION$",
-					    "layer": "foreground",
-					    "dominantMedia": "visual",
-					    "volume": '$VOLUME$'
-					}]
-                }
-            }
+        esSrcTypeToProviderDictionary: {
+            "singledeepzoomimage": "MicrosoftResearch.Rin.ZoomableMediaExperienceStream",
+            "deepzoomimage": "MicrosoftResearch.Rin.ZoomableMediaExperienceStream",
+            "zoomableimage": "MicrosoftResearch.Rin.ImageExperienceStream",
+            "image": "MicrosoftResearch.Rin.ImageExperienceStream",
+            "zoomablevideo": "MicrosoftResearch.Rin.ZoomableMediaExperienceStream",
+            "zoomablemediacollection": "MicrosoftResearch.Rin.ZoomableMediaExperienceStream",
+            "video": "MicrosoftResearch.Rin.VideoExperienceStream",
+            "audio": "MicrosoftResearch.Rin.AudioExperienceStream",
+            "pivot": "MicrosoftResearch.Rin.PivotExperienceStream",
+            "xps": "MicrosoftResearch.Rin.DocumentViewerExperienceStream",
+            "photosynth": "MicrosoftResearch.Rin.PhotosynthES",
+            "collection": "MicrosoftResearch.Rin.RinTemplates.$THEME$TwoDTemplateES",
+            "collectiononed": "MicrosoftResearch.Rin.RinTemplates.$THEME$OneDTemplateES",
+            "wall": "MicrosoftResearch.Rin.WallExperienceStream",
+            "map": "MicrosoftResearch.Rin.MapExperienceStream"
+        },
+        getExperienceStream: function (context, themeName) {
+            if (context === undefined)
+                return;
+            var esData = JSON.stringify(this._narrativeData);
+            var providerName = this.esSrcTypeToProviderDictionary[context.srcType.toLowerCase()] || context.srcType;
+            var keyframeData = context.keyframes || "";
+            var aspectratio = context.aspectRatio || "None";
+            var duration = context.duration || context.largeMediaDuration || context.smallMediaDuration || 0;
+            var startOffset = context.largeMediaStartOffset || context.smallMediaStartOffset || 0;
+            var endOffset = startOffset + duration;
+            providerName = providerName.replace("$THEME$", themeName || "Metro");
+
+            var esId = (context.id || "") + "_ES_" + Math.floor(Math.random() * 1000).toString() + "_Popup";
+
+            esData = this.replaceAll('$ESID$', esId, esData);
+            esData = this.replaceAll("$ESPROVIDER$", providerName, esData);
+            esData = esData.replace('$RESOURCEREF$', context.src)
+                           .replace('$CONTENTTYPE$', context.srcType)
+                           .replace('$ASPECTRATIO$', aspectratio)
+                           .replace('$DURATION$', duration)
+                           .replace('$DURATION$', duration)
+                           .replace('$STARTOFFSET$', startOffset)
+                           .replace('$ENDOFFSET$', endOffset)
+                           .replace('$VOLUME$', context.volume || 1);
+            var esDataJSON = rin.util.parseJSON(esData);
+            esDataJSON.id = esId;
+
+            return esDataJSON;
+        },
+
+        replaceAll: function (find, replace, str) {
+            return str.split(find).join(replace);
         }
-    },
-    esSrcTypeToProviderDictionary: {
-        "singledeepzoomimage": "MicrosoftResearch.Rin.ZoomableMediaExperienceStream",
-        "deepzoomimage": "MicrosoftResearch.Rin.ZoomableMediaExperienceStream",
-        "zoomableimage": "MicrosoftResearch.Rin.ImageExperienceStream",
-        "image": "MicrosoftResearch.Rin.ImageExperienceStream",
-        "zoomablevideo": "MicrosoftResearch.Rin.ZoomableMediaExperienceStream",
-        "zoomablemediacollection": "MicrosoftResearch.Rin.ZoomableMediaExperienceStream",
-        "video": "MicrosoftResearch.Rin.VideoExperienceStream",
-        "audio": "MicrosoftResearch.Rin.AudioExperienceStream",
-        "pivot": "MicrosoftResearch.Rin.PivotExperienceStream",
-        "xps": "MicrosoftResearch.Rin.DocumentViewerExperienceStream",
-        "photosynth": "MicrosoftResearch.Rin.PhotosynthES",
-        "collection": "MicrosoftResearch.Rin.RinTemplates.$THEME$TwoDTemplateES",
-        "collectiononed": "MicrosoftResearch.Rin.RinTemplates.$THEME$OneDTemplateES",
-        "wall": "MicrosoftResearch.Rin.WallExperienceStream",
-        "map": "MicrosoftResearch.Rin.MapExperienceStream"
-    },
-    getExperienceStream: function (context, themeName) {
-        if (context === undefined)
-            return;
-        var esData = JSON.stringify(this._narrativeData);
-        var providerName = this.esSrcTypeToProviderDictionary[context.srcType.toLowerCase()] || context.srcType;
-        var keyframeData = context.keyframes || "";
-        var aspectratio = context.aspectRatio || "None";
-        var duration = context.duration || context.largeMediaDuration || context.smallMediaDuration || 0;
-        var startOffset = context.largeMediaStartOffset || context.smallMediaStartOffset || 0;
-        var endOffset = startOffset + duration;
-        providerName = providerName.replace("$THEME$", themeName || "Metro");
-
-        var esId = (context.id || "") + "_ES_" + Math.floor(Math.random() * 1000).toString() + "_Popup";
-
-        esData = this.replaceAll('$ESID$', esId, esData);
-        esData = this.replaceAll("$ESPROVIDER$", providerName, esData);
-        esData = esData.replace('$RESOURCEREF$', context.src)
-                       .replace('$CONTENTTYPE$', context.srcType)
-                       .replace('$ASPECTRATIO$', aspectratio)
-                       .replace('$DURATION$', duration)
-                       .replace('$DURATION$', duration)
-                       .replace('$STARTOFFSET$', startOffset)
-                       .replace('$ENDOFFSET$', endOffset)
-                       .replace('$VOLUME$', context.volume || 1)
-                       .replace("$KEYFRAMES$", keyframeData);
-        var esDataJSON = rin.util.parseJSON(esData);
-        esDataJSON.id = esId;
-
-        return esDataJSON;
-    },
-
-    replaceAll: function (find, replace, str) {
-        return str.split(find).join(replace);
-    }
-};
-
-
+    };
+})(window.rin = window.rin || {});

@@ -1,0 +1,8 @@
+[{
+    "collection": {
+        "items": [],
+        "layout": {
+            "groups": []
+        }
+    }
+}]

@@ -1,4 +1,4 @@
-﻿<div class="rin_TextWithLineContainer" height="100" width="100" data-bind="click:onClick">
+﻿<div class="rin_TextWithLineContainer" data-bind="click:onClick">
     <div class="rin_TextWithLineContentContainer">
         <div class="rin_TextWithLineDescription">
             <span data-bind="text:text" />
@@ -8,25 +8,25 @@
     <!-- TOP LEFT POSITIONS -->
 
     <!-- TOP LEFT DOWN -->
-    <div class="rin_TWL_Arrow rin_TWL_TopLeft_Down" >
+    <div class="rin_TWL_Arrow rin_TWL_TopLeft_Down" data-bind="visible: arrowDirection == 'tld'">
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" baseprofile="full" width="100" height="100">
             <line class="rin_TWL_Line" x1="100" y1="0" x2="0" y2="100" />
         </svg>
     </div>
     <!-- TOP LEFT Horizontal -->
-    <div class="rin_TWL_Arrow rin_TWL_TopLeft_Horizontal" >
+    <div class="rin_TWL_Arrow rin_TWL_TopLeft_Horizontal" data-bind="visible: arrowDirection == 'tlh'">
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" baseprofile="full" width="100" height="100">
             <line class="rin_TWL_Line" x1="0" y1="100" x2="100" y2="100" />
         </svg>
     </div>
     <!-- TOP LEFT UP -->
-    <div class="rin_TWL_Arrow rin_TWL_TopLeft_Up" >
+    <div class="rin_TWL_Arrow rin_TWL_TopLeft_Up" data-bind="visible: arrowDirection == 'tlu'">
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" baseprofile="full" width="100" height="100">
             <line class="rin_TWL_Line" x1="0" y1="0" x2="100" y2="100" />
         </svg>
     </div>
     <!-- TOP LEFT Vertical -->
-    <div class="rin_TWL_Arrow rin_TWL_TopLeft_Vertical" >
+    <div class="rin_TWL_Arrow rin_TWL_TopLeft_Vertical" data-bind="visible: arrowDirection == 'tlv'">
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" baseprofile="full" width="100" height="100">
             <line class="rin_TWL_Line" x1="100" y1="100" x2="100" y2="0" />
         </svg>

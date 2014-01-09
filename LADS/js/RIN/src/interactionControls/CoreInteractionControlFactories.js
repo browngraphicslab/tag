@@ -10,34 +10,39 @@
 
 /// <reference path="../contracts/IExperienceStream.js" />
 
-rin.ext.registerFactory(rin.contracts.systemFactoryTypes.interactionControlFactory, rin.contracts.interactionControlNames.panZoomControl,
-    function (resourcesResolver, loadedCallback) {
-        $.get(resourcesResolver.resolveSystemResource("interactionControls/PanZoomControls.html"), null, function (visual) {
-            var wrap = document.createElement("div"),
-                systemRoot = resourcesResolver.getSystemRootUrl();
-            wrap.style["display"] = "inline-block";
-            rin.util.assignAsInnerHTMLUnsafe(wrap, visual.replace(/SYSTEM_ROOT/g, systemRoot));
-            loadedCallback(wrap);
-        });
-    });
+(function (rin) {
+    /*global $:true, ko:true*/
+    "use strict";
 
-rin.ext.registerFactory(rin.contracts.systemFactoryTypes.interactionControlFactory, rin.contracts.interactionControlNames.mediaControl,
-    function (resourcesResolver, loadedCallback) {
-        $.get(resourcesResolver.resolveSystemResource("interactionControls/MediaControls.html"), null, function (visual) {
-            var wrap = document.createElement("div"),
-                systemRoot = resourcesResolver.getSystemRootUrl();
-            rin.util.assignAsInnerHTMLUnsafe(wrap, visual.replace(/SYSTEM_ROOT/g, systemRoot))
-            loadedCallback(wrap);
+    rin.ext.registerFactory(rin.contracts.systemFactoryTypes.interactionControlFactory, rin.contracts.interactionControlNames.panZoomControl,
+        function (resourcesResolver, loadedCallback) {
+            $.get(resourcesResolver.resolveSystemResource("interactionControls/PanZoomControls.html"), null, function (visual) {
+                var wrap = document.createElement("div"),
+                    systemRoot = resourcesResolver.getSystemRootUrl();
+                wrap.style.display = "inline-block";
+                rin.util.assignAsInnerHTMLUnsafe(wrap, visual.replace(/SYSTEM_ROOT/g, systemRoot));
+                loadedCallback(wrap);
+            });
         });
-    });
 
-rin.ext.registerFactory(rin.contracts.systemFactoryTypes.interactionControlFactory, "MicrosoftResearch.Rin.InteractionControls.RotateControl",
-   function (resourcesResolver, loadedCallback) {
-       $.get(resourcesResolver.resolveSystemResource("interactionControls/RotateControl.html"), null, function (visual) {
-           var wrap = document.createElement("div"),
-               systemRoot = resourcesResolver.getSystemRootUrl();
-           wrap.style["display"] = "inline-block";
-           rin.util.assignAsInnerHTMLUnsafe(wrap, visual.replace(/SYSTEM_ROOT/g, systemRoot))
-           loadedCallback(wrap);
+    rin.ext.registerFactory(rin.contracts.systemFactoryTypes.interactionControlFactory, rin.contracts.interactionControlNames.mediaControl,
+        function (resourcesResolver, loadedCallback) {
+            $.get(resourcesResolver.resolveSystemResource("interactionControls/MediaControls.html"), null, function (visual) {
+                var wrap = document.createElement("div"),
+                    systemRoot = resourcesResolver.getSystemRootUrl();
+                rin.util.assignAsInnerHTMLUnsafe(wrap, visual.replace(/SYSTEM_ROOT/g, systemRoot));
+                loadedCallback(wrap);
+            });
+        });
+
+    rin.ext.registerFactory(rin.contracts.systemFactoryTypes.interactionControlFactory, "MicrosoftResearch.Rin.InteractionControls.RotateControl",
+       function (resourcesResolver, loadedCallback) {
+           $.get(resourcesResolver.resolveSystemResource("interactionControls/RotateControl.html"), null, function (visual) {
+               var wrap = document.createElement("div"),
+                   systemRoot = resourcesResolver.getSystemRootUrl();
+               wrap.style.display = "inline-block";
+               rin.util.assignAsInnerHTMLUnsafe(wrap, visual.replace(/SYSTEM_ROOT/g, systemRoot));
+               loadedCallback(wrap);
+           });
        });
-   });
+})(window.rin = window.rin || {});

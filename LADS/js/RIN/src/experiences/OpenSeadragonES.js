@@ -19,9 +19,8 @@
 /// <reference path="../core/TaskTimer.js" />
 
 
-window.rin = window.rin || {};
-
-(function (rin) {
+(function (rin, OpenSeadragon) {
+    "use strict";
     // ES for displaying deepzoom images.
     var DeepZoomES = function (orchestrator, esData) {
         DeepZoomES.parentConstructor.apply(this, arguments);
@@ -36,8 +35,8 @@ window.rin = window.rin || {};
         this._esData = esData;
         this._url = orchestrator.getResourceResolver().resolveResource(esData.resourceReferences[0].resourceId, esData.experienceId); // Resolved url to the DZ image.
         this.viewportChangedEvent = new rin.contracts.Event();
-        this.applyConstraints = orchestrator.getPlayerConfiguration().playerMode != rin.contracts.playerMode.AuthorerEditor;
-
+        this.applyConstraints = orchestrator.getPlayerConfiguration().playerMode !== rin.contracts.playerMode.AuthorerEditor;
+        
         esData.data = esData.data || {};
         esData.data.defaultKeyframe = esData.data.defaultKeyframe || {
             "state": {
@@ -57,8 +56,8 @@ window.rin = window.rin || {};
         };
 
         // Set viewport visibility constrains
-        OpenSeadragon.DEFAULT_SETTINGS.visibilityRatio = typeof esData.data.viewportConstrainRatio == "undefined" ? .05 : esData.data.viewportConstrainRatio;
-        if (esData.data.viewportClamping && esData.data.viewportClamping != this.viewportClampingOptions.none) {
+        OpenSeadragon.DEFAULT_SETTINGS.visibilityRatio = typeof esData.data.viewportConstrainRatio === "undefined" ? 0.05 : esData.data.viewportConstrainRatio;
+        if (esData.data.viewportClamping && esData.data.viewportClamping !== this.viewportClampingOptions.none) {
             this.viewportClampingMode = esData.data.viewportClamping;
             OpenSeadragon.DEFAULT_SETTINGS.visibilityRatio = 1; // This is required to support viewport clamping.
         }
@@ -71,13 +70,13 @@ window.rin = window.rin || {};
 
         // Handle key events for panning
         this._userInterfaceControl.addEventListener('keydown', function (e) {
-            if (e.keyCode == '37') //left arrow
+            if (e.keyCode === '37') //left arrow
                 self.panLeftCommand();
-            else if (e.keyCode == '38') //up arrow
+            else if (e.keyCode === '38') //up arrow
                 self.panUpCommand();
-            else if (e.keyCode == '39') //right arrow
+            else if (e.keyCode === '39') //right arrow
                 self.panRightCommand();
-            else if (e.keyCode == '40') //down arrow 
+            else if (e.keyCode === '40') //down arrow 
                 self.panDownCommand();
         }, true);
         this.updateEA = null;
@@ -145,7 +144,7 @@ window.rin = window.rin || {};
             //});
 
             self._orchestrator.getPlayerRootControl().addEventListener("resize", function () {
-                if (self.getState() == "ready")
+                if (self.getState() === "ready")
                     self._updateViewportClip(self._viewer);
             }, true);
 
@@ -153,7 +152,7 @@ window.rin = window.rin || {};
             var zoomItMatch = self._url.match(new RegExp("http://(www\\.)?zoom\\.it/(\\w+)\\s*"));
 
             // Default animation time used for panning and zooming.
-            OpenSeadragon.DEFAULT_SETTINGS.animationTime = .5;
+            OpenSeadragon.DEFAULT_SETTINGS.animationTime = 0.5;
           
             // Function to open the dzi if source is not a zoom.it url.
             function openDzi(dzi) {
@@ -162,7 +161,7 @@ window.rin = window.rin || {};
                 //    self.setState(rin.contracts.experienceStreamState.error);
                 //});
 
-                self._viewer = OpenSeadragon({
+                self._viewer = new OpenSeadragon({
                     element: self._userInterfaceControl,
                     prefixUrl: "/openseadragon/images/",
                     blendTime:0.5,
@@ -205,7 +204,7 @@ window.rin = window.rin || {};
 
             // Function to open a zoom.it url.
             function onZoomitresponseonse(response) {
-                if (response.status != 200) {
+                if (response.status !== 200) {
                     // e.g. the URL is malformed or the service is down
                     rin.internal.debug.write(response.statusText);
                     self._orchestrator.eventLogger.logErrorEvent("Error in loading deepzoom {0}. Error: {1}", self._url, response.statusText);
@@ -249,7 +248,7 @@ window.rin = window.rin || {};
 
         // Apply a keyframe to the ES.
         displayKeyframe: function (keyframeData) {
-            if (this.getState() != rin.contracts.experienceStreamState.ready || !keyframeData.state) return; // Not ready yet, do not attempt to show anything.
+            if (this.getState() !== rin.contracts.experienceStreamState.ready || !keyframeData.state) return; // Not ready yet, do not attempt to show anything.
 
             var viewport = keyframeData.state.viewport;
             if (viewport) {
@@ -265,7 +264,7 @@ window.rin = window.rin || {};
         _updateViewportClip: function (viewer) {
             return;
             // Update EAs if present
-            if (this.updateEA != null) this.updateEA();
+            if (this.updateEA !== null) this.updateEA();
 
             // Get pixel coordinates of the DZ image
             var topLeft = viewer.viewport.pixelFromPoint(new OpenSeadragon.Point(0, 0), true);
@@ -274,17 +273,17 @@ window.rin = window.rin || {};
             var panelH = this._userInterfaceControl.clientHeight;
 
             // Apply viewport clamping
-            if (this.viewportClampingMode != this.viewportClampingOptions.none) {
+            if (this.viewportClampingMode !== this.viewportClampingOptions.none) {
                 var adjOffset = 0;
                 if (viewer.source.height <= viewer.source.width) {
-                    if (this.viewportClampingMode == this.viewportClampingOptions.all) {
+                    if (this.viewportClampingMode === this.viewportClampingOptions.all) {
                         var percentageAdjustment = panelH / viewer.source.height;
                         var proportionalWidth = viewer.source.width * percentageAdjustment;
                         adjOffset = panelW - proportionalWidth;
                     }
                     OpenSeadragon.DEFAULT_SETTINGS.minZoomDimension = panelH + (adjOffset > 0 ? adjOffset * viewer.source.height / viewer.source.width : 0);
                 } else {
-                    if (this.viewportClampingMode == this.viewportClampingOptions.all) {
+                    if (this.viewportClampingMode === this.viewportClampingOptions.all) {
                         var percentageAdjustment = panelW / viewer.source.width;
                         var proportionalHeight = viewer.source.height * percentageAdjustment;
                         adjOffset = panelH - proportionalHeight;
@@ -383,7 +382,7 @@ window.rin = window.rin || {};
 
                 OpenSeadragon.Utils.addEvent(node, "MSGestureChange", function (e) {
                     if (startRect) {
-                        if (e.scale > .25) {
+                        if (e.scale > 0.25) {
                             startRect = self._viewer.viewport.getBounds(false);
                             var topLeft = self._viewer.viewport.pixelFromPoint(new Seadragon.Point(0, 0), true);
                             var bottomRight = self._viewer.viewport.pixelFromPoint(new Seadragon.Point(1, self._viewer.source.height / self._viewer.source.width), true);
@@ -459,7 +458,7 @@ window.rin = window.rin || {};
         },
         // Zoom out from the image by a predefined amount.
         zoomOutCommand: function () {
-            this._viewer.viewport.zoomBy(.8, null, false);
+            this._viewer.viewport.zoomBy(0.8, null, false);
             if (this.applyConstraints) this._viewer.viewport.applyConstraints(true);
         },
         // Pan the image by a predefined amount.
@@ -510,7 +509,7 @@ window.rin = window.rin || {};
         },
 
         _viewer: null,
-        panDistance: .2,
+        panDistance: 0.2,
         interactionControls: null,
         applyConstraints: true,
         isExplorable: true,
@@ -523,4 +522,4 @@ window.rin = window.rin || {};
     DeepZoomES.elementHtml = "<div style='height:100%;width:100%;position:absolute;background:transparent;pointer-events:none;' tabindex='0'><div class='seadragonClip' style='height:100%;width:100%;position:absolute;background:transparent;left:0px;top:0px;overflow:hidden;pointer-events:auto;' tabindex='0'><div class='seadragonClipContents' style='height:333px;width:600px;position:absolute;'><div class='seadragonContainer' style='height:100%;width:100%;position:absolute;' tabindex='0'></div></div></div></div>";
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.OpenSeadragonExperienceStream", function (orchestrator, esData) { return new DeepZoomES(orchestrator, esData); });
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.OpenSeadragonExperienceStream", function (orchestrator, esData) { return new DeepZoomES(orchestrator, esData); });
-})(rin);
+})(window.rin = window.rin || {}, window.OpenSeadragon);

@@ -10,6 +10,7 @@ Run "grunt" from the project's root directory.
 # Other Tasks
 - Run "grunt watch" to start watching for any changes to automatically be built.
 - Run "grunt ship" to build the ship-ready version of the site
+- Run "grunt sdk-ship" to create SDK Version. (Refer to doc/How-to-create-sdk.txt for more details)
 
 # Local Hosting
 Set up a web server pointing to the web directory for RIN or everest/web for Everest. Our requirements are minimal so IIS Express, Apache, or any other web server will work. 

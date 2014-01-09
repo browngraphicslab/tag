@@ -4,12 +4,12 @@
 if (window.MSApp && WinJS && WinJS.xhr) {
     (function (rin) {
         "use strict";
-        var rinXHR = function () {
-            if (!(this instanceof rinXHR))
-                return new rinXHR();
-        }
-        rin.util.extend(jQuery.ajaxSettings.xhr, rinXHR);
-        rinXHR.prototypeOverrides = {
+        var RinXHR = function () {
+            if (!(this instanceof RinXHR))
+                return new RinXHR();
+        };
+        rin.util.extend(jQuery.ajaxSettings.xhr, RinXHR);
+        RinXHR.prototypeOverrides = {
             open: function (type, url, async, username, password) {
                 this._options = {
                     type: type,
@@ -32,7 +32,7 @@ if (window.MSApp && WinJS && WinJS.xhr) {
                         self.getAllResponseHeaders = function () { };
                         if (onreadystatechange) {
                             onreadystatechange();
-                        };
+                        }
                     };
                 self._options.data = data;
                 self._xhr = WinJS.xhr(self._options).then(completeOrFailure, completeOrFailure);
@@ -46,8 +46,8 @@ if (window.MSApp && WinJS && WinJS.xhr) {
             _options: null,
             onreadystatechange: null
         };
-        rin.util.overrideProperties(rinXHR.prototypeOverrides, rinXHR.prototype);
-        jQuery.ajaxSettings.xhr = rinXHR;
+        rin.util.overrideProperties(RinXHR.prototypeOverrides, RinXHR.prototype);
+        jQuery.ajaxSettings.xhr = RinXHR;
         jQuery.ajaxSettings.crossDomain = false;
     }(window.rin));
 }

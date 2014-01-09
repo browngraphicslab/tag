@@ -106,38 +106,22 @@ var updateCSS = function(e, t) {
     e.style.msTransform = t;
     e.style.MozTransform = t;
 };
+
 /**
  * This updates the leave node transforms with any
  * intermediate transforms. Note: This is only used when quirks.supportsPreserve3D = false.
  */
 RendererCSS3D.prototype.updateTransforms = function (node, transform) {
-    var node, current, transform, i, identity,
-    q = [];
-    identity = new CSSMatrix();
-    identity.m11 = 1.0;
-    identity.m12 = 0.0;
-    identity.m13 = 0.0;
-    identity.m14 = 0.0;
-    identity.m21 = 0.0;
-    identity.m22 = 1.0;
-    identity.m23 = 0.0;
-    identity.m24 = 0.0;
-    identity.m31 = 0.0;
-    identity.m32 = 0.0;
-    identity.m33 = 1.0;
-    identity.m34 = 0.0;
-    identity.m41 = 0.0;
-    identity.m42 = 0.0;
-    identity.m43 = 0.0;
-    identity.m44 = 1.0;
-
+    var node, transform, i, len;
+    
     if(!node) {
         node = this._rootElement;
     }
 
     if(!transform) {
-        transform = identity;
+        transform = new CSSMatrix();
     }
+
     if(node['$$matrixTransform']) {
         transform = transform.multiply(node['$$matrixTransform']);
     }
@@ -146,8 +130,8 @@ RendererCSS3D.prototype.updateTransforms = function (node, transform) {
         updateCSS(node, transform);
     }
     else {
-        updateCSS(node, identity);
-        for(i = 0; i < node.childNodes.length; ++i) {
+        updateCSS(node, new CSSMatrix());
+        for(i = 0, len = node.childNodes.length; i < len; ++i) {
             this.updateTransforms(node.childNodes[i], transform);
         }
     }
@@ -490,7 +474,6 @@ RendererCSS3D.prototype.setCSS3DTransform = function (elem, image, transform, or
 RendererCSS3D.prototype.setCSS3DViewProjection = function (viewProjection) {
     var m = viewProjection.transpose();
 
-    //TODO:Webkit specific, need to abstract for other browsers
     var mCss = new CSSMatrix();
     mCss.m11 = m.m11;
     mCss.m12 = m.m12;

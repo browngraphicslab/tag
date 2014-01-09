@@ -197,7 +197,7 @@ Panorama.prototype = {
                                                                        Math.min(maxAllowedFov, maxFovAsHorizontal));
 
             //negative top and bottom because rml uses a different convention than the camera controller
-            cameraController = new RotationalFixedPositionCameraController(camera, -topBound, -bottomBound, rightBound, leftBound, enforceViewLimits, cameraParameters.minClientPreferredFieldOfView, cubeSource.dimension);
+            cameraController = new RotationalFixedPositionCameraController(camera, -topBound, -bottomBound, rightBound, leftBound, enforceViewLimits, cameraParameters.maxPixelScaleFactor, cubeSource.dimension);
             cameraController.setVerticalFov(finalFov);
         }
         return cameraController;
@@ -426,7 +426,7 @@ Panorama.prototype = {
             for (var j = 0; j < this._neighborOffsets.length; j++) {
                 var neighborOffset = this._neighborOffsets[j];
                 var neighbor = new TileId(tileId.levelOfDetail, tileId.x + neighborOffset[0], tileId.y + neighborOffset[1]);
-                var neighborEntityId = entity.face + neighbor.toString();
+                var neighborEntityId = entity.face + neighbor.id;
                 var neighborRenderableId = entityIdToRenderable[neighborEntityId];
                 if (neighborRenderableId && renderer._renderables[neighborRenderableId]) {
                     var neighborTexture = renderer._renderables[neighborRenderableId]._material._texture;

@@ -18,10 +18,10 @@
 
 
 module rin.embeddedArtifacts.BuiltinPolicies.ambientAudioPolicy {
-
+    "use strict";
     interface WorkingArtifactEx extends WorkingArtifact {
         volume: number;
-    };
+    }
 
     function emptySoundStateInstance(): SmallState {
         return {
@@ -29,12 +29,15 @@ module rin.embeddedArtifacts.BuiltinPolicies.ambientAudioPolicy {
         };
     }
 
-    function OriginPoint(): Point2D {
-        return {
-            x: 0,
-            y: 0
-        };
+    class OriginPoint {
+        constructor() {
+            return {
+                x: 0,
+                y: 0
+            }
+        }
     }
+
 
     function getRegion(r: Region): number {
         return r.span.x * r.span.y;
@@ -61,9 +64,9 @@ module rin.embeddedArtifacts.BuiltinPolicies.ambientAudioPolicy {
     }
 
     export function newInstance(collection: DataCollection, provider: ProviderProxy): GroupEnvironmentalPolicy {
-        var screenDimensions: Region = { center: OriginPoint(), span: OriginPoint() };
-        var tmpPoint1 = OriginPoint()// WARNING: Used by convertRegionToScreen
-        var tmpPoint2 = OriginPoint()// WARNING: Used by convertRegionToScreen
+        var screenDimensions: Region = { center: new OriginPoint(), span: new OriginPoint() };
+        var tmpPoint1 = new OriginPoint()// WARNING: Used by convertRegionToScreen
+        var tmpPoint2 = new OriginPoint()// WARNING: Used by convertRegionToScreen
         var convertRegionToScreen = provider.convertRegionToScreen2D || function (inRegion, outRegion) {
             var ret;
             ret = provider.convertPointToScreen2D(inRegion.center, outRegion.center);
@@ -80,18 +83,18 @@ module rin.embeddedArtifacts.BuiltinPolicies.ambientAudioPolicy {
                 outRegion.center.x = outRegion.center.y = outRegion.span.x = outRegion.span.y = NaN;
             }
             return ret;
-        };
+        }
 
         function evaluate(workingList: WorkingArtifactList, experienceSmallState: SmallState) {
             provider.getScreenDimensions(screenDimensions);
             var maxArea = getRegion(screenDimensions),
-                maxDistance = getDistance(screenDimensions.center, OriginPoint());
+                maxDistance = getDistance(screenDimensions.center, new OriginPoint());
             workingList.forEach(function (workingItem: WorkingArtifactEx, id) {
                 if (!workingItem.state.sound) {
                     workingItem.state.sound = emptySoundStateInstance();
                 }
                 if (workingItem.active) {
-                    var itemRegion = { center: OriginPoint(), span: OriginPoint() };
+                    var itemRegion = { center: new OriginPoint(), span: new OriginPoint() };
                     convertRegionToScreen(workingItem.sourceItem.region, itemRegion);
                     var itemIntersectArea = getIntersectRegion(screenDimensions, itemRegion),
                         volumeLevel = ((itemIntersectArea) / maxArea) * ((maxDistance - getDistance(itemRegion.center, screenDimensions.center))/maxDistance);
@@ -105,5 +108,5 @@ module rin.embeddedArtifacts.BuiltinPolicies.ambientAudioPolicy {
         return {
             evaluate: evaluate
         };
-    };
+    }
 }

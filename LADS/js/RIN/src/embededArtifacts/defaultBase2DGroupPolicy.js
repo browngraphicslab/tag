@@ -1,25 +1,25 @@
-﻿/*!
-*
-* RIN Core JavaScript Library v1.0
-* http://research.microsoft.com/rin
-*
-* Copyright (c)  2013, Microsoft Research
-* By using this source you agree to the terms and conditions detailed in the following licence:
-*     http://rinjs.org/licenses/v1.0/
-*
-* Date: 2013-MARCH-01
-*
-* This file implements the default (built in) implementation of the
-* "base2DGroupPolicy" Embedded Artifacts Group Policy
-*
-*/
-/// <reference path="embeddedArtifactTypes.d.ts"/>
-var rin;
+﻿var rin;
 (function (rin) {
     (function (embeddedArtifacts) {
         (function (BuiltinPolicies) {
+            /*!
+            *
+            * RIN Core JavaScript Library v1.0
+            * http://research.microsoft.com/rin
+            *
+            * Copyright (c)  2013, Microsoft Research
+            * By using this source you agree to the terms and conditions detailed in the following licence:
+            *     http://rinjs.org/licenses/v1.0/
+            *
+            * Date: 2013-MARCH-01
+            *
+            * This file implements the default (built in) implementation of the
+            * "base2DGroupPolicy" Embedded Artifacts Group Policy
+            *
+            */
+            /// <reference path="embeddedArtifactTypes.d.ts"/>
             (function (base2DGroupPolicy) {
-                ; ;
+                "use strict";
                 function newInstance(collection, provider) {
                     var MAX_INACTIVE_COUNT = 1;
                     var tmpRegion = {
@@ -94,7 +94,6 @@ var rin;
                         //return interval_intersects(r1.center.x - r1.span.x / 2, r1.center.x + r1.span.x / 2, r2.center.x - r2.span.x / 2, r2.center.x + r2.span.x / 2)
                         //&& interval_intersects(r1.center.y - r1.span.y / 2, r1.center.y + r1.span.y / 2, r2.center.y - r2.span.y / 2, r2.center.y + r2.span.y / 2);
                                             }
-                    ; ;
                     function copyPoint(from, to) {
                         to.x = from.x;
                         to.y = from.y;
@@ -181,7 +180,7 @@ var rin;
                                     // Item is in scope spatially... check if it is in the working set.
                                     if(workingItem) {
                                         workingItem.active = true;
-                                        if(workingItem.sourceItem != item) {
+                                        if(workingItem.sourceItem !== item) {
                                             // Hmm, the previous mapping between working item and source item is broken.
                                             // This can happen if the source Item list has been re-built, which can happen in
                                             // editing scenarios.
@@ -231,7 +230,6 @@ var rin;
                     };
                 }
                 base2DGroupPolicy.newInstance = newInstance;
-                ; ;
             })(BuiltinPolicies.base2DGroupPolicy || (BuiltinPolicies.base2DGroupPolicy = {}));
             var base2DGroupPolicy = BuiltinPolicies.base2DGroupPolicy;
         })(embeddedArtifacts.BuiltinPolicies || (embeddedArtifacts.BuiltinPolicies = {}));

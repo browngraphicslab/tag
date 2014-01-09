@@ -10,6 +10,14 @@
         // Copyright (C) 2013 Microsoft Research
         //
         (function (Interpolators) {
+            /*jshint validthis:true*/
+            "use strict";
+            var Ease = (function () {
+                function Ease(t) {
+                    return (3 - 2 * t) * t * t;
+                }
+                return Ease;
+            })();            
             // Private module containing some Quaternion-specific code....
             //
             var QuaternionHelperVectorBased = (function () {
@@ -122,8 +130,8 @@
                 // TODO: Deal with "tilt" or "roll" aspect. For now, we assume zero-tilt.
                 //
                 function quaternionToCenter(q, c) {
-                    if(q.w != 0) {
-                        if(typeof (console) != "undefined" && console && console.log) {
+                    if(q.w !== 0) {
+                        if(typeof (console) !== "undefined" && console && console.log) {
                             console.log("vectorBased interpolation: quaternions with q.w = 0?");
                         }
                     }
@@ -211,11 +219,10 @@
                         case EasingOption.outEasing:
                             this.ease = this.outCubicEasing;
                             break;
-                        case EasingOption.noEasing:
                         default:
                             this.ease = this.linearEasing;
                     }
-                    if(this.ease == this.piecewiseInOutCubicEasing) {
+                    if(this.ease === this.piecewiseInOutCubicEasing) {
                         // set up all the needed constants
                         // Calculate normalized inTransitionStart and outTransitionEnd
                         var invDuration = 1.0 / interpolationDuration;
@@ -245,7 +252,6 @@
                     this.defaultEasingDuation = 2.0;
                     var postKfState = iState.postKf ? iState.postKf.state[this.sliverId] : null;
                     var preKfState = iState.preKf ? iState.preKf.state[this.sliverId] : null;
-                    ;
                     if(type) {
                         this.interpolatorType = type;
                     }
@@ -283,32 +289,30 @@
                     //
                     var qh;
                     var easingHelper;
-                    switch(this.interpolatorType) {
-                        case "vectorBased":
-                            qh = new QuaternionHelperVectorBased(preKfRegion, postKfRegion);
-                            if(this.usePiecewiseCubicEasing) {
-                                var easingOption = EasingOption.noEasing;
-                                //Figure out the easingoption, based on whether prepre and postPost keyframes are present,  and whether they have any holdduration specified
-                                // We want easing coming in if there is no prePreKf or there is some non-zero holdduration defined on preKf
-                                var easingOnIn = (iState.preKf.holdDuration != undefined && iState.preKf.holdDuration > 1E-5) || !iState.prePreKf;
-                                // We want easing going out if there is no postPostKf or there is some non-zero holdduration defined on postKf
-                                var easingOnOut = (iState.postKf.holdDuration != undefined && iState.postKf.holdDuration > 1E-5) || !iState.postPostKf;
-                                if(easingOnIn) {
-                                    if(easingOnOut) {
-                                        easingOption = EasingOption.inOutEasing;
-                                    } else {
-                                        easingOption = EasingOption.inEasing;
-                                    }
+                    if(this.interpolatorType === "vectorBased") {
+                        qh = new QuaternionHelperVectorBased(preKfRegion, postKfRegion);
+                        if(this.usePiecewiseCubicEasing) {
+                            var easingOption = EasingOption.noEasing;
+                            //Figure out the easingoption, based on whether prepre and postPost keyframes are present,  and whether they have any holdduration specified
+                            // We want easing coming in if there is no prePreKf or there is some non-zero holdduration defined on preKf
+                            var easingOnIn = (iState.preKf.holdDuration !== undefined && iState.preKf.holdDuration > 0.00001) || !iState.prePreKf;
+                            // We want easing going out if there is no postPostKf or there is some non-zero holdduration defined on postKf
+                            var easingOnOut = (iState.postKf.holdDuration !== undefined && iState.postKf.holdDuration > 0.00001) || !iState.postPostKf;
+                            if(easingOnIn) {
+                                if(easingOnOut) {
+                                    easingOption = EasingOption.inOutEasing;
                                 } else {
-                                    if(easingOnOut) {
-                                        easingOption = EasingOption.outEasing;
-                                    } else {
-                                        easingOption = EasingOption.noEasing;
-                                    }
+                                    easingOption = EasingOption.inEasing;
                                 }
-                                easingHelper = new PiecewiseCubicEasingHelper(iState, iState.preKf.easingDuration ? iState.preKf.easingDuration : this.defaultEasingDuation, easingOption);
+                            } else {
+                                if(easingOnOut) {
+                                    easingOption = EasingOption.outEasing;
+                                } else {
+                                    easingOption = EasingOption.noEasing;
+                                }
                             }
-                            break;
+                            easingHelper = new PiecewiseCubicEasingHelper(iState, iState.preKf.easingDuration ? iState.preKf.easingDuration : this.defaultEasingDuation, easingOption);
+                        }
                     }
                     //
                     //  Computes the relative progress ([0.0->1.0]) of the zoom animation. Needs to account for
@@ -361,11 +365,8 @@
                             return 0;
                         } else {
                             var rawProgress = (t - preTime) / timeDelta;
-                            return easingHelper ? easingHelper.ease(rawProgress) : Ease(rawProgress);
+                            return easingHelper ? easingHelper.ease(rawProgress) : new Ease(rawProgress);
                         }
-                    };
-                    var Ease = function (t) {
-                        return (3 - 2 * t) * t * t;
                     };
                     //
                     //  Computes the relative progress ([0.0->1.0]) of the orientation animation. Needs to account for
@@ -380,7 +381,7 @@
                             return 0;
                         } else {
                             var rawProgress = (t - preTime) / timeDelta;
-                            return easingHelper ? easingHelper.ease(rawProgress) : Ease(rawProgress);
+                            return easingHelper ? easingHelper.ease(rawProgress) : new Ease(rawProgress);
                         }
                     };
                     this.interpolateRegion = function (t, region) {

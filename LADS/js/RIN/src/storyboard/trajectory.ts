@@ -9,19 +9,19 @@
 // Copyright (C) 2013 Microsoft Research 
 //
 module rin.Ext.Trajectory {
-
+    "use strict";
     function log(str: string) {
         console.log(str);
-    };
+    }
 
     // (stolen from rin.core) 
     // Deep copy the object. Only members are copied and so the resulting object will not be of the same type.
     function deepCopy(obj) {
-        if (typeof (obj) != "object" || obj == null) return obj;
+        if (typeof (obj) !== "object" || obj === null) return obj;
         var temp = obj.constructor();
         for (var i in obj) temp[i] = deepCopy(obj[i]);
         return temp;
-    };
+    }
 
 
     class BaseTrajectory {
@@ -39,7 +39,6 @@ module rin.Ext.Trajectory {
     }
 
     export function newTrajectoryBuilder(e: Experience): TrajectoryBuilder {
-        var e: Experience = e;
         var date = new Date();
 
         //
@@ -79,7 +78,7 @@ module rin.Ext.Trajectory {
                                                         return activeTrajectory.sampleAt(t2, kf);
                                                         }
                                                    : null;
-                    };
+                    }
                     return resultTrajectory;
                 },
 

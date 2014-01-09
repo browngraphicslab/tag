@@ -19,39 +19,40 @@
 /// <reference path="../core/ESItemsManager.js"/>
 /// <reference path="../core/EventLogger.js"/>
 
-window.rin = window.rin || {};
+(function(rin){
+    "use strict";
+    rin.internal.ESTimerES = function (orchestrator, esManager) {
+        this.stateChangedEvent = new rin.contracts.Event();
+        this._orchestrator = orchestrator;
+        this.esTimer = new rin.internal.ESTimer(orchestrator, esManager);
+    };
 
-rin.internal.ESTimerES = function (orchestrator, esManager) {
-    this.stateChangedEvent = new rin.contracts.Event();
-    this._orchestrator = orchestrator;
-    this.esTimer = new rin.internal.ESTimer(orchestrator, esManager);
-};
+    rin.internal.ESTimerES.prototype = {
+        isSystemES: true,
+        load: function (offset) {
+            this.esTimer.loadESItmes();
+            if (offset > 0) this.seek(0);
+        },
+        play: function (offset) {
+            this._orchestrator.eventLogger.logEvent("!! Logical timer played at : {0}", this.esTimer.taskTimer.getCurrentTimeOffset() / 1000);
+            this.esTimer.taskTimer.seek(offset);
+            this.esTimer.taskTimer.play();
+        },
+        pause: function (offset) {
+            this._orchestrator.eventLogger.logEvent("!! Logical timer paused at : {0}", this.esTimer.taskTimer.getCurrentTimeOffset() / 1000);
+            this.esTimer.taskTimer.seek(offset);
+            this.esTimer.taskTimer.pause();
+        },
+        unload: function () {
+            this.esTimer.taskTimer.pause();
+        },
+        getState: function () {
+            return rin.contracts.experienceStreamState.ready;
+        },
+        stateChangedEvent: new rin.contracts.Event(),
+        getUserInterfaceControl: function () { return null; },
+        esTimer: null,
 
-rin.internal.ESTimerES.prototype = {
-    isSystemES: true,
-    load: function (offset) {
-        this.esTimer.loadESItmes();
-        if (offset > 0) this.seek(0);
-    },
-    play: function (offset, experienceStreamId) {
-        this._orchestrator.eventLogger.logEvent("!! Logical timer played at : {0}", this.esTimer.taskTimer.getCurrentTimeOffset() / 1000);
-        this.esTimer.taskTimer.seek(offset);
-        this.esTimer.taskTimer.play();
-    },
-    pause: function (offset, experienceStreamId) {
-        this._orchestrator.eventLogger.logEvent("!! Logical timer paused at : {0}", this.esTimer.taskTimer.getCurrentTimeOffset() / 1000);
-        this.esTimer.taskTimer.seek(offset);
-        this.esTimer.taskTimer.pause();
-    },
-    unload: function () {
-        this.esTimer.taskTimer.pause();
-    },
-    getState: function () {
-        return rin.contracts.experienceStreamState.ready;
-    },
-    stateChangedEvent: new rin.contracts.Event(),
-    getUserInterfaceControl: function () { return null; },
-    esTimer: null,
-
-    _orchestrator: null
-};
+        _orchestrator: null
+    };
+})(window.rin = window.rin || {});

@@ -17,13 +17,13 @@
 /// <reference path="../core/ResourcesResolver.js" />
 /// <reference path="../core/TaskTimer.js" />
 
-window.rin = window.rin || {};
-
 (function (rin) {
+    "use strict";
+    /*global $:true, ko:true*/
     // Simple lite ES that interpolates doubles and uses InterpolatedKeyframeESBase as base class.
     var LiteInterpolatedES = function (orchestrator, esData) {
         LiteInterpolatedES.parentConstructor.apply(this, arguments);
-
+        this._orchestrator = orchestrator;
         this._userInterfaceControl = rin.util.createElementWithHtml(LiteInterpolatedES.elementHTML).firstChild;
         this._valuePlaceholder = $(".rinPlaceholderValue", this._userInterfaceControl)[0];
 
@@ -50,11 +50,11 @@ window.rin = window.rin || {};
         // Apply/Interpolate to a keyframe.
         displayKeyframe: function (keyframeData) {
             rin.util.assignAsInnerHTMLUnsafe(this._valuePlaceholder, keyframeData.state.value.toFixed(1));
-            rin.util.assignAsInnerHTMLUnsafe(this._userInterfaceControl.firstChild, keyframeData.state.text)
+            rin.util.assignAsInnerHTMLUnsafe(this._userInterfaceControl.firstChild, keyframeData.state.text);
         }
     };
 
     rin.util.overrideProperties(LiteInterpolatedES.prototypeOverrides, LiteInterpolatedES.prototype);
     LiteInterpolatedES.elementHTML = "<div style='position:absolute;width:100%;height:100%'><div style='color:red;position:absolute;width:100%;height:100%'></div><div style='color:white;position:absolute;right:20px;top:20px;' class='rinPlaceholderValue'></div></div>";
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.LiteInterpolatedExperienceStream", function (orchestrator, esData) { return new LiteInterpolatedES(orchestrator, esData); });
-})(rin);
+})(window.rin = window.rin || {});

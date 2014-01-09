@@ -2,7 +2,7 @@
 * This controls camera
 * @constructor
 */
-function RotationalFixedPositionCameraController(camera, upperPitchLimit, lowerPitchLimit, upperHeadingLimit, lowerHeadingLimit, enforceViewLimits, minClientPreferredFieldOfView, dimension) {
+function RotationalFixedPositionCameraController(camera, upperPitchLimit, lowerPitchLimit, upperHeadingLimit, lowerHeadingLimit, enforceViewLimits, maxPixelScaleFactor, dimension) {
 
     this._camera = camera;
     this._enforceViewLimits = (enforceViewLimits == null) ? true : enforceViewLimits;
@@ -28,10 +28,9 @@ function RotationalFixedPositionCameraController(camera, upperPitchLimit, lowerP
     this._headingSpring.setCurrentAndTarget(pitchAndHeading[1]);
     this._fieldOfViewSpring.setCurrentAndTarget(this._camera.getVerticalFov());
 
-    this._maxPixelScaleFactor = 2; //Set max zoom such that each source pixel is expanded to 2x2 screen pixels
+    this._maxPixelScaleFactor = maxPixelScaleFactor ? maxPixelScaleFactor : 1; //Set max zoom such that each source pixel is mapped to a single screen pixel
     this._dimension = dimension;
-    this._minClientPreferredFieldOfView = minClientPreferredFieldOfView;
-    this._minFieldOfView = minClientPreferredFieldOfView ? minClientPreferredFieldOfView : MathHelper.degreesToRadians(20);
+    this._minFieldOfView = MathHelper.degreesToRadians(20);
     //****** TODO: Ideally we should take min of pitch range and (corrected value of) the heading range
     this._maxFieldOfView = (this._upperPitchLimit - this._lowerPitchLimit); 
     this.setViewportSize(this._camera.getViewport().getWidth(), this._camera.getViewport().getHeight());
@@ -748,20 +747,20 @@ RotationalFixedPositionCameraController.prototype = {
         for (i = 0; i < unprocessedEvents.length; ++i) {
             e = unprocessedEvents[i];
             switch (e.type) {
-                case 'gesturestart':
+                case 'pxgesturestart':
                     this.onGestureStart(e);
                     break;
-                case 'gesturemove':
+                case 'pxgesturemove':
                     this.onGestureMove(e);
                     break;
-                case 'gestureend':
+                case 'pxgestureend':
                     this.onGestureEnd();
                     break;
-                case 'pinchstart':
-                case 'pinchmove':
+                case 'pxpinchstart':
+                case 'pxpinchmove':
                     this.onPinchStartMove(e);
                     break;
-                case 'pinchend':
+                case 'pxpinchend':
                     this.onPinchEnd(e);
                     break;
                 case 'mousewheel':
@@ -771,13 +770,13 @@ RotationalFixedPositionCameraController.prototype = {
                     zoomOut = (e.delta < 0);
                     this.onDiscreteZoom(e.x, e.y, zoomOut);
                     break;
-                case 'doubletap':
+                case 'pxdoubletap':
                     this._cancelCameraMovements(false);
                     this._userInteracted();
                     zoomOut = false;
                     this.pick(e.x, e.y, zoomOut, this.tapZoomFactor);
                     break;
-                case 'holdstart':
+                case 'pxholdstart':
                     // limit tap and hold gesture to touch
                     if (e.pointerType === 'touch') {
                         $.event.trigger('panohold');
@@ -883,16 +882,16 @@ RotationalFixedPositionCameraController.prototype = {
     },
 
     _updateMinFov: function () {
-        // if _minClientPreferredFieldOfView was specified then honor it, else update the MinFOV
-        if (this._dimension && !this._minClientPreferredFieldOfView) {
+        if (this._dimension) {
             this._minFieldOfView = this._height * MathHelper.degreesToRadians(90) / (this._dimension * this._maxPixelScaleFactor); //let them zoom in until each pixel is expanded to 2x2
         }
     },
 
     setMaxPixelScaleFactor: function (factor) {
-        if (factor < 1) {
-            throw "Max pixel scale factor must be 1 or greater";
-        }
+        // Removing the following condition, since we do want to set the maxPixelScaleFactor to a value less than one so as to limit the zoom sometimes.
+        //if (factor < 1) {
+        //    throw "Max pixel scale factor must be 1 or greater";
+        //}
 
         this._maxPixelScaleFactor = factor;
         this._updateMinFov();

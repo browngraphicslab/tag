@@ -13,13 +13,13 @@
 * 
 */
 module rin.diagnostics {
-
+    "use strict";
     export function newDiagnosticsModule(moduleName: string) {
         var doLog = !!(console && console.log);
         return {
             log: function (...content: string[]) {
                 //document.writeln.apply(document, content);
-                doLog && console.log.apply(console, content);
+                if(doLog) console.log.apply(console, content);
             },
             assert: function assert(cond: any, strCond: string): void {
                 if (!cond) {

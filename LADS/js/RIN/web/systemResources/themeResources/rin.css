@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2013-10-20 */
+/*! RIN | http://research.microsoft.com/rin | 2014-01-05 */
 .rin_selectDisable
 {
     -webkit-user-select: none;
@@ -423,131 +423,6 @@ img.clone
     margin-bottom: 7px;
 }
 
-.rin_blurbMainDiv
-{
-    background-color: transparent;
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-.rin_blurbContainer
-{
-    position: absolute;
-    width: 350px;
-    cursor: pointer;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -o-user-select: none;
-    user-select: none;
-    color: #fcfcfc;
-}
-
-.rin_blurbTitle
-{
-    font-weight: bold;
-    text-transform: uppercase;
-    text-shadow: 2px 2px rgba(0, 0, 0, 0.8);
-}
-
-.rin_blurbDesc
-{
-    max-height: 100px;
-    overflow: hidden;
-    text-shadow: 2px 2px rgba(0, 0, 0, 0.8);
-}
-
-.rin_blurbMoreContainer
-{
-    font-size: 80%;
-    margin-top: 10px;
-}
-
-.rin_blurbMoreIcon
-{
-    float: left;
-}
-
-.rin_blurbMoreText
-{
-    opacity: 0;
-    left: 30px;
-    position: absolute;
-    -moz-transition: all 0.2s ease-out;
-    -o-transition: all 0.2s ease-out;
-    -webkit-transition: all 0.2s ease-out;
-    transition: all 0.2s ease-out;
-    text-shadow: 2px 2px rgba(0, 0, 0, 0.8);
-    bottom: -2px;
-}
-
-.rin_blurbContainer:hover .rin_blurbMoreText
-{
-    opacity: 1;
-    left: 20px;
-}
-div .rin_blurb_top
-{
-    top: 5%;
-}
-div .rin_blurb_left
-{
-    left: 15px;
-}
-div .rin_blurb_right
-{
-    right: 15px;
-}
-div .rin_blurb_bottom
-{
-    bottom: 5%;
-}
-.rin_popup_CBDescription
-{
-    position: absolute;
-    width: 25%;
-    min-width: 300px;
-    right: 0px;
-    float: right;
-    overflow-x: hidden;
-    overflow-y: auto;
-    height: 85%;
-    font-size: 100%;
-    font-weight: normal;
-    line-height: 160%;
-    color: #fcfcfc;
-    background: -moz-linear-gradient(top,  rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 85%, rgba(0,0,0,0.52) 87%, rgba(0,0,0,0) 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0.8)), color-stop(85%,rgba(0,0,0,0.6)), color-stop(87%,rgba(0,0,0,0.52)), color-stop(100%,rgba(0,0,0,0))); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  rgba(0,0,0,0.8) 0%,rgba(0,0,0,0.6) 85%,rgba(0,0,0,0.52) 87%,rgba(0,0,0,0) 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  rgba(0,0,0,0.8) 0%,rgba(0,0,0,0.6) 85%,rgba(0,0,0,0.52) 87%,rgba(0,0,0,0) 100%); /* Opera 11.050+ */
-    background: -ms-linear-gradient(top,  rgba(0,0,0,0.8) 0%,rgba(0,0,0,0.6) 85%,rgba(0,0,0,0.52) 87%,rgba(0,0,0,0) 100%); /* IE10+ */
-    background: linear-gradient(to bottom,  rgba(0,0,0,0.8) 0%,rgba(0,0,0,0.6) 85%,rgba(0,0,0,0.52) 87%,rgba(0,0,0,0) 100%); /* W3C */
-    -moz-transition: all 0.2s ease-out;
-    -o-transition: all 0.2s ease-out;
-    -webkit-transition: all 0.2s ease-out;
-    transition: all 0.2s ease-out;
-}
-
-.rin_popup_CBDescription h1
-{
-    font-weight: bold;
-    font-size: 140%;
-    text-transform: uppercase;
-    margin: 0;
-}
-.rin_popup_CBDescription h2, h3
-{
-    font-weight: normal;
-    font-size: 90%;
-    margin: 0;
-    color: Gray;
-}
-.rin_popup_CBDescText
-{
-    margin: 30px;
-    margin-top: 80px;
-}
-
 .rin_mask_overlay
 {
     position: absolute;
@@ -773,7 +648,7 @@ div .rin_blurb_bottom
     background: transparent;
     overflow: hidden;
     font-family: "Segoe UI" , Tahoma, Geneva, Verdana, sans-serif;
-    max-height: 100px;
+    max-height: 300px;
     top: 50px;
     left: 15px;
     width: 60%;
@@ -826,7 +701,6 @@ html, body, .rinPlayer
     width: 100%;
     font-family: "Segoe" , Tahoma, Geneva, Verdana, sans-serif;
     font-size: 100%;
-    border: 0px !important;
 }
 
 .rin_mainContainer
@@ -836,7 +710,6 @@ html, body, .rinPlayer
     height: 100%;
     width: 100%;
     -ms-touch-action: none;
-    border: none !important;
 }
 
 .rin_ExperienceStream
@@ -844,16 +717,19 @@ html, body, .rinPlayer
     float: left;
     width: 100%;
     height: 100%;
-    border: none !important;
 }
 
-.rin_Header
-{
+.rin_Header {
     position: absolute;
     top: 0px;
     width: 100%;
     height: 40px;
-    background-color: black;
+    background-image: -ms-linear-gradient(bottom, #FFFFFF -200%, #000000 100%); /* IE10 Consumer Preview */
+    background-image: -moz-linear-gradient(bottom, #FFFFFF -200%, #000000 100%); /* Mozilla Firefox */
+    background-image: -o-linear-gradient(bottom, #FFFFFF -200%, #000000 100%); /* Opera */
+    background-image: -webkit-gradient(linear, left bottom, left top, color-stop(-2, #FFFFFF), color-stop(1, #000000)); /* Webkit (Safari/Chrome 10) */
+    background-image: -webkit-linear-gradient(bottom, #FFFFFF -200%, #000000 100%); /* Webkit (Chrome 11+) */
+    background-image: linear-gradient(to top, #FFFFFF -200%, #000000 100%); /* W3C Markup, IE10 Release Preview */
     font-size: 80%;
     opacity: 0.7;
     z-index: 100000;
@@ -864,12 +740,10 @@ html, body, .rinPlayer
     float: left;
     margin: 10px 0 0 15px;
     text-transform: uppercase;
-    border: none !important;
 }
 
 .rin_HeaderCenter
 {
-    border: none !important;
 }
 
 .rin_HeaderRight
@@ -877,7 +751,6 @@ html, body, .rinPlayer
     float: right;
     margin: 10px 15px 0 0;
     color: silver;
-    border: none !important;
 }
 
 
@@ -885,7 +758,7 @@ html, body, .rinPlayer
 {
     width: 20px;
     height: 20px;
-    border: 0px !important;
+    border: 0px;
     background-image: url('images/BlankButton.png');
     background-repeat: no-repeat;
     background-color: transparent;
@@ -900,8 +773,7 @@ html, body, .rinPlayer
     position: relative;
     margin-left: auto;
     margin-right: auto;
-    width: 90px;
-    border: none !important;
+    width: 120px;
 }
 
 .rin_EditNarrative
@@ -912,7 +784,6 @@ html, body, .rinPlayer
     top: 20px;
     min-width: 80%;
     min-height: 100%;
-    border: none !important;
 }
 
 .rin_deepstateCapture
@@ -923,7 +794,6 @@ html, body, .rinPlayer
     top: 20px;
     min-width: 80%;
     min-height: 100%;
-    border: none !important;
 }
 
 .rin_EditNarrativeText
@@ -933,7 +803,6 @@ html, body, .rinPlayer
     margin-left: auto;
     margin-right: auto;
     display: block;
-    border: none !important;
 }
 
 .rin_SelfTestNarrative
@@ -959,7 +828,12 @@ html, body, .rinPlayer
     color: white;
     margin-left: auto;
     margin-right: auto;
-    border: none !important;
+}
+
+.rin_TroubleshooterLogHolder{
+    display: inline-block;
+    background-color: rgba(0,0,0,0.47);
+    color: white;
 }
 
 .rin_Footer
@@ -969,20 +843,17 @@ html, body, .rinPlayer
     position: absolute;
     bottom: 0px;
     z-index: 150000;
-    border: none !important;
-    background-color:rgba(0,0,0,0.5);
 }
 
 .rin_FooterBackground
 {
-    /*background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIwIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
     background: -moz-linear-gradient(top,  rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%); /* FF3.6+ */
-    /*background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(100%,rgba(0,0,0,1))); /* Chrome,Safari4+ */
-    /*background: -webkit-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%); /* Chrome10+,Safari5.1+ */
-    /*background: -o-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%); /* Opera 11.050+ */
-    /*background: -ms-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%); /* IE10+ */
-    /*background: linear-gradient(to bottom,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%); /* W3C        */
-    
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(100%,rgba(0,0,0,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%); /* Opera 11.050+ */
+    background: -ms-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%); /* W3C */
     width: 100%;
     height: 100%;
     bottom: 0px;
@@ -991,16 +862,11 @@ html, body, .rinPlayer
 
 .rin_PlayPauseContainer
 {
-    margin-bottom: 7px !important;
-    /*display:inline;*/
-    margin-top: 7px !important;
-    /*float: left;*/
-    left:0px;
-    width:7%;
-    margin-right: 4px !important;
+    margin-bottom: 7px;
+    margin-top: 7px;
+    float: left;
+    margin-right: 4px;
     position: relative;
-    border: 0px !important;
-    height:100%;
 }
 
 .rin_InteractiveContainer
@@ -1008,19 +874,15 @@ html, body, .rinPlayer
     float: left;
     margin: 0px;
     display: inline-block;
-    border: none !important;
 }
 
 .rin_RightContainer
 {
     float: right;
-    /*margin-right: 15px;*/
+    margin-right: 15px;
     position: relative;
-    right:0px;
     margin: 0px;
     display: inline-block;
-    border: none !important;
-    width:18%;
 }
 
 .rin_Footer ul
@@ -1042,7 +904,6 @@ html, body, .rinPlayer
     -moz-transition: all .2s ease;
     -o-transition: all .2s ease;
     transition: all .2s ease;
-    border: none !important;
 }
 
 .rin_Footer ul li img
@@ -1054,26 +915,18 @@ html, body, .rinPlayer
     -moz-transition: all .2s ease;
     -o-transition: all .2s ease;
     transition: all .2s ease;
-    border: none !important;
-}
-
-.rin_debugCurrentTime {
-    position:absolute;
-    left:10%;
-    top:35%;
 }
 
 .rin_Button
 {
-    border: 0px !important;
+    border: 0px;
     background-color: transparent;
-    height: 50px !important;
-    width: 50px !important;
+    height: 40px;
+    width: 40px;
     -webkit-transition: all .2s ease;
     -moz-transition: all .2s ease;
     -o-transition: all .2s ease;
     transition: all .2s ease;
-    min-width: 32px !important;
 }
 
 .rin_Footer ul li img:active
@@ -1094,100 +947,67 @@ html, body, .rinPlayer
 .rin_TimelineHolder .rin_SliderContainer
 {
     position: absolute;
-    left: 20%;
-    bottom: 34%;
-    height: 20%;
-    width: 60%;
+    left: 0px;
+    bottom: 0px;
+    height: 10px;
+    width: 100%;
     display: inline-block;
 }
-.rin_SliderContainer {
-    background-color:rgba(0,0,0,0.5);
-    border-style:solid;
-    border-color:#fff;
-    border-width:2px;
+
+.rin_TimelineHolder .rin_timeMarker 
+{
+    position:absolute;
+    background-color:yellow;
+    width:2px;
+    height:100%;
 }
 
-.rin_Slider {
-    background-color:white;
-}
+
 .rin_TimelineHolder .rin_SliderContainer .rin_Slider
 {
     position: absolute;
     bottom: 0px;
-    height: 100%;
-    width:6px;
+    height: 10px;
+    background: #33CCFF;
 }
 
 .rin_Play
 {
     background-image: url('images/play.png');
-    background-size: 100% 100%;
     background-repeat: no-repeat;
-    margin-left: 10px !important;
-    height: 50px !important;
-    width: 50px !important;
-    float:right;
+    margin-left: 10px;
 }
 
 .rin_Pause
 {
     background-image: url('images/pause.png');
-    background-size: 100% 100%;
     background-repeat: no-repeat;
-    margin-left: 10px !important;
-    height: 50px !important;
-    width: 50px !important;
-    float:right;
+    margin-left: 10px;
 }
 
 .rin_Volume
 {
-    background-image: url('images/volume.png');    
-    background-size: 100% 100%;
+    background-image: url('images/volume.png');
     background-repeat: no-repeat;
     clear: both;
-    /*float: left;*/
-    position: relative;
-    margin:0px !important;
-    margin-left: 25% !important;
-    /*margin-top:0%;*/
-    height: 50px !important;
-    width: 50px !important;
+    height: 36px;
+    width: 36px;
 }
 
 .rin_Mute
 {
-    background-image: url('images/volume.png');    
-    background-size: 100% 100%;
+    background-image: url('images/volume.png');
     background-repeat: no-repeat;
     clear: both;
-    float: left;
-    position: relative;
-    margin:0px !important;
-    margin-left: 25% !important;
-    /*margin-top:0%;*/
-    height: 50px !important;
-    width: 50px !important;
+    height: 36px;
+    width: 36px;
 }
 
-.rin_Loop
+.rin_FullScreen
 {
-    background-image: url('images/loop_white.svg');
+    background-image: url('images/Collapse.png');
     background-repeat: no-repeat;
-    position:absolute;
-    background-size:100% 100%;
-    bottom:0px;
 }
-
-.rin_NoLoop
-{
-    background-image: url('images/loop_gray.svg');
-    background-repeat: no-repeat;
-    position:absolute;
-    background-size:100% 100%;
-    bottom:0px;
-}
-
 
 .rin_RestoreScreen
 {
@@ -1207,43 +1027,49 @@ html, body, .rinPlayer
     z-index: 9999999 !important;
 }
 
+.rin_VolumeControl
+{
+    margin-bottom: 7px;
+    height: 36px;
+    width: 36px;
+}
+
+.rin_debugCurrentTime {
+    font-size:small;
+    color:silver;
+    margin-top:18px;
+}
+
 .rinDefaultVolumeControl
 {
-    left:100px;
     position: absolute;
-    bottom: 0px;    
+    bottom: 0px;
 }
 
 .rin_VolumeSliderPlaceHolder
 {
     clear: both;
     position: relative;
-    float: left;
-    height: 300px;
-    width: 150%;
-    background-color:rgba(0,0,0,0.5);
+    height: 80px;
+    width: 20px;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 6px;
-    border-top-right-radius: 5px;
-    border-top-left-radius: 5px;
+    margin-bottom: 2px;
 }
 
 .rin_VolumeSliderPlaceHolder .rin_SliderContainer
 {
-    width: 20%;
-    height: 85%;
-    margin: 0 auto;
-    background-color: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.47);
     display: block;
-    position: relative;
-    /*left:23%;*/
-    top: 7.5%;
-
+    position: absolute;
+    bottom: 0px;
 }
 
 .rin_VolumeSliderPlaceHolder .rin_SliderContainer .rin_Slider
 {
+    background: #33CCFF;
     bottom: 0;
     position: absolute;
     width: 100%;
@@ -1253,35 +1079,18 @@ html, body, .rinPlayer
 {
     margin-bottom: 7px;
     margin-top: 7px;
-    height: 36px !important;
-    width: 36px !important;
+    height: 36px;
+    width: 36px;
 }
 
 .rin_MailShareButton {
     margin-bottom: 7px;
     margin-top: 7px;
-    height: 36px !important;
-    width: 36px !important;
+    height: 36px;
+    width: 36px;
     background-image: url('images/mail.png');
     background-repeat: no-repeat;
 }
-
-a {
-    border: none !important;
-}
-
-img {
-    border: none !important;
-}
-
-select {
-    border: none !important;
-}
-
-input {
-    border: none;
-}
-
 
 
 .rin_popup
@@ -1382,7 +1191,7 @@ input {
     margin: 15px 15px 0px 0px;
     float: right;
     right: 5px;
-    background: #000 url(images/description.png) no-repeat center center;
+    background: transparent url(images/description.png) no-repeat center center;
     width: 32px;
     height: 32px;
     opacity: 0.7;

@@ -1,0 +1,6 @@
+[{
+    "collection": {
+        "items": {
+        }
+    }
+}]

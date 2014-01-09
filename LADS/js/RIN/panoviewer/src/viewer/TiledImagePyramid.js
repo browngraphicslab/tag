@@ -3,10 +3,10 @@
  */
 
 var TileId = function(levelOfDetail, x, y) {
-    var self = this;
-    self.x = Math.floor(x);
-    self.y = Math.floor(y);
-    self.levelOfDetail = Math.floor(levelOfDetail);
+    this.x = Math.floor(x);
+    this.y = Math.floor(y);
+    this.levelOfDetail = Math.floor(levelOfDetail);
+    this.id = '(' + this.x + ',' + this.y + ',' + this.levelOfDetail + ')';
 };
 
 TileId.prototype = {
@@ -31,21 +31,20 @@ TileId.prototype = {
     },
 
     isChildOf : function (other) {
-        if(this.levelOfDetail <  other.levelOfDetail) {
+        if(this.levelOfDetail < other.levelOfDetail) {
             return false;
         }
-
-        var lodDifference = this.levelOfDetail - other.levelOfDetail;
+        
         return (this.x >> this.levelOfDetail) === other.x &&
                (this.y >> this.levelOfDetail) === other.y;
     },
 
     equals : function(other) {
-        return this.x === other.x && this.y === other.y && this.levelOfDetail  === this.levelOfDetail;
+        return this.x === other.x && this.y === other.y && this.levelOfDetail === this.levelOfDetail;
     },
 
     toString: function() {
-        return '(' + this.x + ',' + this.y + ',' + this.levelOfDetail + ')';
+        return this.id;
     }
 };
 

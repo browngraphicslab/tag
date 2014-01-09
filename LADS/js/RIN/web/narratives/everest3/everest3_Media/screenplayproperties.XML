@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <scpinfo Id="SCP1" includes="">
+    <Item Key="endActionUrl">
+      <EndActionUrlProperty EndActionUrl="http://default/?screenPlayId=LuklaPost;seekTime=0.0&amp;amp;action=play" BeforeEndAction="pause" />
+    </Item>
+  </scpinfo>
+  <scpinfo Id="LuklaPost" includes="">
+    <Item Key="endActionUrl">
+      <EndActionUrlProperty EndActionUrl="http://default/?screenPlayId=Jorsalle;seekTime=0.0&amp;amp;action=play" BeforeEndAction="pause" />
+    </Item>
+  </scpinfo>
+  <scpinfo Id="Jorsalle" includes="">
+    <Item Key="endActionUrl">
+      <EndActionUrlProperty EndActionUrl="http://default/?screenPlayId=JorsallePost;seekTime=0.0&amp;amp;action=play" BeforeEndAction="pause" />
+    </Item>
+  </scpinfo>
+  <scpinfo Id="JorsallePost" includes="">
+    <Item Key="endActionUrl">
+      <EndActionUrlProperty EndActionUrl="http://default/?screenPlayId=NamcheV;seekTime=0.0&amp;amp;action=play" BeforeEndAction="pause" />
+    </Item>
+  </scpinfo>
+  <scpinfo Id="NamcheV" includes="">
+    <Item Key="endActionUrl">
+      <EndActionUrlProperty EndActionUrl="http://default/?screenPlayId=NamcheVPost;seekTime=0.0&amp;amp;action=play" BeforeEndAction="pause" />
+    </Item>
+  </scpinfo>
+  <scpinfo Id="NamcheVPost" includes="">
+    <Item Key="endActionUrl">
+      <EndActionUrlProperty EndActionUrl="http://default/?screenPlayId=NamcheB;seekTime=0.0&amp;amp;action=play" BeforeEndAction="pause" />
+    </Item>
+  </scpinfo>
+  <scpinfo Id="NamcheB" includes="">
+    <Item Key="endActionUrl">
+      <EndActionUrlProperty EndActionUrl="http://default/?screenPlayId=NamcheBPost;seekTime=0.0&amp;amp;action=play" BeforeEndAction="pause" />
+    </Item>
+  </scpinfo>
+  <scpinfo Id="NamcheBPost" includes="">
+    <Item Key="endActionUrl">
+      <EndActionUrlProperty EndActionUrl="http://default/?screenPlayId=NamcheV2;seekTime=0.0&amp;amp;action=play" BeforeEndAction="pause" />
+    </Item>
+  </scpinfo>
+  <scpinfo Id="NamcheV2" includes="">
+    <Item Key="endActionUrl">
+      <EndActionUrlProperty EndActionUrl="http://default/?screenPlayId=Gorek;seekTime=0.0&amp;amp;action=play" BeforeEndAction="pause" />
+    </Item>
+  </scpinfo>
+  <scpinfo Id="Gorek" includes="">
+    <Item Key="endActionUrl">
+      <EndActionUrlProperty EndActionUrl="http://default/?screenPlayId=PumoRi;seekTime=0.0&amp;amp;action=play" BeforeEndAction="pause" />
+    </Item>
+  </scpinfo>
+  <scpinfo Id="PumoRi" includes="">
+    <Item Key="endActionUrl">
+      <EndActionUrlProperty EndActionUrl="http://default/?screenPlayId=;seekTime=0.0&amp;amp;action=play" BeforeEndAction="pause" />
+    </Item>
+  </scpinfo>
+</root>

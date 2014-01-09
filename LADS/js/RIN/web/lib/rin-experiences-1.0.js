@@ -1,6 +1,6 @@
-/*! RIN | http://research.microsoft.com/rin | 2013-10-20 */
+/*! RIN | http://research.microsoft.com/rin | 2014-01-05 */
 (function() {
-
+    "use strict";
     var rin = window.rin || {};
     window.rin = rin;
 
@@ -1257,6 +1257,8 @@ window.rin = window.rin || {};
 window.rin = window.rin || {};
 
 (function (rin) {
+    /*global $:true, ko:true*/
+    "use strict";
     // ES for playing video clips.
     var VideoES = function (orchestrator, esData) {
         VideoES.parentConstructor.apply(this, arguments);
@@ -1269,7 +1271,7 @@ window.rin = window.rin || {};
         this._url = orchestrator.getResourceResolver().resolveResource(esData.resourceReferences[0].resourceId, esData.experienceId);
 
         // Handle any interaction on the video and pause the player.
-        $(this._userInterfaceControl).bind("mousedown", function (e) {
+        $(this._userInterfaceControl).bind("mousedown", function () {
             self._orchestrator.pause();
         });
     };
@@ -1324,8 +1326,7 @@ window.rin = window.rin || {};
             };
 
             // Handle ready state change and change the ES state accordingly.
-            this._video.onreadystatechange = function (args) {
-                var state = self._video.state();
+            this._video.onreadystatechange = function () {
                 self.readyStateCheck();
             };
 
@@ -1402,7 +1403,7 @@ window.rin = window.rin || {};
             this._updateMute();
         },
 
-        onESEvent: function (sender, eventId, eventData) {
+        onESEvent: function (sender, eventId) {
             if (eventId === rin.contracts.esEventIds.playerConfigurationChanged) {
                 this._updateMute();
             }
@@ -1412,7 +1413,7 @@ window.rin = window.rin || {};
         },
 
         // Handle seeking of video.
-        _seek: function (offset, experienceStreamId) {
+        _seek: function (offset) {
             offset += this._startMarker;
 
             // See if the video element is ready.
@@ -1442,10 +1443,6 @@ window.rin = window.rin || {};
             if (keyframe && keyframe.state && keyframe.state.sound) {
                 return keyframe.state.sound.volume;
             }
-            else if (keyframe && keyframe.data && keyframe.data["default"]) {
-                var data = rin.internal.XElement(keyframeData.data["default"]);
-                if (data) return parseFloat(curData.attributeValue("Volume"));
-            }
             return 1;
         },
         _setAudioVolume: function (value) {
@@ -1474,7 +1471,7 @@ window.rin = window.rin || {};
     VideoES.elementHTML = "<video style='height:100%;width:100%;position:absolute' preload='auto'>Sorry, Your browser does not support HTML5 video.</video>";
     rin.util.overrideProperties(VideoES.prototypeOverrides, VideoES.prototype);
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.VideoExperienceStream", function (orchestrator, esData) { return new VideoES(orchestrator, esData); });
-})(rin);
+})(window.rin);
 
 /*!
 * RIN Experience Provider JavaScript Library v1.0
@@ -1495,9 +1492,9 @@ window.rin = window.rin || {};
 /// <reference path="../core/ResourcesResolver.js" />
 /// <reference path="../core/TaskTimer.js" />
 
-window.rin = window.rin || {};
-
 (function (rin) {
+    "use strict";
+
     // Code audio es to provide background as well as foreground audio.
     var AudioES = function (orchestrator, esData) {
         AudioES.parentConstructor.apply(this, arguments);
@@ -1507,7 +1504,7 @@ window.rin = window.rin || {};
         this._audio = this._userInterfaceControl.firstChild;
         this._esData = esData;
 
-        this._isBackgroundAudioMode = false; //this._esData.data.markers && this._esData.data.markers.isBackgroundAudioMode;
+        this._isBackgroundAudioMode = this._esData.data.markers && this._esData.data.markers.isBackgroundAudioMode;
         if (this._isBackgroundAudioMode) {
             this._audio.loop = true;
         }
@@ -1522,8 +1519,6 @@ window.rin = window.rin || {};
         if (typeof pauseVolume === "number") {
             this._pauseVolume = pauseVolume < 0 ? 0 : pauseVolume > 1 ? 1 : pauseVolume;
         }
-
-        this._desiredAudioPosition = -1;
 
         this._url = orchestrator.getResourceResolver().resolveResource(esData.resourceReferences[0].resourceId, esData.experienceId);
     };
@@ -1552,79 +1547,48 @@ window.rin = window.rin || {};
             rin.internal.debug.write("Load called for " + this._url);
 
             // Handle any error while loading audio.
-            this._audio.onerror = function (errorString) {
-                var errorStr = "Audio failed to load. Error: " + (self._audio.error ? self._audio.error.code : error) + "<br/>Url: " + self._url,
-                    esInfo = self._orchestrator.debugOnlyGetESItemInfo();
+            this._audio.onerror = function (error) {
+                var errorString = "Audio failed to load. Error: " + (self._audio.error ? self._audio.error.code : error) + "<br/>Url: " + self._url;
+                var esInfo = self._orchestrator.debugOnlyGetESItemInfo();
                 if (esInfo) {
-                    errorStr += "<br/>ES Info: {0}:{1} <br/>Lifetime {2}-{3}".rinFormat(esInfo.providerName, esInfo.id,
+                    errorString += "<br/>ES Info: {0}:{1} <br/>Lifetime {2}-{3}".rinFormat(esInfo.providerName, esInfo.id,
                     esInfo.beginOffset, esInfo.endOffset);
                 }
-                try {
-                    this._audio.pause();
-                } catch (e) {
-                    // audio tag is broken, no need to pause
-                }
-                self._orchestrator.eventLogger.logErrorEvent(errorStr);
+                self._orchestrator.eventLogger.logErrorEvent(errorString);
                 self.setState(rin.contracts.experienceStreamState.error);
-            };
-            //this._audio.onsuspend = function (args) {
-            //    // do nothing for now
-            //};
-            //this._audio.onabort = function (args) {
-            //    // do nothing for now
-            //};
-            this._audio.onstalled = function (args) {
-                // Not dead / real error yet, but something is probably wrong
-                console.log("STALLED STALLED STALLED STALLED STALLED!!!!!");
             };
 
             // Handle load complete of audio.
-            this._audio.oncanplaythrough = function () {
+            this._audio.oncanplay = function () {
                 rin.internal.debug.write("oncanplay called from " + self._url);
-                self.setState(rin.contracts.experienceStreamState.ready);
-                if (self._desiredAudioPosition >= 0 && Math.abs(self._audio.currentTime - self._desiredAudioPosition) > 0.01 /*epsilon*/) {
-                    self._seekAudio(self._desiredAudioPosition);
-                    self._desiredAudioPosition = -1;
+                if (self._desiredAudioPositon >= 0 && Math.abs(self._audio.currentTime - self._desiredAudioPositon) > 0.01 /*epsilon*/) {
+                    self._seekAudio(self._desiredAudioPositon);
+                    self._desiredAudioPositon = -1;
                 }
             };
 
-            // Handle running out of audio to play during playback
-            var isWaitingOver = function () {
-                if (self._audio.readyState >= 3) {
-                    self.setState(rin.contracts.experienceStreamState.ready);
-                    if (self._desiredAudioPosition >= 0 && Math.abs(self._audio.currentTime - self._desiredAudioPosition) > 0.01 /*epsilon*/) {
-                        self._seekAudio(self._desiredAudioPosition);
-                        self._desiredAudioPosition = -1;
-                    }
-                } else {
-                    setTimeout(isWaitingOver, 5);
-                }
-            };
-            this._audio.onwaiting = function () {
-                rin.internal.debug.write("onwaiting called from " + self._url);
-                self.setState(rin.contracts.experienceStreamState.buffering);
-                isWaitingOver();
+            // Handle ready state change to get notified on buffering start and stop.
+            this._audio.onreadystatechange = function () {
+                self.readyStateCheck();
             };
 
-            // RL: got rid of this, timeout check is completely unnecessary
             // Constantly check if the audio is ready and update the state as necessary.
-            //this.readyStateCheck = function () {
-            //    console.log("AUDIO LOADING IN AUDIOES");
-            //    var state = self.getState();
-            //    if ((self._isMediaLoaded && state == rin.contracts.experienceStreamState.ready) || state == rin.contracts.experienceStreamState.error) return;
+            this.readyStateCheck = function () {
+                var state = self.getState();
+                if ((self._isMediaLoaded && state === rin.contracts.experienceStreamState.ready) || state === rin.contracts.experienceStreamState.error) return;
 
-            //    if (self._audio.readyState === self.const_ready_state) {
-            //        if (!self._isMediaLoaded){
-            //            self._isMediaLoaded = true;
-            //            self.setState(rin.contracts.experienceStreamState.ready);
-            //            self._startBackgroundAudioOnReady();
-            //        }
-            //    }
-            //    else {
-            //        if (!self._isBackgroundAudioMode) self.setState(rin.contracts.experienceStreamState.buffering);
-            //        setTimeout(self.readyStateCheck, 250);
-            //    }
-            //}
+                if (self._audio.readyState === self.const_ready_state) {
+                    if (!self._isMediaLoaded) {
+                        self._isMediaLoaded = true;
+                        self.setState(rin.contracts.experienceStreamState.ready);
+                        self._startBackgroundAudioOnReady();
+                    }
+                }
+                else {
+                    if (!self._isBackgroundAudioMode) self.setState(rin.contracts.experienceStreamState.buffering);
+                    setTimeout(self.readyStateCheck, 250);
+                }
+            };
 
             // Set audio sources with all supported formats
             var baseUrl = (this._url.substr(0, this._url.lastIndexOf('.')) || this._url) + ".";
@@ -1634,17 +1598,15 @@ window.rin = window.rin || {};
                 srcElement.setAttribute("src", baseUrl + this._supportedFormats[i].ext);
                 this._audio.appendChild(srcElement);
             }
-            this._audio.load();
 
-            //if (this._isBackgroundAudioMode) {
-            //    self.setState(rin.contracts.experienceStreamState.ready);
-            //}
+            if (this._isBackgroundAudioMode) {
+                self.setState(rin.contracts.experienceStreamState.ready);
+            }
 
-            //this.readyStateCheck();
+            this.readyStateCheck();
         },
         // Unload the ES.
         unload: function () {
-            console.log("AUDIO UNLOAD CALLED");
             try {
                 this._audio.pause();
                 var srcElements = this._audio.getElementsByTagName("source");
@@ -1654,21 +1616,25 @@ window.rin = window.rin || {};
                 }
                 this._audio.removeAttribute("src");
                 this._audio.load(); //As per Best practices  - http://dev.w3.org/html5/spec-author-view/video.html#best-practices-for-authors-using-media-elements
-            } catch (e) { rin.internal.debug.assert(!e);} // Ignore errors on unload.
+            } catch (e) { rin.internal.debug.assert(!e); } // Ignore errors on unload.
         },
         // Play from the given offset.
         play: function (offset, experienceStreamId) {
-            console.log("Audio play, " + this._esData.experienceId + ', time: ' + offset);
-
             try {
-                this._updateMute();
-                this._playPauseActionCount++;
-                if (offset <= this._audio.duration) {
-                    this._seekAudio(offset);
-                    this._audio.play();
-                } else {
-                    this._audio.pause();
+                var preserveContinuity = this._isBackgroundAudioMode; //ToDO: enable this after everest. && this._currentExperienceStreamId !== experienceStreamId;
+                if (preserveContinuity) {
+                    this._startMarker = this._audio.currentTime;
                 }
+                else {
+                    var effectiveOffset = this._isBackgroundAudioMode ? ((this._startMarker + offset) % this._audio.duration) : offset;
+                    this._seekAudio(effectiveOffset);
+                }
+
+                this._updateMute();
+                var effectiveVolume = this._computeEffectiveVolume(this._esBaseVolume);
+                this._playPauseActionCount++;
+                this._animateVolume(this.const_animation_time, effectiveVolume);
+                this._audio.play();
             } catch (e) {
                 rin.internal.debug.assert(false, "exception at audio element " + e.Message);
             }
@@ -1679,9 +1645,18 @@ window.rin = window.rin || {};
         // Pause at the given offset.
         pause: function (offset, experienceStreamId) {
             try {
+                var preserveContinuity = this._isBackgroundAudioMode; //ToDO: enable this after everest. && this._currentExperienceStreamId !== experienceStreamId;
+                if (!preserveContinuity) {
+                    var effectiveOffset = this._isBackgroundAudioMode ? ((this._startMarker + offset) % this._audio.duration) : offset;
+                    this._seekAudio(effectiveOffset);
+                }
+
+                var effectiveVolume = this._orchestrator.getIsOnStage() ? this._computeEffectiveVolume(this._pauseVolume) : 0;
                 this._playPauseActionCount++;
-                this._audio.pause();
-                this._seekAudio(offset);
+                var localPlayPauseActionCount = this._playPauseActionCount; // This takes care of multiple calls to _animateVolume. Callback will be called only for last play or pause action.
+                this._animateVolume(this.const_animation_time, effectiveVolume, function () {
+                    if (localPlayPauseActionCount === this._playPauseActionCount && !this._isBackgroundAudioMode) this._audio.pause();
+                }.bind(this));
             } catch (e) {
                 rin.internal.debug.assert(false, "exception at audio element " + e.Message);
             }
@@ -1689,18 +1664,15 @@ window.rin = window.rin || {};
             // Call pause on parent to maintain keyframe integrity.
             AudioES.parentPrototype.pause.call(this, offset, experienceStreamId);
         },
-
         // Set the base volume for the ES. This will get multiplied with the keyframed volume to get to the final applied volume.
         setVolume: function (baseVolume) {
             this._orchestratorVolume = baseVolume;
             var effectiveVolume = this._computeEffectiveVolume();
-            this._audio.volume = Math.min(1, Math.max(0, effectiveVolume));
-            //this._animateVolume(this.const_animation_time, effectiveVolume);
-            console.log("effective volume = " + effectiveVolume);
+            this._animateVolume(this.const_animation_time, effectiveVolume);
         },
 
         // Mute or Unmute the audio.
-        setIsMuted: function (value) {
+        setIsMuted: function () {
             this._updateMute();
         },
 
@@ -1719,7 +1691,7 @@ window.rin = window.rin || {};
             }
         },
 
-        _startBackgroundAudioOnReady: function(){
+        _startBackgroundAudioOnReady: function () {
             if (!this._isBackgroundAudioMode) return;
 
             //TODO: After everest, pass right offset and screenplayId to play/pause methods.
@@ -1733,38 +1705,30 @@ window.rin = window.rin || {};
 
         // Seek to a position in the audio.
         _seekAudio: function (offset) {
-            var epsilon = 0.1; // Ignore minute seeks.
-            var debug = this._audio.currentTime;
+            var epsilon = 0.4; // Ignore minute seeks.
             if (Math.abs(this._audio.currentTime - offset) < epsilon) return;
 
             // See if the video element is ready.
-            if (this._isBackgroundAudioMode || offset <= this._audio.duration) {
-                if (this._audio.readyState >= 1) { // 1 is metadata state
-                    // In IE, video cannot seek before its initialTime. This property doesn't exist in Chrome.
-                    if (this._audio.initialTime) {
-                        offset = Math.max(offset, this._audio.initialTime);
-                    }
+            if (this._audio.readyState === this.const_ready_state) {
+                // In IE, video cannot seek before its initialTime. This property doesn't exist in Chrome.
+                if (this._audio.initialTime) {
+                    offset = Math.max(offset, this._audio.initialTime);
+                }
 
-
-                    rin.internal.debug.assert(this._audio.seekable);
-                    // See if we can seek to the specified offset.
-                    var didSeek = false;
-                    if (this._audio.seekable) {
-                        for (var i = 0; i < this._audio.seekable.length; i++) {
-                            if (this._audio.seekable.start(i) <= offset && offset <= this._audio.seekable.end(i)) {
-                                this._audio.currentTime = offset;
-                                didSeek = true;
-                                break;
-                            }
+                rin.internal.debug.assert(this._audio.seekable);
+                // See if we can seek to the specified offset.
+                if (this._audio.seekable) {
+                    for (var i = 0; i < this._audio.seekable.length; i++) {
+                        if (this._audio.seekable.start(i) <= offset && offset <= this._audio.seekable.end(i)) {
+                            this._audio.currentTime = offset;
+                            break;
                         }
                     }
-                    if (!didSeek) {
-                        this._desiredAudioPosition = offset;
-                    }
                 }
-                else {
-                    this._desiredAudioPosition = offset;
-                }
+                this._desiredAudioPositon = offset;
+            }
+            else {
+                this._desiredAudioPositon = offset;
             }
         },
         // Apply/Interpolate to a keyframe.
@@ -1776,27 +1740,27 @@ window.rin = window.rin || {};
                 currentKeyframeVolume = this._getKeyframeVolume(keyframeData);
 
                 // start volume interpolation to next key volume if one is present.
-                if (nextKeyframeData) {
+                if (nextKeyframeData !== null) {
                     nextKeyframeVolume = this._getKeyframeVolume(nextKeyframeData);
                     var keyframeDuration = nextKeyframeData.offset - keyframeData.offset;
                     var animation = new rin.internal.DoubleAnimation(keyframeDuration, currentKeyframeVolume, nextKeyframeVolume);
                     currentKeyframeVolume = animation.getValueAt(interpolationOffset);
-                    this._audio.volume = this._computeEffectiveVolume(currentKeyframeVolume);
-                    this._animateVolume(keyframeDuration - interpolationOffset, this._computeEffectiveVolume(nextKeyframeVolume));
+                    this._audio.volume = currentKeyframeVolume;
+                    this._animateVolume(keyframeDuration - interpolationOffset, nextKeyframeVolume);
                 }
                 else {
-                    this._audio.volume = this._computeEffectiveVolume(currentKeyframeVolume);
+                    this._audio.volume = currentKeyframeVolume;
                 }
             }
         },
 
-        _getKeyframeVolume:function(keyframe){
+        _getKeyframeVolume: function (keyframe) {
             if (keyframe && keyframe.state && keyframe.state.sound) {
                 return keyframe.state.sound.volume;
             }
             else if (keyframe && keyframe.data && keyframe.data["default"]) {
-                var data = rin.internal.XElement(keyframeData.data["default"]);
-                if (data) return parseFloat(curData.attributeValue("Volume"));
+                var data = rin.internal.XElement(keyframe.data["default"]);
+                if (data) return parseFloat(data.attributeValue("Volume"));
             }
             return 1;
         },
@@ -1807,7 +1771,7 @@ window.rin = window.rin || {};
         },
 
         _computeEffectiveVolume: function (multiplicationFactor) {
-            return this._orchestratorVolume * this._getCurrentKeyframeVolume() * ((typeof multiplicationFactor === "number") ? multiplicationFactor: 1);
+            return this._orchestratorVolume * this._getCurrentKeyframeVolume() * ((typeof multiplicationFactor === "number") ? multiplicationFactor : 1);
         },
 
         // Interpolate volume for smooth fade in and out.
@@ -1837,15 +1801,15 @@ window.rin = window.rin || {};
             volumeAnimationStoryboard.begin();
             this._activeVolumeAnimation = volumeAnimationStoryboard;
         },
-        _updateMute: function(){
+        _updateMute: function () {
             var playerConfiguration = this._orchestrator.getPlayerConfiguration();
             var isMuted = playerConfiguration.isMuted || (playerConfiguration.activePopup && playerConfiguration.activePopup.hasAudio)
                 || (this._isBackgroundAudioMode && playerConfiguration.isMusicMuted) || (!this._isBackgroundAudioMode && playerConfiguration.isNarrativeMuted);
             this._audio.muted = !!isMuted;
         },
         const_ready_state: 4,
-        const_animation_time: 0,
-        _desiredAudioPosition: -1, // Store audio seek location in case of audio is not yet ready.
+        const_animation_time: 1.0,
+        _desiredAudioPositon: -1, // Store audio seek location in case of audio is not yet ready.
         _url: null,
         _activeVolumeAnimation: null, // storyboard of an active volume interpolation.
         _orchestratorVolume: 1, // volume from orchestrator.
@@ -1858,9 +1822,9 @@ window.rin = window.rin || {};
         _isMediaLoaded: false,
         // List of formats supported by the ES. Browser will pick the first one which it supports.
         // All the below sources are added to the Audio tag irrespective of the source file format.
-        _supportedFormats : [
+        _supportedFormats: [
             { ext: "ogg", type: "audio/ogg; codecs=\"theora, vorbis\"" },
-            { ext: "mp3", type: "audio/mpeg" },
+            { ext: "mp3", type: "audio/mp3" },
             { ext: "mp4", type: "audio/mp4" },
             { ext: "aac", type: "audio/aac" },
             { ext: "wav", type: "audio/wav" }
@@ -1870,7 +1834,7 @@ window.rin = window.rin || {};
     AudioES.elementHTML = "<audio style='height:0;width:0' preload='auto'>Sorry, Your browser does not support HTML5 audio.</audio>";
     rin.util.overrideProperties(AudioES.prototypeOverrides, AudioES.prototype);
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.AudioExperienceStream", function (orchestrator, esData) { return new AudioES(orchestrator, esData); });
-})(rin);
+})(window.rin = window.rin || {});
 /*!
 * RIN Experience Provider JavaScript Library v1.0
 * http://research.microsoft.com/rin
@@ -1891,9 +1855,9 @@ window.rin = window.rin || {};
 /// <reference path="../core/TaskTimer.js" />
 /// <reference path="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0"/>
 
-window.rin = window.rin || {};
-
-(function (rin) {
+(function (rin, ko) {
+    /*globals Microsoft:true*/
+    "use strict";
     // ES for displaying bing maps.
     var MapES = function (orchestrator, esData) {
         MapES.parentConstructor.apply(this, arguments);
@@ -1935,7 +1899,7 @@ window.rin = window.rin || {};
         },
         load: function (experienceStreamId) {
             var self = this;
-            if (window.MSApp && WinJS) {
+            if (window.MSApp && window.WinJS) {
                 // Create the map control.
                 Microsoft.Maps.loadModule('Microsoft.Maps.Map', {
                     callback: function () {
@@ -1951,16 +1915,16 @@ window.rin = window.rin || {};
         },
         unload: function () {
             MapES.parentPrototype.unload.call(this);
-            if (typeof this._map != 'undefined' && this._map != null) {
+            if (typeof this._map !== 'undefined' && this._map !== null) {
                 this._map.dispose();
                 this._map = null;
             }
         },
         displayKeyframe: function (keyframeData) {
+            var viewOptions = { animate: true };
             if (keyframeData.state.viewport && keyframeData.state.viewport.region) {
-                var viewOptions = { animate: true };
                 var north = (keyframeData.state.viewport.region.center.y * 2 + keyframeData.state.viewport.region.span.y) / 2;
-                var west = (keyframeData.state.viewport.region.center.x * 2 - keyframeData.state.viewport.region.span.x) / 2
+                var west = (keyframeData.state.viewport.region.center.x * 2 - keyframeData.state.viewport.region.span.x) / 2;
                 var south = (keyframeData.state.viewport.region.center.y * 2 - keyframeData.state.viewport.region.span.y) / 2;
                 var east = (keyframeData.state.viewport.region.center.x * 2 + keyframeData.state.viewport.region.span.x) / 2;
                 viewOptions.bounds = Microsoft.Maps.LocationRect.fromCorners(new Microsoft.Maps.Location(north, west), new Microsoft.Maps.Location(south, east));
@@ -1988,12 +1952,12 @@ window.rin = window.rin || {};
 
             // [Aldo] There is some issue with the way we are organizing the div's i guess, in IE9, map keyframes are not rendered properly.
             //        Below changes in height and width is a hack to fix the issue. This makes the browser relayout the divs and it works fine.
-            this._userInterfaceControl.style["height"] = "99.9999%";
-            this._userInterfaceControl.style["width"] = "99.9999%";
+            this._userInterfaceControl.style.height = "99.9999%";
+            this._userInterfaceControl.style.width = "99.9999%";
             var self = this;
             setTimeout(function () {
-                self._userInterfaceControl.style["height"] = "100%";
-                self._userInterfaceControl.style["width"] = "100%";
+                self._userInterfaceControl.style.height = "100%";
+                self._userInterfaceControl.style.width = "100%";
                 self._map.setView(viewOptions);
             }, 1);
         },
@@ -2121,7 +2085,7 @@ window.rin = window.rin || {};
     MapES.elementHtml = "<div style='height:100%;width:100%;position:absolute;background:black;'></div>";
     rin.util.overrideProperties(MapES.prototypeOverrides, MapES.prototype);
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.MapExperienceStream", function (orchestrator, esData) { return new MapES(orchestrator, esData); });
-})(rin);
+})(window.rin = window.rin || {}, window.ko);
 /*!
 * RIN Experience Provider JavaScript Library v1.0
 * http://research.microsoft.com/rin
@@ -2141,72 +2105,74 @@ window.rin = window.rin || {};
 /// <reference path="../core/ResourcesResolver.js" />
 /// <reference path="../core/TaskTimer.js" />
 
-window.rin = window.rin || {};
-
-rin.PhotosynthES = function (orchestrator, esData) {
-    this.stateChangedEvent = new rin.contracts.Event();
-    this._orchestrator = orchestrator;
-    this._userInterfaceControl = rin.util.createElementWithHtml(rin.PhotosynthES.elementHTML);
-    this._esData = esData;
-};
-
-rin.PhotosynthES.prototype = {
-    load: function (experienceStreamId) {
-        this.setState(rin.contracts.experienceStreamState.ready);
-    },
-    play: function (offset, experienceStreamId) {
-    },
-    pause: function (offset, experienceStreamId) {
-    },
-    unload: function () {
-
-    },
-    getState: function () {
-        return this._state;
-    },
-    setState: function (value) {
-        if (this._state == value) return;
-        var previousState = this._state;
-        this._state = value;
-        this.stateChangedEvent.publish(new rin.contracts.ESStateChangedEventArgs(previousState, value, this));
-    },
-    stateChangedEvent: new rin.contracts.Event(),
-    getUserInterfaceControl: function () { return this._userInterfaceControl; },
-
-    _userInterfaceControl: rin.util.createElementWithHtml(""),
-    _orchestrator: null,
-    _esData: null
-};
-
-rin.PhotosynthES.elementHTML = "<div style='width:100%;height:100%;color:white;font-size:24px'>Photosynth ES Placeholder: This is placeholder ES until we get HTML5 version...</div>";
-
-rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.PhotosynthExperienceStream", function (orchestrator, esData) { return new rin.PhotosynthES(orchestrator, esData); });
-rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.PhotosynthES", function (orchestrator, esData) { return new rin.PhotosynthES(orchestrator, esData); });
-
-/*!
-* RIN Experience Provider JavaScript Library v1.0
-* http://research.microsoft.com/rin
-*
-* Copyright 2012-2013, Microsoft Research
-* <placeholder for RIN License>
-*
-* Date: <placeholder for SDK release date>
-*/
-
-/// <reference path="../contracts/DiscreteKeyframeESBase.js" />
-/// <reference path="../contracts/IExperienceStream.js" />
-/// <reference path="../contracts/IOrchestrator.js" />
-/// <reference path="../core/Common.js" />
-/// <reference path="../core/EventLogger.js" />
-/// <reference path="../core/PlayerConfiguration.js" />
-/// <reference path="../core/ResourcesResolver.js" />
-/// <reference path="../core/TaskTimer.js" />
-
-window.rin = window.rin || {};
 (function (rin) {
+    "use strict";
+    var PhotosynthES = function (orchestrator, esData) {
+        this.stateChangedEvent = new rin.contracts.Event();
+        this._orchestrator = orchestrator;
+        this._userInterfaceControl = rin.util.createElementWithHtml(PhotosynthES.elementHTML).firstChild;
+        this._esData = esData;
+    };
+
+    PhotosynthES.prototype = {
+        load: function (experienceStreamId) {
+            this.setState(rin.contracts.experienceStreamState.ready);
+        },
+        play: function () {
+        },
+        pause: function () {
+        },
+        unload: function () {
+        },
+        getState: function () {
+            return this._state;
+        },
+        setState: function (value) {
+            if (this._state === value) return;
+            var previousState = this._state;
+            this._state = value;
+            this.stateChangedEvent.publish(new rin.contracts.ESStateChangedEventArgs(previousState, value, this));
+        },
+        stateChangedEvent: new rin.contracts.Event(),
+        getUserInterfaceControl: function () { return this._userInterfaceControl; },
+
+        _userInterfaceControl: rin.util.createElementWithHtml(""),
+        _orchestrator: null,
+        _esData: null
+    };
+
+    PhotosynthES.elementHTML = "<div style='width:100%;height:100%;position:absolute;color:white;font-size:24px'>Photosynth ES Placeholder: This is placeholder ES until we get HTML5 version...</div>";
+
+    rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.PhotosynthExperienceStream", function (orchestrator, esData) { return new PhotosynthES(orchestrator, esData); });
+    rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.PhotosynthES", function (orchestrator, esData) { return new PhotosynthES(orchestrator, esData); });
+
+})(window.rin = window.rin || {});
+/*!
+* RIN Experience Provider JavaScript Library v1.0
+* http://research.microsoft.com/rin
+*
+* Copyright 2012-2013, Microsoft Research
+* <placeholder for RIN License>
+*
+* Date: <placeholder for SDK release date>
+*/
+
+/// <reference path="../contracts/DiscreteKeyframeESBase.js" />
+/// <reference path="../contracts/IExperienceStream.js" />
+/// <reference path="../contracts/IOrchestrator.js" />
+/// <reference path="../core/Common.js" />
+/// <reference path="../core/EventLogger.js" />
+/// <reference path="../core/PlayerConfiguration.js" />
+/// <reference path="../core/ResourcesResolver.js" />
+/// <reference path="../core/TaskTimer.js" />
+
+(function (rin, ko) {
+    /*globals PhotosynthRml:true, RwwViewer:true, JsonDownloadFailedError:true, JsonMalformedError:true, $:true, ko:true*/
+    "use strict";
     // ES for displaying 360 degree panoramas.
     var PanoramicES = function (orchestrator, esData) {
         PanoramicES.parentConstructor.apply(this, arguments);
+        var isLowEndMachine;
         var self = this;
         this._orchestrator = orchestrator;
         this._userInterfaceControl = rin.util.createElementWithHtml(PanoramicES.elementHTML).firstChild;
@@ -2220,34 +2186,34 @@ window.rin = window.rin || {};
 
         this._skipPanoHint = false;
 
-        if (!isLowEndMachine && typeof esData.data.showLowerFidelityWhileMoving != "undefined") {
+        if (!isLowEndMachine && typeof esData.data.showLowerFidelityWhileMoving !== "undefined") {
             // Always use low fidility images while moving if running on iPad or Surface RT
-            var isLowEndMachine = window.navigator.userAgent.indexOf("iPad;") > -1 || window.navigator.userAgent.indexOf("ARM;") > -1;
+            isLowEndMachine = window.navigator.userAgent.indexOf("iPad;") > -1 || window.navigator.userAgent.indexOf("ARM;") > -1;
             if (!isLowEndMachine)
                 this._lowFidilityWhileMoving = esData.data.showLowerFidelityWhileMoving;
         }
 
-        if (typeof esData.data.minFieldOfView != "undefined")
-            this._minFieldOfView = esData.data.minFieldOfView;
+        if (typeof esData.data.maxPixelScaleFactor !== "undefined")
+            this._maxPixelScaleFactor = esData.data.maxPixelScaleFactor;
 
-        if (typeof esData.data.interpolatorType != "undefined")
+        if (typeof esData.data.interpolatorType !== "undefined")
             this._interpolatorType = esData.data.interpolatorType;
         else
             this._interpolatorType = "linear";
 
-        if (typeof esData.data.enforceViewLimits != "undefined")
+        if (typeof esData.data.enforceViewLimits !== "undefined")
             this._enforceViewLimits = esData.data.enforceViewLimits;
 
-        if ((typeof esData.data.smoothTransitions != "undefined") && esData.data.smoothTransitions)
+        if ((typeof esData.data.smoothTransitions !== "undefined") && esData.data.smoothTransitions)
             this.overrideTransientTrajectoryFunction = true;
 
-        if (typeof esData.data.viewShrinkFactor != "undefined")
+        if (typeof esData.data.viewShrinkFactor !== "undefined")
             this._viewShrinkFactor = esData.data.viewShrinkFactor;
 
-        if (typeof esData.data.transitionDurationOverrides != "undefined") {
+        if (typeof esData.data.transitionDurationOverrides !== "undefined") {
             this._durationScaleOverride = esData.data.transitionDurationOverrides.durationScaleOverride;
             this._transitionPauseDurationInSec = esData.data.transitionDurationOverrides.transitionPauseDurationInSec;
-            if (typeof esData.data.transitionDurationOverrides.simplePathOnly != "undefined")
+            if (typeof esData.data.transitionDurationOverrides.simplePathOnly !== "undefined")
             {
                 this._simplePathOnly = esData.data.transitionDurationOverrides.simplePathOnly;
             }
@@ -2257,13 +2223,13 @@ window.rin = window.rin || {};
         var adaptiveDataOverride = this._orchestrator.getResourceResolver().resolveData("R-DefaultAdaptiveTransitionProfile", this._esData.id);
         if (adaptiveDataOverride)
         {
-            if (adaptiveDataOverride.durationScaleOverride != undefined) {
+            if (adaptiveDataOverride.durationScaleOverride !== undefined) {
                 this._adaptiveDurationScaleOverride = adaptiveDataOverride.durationScaleOverride;
             }
-            if (adaptiveDataOverride.capAdaptiveOffset != undefined) {
+            if (adaptiveDataOverride.capAdaptiveOffset !== undefined) {
                 this._capAdaptiveOffset = adaptiveDataOverride.capAdaptiveOffset;
             }
-            if (adaptiveDataOverride.maxAdaptiveDuration != undefined) {
+            if (adaptiveDataOverride.maxAdaptiveDuration !== undefined) {
                 this._maxAdaptiveDuration = adaptiveDataOverride.maxAdaptiveDuration;
             }
             else
@@ -2275,7 +2241,7 @@ window.rin = window.rin || {};
 
         // Check for any interactions on the ES and pause the player.
         // Clicking on EAs cause mousedown and interaction mode to start. Ignore mousedown for now.
-        $(this._panoPlaceHolder).bind("MSPointerDown mousedown mousewheel", function (e) {
+        $(this._panoPlaceHolder).bind("MSPointerDown pointerdown mousedown mousewheel", function (e) {
             //Code to get the world coordinates for a mouse location
             //Don't delete
             //if (self._viewer && self._tryCalculate) {
@@ -2333,20 +2299,12 @@ window.rin = window.rin || {};
             var self = this;
 
             this.addSliverInterpolator("viewport", function (sliverId, state) {
-                if (self._interpolatorType)
-                {
-                    switch (self._interpolatorType)
-                    {
-                        case "vectorBased":
-                            return new rin.Ext.Interpolators.viewportInterpolator2D(state, self._interpolatorType);
-                        case "linear":
-                        default:
-                            return new rin.Ext.Interpolators.linearViewportInterpolator(state);
-                            break;
-                    }
+                if (self._interpolatorType && self._interpolatorType === "vectorBased") {
+                    return new rin.Ext.Interpolators.viewportInterpolator2D(state, self._interpolatorType);
                 }
-                else
+                else {
                     return new rin.Ext.Interpolators.linearViewportInterpolator(state);
+                }
             });
 
 
@@ -2422,14 +2380,15 @@ window.rin = window.rin || {};
             this.setState(rin.contracts.experienceStreamState.ready);
             return;
 
+            /*
             var keyframesToLoad = this.getKeyframes(0, 10, 0.2);
             var camController = this._viewer.getActiveCameraController();
-            var allTiles = {}, downloadQueue = new Array();
+            var allTiles = {}, downloadQueue = [];
             var loadedCount = 0, totalCount = 0, failedCount = 0, allTilesAdded = false;
-            var images = new Array();
+            var images = [];
             var self = this;
-
-            for (var i = 0; i < keyframesToLoad.length; i++) {
+            var i;
+            for (i = 0; i < keyframesToLoad.length; i++) {
                 var keyframeData = keyframesToLoad[i];
                 // set camera params
                 var viewportFOV = keyframeData.state.viewport.region.span.y;
@@ -2476,12 +2435,12 @@ window.rin = window.rin || {};
                 }
             };
 
-            for (var i in allTiles) {
+            for (i in allTiles) {
                 var img = new Image();
                 img.onload = loadComp;
                 img.onerror = loadFailed;
                 img.src = allTiles[i].url;
-            }
+            }*/
         },
 
         // Pause the ES.
@@ -2492,7 +2451,7 @@ window.rin = window.rin || {};
         // Display a keyframe.
         displayKeyframe: function (keyframeData) {
             //if not ready, do nothing
-            if (this.getState() != rin.contracts.experienceStreamState.ready || !keyframeData.state)
+            if (this.getState() !== rin.contracts.experienceStreamState.ready || !keyframeData.state)
                 return; 
             var viewportFOV = keyframeData.state.viewport.region.span.y; //we will ignore the span.x (horizontal FOV)
             var viewportHeading = keyframeData.state.viewport.region.center.x;
@@ -2600,7 +2559,7 @@ window.rin = window.rin || {};
             var self = this;
             var experienceStreamData = self._esData.experienceStreams[experienceStreamId];
             //Check the flags on ES 
-            if (!experienceStreamData || experienceStreamData.transitionType == "noAnimation" || experienceStreamData.transitionType == "adaptiveFirstDuration") {
+            if (!experienceStreamData || experienceStreamData.transitionType === "noAnimation" || experienceStreamData.transitionType === "adaptiveFirstDuration") {
                 //Case C or E above
                 // no animation so call seekUrl right away
                 self._orchestrator.seekUrl(seekUrl);
@@ -2612,18 +2571,18 @@ window.rin = window.rin || {};
             //Check if the transitionDurationoverrides are mentioned in the given experiencestream as well. If so, we will use those instead
             // of the defaults for this experience.
             var esTransitionOverrides = experienceStreamData.transitionDurationOverrides;
-            var transitionPause = (esTransitionOverrides && esTransitionOverrides.transitionPauseDurationInSec != undefined) ? esTransitionOverrides.transitionPauseDurationInSec :
+            var transitionPause = (esTransitionOverrides && esTransitionOverrides.transitionPauseDurationInSec !== undefined) ? esTransitionOverrides.transitionPauseDurationInSec :
                 self._transitionPauseDurationInSec;
-            var durationScaleOverride = ( esTransitionOverrides && esTransitionOverrides.durationScaleOverride != undefined)? esTransitionOverrides.durationScaleOverride :
+            var durationScaleOverride = ( esTransitionOverrides && esTransitionOverrides.durationScaleOverride !== undefined)? esTransitionOverrides.durationScaleOverride :
                 self._durationScaleOverride;
-            var simplePathOnly = (esTransitionOverrides && esTransitionOverrides.simplePathOnly != undefined) ? esTransitionOverrides.simplePathOnly :
+            var simplePathOnly = (esTransitionOverrides && esTransitionOverrides.simplePathOnly !== undefined) ? esTransitionOverrides.simplePathOnly :
                 self._simplePathOnly;
             var noZoomOutDuringTransition = false;
-            if (experienceStreamData.transitionType == "noZoomOut")
+            if (experienceStreamData.transitionType === "noZoomOut")
             {
                 noZoomOutDuringTransition = true;
             }
-            else if (experienceStreamData.transitionType == "fastZoom") {
+            else if (experienceStreamData.transitionType === "fastZoom") {
                 // Case D above
                 //TODO Read these values from a data object from the resourceTable
                 transitionPause = 0;
@@ -2680,12 +2639,12 @@ window.rin = window.rin || {};
                     }
                     else {
                         // Case A above
-                        var sourceHeading = this.pickStartHeadingToTakeShortestPath(currentKF.state.viewport.region.center.x, viewportHeading)
+                        var sourceHeading = this.pickStartHeadingToTakeShortestPath(currentKF.state.viewport.region.center.x, viewportHeading);
                         var headingDiff = Math.abs(sourceHeading - viewportHeading);
                         var pitchDiff = Math.abs(currentKF.state.viewport.region.center.y - viewportPitch);
                         var fovDelta = Math.min(currentFOV, viewportFOV) / Math.max(currentFOV, viewportFOV);
                         var tendegreesInRadian = 10.0 * Math.PI / 180.0; // TODO: take into account screen resolution
-                        if ((experienceStreamData.transitionType == "fastZoom") || Math.abs(fovDelta - 1.0) > 0.1 || headingDiff > tendegreesInRadian || pitchDiff > tendegreesInRadian) {
+                        if ((experienceStreamData.transitionType === "fastZoom") || Math.abs(fovDelta - 1.0) > 0.1 || headingDiff > tendegreesInRadian || pitchDiff > tendegreesInRadian) {
                             // Current view is NOT very close to the target view, call animateToPose and call the seekUrl in the callback
                             this._isInResumeFromMode = true;
                             this._viewer.getActiveCameraController().animateToPose(viewportPitch, viewportHeading, viewportFOV, callback, simplePathOnly, durationScaleOverride);
@@ -2726,7 +2685,7 @@ window.rin = window.rin || {};
                 rightBoundFactor: self._viewShrinkFactor,
                 topBoundFactor: self._viewShrinkFactor,
                 bottomBoundFactor: self._viewShrinkFactor,
-                minClientPreferredFieldOfView: self._minFieldOfView,
+                maxPixelScaleFactor: self._maxPixelScaleFactor,
                 enforceViewLimits: self._enforceViewLimits
             };
             this._viewer = new RwwViewer(this._panoPlaceHolder, {
@@ -2755,9 +2714,9 @@ window.rin = window.rin || {};
             this._viewer.setShowLowerFidelityWhileMoving(this._lowFidilityWhileMoving);
             var cameraController = this._viewer.getActiveCameraController();
             cameraController.viewChangeCallback = function () {
-                if (self.updateEA != null)
+                if (self.updateEA !== null)
                     self.updateEA();
-            }
+            };
             
 
             // Keep updating the viewer size to its parent size. Using below method as onresize if not fired on div consistantly on all browsers
@@ -2770,7 +2729,7 @@ window.rin = window.rin || {};
                     self._viewer.height = self._userInterfaceControl.offsetHeight;
 
                     self._viewer.setViewportSize(self._userInterfaceControl.offsetWidth, self._userInterfaceControl.offsetHeight);
-                };
+                }
             }, 300); // using 300 so that its not too slow nor too fast to eat up cpu cycles
         },
         // Get interaction controls for panorama.
@@ -2791,7 +2750,7 @@ window.rin = window.rin || {};
         // Zoom and pan commands.
         zoomInCommand: function () {
             var cameraController = this._viewer.getActiveCameraController();
-            cameraController.setVerticalFov(Math.max(.05, cameraController.getVerticalFov() * (1 - this._zoomFactor)), true);
+            cameraController.setVerticalFov(Math.max(0.05, cameraController.getVerticalFov() * (1 - this._zoomFactor)), true);
         },
         zoomOutCommand: function () {
             var cameraController = this._viewer.getActiveCameraController();
@@ -2866,7 +2825,7 @@ window.rin = window.rin || {};
         getEmbeddedArtifactsProxy: function (layoutEngine) {
             var provider = this;
             this.updateEA = function () { layoutEngine.render({}); };
-            return new function () {
+            var EAProxy = function () {
                 this.getEmbeddedArtifactsContainer = function () {
                     return provider._userInterfaceControl;
                 };
@@ -2875,7 +2834,7 @@ window.rin = window.rin || {};
                     var pitch = inPoint.y;
                     var cameraController = provider._viewer.getActiveCameraController();
                     var pointInScreen2D = cameraController.tryPitchHeadingToPixel(pitch, heading);
-                    if (!pointInScreen2D || pointInScreen2D.x == NaN || pointInScreen2D.y == NaN)
+                    if (!pointInScreen2D || isNaN(pointInScreen2D.x) || isNaN(pointInScreen2D.y))
                         return false;
                     outPoint.x = pointInScreen2D.x;
                     outPoint.y = pointInScreen2D.y;
@@ -2908,6 +2867,7 @@ window.rin = window.rin || {};
                     }
                 };
             };
+            return new EAProxy();
         },
         // Unload the ES.
         unload: function () {
@@ -2981,7 +2941,7 @@ window.rin = window.rin || {};
             var pitch1 = firstRegion.center.y;
             var pitch2 = secondRegion.center.y;
             var heading2 = secondRegion.center.x;
-            var heading1 = this.pickStartHeadingToTakeShortestPath(firstRegion.center.x, heading2)
+            var heading1 = this.pickStartHeadingToTakeShortestPath(firstRegion.center.x, heading2);
             var middleFov = Math.abs(pitch1 - pitch2) + Math.abs(heading1 - heading2);
             if (middleFov > maxFov) {
                 // the difference in pitch & heading is more than the fov difference
@@ -2993,12 +2953,12 @@ window.rin = window.rin || {};
                 var maxAdaptiveDuration = this._maxAdaptiveDuration;
                 var adaptiveDurationScaleOverride = this._adaptiveDurationScaleOverride;
                 // Check if adaptiveTransitionProfileOverride was mentioned on the experience
-                if (experienceStream.adaptiveTransitionProfileOverride != undefined) {
-                    if (experienceStream.adaptiveTransitionProfileOverride.maxAdaptiveDuration != undefined) {
+                if (experienceStream.adaptiveTransitionProfileOverride !== undefined) {
+                    if (experienceStream.adaptiveTransitionProfileOverride.maxAdaptiveDuration !== undefined) {
                         maxAdaptiveDuration = experienceStream.adaptiveTransitionProfileOverride.maxAdaptiveDuration;
                     }
 
-                    if (experienceStream.adaptiveTransitionProfileOverride.durationScaleOverride != undefined) {
+                    if (experienceStream.adaptiveTransitionProfileOverride.durationScaleOverride !== undefined) {
                         adaptiveDurationScaleOverride = experienceStream.adaptiveTransitionProfileOverride.durationScaleOverride;
                     }
                 }
@@ -3023,8 +2983,8 @@ window.rin = window.rin || {};
             }
         },
         _interactionControls: null,
-        _zoomFactor: .2,
-        _panDistance: .3,
+        _zoomFactor: 0.2,
+        _panDistance: 0.3,
         isExplorable: true,
         _tryCalculate: false,
         _lowFidilityWhileMoving: true,
@@ -3036,6 +2996,7 @@ window.rin = window.rin || {};
         _transitionPauseDurationInSec: 0,
         _simplePathOnly: false,
         _viewShrinkFactor: null,
+        _maxPixelScaleFactor: null,
         _isInResumeFromMode: false
     };
 
@@ -3047,7 +3008,7 @@ window.rin = window.rin || {};
 
     rin.util.overrideProperties(PanoramicES.prototypeOverrides, PanoramicES.prototype);
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.PanoramicExperienceStream", function (orchestrator, esData) { return new PanoramicES(orchestrator, esData); });
-})(rin);
+})(window.rin = window.rin || {}, window.ko);
 
 /*!
 * RIN Experience Provider JavaScript Library v1.0
@@ -3060,316 +3021,320 @@ window.rin = window.rin || {};
 */
 /// <reference path="../core/Common.js" />
 window.rin = window.rin || {};
-//-- New Knockout binding to handle both tap and click.
-ko.bindingHandlers.clickOrTouch = {
-    init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-        $(element).rinTouchGestures(function (e, touchGesture) {
-            if (touchGesture.gesture == 'simpletap') {
-                var handlerFunction = valueAccessor() || {};
-                if (!handlerFunction)
-                    return;
-                try {
-                    var argsForHandler = rin.util.makeArray(arguments);
-                    argsForHandler.unshift(viewModel);
-                    handlerFunction.apply(viewModel, argsForHandler);
-                } finally { }
-            }
-        }, { simpleTap: true, swipe: false });
-        return null;
-    }
-};
-
-rin.ContentBrowserES = function (orchestrator, esData, dimension) {
-    this._orchestrator = orchestrator;
-    this._esData = esData;
-    this._dimension = dimension;
-    var resourceResolver = this._orchestrator.getResourceResolver();
-    var htmlfile = resourceResolver.resolveSystemResource('contentbrowser/' + dimension + '.htm');
-    var jsfile = resourceResolver.resolveSystemResource('contentbrowser/' + dimension + '.js');
-
-    this._userInterfaceControl = document.createElement("div");
-    this._userInterfaceControl.style.width = "100%";
-    this._userInterfaceControl.style.height = "100%";
-    this._userInterfaceControl.style.position = "absolute";
-
-    var self = this;
-    //--Download the theme based htm file
-    var htmlDownload = {
-        url: htmlfile,
-        dataType: "html",
-        error: function (jqxhr, textStatus, errorThrown) {
-            self.setState(rin.contracts.experienceStreamState.error);
-            self._orchestrator.eventLogger.logErrorEvent("Error: {0} downloading the html file: {1}", exception.Message, htmlfile);
-        },
-        success: function (data, textStatus, jqxhr) {
-            self._elementHtml = data;
-            self._isHtmlLoaded = true;
-            self._updateView();
+(function (rin) {
+    /*global $:true, ko:true*/
+    "use strict";
+    //-- New Knockout binding to handle both tap and click.
+    ko.bindingHandlers.clickOrTouch = {
+        init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            $(element).rinTouchGestures(function (e, touchGesture) {
+                if (touchGesture.gesture === 'simpletap') {
+                    var handlerFunction = valueAccessor() || {};
+                    if (!handlerFunction)
+                        return;
+                    try {
+                        var argsForHandler = rin.util.makeArray(arguments);
+                        argsForHandler.unshift(viewModel);
+                        handlerFunction.apply(viewModel, argsForHandler);
+                    } finally { }
+                }
+            }, { simpleTap: true, swipe: false });
+            return null;
         }
     };
-    $.ajax(htmlDownload);
 
-    //--Download the js file associated with the current CB
-    $.getScript(jsfile)
-    .done(function (script, textStatus) {
-        self._isJsLoaded = true;
-        self._updateView();
-    })
-    .fail(function (jqxhr, settings, exception) {
-        self.setState(rin.contracts.experienceStreamState.error);
-        self._orchestrator.eventLogger.logErrorEvent("Error: {0} downloading the js file: {1}", exception.Message, jsfile);
-    });
+    rin.ContentBrowserES = function (orchestrator, esData, dimension) {
+        this._orchestrator = orchestrator;
+        this._esData = esData;
+        this._dimension = dimension;
+        var resourceResolver = this._orchestrator.getResourceResolver();
+        var htmlfile = resourceResolver.resolveSystemResource('contentbrowser/' + dimension + '.htm');
+        var jsfile = resourceResolver.resolveSystemResource('contentbrowser/' + dimension + '.js');
 
-    var control = this._userInterfaceControl;
-    var lastZIndex = 0;
-    this._userInterfaceControl.hide = function () {
-        lastZIndex = control.style.zIndex;
-        control.style.zIndex = 0;
-    }
-    this._userInterfaceControl.unhide = function () {
-        control.style.zIndex = lastZIndex;
-        this._userInterfaceControl.opacity = 1;
-    }
-    this._collectionData = {};
+        this._userInterfaceControl = document.createElement("div");
+        this._userInterfaceControl.style.width = "100%";
+        this._userInterfaceControl.style.height = "100%";
+        this._userInterfaceControl.style.position = "absolute";
 
-    /* Disabling this for Everest as ImageES is used in the popup gallery. Todo Enable afterwards 
-    //--Bind the mouseup to fire interaction event
-    $(this._userInterfaceControl).bind("mouseup", function (e) {
-        self._orchestrator.startInteractionMode();
-    });*/
-    //Set the initial state to buffering and load the 
-    this.setState(rin.contracts.experienceStreamState.buffering);
-    this._loadCollectionJSON();
-};
-
-rin.ContentBrowserES.prototype = new rin.contracts.DiscreteKeyframeESBase();
-rin.ContentBrowserES.base = rin.contracts.DiscreteKeyframeESBase.prototype;
-rin.ContentBrowserES.changeTrigger = { none: 0, onkeyframeapplied: 1, onnext: 2, onprevious: 3, onclick: 4 };
-rin.ContentBrowserES.currentMode = { preview: 0, expanded: 1 };
-
-rin.ContentBrowserES.prototypeOverrides = {
-    load: function (experienceStreamId) {
-        rin.ContentBrowserES.base.load.call(this, experienceStreamId);
-
-        if (this._esData.data["default"] != undefined) {
-            this._showFilmstripAlways = (new rin.internal.XElement(this._esData.data["default"]).elementValue("ShowFilmstripAlways", false) == "true");
-            this._showDescriptionByDefault = (new rin.internal.XElement(this._esData.data["default"]).elementValue("ShowDescriptionByDefault", false) == "true");
-        }
-    },
-
-    unload: function () {
-        rin.ContentBrowserES.base.unload.call(this);
-    },
-
-    setDataContext: function (collectionData) {
-        //--Bind the UI to the viewmodel
-        if (collectionData.groupsList.length > 0) {
-            this.collectionViewModel = this.getViewModel(collectionData, this._orchestrator);
-            this._isJSONLoaded = true;
-            this._updateView();
-        }
-    },
-
-    getCapturedKeyframe: function (keyframeData) {
-        if (typeof keyframeData != undefined) {
-            return keyframeData;
-        }
-        return null;
-    },
-
-    displayKeyframe: function (keyframeData) {
-        if (keyframeData != undefined) {
-            var dataElement = keyframeData.data["kf-selstate"];
-            if (dataElement != undefined) {
-                this.goToState(dataElement);
-            }
-        }
-    },
-
-    captureKeyframe: function () {
-        return JSON.parse('{"state" : { "kf-selstate": { "item": {"itemid": "{0}", "view": { "display": { "show": true } } } } } }'.rinFormat(this.collectionViewModel.currentItem().id));
-    },
-    addedToStage: function () {
-    },
-
-    removedFromStage: function () {
-        // this._orchestrator.onESEvent(this, rin.contracts.esEventIds.showControls, null); //todo: investigate what needs to happen here. Do we really need showControls esEvent?
-    },
-
-    getCurrentState: function () { return null; },
-
-    goToState: function (artifactState) {
-        if (this.collectionViewModel === undefined || this.collectionViewModel == null)
-            return;
-        //--Get the group/item to be selected and call Applykeyframe on it.
-        for (var item in artifactState) {
-            var itemId = artifactState[item].itemid;
-            var selectedItem = null;
-
-            this.collectionViewModel.groups.foreach(function (group) {
-                 selectedItem = group.itemsList.firstOrDefault(function (item) {
-                    return item.id == itemId; });
-            });
-
-            if (selectedItem != null) {
-               if (selectedItem && selectedItem.id !== this.collectionViewModel.currentItem().id) {
-                   this.collectionViewModel.onApplyKeyframe(selectedItem);
-               }
-               break;
-            }
-        }
-    },
-
-    toggleDescription: function (isDescVisible) { },
-
-    toggleFilmstrip: function (isFilmstripVisible) { },
-
-    //--Populates the viewmodel
-    getViewModel: function (collectionData, orchestrator) {
-        var collectionViewModel = {
-            orchestrator: orchestrator,
-            title: collectionData.title, //collection title
-            description: collectionData.description, //collection description
-            groups: collectionData.groupsList, //--the groups list along with the items in it
-            itemUpdateTrigger: rin.ContentBrowserES.changeTrigger.none,
-            previousItem: {}, //--the item that was previously selected
-            currentMode: rin.ContentBrowserES.currentMode.preview, //--current mode of CB - is it in expanded mode or preview
-            currentItem: ko.observable({}), //--currently selected item
-            isLastItem: ko.observable(false),
-            isFirstItem: ko.observable(false),
-            initViewModel: function () {
-                if (this.groups.length > 0 && this.groups[0].itemsList.length > 0) {
-                    this.currentItem(this.groups[0].itemsList[0]);
-                    this.isFirstItem(true);
-                }
+        var self = this;
+        //--Download the theme based htm file
+        var htmlDownload = {
+            url: htmlfile,
+            dataType: "html",
+            error: function (jqxhr, textStatus, errorThrown) {
+                self.setState(rin.contracts.experienceStreamState.error);
+                self._orchestrator.eventLogger.logErrorEvent("Error: {0} downloading the html file: {1}", errorThrown, htmlfile);
             },
-            onPrevious: function () {
-                var groupIndex = self.currentItem().groupIndex;
-                var index = self.groups[groupIndex].itemsList.indexOf(self.currentItem());
-                self.beforeSelectionChange();
-
-                if (index > 0) {
-                    index--;
-                }
-                else if (index === 0 && groupIndex > 0) {
-                    groupIndex--;
-                    index = self.groups[groupIndex].itemsList.length - 1;
-                }
-                else
-                    return;
-                self.itemUpdateTrigger = rin.ContentBrowserES.changeTrigger.onprevious;
-                self.afterSelectionChange(groupIndex, index);
-            },
-            onNext: function () {
-                var groupIndex = self.currentItem().groupIndex;
-                var index = self.groups[groupIndex].itemsList.indexOf(self.currentItem());
-                self.beforeSelectionChange();
-
-                if (index < self.groups[groupIndex].itemsList.length - 1) {
-                    index++;
-                }
-                else if (index === (self.groups[groupIndex].itemsList.length - 1) && groupIndex < (self.groups.length - 1)) {
-                    groupIndex++;
-                    index = 0;
-                }
-                else
-                    return;
-                self.itemUpdateTrigger = rin.ContentBrowserES.changeTrigger.onnext;
-                self.afterSelectionChange(groupIndex, index);
-            },
-            onMediaClick: function (selecteditem) {
-                self.previousItem = self.currentItem();
-                self.beforeSelectionChange();
-                var index = self.groups[selecteditem.groupIndex].itemsList.indexOf(selecteditem);
-                self.itemUpdateTrigger = rin.ContentBrowserES.changeTrigger.onclick;
-                self.afterSelectionChange(selecteditem.groupIndex, index);
-            },
-            onApplyKeyframe: function (selecteditem) {
-                self.previousItem = self.currentItem();
-                self.beforeSelectionChange();
-                var index = self.groups[selecteditem.groupIndex].itemsList.indexOf(selecteditem);
-                self.itemUpdateTrigger = rin.ContentBrowserES.changeTrigger.onkeyframeapplied;
-                self.afterSelectionChange(selecteditem.groupIndex, index);
-            },
-            onExplore: function () {
-                //When clicked on a preview image, launch a popup, or go to expanded mode
-                self.getItemESData(self.currentItem());
-                var popup = new rin.PopupControl(self.orchestrator);
-                popup.load(self.currentItem().esData, self);
-                self.currentMode = rin.ContentBrowserES.currentMode.expanded;
-
-                $(popup).bind('onclose', function (e) {
-                    self.currentMode = rin.ContentBrowserES.currentMode.preview;
-                });
-            },
-            beforeSelectionChange: function () {
-                self.isFirstItem(false);
-                self.isLastItem(false);
-                self.itemUpdateTrigger = rin.ContentBrowserES.changeTrigger.none;
-            },
-            afterSelectionChange: function (groupIndex, index) {
-                if (index === 0 && groupIndex === 0)
-                    self.isFirstItem(true);
-                else if (index === (self.groups[groupIndex].itemsList.length - 1) && groupIndex === (self.groups.length - 1))
-                    self.isLastItem(true);
-
-                self.previousItem = self.currentItem();
-
-                var selectedItem = self.groups[groupIndex].itemsList[index];
-                if (self.currentMode == rin.ContentBrowserES.currentMode.expanded) {
-                    self.getItemESData(selectedItem);
-                }
-
-                self.currentItem(selectedItem);
-            },
-            getItemESData: function (itemData) {
-                if (itemData.esData === undefined) {
-                    itemData.esData = rin.internal.esDataGenerator.getExperienceStream(itemData);
-                }
+            success: function (data, textStatus, jqxhr) {
+                self._elementHtml = data;
+                self._isHtmlLoaded = true;
+                self._updateView();
             }
         };
-        var self = collectionViewModel;
-        collectionViewModel.initViewModel();
-        return collectionViewModel;
-    },
-    _updateView: function () {
-        //--once html, associated javascript and the collection data model are all loaded
-        //--create and append the view, apply bindings and initialize the view javascript
-        if (this._isHtmlLoaded && this._isJsLoaded && this._isJSONLoaded) {
-            this._userInterfaceControl.appendChild(rin.util.createElementWithHtml(this._elementHtml).firstChild);
-            ko.applyBindings(this.collectionViewModel, this._userInterfaceControl.firstChild);
+        $.ajax(htmlDownload);
 
-            var viewLoad = this._dimension;
-            if (viewLoad in rin.ContentBrowserES)
-                new rin.ContentBrowserES[viewLoad](this._userInterfaceControl.firstChild);
+        //--Download the js file associated with the current CB
+        $.getScript(jsfile)
+        .done(function () {
+            self._isJsLoaded = true;
+            self._updateView();
+        })
+        .fail(function (jqxhr, textStatus, errorThrown) {
+            self.setState(rin.contracts.experienceStreamState.error);
+            self._orchestrator.eventLogger.logErrorEvent("Error: {0} downloading the js file: {1}", errorThrown, jsfile);
+        });
+
+        var control = this._userInterfaceControl;
+        var lastZIndex = 0;
+        this._userInterfaceControl.hide = function () {
+            lastZIndex = control.style.zIndex;
+            control.style.zIndex = 0;
+        };
+        this._userInterfaceControl.unhide = function () {
+            control.style.zIndex = lastZIndex;
+            this._userInterfaceControl.opacity = 1;
+        };
+        this._collectionData = {};
+
+        /* Disabling this for Everest as ImageES is used in the popup gallery. Todo Enable afterwards 
+        //--Bind the mouseup to fire interaction event
+        $(this._userInterfaceControl).bind("mouseup", function (e) {
+            self._orchestrator.startInteractionMode();
+        });*/
+        //Set the initial state to buffering and load the 
+        this.setState(rin.contracts.experienceStreamState.buffering);
+        this._loadCollectionJSON();
+    };
+
+    rin.ContentBrowserES.prototype = new rin.contracts.DiscreteKeyframeESBase();
+    rin.ContentBrowserES.base = rin.contracts.DiscreteKeyframeESBase.prototype;
+    rin.ContentBrowserES.changeTrigger = { none: 0, onkeyframeapplied: 1, onnext: 2, onprevious: 3, onclick: 4 };
+    rin.ContentBrowserES.currentMode = { preview: 0, expanded: 1 };
+
+    rin.ContentBrowserES.prototypeOverrides = {
+        load: function (experienceStreamId) {
+            rin.ContentBrowserES.base.load.call(this, experienceStreamId);
+
+            if (this._esData.data["default"] !== undefined) {
+                this._showFilmstripAlways = (new rin.internal.XElement(this._esData.data["default"]).elementValue("ShowFilmstripAlways", false) === "true");
+                this._showDescriptionByDefault = (new rin.internal.XElement(this._esData.data["default"]).elementValue("ShowDescriptionByDefault", false) === "true");
+            }
+        },
+
+        unload: function () {
+            rin.ContentBrowserES.base.unload.call(this);
+        },
+
+        setDataContext: function (collectionData) {
+            //--Bind the UI to the viewmodel
+            if (collectionData.groupsList.length > 0) {
+                this.collectionViewModel = this.getViewModel(collectionData, this._orchestrator);
+                this._isJSONLoaded = true;
+                this._updateView();
+            }
+        },
+
+        getCapturedKeyframe: function (keyframeData) {
+            if (typeof keyframeData !== undefined) {
+                return keyframeData;
+            }
+            return null;
+        },
+
+        displayKeyframe: function (keyframeData) {
+            if (keyframeData) {
+                var dataElement = keyframeData.state["kf-selstate"];
+                if (dataElement !== undefined) {
+                    this.goToState(dataElement);
+                }
+            }
+        },
+
+        captureKeyframe: function () {
+            return JSON.parse('{"state" : { "kf-selstate": { "item": {"itemid": "{0}", "view": { "display": { "show": true } } } } } }'.rinFormat(this.collectionViewModel.currentItem().id));
+        },
+        addedToStage: function () {
+        },
+
+        removedFromStage: function () {
+            // this._orchestrator.onESEvent(this, rin.contracts.esEventIds.showControls, null); //todo: investigate what needs to happen here. Do we really need showControls esEvent?
+        },
+
+        getCurrentState: function () { return null; },
+
+        goToState: function (artifactState) {
+            if (this.collectionViewModel === undefined || this.collectionViewModel === null)
+                return;
+            //--Get the group/item to be selected and call Applykeyframe on it.
+            for (var item in artifactState) {
+                var itemId = artifactState[item].itemid;
+                var selectedItem = null;
+
+                this.collectionViewModel.groups.foreach(function (group) {
+                    selectedItem = group.itemsList.firstOrDefault(function (item) {
+                        return item.id === itemId;
+                    });
+                });
+
+                if (selectedItem !== null) {
+                    if (selectedItem && selectedItem.id !== this.collectionViewModel.currentItem().id) {
+                        this.collectionViewModel.onApplyKeyframe(selectedItem);
+                    }
+                    break;
+                }
+            }
+        },
+
+        toggleDescription: function (isDescVisible) { },
+
+        toggleFilmstrip: function (isFilmstripVisible) { },
+
+        //--Populates the viewmodel
+        getViewModel: function (collectionData, orchestrator) {
+            var collectionViewModel = {
+                orchestrator: orchestrator,
+                title: collectionData.title, //collection title
+                description: collectionData.description, //collection description
+                groups: collectionData.groupsList, //--the groups list along with the items in it
+                itemUpdateTrigger: rin.ContentBrowserES.changeTrigger.none,
+                previousItem: {}, //--the item that was previously selected
+                currentMode: rin.ContentBrowserES.currentMode.preview, //--current mode of CB - is it in expanded mode or preview
+                currentItem: ko.observable({}), //--currently selected item
+                isLastItem: ko.observable(false),
+                isFirstItem: ko.observable(false),
+                initViewModel: function () {
+                    if (this.groups.length > 0 && this.groups[0].itemsList.length > 0) {
+                        this.currentItem(this.groups[0].itemsList[0]);
+                        this.isFirstItem(true);
+                    }
+                },
+                onPrevious: function () {
+                    var groupIndex = self.currentItem().groupIndex;
+                    var index = self.groups[groupIndex].itemsList.indexOf(self.currentItem());
+                    self.beforeSelectionChange();
+
+                    if (index > 0) {
+                        index--;
+                    }
+                    else if (index === 0 && groupIndex > 0) {
+                        groupIndex--;
+                        index = self.groups[groupIndex].itemsList.length - 1;
+                    }
+                    else
+                        return;
+                    self.itemUpdateTrigger = rin.ContentBrowserES.changeTrigger.onprevious;
+                    self.afterSelectionChange(groupIndex, index);
+                },
+                onNext: function () {
+                    var groupIndex = self.currentItem().groupIndex;
+                    var index = self.groups[groupIndex].itemsList.indexOf(self.currentItem());
+                    self.beforeSelectionChange();
+
+                    if (index < self.groups[groupIndex].itemsList.length - 1) {
+                        index++;
+                    }
+                    else if (index === (self.groups[groupIndex].itemsList.length - 1) && groupIndex < (self.groups.length - 1)) {
+                        groupIndex++;
+                        index = 0;
+                    }
+                    else
+                        return;
+                    self.itemUpdateTrigger = rin.ContentBrowserES.changeTrigger.onnext;
+                    self.afterSelectionChange(groupIndex, index);
+                },
+                onMediaClick: function (selecteditem) {
+                    self.previousItem = self.currentItem();
+                    self.beforeSelectionChange();
+                    var index = self.groups[selecteditem.groupIndex].itemsList.indexOf(selecteditem);
+                    self.itemUpdateTrigger = rin.ContentBrowserES.changeTrigger.onclick;
+                    self.afterSelectionChange(selecteditem.groupIndex, index);
+                },
+                onApplyKeyframe: function (selecteditem) {
+                    self.previousItem = self.currentItem();
+                    self.beforeSelectionChange();
+                    var index = self.groups[selecteditem.groupIndex].itemsList.indexOf(selecteditem);
+                    self.itemUpdateTrigger = rin.ContentBrowserES.changeTrigger.onkeyframeapplied;
+                    self.afterSelectionChange(selecteditem.groupIndex, index);
+                },
+                onExplore: function () {
+                    //When clicked on a preview image, launch a popup, or go to expanded mode
+                    self.getItemESData(self.currentItem());
+                    var popup = new rin.PopupControl(self.orchestrator);
+                    popup.load(self.currentItem().esData, self);
+                    self.currentMode = rin.ContentBrowserES.currentMode.expanded;
+
+                    $(popup).bind('onclose', function (e) {
+                        self.currentMode = rin.ContentBrowserES.currentMode.preview;
+                    });
+                },
+                beforeSelectionChange: function () {
+                    self.isFirstItem(false);
+                    self.isLastItem(false);
+                    self.itemUpdateTrigger = rin.ContentBrowserES.changeTrigger.none;
+                },
+                afterSelectionChange: function (groupIndex, index) {
+                    if (index === 0 && groupIndex === 0)
+                        self.isFirstItem(true);
+                    else if (index === (self.groups[groupIndex].itemsList.length - 1) && groupIndex === (self.groups.length - 1))
+                        self.isLastItem(true);
+
+                    self.previousItem = self.currentItem();
+
+                    var selectedItem = self.groups[groupIndex].itemsList[index];
+                    if (self.currentMode === rin.ContentBrowserES.currentMode.expanded) {
+                        self.getItemESData(selectedItem);
+                    }
+
+                    self.currentItem(selectedItem);
+                },
+                getItemESData: function (itemData) {
+                    if (itemData.esData === undefined) {
+                        itemData.esData = rin.internal.esDataGenerator.getExperienceStream(itemData);
+                    }
+                }
+            };
+            var self = collectionViewModel;
+            collectionViewModel.initViewModel();
+            return collectionViewModel;
+        },
+        _updateView: function () {
+            //--once html, associated javascript and the collection data model are all loaded
+            //--create and append the view, apply bindings and initialize the view javascript
+            if (this._isHtmlLoaded && this._isJsLoaded && this._isJSONLoaded) {
+                this._userInterfaceControl.appendChild(rin.util.createElementWithHtml(this._elementHtml).firstChild);
+                ko.applyBindings(this.collectionViewModel, this._userInterfaceControl.firstChild);
+
+                var viewLoad = this._dimension;
+                if (viewLoad in rin.ContentBrowserES)
+                    new rin.ContentBrowserES[viewLoad](this._userInterfaceControl.firstChild);
+            }
+        },
+        _loadCollectionJSON: function () {
+            //--from the es data, load the collection json
+            var resourceResolver = this._orchestrator.getResourceResolver();
+            var resourceName = resourceResolver.resolveResource(this._esData.resourceReferences[0].resourceId, this._esData.experienceId);
+
+            if (resourceName) {
+                var self = this;
+                var cache = !(self._orchestrator.getPlayerConfiguration().playerMode === rin.contracts.playerMode.AuthorerPreview || self._orchestrator.getPlayerConfiguration().playerMode === rin.contracts.playerMode.AuthorerEditor);
+                rin.internal.JSONLoader.loadJSON(resourceName, function (data, jsonUrl) {
+                    self._collectionData = rin.internal.JSONLoader.processCollectionJSON(jsonUrl, data[0].collection, resourceResolver, true);
+                    self.setDataContext(self._collectionData);
+                    self.setState(rin.contracts.experienceStreamState.ready);
+                    self.displayKeyframe(self._lastKeyframe);
+                }, function (error, jsonUrl) {
+                    self.setState(rin.contracts.experienceStreamState.error);
+                    self._orchestrator.eventLogger.logErrorEvent("Error: {0} downloading the json file: {1}", error, jsonUrl);
+                }, cache);
+            }
         }
-    },
-    _loadCollectionJSON: function () {
-        //--from the es data, load the collection json
-        var resourceResolver = this._orchestrator.getResourceResolver();
-        var resourceName = resourceResolver.resolveResource(this._esData.resourceReferences[0].resourceId, this._esData.experienceId);
+    };
 
-        if (resourceName) {
-            var self = this;
-            var cache = !(self._orchestrator.getPlayerConfiguration().playerMode === rin.contracts.playerMode.AuthorerPreview || self._orchestrator.getPlayerConfiguration().playerMode === rin.contracts.playerMode.AuthorerEditor);
-            rin.internal.JSONLoader.loadJSON(resourceName, function (data, jsonUrl) {
-                self._collectionData = rin.internal.JSONLoader.processCollectionJSON(jsonUrl, data[0].collection, resourceResolver, true);
-                self.setDataContext(self._collectionData);
-                self.setState(rin.contracts.experienceStreamState.ready);
-                self.displayKeyframe(self._lastKeyframe);
-            }, function (error, jsonUrl) {
-                self.setState(rin.contracts.experienceStreamState.error);
-                self._orchestrator.eventLogger.logErrorEvent("Error: {0} downloading the json file: {1}", error, jsonUrl);
-            }, cache);
-        }
-    }
-};
+    rin.util.overrideProperties(rin.ContentBrowserES.prototypeOverrides, rin.ContentBrowserES.prototype);
 
-rin.util.overrideProperties(rin.ContentBrowserES.prototypeOverrides, rin.ContentBrowserES.prototype);
-
-rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.RinTemplates.MetroOneDTemplateES", function (orchestrator, esData) { return new rin.ContentBrowserES(orchestrator, esData, "OneD"); });
-rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.RinTemplates.MetroTwoDTemplateES", function (orchestrator, esData) { return new rin.ContentBrowserES(orchestrator, esData, "OneD"); });
-
+    rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.RinTemplates.MetroOneDTemplateES", function (orchestrator, esData) { return new rin.ContentBrowserES(orchestrator, esData, "OneD"); });
+    rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.RinTemplates.MetroTwoDTemplateES", function (orchestrator, esData) { return new rin.ContentBrowserES(orchestrator, esData, "OneD"); });
+})(window.rin = window.rin || {});
 /*!
 * RIN Experience Provider JavaScript Library v1.0
 * http://research.microsoft.com/rin
@@ -3389,329 +3354,336 @@ rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftRe
 /// <reference path="../core/ResourcesResolver.js" />
 /// <reference path="../core/TaskTimer.js" />
 
-window.rin = window.rin || {};
+(function (rin) {
+    /*global $:true, ko:true*/
+    "use strict";
 
-//To bind a UI element directly using knockout
-ko.bindingHandlers.element = {
-    update: function (element, valueAccessor) {
-        var elem = ko.utils.unwrapObservable(valueAccessor());
-        $(element).empty();
-        $(element).append(elem);
-    }
-};
-
-rin.OverlayES = function (orchestrator, esData) {
-    this._orchestrator = orchestrator;
-
-    this._esData = esData;
-
-    this._userInterfaceControl = rin.util.createElementWithHtml("<div></div>").firstChild;
-
-    var contenttype = esData.data.contentType;
-    var lowercaseContent = contenttype.toLowerCase();
-    //Load the mediaoverlays.htm for the non-text experience streams mentioned below
-    switch (lowercaseContent) {
-        case "audio":
-        case "video":
-        case "zoomableimage":
-        case "singledeepzoomimage":
-        case "photosynth":
-            contenttype = "MediaOverlays";
-            break;
-    }
-
-    var resourceResolver = this._orchestrator.getResourceResolver();
-    var htmlfile = resourceResolver.resolveSystemResource('overlays/' + contenttype + '.htm');
-
-    var self = this;
-
-    //--Download the theme based htm file
-    var htmlDownload = {
-        url: htmlfile,
-        dataType: "html",
-        error: function (jqxhr, textStatus, errorThrown) {
-            self.setState(rin.contracts.experienceStreamState.error);
-            self._orchestrator.eventLogger.logErrorEvent("Error: {0} downloading the html file: {1}", errorThrown, htmlfile);
-        },
-        success: function (data, textStatus, jqxhr) {
-            self._userInterfaceControl = rin.util.createElementWithHtml(data).firstChild;
-
-            $(self._userInterfaceControl).bind("mousedown", function (e) {
-                self._orchestrator.startInteractionMode();
-            });
-
-            self._isHtmlLoaded = true;
-            self.checkReady();
+    //To bind a UI element directly using knockout
+    ko.bindingHandlers.element = {
+        update: function (element, valueAccessor) {
+            var elem = ko.utils.unwrapObservable(valueAccessor());
+            $(element).empty();
+            $(element).append(elem);
         }
     };
-    $.ajax(htmlDownload);
 
-    this._userInterfaceControl.hide = function () {
-        lastZIndex = control.style.zIndex;
-        control.style.zIndex = -10000;
+    rin.OverlayES = function (orchestrator, esData) {
+        this._orchestrator = orchestrator;
+
+        this._esData = esData;
+
+        this._userInterfaceControl = rin.util.createElementWithHtml("<div style='height:100%'></div>").firstChild;
+
+        var contenttype = esData.data.contentType;
+        var lowercaseContent = contenttype.toLowerCase();
+        //Load the mediaoverlays.htm for the non-text experience streams mentioned below
+        switch (lowercaseContent) {
+            case "audio":
+            case "video":
+            case "zoomableimage":
+            case "singledeepzoomimage":
+            case "photosynth":
+                contenttype = "MediaOverlays";
+                break;
+        }
+
+        var resourceResolver = this._orchestrator.getResourceResolver();
+        var htmlfile = resourceResolver.resolveSystemResource('overlays/' + contenttype + '.htm');
+
+        var self = this;
+        var lastZIndex;
+        //--Download the theme based htm file
+        var htmlDownload = {
+            url: htmlfile,
+            dataType: "html",
+            error: function (jqxhr, textStatus, errorThrown) {
+                self.setState(rin.contracts.experienceStreamState.error);
+                self._orchestrator.eventLogger.logErrorEvent("Error: {0} downloading the html file: {1}", errorThrown, htmlfile);
+            },
+            success: function (data, textStatus, jqxhr) {
+                rin.util.removeAllChildren(self._userInterfaceControl);
+                self._userInterfaceControl.appendChild(rin.util.createElementWithHtml(data).firstChild);
+
+                $(self._userInterfaceControl).bind("mousedown", function (e) {
+                    self._orchestrator.startInteractionMode();
+                });
+
+                self._isHtmlLoaded = true;
+                self.checkReady();
+            }
+        };
+        $.ajax(htmlDownload);
+
+        this._userInterfaceControl.hide = function () {
+            var control = this._userInterfaceControl;
+            lastZIndex = control.style.zIndex;
+            control.style.zIndex = -10000;
+        };
+
+        //--from the es data, load the collection json
+        var resourceName = resourceResolver.resolveResource(esData.resourceReferences[0].resourceId, esData.experienceId);
+        this.setState(rin.contracts.experienceStreamState.buffering);
+
+        if (resourceName) {
+            var cache = !(self._orchestrator.getPlayerConfiguration().playerMode === rin.contracts.playerMode.AuthorerPreview || self._orchestrator.getPlayerConfiguration().playerMode === rin.contracts.playerMode.AuthorerEditor);
+            rin.internal.JSONLoader.loadJSON(resourceName, function (data, jsonUrl) {
+                self._collectionData = rin.internal.JSONLoader.processCollectionJSON(jsonUrl, data[0].collection, resourceResolver);
+                self._isResourceLoaded = true;
+                rin.internal.debug.write("Load called for collection" + jsonUrl);
+                self.checkReady();
+            }, function (error, jsonUrl) {
+                self._isResourceLoaded = false;
+                self.setState(rin.contracts.experienceStreamState.error);
+                self._orchestrator.eventLogger.logErrorEvent("Error: {0} downloading the json file: {1}", error, jsonUrl);
+            }, cache);
+        }
+
+        //--Check to see if both html and json collection are loaded and then set the state of the ES to ready
+        this.checkReady = function () {
+            if (self._isHtmlLoaded && self._isResourceLoaded)
+                self.setState(rin.contracts.experienceStreamState.ready);
+        };
+        this._userInterfaceControl.unhide = function () {
+            var control = this._userInterfaceControl;
+            control.style.zIndex = lastZIndex;
+        };
     };
 
-    //--from the es data, load the collection json
-    var resourceResolver = this._orchestrator.getResourceResolver();
-    var resourceName = resourceResolver.resolveResource(esData.resourceReferences[0].resourceId, esData.experienceId);
-    this.setState(rin.contracts.experienceStreamState.buffering);
+    rin.OverlayES.prototype = new rin.contracts.DiscreteKeyframeESBase();
+    rin.OverlayES.base = rin.contracts.DiscreteKeyframeESBase.prototype;
+    rin.OverlayES.changeTrigger = { none: 0, onkeyframeapplied: 1, onnext: 2, onprevious: 3, onclick: 4 };
+    rin.OverlayES.currentMode = { preview: 0, expanded: 1 };
 
-    if (resourceName) {
-        var cache = !(self._orchestrator.getPlayerConfiguration().playerMode === rin.contracts.playerMode.AuthorerPreview || self._orchestrator.getPlayerConfiguration().playerMode === rin.contracts.playerMode.AuthorerEditor);
-        rin.internal.JSONLoader.loadJSON(resourceName, function (data, jsonUrl) {
-            self._collectionData = rin.internal.JSONLoader.processCollectionJSON(jsonUrl, data[0].collection, resourceResolver);
-            self._isResourceLoaded = true;
-            rin.internal.debug.write("Load called for collection" + jsonUrl);
-            self.checkReady();
-        }, function (error, jsonUrl) {
-            self._isResourceLoaded = false;
-            self.setState(rin.contracts.experienceStreamState.error);
-            self._orchestrator.eventLogger.logErrorEvent("Error: {0} downloading the json file: {1}", error, jsonUrl);
-        }, cache);
-    }
-
-    //--Check to see if both html and json collection are loaded and then set the state of the ES to ready
-    this.checkReady = function () {
-        if (self._isHtmlLoaded && self._isResourceLoaded)
-            self.setState(rin.contracts.experienceStreamState.ready);
-    }
-    this._userInterfaceControl.unhide = function () { control.style.zIndex = lastZIndex; }
-};
-
-rin.OverlayES.prototype = new rin.contracts.DiscreteKeyframeESBase();
-rin.OverlayES.base = rin.contracts.DiscreteKeyframeESBase.prototype;
-rin.OverlayES.changeTrigger = { none: 0, onkeyframeapplied: 1, onnext: 2, onprevious: 3, onclick: 4 };
-rin.OverlayES.currentMode = { preview: 0, expanded: 1 };
-
-rin.OverlayES.prototypeOverrides = {
-    load: function (experienceStreamId) {
-        rin.OverlayES.base.load.call(this, experienceStreamId);
-    },
-    unload: function () {
-        rin.OverlayES.base.unload.call(this);
-    },
-    getViewModel: function (itemId, collectionData, orchestrator) {
-        //--Get the current item to be displayed from the keyframe
-        var itemData = collectionData.items[itemId];
-        if (itemData) {
-            var self = this;
-            var overlayViewModel = {
-                overlayCollection: collectionData,
-                orchestrator: orchestrator,
-                currentItem: null,
-                expandedItem: null,
-                itemId: null,
-                currentMode: rin.OverlayES.currentMode.preview,
-                isExpanded: ko.observable(false),
-                isBlurbVisible: ko.observable(true),
-                onClickMore: function () {
-                    self.overlayViewModel.isExpanded(true);
-                    self.overlayViewModel.isBlurbVisible(false);
-                },
-                onExplore: function () {
-                //--on click of cue, launch the associated behavior
-                    this.currentMode = rin.OverlayES.currentMode.expanded;
-                    if (this.currentItem.defaultExpandedModeBehavior) {
-                        var behaviorFactory = rin.ext.getFactory(rin.contracts.systemFactoryTypes.behaviorFactory, this.currentItem.defaultExpandedModeBehavior);
-                        if (behaviorFactory) {
-                            var overlayBehavior = behaviorFactory(this.orchestrator);
-                            if (overlayBehavior) {
-                                overlayBehavior.executeBehavior({ "DataContext": this.currentItem, "CollectionData": this.overlayCollection }, function () {
-                                    this.currentMode = rin.OverlayES.currentMode.preview;
-                                });
+    rin.OverlayES.prototypeOverrides = {
+        load: function (experienceStreamId) {
+            rin.OverlayES.base.load.call(this, experienceStreamId);
+        },
+        unload: function () {
+            rin.OverlayES.base.unload.call(this);
+        },
+        getViewModel: function (itemId, collectionData, orchestrator) {
+            //--Get the current item to be displayed from the keyframe
+            var itemData = collectionData.items[itemId];
+            if (itemData) {
+                var self = this;
+                var overlayViewModel = {
+                    overlayCollection: collectionData,
+                    orchestrator: orchestrator,
+                    currentItem: null,
+                    expandedItem: null,
+                    itemId: null,
+                    currentMode: rin.OverlayES.currentMode.preview,
+                    isExpanded: ko.observable(false),
+                    isBlurbVisible: ko.observable(true),
+                    onClickMore: function () {
+                        self.overlayViewModel.isExpanded(true);
+                        self.overlayViewModel.isBlurbVisible(false);
+                    },
+                    onExplore: function () {
+                        //--on click of cue, launch the associated behavior
+                        this.currentMode = rin.OverlayES.currentMode.expanded;
+                        if (this.currentItem.defaultExpandedModeBehavior) {
+                            var behaviorFactory = rin.ext.getFactory(rin.contracts.systemFactoryTypes.behaviorFactory, this.currentItem.defaultExpandedModeBehavior);
+                            if (behaviorFactory) {
+                                var overlayBehavior = behaviorFactory(this.orchestrator);
+                                if (overlayBehavior) {
+                                    overlayBehavior.executeBehavior({ "DataContext": this.currentItem, "CollectionData": this.overlayCollection }, function () {
+                                        this.currentMode = rin.OverlayES.currentMode.preview;
+                                    });
+                                }
                             }
                         }
                     }
-                }
-            };
+                };
 
-            //--If its a play in place overlay, create a rines dynamically
-            //--add it to the current overlay UI
-            //--Subscribe to the ES events and sync the rines with the current overlay state(ESState and Play/Pause)
-            if (itemData.playInPlace) {
-                if (itemData.experienceStream === undefined) {                    
-                    var rinESNarrative = rin.internal.esDataGenerator.getExperienceStream(
-                        { "srcType": "MicrosoftResearch.Rin.RinExperienceStream",
-                            "duration": itemData.smallMediaDuration || itemData.duration,
-                            "smallMediaStartOffset": itemData.smallMediaStartOffset
-                        });
-                    var rinESData = rinESNarrative.experiences[rinESNarrative.id];
-                    rinESData.id = rinESData.experienceId = rinESNarrative.id;
+                //--If its a play in place overlay, create a rines dynamically
+                //--add it to the current overlay UI
+                //--Subscribe to the ES events and sync the rines with the current overlay state(ESState and Play/Pause)
+                if (itemData.playInPlace) {
+                    if (itemData.experienceStream === undefined) {
+                        var rinESNarrative = rin.internal.esDataGenerator.getExperienceStream(
+                            {
+                                "srcType": "MicrosoftResearch.Rin.RinExperienceStream",
+                                "duration": itemData.smallMediaDuration || itemData.duration,
+                                "smallMediaStartOffset": itemData.smallMediaStartOffset
+                            });
+                        var rinESData = rinESNarrative.experiences[rinESNarrative.id];
+                        rinESData.id = rinESData.experienceId = rinESNarrative.id;
 
-                    //--Generate the current item's associated narrative and assign it to the rinES
-                    var itemESData = rin.internal.esDataGenerator.getExperienceStream(itemData);
-                    rinESData.narrativeData = itemESData;
-                    //--get the RinExperience stream
-                    itemData.experienceStream = orchestrator.createExperienceStream("MicrosoftResearch.Rin.RinExperienceStream", rinESData, orchestrator);
-                    this._subscribeToESEvents(itemData, itemData.experienceStream, rinESNarrative.id);
-                    //--Load the rines
-                    itemData.experienceStream.load(rinESData.id);
-                    //--assign the rin escontrol UI to be bound in the Mediaoverlay
-                    itemData.esControl = itemData.experienceStream._userInterfaceControl;
-                }
-            }
-            //--We have a single overlay for sidebar text/blurb.
-            //--So if there is a launch artifact specified in the itemdata, 
-            //--show up the blurb first and assign the launch artifact id data to expanded item.
-            //--else assign the itemdata to the expanded item to show up the side bar text
-            if (typeof itemData.launchArtifact === "string") {
-                overlayViewModel.expandedItem = collectionData.items[itemData.launchArtifact];
-                overlayViewModel.isExpanded(false);
-                overlayViewModel.isBlurbVisible(true);
-                this._subscribeToPlayerEvents(overlayViewModel);
-            }
-            else {
-                overlayViewModel.expandedItem = itemData;
-                overlayViewModel.isExpanded(true);
-                overlayViewModel.isBlurbVisible(false);
-            }
-            if (typeof itemData.fontColor === "string") {
-                if (itemData.fontColor.length > 6) {
-                    itemData.fontColor = "#" + itemData.fontColor.substring(3);
-                }
-            }
-            else {
-                itemData.fontColor = "#fcfcfc";
-            }
-
-            //--After setting all the properties, set the current item value and return the overlay view model.
-            overlayViewModel.currentItem = itemData;
-
-            return overlayViewModel;
-        }
-        return null;
-    },
-    _subscribeToPlayerEvents: function (overlayViewModel) {
-        //--Sync up the player with the blurb expanded /collapsed mode.
-        if (this._playerSubscription)
-            this._playerSubscription.dispose();
-
-        var self = this;
-        this._playerSubscription = this._orchestrator.playerStateChangedEvent.subscribe(function () {
-            var playerState = self._orchestrator.getPlayerState();
-            if (playerState == rin.contracts.playerState.playing) {
-                self.overlayViewModel.isExpanded(false);
-                self.overlayViewModel.isBlurbVisible(true);
-            }
-        });
-    },
-
-    _subscribeToESEvents: function (itemData, experienceStream, uniqueId) {
-        //--Sync up the ES events incase its a play in place overlay
-        if (this._esSubscription)
-            this._esSubscription.dispose();
-
-        var self = this;
-        this._esSubscription = experienceStream.stateChangedEvent.subscribe(function (esStateChangedEventArgs) {
-            //--Check to see if this is the same experiencestream we had subscribed to.
-            if (esStateChangedEventArgs.source._esData.id == uniqueId)
-                self.setState(esStateChangedEventArgs.toState);
-        }, uniqueId);
-    },
-
-    _bindOverlay: function (itemId, show) {
-        if (this._collectionData != null && itemId && this._isHtmlLoaded) {
-            //--form the view model from the itemid and apply bindings
-            var $control = $(this._userInterfaceControl);
-
-            if (typeof (this.overlayViewModel) === "undefined" || this.overlayViewModel == null || this.overlayViewModel.itemId != itemId) {
-                this.overlayViewModel = this.getViewModel(itemId, this._collectionData, this._orchestrator);
-                if (this.overlayViewModel != null && this.overlayViewModel.currentItem != null) {
-                    this.overlayViewModel.itemId = itemId;
-                    ko.applyBindings(this.overlayViewModel, this._userInterfaceControl);
-                }
-            }
-
-            if (show === true) {
-                if (this.overlayViewModel.currentItem.show !== show) {
-                    $control.stop().fadeIn(1000);
-                }
-                //--If there is a Play in place overlay, call play on the experience stream
-                if (this.overlayViewModel.currentItem.playInPlace && this.overlayViewModel.currentItem.experienceStream != null) {
-                    if (typeof (this.overlayViewModel.currentItem.experienceStream.setVolume) === "function") {
-                        this.overlayViewModel.currentItem.experienceStream.setVolume(this._baseVolume);
-                    }
-                    if (typeof (this.overlayViewModel.currentItem.experienceStream.setIsMuted) === "function") {
-                        this.overlayViewModel.currentItem.experienceStream.setIsMuted(this._isMuted);
+                        //--Generate the current item's associated narrative and assign it to the rinES
+                        var itemESData = rin.internal.esDataGenerator.getExperienceStream(itemData);
+                        rinESData.narrativeData = itemESData;
+                        //--get the RinExperience stream
+                        itemData.experienceStream = orchestrator.createExperienceStream("MicrosoftResearch.Rin.RinExperienceStream", rinESData, orchestrator);
+                        this._subscribeToESEvents(itemData, itemData.experienceStream, rinESNarrative.id);
+                        //--Load the rines
+                        itemData.experienceStream.load(rinESData.id);
+                        //--assign the rin escontrol UI to be bound in the Mediaoverlay
+                        itemData.esControl = itemData.experienceStream._userInterfaceControl;
                     }
                 }
+                //--We have a single overlay for sidebar text/blurb.
+                //--So if there is a launch artifact specified in the itemdata, 
+                //--show up the blurb first and assign the launch artifact id data to expanded item.
+                //--else assign the itemdata to the expanded item to show up the side bar text
+                if (typeof itemData.launchArtifact === "string") {
+                    overlayViewModel.expandedItem = collectionData.items[itemData.launchArtifact];
+                    overlayViewModel.isExpanded(false);
+                    overlayViewModel.isBlurbVisible(true);
+                    this._subscribeToPlayerEvents(overlayViewModel);
+                }
+                else {
+                    overlayViewModel.expandedItem = itemData;
+                    overlayViewModel.isExpanded(true);
+                    overlayViewModel.isBlurbVisible(false);
+                }
+                if (typeof itemData.fontColor === "string") {
+                    if (itemData.fontColor.length > 6) {
+                        itemData.fontColor = "#" + itemData.fontColor.substring(3);
+                    }
+                }
+                else {
+                    itemData.fontColor = "#fcfcfc";
+                }
+
+                //--After setting all the properties, set the current item value and return the overlay view model.
+                overlayViewModel.currentItem = itemData;
+
+                return overlayViewModel;
             }
-            else {
-                if (this.overlayViewModel.currentItem.show !== show) {
-                    $control.stop().fadeOut(1000);
-                    //--If there is a Play in place overlay, call pause on the experience stream
-                    if (this.overlayViewModel.currentItem.playInPlace && this.overlayViewModel.currentItem.experienceStream != null) {
-                        this.overlayViewModel.currentItem.experienceStream.pause();
+            return null;
+        },
+        _subscribeToPlayerEvents: function () {
+            //--Sync up the player with the blurb expanded /collapsed mode.
+            if (this._playerSubscription)
+                this._playerSubscription.dispose();
+
+            var self = this;
+            this._playerSubscription = this._orchestrator.playerStateChangedEvent.subscribe(function () {
+                var playerState = self._orchestrator.getPlayerState();
+                if (playerState === rin.contracts.playerState.playing) {
+                    self.overlayViewModel.isExpanded(false);
+                    self.overlayViewModel.isBlurbVisible(true);
+                }
+            });
+        },
+
+        _subscribeToESEvents: function (itemData, experienceStream, uniqueId) {
+            //--Sync up the ES events incase its a play in place overlay
+            if (this._esSubscription)
+                this._esSubscription.dispose();
+
+            var self = this;
+            this._esSubscription = experienceStream.stateChangedEvent.subscribe(function (esStateChangedEventArgs) {
+                //--Check to see if this is the same experiencestream we had subscribed to.
+                if (esStateChangedEventArgs.source._esData.id === uniqueId)
+                    self.setState(esStateChangedEventArgs.toState);
+            }, uniqueId);
+        },
+
+        _bindOverlay: function (itemId, show) {
+            if (this._collectionData !== null && itemId && this._isHtmlLoaded) {
+                //--form the view model from the itemid and apply bindings
+                var $control = $(this._userInterfaceControl);
+
+                if (typeof (this.overlayViewModel) === "undefined" || this.overlayViewModel === null || this.overlayViewModel.itemId !== itemId) {
+                    this.overlayViewModel = this.getViewModel(itemId, this._collectionData, this._orchestrator);
+                    if (this.overlayViewModel !== null && this.overlayViewModel.currentItem !== null) {
+                        this.overlayViewModel.itemId = itemId;
+                        ko.applyBindings(this.overlayViewModel, this._userInterfaceControl);
+                    }
+                }
+
+                if (show === true) {
+                    if (this.overlayViewModel.currentItem.show !== show) {
+                        $control.stop().fadeIn(1000);
+                    }
+                    //--If there is a Play in place overlay, call play on the experience stream
+                    if (this.overlayViewModel.currentItem.playInPlace && this.overlayViewModel.currentItem.experienceStream !== null) {
+                        if (typeof (this.overlayViewModel.currentItem.experienceStream.setVolume) === "function") {
+                            this.overlayViewModel.currentItem.experienceStream.setVolume(this._baseVolume);
+                        }
+                        if (typeof (this.overlayViewModel.currentItem.experienceStream.setIsMuted) === "function") {
+                            this.overlayViewModel.currentItem.experienceStream.setIsMuted(this._isMuted);
+                        }
+                    }
+                }
+                else {
+                    if (this.overlayViewModel.currentItem.show !== show) {
+                        $control.stop().fadeOut(1000);
+                        //--If there is a Play in place overlay, call pause on the experience stream
+                        if (this.overlayViewModel.currentItem.playInPlace && this.overlayViewModel.currentItem.experienceStream !== null) {
+                            this.overlayViewModel.currentItem.experienceStream.pause();
+                        }
+                    }
+                }
+                this.overlayViewModel.currentItem.show = show;
+            }
+        },
+        displayKeyframe: function (keyframeData) {
+            if (keyframeData !== undefined) {
+                var artifactState = keyframeData.data["ea-selstate"];
+                if (artifactState !== undefined) {
+                    for (var item in artifactState) {
+                        var itemId = artifactState[item].itemid;
+                        var show = artifactState[item].view && artifactState[item].view.display && artifactState[item].view.display.show !== undefined ? artifactState[item].view.display.show : true;
+                        this._bindOverlay(itemId, show);
+                        rin.internal.debug.write("Display keyframe called for overlay item:" + itemId);
                     }
                 }
             }
-            this.overlayViewModel.currentItem.show = show;
-        }
-    },
-    displayKeyframe: function (keyframeData) {
-        if (keyframeData != undefined) {
-            var artifactState = keyframeData.data["ea-selstate"];
-            if (artifactState != undefined) {
-                for (var item in artifactState) {
-                    var itemId = artifactState[item].itemid;
-                    var show = artifactState[item].view && artifactState[item].view.display && artifactState[item].view.display.show !== undefined ? artifactState[item].view.display.show : true;
-                    this._bindOverlay(itemId, show);
-                    rin.internal.debug.write("Display keyframe called for overlay item:" + itemId);
+        },
+        // Play the rines incase of play in place overlay
+        play: function (offset, experienceStreamId) {
+            rin.OverlayES.base.play.call(this, offset, experienceStreamId);
+            if (this.getState() === rin.contracts.experienceStreamState.ready) {
+                if (this.overlayViewModel !== null && this.overlayViewModel.currentItem !== null) {
+                    if (this.overlayViewModel.currentItem.playInPlace && this.overlayViewModel.currentItem.experienceStream !== null)
+                        this.overlayViewModel.currentItem.experienceStream.play(offset, experienceStreamId);
                 }
             }
-        }
-    },
-    // Play the rines incase of play in place overlay
-    play: function (offset, experienceStreamId) {
-        rin.OverlayES.base.play.call(this, offset, experienceStreamId);
-        if (this.getState() === rin.contracts.experienceStreamState.ready) {
-            if (this.overlayViewModel != null && this.overlayViewModel.currentItem != null) {
-                if (this.overlayViewModel.currentItem.playInPlace && this.overlayViewModel.currentItem.experienceStream != null)
-                    this.overlayViewModel.currentItem.experienceStream.play(offset, experienceStreamId);
+        },
+        // Pause the rines incase of play in place overlay
+        pause: function (offset, experienceStreamId) {
+            rin.OverlayES.base.pause.call(this, offset, experienceStreamId);
+            if (this.getState() === rin.contracts.experienceStreamState.ready) {
+                if (this.overlayViewModel !== null && this.overlayViewModel.currentItem !== null) {
+                    if (this.overlayViewModel.currentItem.playInPlace && this.overlayViewModel.currentItem.experienceStream !== null)
+                        this.overlayViewModel.currentItem.experienceStream.pause(offset, experienceStreamId);
+                }
+            }
+        },
+
+        // Set the base volume of the overlay. This will be multiplied with the keyframed volume to get the final volume.
+        setVolume: function (baseVolume) {
+            this._baseVolume = baseVolume;
+            if (this.overlayViewModel &&
+                this.overlayViewModel.currentItem &&
+                this.overlayViewModel.currentItem.playInPlace &&
+                this.overlayViewModel.currentItem.experienceStream !== null &&
+                typeof (this.overlayViewModel.currentItem.experienceStream.setVolume) === "function") {
+                this.overlayViewModel.currentItem.experienceStream.setVolume(baseVolume);
+            }
+        },
+
+        // Mute or unmute the play in place stream.
+        setIsMuted: function (value) {
+            this._isMuted = value;
+            if (this.overlayViewModel &&
+                this.overlayViewModel.currentItem &&
+                this.overlayViewModel.currentItem.playInPlace &&
+                this.overlayViewModel.currentItem.experienceStream !== null &&
+                typeof (this.overlayViewModel.currentItem.experienceStream.setIsMuted) === "function") {
+                this.overlayViewModel.currentItem.experienceStream.setIsMuted(value);
             }
         }
-    },
-    // Pause the rines incase of play in place overlay
-    pause: function (offset, experienceStreamId) {
-        rin.OverlayES.base.pause.call(this, offset, experienceStreamId);
-        if (this.getState() === rin.contracts.experienceStreamState.ready) {
-            if (this.overlayViewModel != null && this.overlayViewModel.currentItem != null) {
-                if (this.overlayViewModel.currentItem.playInPlace && this.overlayViewModel.currentItem.experienceStream != null)
-                    this.overlayViewModel.currentItem.experienceStream.pause(offset, experienceStreamId);
-            }
-        }
-    },
+    };
 
-    // Set the base volume of the overlay. This will be multiplied with the keyframed volume to get the final volume.
-    setVolume: function (baseVolume) {
-        this._baseVolume = baseVolume;
-        if (this.overlayViewModel &&
-            this.overlayViewModel.currentItem &&
-            this.overlayViewModel.currentItem.playInPlace &&
-            this.overlayViewModel.currentItem.experienceStream != null &&
-            typeof (this.overlayViewModel.currentItem.experienceStream.setVolume) === "function") {
-            this.overlayViewModel.currentItem.experienceStream.setVolume(baseVolume);
-        }
-    },
+    rin.util.overrideProperties(rin.OverlayES.prototypeOverrides, rin.OverlayES.prototype);
 
-    // Mute or unmute the play in place stream.
-    setIsMuted: function (value) {
-        this._isMuted = value;
-        if (this.overlayViewModel &&
-            this.overlayViewModel.currentItem &&
-            this.overlayViewModel.currentItem.playInPlace &&
-            this.overlayViewModel.currentItem.experienceStream != null &&
-            typeof (this.overlayViewModel.currentItem.experienceStream.setIsMuted) === "function") {
-            this.overlayViewModel.currentItem.experienceStream.setIsMuted(value);
-        }
-    }
-};
-
-rin.util.overrideProperties(rin.OverlayES.prototypeOverrides, rin.OverlayES.prototype);
-
-rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.TwodLayoutEngine", function (orchestrator, esData) { return new rin.OverlayES(orchestrator, esData); });
-rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "microsoftResearch.rin.twodlayoutengine", function (orchestrator, esData) { return new rin.OverlayES(orchestrator, esData); });
-
+    rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.TwodLayoutEngine", function (orchestrator, esData) { return new rin.OverlayES(orchestrator, esData); });
+    rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "microsoftResearch.rin.twodlayoutengine", function (orchestrator, esData) { return new rin.OverlayES(orchestrator, esData); });
+})(window.rin = window.rin || {});
 /*!
 * RIN Experience Provider JavaScript Library v1.0
 * http://research.microsoft.com/rin
@@ -3965,22 +3937,25 @@ window.rin = window.rin || {};
 window.rin = window.rin || {};
 
 (function (rin) {
+    /*global $:true, ko:true*/
+    "use strict";
     // ES for displaying web pages.
     var WebViewES = function (orchestrator, esData) {
         WebViewES.parentConstructor.apply(this, arguments);
         var self = this;
         this._orchestrator = orchestrator;
         this._userInterfaceControl = rin.util.createElementWithHtml(WebViewES.elementHTML).firstChild;
-        this._iFrame = this._userInterfaceControl.children[0]; // IFrame used to load the webpage
-        this._controlDiv = this._userInterfaceControl.children[1]; // Div sitting over the IFrame to intercept user interactions.
+        this._iFrame = $("iframe", this._userInterfaceControl)[0]; // IFrame used to load the webpage
+        this._controlDiv = $(".controlElement", this._userInterfaceControl)[0]; // Div sitting over the IFrame to intercept user interactions.
         this._esData = esData;
         this._url = orchestrator.getResourceResolver().resolveResource(esData.resourceReferences[0].resourceId, esData.experienceId);
+        this._cssPath = esData && esData.data && esData.data.cssPath;
 
-        $(this._controlDiv).bind("mousedown", function (e) {
+        $(this._controlDiv).bind("mousedown", function () {
             self._controlDiv.style.display = "none"; // Remove the overlay div so that the user can interact with the web page.
             self._orchestrator.startInteractionMode();
         });
-        $(this._controlDiv).bind("mousewheel", function (e) {
+        $(this._controlDiv).bind("mousewheel", function () {
             self._controlDiv.style.display = "none"; // Remove the overlay div so that the user can interact with the web page.
             self._orchestrator.startInteractionMode();
         });
@@ -3990,7 +3965,7 @@ window.rin = window.rin || {};
 
     WebViewES.prototypeOverrides = {
         // Load the ES and start loading the webpage.
-        load: function (experienceStreamId) {
+        load: function () {
             if (!this._url)
                 throw new Error("WebView source not found!");
 
@@ -3998,33 +3973,87 @@ window.rin = window.rin || {};
             this.setState(rin.contracts.experienceStreamState.buffering);
 
             // Load the page in the IFrame
-            this._iFrame.onerror = function(source) {
+            this._iFrame.onerror = function (source) {
                 rin.internal.debug.write("error while loading iframe " + source);
-                return true;                
-            }
+                self.setState(rin.contracts.experienceStreamState.error);
+                return true;
+            };
             this._iFrame.src = this._url;
             this._iFrame.onload = function () {
-                try
-                {
-                    self.setState(rin.contracts.experienceStreamState.ready);
+                try {
+                    if (self._cssPath) {
+                        var css = document.createElement("link");
+                        css.href = self._cssPath;
+                        css.type = "text/css";
+                        css.rel = "stylesheet";
+                        var head = getHeadNode(self._iFrame.contentDocument);
+                        head.appendChild(css);
+                    }
                 }
-                catch(err)
-                {
+                catch (err) {
                     rin.internal.debug.write("error on iframe load " + err);
+                }
+                finally {
+                    self.setState(rin.contracts.experienceStreamState.ready);
                 }
             };
         },
-        play: function (offset, experienceStreamId) {
+        play: function () {
             // Add the overlay div back in place to monitor for interactions.
             this._controlDiv.style.display = "block";
         },
-        _url: null,
+        pause: function () {
+            // Add the overlay div back in place to monitor for interactions.
+            this._controlDiv.style.display = "block";
+        },
+        _url: null
     };
 
     rin.util.overrideProperties(WebViewES.prototypeOverrides, WebViewES.prototype);
-    WebViewES.elementHTML = "<div style='height:100%;width:100%;position:absolute;border:0px;'><iframe style='overflow:hidden;height:100%;width:100%;position:absolute;border:none;'></iframe><div style='height:100%;width:100%;position:absolute;background-color:rgba(1,1,1,.001);'></div></div>";
+    WebViewES.elementHTML = "<div style='height:100%;width:100%;position:absolute;border:0px;'><iframe style='overflow:hidden;height:100%;width:100%;position:absolute;border:none;'></iframe><div class='controlElement' style='height:100%;width:100%;position:absolute;background-color:rgba(1,1,1,.001);'></div></div>";
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.WebViewExperienceStream", function (orchestrator, esData) { return new WebViewES(orchestrator, esData); });
-})(rin);
+
+    //Helper methods
+
+    // Adds a node to the doc - To Do Optimize this for cross-browser and Win 8 standards.
+    var addElement = function (doc, element, referenceNode, referenceType) {
+        var refChild = referenceNode || doc.lastChild;
+        if(referenceType === "before")
+            doc.insertBefore(element, refChild);
+        else
+            refChild.parentNode.appendChild(element);
+    },
+    // Adds a node to the doc.
+    createAndAddElement = function (doc, nodeName, attributes, referenceNode, referenceType) {
+        var element = doc.createElement(nodeName),
+            attrs = attributes || [],
+            attributeName;
+        for (attributeName in attrs) {
+            if (attrs.hasOwnProperty(attributeName)) {
+                element.setAttribute(attributeName, attrs[attributeName]);
+            }
+        }
+        addElement(doc, element, referenceNode, referenceType);
+        return element;
+    },
+    // Gets the first matching node by tag name or undefined.
+    getFirstNodeByTagNameSafe = function (doc, nodeName) {
+        var nodes = doc.getElementsByTagName(nodeName);
+        return nodes && (nodes.length > 0 ? nodes[0] : undefined);
+    },
+    // Gets the body node or undefined.
+    getBodyNode = function (doc) {
+        var body = doc.body || getFirstNodeByTagNameSafe(doc, "body");
+        return body;
+    },
+    // Gets the head node or undefined.
+    getHeadNode = function (doc) {
+        var head = doc.head || getFirstNodeByTagNameSafe(doc, "head") || createAndAddElement(doc, "head", null, getBodyNode(doc), "before");
+        return head;
+    };
+
+
+})(window.rin);
 /*!
 * RIN Experience Provider JavaScript Library v1.0
 * http://research.microsoft.com/rin
@@ -4047,10 +4076,10 @@ window.rin = window.rin || {};
 window.rin = window.rin || {};
 
 (function (rin) {
+    "use strict";
     // ES for playing video clips.
     var RinES = function (orchestrator, esData) {
         RinES.parentConstructor.apply(this, arguments);
-        var self = this;
         this._orchestrator = orchestrator;
         this._userInterfaceControl = rin.util.createElementWithHtml(RinES.elementHTML).firstChild;
         this._esData = esData;        
@@ -4061,7 +4090,7 @@ window.rin = window.rin || {};
 
     RinES.prototypeOverrides = {        
         // Load and initialize the video.
-        load: function (experienceStreamId) {
+        load: function () {
             var self = this,
                 loadComplete = function () {
                     if (self.getState() === rin.contracts.experienceStreamState.ready) {
@@ -4101,10 +4130,10 @@ window.rin = window.rin || {};
             });
 
             // Load the internal rin.
-            if(this._esData.narrativeData != null) {
+            if(this._esData.narrativeData) {
                 self._rinPlayer.loadData(this._esData.narrativeData, loadComplete);
             }
-            else if(this._url != null) {
+            else if(this._url !== null) {
                 self._rinPlayer.load(this._url, loadComplete);
             }
         },
@@ -4142,7 +4171,7 @@ window.rin = window.rin || {};
     RinES.elementHTML = "<div class='rinPlayer' style='height:100%;width:100%;position:absolute'></div>";
     rin.util.overrideProperties(RinES.prototypeOverrides, RinES.prototype);
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.RinExperienceStream", function (orchestrator, esData) { return new RinES(orchestrator, esData); });
-})(rin);
+})(window.rin);
 
 /*!
 * RIN Experience Provider JavaScript Library v1.0
@@ -4166,8 +4195,13 @@ window.rin = window.rin || {};
 window.rin = window.rin || {};
 
 (function (rin) {
+    /*global $:true, ko:true*/
+    "use strict";
+
     // Lite ES that interpolates doubles and uses DiscreteKeyframeESBase as base class.
     var LiteDiscreteES = function (orchestrator, esData) {
+        this._orchestrator = orchestrator;
+        this._esData = esData;
         LiteDiscreteES.parentConstructor.apply(this, arguments);
 
         this._userInterfaceControl = rin.util.createElementWithHtml(LiteDiscreteES.elementHTML).firstChild;
@@ -4181,6 +4215,11 @@ window.rin = window.rin || {};
         load: function (experienceStreamId) {
             LiteDiscreteES.parentPrototype.load.call(this, experienceStreamId);
             this.setState(rin.contracts.experienceStreamState.ready);
+
+            var self = this;
+            setTimeout(function () {
+                self._orchestrator.onESEvent(rin.contracts.esEventIds.setTimeMarkers, [3, 4, 5, 6, 7, 8, 10]);
+            }, 2000);
         },
         // Pause the player.
         pause: function (offset, experienceStreamId) {
@@ -4232,13 +4271,13 @@ window.rin = window.rin || {};
             valueAnimationStoryboard.begin();
             this._activeValueAnimation = valueAnimationStoryboard;
         },
-        _activeValueAnimation: null,
+        _activeValueAnimation: null
     };
 
     rin.util.overrideProperties(LiteDiscreteES.prototypeOverrides, LiteDiscreteES.prototype);
     LiteDiscreteES.elementHTML = "<div style='position:absolute;width:100%;height:100%'><div style='color:red;position:absolute;width:100%;height:100%'>Starting Test...</div><div style='color:white;position:absolute;right:20px;top:20px;' class='rinPlaceholderValue'></div></div>";
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.LiteDiscreteExperienceStream", function (orchestrator, esData) { return new LiteDiscreteES(orchestrator, esData); });
-})(rin);
+})(window.rin = window.rin || {});
 /*!
 * RIN Experience Provider JavaScript Library v1.0
 * http://research.microsoft.com/rin
@@ -4258,13 +4297,13 @@ window.rin = window.rin || {};
 /// <reference path="../core/ResourcesResolver.js" />
 /// <reference path="../core/TaskTimer.js" />
 
-window.rin = window.rin || {};
-
 (function (rin) {
+    "use strict";
+    /*global $:true, ko:true*/
     // Simple lite ES that interpolates doubles and uses InterpolatedKeyframeESBase as base class.
     var LiteInterpolatedES = function (orchestrator, esData) {
         LiteInterpolatedES.parentConstructor.apply(this, arguments);
-
+        this._orchestrator = orchestrator;
         this._userInterfaceControl = rin.util.createElementWithHtml(LiteInterpolatedES.elementHTML).firstChild;
         this._valuePlaceholder = $(".rinPlaceholderValue", this._userInterfaceControl)[0];
 
@@ -4291,14 +4330,14 @@ window.rin = window.rin || {};
         // Apply/Interpolate to a keyframe.
         displayKeyframe: function (keyframeData) {
             rin.util.assignAsInnerHTMLUnsafe(this._valuePlaceholder, keyframeData.state.value.toFixed(1));
-            rin.util.assignAsInnerHTMLUnsafe(this._userInterfaceControl.firstChild, keyframeData.state.text)
+            rin.util.assignAsInnerHTMLUnsafe(this._userInterfaceControl.firstChild, keyframeData.state.text);
         }
     };
 
     rin.util.overrideProperties(LiteInterpolatedES.prototypeOverrides, LiteInterpolatedES.prototype);
     LiteInterpolatedES.elementHTML = "<div style='position:absolute;width:100%;height:100%'><div style='color:red;position:absolute;width:100%;height:100%'></div><div style='color:white;position:absolute;right:20px;top:20px;' class='rinPlaceholderValue'></div></div>";
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.LiteInterpolatedExperienceStream", function (orchestrator, esData) { return new LiteInterpolatedES(orchestrator, esData); });
-})(rin);
+})(window.rin = window.rin || {});
 /*!
 * RIN Experience Provider JavaScript Library v1.0
 * http://research.microsoft.com/rin
@@ -4309,9 +4348,8 @@ window.rin = window.rin || {};
 * Date: <placeholder for SDK release date>
 */
 
-window.rin = window.rin || {};
 (function (rin, $) {
-
+    "use strict";
     // ES for displaying a Image Comparison Slider
     var ImageCompareES = function (orchestrator, esData) {
         ImageCompareES.parentConstructor.apply(this, arguments);
@@ -4355,7 +4393,7 @@ window.rin = window.rin || {};
 
         // listen to slide start drag by user
         this.$slider = this.$el.find('.rin-ic-slider')
-            .on('pointerstart', $.proxy(function() {
+            .on('pxpointerstart', $.proxy(function() {
                 orchestrator.startInteractionMode();
                 this.interactiveSlide = true;
             }, this));
@@ -4364,16 +4402,16 @@ window.rin = window.rin || {};
         // slider element is too narrow, its easy for the user to
         // drag faster than we can update the position. we don't
         // want the drag to end until they leave the parent element
-        this.$el.on('pointerstart pointermove pointerend', $.proxy(function(event) {
+        this.$el.on('pxpointerstart pxpointermove pxpointerend', $.proxy(function(event) {
 
             // stop event propagation to prevent manipulation of page
-            if (event.type === 'pointermove') {
+            if (event.type === 'pxpointermove') {
                 event.preventDefault();
             }
 
             if (!this.interactiveSlide) {
                 return;
-            } else if (event.type === 'pointerend') {
+            } else if (event.type === 'pxpointerend') {
                 this.interactiveSlide = false;
             }
 
@@ -4534,7 +4572,7 @@ window.rin = window.rin || {};
             return new ImageCompareES(orchestrator, esData);
         });
 
-})(rin, jQuery);
+})(window.rin = window.rin || {}, jQuery);
 
 /// <reference path="../core/Common.js" />
 /*!
@@ -4547,219 +4585,178 @@ window.rin = window.rin || {};
 * Date: <placeholder for SDK release date>
 */
 
-window.rin = window.rin || {};
 
-rin.PopupControl = function (orchestrator) {
-    this._orchestrator = orchestrator;
+(function (rin) {
+    "use strict";
+    /*global $:true, ko:true*/
+    rin.PopupControl = function (orchestrator) {
+        this._orchestrator = orchestrator;
 
-    var resourceResolver = this._orchestrator.getResourceResolver();
-    //-- Download the relevant html and js files
-    var htmlfile = resourceResolver.resolveSystemResource('popup/popup.htm');
-    var jsfile = resourceResolver.resolveSystemResource('popup/popup.js');
-    var _isHtmlLoaded, _isJsLoaded = false;
-    var subscription = null;
-    var self = this;
+        var resourceResolver = this._orchestrator.getResourceResolver();
+        //-- Download the relevant html and js files
+        var htmlfile = resourceResolver.resolveSystemResource('popup/popup.htm');
+        var jsfile = resourceResolver.resolveSystemResource('popup/popup.js');
+        var _isHtmlLoaded, _isJsLoaded = false;
+        var subscription = null;
+        var self = this;
 
-    var htmlDownload = {
-        url: htmlfile,
-        dataType: "html",
-        error: function (jqxhr, textStatus, errorThrown) {
-            popupViewModel.error(true);
-            self._orchestrator.eventLogger.logErrorEvent("Error: {0} downloading html file: {1}", exception.Message, htmlfile);
-        },
-        success: function (data, textStatus, jqxhr) {
-            self._elementHtml = data;
-            _isHtmlLoaded = true;
+        var htmlDownload = {
+            url: htmlfile,
+            dataType: "html",
+            error: function (jqxhr, textStatus, errorThrown) {
+                popupViewModel.error(true);
+                self._orchestrator.eventLogger.logErrorEvent("Error: {0} downloading html file: {1}", errorThrown, htmlfile);
+            },
+            success: function (data, textStatus, jqxhr) {
+                self._elementHtml = data;
+                _isHtmlLoaded = true;
+                updateView();
+            }
+        };
+        $.ajax(htmlDownload);
+
+        $.getScript(jsfile)
+        .done(function (script, textStatus) {
+            _isJsLoaded = true;
             updateView();
-        }
-    };
-    $.ajax(htmlDownload);
+        })
+        .fail(function (jqxhr, settings, exception) {
+            popupViewModel.error(true);
+            self._orchestrator.eventLogger.logErrorEvent("Error: {0} downloading js file: {1}", exception.Message, jsfile);
+        });
 
-    $.getScript(jsfile)
-    .done(function (script, textStatus) {
-        _isJsLoaded = true;
-        updateView();
-    })
-    .fail(function (jqxhr, settings, exception) {
-        popupViewModel.error(true);
-        self._orchestrator.eventLogger.logErrorEvent("Error: {0} downloading js file: {1}", exception.Message, jsfile);
-    });
+        //--External function to be called with experienceStreamData 
+        //--and the datacontext(can be either a collectionViewModel or a plain collection Item)
+        this.load = function (esData, dataContext) {
+            this._orchestrator.getPlayerConfiguration().activePopup = this; //TODO: Post everest, find better place to store this kind of information instead of playerConfiguration.
+            populateViewModel(esData, dataContext);
+            updateView();
+        };
 
-    //--External function to be called with experienceStreamData 
-    //--and the datacontext(can be either a collectionViewModel or a plain collection Item)
-    this.load = function (esData, dataContext) {
-        this._orchestrator.getPlayerConfiguration().activePopup = this; //TODO: Post everest, find better place to store this kind of information instead of playerConfiguration.
-        populateViewModel(esData, dataContext);
-        updateView();
-    }
+        this.hasAudio = false;
 
-    this.hasAudio = false;
+        //--Triggers a onclose event callback when the popup control closes.
+        //--CB uses this to assess the mode it is currently in
+        var close = function () {
+            if (self._userInterfaceControl) {
+                self._popupControl.close(function () {
+                    if (self._playerControl !== null) {
+                        self._playerControl.pause();
+                        self._playerControl.unload();
+                    }
 
-    //--Triggers a onclose event callback when the popup control closes.
-    //--CB uses this to assess the mode it is currently in
-    var close = function () {
-        if (self._userInterfaceControl) {
-            self._popupControl.close(function () {
-                if (self._playerControl != null) {
-                    self._playerControl.pause();
-                    self._playerControl.unload();
+                    $(self._userInterfaceControl).remove();
+                    $(self).trigger('onclose', null);
+
+                    self._orchestrator.getPlayerConfiguration().activePopup = null;
+                    self._orchestrator.onESEvent(rin.contracts.esEventIds.popupDisplayEvent, { displayed: false, hasAudio: self.hasAudio });
+                }, self);
+            }
+            //-- Dispose the subscription created for CurrentItem change in a collection mode
+            if (subscription) {
+                subscription.dispose();
+            }
+        };
+
+        //--Update the ESData and the view when the current Item changes
+        var onCurrentItemChange = function (newValue) {
+            popupViewModel.esData = newValue.esData;
+            updateView();
+        };
+
+        //Dummy popupview model, that can be extended 
+        //based on the current datacontext 
+        //(either with a collection data model in case of CB or a single item incase of Overlays)
+        var popupViewModel = {
+            esData: {},
+            currentItem: ko.observable({}),
+            isESLoading: ko.observable(false),
+            onViewClose: function () {
+                close();
+            },
+            error: ko.observable(false),
+            init: function () {
+                popupViewModel.error(false);
+                popupViewModel.currentItem({});
+            }
+        };
+
+        var populateViewModel = function (esData, dataContext) {
+            popupViewModel.init();
+            //-- if there is a collection just copy the data context items over to our viewmodel
+            if (dataContext && dataContext.currentItem) {
+                rin.util.overrideProperties(dataContext, popupViewModel);
+            }//--its a single item
+            else if (dataContext) {
+                popupViewModel.currentItem(dataContext);
+            }
+            //--the current esData
+            popupViewModel.esData = esData;
+            self.hasAudio = !!dataContext.hasAudio;
+            subscription = popupViewModel.currentItem.subscribe(onCurrentItemChange);
+        };
+
+        var updateView = function () {
+            //Once html, javascript and viewmodel is loaded
+            //create and load the view and show the experiencestream
+            if (_isHtmlLoaded && _isJsLoaded && popupViewModel.esData) {
+                var playerControl = $(".rin_mainContainer", self._orchestrator.getPlayerRootControl());
+
+                if (self._userInterfaceControl === undefined) {
+                    self._userInterfaceControl = rin.util.createElementWithHtml(self._elementHtml).firstChild;
+                    playerControl.append(self._userInterfaceControl);
                 }
 
-                $(self._userInterfaceControl).remove();
-                $(self).trigger('onclose', null);
+                //--loads the popup and shows the new ES
+                if (self._popupControl === undefined) {
+                    //-- clones the play pause controls, right side fb/volume controls from player and shows it up
+                    self._popupControl = new rin.PopupControl.View(self._userInterfaceControl, playerControl.width(), playerControl.height(), popupViewModel.esData.data.narrativeData.aspectRatio);
 
-                self._orchestrator.getPlayerConfiguration().activePopup = null;
-                self._orchestrator.onESEvent(rin.contracts.esEventIds.popupDisplayEvent, { displayed: false, hasAudio: self.hasAudio });
-            }, self);
-        }
-        //-- Dispose the subscription created for CurrentItem change in a collection mode
-        if (subscription) {
-            subscription.dispose();
-        }
-    }
-
-    //--Update the ESData and the view when the current Item changes
-    var onCurrentItemChange = function (newValue) {
-        popupViewModel.esData = newValue.esData;
-        updateView();
-    }
-
-    //Dummy popupview model, that can be extended 
-    //based on the current datacontext 
-    //(either with a collection data model in case of CB or a single item incase of Overlays)
-    var popupViewModel = {
-        esData: {},
-        currentItem: ko.observable({}),
-        isESLoading: ko.observable(false),
-        onViewClose: function () {
-            close();
-        },
-        error: ko.observable(false),
-        init: function () {
-            popupViewModel.error(false);
-            popupViewModel.currentItem({});
-        }
-    }
-
-    var populateViewModel = function (esData, dataContext) {
-        popupViewModel.init();
-        //-- if there is a collection just copy the data context items over to our viewmodel
-        if (dataContext && dataContext.currentItem) {
-            rin.util.overrideProperties(dataContext, popupViewModel);
-        }//--its a single item
-        else if (dataContext) {
-            popupViewModel.currentItem(dataContext);
-        }
-        //--the current esData
-        popupViewModel.esData = esData;
-        self.hasAudio = !!dataContext.hasAudio;
-        subscription = popupViewModel.currentItem.subscribe(onCurrentItemChange);
-    }
-
-    var updateView = function () {
-        //Once html, javascript and viewmodel is loaded
-        //create and load the view and show the experiencestream
-        if (_isHtmlLoaded && _isJsLoaded && popupViewModel.esData) {
-            var playerControl = $(".rin_mainContainer", self._orchestrator.getPlayerRootControl());
-
-            if (self._userInterfaceControl === undefined) {
-                self._userInterfaceControl = rin.util.createElementWithHtml(self._elementHtml).firstChild;
-                playerControl.append(self._userInterfaceControl);
-            }
-
-            //--loads the popup and shows the new ES
-            if (self._popupControl === undefined) {
-                //-- clones the play pause controls, right side fb/volume controls from player and shows it up
-                self._popupControl = new rin.PopupControl.View(self._userInterfaceControl, playerControl.width(), playerControl.height(), popupViewModel.esData.data.narrativeData.aspectRatio);
-
-                ko.applyBindings(popupViewModel, self._userInterfaceControl);
-                self._popupControl.showES(getPlayerControl(), null);
-            }
-            else {
-                //--Hides the old ES and shows the new one
-                self._popupControl.hideES(function () {
+                    ko.applyBindings(popupViewModel, self._userInterfaceControl);
                     self._popupControl.showES(getPlayerControl(), null);
-                });
+                }
+                else {
+                    //--Hides the old ES and shows the new one
+                    self._popupControl.hideES(function () {
+                        self._popupControl.showES(getPlayerControl(), null);
+                    });
+                }
+
+                self._orchestrator.onESEvent(rin.contracts.esEventIds.popupDisplayEvent, { displayed: true, hasAudio: self.hasAudio });
             }
-
-            self._orchestrator.onESEvent(rin.contracts.esEventIds.popupDisplayEvent, { displayed: true, hasAudio: self.hasAudio });
-        }
-    }
-
-    var getPlayerControl = function () {
-        var narrativeData = popupViewModel.esData;
-        var playerElement = rin.util.createElementWithHtml("<div style='width:100%;height:100%'></div>");
-        var configuration = rin.util.shallowCopy(orchestrator.getPlayerConfiguration());
-
-        configuration.narrativeRootUrl = "";
-        configuration.hideAllControllers = false;
-        configuration.controls = true;
-        configuration.controllerOptions = {
-            header: false,
-            playPause: true,
-            share: false,
-            fullscreen: false,
-            seeker: true,
-            volume: true,
-            seekToBeginningOnEnd: true
         };
-        if (typeof popupViewModel.currentItem.rootUrl === "string")
-            configuration.narrativeRootUrl = popupViewModel.currentItem.rootUrl;
-        self._playerControl = rin.createPlayerControl(playerElement.firstChild, configuration);
-        self._playerControl.loadData(narrativeData, function () {
-            self._playerControl.play();
-        });
-        self._playerControl.muteChangedEvent.subscribe(function (value) {
-            orchestrator.getPlayerControl().mute(value);
-        });
 
-        return playerElement.firstChild;
-    }
-};
-/*!
-* RIN Experience Provider JavaScript Library v1.0
-* http://research.microsoft.com/rin
-*
-* Copyright 2012-2013, Microsoft Research
-* <placeholder for RIN License>
-*
-* Date: <placeholder for SDK release date>
-*/
+        var getPlayerControl = function () {
+            var narrativeData = popupViewModel.esData;
+            var playerElement = rin.util.createElementWithHtml("<div style='width:100%;height:100%'></div>");
+            var configuration = rin.util.shallowCopy(orchestrator.getPlayerConfiguration());
 
-/// <reference path="../contracts/IExperienceStream.js" />
+            configuration.narrativeRootUrl = "";
+            configuration.hideAllControllers = false;
+            configuration.controls = true;
+            configuration.controllerOptions = {
+                header: false,
+                playPause: true,
+                share: false,
+                fullscreen: false,
+                seeker: true,
+                volume: true,
+                seekToBeginningOnEnd: true
+            };
+            if (typeof popupViewModel.currentItem.rootUrl === "string")
+                configuration.narrativeRootUrl = popupViewModel.currentItem.rootUrl;
+            self._playerControl = rin.createPlayerControl(playerElement.firstChild, configuration);
+            self._playerControl.loadData(narrativeData, function () {
+                self._playerControl.play();
+            });
+            self._playerControl.muteChangedEvent.subscribe(function (value) {
+                orchestrator.getPlayerControl().mute(value);
+            });
 
-rin.ext.registerFactory(rin.contracts.systemFactoryTypes.interactionControlFactory, rin.contracts.interactionControlNames.panZoomControl,
-    function (resourcesResolver, loadedCallback) {
-        $.get(resourcesResolver.resolveSystemResource("interactionControls/PanZoomControls.html"), null, function (visual) {
-            var wrap = document.createElement("div"),
-                systemRoot = resourcesResolver.getSystemRootUrl();
-            wrap.style["display"] = "inline-block";
-            rin.util.assignAsInnerHTMLUnsafe(wrap, visual.replace(/SYSTEM_ROOT/g, systemRoot));
-            loadedCallback(wrap);
-        });
-    });
-
-rin.ext.registerFactory(rin.contracts.systemFactoryTypes.interactionControlFactory, rin.contracts.interactionControlNames.mediaControl,
-    function (resourcesResolver, loadedCallback) {
-        $.get(resourcesResolver.resolveSystemResource("interactionControls/MediaControls.html"), null, function (visual) {
-            var wrap = document.createElement("div"),
-                systemRoot = resourcesResolver.getSystemRootUrl();
-            rin.util.assignAsInnerHTMLUnsafe(wrap, visual.replace(/SYSTEM_ROOT/g, systemRoot))
-            loadedCallback(wrap);
-        });
-    });
-
-rin.ext.registerFactory(rin.contracts.systemFactoryTypes.interactionControlFactory, "MicrosoftResearch.Rin.InteractionControls.RotateControl",
-   function (resourcesResolver, loadedCallback) {
-       $.get(resourcesResolver.resolveSystemResource("interactionControls/RotateControl.html"), null, function (visual) {
-           var wrap = document.createElement("div"),
-               systemRoot = resourcesResolver.getSystemRootUrl();
-           wrap.style["display"] = "inline-block";
-           rin.util.assignAsInnerHTMLUnsafe(wrap, visual.replace(/SYSTEM_ROOT/g, systemRoot))
-           loadedCallback(wrap);
-       });
-   });
-
+            return playerElement.firstChild;
+        };
+    };
+}(window.rin = window.rin || {}));
 /*!
 * RIN Experience Provider JavaScript Library v1.0
 * http://research.microsoft.com/rin
@@ -4773,6 +4770,57 @@ rin.ext.registerFactory(rin.contracts.systemFactoryTypes.interactionControlFacto
 /// <reference path="../contracts/IExperienceStream.js" />
 
 (function (rin) {
+    /*global $:true, ko:true*/
+    "use strict";
+
+    rin.ext.registerFactory(rin.contracts.systemFactoryTypes.interactionControlFactory, rin.contracts.interactionControlNames.panZoomControl,
+        function (resourcesResolver, loadedCallback) {
+            $.get(resourcesResolver.resolveSystemResource("interactionControls/PanZoomControls.html"), null, function (visual) {
+                var wrap = document.createElement("div"),
+                    systemRoot = resourcesResolver.getSystemRootUrl();
+                wrap.style.display = "inline-block";
+                rin.util.assignAsInnerHTMLUnsafe(wrap, visual.replace(/SYSTEM_ROOT/g, systemRoot));
+                loadedCallback(wrap);
+            });
+        });
+
+    rin.ext.registerFactory(rin.contracts.systemFactoryTypes.interactionControlFactory, rin.contracts.interactionControlNames.mediaControl,
+        function (resourcesResolver, loadedCallback) {
+            $.get(resourcesResolver.resolveSystemResource("interactionControls/MediaControls.html"), null, function (visual) {
+                var wrap = document.createElement("div"),
+                    systemRoot = resourcesResolver.getSystemRootUrl();
+                rin.util.assignAsInnerHTMLUnsafe(wrap, visual.replace(/SYSTEM_ROOT/g, systemRoot));
+                loadedCallback(wrap);
+            });
+        });
+
+    rin.ext.registerFactory(rin.contracts.systemFactoryTypes.interactionControlFactory, "MicrosoftResearch.Rin.InteractionControls.RotateControl",
+       function (resourcesResolver, loadedCallback) {
+           $.get(resourcesResolver.resolveSystemResource("interactionControls/RotateControl.html"), null, function (visual) {
+               var wrap = document.createElement("div"),
+                   systemRoot = resourcesResolver.getSystemRootUrl();
+               wrap.style.display = "inline-block";
+               rin.util.assignAsInnerHTMLUnsafe(wrap, visual.replace(/SYSTEM_ROOT/g, systemRoot));
+               loadedCallback(wrap);
+           });
+       });
+})(window.rin = window.rin || {});
+/*!
+* RIN Experience Provider JavaScript Library v1.0
+* http://research.microsoft.com/rin
+*
+* Copyright 2012-2013, Microsoft Research
+* <placeholder for RIN License>
+*
+* Date: <placeholder for SDK release date>
+*/
+
+/// <reference path="../contracts/IExperienceStream.js" />
+
+(function (rin) {
+    /*global $:true*/
+    "use strict";
+
     // Behavior for expanding a overlay to fullscreen.
     var PopupBehavior = function (orchestrator) {
         this.orchestrator = orchestrator;
@@ -4785,7 +4833,7 @@ rin.ext.registerFactory(rin.contracts.systemFactoryTypes.interactionControlFacto
             var popup = new rin.PopupControl(this.orchestrator);
             popup.load(dataContext.esData, dataContext);
 
-            $(popup).bind('onclose', function (e) {
+            $(popup).bind('onclose', function () {
                 if (typeof (completionCallback) === 'function')
                     completionCallback();
             });
@@ -4805,693 +4853,706 @@ rin.ext.registerFactory(rin.contracts.systemFactoryTypes.interactionControlFacto
 })(window.rin);
 /// <reference path="../core/Common.js" />
 
-// Behavior to seek the narrative to a specified time.
-rin.interactionBehaviorService.registerInteractionBehavior("rin.interactionBehaviors.seekToHT", {
-    execute: function (args, onCompleteCallback) {
+(function (rin) {
+    "use strict";
+    // Behavior to seek the narrative to a specified time.
+    rin.interactionBehaviorService.registerInteractionBehavior("rin.interactionBehaviors.seekToHT", {
+        execute: function (args, onCompleteCallback) {
 
-        var playerState = args.orchestrator.getPlayerState();
-        var url;
-        if (args && args.sourceItem && args.sourceItem.url) {
-            url = args.sourceItem.url;
-        }
-        else {
-            if (args.sourceItem.seekTime !== undefined) {
-                var shouldPlay = rin.contracts.playerState.playing || playerState == rin.contracts.playerState.inTransition;
-                url = "http://default/?begin={0}&action={1}".rinFormat(args.sourceItem.seekTime, shouldPlay ? "play" : "pause");
-
-            }
-        }
-        args.orchestrator.seekUrl(url);
-
-        onCompleteCallback();
-    }
-});
-
-// Behavior to seek the load a narrative in a popup
-rin.interactionBehaviorService.registerInteractionBehavior("rin.interactionBehaviors.popup", {
-    execute: function (args, onCompleteCallback) {
-
-        var factoryFunction = rin.ext.getFactory(rin.contracts.systemFactoryTypes.behaviorFactory, "MicrosoftResearch.Rin.Behaviors.Popup");
-        var popup = new factoryFunction(args.orchestrator);
-        args.sourceItem.DataContext = args.sourceItem.data;
-        popup.executeBehavior(args.sourceItem, onCompleteCallback);
-    }
-});
-
-// Behavior to seek the narrative to a specified screenplay and offset.
-rin.interactionBehaviorService.registerInteractionBehavior("rin.interactionBehaviors.seekToScreenplayOffset", {
-    execute: function (args, onCompleteCallback) {
-
-        var playerState = args.orchestrator.getPlayerState();
-        if (playerState == rin.contracts.playerState.playing || playerState == rin.contracts.playerState.inTransition) {
-            args.orchestrator.play(args.sourceItem.seekTime, args.sourceItem.screenplay);
-        }
-        else {
-            args.orchestrator.pause(args.sourceItem.seekTime, args.sourceItem.screenplay);
-        }
-
-        onCompleteCallback();
-    }
-});
-
-// Behavior to apply a well defined keyframe on the current ES
-rin.interactionBehaviorService.registerInteractionBehavior("rin.interactionBehaviors.applyKeyframe", {
-    execute: function (args, onCompleteCallback) {
-
-        if (args.sourceES.displayKeyframe) {
-            var kf = {
-                "header": {
-                    "offset": 0,
-                    "holdDuration": 0.5
-                },
-                "data": {
-                    "default": "<ZoomableMediaKeyframe Media_Type='SingleDeepZoomImage' Media_Source='R-1' Viewport_X='0.5923811970600481' Viewport_Y='0.29659771339558905' Viewport_Width='0.00025961484292674151' Viewport_Height='0.00014609263999044406' Highlight_Visible='false' Highlight_X='0' Highlight_Y='0' Highlight_Width='0' Highlight_Height='0' Highlight_Render_Style='NoHighlight' Highlight_Render_Attribs='' Media_AspRatio='0.53243931310913006'/>",
-                    "TransitionTime": "<TransitionTime>0</TransitionTime>",
-                    "PauseDuration": "<PauseDuration>0.5</PauseDuration>",
-                    "keyframeThumbnail": "<Thumbnail>11a6ab9c-7cce-4c45-b4c4-bb45b6c44cdd_keyframe_cdd2ecd5-6e5f-45a7-b549-46d6bc835636.bmp</Thumbnail>"
-                }
-            };
-            args.sourceES.displayKeyframe(kf);
-        }
-
-        onCompleteCallback();
-    }
-});
-window.rin = window.rin || {};
-rin.embeddedArtifacts = rin.embeddedArtifacts || {}
-
-rin.embeddedArtifacts.utils = {};
-rin.embeddedArtifacts.utils.Region = function() {
-    this.center = {x:0,y:0};
-    this.span = {x:0,y:0};
-};
-
-// Base class for embedded artifacts to abstract common methods.
-// Its not a must to inherit this class for building an EA, but make sure you implement all required methods.
-rin.embeddedArtifacts.EmbeddedArtifactBase = function (dataObject, resourceResolver) {
-    this.resourceResolver = resourceResolver;
-    this.dataObject = dataObject;
-    this.zoomRange = dataObject.zoomRange || { from: 0, to: 1 };
-    this.parameterRange = dataObject.parameterRange || { from: 0, to: 1 };
-    this.visual = null; // Active DOM element for the visual of this EA
-    this.visualLoadHelper = null;
-    this.styleLoadHelper = null;
-    this.interactionRequested = new rin.contracts.Event();
-    this.layoutChanged = new rin.contracts.Event();
-    this.anchoredOffset = dataObject.anchoredOffset || { x: 0, y: 0 };
-    this.anchorCorner = dataObject.anchorCorner || "tl";
-};
-
-// Basic properties and methods for any EA
-rin.embeddedArtifacts.EmbeddedArtifactBase.prototype = {
-    visualLoadComplete:function () {
-        this.raiseLayoutChanged();
-    },
-
-    // Set the source for the visual of this EA, this method can be called only if the source is a Url. If not you can set the visualLoadHelper and styleLoadHelper manually.
-    setVisualSource: function (visualUrl, styleUrl) {
-        this.visualLoadHelper = new rin.internal.AjaxDownloadHelper(visualUrl);
-        this.styleLoadHelper = new rin.internal.AjaxDownloadHelper(styleUrl);
-    },
-
-    // Method bound to the click of an EA
-    onClick: function () {
-        this.interactionRequested.publish({actualEA:this});
-    },
-
-    // Method to ask the EA host to redraw all EAs
-    raiseLayoutChanged : function(){
-        if (this.visual) {
-            this.layoutChanged.publish(this);
-        }
-    },
-
-    resolverMediaUrl: function(url){
-        if (url) {
-            return url.indexOf("http") == 0 ? url : this.resourceResolver.resolveResource(url);
-        } else { return null; }
-    },
-
-    // Method to recalculate the anchoring point of an EA. In case the anchoring point never changes after it is loaded, override this method and just return the anhoring point.
-    getAnchoredOffset: function () {
-        var offsetX = this.visual.anchorX,
-            offsetY = this.visual.anchorY,
-            visualHeight = this.visual.height || this.visual.clientHeight,
-            visualWidth = this.visual.width || this.visual.clientWidth;
-
-        if (offsetX <= 1 && offsetX >= -1) this.anchoredOffset.x = offsetX * visualWidth; // Anchor is specified in percentage if its between -1 and 1
-        else this.anchoredOffset.x = offsetX;
-        if (offsetY <= 1 && offsetY >= -1) this.anchoredOffset.y = offsetY * visualHeight;
-        else this.anchoredOffset.y = offsetY;
-
-        // Update anchor based on anchoring corner. 'tl' is default.
-        if (this.anchorCorner === "bl")
-            this.anchoredOffset.y += visualHeight;
-
-        if (this.anchorCorner === "tr")
-            this.anchoredOffset.x += visualWidth;
-
-        if (this.anchorCorner === "br") {
-            this.anchoredOffset.y += visualHeight;
-            this.anchoredOffset.x += visualWidth;
-        }
-
-        return this.anchoredOffset;
-    },
-
-    setVolume: function (value) {
-    },
-
-    onPlayerStateChanged: function (state) {
-        if (state.currentState == rin.contracts.playerState.pausedForExplore)
-            this.isInPlayMode = false;
-        else if (state.currentState == rin.contracts.playerState.playing)
-            this.isInPlayMode = true;
-    },
-    isInPlayMode : null
-};
-
-// HotSpot EA
-rin.embeddedArtifacts.HotSpot = function (dataObject, resourceResolver) {
-    rin.embeddedArtifacts.HotSpot.parentConstructor.call(this, dataObject, resourceResolver);
-    this.setVisualSource("embeddedArtifacts/HotSpot.html", "embeddedArtifacts/HotSpot.css");
-    this.thumbnailUrl = this.resolverMediaUrl(dataObject.thumbnailUrl);
-    this.text = dataObject.text || null;
-}
-
-rin.embeddedArtifacts.HotSpot.prototypeOverrides = {};
-
-// Audio EA
-rin.embeddedArtifacts.Audio = function (dataObject, resourceResolver) {
-    rin.embeddedArtifacts.Audio.parentConstructor.call(this, dataObject, resourceResolver);
-    var self = this;
-    this.setVisualSource("embeddedArtifacts/Audio.html", "embeddedArtifacts/Audio.css");
-    this.audioControl = document.createElement("audio");
-    this.audioControl.preload = "auto";
-    this.audioControl.src = this.resolverMediaUrl(dataObject.sourceFile);
-    this.isEnvironmentalAudio = dataObject.isEnvironmental;
-
-    // Constantly check if the audio is ready and update the state as necessary.
-    var READY_STATE = 4,
-        TIME_OUT = 500,
-        readyStateCheckTimeout,
-        readyStateCheck = function () {
-            if (self.audioControl.readyState === READY_STATE) {
-                clearTimeout(readyStateCheckTimeout);
-                self.onLoadComplete();
+            var playerState = args.orchestrator.getPlayerState();
+            var url;
+            if (args && args.sourceItem && args.sourceItem.url) {
+                url = args.sourceItem.url;
             }
             else {
-                readyStateCheckTimeout = setTimeout(readyStateCheck, TIME_OUT);
-            }
-        };
-    this.audioControl.onerror = function () {
-        if (readyStateCheckTimeout)
-            clearTimeout(readyStateCheckTimeout);
-    }
-    readyStateCheck();
-}
+                if (args.sourceItem.seekTime !== undefined) {
+                    var shouldPlay = rin.contracts.playerState.playing || playerState === rin.contracts.playerState.inTransition;
+                    url = "http://default/?begin={0}&action={1}".rinFormat(args.sourceItem.seekTime, shouldPlay ? "play" : "pause");
 
-rin.embeddedArtifacts.Audio.prototypeOverrides = {
-    // Method bound to the click of an EA
-    onClick: function () {
-        if (!this.isEnvironmentalAudio) {
-            if (this.audioControl.paused)
-                this.audioControl.play();
-            else
-                this.audioControl.pause();
-        }
-    },
-
-    onLoadComplete: function () {
-        if (this.isEnvironmentalAudio) {
-            this.audioControl.loop = true;
-            this.audioControl.autoplay = true;
-            this.audioControl.controls = false;
-        }
-    },
-
-    setVolume: function (value) {
-        if (this.isEnvironmentalAudio) {
-            //Check for playing and start if not
-            if (value <= this.MIN_VOL) {
-                this.audioControl.volume = 0;
-                if (!this.audioControl.paused) {
-                    this.audioControl.pause();
                 }
+            }
+            args.orchestrator.seekUrl(url);
+
+            onCompleteCallback();
+        }
+    });
+
+    // Behavior to seek the load a narrative in a popup
+    rin.interactionBehaviorService.registerInteractionBehavior("rin.interactionBehaviors.popup", {
+        execute: function (args, onCompleteCallback) {
+
+            var factoryFunction = rin.ext.getFactory(rin.contracts.systemFactoryTypes.behaviorFactory, "MicrosoftResearch.Rin.Behaviors.Popup");
+            var popup = factoryFunction(args.orchestrator);
+            args.sourceItem.DataContext = args.sourceItem.data;
+            popup.executeBehavior(args.sourceItem, onCompleteCallback);
+        }
+    });
+
+    // Behavior to seek the narrative to a specified screenplay and offset.
+    rin.interactionBehaviorService.registerInteractionBehavior("rin.interactionBehaviors.seekToScreenplayOffset", {
+        execute: function (args, onCompleteCallback) {
+
+            var playerState = args.orchestrator.getPlayerState();
+            if (playerState === rin.contracts.playerState.playing || playerState === rin.contracts.playerState.inTransition) {
+                args.orchestrator.play(args.sourceItem.seekTime, args.sourceItem.screenplay);
             }
             else {
-                this.audioControl.volume = Math.min(value, 1); //Max it to 1
-                if (this.audioControl.paused) {
-                    this.audioControl.play();
-                }
+                args.orchestrator.pause(args.sourceItem.seekTime, args.sourceItem.screenplay);
             }
+
+            onCompleteCallback();
         }
-    },
+    });
 
-    MIN_VOL: 0.0001
-};
+    // Behavior to apply a well defined keyframe on the current ES
+    rin.interactionBehaviorService.registerInteractionBehavior("rin.interactionBehaviors.applyKeyframe", {
+        execute: function (args, onCompleteCallback) {
 
-// Video EA
-rin.embeddedArtifacts.Video = function (dataObject, resourceResolver) {
-    rin.embeddedArtifacts.Video.parentConstructor.call(this, dataObject, resourceResolver);
-    this.setVisualSource("embeddedArtifacts/Video.html", "embeddedArtifacts/Video.css");
-}
-rin.embeddedArtifacts.Video.prototypeOverrides = {};
-
-// Text with arrow EA
-rin.embeddedArtifacts.TextWithArrow = function (dataObject) {
-    rin.embeddedArtifacts.TextWithArrow.parentConstructor.call(this, dataObject);
-    var self = this;
-    this.setVisualSource("embeddedArtifacts/TextWithArrow.html", "embeddedArtifacts/TextWithArrow.css");
-
-    this.text = dataObject.text || null;
-    this.arrowLength = dataObject.arrowLength || 0;
-    this.arrowDirection = dataObject.arrowDirection || null;
-}
-
-rin.embeddedArtifacts.TextWithArrow.prototypeOverrides = {
-    // Update the anchoring details depending on the arrow length and arrow direction
-    // TODO: This method deals with a lot of visual related stuff. Ideally this has to abstracted out to allow reusing the EA with other visuals.
-    // This method helps avoiding lots of bindings in the UI. Bindings makes the app slower.
-    updateLayout: function () {
-        $(".rin_TWL_Arrow", self.visual).hide(); // Hide all arrows
-        var visibleLineContainerClass;
-
-        var box = $(".rin_TextWithLineContentContainer", this.visual);
-        if (this.dataObject.backgroundColor)
-            box.css("backgroundColor",this.dataObject.backgroundColor)
-        if (this.dataObject.defaultInteractionBehavior)
-            box.addClass("rin_TextWithLineWithLink");
-
-        // set anchor based on the length and direction
-        switch (self.arrowDirection) {
-            case "tlu":
-                self.visual.anchorX = -self.arrowLength;
-                self.visual.anchorY = -self.arrowLength;
-                self.anchorCorner = "tl";
-                visibleLineContainerClass = "rin_TWL_TopLeft_Up";
-                break;
-            case "tld":
-                self.visual.anchorX = -self.arrowLength;
-                self.visual.anchorY = self.arrowLength;
-                self.anchorCorner = "tl";
-                visibleLineContainerClass = "rin_TWL_TopLeft_Down";
-                break;
-            case "tlh":
-                self.visual.anchorX = -self.arrowLength;
-                self.visual.anchorY = 0;
-                self.anchorCorner = "tl";
-                visibleLineContainerClass = "rin_TWL_TopLeft_Horizontal";
-                break;
-            case "tlv":
-                self.visual.anchorX = 0;
-                self.visual.anchorY = -self.arrowLength;
-                self.anchorCorner = "tl";
-                visibleLineContainerClass = "rin_TWL_TopLeft_Vertical";
-                break;
-
-            case "blu":
-                self.visual.anchorX = -self.arrowLength;
-                self.visual.anchorY = -self.arrowLength;
-                self.anchorCorner = "bl";
-                visibleLineContainerClass = "rin_TWL_BottomLeft_Up";
-                break;
-            case "bld":
-                self.visual.anchorX = -self.arrowLength;
-                self.visual.anchorY = self.arrowLength;
-                self.anchorCorner = "bl";
-                visibleLineContainerClass = "rin_TWL_BottomLeft_Down";
-                break;
-            case "blh":
-                self.visual.anchorX = -self.arrowLength;
-                self.visual.anchorY = 0;
-                self.anchorCorner = "bl";
-                visibleLineContainerClass = "rin_TWL_BottomLeft_Horizontal";
-                break;
-            case "blv":
-                self.visual.anchorX = 0;
-                self.visual.anchorY = self.arrowLength;
-                self.anchorCorner = "bl";
-                visibleLineContainerClass = "rin_TWL_BottomLeft_Vertical";
-                break;
-
-            case "bru":
-                self.visual.anchorX = self.arrowLength;
-                self.visual.anchorY = self.arrowLength;
-                self.anchorCorner = "br";
-                visibleLineContainerClass = "rin_TWL_BottomRight_Up";
-                break;
-            case "brd":
-                self.visual.anchorX = self.arrowLength;
-                self.visual.anchorY = self.arrowLength;
-                self.anchorCorner = "br";
-                visibleLineContainerClass = "rin_TWL_BottomRight_Down";
-                break;
-            case "brh":
-                self.visual.anchorX = self.arrowLength;
-                self.visual.anchorY = 0;
-                self.anchorCorner = "br";
-                visibleLineContainerClass = "rin_TWL_BottomRight_Horizontal";
-                break;
-            case "brv":
-                self.visual.anchorX = 0;
-                self.visual.anchorY = self.arrowLength;
-                self.anchorCorner = "br";
-                visibleLineContainerClass = "rin_TWL_BottomRight_Vertical";
-                break;
-
-            case "tru":
-                self.visual.anchorX = self.arrowLength;
-                self.visual.anchorY = -self.arrowLength;
-                self.anchorCorner = "tr";
-                visibleLineContainerClass = "rin_TWL_TopRight_Up";
-                break;
-            case "trd":
-                self.visual.anchorX = self.arrowLength;
-                self.visual.anchorY = self.arrowLength;
-                self.anchorCorner = "tr";
-                visibleLineContainerClass = "rin_TWL_TopRight_Down";
-                break;
-            case "trh":
-                self.visual.anchorX = self.arrowLength;
-                self.visual.anchorY = 0;
-                self.anchorCorner = "tr";
-                visibleLineContainerClass = "rin_TWL_TopRight_horizontal";
-                break;
-            case "trv":
-                self.visual.anchorX = 0;
-                self.visual.anchorY = self.arrowLength;
-                self.anchorCorner = "tr";
-                visibleLineContainerClass = "rin_TWL_TopRight_Vertical";
-                break;
-        }
-
-        // Set height and width of the line container div
-        var visibleLineContainer = $("." + visibleLineContainerClass);
-        visibleLineContainer.show();
-        visibleLineContainer.attr("width", self.arrowLength + "px");
-        visibleLineContainer.attr("height", self.arrowLength + "px");
-
-        // Update the translation in CSS so that the lines are correctly positioned even after the length is changed.
-        if (parseFloat(visibleLineContainer.css("top")) > 0) visibleLineContainer.css("top", self.arrowLength + "px");
-        else if (parseFloat(visibleLineContainer.css("top")) < 0) visibleLineContainer.css("top", -self.arrowLength + "px");
-        if (parseFloat(visibleLineContainer.css("left")) > 0) visibleLineContainer.css("left", self.arrowLength + "px");
-        else if (parseFloat(visibleLineContainer.css("left")) < 0) visibleLineContainer.css("left", -self.arrowLength + "px");
-        if (parseFloat(visibleLineContainer.css("bottom")) > 0) visibleLineContainer.css("bottom", self.arrowLength + "px");
-        else if (parseFloat(visibleLineContainer.css("bottom")) < 0) visibleLineContainer.css("bottom", -self.arrowLength + "px");
-        if (parseFloat(visibleLineContainer.css("right")) > 0) visibleLineContainer.css("right", self.arrowLength + "px");
-        else if (parseFloat(visibleLineContainer.css("right")) < 0) visibleLineContainer.css("right", -self.arrowLength + "px");
-
-        // Update the line SVG height and width
-        var lineSvg = $(".rin_TWL_Line", visibleLineContainer);
-        var svgContainer = $("svg", visibleLineContainer);
-        svgContainer.attr("width", self.arrowLength + "px");
-        svgContainer.attr("height", self.arrowLength + "px");
-
-        // Update the line itself according to the new length.
-        if (lineSvg.attr("x1") > 0) lineSvg.attr("x1", self.arrowLength);
-        else if (lineSvg.attr("x1") < 0) lineSvg.attr("x1", -self.arrowLength);
-        if (lineSvg.attr("x2") > 0) lineSvg.attr("x2", self.arrowLength);
-        else if (lineSvg.attr("x2") < 0) lineSvg.attr("x2", -self.arrowLength);
-        if (lineSvg.attr("y1") > 0) lineSvg.attr("y1", self.arrowLength);
-        else if (lineSvg.attr("y1") < 0) lineSvg.attr("y1", -self.arrowLength);
-        if (lineSvg.attr("y2") > 0) lineSvg.attr("y2", self.arrowLength);
-        else if (lineSvg.attr("y2") < 0) lineSvg.attr("y2", -self.arrowLength);
-    },
-
-    // Update anchor based of arrow direction and length
-    visualLoadComplete: function () {
-        this.updateLayout();
-        this.raiseLayoutChanged();
-    }
-}
-
-// Label EA
-rin.embeddedArtifacts.Label = function (dataObject, resourceResolver) {
-    rin.embeddedArtifacts.Label.parentConstructor.call(this, dataObject, resourceResolver);
-    this.setVisualSource("embeddedArtifacts/Label.html", "embeddedArtifacts/Label.css");
-    this.text = dataObject.text || null;
-    this.linkType = dataObject.linkType;
-}
-rin.embeddedArtifacts.Label.prototypeOverrides = {
-    visualLoadComplete: function () {
-        if (this.dataObject.defaultInteractionBehavior) {
-            $visual = $(this.visual);
-            switch (this.dataObject.defaultInteractionBehavior) {
-                case "rin.interactionBehaviors.seekToHT":
-                    $visual.addClass("rin_LabelArtifactLink");
-                    break;
-                case "rin.interactionBehaviors.popup":
-                    $visual.addClass("rin_LabelArtifactPopup");
-                    break;
+            if (args.sourceES.displayKeyframe) {
+                var kf = {
+                    "header": {
+                        "offset": 0,
+                        "holdDuration": 0.5
+                    },
+                    "data": {
+                        "default": "<ZoomableMediaKeyframe Media_Type='SingleDeepZoomImage' Media_Source='R-1' Viewport_X='0.5923811970600481' Viewport_Y='0.29659771339558905' Viewport_Width='0.00025961484292674151' Viewport_Height='0.00014609263999044406' Highlight_Visible='false' Highlight_X='0' Highlight_Y='0' Highlight_Width='0' Highlight_Height='0' Highlight_Render_Style='NoHighlight' Highlight_Render_Attribs='' Media_AspRatio='0.53243931310913006'/>",
+                        "TransitionTime": "<TransitionTime>0</TransitionTime>",
+                        "PauseDuration": "<PauseDuration>0.5</PauseDuration>",
+                        "keyframeThumbnail": "<Thumbnail>11a6ab9c-7cce-4c45-b4c4-bb45b6c44cdd_keyframe_cdd2ecd5-6e5f-45a7-b549-46d6bc835636.bmp</Thumbnail>"
+                    }
+                };
+                args.sourceES.displayKeyframe(kf);
             }
-            if (this.dataObject.linkType) {
-                $visual.addClass('rin_Label_' + this.dataObject.linkType);
-                $visual.addClass('rin_Label_Interactive');
-            }
+
+            onCompleteCallback();
         }
-    },
-    getAnchoredOffset: function () {
-        if (this.dataObject.anchoredOffset) // Consider if offset is set explicitly.
-            return { x: this.anchoredOffset.x * this.visual.clientWidth, y: this.anchoredOffset.y * this.visual.clientHeight };
-        else if (this.dataObject.linkType == "peakLabel") // Use bottom center for peak labels
-            return { x: 0.5 * this.visual.clientWidth, y: 1.0 * this.visual.clientHeight };
-        else // Use default
+    });
+})(window.rin = window.rin || {});
+(function (rin) {
+    /*global $:true*/
+    "use strict";
+    rin.embeddedArtifacts = rin.embeddedArtifacts || {};
+
+    rin.embeddedArtifacts.utils = {};
+    rin.embeddedArtifacts.utils.Region = function () {
+        this.center = { x: 0, y: 0 };
+        this.span = { x: 0, y: 0 };
+    };
+
+    // Base class for embedded artifacts to abstract common methods.
+    // Its not a must to inherit this class for building an EA, but make sure you implement all required methods.
+    rin.embeddedArtifacts.EmbeddedArtifactBase = function (dataObject, resourceResolver) {
+        this.resourceResolver = resourceResolver;
+        this.dataObject = dataObject;
+        this.zoomRange = dataObject.zoomRange || { from: 0, to: 1 };
+        this.parameterRange = dataObject.parameterRange || { from: 0, to: 1 };
+        this.visual = null; // Active DOM element for the visual of this EA
+        this.visualLoadHelper = null;
+        this.styleLoadHelper = null;
+        this.interactionRequested = new rin.contracts.Event();
+        this.layoutChanged = new rin.contracts.Event();
+        this.anchoredOffset = dataObject.anchoredOffset || { x: 0, y: 0 };
+        this.anchorCorner = dataObject.anchorCorner || "tl";
+    };
+
+    // Basic properties and methods for any EA
+    rin.embeddedArtifacts.EmbeddedArtifactBase.prototype = {
+        visualLoadComplete: function () {
+            this.raiseLayoutChanged();
+        },
+
+        // Set the source for the visual of this EA, this method can be called only if the source is a Url. If not you can set the visualLoadHelper and styleLoadHelper manually.
+        setVisualSource: function (visualUrl, styleUrl) {
+            this.visualLoadHelper = new rin.internal.AjaxDownloadHelper(visualUrl);
+            this.styleLoadHelper = new rin.internal.AjaxDownloadHelper(styleUrl);
+        },
+
+        // Method bound to the click of an EA
+        onClick: function () {
+            this.interactionRequested.publish({ actualEA: this });
+        },
+
+        // Method to ask the EA host to redraw all EAs
+        raiseLayoutChanged: function () {
+            if (this.visual) {
+                this.layoutChanged.publish(this);
+            }
+        },
+
+        resolverMediaUrl: function (url) {
+            if (url) {
+                return url.indexOf("http") === 0 ? url : this.resourceResolver.resolveResource(url);
+            } else { return null; }
+        },
+
+        // Method to recalculate the anchoring point of an EA. In case the anchoring point never changes after it is loaded, override this method and just return the anhoring point.
+        getAnchoredOffset: function () {
+            var offsetX = this.visual.anchorX,
+                offsetY = this.visual.anchorY,
+                visualHeight = this.visual.height || this.visual.clientHeight,
+                visualWidth = this.visual.width || this.visual.clientWidth;
+
+            if (offsetX <= 1 && offsetX >= -1) this.anchoredOffset.x = offsetX * visualWidth; // Anchor is specified in percentage if its between -1 and 1
+            else this.anchoredOffset.x = offsetX;
+            if (offsetY <= 1 && offsetY >= -1) this.anchoredOffset.y = offsetY * visualHeight;
+            else this.anchoredOffset.y = offsetY;
+
+            // Update anchor based on anchoring corner. 'tl' is default.
+            if (this.anchorCorner === "bl")
+                this.anchoredOffset.y += visualHeight;
+
+            if (this.anchorCorner === "tr")
+                this.anchoredOffset.x += visualWidth;
+
+            if (this.anchorCorner === "br") {
+                this.anchoredOffset.y += visualHeight;
+                this.anchoredOffset.x += visualWidth;
+            }
+
             return this.anchoredOffset;
-    }
-};
+        },
 
-rin.util.extend(rin.embeddedArtifacts.EmbeddedArtifactBase,rin.embeddedArtifacts.HotSpot);
-rin.util.overrideProperties(rin.embeddedArtifacts.HotSpot.prototypeOverrides, rin.embeddedArtifacts.HotSpot.prototype);
+        setVolume: function (value) {
+        },
 
-rin.util.extend(rin.embeddedArtifacts.EmbeddedArtifactBase, rin.embeddedArtifacts.Audio);
-rin.util.overrideProperties(rin.embeddedArtifacts.Audio.prototypeOverrides, rin.embeddedArtifacts.Audio.prototype);
+        onPlayerStateChanged: function (state) {
+            if (state.currentState === rin.contracts.playerState.pausedForExplore)
+                this.isInPlayMode = false;
+            else if (state.currentState === rin.contracts.playerState.playing)
+                this.isInPlayMode = true;
+        },
+        isInPlayMode: null
+    };
 
-rin.util.extend(rin.embeddedArtifacts.EmbeddedArtifactBase, rin.embeddedArtifacts.Video);
-rin.util.overrideProperties(rin.embeddedArtifacts.Video.prototypeOverrides, rin.embeddedArtifacts.Video.prototype);
+    // HotSpot EA
+    rin.embeddedArtifacts.HotSpot = function (dataObject, resourceResolver) {
+        rin.embeddedArtifacts.HotSpot.parentConstructor.call(this, dataObject, resourceResolver);
+        this.setVisualSource("embeddedArtifacts/HotSpot.html", "embeddedArtifacts/HotSpot.css");
+        this.thumbnailUrl = this.resolverMediaUrl(dataObject.thumbnailUrl);
+        this.text = dataObject.text || null;
+    };
 
-rin.util.extend(rin.embeddedArtifacts.EmbeddedArtifactBase, rin.embeddedArtifacts.Label);
-rin.util.overrideProperties(rin.embeddedArtifacts.Label.prototypeOverrides, rin.embeddedArtifacts.Label.prototype);
+    rin.embeddedArtifacts.HotSpot.prototypeOverrides = {};
 
-rin.util.extend(rin.embeddedArtifacts.EmbeddedArtifactBase, rin.embeddedArtifacts.TextWithArrow);
-rin.util.overrideProperties(rin.embeddedArtifacts.TextWithArrow.prototypeOverrides, rin.embeddedArtifacts.TextWithArrow.prototype);
+    // Audio EA
+    rin.embeddedArtifacts.Audio = function (dataObject, resourceResolver) {
+        rin.embeddedArtifacts.Audio.parentConstructor.call(this, dataObject, resourceResolver);
+        var self = this;
+        this.setVisualSource("embeddedArtifacts/Audio.html", "embeddedArtifacts/Audio.css");
+        this.audioControl = document.createElement("audio");
+        this.audioControl.preload = "auto";
+        this.audioControl.src = this.resolverMediaUrl(dataObject.sourceFile);
+        this.isEnvironmentalAudio = dataObject.isEnvironmental;
 
-jQuery.fn.extend({
-    rinTouchGestures: function (callback, options) {
-        var swipeMinDistance = 20,
-            swipeMaxDistance = $(window).width() * 0.8,
-            swipeMinDelay = 50,
-            swipeMaxDelay = 1000,
-            doubleTapMinDelay = 50,
-            doubleTapMaxDelay = 1000,
-            longTapDelay = 1000;
-
-        var captureGestures = {
-            preventDefaults: true,
-            swipe: true,
-            doubleTap: false,
-            longTap: false,
-            simpleTap: false
-        };
-
-        options = options || captureGestures;
-
-        for (var key in captureGestures) {
-            if (typeof options[key] == "undefined") options[key] = captureGestures[key];
-        }
-
-        return this.each(function () {
-
-            var gestureStartTime = null,
-            lastTap = 0,
-            longTapTimer = null,
-            asLongTap = false;
-
-            var startCoords = { x: 0, y: 0 };
-            var endCoords = { x: 0, y: 0 };
-
-            $(this).bind("touchstart mousedown", onGestureStart);
-
-            if (options.swipe)
-                $(this).bind("touchmove mousemove", onGestureMove);
-
-            $(this).bind("touchend mouseup", onGestureEnd);
-
-            function onGestureStart(e) {
-                if (options.longTap) {
-                    window.clearTimeout(longTapTimer);
-                    asLongTap = false;
-                    longTapTimer = window.setTimeout(
-                        function () {
-                            longTapEvent(e)
-                        }
-                        , longTapDelay);
-                }
-
-                gestureStartTime = (new Date).getTime();
-                getCoordinates(startCoords, e);
-                endCoords.x = 0;
-                endCoords.y = 0;
-            }
-
-            function longTapEvent(e) {
-                asLongTap = true;
-                lastTap = 0;
-                return callback.call(this, e, { gesture: 'longtap' });
-            }
-
-            function onSimpleTap(e) {
-                if (options.longTap) {
-                    window.clearTimeout(longTapTimer);
-                }
-                return callback.call(this, e, { gesture: 'simpletap' });
-            }
-
-            function onGestureMove(e) {
-                if (options.preventDefaults) {
-                    e.preventDefault();
-                }
-                if (options.longTap) {
-                    window.clearTimeout(longTapTimer);
-                }
-                getCoordinates(endCoords, e);
-            }
-
-            function onGestureEnd(e) {
-                var now = (new Date).getTime();
-
-                if (options.preventDefaults) {
-                    e.preventDefault();
-                }
-                if (options.longTap) {
-                    window.clearTimeout(longTapTimer);
-                    if (asLongTap) {
-                        return false;
-                    }
-                }
-
-
-                if (options.doubleTap) {
-                    var delay = now - lastTap;
-                    lastTap = now;
-                    if ((delay > doubleTapMinDelay) && (delay < doubleTapMaxDelay)) {
-                        lastTap = 0;
-                        return callback.call(this, e, { gesture: 'doubletap', delay: delay });
-                    }
-                }
-
-                if (options.swipe) {
-                    var coords = {};
-                    coords.delay = now - gestureStartTime;
-                    coords.deltaX = endCoords.x - startCoords.x;
-                    coords.deltaY = startCoords.y - endCoords.y;
-
-                    absX = Math.abs(coords.deltaX);
-                    absY = Math.abs(coords.deltaY);
-
-                    coords.distance = (absX < absY) ? absY : absX;
-                    coords.direction = (absX < absY) ? ((coords.deltaY < 0) ? 'down' : 'up') : (((coords.deltaX < 0) ? 'left' : 'right'));
-
-                    if (endCoords.x != 0
-                        && (coords.distance > swipeMinDistance)
-                        && (coords.distance < swipeMaxDistance)
-                        && (coords.delay > swipeMinDelay)
-                        && (coords.delay < swipeMaxDelay)
-                        ) {
-                        lastTap = 0;
-                        coords.gesture = 'swipe';
-                        return callback.call(this, e, coords);
-                    }
-                }
-
-                if (options.simpleTap)
-                    onSimpleTap(e);
-            }
-
-            function getCoordinates(coords, e) {
-                if (e.originalEvent !== undefined && e.originalEvent.targetTouches !== undefined && e.originalEvent.targetTouches.length > 0) {
-                    coords.x = e.originalEvent.targetTouches[0].clientX;
-                    coords.y = e.originalEvent.targetTouches[0].clientY;
+        // Constantly check if the audio is ready and update the state as necessary.
+        var READY_STATE = 4,
+            TIME_OUT = 500,
+            readyStateCheckTimeout,
+            readyStateCheck = function () {
+                if (self.audioControl.readyState === READY_STATE) {
+                    clearTimeout(readyStateCheckTimeout);
+                    self.onLoadComplete();
                 }
                 else {
-                    coords.x = e.clientX;
-                    coords.y = e.clientY;
+                    readyStateCheckTimeout = setTimeout(readyStateCheck, TIME_OUT);
                 }
-            }
-        });
-    }
-});
-
-/// <reference path="../core/Common.js" />
-
-window.rin = window.rin || {};
-window.rin.internal = window.rin.internal || {};
-
-//--Loads a JSON collection
-rin.internal.JSONLoader = {
-    loadJSON: function (jsonUrl, onsuccess, onerror, loadCachedCopy) {
-        var cachedCopy = true;
-
-        if (typeof loadCachedCopy !== undefined)
-            cachedCopy = loadCachedCopy;
-        
-        var options = {
-            url: jsonUrl,
-            dataType: "json",
-            cache: cachedCopy,
-            error: function (jqxhr, textStatus, errorThrown) {
-                onerror(errorThrown, jsonUrl);
-            },
-            success: function (data, textStatus, jqxhr) {
-                onsuccess(data, jsonUrl);
-            }
+            };
+        this.audioControl.onerror = function () {
+            if (readyStateCheckTimeout)
+                clearTimeout(readyStateCheckTimeout);
         };
-        $.ajax(options);
-    },
-    //--Processes a JSON Collection, by creating lists for binding from the group/item dictionaries
-    processCollectionJSON: function (jsonUrl, collectionData, resourceResolver, resolveIncludes) {
-        //--properties to look out for to call resolveResourceReference on
-        var properties = new rin.internal.List("thumbnailMedia", "src", "largeMedia", "smallMedia");
-        collectionData.groupsList = rin.util.getDictionaryValues(collectionData.layout.groups);
+        readyStateCheck();
+    };
 
-        var lastSlashPos = jsonUrl.lastIndexOf("/");
-        var rootUrl = jsonUrl.substr(0, lastSlashPos);
+    rin.embeddedArtifacts.Audio.prototypeOverrides = {
+        // Method bound to the click of an EA
+        onClick: function () {
+            if (!this.isEnvironmentalAudio) {
+                if (this.audioControl.paused)
+                    this.audioControl.play();
+                else
+                    this.audioControl.pause();
+            }
+        },
 
-        var groupIndex = 0;
-        collectionData.groupsList.foreach(function (group) {
-            group.itemsList = rin.util.getDictionaryValues(group.items);
-            group.itemsList.foreach(function (item) {
-                if (resolveIncludes) {
-                    if (item.includes) {
-                        var itemToInclude = rin.util.deepCopy(collectionData.items[item.includes]);
-                        rin.util.overrideProperties(item, itemToInclude); //This keeps the overriden properties in item as such
-                        rin.util.overrideProperties(itemToInclude, item); //This copies missing data back to item
+        onLoadComplete: function () {
+            if (this.isEnvironmentalAudio) {
+                this.audioControl.loop = true;
+                this.audioControl.autoplay = true;
+                this.audioControl.controls = false;
+            }
+        },
+
+        setVolume: function (value) {
+            if (this.isEnvironmentalAudio) {
+                //Check for playing and start if not
+                if (value <= this.MIN_VOL) {
+                    this.audioControl.volume = 0;
+                    if (!this.audioControl.paused) {
+                        this.audioControl.pause();
                     }
                 }
+                else {
+                    this.audioControl.volume = Math.min(value, 1); //Max it to 1
+                    if (this.audioControl.paused) {
+                        this.audioControl.play();
+                    }
+                }
+            }
+        },
+
+        MIN_VOL: 0.0001
+    };
+
+    // Video EA
+    rin.embeddedArtifacts.Video = function (dataObject, resourceResolver) {
+        rin.embeddedArtifacts.Video.parentConstructor.call(this, dataObject, resourceResolver);
+        this.setVisualSource("embeddedArtifacts/Video.html", "embeddedArtifacts/Video.css");
+    };
+    rin.embeddedArtifacts.Video.prototypeOverrides = {};
+
+    // Text with arrow EA
+    rin.embeddedArtifacts.TextWithArrow = function (dataObject) {
+        rin.embeddedArtifacts.TextWithArrow.parentConstructor.call(this, dataObject);
+        var self = this;
+        this.setVisualSource("embeddedArtifacts/TextWithArrow.html", "embeddedArtifacts/TextWithArrow.css");
+
+        this.text = dataObject.text || null;
+        this.arrowLength = dataObject.arrowLength || 0;
+        this.arrowDirection = dataObject.arrowDirection || null;
+    };
+
+    rin.embeddedArtifacts.TextWithArrow.prototypeOverrides = {
+        // Update the anchoring details depending on the arrow length and arrow direction
+        // TODO: This method deals with a lot of visual related stuff. Ideally this has to abstracted out to allow reusing the EA with other visuals.
+        // This method helps avoiding lots of bindings in the UI. Bindings makes the app slower.
+        updateLayout: function () {
+            $(".rin_TWL_Arrow", this.visual).hide(); // Hide all arrows
+            var visibleLineContainerClass;
+
+            var box = $(".rin_TextWithLineContentContainer", this.visual);
+            if (this.dataObject.backgroundColor)
+                box.css("backgroundColor", this.dataObject.backgroundColor);
+            if (this.dataObject.defaultInteractionBehavior)
+                box.addClass("rin_TextWithLineWithLink");
+
+            // set anchor based on the length and direction
+            switch (this.arrowDirection) {
+                case "tlu":
+                    this.visual.anchorX = -this.arrowLength;
+                    this.visual.anchorY = -this.arrowLength;
+                    this.anchorCorner = "tl";
+                    visibleLineContainerClass = "rin_TWL_TopLeft_Up";
+                    break;
+                case "tld":
+                    this.visual.anchorX = -this.arrowLength;
+                    this.visual.anchorY = this.arrowLength;
+                    this.anchorCorner = "tl";
+                    visibleLineContainerClass = "rin_TWL_TopLeft_Down";
+                    break;
+                case "tlh":
+                    this.visual.anchorX = -this.arrowLength;
+                    this.visual.anchorY = 0;
+                    this.anchorCorner = "tl";
+                    visibleLineContainerClass = "rin_TWL_TopLeft_Horizontal";
+                    break;
+                case "tlv":
+                    this.visual.anchorX = 0;
+                    this.visual.anchorY = -this.arrowLength;
+                    this.anchorCorner = "tl";
+                    visibleLineContainerClass = "rin_TWL_TopLeft_Vertical";
+                    break;
+
+                case "blu":
+                    this.visual.anchorX = -this.arrowLength;
+                    this.visual.anchorY = -this.arrowLength;
+                    this.anchorCorner = "bl";
+                    visibleLineContainerClass = "rin_TWL_BottomLeft_Up";
+                    break;
+                case "bld":
+                    this.visual.anchorX = -this.arrowLength;
+                    this.visual.anchorY = this.arrowLength;
+                    this.anchorCorner = "bl";
+                    visibleLineContainerClass = "rin_TWL_BottomLeft_Down";
+                    break;
+                case "blh":
+                    this.visual.anchorX = -this.arrowLength;
+                    this.visual.anchorY = 0;
+                    this.anchorCorner = "bl";
+                    visibleLineContainerClass = "rin_TWL_BottomLeft_Horizontal";
+                    break;
+                case "blv":
+                    this.visual.anchorX = 0;
+                    this.visual.anchorY = this.arrowLength;
+                    this.anchorCorner = "bl";
+                    visibleLineContainerClass = "rin_TWL_BottomLeft_Vertical";
+                    break;
+
+                case "bru":
+                    this.visual.anchorX = this.arrowLength;
+                    this.visual.anchorY = this.arrowLength;
+                    this.anchorCorner = "br";
+                    visibleLineContainerClass = "rin_TWL_BottomRight_Up";
+                    break;
+                case "brd":
+                    this.visual.anchorX = this.arrowLength;
+                    this.visual.anchorY = this.arrowLength;
+                    this.anchorCorner = "br";
+                    visibleLineContainerClass = "rin_TWL_BottomRight_Down";
+                    break;
+                case "brh":
+                    this.visual.anchorX = this.arrowLength;
+                    this.visual.anchorY = 0;
+                    this.anchorCorner = "br";
+                    visibleLineContainerClass = "rin_TWL_BottomRight_Horizontal";
+                    break;
+                case "brv":
+                    this.visual.anchorX = 0;
+                    this.visual.anchorY = this.arrowLength;
+                    this.anchorCorner = "br";
+                    visibleLineContainerClass = "rin_TWL_BottomRight_Vertical";
+                    break;
+
+                case "tru":
+                    this.visual.anchorX = this.arrowLength;
+                    this.visual.anchorY = -this.arrowLength;
+                    this.anchorCorner = "tr";
+                    visibleLineContainerClass = "rin_TWL_TopRight_Up";
+                    break;
+                case "trd":
+                    this.visual.anchorX = this.arrowLength;
+                    this.visual.anchorY = this.arrowLength;
+                    this.anchorCorner = "tr";
+                    visibleLineContainerClass = "rin_TWL_TopRight_Down";
+                    break;
+                case "trh":
+                    this.visual.anchorX = this.arrowLength;
+                    this.visual.anchorY = 0;
+                    this.anchorCorner = "tr";
+                    visibleLineContainerClass = "rin_TWL_TopRight_horizontal";
+                    break;
+                case "trv":
+                    this.visual.anchorX = 0;
+                    this.visual.anchorY = this.arrowLength;
+                    this.anchorCorner = "tr";
+                    visibleLineContainerClass = "rin_TWL_TopRight_Vertical";
+                    break;
+            }
+
+            // Set height and width of the line container div
+            var visibleLineContainer = $("." + visibleLineContainerClass);
+            visibleLineContainer.show();
+            visibleLineContainer.attr("width", this.arrowLength + "px");
+            visibleLineContainer.attr("height", this.arrowLength + "px");
+
+            // Update the translation in CSS so that the lines are correctly positioned even after the length is changed.
+            if (parseFloat(visibleLineContainer.css("top")) > 0) visibleLineContainer.css("top", this.arrowLength + "px");
+            else if (parseFloat(visibleLineContainer.css("top")) < 0) visibleLineContainer.css("top", -this.arrowLength + "px");
+            if (parseFloat(visibleLineContainer.css("left")) > 0) visibleLineContainer.css("left", this.arrowLength + "px");
+            else if (parseFloat(visibleLineContainer.css("left")) < 0) visibleLineContainer.css("left", -this.arrowLength + "px");
+            if (parseFloat(visibleLineContainer.css("bottom")) > 0) visibleLineContainer.css("bottom", this.arrowLength + "px");
+            else if (parseFloat(visibleLineContainer.css("bottom")) < 0) visibleLineContainer.css("bottom", -this.arrowLength + "px");
+            if (parseFloat(visibleLineContainer.css("right")) > 0) visibleLineContainer.css("right", this.arrowLength + "px");
+            else if (parseFloat(visibleLineContainer.css("right")) < 0) visibleLineContainer.css("right", -this.arrowLength + "px");
+
+            // Update the line SVG height and width
+            var lineSvg = $(".rin_TWL_Line", visibleLineContainer);
+            var svgContainer = $("svg", visibleLineContainer);
+            svgContainer.attr("width", this.arrowLength + "px");
+            svgContainer.attr("height", this.arrowLength + "px");
+
+            // Update the line itself according to the new length.
+            if (lineSvg.attr("x1") > 0) lineSvg.attr("x1", this.arrowLength);
+            else if (lineSvg.attr("x1") < 0) lineSvg.attr("x1", -this.arrowLength);
+            if (lineSvg.attr("x2") > 0) lineSvg.attr("x2", this.arrowLength);
+            else if (lineSvg.attr("x2") < 0) lineSvg.attr("x2", -this.arrowLength);
+            if (lineSvg.attr("y1") > 0) lineSvg.attr("y1", this.arrowLength);
+            else if (lineSvg.attr("y1") < 0) lineSvg.attr("y1", -this.arrowLength);
+            if (lineSvg.attr("y2") > 0) lineSvg.attr("y2", this.arrowLength);
+            else if (lineSvg.attr("y2") < 0) lineSvg.attr("y2", -this.arrowLength);
+        },
+
+        // Update anchor based of arrow direction and length
+        visualLoadComplete: function () {
+            this.updateLayout();
+            this.raiseLayoutChanged();
+        }
+    };
+
+    // Label EA
+    rin.embeddedArtifacts.Label = function (dataObject, resourceResolver) {
+        rin.embeddedArtifacts.Label.parentConstructor.call(this, dataObject, resourceResolver);
+        this.setVisualSource("embeddedArtifacts/Label.html", "embeddedArtifacts/Label.css");
+        this.text = dataObject.text || null;
+        this.linkType = dataObject.linkType;
+    };
+    rin.embeddedArtifacts.Label.prototypeOverrides = {
+        visualLoadComplete: function () {
+            if (this.dataObject.defaultInteractionBehavior) {
+                var $visual = $(this.visual);
+                switch (this.dataObject.defaultInteractionBehavior) {
+                    case "rin.interactionBehaviors.seekToHT":
+                        $visual.addClass("rin_LabelArtifactLink");
+                        break;
+                    case "rin.interactionBehaviors.popup":
+                        $visual.addClass("rin_LabelArtifactPopup");
+                        break;
+                }
+                if (this.dataObject.linkType) {
+                    $visual.addClass('rin_Label_' + this.dataObject.linkType);
+                    $visual.addClass('rin_Label_Interactive');
+                }
+            }
+        },
+        getAnchoredOffset: function () {
+            if (this.dataObject.anchoredOffset) // Consider if offset is set explicitly.
+                return { x: this.anchoredOffset.x * this.visual.clientWidth, y: this.anchoredOffset.y * this.visual.clientHeight };
+            else if (this.dataObject.linkType === "peakLabel") // Use bottom center for peak labels
+                return { x: 0.5 * this.visual.clientWidth, y: 1.0 * this.visual.clientHeight };
+            else // Use default
+                return this.anchoredOffset;
+        }
+    };
+
+    rin.util.extend(rin.embeddedArtifacts.EmbeddedArtifactBase, rin.embeddedArtifacts.HotSpot);
+    rin.util.overrideProperties(rin.embeddedArtifacts.HotSpot.prototypeOverrides, rin.embeddedArtifacts.HotSpot.prototype);
+
+    rin.util.extend(rin.embeddedArtifacts.EmbeddedArtifactBase, rin.embeddedArtifacts.Audio);
+    rin.util.overrideProperties(rin.embeddedArtifacts.Audio.prototypeOverrides, rin.embeddedArtifacts.Audio.prototype);
+
+    rin.util.extend(rin.embeddedArtifacts.EmbeddedArtifactBase, rin.embeddedArtifacts.Video);
+    rin.util.overrideProperties(rin.embeddedArtifacts.Video.prototypeOverrides, rin.embeddedArtifacts.Video.prototype);
+
+    rin.util.extend(rin.embeddedArtifacts.EmbeddedArtifactBase, rin.embeddedArtifacts.Label);
+    rin.util.overrideProperties(rin.embeddedArtifacts.Label.prototypeOverrides, rin.embeddedArtifacts.Label.prototype);
+
+    rin.util.extend(rin.embeddedArtifacts.EmbeddedArtifactBase, rin.embeddedArtifacts.TextWithArrow);
+    rin.util.overrideProperties(rin.embeddedArtifacts.TextWithArrow.prototypeOverrides, rin.embeddedArtifacts.TextWithArrow.prototype);
+
+})(window.rin = window.rin || {});
+(function () {
+    /*global $:true*/
+    /*jshint validthis:true*/
+    "use strict";
+    jQuery.fn.extend({
+        rinTouchGestures: function (callback, options) {
+            var swipeMinDistance = 20,
+                swipeMaxDistance = jQuery(window).width() * 0.8,
+                swipeMinDelay = 50,
+                swipeMaxDelay = 1000,
+                doubleTapMinDelay = 50,
+                doubleTapMaxDelay = 1000,
+                longTapDelay = 1000;
+
+            var captureGestures = {
+                preventDefaults: true,
+                swipe: true,
+                doubleTap: false,
+                longTap: false,
+                simpleTap: false
+            };
+
+            options = options || captureGestures;
+
+            for (var key in captureGestures) {
+                if (typeof options[key] === "undefined") options[key] = captureGestures[key];
+            }
+
+            return this.each(function () {
+
+                var gestureStartTime = null,
+                lastTap = 0,
+                longTapTimer = null,
+                asLongTap = false;
+
+                function onGestureStart(e) {
+                    if (options.longTap) {
+                        window.clearTimeout(longTapTimer);
+                        asLongTap = false;
+                        longTapTimer = window.setTimeout(
+                            function () {
+                                longTapEvent(e);
+                            }
+                            , longTapDelay);
+                    }
+
+                    gestureStartTime = (new Date()).getTime();
+                    getCoordinates(startCoords, e);
+                    endCoords.x = 0;
+                    endCoords.y = 0;
+                }
+
+                function onGestureMove(e) {
+                    if (options.preventDefaults) {
+                        e.preventDefault();
+                    }
+                    if (options.longTap) {
+                        window.clearTimeout(longTapTimer);
+                    }
+                    getCoordinates(endCoords, e);
+                }
+
+                function onGestureEnd(e) {
+                    var now = (new Date()).getTime();
+
+                    if (options.preventDefaults) {
+                        e.preventDefault();
+                    }
+                    if (options.longTap) {
+                        window.clearTimeout(longTapTimer);
+                        if (asLongTap) {
+                            return false;
+                        }
+                    }
+
+
+                    if (options.doubleTap) {
+                        var delay = now - lastTap;
+                        lastTap = now;
+                        if ((delay > doubleTapMinDelay) && (delay < doubleTapMaxDelay)) {
+                            lastTap = 0;
+                            return callback.call(this, e, { gesture: 'doubletap', delay: delay });
+                        }
+                    }
+
+                    if (options.swipe) {
+                        var coords = {};
+                        coords.delay = now - gestureStartTime;
+                        coords.deltaX = endCoords.x - startCoords.x;
+                        coords.deltaY = startCoords.y - endCoords.y;
+
+                        var absX = Math.abs(coords.deltaX);
+                        var absY = Math.abs(coords.deltaY);
+
+                        coords.distance = (absX < absY) ? absY : absX;
+                        coords.direction = (absX < absY) ? ((coords.deltaY < 0) ? 'down' : 'up') : (((coords.deltaX < 0) ? 'left' : 'right'));
+
+                        if (endCoords.x !== 0
+                            && (coords.distance > swipeMinDistance)
+                            && (coords.distance < swipeMaxDistance)
+                            && (coords.delay > swipeMinDelay)
+                            && (coords.delay < swipeMaxDelay)
+                            ) {
+                            lastTap = 0;
+                            coords.gesture = 'swipe';
+                            return callback.call(this, e, coords);
+                        }
+                    }
+
+                    if (options.simpleTap)
+                        onSimpleTap(e);
+                }
+
+                var startCoords = { x: 0, y: 0 };
+                var endCoords = { x: 0, y: 0 };
+
+                jQuery(this).bind("touchstart mousedown", onGestureStart);
+
+                if (options.swipe)
+                    jQuery(this).bind("touchmove mousemove", onGestureMove);
+
+                jQuery(this).bind("touchend mouseup", onGestureEnd);
+
+                function longTapEvent(e) {
+                    asLongTap = true;
+                    lastTap = 0;
+                    return callback.call(this, e, { gesture: 'longtap' });
+                }
+
+                function onSimpleTap(e) {
+                    if (options.longTap) {
+                        window.clearTimeout(longTapTimer);
+                    }
+                    return callback.call(this, e, { gesture: 'simpletap' });
+                }
+
+                function getCoordinates(coords, e) {
+                    if (e.originalEvent !== undefined && e.originalEvent.targetTouches !== undefined && e.originalEvent.targetTouches.length > 0) {
+                        coords.x = e.originalEvent.targetTouches[0].clientX;
+                        coords.y = e.originalEvent.targetTouches[0].clientY;
+                    }
+                    else {
+                        coords.x = e.clientX;
+                        coords.y = e.clientY;
+                    }
+                }
+            });
+        }
+    });
+}());
+/// <reference path="../core/Common.js" />
+
+(function (rin) {
+    /*global $:true*/
+    "use strict";
+    rin.internal = rin.internal || {};
+
+    //--Loads a JSON collection
+    rin.internal.JSONLoader = {
+        loadJSON: function (jsonUrl, onsuccess, onerror, loadCachedCopy) {
+            var cachedCopy = true;
+
+            if (typeof loadCachedCopy !== undefined)
+                cachedCopy = loadCachedCopy;
+
+            var options = {
+                url: jsonUrl,
+                dataType: "json",
+                cache: cachedCopy,
+                error: function (jqxhr, textStatus, errorThrown) {
+                    onerror(errorThrown, jsonUrl);
+                },
+                success: function (data, textStatus, jqxhr) {
+                    onsuccess(data, jsonUrl);
+                }
+            };
+            $.ajax(options);
+        },
+        //--Processes a JSON Collection, by creating lists for binding from the group/item dictionaries
+        processCollectionJSON: function (jsonUrl, collectionData, resourceResolver, resolveIncludes) {
+            //--properties to look out for to call resolveResourceReference on
+            var properties = new rin.internal.List("thumbnailMedia", "src", "largeMedia", "smallMedia");
+            collectionData.groupsList = rin.util.getDictionaryValues(collectionData.layout.groups);
+
+            var lastSlashPos = jsonUrl.lastIndexOf("/");
+            var rootUrl = jsonUrl.substr(0, lastSlashPos);
+
+            var groupIndex = 0;
+            collectionData.groupsList.foreach(function (group) {
+                group.itemsList = rin.util.getDictionaryValues(group.items);
+                group.itemsList.foreach(function (item) {
+                    if (resolveIncludes) {
+                        if (item.includes) {
+                            var itemToInclude = rin.util.deepCopy(collectionData.items[item.includes]);
+                            rin.util.overrideProperties(item, itemToInclude); //This keeps the overriden properties in item as such
+                            rin.util.overrideProperties(itemToInclude, item); //This copies missing data back to item
+                        }
+                    }
+                    properties.foreach(function (property) {
+                        //--resolve resource reference
+                        if (item.hasOwnProperty(property) && item[property].lastIndexOf("http", 0) !== 0) {
+                            item[property] = rin.util.combinePathElements(rootUrl, item[property]);
+                        }
+                    });
+                    item.groupIndex = groupIndex;
+                });
+                groupIndex++;
+            });
+
+            for (var itemId in collectionData.items) {
+                var item = collectionData.items[itemId];
                 properties.foreach(function (property) {
                     //--resolve resource reference
                     if (item.hasOwnProperty(property) && item[property].lastIndexOf("http", 0) !== 0) {
                         item[property] = rin.util.combinePathElements(rootUrl, item[property]);
                     }
                 });
-                item.groupIndex = groupIndex;
-            });
-            groupIndex++;
-        });
+            }
 
-        for (var itemId in collectionData.items) {
-            var item = collectionData.items[itemId];
-            properties.foreach(function (property) {
-                //--resolve resource reference
-                if (item.hasOwnProperty(property) && item[property].lastIndexOf("http", 0) !== 0) {
-                    item[property] = rin.util.combinePathElements(rootUrl, item[property]);
-                }
-            });
+            return collectionData;
         }
-
-        return collectionData;
-    }
-};
+    };
+}(window.rin = window.rin || {}));
 /*!
 * RIN Core JavaScript Library v1.0
 * http://research.microsoft.com/rin
@@ -5511,131 +5572,129 @@ rin.internal.JSONLoader = {
 * Date: <placeholder for SDK release date>
 */
 
-window.rin = window.rin || {};
-window.rin.internal = window.rin.internal || {};
+(function (rin) {
+    "use strict";
+    rin.internal = rin.internal || {};
 
-rin.internal.esDataGenerator = {
-    _narrativeData: {
-        "version": 1.0,
-        "defaultScreenplayId": "SCP1",
-        "screenplayProviderId": "MicrosoftResearch.Rin.DefaultScreenPlayInterpreter",
-        "data": {
-            "narrativeData": {
-                "guid": "6aa09d19-cf2b-4c8e-8b57-7ea8701794f7",
-                "aspectRatio": "$ASPECTRATIO$",
-                "estimatedDuration": "$DURATION$",
-                "branding": null
-            }
-        },
-        "providers": {
-            "$ESPROVIDER$": {
-                "name": "$ESPROVIDER$",
-                "version": 0.0
+    rin.internal.esDataGenerator = {
+        _narrativeData: {
+            "version": 1.0,
+            "defaultScreenplayId": "SCP1",
+            "screenplayProviderId": "MicrosoftResearch.Rin.DefaultScreenPlayInterpreter",
+            "data": {
+                "narrativeData": {
+                    "guid": "6aa09d19-cf2b-4c8e-8b57-7ea8701794f7",
+                    "aspectRatio": "$ASPECTRATIO$",
+                    "estimatedDuration": "$DURATION$",
+                    "branding": null
+                }
             },
-            "MicrosoftResearch.Rin.DefaultScreenPlayInterpreter": {
-                "name": "MicrosoftResearch.Rin.DefaultScreenPlayInterpreter",
-                "version": 0.0
-            }
-        },
-        "resources": {
-            "R-1": {
-                "uriReference": "$RESOURCEREF$"
-            }
-        },
-        "experiences": {
-            "$ESID$": {
-                "providerId": "$ESPROVIDER$",
-                "data": {
-                    "markers": {
-                        "beginAt": '$STARTOFFSET$',
-                        "endAt": '$ENDOFFSET$'
-                    }
+            "providers": {
+                "$ESPROVIDER$": {
+                    "name": "$ESPROVIDER$",
+                    "version": 0.0
                 },
-                "resourceReferences": [
-                        {
-                            "resourceId": "R-1",
-                            "required": true
+                "MicrosoftResearch.Rin.DefaultScreenPlayInterpreter": {
+                    "name": "MicrosoftResearch.Rin.DefaultScreenPlayInterpreter",
+                    "version": 0.0
+                }
+            },
+            "resources": {
+                "R-1": {
+                    "uriReference": "$RESOURCEREF$"
+                }
+            },
+            "experiences": {
+                "$ESID$": {
+                    "providerId": "$ESPROVIDER$",
+                    "data": {
+                        "markers": {
+                            "beginAt": '$STARTOFFSET$',
+                            "endAt": '$ENDOFFSET$'
                         }
+                    },
+                    "resourceReferences": [
+                            {
+                                "resourceId": "R-1",
+                                "required": true
+                            }
                     ],
-                "experienceStreams": {
-                    "defaultStream": {
-                        "duration": "0",
-                        "data": {
-                            "ContentType": "<$CONTENTTYPE$/>"
-                        },
-                        "keyframes": ["$KEYFRAMES$"]
+                    "experienceStreams": {
+                        "defaultStream": {
+                            "duration": "0",
+                            "data": {
+                                "ContentType": "<$CONTENTTYPE$/>"
+                            }
+                        }
+                    }
+                }
+            },
+            "screenplays": {
+                "SCP1": {
+                    "data": {
+                        "experienceStreamReferences": [
+                        {
+                            "experienceId": "$ESID$",
+                            "experienceStreamId": "defaultStream",
+                            "begin": "0",
+                            "duration": "$DURATION$",
+                            "layer": "foreground",
+                            "dominantMedia": "visual",
+                            "volume": '$VOLUME$'
+                        }]
                     }
                 }
             }
         },
-        "screenplays": {
-            "SCP1": {
-                "data": {
-                    "experienceStreamReferences": [
-					{
-					    "experienceId": "$ESID$",
-					    "experienceStreamId": "defaultStream",
-					    "begin": "0",
-					    "duration": "$DURATION$",
-					    "layer": "foreground",
-					    "dominantMedia": "visual",
-					    "volume": '$VOLUME$'
-					}]
-                }
-            }
+        esSrcTypeToProviderDictionary: {
+            "singledeepzoomimage": "MicrosoftResearch.Rin.ZoomableMediaExperienceStream",
+            "deepzoomimage": "MicrosoftResearch.Rin.ZoomableMediaExperienceStream",
+            "zoomableimage": "MicrosoftResearch.Rin.ImageExperienceStream",
+            "image": "MicrosoftResearch.Rin.ImageExperienceStream",
+            "zoomablevideo": "MicrosoftResearch.Rin.ZoomableMediaExperienceStream",
+            "zoomablemediacollection": "MicrosoftResearch.Rin.ZoomableMediaExperienceStream",
+            "video": "MicrosoftResearch.Rin.VideoExperienceStream",
+            "audio": "MicrosoftResearch.Rin.AudioExperienceStream",
+            "pivot": "MicrosoftResearch.Rin.PivotExperienceStream",
+            "xps": "MicrosoftResearch.Rin.DocumentViewerExperienceStream",
+            "photosynth": "MicrosoftResearch.Rin.PhotosynthES",
+            "collection": "MicrosoftResearch.Rin.RinTemplates.$THEME$TwoDTemplateES",
+            "collectiononed": "MicrosoftResearch.Rin.RinTemplates.$THEME$OneDTemplateES",
+            "wall": "MicrosoftResearch.Rin.WallExperienceStream",
+            "map": "MicrosoftResearch.Rin.MapExperienceStream"
+        },
+        getExperienceStream: function (context, themeName) {
+            if (context === undefined)
+                return;
+            var esData = JSON.stringify(this._narrativeData);
+            var providerName = this.esSrcTypeToProviderDictionary[context.srcType.toLowerCase()] || context.srcType;
+            var keyframeData = context.keyframes || "";
+            var aspectratio = context.aspectRatio || "None";
+            var duration = context.duration || context.largeMediaDuration || context.smallMediaDuration || 0;
+            var startOffset = context.largeMediaStartOffset || context.smallMediaStartOffset || 0;
+            var endOffset = startOffset + duration;
+            providerName = providerName.replace("$THEME$", themeName || "Metro");
+
+            var esId = (context.id || "") + "_ES_" + Math.floor(Math.random() * 1000).toString() + "_Popup";
+
+            esData = this.replaceAll('$ESID$', esId, esData);
+            esData = this.replaceAll("$ESPROVIDER$", providerName, esData);
+            esData = esData.replace('$RESOURCEREF$', context.src)
+                           .replace('$CONTENTTYPE$', context.srcType)
+                           .replace('$ASPECTRATIO$', aspectratio)
+                           .replace('$DURATION$', duration)
+                           .replace('$DURATION$', duration)
+                           .replace('$STARTOFFSET$', startOffset)
+                           .replace('$ENDOFFSET$', endOffset)
+                           .replace('$VOLUME$', context.volume || 1);
+            var esDataJSON = rin.util.parseJSON(esData);
+            esDataJSON.id = esId;
+
+            return esDataJSON;
+        },
+
+        replaceAll: function (find, replace, str) {
+            return str.split(find).join(replace);
         }
-    },
-    esSrcTypeToProviderDictionary: {
-        "singledeepzoomimage": "MicrosoftResearch.Rin.ZoomableMediaExperienceStream",
-        "deepzoomimage": "MicrosoftResearch.Rin.ZoomableMediaExperienceStream",
-        "zoomableimage": "MicrosoftResearch.Rin.ImageExperienceStream",
-        "image": "MicrosoftResearch.Rin.ImageExperienceStream",
-        "zoomablevideo": "MicrosoftResearch.Rin.ZoomableMediaExperienceStream",
-        "zoomablemediacollection": "MicrosoftResearch.Rin.ZoomableMediaExperienceStream",
-        "video": "MicrosoftResearch.Rin.VideoExperienceStream",
-        "audio": "MicrosoftResearch.Rin.AudioExperienceStream",
-        "pivot": "MicrosoftResearch.Rin.PivotExperienceStream",
-        "xps": "MicrosoftResearch.Rin.DocumentViewerExperienceStream",
-        "photosynth": "MicrosoftResearch.Rin.PhotosynthES",
-        "collection": "MicrosoftResearch.Rin.RinTemplates.$THEME$TwoDTemplateES",
-        "collectiononed": "MicrosoftResearch.Rin.RinTemplates.$THEME$OneDTemplateES",
-        "wall": "MicrosoftResearch.Rin.WallExperienceStream",
-        "map": "MicrosoftResearch.Rin.MapExperienceStream"
-    },
-    getExperienceStream: function (context, themeName) {
-        if (context === undefined)
-            return;
-        var esData = JSON.stringify(this._narrativeData);
-        var providerName = this.esSrcTypeToProviderDictionary[context.srcType.toLowerCase()] || context.srcType;
-        var keyframeData = context.keyframes || "";
-        var aspectratio = context.aspectRatio || "None";
-        var duration = context.duration || context.largeMediaDuration || context.smallMediaDuration || 0;
-        var startOffset = context.largeMediaStartOffset || context.smallMediaStartOffset || 0;
-        var endOffset = startOffset + duration;
-        providerName = providerName.replace("$THEME$", themeName || "Metro");
-
-        var esId = (context.id || "") + "_ES_" + Math.floor(Math.random() * 1000).toString() + "_Popup";
-
-        esData = this.replaceAll('$ESID$', esId, esData);
-        esData = this.replaceAll("$ESPROVIDER$", providerName, esData);
-        esData = esData.replace('$RESOURCEREF$', context.src)
-                       .replace('$CONTENTTYPE$', context.srcType)
-                       .replace('$ASPECTRATIO$', aspectratio)
-                       .replace('$DURATION$', duration)
-                       .replace('$DURATION$', duration)
-                       .replace('$STARTOFFSET$', startOffset)
-                       .replace('$ENDOFFSET$', endOffset)
-                       .replace('$VOLUME$', context.volume || 1)
-                       .replace("$KEYFRAMES$", keyframeData);
-        var esDataJSON = rin.util.parseJSON(esData);
-        esDataJSON.id = esId;
-
-        return esDataJSON;
-    },
-
-    replaceAll: function (find, replace, str) {
-        return str.split(find).join(replace);
-    }
-};
-
-
+    };
+})(window.rin = window.rin || {});

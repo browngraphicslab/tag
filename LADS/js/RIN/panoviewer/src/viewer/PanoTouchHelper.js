@@ -66,17 +66,20 @@ function PanoTouchHelper(el) {
     }
 
     var eventListeners = {
-        pointerstart: function(e) { activePointers++; },
-        pointerend: function(e) { activePointers--; },
-        gesturestart: queueEventAndPreventDefault,
-        gesturemove: queueEventAndPreventDefault,
-        gestureend: queueEventAndPreventDefault,
-        pinchstart: queueEventAndPreventDefault,
-        pinchmove: queueEventAndPreventDefault,
-        pinchend: queueEventAndPreventDefault,
-        tap: queueEventAndPreventDefault,
-        doubletap: queueEventAndPreventDefault,
-        holdstart: queueEventAndPreventDefault,
+
+        // PxTouch events
+        pxpointerstart: function(e) { activePointers++; },
+        pxpointerend: function(e) { activePointers--; },
+        pxgesturestart: queueEventAndPreventDefault,
+        pxgesturemove: queueEventAndPreventDefault,
+        pxgestureend: queueEventAndPreventDefault,
+        pxpinchstart: queueEventAndPreventDefault,
+        pxpinchmove: queueEventAndPreventDefault,
+        pxpinchend: queueEventAndPreventDefault,
+        pxtap: queueEventAndPreventDefault,
+        pxdoubletap: queueEventAndPreventDefault,
+        pxholdstart: queueEventAndPreventDefault,
+
         mousewheel:  onMouseWheel,
         DOMMouseScroll: onMouseWheel,
         zoompoint: onZoom
@@ -87,9 +90,6 @@ function PanoTouchHelper(el) {
         keyup: queueKeyEvent
     };
 
-    // TODO: (Joel) need to enable / disable pxtouch events
-    $(el).on(eventListeners);
-
     var useTopDocument = false;
     try {
         useTopDocument = (document !== top.document);
@@ -99,10 +99,7 @@ function PanoTouchHelper(el) {
 
     this.enable = function () {
         if (!enabled) {
-
-            // TODO: (Joel) re-enable
-            //$(el).on(eventListeners);
-
+            $(el).on(eventListeners);
             $(document).on(docListeners);
             if (useTopDocument) {
                 $(top.document).on(docListeners);
@@ -113,10 +110,7 @@ function PanoTouchHelper(el) {
 
     this.disable = function () {
         if (enabled) {
-
-            // TODO: (Joel) re-enable
-            //$(el).off(eventListeners);
-
+            $(el).off(eventListeners);
             $(document).off(docListeners);
             if (useTopDocument) {
                 $(top.document).off(docListeners);

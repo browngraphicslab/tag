@@ -8,12 +8,13 @@
 // Copyright (C) 2013 Microsoft Research 
 //
 module rin.Ext.NonLinearStoryboard {
+    "use strict";
     var STOPPED = 0, PLAYING = 1, PAUSING = 2, PAUSED = 3; // state values;
 
 
     function log(str: string) {
         console.log(str);
-    };
+    }
     
     export function buildStoryboard(sb: StoryboardHelper): IStoryboard {
         var state = STOPPED;
@@ -23,7 +24,7 @@ module rin.Ext.NonLinearStoryboard {
 
         function renderAt(time: number) {
             var offset = 0;
-            var callStop = false;;
+            var callStop = false;
             if (state === STOPPED) {
                 //log("Ignoring because state is STOPPED");
                 return;

@@ -13,7 +13,23 @@
     overflow-y:hidden;
     line-height: 130%;
     position:relative;
-    width:250px;
+    width:auto;
+    -webkit-user-select: none; /* Chrome/Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none;
+    user-select:none;
+    cursor:default;
+    pointer-events:auto;
+}
+
+.rin_TextWithLineWithLink:hover
+{
+    /*background-color: rgb(87, 169, 238);*/
+    -moz-transform: scale(1.2,1.2); /* IE 9 */
+    -o-transform: scale(1.2,1.2); /* IE 9 */
+    -ms-transform: scale(1.2,1.2); /* IE 9 */
+    -webkit-transform: scale(1.2,1.2); /* Safari and Chrome */
+    transform: scale(1.2,1.2);
 }
 
 .rin_TWL_Line

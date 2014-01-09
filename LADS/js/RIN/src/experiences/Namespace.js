@@ -1,5 +1,5 @@
-﻿(function() {
-
+(function() {
+    "use strict";
     var rin = window.rin || {};
     window.rin = rin;
 

@@ -1,4 +1,4 @@
-﻿rin.PopupControl.View = function (rootBase, width, height) {
+﻿rin.PopupControl.View = function (rootBase, width, height, aspectRatio) {
     var $rootControl = $(rootBase);
     var $escontainer = $rootControl.find('.rin_popup_es_container');
     var $escontrols = $rootControl.find('.rin_popup_controls');

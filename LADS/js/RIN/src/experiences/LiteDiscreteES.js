@@ -20,8 +20,13 @@
 window.rin = window.rin || {};
 
 (function (rin) {
+    /*global $:true, ko:true*/
+    "use strict";
+
     // Lite ES that interpolates doubles and uses DiscreteKeyframeESBase as base class.
     var LiteDiscreteES = function (orchestrator, esData) {
+        this._orchestrator = orchestrator;
+        this._esData = esData;
         LiteDiscreteES.parentConstructor.apply(this, arguments);
 
         this._userInterfaceControl = rin.util.createElementWithHtml(LiteDiscreteES.elementHTML).firstChild;
@@ -35,6 +40,11 @@ window.rin = window.rin || {};
         load: function (experienceStreamId) {
             LiteDiscreteES.parentPrototype.load.call(this, experienceStreamId);
             this.setState(rin.contracts.experienceStreamState.ready);
+
+            var self = this;
+            setTimeout(function () {
+                self._orchestrator.onESEvent(rin.contracts.esEventIds.setTimeMarkers, [3, 4, 5, 6, 7, 8, 10]);
+            }, 2000);
         },
         // Pause the player.
         pause: function (offset, experienceStreamId) {
@@ -86,10 +96,10 @@ window.rin = window.rin || {};
             valueAnimationStoryboard.begin();
             this._activeValueAnimation = valueAnimationStoryboard;
         },
-        _activeValueAnimation: null,
+        _activeValueAnimation: null
     };
 
     rin.util.overrideProperties(LiteDiscreteES.prototypeOverrides, LiteDiscreteES.prototype);
     LiteDiscreteES.elementHTML = "<div style='position:absolute;width:100%;height:100%'><div style='color:red;position:absolute;width:100%;height:100%'>Starting Test...</div><div style='color:white;position:absolute;right:20px;top:20px;' class='rinPlaceholderValue'></div></div>";
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.LiteDiscreteExperienceStream", function (orchestrator, esData) { return new LiteDiscreteES(orchestrator, esData); });
-})(rin);
+})(window.rin = window.rin || {});

@@ -1,4 +1,4 @@
-﻿var rin;
+var rin;
 (function (rin) {
     //
     // Code to invoke the suite of NonlinearStoryboard tests...
@@ -8,6 +8,7 @@
     /// <reference path="embeddedArtifactTypes.d.ts"/>
     /// <reference path="diagnostics.d.ts"/>
     (function (embeddedArtifactTests) {
+        "use strict";
         var debug = rin.diagnostics.newDiagnosticsModule("EA-TESTS2");
         //expandStart: number;
         //expandEnd: number;
@@ -332,7 +333,7 @@
                 collectionId: id,
                 forEach: function (func) {
                     a.forEach(function (val, index) {
-                        func(val, val["id"], collection);
+                        func(val, val.id, collection);
                     });
                 }
             };

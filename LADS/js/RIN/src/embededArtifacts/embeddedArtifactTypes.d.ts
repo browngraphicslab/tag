@@ -114,6 +114,7 @@ interface SmallState {
 //
 interface DataItem {
 
+    id: string;
     // 
     // 2D world-specific parameters...
     //

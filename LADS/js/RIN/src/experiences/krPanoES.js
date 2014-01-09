@@ -19,7 +19,8 @@
 
 window.rin = window.rin || {};
 
-(function (rin) {
+(function (rin, ko) {
+    "use strict";
     // ES for displaying 360 degree panoramas.
     var krPanoES = function (orchestrator, esData) {
         krPanoES.parentConstructor.apply(this, arguments);
@@ -59,7 +60,7 @@ window.rin = window.rin || {};
                     }
                 }
             }
-        }
+        };
 
         // Check for any interactions on the ES and pause the player.
         this._userInterfaceControl.addEventListener('mousedown', function () {
@@ -109,7 +110,7 @@ window.rin = window.rin || {};
                         height: "100%",
                         wmode: self._wmode,
                         html5: self._html5
-                    }
+                    };
                     embedpano(options);
                     self._krPanoViewer = document.getElementById(self._panoDivID + "Container");
                     self.setState(rin.contracts.experienceStreamState.ready);
@@ -129,9 +130,9 @@ window.rin = window.rin || {};
         // Display a keyframe.
         displayKeyframe: function (keyframeData) {
             //if not ready, do nothing
-            if (this.getState() != rin.contracts.experienceStreamState.ready || !keyframeData.state)
+            if (this.getState() !== rin.contracts.experienceStreamState.ready || !keyframeData.state)
                 return;
-            if (!(typeof this._krPanoViewer.set == "function"))
+            if (typeof this._krPanoViewer.set !== "function")
                 return;
             var viewportFOV = keyframeData.state.viewport.region.span.y;
             var viewportHLookAt = keyframeData.state.viewport.region.center.x;
@@ -283,7 +284,7 @@ window.rin = window.rin || {};
         },
         _viewer: null,
         _interactionControls: null,
-        _zoomFactor: .2,
+        _zoomFactor: 0.2,
         _panDistance: 10,
         _html5: null,
         _wmode: null,
@@ -293,4 +294,4 @@ window.rin = window.rin || {};
     krPanoES.elementHTML = "<div style='height:100%;width:100%;background-color:black;position:absolute;'></div>";
     rin.util.overrideProperties(krPanoES.prototypeOverrides, krPanoES.prototype);
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.krPanoExperienceStream", function (orchestrator, esData) { return new krPanoES(orchestrator, esData); });
-})(rin);
+})(window.rin = window.rin || {}, window.ko);

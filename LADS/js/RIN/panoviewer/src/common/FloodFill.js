@@ -14,28 +14,38 @@ var PolygonTileFloodFiller = {
         var tileQueue = [startingTile];
         var tilesEnqueued = new Array(gridWidth * gridHeight);
         tilesEnqueued[startingTile.y * gridWidth + startingTile.x] = true;
-        //var tileGrid = [];
-        var result = [];
+        
+        var result = [],
+            neighbors = new Array(4),
+            neighbor, tile, i, len, enqueueIndex;
 
         while (tileQueue.length > 0) {
-            var tile = tileQueue.shift();
+            tile = tileQueue.shift();
             result.push(tile);
 
-            var neighbors = [];
+            /* Experiment to see which is more common
+            var tileCenterInPolygon = this.tileCenterInPolygon(tile, polygon);
+            console.count('tileCenterInPolygon:' + tileCenterInPolygon);
+            var gridCrossesPolygon = this.gridCrossesPolygon(tile, polygon);
+            console.count('gridCrossesPolygon:' + gridCrossesPolygon);
+            */
 
-            if (this.tileCenterInPolygon(tile, polygon) || this.gridCrossesPolygon(tile, polygon)) {
-                neighbors.push(this.getLeftNeighbor(tile));
-                neighbors.push(this.getRightNeighbor(tile));
-                neighbors.push(this.getTopNeighbor(tile));
-                neighbors.push(this.getBottomNeighbor(tile));
-            }
+            // NOTE: following checks are both very expensive, but gridCrossesPolygon
+            // tends to be true more often so it should go first
+            if (this.gridCrossesPolygon(tile, polygon) || this.tileCenterInPolygon(tile, polygon)) {
 
-            for (var i = 0; i < neighbors.length; i++) {
-                var neighbor = neighbors[i];
+                neighbors[0] = this.getLeftNeighbor(tile);
+                neighbors[1] = this.getRightNeighbor(tile);
+                neighbors[2] = this.getTopNeighbor(tile);
+                neighbors[3] = this.getBottomNeighbor(tile);
 
-                if (this.isValidTile(neighbor, gridWidth, gridHeight) && !tilesEnqueued[neighbor.y * gridWidth + neighbor.x]) {
-                    tileQueue.push(neighbor);
-                    tilesEnqueued[neighbor.y * gridWidth + neighbor.x] = true;
+                for (i = 0; i < 4; i++) {
+                    neighbor = neighbors[i];
+                    enqueueIndex = neighbor.y * gridWidth + neighbor.x;
+                    if (!tilesEnqueued[enqueueIndex] && this.isValidTile(neighbor, gridWidth, gridHeight)) {
+                        tileQueue.push(neighbor);
+                        tilesEnqueued[enqueueIndex] = true;
+                    }
                 }
             }
         }
@@ -84,123 +94,114 @@ var PolygonTileFloodFiller = {
 
     tileCenterInPolygon: function (tile, polygon) {
         //check center of tile
-        return this.pointInPolygon({x: tile.x + 0.5, y: tile.y + 0.5}, polygon);
+        return this.pointInPolygon(tile.x + 0.5, tile.y + 0.5, polygon);
     },
 
     isValidTile: function (tile, gridWidth, gridHeight) {
-        if (isNaN(tile.x) || isNaN(tile.y) || tile.x < 0 || tile.y < 0 || tile.x >= gridWidth || tile.y >= gridHeight) {
+        if (tile.x < 0 || tile.y < 0 || tile.x >= gridWidth || tile.y >= gridHeight || isNaN(tile.x) || isNaN(tile.y) ) {
             return false;
         }
         return true;
     },
 
-    normalizeNumber: function (number) {
-        if (number >= 0) {
-            return 1;
-        }
+    gridCrossesPolygon: function (upperLeftPoint, polygon) {
 
-        return -1;
-    },
+        // origin at upper left point
+        var x = upperLeftPoint.x,
+            y = upperLeftPoint.y,
+            rightX = x + 1,
+            bottomY = y + 1;
 
-    gridCrossesPolygon: function (gridUpperLeftPoint, polygon) {
-        //Assume gridUpperLeftPoint has x and y properties and that they are ints
-        var gridUpperRightPoint = {x: gridUpperLeftPoint.x + 1, y: gridUpperLeftPoint.y};
-        var gridLowerRightPoint = {x: gridUpperLeftPoint.x + 1, y: gridUpperLeftPoint.y + 1};
-        var gridLowerLeftPoint = {x: gridUpperLeftPoint.x, y: gridUpperLeftPoint.y + 1};
-
-        //var result = {};
-        //
-        //if (countCrossings(gridUpperLeftPoint, polygon) !== countCrossings(gridUpperRightPoint, polygon)) {
-        //    result.top = true;
-        //}
-        //if (countCrossings(gridLowerLeftPoint, polygon) !== countCrossings(gridLowerRightPoint, polygon)) {
-        //    result.bottom = true;
-        //}
-        //if (countCrossings(gridUpperLeftPoint, polygon, true) !== countCrossings(gridLowerLeftPoint, polygon, true)) {
-        //    result.left = true;
-        //}
-        //if (countCrossings(gridUpperRightPoint, polygon, true) !== countCrossings(gridLowerRightPoint, polygon, true)) {
-        //    result.right = true;
-        //}
-        //
-        //return result;
-
-        if (this.countCrossings(gridUpperLeftPoint, polygon) !== this.countCrossings(gridUpperRightPoint, polygon)) {
+        // upper left vs upper right
+        if (this.countCrossings(x, y, polygon, false) !== this.countCrossings(rightX, y, polygon, false)) {
             return true;
         }
-        else if (this.countCrossings(gridLowerLeftPoint, polygon) !== this.countCrossings(gridLowerRightPoint, polygon)) {
+        // lower left vs lower right 
+        else if (this.countCrossings(x, bottomY, polygon, false) !== this.countCrossings(rightX, bottomY, polygon, false)) {
             return true;
         }
-        else if (this.countCrossings(gridUpperLeftPoint, polygon, true) !== this.countCrossings(gridLowerLeftPoint, polygon, true)) {
+        // upper left vs lower left
+        else if (this.countCrossings(x, y, polygon, true) !== this.countCrossings(x, bottomY, polygon, true)) {
             return true;
         }
-        else if (this.countCrossings(gridUpperRightPoint, polygon, true) !== this.countCrossings(gridLowerRightPoint, polygon, true)) {
+        // upper right vs lower right
+        else if (this.countCrossings(rightX, y, polygon, true) !== this.countCrossings(rightX, bottomY, polygon, true)) {
             return true;
         }
-        else {
-            return false;
-        }
+        
+        return false;
     },
 
     //Use crossing test.  If a ray going out from the point crosses an odd number of polygon line segments, then it's inside the polygon.  Else it's outside.
     //Logic is simple if we cast a ray to the right (positive x) direction
     //Short description: http://erich.realtimerendering.com/ptinpoly/
     //Longer description: Graphics Gems IV, Edited by Paul S Heckbert 1994, page 26
-    pointInPolygon: function (point, polygon) {
-        var crossCount = this.countCrossings(point, polygon);
+    pointInPolygon: function (x, y, polygon) {
+        var crossCount = this.countCrossings(x, y, polygon, false);
 
         //If the ray crossed an odd number of segments, then the point is inside the polygon.
         return (crossCount % 2 === 1);
     },
 
-    //var cachedHorizontalCrossings = {};
-    //var cachedVerticalCrossings = {};
     cachedCrossings: {},
 
-    countCrossings: function (point, polygon, castRayDown) {
-        var adjustedPolygon = [];
-        var i, j;
-        var crossCount = 0;
+    // cache temporary arrays used for adjusted points for better perf. 
+    _countCrossingsAdjustedX: [],
+    _countCrossingsAdjustedY: [],
 
-        var hash = point.x + ',' + point.y + ((castRayDown) ? ',down' : ',right');
-
-        if (this.cachedCrossings[hash] != null) {
-            return this.cachedCrossings[hash];
+    countCrossings: function (x, y, polygon, castRayDown) {
+        
+        // check cache first        
+        var hash = x + ',' + y + ((castRayDown) ? '-D' : '-R'),
+            crossCount = this.cachedCrossings[hash];
+        if (crossCount !== undefined) {
+            return crossCount;
         }
 
-        if (castRayDown) {
-            //if (cachedVerticalCrossings(
+        crossCount = 0;
+        var numPoints = polygon.length,
+            adjustedX = this._countCrossingsAdjustedX,
+            adjustedY = this._countCrossingsAdjustedY,
+            i, j, currentPoint,
+            x0, y0, x1, y1,
+            ySign0, ySign1, xSign0, xSign1,
+            m, b;
 
+        if (castRayDown) {
             //just switch the x and y of the polygon, then the rest of the math works out correctly
-            for (i = 0; i < polygon.length; i++) {
-                adjustedPolygon.push({x: polygon[i].y - point.y, y: polygon[i].x - point.x});
+            for (i = 0; i < numPoints; i++) {
+                currentPoint = polygon[i];
+                adjustedX[i] = currentPoint.y - y;
+                adjustedY[i] = currentPoint.x - x;
             }
         }
         else {
-            for (i = 0; i < polygon.length; i++) {
-                adjustedPolygon.push({x: polygon[i].x - point.x, y: polygon[i].y - point.y});
+            for (i = 0; i < numPoints; i++) {
+                currentPoint = polygon[i];
+                adjustedX[i] = currentPoint.x - x;
+                adjustedY[i] = currentPoint.y - y;
             }
         }
 
-        for (i = 0; i < adjustedPolygon.length; i++) {
+        for (i = 0; i < numPoints; i++) {
             j = i + 1;
-            if (j >= adjustedPolygon.length) {
+            if (j >= numPoints) {
                 j = 0;
             }
+            
+            x0 = adjustedX[i];
+            y0 = adjustedY[i];
 
-            var y0 = adjustedPolygon[i].y;
-            var y1 = adjustedPolygon[j].y;
-            var x0 = adjustedPolygon[i].x;
-            var x1 = adjustedPolygon[j].x;
+            x1 = adjustedX[j];
+            y1 = adjustedY[j];
 
-            var ySign0 = this.normalizeNumber(y0);
-            var ySign1 = this.normalizeNumber(y1);
-            var xSign0 = this.normalizeNumber(x0);
-            var xSign1 = this.normalizeNumber(x1);
-
-            if (ySign0 != ySign1) {
+            ySign0 = y0 >= 0 ? 1 : -1;
+            ySign1 = y1 >= 0 ? 1 : -1;
+            if (ySign0 !== ySign1) {
                 //Points are on opposite sides of the ray being cast to the right, then the segment may cross.
 
+                xSign0 = x0 >= 0 ? 1 : -1;
+                xSign1 = x1 >= 0 ? 1 : -1;
                 if (xSign0 === 1 && xSign1 === 1) {
                     //Points are both to the right of the point, so the segment must cross the ray.
                     crossCount++;
@@ -211,8 +212,8 @@ var PolygonTileFloodFiller = {
                     //If the x-intercept is positive, then the segment must cross the ray.
 
                     //Note, since we know x0 and x1 have different signs, we don't need to check (x0-x1) for being 0
-                    var m = (y0 - y1) / (x0 - x1);
-                    var b = y0 - (m * x0);
+                    m = (y0 - y1) / (x0 - x1);
+                    b = y0 - (m * x0);
                     if (b >= 0) {
                         crossCount++;
                     }

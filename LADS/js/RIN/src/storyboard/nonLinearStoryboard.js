@@ -11,12 +11,12 @@
         // Copyright (C) 2013 Microsoft Research
         //
         (function (NonLinearStoryboard) {
+            "use strict";
             var STOPPED = 0, PLAYING = 1, PAUSING = 2, PAUSED = 3;
             // state values;
                         function log(str) {
                 console.log(str);
             }
-            ;
             function buildStoryboard(sb) {
                 var state = STOPPED;
                 var startAbsoluteTime = 0;
@@ -25,7 +25,6 @@
                 function renderAt(time) {
                     var offset = 0;
                     var callStop = false;
-                    ;
                     if(state === STOPPED) {
                         //log("Ignoring because state is STOPPED");
                         return;

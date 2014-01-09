@@ -1,0 +1,6 @@
+﻿<ContentBrowser xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ContentCollection Id="0bd55031-a43b-4109-8c06-392d6e803c7d" />
+  <ContentUI>
+    <Groups Id="4840f3ca-a5cb-4452-b601-f50d2a0e5aea" />
+  </ContentUI>
+</ContentBrowser>

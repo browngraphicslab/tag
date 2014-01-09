@@ -1,0 +1,90 @@
+<Narrative RinVersion="0.0">
+  <NarrativeHeader xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    Guid="3a6512ca-2784-407c-92fb-3c68ade7a5cd" Timestamp="2010-12-10T06:01:35.3057065Z" StartSegment="defaultSegment" />
+  <AuxiliaryData>
+    <Item Key="narrative-info">
+      <NarrativeData>
+        <Title></Title>
+        <Author>System</Author>
+        <Description></Description>
+        <AspectRatio>None</AspectRatio>
+        <RinTheme>
+  <Name>Metro</Name>
+  <DisplayName>Modern</DisplayName>
+  <ThemeResource>/MicrosoftResearch.Rin.SLPlayer;component/Style/DefaultControllerStyles/Metro.xaml</ThemeResource>
+  <ThemeZipFile />
+  <ThemeImage>pack://application:,,,/Framework/Resources/Metro.png</ThemeImage>
+</RinTheme>
+      </NarrativeData>
+    </Item>
+  </AuxiliaryData>
+  <Segments>
+    <Segment
+      Id="defaultSegment">
+      <SegmentHeader EstimatedDuration="10" DefaultScreenplay="SCP1" />
+      <ResourceTable>
+        <Resource
+          Id="7cff12ca-be50-413d-b28a-04e5afb81884">
+          <ResourceHeader
+            DefaultUriReference="http://photosynth.net/view.aspx?cid=c6198251-11b6-4e31-9ab8-e6d7f0534fa8" />
+        </Resource>
+        <Resource
+          Id="5c04b358-ad68-4e93-93f2-1d8f3624d109">
+          <ResourceHeader
+            DefaultUriReference="03A_EVE_NamBaz_AerlPos31_012013_8bitSharp%20E%20313_EA-7_EAMedia/03A_EVE_NamBaz_AerlPos31_012013_8bitSharp%20E%20313_EA-7.wxml" />
+        </Resource>
+      </ResourceTable>
+      <ExperienceStreams>
+        <ExperienceStream Id="PhotosynthES-8">
+  <ExperienceStreamHeader xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" DefaultKeyframeSequence="defaultSequence">
+    <Provider Name="MicrosoftResearch.Rin.PhotosynthES" Version="0.0" />
+  </ExperienceStreamHeader>
+  <AuxiliaryData>
+    <Item Key="transition">
+      <Info TransitionProvider="MicrosoftResearch.Rin.SLPlayer.FadeInOutTransitionService" TransitionInDuration="2" TransitionOutDuration="2" />
+    </Item>
+    <Item Key="ArtifactLayoutEngineInfo">
+      <ArtifactLayoutEngineInfo>
+        <ArtifactDataSources>
+          <ArtifactDataSource ArtifactType="Artifacts">
+            <RinDataMapper ResourceRef="5c04b358-ad68-4e93-93f2-1d8f3624d109">MicrosoftResearch.Rin.RinDataMapper.WxmlDataMapper</RinDataMapper>
+            <EmbeddedArtifactHost>Microsoft.Rin.EmbeddedArtifactHost.DefaultHost</EmbeddedArtifactHost>
+            <EnvironmentalPolicies>
+              <EnvironmentalPolicy PolicyId="MicrosoftResearch.Rin.ZoomLayerPolicy" />
+            </EnvironmentalPolicies>
+          </ArtifactDataSource>
+        </ArtifactDataSources>
+        <TwoDLayoutMapper>MicrosoftResearch.Rin.RinDataMapper.PhotosynthLayoutDataMapper</TwoDLayoutMapper>
+      </ArtifactLayoutEngineInfo>
+    </Item>
+  </AuxiliaryData>
+  <RequiredResourcesOnLoad>
+    <ResourceReference Ref="7cff12ca-be50-413d-b28a-04e5afb81884" />
+  </RequiredResourcesOnLoad>
+  <KeyframeSequences>
+    <KeyframeSequence Id="defaultSequence">
+      <KeyframeSequenceHeader Duration="10" />
+      <AuxiliaryData>
+        <Item Key="ContentType">
+          <Photosynth />
+        </Item>
+      </AuxiliaryData>
+    </KeyframeSequence>
+  </KeyframeSequences>
+</ExperienceStream>
+      </ExperienceStreams>
+      <Screenplays>
+        <Screenplay Id="SCP1">
+          <ScreenplayHeader />
+          <AuxiliaryData>
+            <Item Key="ExperienceStreams">
+              <ExperienceStreams>
+                <ExperienceStream Id="PhotosynthES-8" Begin="0" Dur="10" Layer="foreground" DominantMedia="visual" Volume="1" />
+              </ExperienceStreams>
+            </Item>
+          </AuxiliaryData>
+        </Screenplay>
+      </Screenplays>
+    </Segment>
+  </Segments>
+</Narrative>

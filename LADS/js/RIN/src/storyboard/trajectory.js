@@ -12,14 +12,14 @@
         // Copyright (C) 2013 Microsoft Research
         //
         (function (Trajectory) {
+            "use strict";
             function log(str) {
                 console.log(str);
             }
-            ;
             // (stolen from rin.core)
             // Deep copy the object. Only members are copied and so the resulting object will not be of the same type.
             function deepCopy(obj) {
-                if(typeof (obj) != "object" || obj == null) {
+                if(typeof (obj) !== "object" || obj === null) {
                     return obj;
                 }
                 var temp = obj.constructor();
@@ -28,7 +28,6 @@
                 }
                 return temp;
             }
-            ;
             var BaseTrajectory = (function () {
                 function BaseTrajectory(duration) {
                     this.duration = duration;
@@ -43,7 +42,6 @@
                 return BaseTrajectory;
             })();            
             function newTrajectoryBuilder(e) {
-                var e = e;
                 var date = new Date();
                 //
                 // Any of the returned object's fields can be overridden with Experience provider specific code. The interpolateSliver function should call the base
@@ -79,7 +77,6 @@
                                     return activeTrajectory.sampleAt(t2, kf);
                                 } : null;
                             }
-                            ;
                             return resultTrajectory;
                         },
                         getCurrentTime: function () {
