@@ -1508,37 +1508,11 @@ LADS.Util.UI = (function () {
             serverDialogInput.select();
         });
         serverDialog.append(serverDialogInput);
-
-
-        var needPassword = false;
-        if (needPassword) {
-            var serverDialogPasswordTitle = $(document.createElement('div'));
-            serverDialogPasswordTitle.attr('id', 'dialogPasswordTitle');
-            serverDialogPasswordTitle.css({
-                color: 'white',
-                'font-size': '1.25em',
-                'margin-bottom': '1%',
-                'margin-left': '25%',
-                'width': '50%',
-                'text-align': 'center'
-            });
-            serverDialogPasswordTitle.text("Authoring Password:");
-            serverDialog.append(serverDialogPasswordTitle);
-
-            var serverPasswdInput = $(document.createElement('input'));
-            serverPasswdInput.attr({
-                type: 'password',
-                id: 'serverPassword',
-                name: 'password',
-            });
-            serverPasswdInput.css({
-                display: 'block',
-                margin: 'auto',
-                'margin-bottom': '2%',
-                'width': '60%',
-            });
-            serverDialog.append(serverPasswdInput);
-        }
+        serverDialogInput.on('keydown', function(evt) {
+            if(evt.which === 13) {
+                saveClick();
+            }
+        });
 
         var serverDialogContact = $(document.createElement('div'));
         serverDialogContact.css({ 'margin-top': '7%' , 'color':'white','margin-left': '10%'  });
@@ -1584,7 +1558,8 @@ LADS.Util.UI = (function () {
         serverCancelButton.click(function () {
             $('#serverDialogOverlay').remove();
         });
-        serverSaveButton.click(function () {
+
+        function saveClick() {
             var address = serverDialogInput.val();
             if (address === 'tag') {
                 var unicorn = $(document.createElement('img'));
@@ -1625,7 +1600,10 @@ LADS.Util.UI = (function () {
                 serverErrorMessage.html('Could not connet to the specified address. Please try again.');
                 serverErrorMessage.show();
             });
-        });
+        }
+
+        serverSaveButton.on('click', saveClick);
+
         var serverCircle = $(document.createElement('img'));
         serverCircle.css({
             'width': '20px',
