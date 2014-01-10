@@ -29,7 +29,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
     var loadQueue = LADS.Util.createQueue();
     var switching = false;
     var confirmationBox;
-
+    var tagContainer = $('#tagRoot') || $('body');
     options = LADS.Util.setToDefaults(options, LADS.Layout.Artmode.default_options);
     doq = options.doq;
 
@@ -38,9 +38,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
     *initiate artmode with a root, artwork image and a sidebar on the left.
     */
     function init() {
-        root = $(document.createElement("div"));
+        /*root = $(document.createElement("div"));
         root.addClass('artmode root');
-        root.css({ height: "100%", width: "100%", position: "relative" });
+        root.css({ height: "100%", width: "100%", position: "relative" });*/
+        root = LADS.Util.getHtmlAjax('artmode.html');
         root.data('split', options.split);
         //get the artwork
         if (doq) {
@@ -75,11 +76,13 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         var i;
         var button;
         //sideBar is the outermost container for sidebar
-        sideBar = $(document.createElement("div"));
-        root.append(sideBar);
-        sideBar.addClass('sideBar');
         //Sets entire sidebar to this...
         var sideBarWidth = window.innerWidth * 0.22; //Define width in absolute terms to work with split screen
+		sideBar = root.find('#sideBar');
+        sideBar.css({"width": sideBarWidth});
+		/*sideBar = $(document.createElement("div"));
+        root.append(sideBar);
+        sideBar.addClass('sideBar');
         sideBar.css({
             position: "absolute",
             display: 'block',
@@ -88,10 +91,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             width: sideBarWidth,
             height: "100%",
             'z-index': 100,
-        });
-        
+        });*/
+		
         //Creates a button/div for toggling sidebar.
-        toggler = $(document.createElement("div"));
+        /*toggler = $(document.createElement("div"));
         toggler.addClass('toggler');
         toggler.css({
             position: "absolute",
@@ -100,9 +103,12 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             width: "12%",
             "background-color": "rgba(0,0,0,0.7)",
             "z-index": 100,
-        });
+        });*/
+		toggler = root.find('#toggler');
+		
         //create the arrow image for toggler.
-        togglerImage = $(document.createElement("img"));
+		togglerImage = root.find('#togglerImage');
+        /*togglerImage = $(document.createElement("img"));
         togglerImage.addClass('togglerImage');
         togglerImage.css({
             position: "absolute",
@@ -112,18 +118,18 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             height: "30%",
         });
         sideBar.append(toggler);
-        toggler.append(togglerImage);
+        toggler.append(togglerImage);*/
 
 
         //Switch side based on splitscreen state, if it is the right half screen, move the sidebar to right.
         if (root.data('split') === 'R' && prevPage !== "artmode") {//if user doesn't go back from the tourplayer too.
-            sideBar.css({ right: '0px', });
+            sideBar.css({ right: '0px'});
             toggler.css({
                 left: '-12%',
                 borderTopLeftRadius: "10px",
                 borderBottomLeftRadius: "10px"
             });
-            togglerImage.attr("src", 'images/icons/Right.png');
+            //togglerImage.attr("src", 'images/icons/Right.png');
 
         }
         else {
@@ -133,7 +139,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 borderTopRightRadius: "10px",
                 borderBottomRightRadius: "10px"
             });
-            togglerImage.attr("src", 'images/icons/Left.png');
+            //togglerImage.attr("src", 'images/icons/Left.png');
         }
 
         //set sidebar open as default.
@@ -172,19 +178,21 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 
 
         //Create back button TODO: See todo in constructor
-        var backButtoncontainer = $(document.createElement("div"));
+		var backBttnContainer = root.find("#backBttnContainer");
+        /*var backButtoncontainer = $(document.createElement("div"));
         backButtoncontainer.addClass('backButtonContainer');
         backButtoncontainer.css({
             "width": "13%", "height": "auto", margin: "4%"
-        });
+        });*/
 
-        backButton = $(document.createElement("img")); 
+		backButton = root.find('#backButton');
+        /*backButton = $(document.createElement("img")); 
         backButton.addClass('backButton');
         backButton.attr("src", 'images/icons/Back.svg');
-        backButton.css({ width: "100%", height: "100%" });
+        backButton.css({ width: "100%", height: "100%" });*/
 
-        backButtoncontainer.append(backButton);
-        sideBar.append(backButtoncontainer);
+        //backBttnContainer.append(backButton);
+        //sideBar.append(backButtoncontainer);
 
         //change the backColor to show the button is being clicked. 
         //mouseleave for lifting the finger from the back button
@@ -212,16 +220,18 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             });
 
         //second outermost div to contain contents in sidebar.
-        var sideBarSections = $(document.createElement("div"));
+		var sideBarSections = root.find('#sideBarSections');
+        /*var sideBarSections = $(document.createElement("div"));
         sideBarSections.addClass('sideBarSections');
         sideBarSections.css({ "width": "89%", "height": "90%", "left": "5%", "position": "relative" });
-        sideBar.append(sideBarSections);
+        sideBar.append(sideBarSections);*/
 
         //div for artinfo info and other stuff except for minimapContainer
-        var sideBarInfo = $(document.createElement('div'));
+		var sideBarInfo = root.find('#sideBarInfo');
+        /*var sideBarInfo = $(document.createElement('div'));
         sideBarInfo.addClass('sideBarInfo');
         sideBarInfo.css({ 'width': '100%', 'height': '73%', 'margin-bottom': '2%' });
-        sideBarSections.append(sideBarInfo);
+        sideBarSections.append(sideBarInfo);*/
 
         //description area of the artwork.
         //?????P.S.: may not need this if we only have information such as title, year and artists...used to have it because we had a large subdiv for curator to add description
@@ -235,7 +245,8 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         //sideBarInfo.append(row1);
 
         //this contains basic info about the artwork
-        info = $(document.createElement('div'));
+		info = root.find('#info');
+        /*info = $(document.createElement('div'));
         info.addClass('info');
         info.css({
             "font-size": "22px",
@@ -247,34 +258,39 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             'white-space': 'nowrap',
             'padding-right': '7%'
         });
-        sideBarInfo.append(info);
+        sideBarInfo.append(info);*/
 
         //The title of artwork. Currently, we have the text overflow as ellipsis, may implement auto scroll later...
-        var infoTitle = $(document.createElement('div'));
+		var infoTitle = root.find('#infoTitle');
+        /*var infoTitle = $(document.createElement('div'));
         infoTitle.attr("id", "infoTitle");
-        infoTitle.css({ 'font-size': '30px', 'clear': 'both', 'overflow': 'hidden', 'text-overflow': 'ellipsis', 'white-space': 'nowrap' });
+        infoTitle.css({ 'font-size': '30px', 'clear': 'both', 'overflow': 'hidden', 'text-overflow': 'ellipsis', 'white-space': 'nowrap' });*/
         infoTitle.text(doq.Name);
-        infoTitle.appendTo(info);
+        //infoTitle.appendTo(info);
 
         //The artist of artwork
-        var infoArtist = $(document.createElement('div'));
+		var infoArtist = root.find('#infoArtist');
+        /*var infoArtist = $(document.createElement('div'));
         infoArtist.attr("id", "infoArtist");
-        infoArtist.css({ 'font-size': '22px', 'overflow': 'hidden', 'white-space': 'nowrap', 'text-overflow': 'ellipsis' });
+        infoArtist.css({ 'font-size': '22px', 'overflow': 'hidden', 'white-space': 'nowrap', 'text-overflow': 'ellipsis' });*/
         infoArtist.text(doq.Metadata.Artist);
-        infoArtist.appendTo(info);
+        //infoArtist.appendTo(info);
+		
         //The year of artwork
-        var infoYear = $(document.createElement('div'));
+		var infoYear = root.find('#infoYear');
+        /*var infoYear = $(document.createElement('div'));
         infoYear.attr("id", "infoYear");
-        infoYear.css({ 'font-size': '22px', 'overflow': 'hidden', 'white-space': 'nowrap', 'text-overflow': 'ellipsis' });
+        infoYear.css({ 'font-size': '22px', 'overflow': 'hidden', 'white-space': 'nowrap', 'text-overflow': 'ellipsis' });*/
         infoYear.text(doq.Metadata.Year);
-        infoYear.appendTo(info);
+        //infoYear.appendTo(info);
         //add more information for the artwork if curator add in the authoring mode
         for (var item in doq.Metadata.InfoFields) {
             var fieldTitle = item;
             var fieldValue = doq.Metadata.InfoFields[item];
 
                 var infoCustom = $(document.createElement('div'));
-                infoCustom.css({ 'font-size': '22px', 'margin-top': '5px', 'text-overflow': 'ellipsis', 'overflow': 'hidden', 'white-space': 'nowrap' });
+				infoCustom.addClass('infoCustom');
+                //infoCustom.css({ 'font-size': '22px', 'margin-top': '5px', 'text-overflow': 'ellipsis', 'overflow': 'hidden', 'white-space': 'nowrap' });
                 infoCustom.text(fieldTitle + ': ' + fieldValue);
                 infoCustom.appendTo(info);
 
@@ -355,7 +371,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         //Splitscreen
 
         var splitscreenContainer = initSplitscreen();
-        root.append(splitscreenContainer);
+        //root.append(splitscreenContainer);
         if (LADS.Util.Splitscreen.on()) {
             splitscreenContainer.hide();
         }
@@ -369,15 +385,16 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             'clear': 'both'
         });
         midSection.append(divider);*/
-
-        var assetContainer = $(document.createElement('div'));
+		var assetContainer = root.find('#assetContainer');
+        /*var assetContainer = $(document.createElement('div'));
         assetContainer.attr("id", "assetContainer");
         assetContainer.css({
             'overflow': 'visible',
             'margin-top': '5%',
             'height':'78%'
         });
-        sideBarInfo.append(assetContainer);
+        sideBarInfo.append(assetContainer);*/
+		
         //sideBarInfo.append(midSectionContainer);
 
         //Descriptions, Hotspots, Assets and Tours drawers
@@ -416,14 +433,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 var holder = $(document.createElement('div'));
                 holder.addClass("tourHolder");
                 holder.css({
-                    'float': 'left',
-                    'margin': '1%',
-                    'width': '45%',
-                    'height': .12 * $(".root").height() + "px",
-                    'position': 'relative',
-                    'text-align': 'center',
-                    'border': '1px solid white',
-                    'color': 'white'
+                    'height': .12 * $(".root").height() + "px"
                 });
 
                 holder.on("click", tourClicked(tour));
@@ -433,34 +443,35 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 
                 var mediaHolderDiv = $(document.createElement('div'));
                 mediaHolderDiv.addClass('mediaHolderDiv');
-                mediaHolderDiv.css({
+                /*mediaHolderDiv.css({
                     "height": "70%",
                     "width": "92%",
                     "margin": " 4% 4% 0 4%"
-                });
+                });*/
                 holder.append(mediaHolderDiv);
 
                 var mediaHolderImage = $(document.createElement('img'));
                 mediaHolderImage.addClass('assetHolderImage');
                 mediaHolderImage.attr('src', (tour.Metadata.Thumbnail ? LADS.Worktop.Database.fixPath(tour.Metadata.Thumbnail) : 'images/tour_icon.svg'));
-                mediaHolderImage.css({
+                /*mediaHolderImage.css({
                     'max-width': '100%',
                     'max-height': '100%'
-                });
+                });*/
                 mediaHolderImage.removeAttr('width');
                 mediaHolderImage.removeAttr('height');
                 mediaHolderDiv.append(mediaHolderImage);
 
                 var title = $(document.createElement('div'));
+				title.addClass('mediaHolderTitle');
                 title.text(LADS.Util.htmlEntityDecode(tour.Name));
-                title.css({
+                /*title.css({
                     'margin': '0% 2% 0% 2%',
                     'top': '80%',
                     'height': '20%',
                     "white-space": "nowrap",
                     "overflow": "hidden",
                     "text-overflow": "ellipsis"
-                });
+                });*/
                 holder.append(title);
             }
         }
@@ -470,14 +481,14 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 var holder = $(document.createElement('div'));
                 holder.addClass("assetHolder");
                 holder.css({
-                    'float': 'left',
+                    /*'float': 'left',
                     'margin': '1%',
-                    'width': '45%',
-                    'height': .12 * $(".root").height() + "px",
-                    'position': 'relative',
+                    'width': '45%',*/
+                    'height': .12 * $(".root").height() + "px"
+                    /*'position': 'relative',
                     'text-align': 'center',
                     'border': '1px solid white',
-                    'color': 'white'
+                    'color': 'white'*/
                 });
                 holder.attr("id", media.assetLinqID);
                 holder.data("assetHidden", true);
@@ -494,11 +505,11 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 
                 var mediaHolderDiv = $(document.createElement('div'));
                 mediaHolderDiv.addClass('mediaHolderDiv');
-                mediaHolderDiv.css({
+                /*mediaHolderDiv.css({
                     "height": "70%",
                     "width": "92%",
                     "margin": " 4% 4% 0 4%"
-                });
+                });*/
                 holder.append(mediaHolderDiv);
 
                 var mediaHolderImage = $(document.createElement('img'));
@@ -517,24 +528,25 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                         mediaHolderImage.attr('src', 'images/text_icon.svg');
                         break;
                 }
-                mediaHolderImage.css({
+                /*mediaHolderImage.css({
                     'max-width': '100%',
                     'max-height': '100%'
-                });
+                });*/
                 mediaHolderImage.removeAttr('width');
                 mediaHolderImage.removeAttr('height');
                 mediaHolderDiv.append(mediaHolderImage);
 
                 var title = $(document.createElement('div'));
+				title.addClass('mediaHolderTitle');
                 title.text(LADS.Util.htmlEntityDecode(media.title));
-                title.css({
+                /*title.css({
                     'margin': '0% 2% 0% 2%',
                     'top': '80%',
                     'height': '20%',
                     "white-space": "nowrap",
                     "overflow": "hidden",
                     "text-overflow": "ellipsis"
-                });
+                });*/
                 holder.append(title);
             }
         }
@@ -681,12 +693,13 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 
         //Send Feedback
         var feedbackContainer = initFeedback();
-        sideBarSections.append(feedbackContainer);
+        //sideBarSections.append(feedbackContainer);
 
 
         //Create minimapContainer...
-        var minimapContainer = $(document.createElement('div'));
-        minimapContainer.attr('id', 'minimapContainer');
+		var minimapContainer = root.find('#minimapContainer');
+        //var minimapContainer = $(document.createElement('div'));
+        //minimapContainer.attr('id', 'minimapContainer');
         minimapContainer.css({
             "width": "100%",
             "height": "20%",
@@ -703,10 +716,11 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 
 
         //A white rectangle for minimap to show the current shown area for artwork
-        var minimaprect = $(document.createElement('div'));
+		var minimaprect = root.find('#minimaprect');
+        /*var minimaprect = $(document.createElement('div'));
         minimaprect.addClass("minimaprect");
         minimaprect.css({ position: "absolute", "border": "solid white 3px", "z-index": 50 });
-        minimapContainer.append(minimaprect);
+        minimapContainer.append(minimaprect);*/
 
         //Load deepzoom thumbnail. 
         var img = new Image();
@@ -721,9 +735,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         function minimapLoaded() {
             if (loaded) return;
             loaded = true;
-            //load the artwork image.
-            minimap = $(document.createElement('img'));
-            minimap.addClass("minimap");
+            //load the artwork image
+			minimap = root.find('#minimap');
+            //minimap = $(document.createElement('img'));
+            //minimap.addClass("minimap");
             minimap.attr('src', LADS.Worktop.Database.fixPath(doq.URL));
             minimap.css({
                 "position": "absolute",
@@ -753,7 +768,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 minimap.removeAttr("width");
                 minimap.css({ "width": "100%" });
             }
-            minimapContainer.append(minimap);
+            //minimapContainer.append(minimap);
 
             //make the image manipulatable. 
             var gr = LADS.Util.makeManipulatable(minimap[0],
@@ -870,14 +885,15 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
      */
     function initlocationHistory() {
         //create container div for locationhistory
-        locationHistoryContainer = $(document.createElement('div'));
+		locationHistoryContainer = root.find('#locationHistoryContainer');
+        /*locationHistoryContainer = $(document.createElement('div'));
         locationHistoryContainer.addClass('locationHistoryContainer');
         locationHistoryContainer.css({
             "position": "relative",
             "width": "100%",
             "margin-bottom": "0.5%",
             float: 'left',
-        });
+        });*/
         //have the container clickable. check histOnClick for more details.
         locationHistoryContainer.click(histOnClick);
         //create the icon for location history
@@ -893,21 +909,23 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         });*/
 
         //create the div for text
-        locationHistory = $(document.createElement('div'));
-        locationHistory.addClass('locationHistory');
+		locationHistory = root.find('#locationHistory');
+        //locationHistory = $(document.createElement('div'));
+       // locationHistory.addClass('locationHistory');
         locationHistory.text('Location History');
         locationHistory.css({
-            'color': locationList.length ? 'white' : 'rgb(136,136,136)',
-            "font-size": "25px",
+            'color': locationList.length ? 'white' : 'rgb(136,136,136)'
+            /*"font-size": "25px",
           //  'left': '5%',
             position: "relative",
             'display': 'inline',
-            'vertical-align': 'middle'
+            'vertical-align': 'middle'*/
         });
 
         //panel that slides out when location history is clicked
-        locationHistoryDiv = $(document.createElement('div'));
-        locationHistoryDiv.addClass('locationHistoryDiv');
+		locationHistoryDiv = root.find('#locationHistoryDiv');
+        /*locationHistoryDiv = $(document.createElement('div'));
+        locationHistoryDiv.addClass('locationHistoryDiv');*/
         var offsetSide = window.innerWidth * 0.22,
             locwidth = (!LADS.Util.Splitscreen.on()) ?//if the splitscreen is not on, set the width as 78% of current window width.
                         window.innerWidth * 0.78 ://else set the width based on the side of screen. 
@@ -915,19 +933,20 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                             $('#metascreen-L').width() - window.innerWidth * 0.22 :
                             $('#metascreen-R').width() - window.innerWidth * 0.22);
         locationHistoryDiv.css({
-            display: 'none',
+            //display: 'none',
             'width': locwidth + 'px',
-            top: '10%',
+            /*top: '10%',
             height: '80%',
             'z-index': 99,
             position: 'absolute',
-            'overflow-x': 'hidden'
+            'overflow-x': 'hidden'*/
         });
 
-        root.append(locationHistoryDiv);
+        //root.append(locationHistoryDiv);
 
         //create the panel for location history.
-        var locationHistoryPanel = $(document.createElement('div'));
+		var locationHistoryPanel = root.find('#locationHistoryPanel');
+        /*var locationHistoryPanel = $(document.createElement('div'));
         locationHistoryPanel.addClass('locationHistoryPanel');
         locationHistoryPanel.css({
             width: '87.5%',
@@ -936,7 +955,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             'z-indez': 99,
             'background-color': 'rgba(0,0,0,0.7);',
         });
-        locationHistoryDiv.append(locationHistoryPanel);
+        locationHistoryDiv.append(locationHistoryPanel);*/
 
         //set the position of outtermost div and panel for locationhistory based on the which splitscreen
         if (root.data('split') === 'R') {
@@ -959,7 +978,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         var overlayLabel = $('<label>').text("Map has no location history to display.");
         overlayLabel.attr("id", "mapOverlayLabel");
 
-        mapOverlay.css({
+        /*mapOverlay.css({
             width: '100%',
             height: '100%',
             'position': 'absolute',
@@ -967,27 +986,27 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             'background-color': 'rgba(0, 0, 0, 0.5)',
             'left': 'auto',
             'top': 'auto',
-        });
+        });*/
         mapOverlay.append(overlayLabel);
-        overlayLabel.css({
+        /*overlayLabel.css({
             'position': 'relative',
             'float': 'right',
             'margin-right': '21%',
             'top': '35%',
             'font-size': '22pt',
-        });
+        });*/
 
 
         ///
         var lpContents = $(document.createElement('div'));
         lpContents.addClass('lpContents');
-        lpContents.css({
+        /*lpContents.css({
             position: 'relative',
             left: '2.5%',
             top: '2.5%',
             width: '95%',
             height: '95%'
-        });
+        });*/
         //
         //mapOverlay.hide();
         lpContents.append(mapOverlay);
@@ -998,10 +1017,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         var lpTitle = $(document.createElement('div'));
         lpTitle.attr("id", "lpTitle");
         lpTitle.text('Location History');
-        lpTitle.css({
+        /*lpTitle.css({
             'font-size': '25px',
             'margin-bottom': '20px'
-        });
+        });*/
         lpContents.append(lpTitle);
         //create a div for map
         var lpMapDiv = $(document.createElement('div'));
@@ -1012,39 +1031,39 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             lpMapDiv.attr('id', 'lpMapDiv');
         }
         lpMapDiv.addClass('lpMapDiv');
-        lpMapDiv.css({
+        /*lpMapDiv.css({
             position: 'relative',
             height: '50%',
             border: '1px solid white',
             'text-align': 'center',
             'background-color': 'rgb(94,94,94)',
             'margin-bottom': '20px'
-        });
+        });*/
         lpContents.append(lpMapDiv);
         //this div contains all text information about the artwork's location history.
         var lpTextInfoDiv = $(document.createElement('div'));
         lpTextInfoDiv.addClass('lpTextInfoDiv');
-        lpTextInfoDiv.css({
+        /*lpTextInfoDiv.css({
             height: '40%',
             width: '100%',
             float: 'left'
-        });
+        });*/
         lpContents.append(lpTextInfoDiv);
         //this div contains a list of locations for the artwork.
         var lpTextDiv = $(document.createElement('div'));
         lpTextDiv.addClass("lpTextDiv");
-        lpTextDiv.css({
+        /*lpTextDiv.css({
             height: '100%',
             width: '40%',
             float: 'left',
             overflow: 'auto',
             'font-size': '20px',
-        });
+        });*/
         lpTextInfoDiv.append(lpTextDiv);
         //this div gives details about one specific location history when one location is clicked.
         var lpInfoDiv = $(document.createElement('div'));
         lpInfoDiv.addClass('lpInfoDiv');
-        lpInfoDiv.css({
+        /*lpInfoDiv.css({
             float: 'left',
             right: 0,
             top: 0,
@@ -1053,11 +1072,12 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             width: '58%',
             overflow: 'auto',
             'font-size': '20px',
-        });
+        });*/
         lpTextInfoDiv.append(lpInfoDiv);
 
         //create the toggler to close the location history. Same arrow as sidebar toggler. 
-        locationHistoryToggle = $(document.createElement('div'));
+        locationHistoryToggle = root.find('.locationHistoryToggle');
+        /*locationHistoryToggle = $(document.createElement('div'));
         locationHistoryToggle.addClass('locationHistoryToggle');
         locationHistoryToggle.css({
             position: 'absolute',
@@ -1066,9 +1086,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             width: '4.5%',
             height: '15%',
         });
-        locationHistoryDiv.append(locationHistoryToggle);
+        locationHistoryDiv.append(locationHistoryToggle);*/
 
-        var locationHistoryToggleIcon = $(document.createElement('img'));
+        var locationHistoryToggleIcon = root.find('.locationHistoryToggleIcon');
+        /*var locationHistoryToggleIcon = $(document.createElement('img'));
         locationHistoryToggleIcon.addClass('locationHistoryToggleIcon');
         locationHistoryToggleIcon.css({
             position: "absolute",
@@ -1076,7 +1097,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             left: "20%",
             width: "auto",
             height: "30%"
-        });
+        });*/
 
         //set the toggler based on the splitscreen.
         if (root.data('split') === 'R') {
@@ -1095,7 +1116,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             locationHistoryToggleIcon.attr('src', 'images/icons/Left.png');
         }
 
-        locationHistoryToggle.append(locationHistoryToggleIcon);
+        //locationHistoryToggle.append(locationHistoryToggleIcon);
         locationHistoryToggle.click(toggleLocationPanel);
 
         /*
@@ -1179,7 +1200,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                         var newDiv = $(document.createElement('div'));
                         newDiv.addClass('locations');
                         newDiv.html((i + 1) + '. ' + address + date + '<br>');
-                        newDiv.css({
+                        /*newDiv.css({
                             display: 'none',
                             width: '96%',
                             height: '12%',
@@ -1190,7 +1211,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                             'background-color': 'rgba(0,0,0,0.01)',
                             'white-space': 'nowrap',
                             'text-overflow': 'ellipsis'
-                        });
+                        });*/
 
                         lpTextDiv.append(newDiv);
 
@@ -1266,23 +1287,23 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         var drawer = $(document.createElement('div'));
 
         drawer.addClass('drawer');
-        drawer.css({ 'display': 'inline' });
+        /*drawer.css({ 'display': 'inline' });*/
 
         var drawerHeader = $(document.createElement('div'));
         drawerHeader.addClass('drawerHeader');
-        drawerHeader.css({
+        /*drawerHeader.css({
             'width': '100%',
             'float': 'left'
-        });
+        });*/
         drawerHeader.appendTo(drawer);
 
         var label = $(document.createElement('div'));
         label.addClass('label');
         label.text(title);
         label.css({
-            'font-size': '25px',
+            /*'font-size': '25px',
             'width': '50%',
-            'float': 'left',
+            'float': 'left',*/
             'color': grayOut ? '#888888' : 'white'
         });
         label.appendTo(drawerHeader);
@@ -1290,21 +1311,21 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         if (!grayOut) {
             var toggleContainer = $(document.createElement('div'));
             toggleContainer.addClass('toggleContainer');
-            toggleContainer.css({
+            /*toggleContainer.css({
                 'width': '45px',
                 'position': 'relative',
                 'padding-top': '8px',
                 'float': 'right'
-            });
+            });*/
             toggleContainer.appendTo(drawerHeader);
 
             var toggle = $(document.createElement('img'));
             toggle.addClass("plusToggle");
             toggle.attr('src', 'images/icons/plus.svg');
-            toggle.css({
+            /*toggle.css({
                 'width': '23px',
                 'height': '23px'
-            });
+            });*/
             toggle.appendTo(toggleContainer);
             drawer.isslided = false;
             var drawerContents = $(document.createElement('div'));
@@ -1313,13 +1334,13 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             if (maxHeight<=0)
                 maxHeight=1;
             drawerContents.css({
-                'display': 'none',
+                /*'display': 'none',
                 'clear': 'both',
                 'font-size': '16px',
                 'width': '95%',
-                'padding-right': '20px',
+                'padding-right': '20px',*/
                 "max-height": maxHeight +"px",
-                "overflow": "auto"
+                //"overflow": "auto"
             });
             drawerContents.appendTo(drawer);
 
@@ -1373,7 +1394,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
     function createExhibitionPicker(artworkObj) {
         var exhibitionPicker = $(document.createElement('div'));
         exhibitionPicker.addClass("exhibitionPicker");
-        exhibitionPicker.css({
+        /*exhibitionPicker.css({
             'height': '40%',
             'width': '40%',
             'position': 'absolute',
@@ -1384,33 +1405,33 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             'border': '3px double white',
             'padding': '1.5%',
             'display': 'block',
-        });
+        });*/
 
         var infoLabel = $(document.createElement('div'));
         infoLabel.addClass("infoLabel");
-        infoLabel.css({
+        /*infoLabel.css({
             'width': '100%',
             'color': 'white',
             'font-size': '200%',
             'margin-bottom': '2%'
-        });
+        });*/
         infoLabel.text('Choose an exhibition in which to view the artwork.');
         exhibitionPicker.append(infoLabel);
 
         var exhibitionsList = $(document.createElement('div'));
         exhibitionsList.addClass("exhibitionsList");
-        exhibitionsList.css({
+        /*exhibitionsList.css({
             'width': '100%',
             'height': '60%',
             'overflow': 'auto',
             'margin-bottom': '2%',
-        });
+        });*/
         exhibitionPicker.append(exhibitionsList);
 
         var cancelButton = $(document.createElement('button'));
         cancelButton.attr('type', 'button');
         cancelButton.addClass("cancelButton");
-        cancelButton.css({
+        /*cancelButton.css({
             'width': '10%',
             'left': '85%',
             'top': '89%',
@@ -1418,7 +1439,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             'font-size': '140%',
             'border-color': 'white',
             'position': 'absolute',
-        });
+        });*/
         cancelButton.text('Cancel');
 
         cancelButton.click(function () {
@@ -1467,7 +1488,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                     var preview = LADS.Worktop.Database.fixPath(toAdd.Metadata.BackgroundImage);
                     var listCell = $(document.createElement('div'));
                     listCell.addClass("exhibitions-list-cell");
-                    listCell.css({
+                    /*listCell.css({
                         'width': '100%',
                         'height': '18%',
                         'position': 'relative',
@@ -1477,7 +1498,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                         'overflow': 'hidden',
                         'vertical-align': 'text-top',
                         'margin-bottom': '2%',
-                    });
+                    });*/
                     listCell.mousedown(function () {
                         listCell.css({
                             'background-color': 'white',
@@ -1499,7 +1520,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 
                     var textBox = $(document.createElement('div'));
                     textBox.addClass("textbox");
-                    textBox.css({
+                    /*textBox.css({
                         'width': '70%',
                         'height': '100%',
                         "font-size": "180%",
@@ -1507,14 +1528,14 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                         'word-wrap': '',
                         'overflow': 'hidden',
 
-                    });
+                    });*/
                     textBox.text(name);
 
                     // Create an img element to load the image
                     var img = $(document.createElement('img'));
                     img.addClass("imgLoader");
                     img.attr('src', preview);
-                    img.css({
+                    /*img.css({
                         "width": "7.5%",
                         "height": "100%",
                         "float": "left",
@@ -1522,7 +1543,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                         'margin-left': '6%',
                         "top": '5%',
                         'display': 'inline-block',
-                    });
+                    });*/
                     listCell.append(img);
                     listCell.append(textBox);
 
@@ -1642,7 +1663,8 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 
     function initFeedback() {
 
-        var feedbackContainer = $(document.createElement('div'));
+        var feedbackContainer = root.find('.feedbackContainer');
+        /*var feedbackContainer = $(document.createElement('div'));
         feedbackContainer.addClass('feedbackContainer');
         feedbackContainer.css({
             "width": "100%",
@@ -1650,12 +1672,13 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             'position': "absolute",
             //  'float': 'left'
             "text-align": "center"
-        });
+        });*/
 
-        var feedback = $(document.createElement('div'));
-        feedback.addClass('feedback-text');
+        var feedback = root.find('.feedback-text');
+        //var feedback = $(document.createElement('div'));
+        //feedback.addClass('feedback-text');
         feedback.text('Send Feedback');
-        feedback.css({
+        /*feedback.css({
             "font-size": "25px",
             "height": "10%",
             position: "relative",
@@ -1663,23 +1686,24 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             'vertical-align': 'middle',
             'left': '5%',
             //'color': 'gray' // disable for now
-        });
-        var feedbackIcon = $(document.createElement('img'));
-        feedbackIcon.addClass('feedback-icon');
+        });*/
+         var feedbackIcon = root.find('.feedback-icon');
+        //var feedbackIcon = $(document.createElement('img'));
+        //feedbackIcon.addClass('feedback-icon');
         feedbackIcon.attr('src', 'images/icons/FeedbackIcon.svg');
-        feedbackIcon.css({
+        /*feedbackIcon.css({
             'width': '10%',
             'height': 'auto',
             'position': 'relative',
             'display': 'inline',
             'vertical-align': 'middle',
-        });
-        feedbackContainer.append(feedbackIcon);
-        feedbackContainer.append(feedback);
+        });*/
+        //feedbackContainer.append(feedbackIcon);
+        //feedbackContainer.append(feedback);
 
         var feedbackBox = LADS.Util.UI.FeedbackBox("Artwork", doq.Identifier);//initiate the send feedback box
         setTimeout(function () {
-            $('body').append(feedbackBox);
+           tagContainer.append(feedbackBox);
         }, 750);
         //pop up the feedback editing box when Send Feedback is clicked.
         // disable for now
@@ -1694,7 +1718,8 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
     function initSplitscreen() {
 
         //Split screen sidebar button
-        var splitscreenContainer = $(document.createElement('div'));
+        var splitscreenContainer = root.find('#splitscreenContainer');
+        /*var splitscreenContainer = $(document.createElement('div'));
         splitscreenContainer.attr("id", "splitscreenContainer");
         splitscreenContainer.css({
             "font-size": "25px",
@@ -1708,7 +1733,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             "background-color": "rgba(0,0,0,.6)",
             "border-top-left-radius": "10px",
             "z-index": "500"
-        });
+        });*/
         //create text div for splitscreen
         /*splitscreen = $(document.createElement('div'));
         splitscreen.addClass('splitscreen-text');
@@ -1722,17 +1747,18 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             'left': '5%'
         });*/
         //create splitscreen Icon
-        var splitscreenIcon = $(document.createElement('img'));
-        splitscreenIcon.addClass('splitscreen-icon');
+        var splitscreenIcon = root.find('.splitscreenIcon');
+        //var splitscreenIcon = $(document.createElement('img'));
+        //splitscreenIcon.addClass('splitscreen-icon');
         splitscreenIcon.attr('src', 'images/icons/SplitW.svg');
-        splitscreenIcon.css({
+        /*splitscreenIcon.css({
             'width': '65%',
             'top': "25.5%",
             'height': '50%',
             'position': 'relative',
             'opacity': '.6',
             left:'2%'
-        });
+        });*/
 
         //if (LADS.Util.Splitscreen.on()) { // Adjust button if already in split screen mode
         //    splitscreen.text('Exit Split Screen');
@@ -1807,7 +1833,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             }
         }
         
-        splitscreenContainer.append(splitscreenIcon);
+        //splitscreenContainer.append(splitscreenIcon);
         // splitscreenContainer.append(splitscreen);
         return splitscreenContainer;
     }
