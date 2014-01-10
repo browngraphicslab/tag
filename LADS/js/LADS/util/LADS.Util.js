@@ -1279,6 +1279,7 @@ LADS.Util = (function () {
         var ret;
         $.ajax({
             async: false,
+            cache: false,
             url: "html/"+path,
             success: function (data) {
                 ret = $(data);

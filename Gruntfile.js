@@ -11,7 +11,7 @@ module.exports = function(grunt) {
 					// 'LADS/css/Artmode.css': 'LADS/css/Artmode.styl',
 					// 'LADS/css/NewCatalog.css': 'LADS/css/NewCatalog.styl',
 					// 'LADS/css/VideoPlayer.css': 'LADS/css/VideoPlayer.styl',
-					// 'LADS/css/TourPlayer.css': 'LADS/css/TourPlayer.styl'
+					'LADS/css/TourPlayer.css': 'LADS/css/TourPlayer.styl'
 				}
 			}
 		},
@@ -26,7 +26,7 @@ module.exports = function(grunt) {
 					// 'LADS/html/Artmode.html': 'LADS/html/Artmode.jade',
 					// 'LADS/html/NewCatalog.html': 'LADS/html/NewCatalog.jade',
 					// 'LADS/html/VideoPlayer.html': 'LADS/html/VideoPlayer.jade',
-					// 'LADS/html/TourPlayer.html': 'LADS/html/TourPlayer.jade'
+					'LADS/html/TourPlayer.html': 'LADS/html/TourPlayer.jade'
 				}
 			}
 		},

@@ -1,0 +1,36 @@
+@import 'common'
+
+DEFAULT_FONT_FAMILY = '"sans-serif", "Segoe UI", "Ebrima", "Nirmala UI", "Gadugi", "Segoe UI Symbol", "Meiryo UI", "Khmer UI", "Tunga", "Lao UI", "Raavi", "Iskoola Pota", "Latha", "Leelawadee", "Microsoft YaHei UI", "Microsoft JhengHei UI", "Malgun Gothic", "Estrangelo Edessa", "Microsoft Himalaya", "Microsoft New Tai Lue", "Microsoft PhagsPa", "Microsoft Tai Le", "Microsoft Yi Baiti", "Mongolian Baiti", "MV Boli", "Myanmar Text", "Cambria Math"'
+
+#tourRoot
+	left 0px
+	overflow hidden
+	position relative
+	top 0px
+	wh 100% // we're forcing TAG to be 16:9
+
+#tourRoot #backButton
+	height auto
+	position absolute
+	width 100%
+	z-index aboveRinZIndex
+
+#tourRoot #backButtonContainer
+	left 15px
+	position absolute
+	top 15px
+	wh 5%
+	z-index aboveRinZIndex
+
+#tourRoot #overlayOnRoot
+	background-color rgba(255, 0, 0, 1) // for debugging
+	height auto
+	left 0px
+	position absolute
+	top 0px
+	width 100%
+
+#tourRoot #rinPlayer
+	overflow hidden
+	position absolute
+	wh 100%
