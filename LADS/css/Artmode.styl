@@ -1,0 +1,380 @@
+@import 'common'
+
+#artmodeRoot
+	wh 100%
+	position absolute
+	
+#artmodeRoot #sideBar
+	position absolute
+	display block
+	top 0px
+	background-color rgba(0,0,0,0.7)
+	height 100%
+	z-index 100
+
+#artmodeRoot #toggler
+	position absolute
+	top 45%
+	height 12%
+	width 12%
+	background-color rgba(0,0,0,0.7)
+	z-index 100
+	
+#artmodeRoot #togglerImage
+	position absolute
+    top 35%
+    left 20%
+    width 20px
+	height 20px
+	
+#artmodeRoot #backBttnContainer
+	width 13%
+	height auto
+	margin 4%
+	
+#artmodeRoot #backButton
+	width 100%
+	height 100% 
+	
+#artmodeRoot #sideBarSections
+	width 89%
+	height 90%
+	left 5%
+	position relative
+
+#artmodeRoot #sideBarInfo
+	width 100%
+	height 73%
+	margin-bottom 2%
+
+#artmodeRoot #info
+	font-size 22px
+	color white
+	width 100%
+	max-height 20%
+	overflow hidden
+	white-space nowrap
+	padding-right 7%	
+
+#artmodeRoot #infoTitle
+	font-size 30px
+	clear both
+	overflow hidden
+	text-overflow ellipsis
+	white-space nowrap
+
+headerTitle(size)
+	font-size size
+	overflow hidden
+	white-space nowrap
+	text-overflow ellipsis
+	
+#artmodeRoot #infoArtist
+	headerTitle(22px);
+
+#artmodeRoot #infoYear
+	headerTitle(22px);
+
+#artmodeRoot .infoCustom
+	font-size 22px
+	margin-top 5px
+	text-overflow ellipsis
+	overflow hidden
+	white-space nowrap
+
+#artmodeRoot #assetContainer
+	overflow visible
+    margin-top 5%
+	height 78%
+
+#artmodeRoot .tourHolder .assetHolder
+	float left
+	margin 1%
+	width 45%
+	position relative
+	text-align center
+	border 1px solid white
+	color white
+
+#artmodeRoot .mediaHolderDiv
+	height 70%
+    width 92%
+	margin 4% 4% 0 4%
+
+#artmodeRoot  .mediaHolderImg .assetHolderImage
+	max-width 100%
+    max-height 100%
+
+#artmodeRoot .mediaHolderTitle
+	margin 0% 2% 0% 2%
+    top 80%
+    height 20%
+    white-space nowrap
+    overflow hidden
+	text-overflow ellipsis
+
+#artmodeRoot #minimapContainer
+	width 40px
+    height 40px
+    background-color rgba(0,0,0,.9)
+    bottom 0%
+    left 0%
+    position absolute
+    vertical-align middle
+	border 1px solid white
+
+#artmodeRoot #minimaprect
+	position absolute
+	border solid white 3px
+	z-index 50
+
+#artmodeRoot #minimap
+	position absolute
+    top 0%
+    left 0
+    right 0
+    margin auto
+    bottom 0%
+	z-index 10
+	
+#artmodeRoot #locationHistoryContainer
+	position relative
+    width 100%
+    margin-bottom 0.5%
+	float left
+	
+#artmodeRoot #locationHistory
+	font-size 25px
+    left 5%
+    position relative
+    display inline
+	vertical-align middle
+	
+#artmodeRoot #locationHistoryDiv
+	display none
+	top 10%
+    height 80%
+    z-index 99
+    position absolute
+	overflow-x hidden
+	
+#artmodeRoot #locationHistoryPanel
+	width 87.5%
+    height 100%
+    z-indez 99
+	background-color rgba(0,0,0,0.7)
+
+#artmodeRoot .mapOverlay
+    width 100%
+    height 100%
+    position absolute
+    z-index 10000
+    background-color rgba(0, 0, 0, 0.5)
+    left auto
+	top auto
+
+#artmodeRoot #mapOverlayLabel
+	position relative
+    float right
+    margin-right 21%
+    top 35%
+	font-size 22pt
+
+#artmodeRoot .lpContent
+	position relative
+    left 2.5%
+    top 2.5%
+    width 95%
+	height 95%
+
+#artmodeRoot .lpTitle
+	font-size 25px
+	margin-bottom 20px
+
+#artmodeRoot .lpMapDiv
+	position relative
+    height 50%
+    border 1px solid white
+    text-align center
+    background-color rgb(94,94,94)
+	margin-bottom 20px
+
+#artmodeRoot .lpTextInfoDiv
+	height 40%
+    width 100%
+	float left
+
+#artmodeRoot .lpTextDiv
+	height 100%
+    width 40%
+    float left
+    overflow auto
+	font-size 20px
+
+#artmodeRoot .lpInfoDiv
+	float left
+    right 0
+    top 0
+    padding-left 2%
+    height 100%
+    width 58%
+    overflow auto
+	font-size 20px
+
+#artmodeRoot .locationHistoryToggle
+	position absolute
+    background-color rgba(0,0,0,0.7)
+    top 45%
+    width 4.5%
+	height 15%
+	
+#artmodeRoot .locations
+	display none
+    width 96%
+    height 12%
+    padding 2% 2% 4% 2%
+    font-size 100%
+    color white
+    overflow hidden
+    background-color rgba(0,0,0,0.01)
+    white-space nowrap
+    text-overflow ellipsis
+	
+#artmodeRoot .locationHistoryIcon
+	position absolute
+    top 35%
+    left 20%
+    width auto
+
+#artmodeRoot .drawer
+	display inline
+
+#artmodeRoot .drawerHeader
+	width 100%
+    float left
+
+#artmodeRoot .label
+	font-size 25px
+	width 50%
+	float left
+	height 30%
+
+#artmodeRoot .toggleContainer
+	width 45px
+    position relative
+    padding-top 8px
+	float right
+
+#artmodeRoot .plusToggle
+	width 23px
+	height 23px
+
+#artmodeRoot .drawerContents
+	display none
+    clear both
+    font-size 16px
+    width 95%
+    padding-right 20px
+	overflow auto
+
+#artmodeRoot .exhibitionPicker
+	height 40%
+    width 40%
+	position absolute
+    top 20%
+    left 30%
+    background-color black
+    z-index 10000
+    border 3px double white
+	padding 1.5%
+	display block
+	
+#artmodeRoot .infoLabel
+	width 100%
+    color white
+    font-size 200%
+	margin-bottom 2%
+
+#artmodeRoot .exhibitionsList
+	width 100%
+    height 60%
+    overflow auto
+	margin-bottom 2%
+
+#artmodeRoot .cancelButton
+	width 10%
+    left 85%
+    top 89%
+    color white
+    font-size 140%
+    border-color white
+	position absolute
+
+#artmodeRoot .exhibitions-list-cell
+	width 100%
+    height 18%
+    position relative
+    border solid transparent
+	border-width 5px 0px 5px 0px
+	display inline-block
+	overflow hidden
+	vertical-align text-top
+	margin-bottom 2%
+	
+#artmodeRoot .textbox
+	width 70%
+	height 100%
+	font-size 180%
+	display inline-block
+	word-wrap ''
+	overflow hidden
+	
+#artmodeRoot .imgLoader
+	width 7.5%
+    height 100%
+	float left
+	margin-right 2.5%
+	margin-left 6%
+	top 5%
+	display inline-block
+	
+#artmodeRoot .feedbackContainer
+	width 100%
+	position absolute
+	text-align center
+	
+#artmodeRoot .feedback-text
+	font-size 25px
+	height 10%
+	position relative
+	display inline
+	vertical-align middle
+	left 5%
+	
+#artmodeRoot .feedback-icon
+	width 10%
+	height auto
+	position relative
+	display inline
+	vertical-align middle
+	
+#artmodeRoot #splitscreenContainer
+	font-size 25px
+    text-align center
+	width 5%
+	height 5%
+	position absolute
+	right 0%
+	top 95%
+	vertical-align center
+	background-color rgba(0,0,0,.6)
+	border-top-left-radius 10px
+	z-index 500
+	
+#artmodeRoot .splitscreenIcon
+	width 65%
+	top 25.5%
+	height 50%
+	position relative
+	opacity 0.6
+	left 2%
