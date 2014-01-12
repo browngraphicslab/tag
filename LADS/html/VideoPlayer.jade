@@ -1,0 +1,15 @@
+#VideoPlayerRoot(class='root videoPlayer')
+	#topBar
+		#backButtonContainer(class='backButtonContainer')
+			img#backButton(src='images/icons/Back.svg', class='backButton')
+	#videoContainer
+		video#video(preload='none')
+	#bottomBar
+		#playHolder
+			img#playPauseButton(src='images/icons/PlayWhite.svg', class='videoControls')
+		input#seek-bar(type='range', class='videoControls',value="0")
+		#currentTimeDisplay(class='videoControls')
+		#volHolder
+			img#videoControlsButton(src='images/icons/VolumeUpWhite.svg', class='videoControls')
+		
+
