@@ -15,17 +15,15 @@
 #artmodeRoot #toggler
 	position absolute
 	top 45%
-	height 12%
-	width 12%
+	wh 12%
 	background-color rgba(0,0,0,0.7)
 	z-index 100
 	
 #artmodeRoot #togglerImage
 	position absolute
-    top 35%
-    left 20%
-    width 20px
-	height 20px
+	top 35%
+	left 20%
+	wh 20px
 	
 #artmodeRoot #backBttnContainer
 	width 13%
@@ -33,12 +31,11 @@
 	margin 4%
 	
 #artmodeRoot #backButton
-	width 100%
-	height 100% 
+	wh 100%
 	
 #artmodeRoot #sideBarSections
 	width 89%
-	height 90%
+	height 83%
 	left 5%
 	position relative
 
@@ -52,7 +49,7 @@
 	color white
 	width 100%
 	max-height 20%
-	overflow hidden
+	overflow-y scroll
 	white-space nowrap
 	padding-right 7%	
 
@@ -63,6 +60,7 @@
 	text-overflow ellipsis
 	white-space nowrap
 
+//function
 headerTitle(size)
 	font-size size
 	overflow hidden
@@ -84,10 +82,10 @@ headerTitle(size)
 
 #artmodeRoot #assetContainer
 	overflow visible
-    margin-top 5%
+	margin-top 5%
 	height 78%
 
-#artmodeRoot .tourHolder .assetHolder
+#artmodeRoot .tourHolder
 	float left
 	margin 1%
 	width 45%
@@ -96,31 +94,44 @@ headerTitle(size)
 	border 1px solid white
 	color white
 
+#artmodeRoot .assetHolder
+	float left
+	margin 1%
+	width 45%
+	position relative
+	text-align center
+	border 1px solid white
+	color white
+	
 #artmodeRoot .mediaHolderDiv
 	height 70%
-    width 92%
+	width 92%
 	margin 4% 4% 0 4%
 
-#artmodeRoot  .mediaHolderImg .assetHolderImage
+#artmodeRoot .mediaHolderImg
 	max-width 100%
-    max-height 100%
+	max-height 100%
 
+#artmodeRoot .assetHolderImage
+	max-width 100%
+	max-height 100%
+	
 #artmodeRoot .mediaHolderTitle
 	margin 0% 2% 0% 2%
-    top 80%
-    height 20%
-    white-space nowrap
-    overflow hidden
+	top 80%
+	height 20%
+	white-space nowrap
+	overflow hidden
 	text-overflow ellipsis
 
 #artmodeRoot #minimapContainer
-	width 40px
-    height 40px
-    background-color rgba(0,0,0,.9)
-    bottom 0%
-    left 0%
-    position absolute
-    vertical-align middle
+	width 80%
+	height 20%
+	background-color rgba(0,0,0,.9)
+	bottom 0%
+	left 10%
+	position absolute
+	vertical-align middle
 	border 1px solid white
 
 #artmodeRoot #minimaprect
@@ -130,61 +141,60 @@ headerTitle(size)
 
 #artmodeRoot #minimap
 	position absolute
-    top 0%
-    left 0
-    right 0
-    margin auto
-    bottom 0%
+	top 0%
+	left 0
+	right 0
+	margin auto
+	bottom 0%
 	z-index 10
 	
 #artmodeRoot #locationHistoryContainer
 	position relative
-    width 100%
-    margin-bottom 0.5%
+	width 100%
+	margin-bottom 0.5%
 	float left
 	
 #artmodeRoot #locationHistory
 	font-size 25px
-    left 5%
-    position relative
-    display inline
+	position relative
+	display inline
 	vertical-align middle
 	
 #artmodeRoot #locationHistoryDiv
 	display none
 	top 10%
-    height 80%
-    z-index 99
-    position absolute
+	height 80%
+	z-index 99
+	position absolute
 	overflow-x hidden
 	
 #artmodeRoot #locationHistoryPanel
 	width 87.5%
-    height 100%
-    z-indez 99
+	height 100%
+	z-index 99
 	background-color rgba(0,0,0,0.7)
 
 #artmodeRoot .mapOverlay
-    width 100%
-    height 100%
-    position absolute
-    z-index 10000
-    background-color rgba(0, 0, 0, 0.5)
-    left auto
+	width 100%
+	height 100%
+	position absolute
+	z-index 10000
+	background-color rgba(0, 0, 0, 0.5)
+	left auto
 	top auto
 
 #artmodeRoot #mapOverlayLabel
 	position relative
-    float right
-    margin-right 21%
-    top 35%
+	float right
+	margin-right 21%
+	top 35%
 	font-size 22pt
 
 #artmodeRoot .lpContent
 	position relative
-    left 2.5%
-    top 2.5%
-    width 95%
+	left 2.5%
+	top 2.5%
+	width 95%
 	height 95%
 
 #artmodeRoot .lpTitle
@@ -193,65 +203,65 @@ headerTitle(size)
 
 #artmodeRoot .lpMapDiv
 	position relative
-    height 50%
-    border 1px solid white
-    text-align center
-    background-color rgb(94,94,94)
+	height 50%
+	border 1px solid white
+	text-align center
+	background-color rgb(94,94,94)
 	margin-bottom 20px
 
 #artmodeRoot .lpTextInfoDiv
 	height 40%
-    width 100%
+	width 100%
 	float left
 
 #artmodeRoot .lpTextDiv
 	height 100%
-    width 40%
-    float left
-    overflow auto
+	width 40%
+	float left
+	overflow auto
 	font-size 20px
 
 #artmodeRoot .lpInfoDiv
 	float left
-    right 0
-    top 0
-    padding-left 2%
-    height 100%
-    width 58%
-    overflow auto
+	right 0
+	top 0
+	padding-left 2%
+	height 100%
+	width 58%
+	overflow auto
 	font-size 20px
 
-#artmodeRoot .locationHistoryToggle
+#artmodeRoot #locationHistoryToggle
 	position absolute
-    background-color rgba(0,0,0,0.7)
-    top 45%
-    width 4.5%
+	background-color rgba(0,0,0,0.7)
+	top 45%
+	width 4.5%
 	height 15%
 	
 #artmodeRoot .locations
 	display none
-    width 96%
-    height 12%
-    padding 2% 2% 4% 2%
-    font-size 100%
-    color white
-    overflow hidden
-    background-color rgba(0,0,0,0.01)
-    white-space nowrap
-    text-overflow ellipsis
+	width 96%
+	height 12%
+	padding 2% 2% 4% 2%
+	font-size 100%
+	color white
+	overflow hidden
+	background-color rgba(0,0,0,0.01)
+	white-space nowrap
+	text-overflow ellipsis
 	
 #artmodeRoot .locationHistoryIcon
 	position absolute
-    top 35%
-    left 20%
-    width auto
+	top 35%
+	left 20%
+	width auto
 
 #artmodeRoot .drawer
 	display inline
 
 #artmodeRoot .drawerHeader
 	width 100%
-    float left
+	float left
 
 #artmodeRoot .label
 	font-size 25px
@@ -261,8 +271,8 @@ headerTitle(size)
 
 #artmodeRoot .toggleContainer
 	width 45px
-    position relative
-    padding-top 8px
+	position relative
+	padding-top 8px
 	float right
 
 #artmodeRoot .plusToggle
@@ -271,50 +281,50 @@ headerTitle(size)
 
 #artmodeRoot .drawerContents
 	display none
-    clear both
-    font-size 16px
-    width 95%
-    padding-right 20px
+	clear both
+	font-size 16px
+	width 95%
+	color gray
+	padding-right 20px
 	overflow auto
 
 #artmodeRoot .exhibitionPicker
-	height 40%
-    width 40%
+	wh 40%
 	position absolute
-    top 20%
-    left 30%
-    background-color black
-    z-index 10000
-    border 3px double white
+	top 20%
+	left 30%
+	background-color black
+	z-index 10000
+	border 3px double white
 	padding 1.5%
 	display block
 	
 #artmodeRoot .infoLabel
 	width 100%
-    color white
-    font-size 200%
+	color white
+	font-size 200%
 	margin-bottom 2%
 
 #artmodeRoot .exhibitionsList
 	width 100%
-    height 60%
-    overflow auto
+	height 60%
+	overflow auto
 	margin-bottom 2%
 
 #artmodeRoot .cancelButton
 	width 10%
-    left 85%
-    top 89%
-    color white
-    font-size 140%
-    border-color white
+	left 85%
+	top 89%
+	color white
+	font-size 140%
+	border-color white
 	position absolute
 
 #artmodeRoot .exhibitions-list-cell
 	width 100%
-    height 18%
-    position relative
-    border solid transparent
+	height 18%
+	position relative
+	border solid transparent
 	border-width 5px 0px 5px 0px
 	display inline-block
 	overflow hidden
@@ -331,27 +341,28 @@ headerTitle(size)
 	
 #artmodeRoot .imgLoader
 	width 7.5%
-    height 100%
+	height 100%
 	float left
 	margin-right 2.5%
 	margin-left 6%
 	top 5%
 	display inline-block
 	
-#artmodeRoot .feedbackContainer
+#artmodeRoot #feedbackContainer
 	width 100%
 	position absolute
 	text-align center
 	
-#artmodeRoot .feedback-text
+#artmodeRoot #feedback-text
 	font-size 25px
 	height 10%
 	position relative
 	display inline
 	vertical-align middle
 	left 5%
+	color white
 	
-#artmodeRoot .feedback-icon
+#artmodeRoot #feedback-icon
 	width 10%
 	height auto
 	position relative
@@ -360,9 +371,8 @@ headerTitle(size)
 	
 #artmodeRoot #splitscreenContainer
 	font-size 25px
-    text-align center
-	width 5%
-	height 5%
+	text-align center
+	wh 5%
 	position absolute
 	right 0%
 	top 95%
@@ -371,9 +381,8 @@ headerTitle(size)
 	border-top-left-radius 10px
 	z-index 500
 	
-#artmodeRoot .splitscreenIcon
+#artmodeRoot #splitscreenIcon
 	width 65%
-	top 25.5%
 	height 50%
 	position relative
 	opacity 0.6
