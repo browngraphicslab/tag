@@ -724,7 +724,6 @@ LADS.Util = (function () {
 
         // general event handler
         function manipulationHandler(evt) {
-            debugger;
             var translation;
             if (evt.gesture) {
                 // Update Dir
@@ -896,7 +895,6 @@ LADS.Util = (function () {
         }
 
         function getDir(evt, noReturn) {
-            debugger;
             if (!firstEvtX) {
                 firstEvtX = evt;
                 //console.log("firstEvtX SETA");
@@ -952,7 +950,6 @@ LADS.Util = (function () {
 
         hammer.on('touch', processDown);
         hammer.on('drag', function(evt){
-            debugger;
             processMove(evt);
         });
         hammer.on('pinch', processPinch);

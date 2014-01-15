@@ -459,6 +459,9 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 
         //Create minimapContainer...
 		var minimapContainer = root.find('#minimapContainer');
+        // minimapContainer.on('scroll', function(evt){
+        //     evt.preventDefault();
+        // });
 
         sideBarSections.append(minimapContainer);
 

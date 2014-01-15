@@ -195,6 +195,10 @@ Hammer.Instance.prototype = {
             element = eventData.target;
         }
 
+        if(gesture === 'drag') {
+            console.log('drag');
+        }
+
         element.dispatchEvent(event);
         return this;
     },

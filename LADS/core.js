@@ -12,6 +12,10 @@
 
         var tagContainer = $('#tagRoot') || $("body"); // TODO more general
 
+        $('body').on('scroll', function(evt) {
+            evt.preventDefault();
+        });
+
         //window.location = 'js/RIN/web/reload-test.html';
         //window.location = 'js/RIN/web/test.html';
         //window.location = 'js/RIN/web/index.html';
