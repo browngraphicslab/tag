@@ -195,10 +195,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         //make sure the info text fits in the div
         LADS.Util.fitText(info, 1.1);
         
-        var splitscreenContainer = initSplitscreen();
+        /*var splitscreenContainer = initSplitscreen();
         if (LADS.Util.Splitscreen.on()) {
             splitscreenContainer.hide();
-        }
+        }*/
 
 		var assetContainer = root.find('#assetContainer');
 
@@ -912,7 +912,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             drawer.isslided = false;
             var drawerContents = $(document.createElement('div'));
             drawerContents.addClass("drawerContents");
-            var maxHeight= $("#assetContainer").height() -200;
+            var maxHeight= $("#assetContainer").height() - 185;
             if (maxHeight<=0)
                 maxHeight=1;
             drawerContents.css({

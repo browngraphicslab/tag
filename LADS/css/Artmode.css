@@ -168,7 +168,7 @@
   float: left;
 }
 #artmodeRoot #locationHistory {
-  font-size: 25px;
+  font-size: 20px;
   position: relative;
   display: inline;
   vertical-align: middle;
@@ -277,7 +277,7 @@
   float: left;
 }
 #artmodeRoot .label {
-  font-size: 25px;
+  font-size: 20px;
   width: 50%;
   float: left;
   height: 30%;
@@ -295,7 +295,7 @@
 #artmodeRoot .drawerContents {
   display: none;
   clear: both;
-  font-size: 16px;
+  font-size: 14px;
   width: 95%;
   color: #808080;
   padding-right: 20px;
@@ -368,7 +368,7 @@
   text-align: center;
 }
 #artmodeRoot #feedback-text {
-  font-size: 25px;
+  font-size: 20px;
   height: 10%;
   position: relative;
   display: inline;
