@@ -1685,10 +1685,10 @@ LADS.Util.UI = (function () {
             max_width: 560,
             max_height: 210,
         });
-      
+		var leftPos = ($('#tagRoot').width() - feedbackBoxSpecs.width) * 0.5;
         $(feedbackBox).css({
             position: 'absolute',
-            left: feedbackBoxSpecs.x + 'px',
+            left: leftPos + 'px',
             top: feedbackBoxSpecs.y + 'px',
             width: feedbackBoxSpecs.width + 'px',
             height: feedbackBoxSpecs.height + 'px',
@@ -1698,7 +1698,11 @@ LADS.Util.UI = (function () {
         });
 
         $(dialogOverlay).append(feedbackBox);
-
+		$(dialogOverlay).click(cancelFeedback);
+		$(feedbackBox).click(function(event){
+			event.stopPropagation();
+		});
+		
         var feedbackLabel = $(document.createElement('label'));
         $(feedbackLabel).addClass('feedbackLabel');
         $(feedbackLabel).text('Send Feedback');
@@ -1759,7 +1763,7 @@ LADS.Util.UI = (function () {
             LADS.Worktop.Database.createFeedback($(commentBox).val(), type, id);
             $(dialogOverlay).css({ 'display': 'none' });
             $(commentBox).val('');
-            var popup = LADS.Util.UI.popUpMessage(null, "Your feedback has been submitted, thank you for your feedback.");
+            var popup = LADS.Util.UI.popUpMessage(null, "Your feedback has been submitted, thank you for your feedback.", null, null, null, true);
             tagContainer.append(popup);
             $(popup).css('z-index', 1000000);
             $(popup).show();
@@ -1848,7 +1852,7 @@ LADS.Util.UI = (function () {
     //}
 
     // generate a popup message with specified text and button
-    function popUpMessage(clickAction, message, buttonText, noFade, useHTML) {
+    function popUpMessage(clickAction, message, buttonText, noFade, useHTML, onDialogClick) {
         var overlay = blockInteractionOverlay();
 
         var confirmBox = document.createElement('div');
@@ -1861,7 +1865,7 @@ LADS.Util.UI = (function () {
                max_width: 560,
                max_height: 200,
            });
-
+		var leftPos = ($('#tagRoot').width() - confirmBoxSpecs.width) * 0.5;
         $(confirmBox).css({
             //'height': '30%',
             //'width': '45%',
@@ -1875,7 +1879,7 @@ LADS.Util.UI = (function () {
             //'border': '3px double white',
 
             position: 'absolute',
-            left: confirmBoxSpecs.x + 'px',
+            left: leftPos + 'px',
             top: confirmBoxSpecs.y + 'px',
             width: confirmBoxSpecs.width + 'px',
             height: confirmBoxSpecs.height + 'px',
@@ -1883,6 +1887,12 @@ LADS.Util.UI = (function () {
             'background-color': 'black',
 
         });
+		if(onDialogClick){
+			$(overlay).click(removeAll);
+			$(confirmBox).click(function(event){
+				event.stopPropagation();
+			});
+		}
 
         var messageLabel = document.createElement('div');
         $(messageLabel).css({

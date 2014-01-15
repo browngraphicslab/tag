@@ -68,7 +68,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         var button;
         //sideBar is the outermost container for sidebar
         //Sets entire sidebar to this...
-        var sideBarWidth = window.innerWidth * 0.22; //Define width in absolute terms to work with split screen
+        var sideBarWidth = window.innerWidth * 0.20; //Define width in absolute terms to work with split screen
 		sideBar = root.find('#sideBar');
         sideBar.css({"width": sideBarWidth});
 
@@ -238,7 +238,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 var holder = $(document.createElement('div'));
                 holder.addClass("tourHolder");
                 holder.css({
-                    'height': .12 * $(".root").height() + "px"
+                    'height': .15 * $(".root").height() + "px"
                 });
 
                 holder.on("click", tourClicked(tour));
@@ -269,7 +269,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 var holder = $(document.createElement('div'));
                 holder.addClass("assetHolder");
                 holder.css({
-                    'height': .12 * $(".root").height() + "px"
+                    'height': .15 * $(".root").height() + "px"
                 });
                 holder.attr("id", media.assetLinqID);
                 holder.data("assetHidden", true);
@@ -909,7 +909,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             drawer.isslided = false;
             var drawerContents = $(document.createElement('div'));
             drawerContents.addClass("drawerContents");
-            var maxHeight= $("#assetContainer").height() - 185;
+            var maxHeight= $("#assetContainer").height() - 165;
             if (maxHeight<=0)
                 maxHeight=1;
             drawerContents.css({
