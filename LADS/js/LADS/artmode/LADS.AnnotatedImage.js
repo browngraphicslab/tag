@@ -178,6 +178,10 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         }
 
         var viewerelt = $(document.createElement('div'));
+
+        viewerelt.on('mousedown scroll click mousemove resize', function(evt) {
+            evt.preventDefault();
+        });
         viewerelt.css({ height: "100%", width: "100%", position: "absolute", 'z-index': 0 });
 
         $(rootElement).append(viewerelt);
@@ -192,7 +196,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 dzScroll(delta, pivot);
             },
             onManipulate: function (res) {
-                debugger;
+                // debugger;
                 dzManip(res.pivot, res.translation, res.scale);
             }
         });
@@ -744,11 +748,13 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         function showAsset() {
             var t = Math.min(Math.max(10, Math.random() * 100), 60);
             var h = Math.min(Math.max(30, Math.random() * 100), 70);
+            debugger;
             $(outerContainer).css({
                 top: t + "%",
                 left: h + "%",
                 position: 'absolute',
                 'z-index': 1000,
+                'pointer-events': 'all'
             });
             $(outerContainer).show();
             assetCanvas.append(outerContainer);
@@ -825,7 +831,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 hide: hideAsset,
                 show: showAsset,
                 resize: resizeControlElements,
-                pauseAsset: this.pauseAsset,
+                pauseAsset: this.pauseAsset
             });
         }
     }

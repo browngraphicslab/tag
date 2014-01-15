@@ -12,6 +12,19 @@
 
         var tagContainer = $('#tagRoot') || $("body"); // TODO more general
 
+        $('body').on('scroll', function(evt) {
+            evt.preventDefault();
+        });
+
+        $('#widthSlider').on('change', function(evt) {
+            var w = $(this).attr('value'),
+                h = 9/16 * w;
+            $('#tagRoot').css({
+                'width': w + 'px',
+                'height': h + 'px'
+            });
+        });
+
         //window.location = 'js/RIN/web/reload-test.html';
         //window.location = 'js/RIN/web/test.html';
         //window.location = 'js/RIN/web/index.html';
