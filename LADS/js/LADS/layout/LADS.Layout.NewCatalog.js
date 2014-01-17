@@ -1,21 +1,36 @@
 ﻿LADS.Util.makeNamespace("LADS.Layout.NewCatalog");
 //catalog should only get artworks and exhibitions
-//LADS.Layout.NewCatalog = function (options, newCatalogCallback) {//needs to receive'split'
+
 LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSplitscreen) {
     "use strict";
-    ////vars from exhibition
-    //options = LADS.Util.setToDefaults(options, LADS.Layout.Exhibitions.default_options);
-    var root, leftbar, displayarea, displayHelp, exhibitarea, currentfolder, currentExhElements, img1,
-        leftbarHeader, exhibitionLabel, selectText, exhibitionSpan, descriptiontext, loadingArea,
-        titlediv = null, artworkSelected = false,
 
-        switching = false,//boolean for switching the page
+    //vars from exhibition
+    var root = LADS.Util.getHtmlAjax('NewCatalog.html'), // use AJAX to load html from .html file
+        leftbar = root.find('#leftbar'), // back-button, exhibit, tour selectors
+        displayarea = root.find('#displayarea'), 
+        displayHelp, 
+        exhibitarea = root.find('#exhibitarea'), 
+        currentExhElements, 
+        img1,
+        leftbarHeader = root.find('#leftbar-header'), 
+        exhibitionLabel = root.find('#exhibition-label'), 
+        exhibitionSpan = root.find('#exhibitionSpan'), 
+        contentdiv,
+        imgDiv,
+        descriptiontext, 
+        loadingArea,
+        titlediv, 
+        artworkSelected = false,
+        switching = false, //boolean for switching the page
         exhibitelements = [], // this is shared between exhibitions and tours
         exhibTabSelected = true, //which tab is selected at the top (true for exhib, false for tour)
         firstLoad = true;
-    var bgimage = $(document.createElement('div'));
+
+    var bgimage = root.find('#bgimage');
+
     var currExhibition = null,
         currentImage = null;
+
     // set values passed from previous page
     if (backExhibition) currExhibition = backExhibition;
     if (backArtwork) currentImage = backArtwork;
@@ -33,43 +48,25 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
     var exLabels = [];
     that.exLabels = exLabels;
 
-    ////// vars from Catalog
-
-    var timeline,
-       timelineDiv,
-       originmapDiv = null, // TODO for code cleanliness, don't need to initialize to null
-       map = null,
-       originButton = null,
-       artistButton = null,
-       yearButton = null,
-       titleButton = null,
-       typeButton = null,
-       heatmapDiv = null,
-       heatmapDivContainer = null,
-       heatMap = null,
-       row1 = null,
-       selectedImage = null,
-       mapexpanded = null,
-       sortContainer = null,
-       timelineDivContainer = null,
-       expandarrow = null,
-       mapExpansionTime = 409,
-       mapContractTime = 353,
-       searchAndFilterContainer = null, //Contains the filter and search divs
-       search = null,//search input element
-       searchTxt = null,
-       artistInfo = null,
-       yearInfo = null,
-       filterBox = null,//filter div;
-       searchFilter = null,
-       searchResultsDiv = null,
-       imageLoading = false,
-       currentArtworks = [],
-       infoSource = [],
-       inSearch = false,
-       defaultTag = "Title",
-       currentTag;
-
+    // vars from Catalog
+    var timelineDiv = root.find('#timelineDiv'),
+        artistButton = root.find('#artistButton'),
+        yearButton = root.find('#yearButton'),
+        titleButton = root.find('#titleButton'),
+        typeButton = root.find('#typeButton'),
+        row = root.find('#row'),
+        timelineDivContainer = root.find('#timelineDivContainer'),
+        search = root.find('#searchInput'),
+        searchTxt = root.find('#searchTxt'),
+        searchFilter = root.find('#searchFilter'), // contains searchInput and searchTxt
+        moreInfo,
+        artistInfo,
+        yearInfo,
+        currentArtworks = [],
+        infoSource = [],
+        inSearch = false,
+        defaultTag = "Title",
+        currentTag;
 
     init();
 
@@ -79,156 +76,86 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
     *initiates UI stuff
     */
     function init() {
-        root = $(document.createElement('div'));
-        root.addClass('root exhibition');
-        root.css({
-            width: "100%", height: "100%", position: "absolute",
-            "background-color": "rgb(127,127,127)"
-        });
-
-        //create loading page
+        // create loading page
         loadingArea = $(document.createElement('div'));
-        loadingArea.css({
-            width: "100%", height: "100%",
-            position: "absolute",
-        });
-        loadingArea.addClass('displayarea');
+        loadingArea.attr('id', 'loadingArea');
 
         root.append(loadingArea);
 
         var progressCircCSS = { "position": 'absolute', 'z-index': '50', 'height': 'auto', 'width': '5%', 'left': '47.5%', 'top': '42.5%' };
         var centerhor = '0px';
         var centerver = '0px';
-        loadingArea.css({ 'background-color': 'rgba(0, 0, 0, 0.7)' });
         var circle = LADS.Util.showProgressCircle(loadingArea, progressCircCSS, centerhor, centerver, false);
 
-        //after loading finished
-        // Background
-        var overlay = $(document.createElement('div'));
-        overlay.attr('id', 'overlay');
-        overlay.css({ width: "100%", height: "100%", position: "absolute", 'background-color': 'rgba(0,0,0,0.5)' });
-        bgimage.css({
-            width: "100%",
-            height: "100%",
-            position: "absolute",
-            'background-position': "center",
-            'background-size': "cover",
-            'opacity':'0.45',
-
-        });
-        bgimage.attr('id', 'bgimage');
-
-        // Sidebar
-        leftbar = $(document.createElement('div'));
-        leftbar.addClass('leftbar');
-        leftbar.css({
-            width: "25%", height: "45%",
-            position: "absolute",
-            //"background-color": "rgba(0,0,0,0.7)"
-        });
-
-        // Header w/ back-button, exhibit, tour selectors
-        leftbarHeader = $(document.createElement('div'));
-        leftbarHeader.addClass('leftbar-header');
-        leftbarHeader.css({
-            width: '100%',
-            height: '5%',
-            'margin-bottom': '15%',
-            'padding-left': '60px',
-            'overflow': 'hide',
-            // 'padding-top': '2%'
-        });
+        // after loading finishes
+        var overlay = root.find('#overlay');
+        
         leftbar.append(leftbarHeader);
 
         root.append(overlay);
 
-        row1 = $(document.createElement('div'));
-        row1.addClass('row1');
-        row1.css({
-            position: 'relative',
-            //top: '0.5%',
+        row.css({
+            'position': 'relative',
             'top':'0%',
-            width: '100%',
-            height: '12%',
+            'width': '100%',
+            'height': '12%',
             'background-color': 'rgba(0, 0, 0, 0.5)',
             'z-index': '10000'
         });
+
         makeTimeline();
 
-        //var fontsz = $(row1).height() * 1.48 + 'px';//1.75
-        var fontsz = LADS.Util.getMaxFontSizeEM('Artist', 0, $(row1).width(), $(window).height()*0.425*0.12*0.75, 0.1);//2.5
+        var fontsz = LADS.Util.getMaxFontSizeEM('Artist', 0, $(row).width(), $(window).height()*0.425*0.12*0.75, 0.1);
         var btnCCSS = ({
             float: "left",
             "margin": "0.3% 2%",
             'font-size': fontsz
         });
 
-        artistButton = $(document.createElement("div"))
-        .text("Artist").css(btnCCSS)
+        artistButton
+        .css(btnCCSS)
         .click(function () {
             changeDisplayTag(currentArtworks, "Artist");
         });
 
-        titleButton = $(document.createElement("div"))
-        .text("Title").css(btnCCSS)
+        titleButton
+        .css(btnCCSS)
         .click(function () {
             changeDisplayTag(currentArtworks, "Title");
         });
 
-        yearButton = $(document.createElement("div"))
-        .text("Year").css(btnCCSS)
+        yearButton
+        .css(btnCCSS)
         .click(function () {
             changeDisplayTag(currentArtworks, "Year");
         });
 
-        typeButton = $(document.createElement("div"))
-        .text("Type").css(btnCCSS)
+        typeButton
+        .css(btnCCSS)
         .click(function () {
             changeDisplayTag(currentArtworks, "Type");
         });
 
-        row1.append(artistButton);
-        row1.append(titleButton);
-        row1.append(yearButton);
-        row1.append(typeButton);
+        row.append(artistButton);
+        row.append(titleButton);
+        row.append(yearButton);
+        row.append(typeButton);
 
-
-        searchTxt = $(document.createElement("div"));
         searchTxt.css({
-            'width': '25%',
-            'text-align': 'right',
-            'float': "right",
-            'color': 'white',
-            "margin": "0.65% 3% 0 0",
             'font-size': $(container).height() * 0.015 + 'px',
         });
 
         //The search and filter begins here.
-        search = $(document.createElement('input'));
-        search.attr('id', 'searchInput');
         search.attr("placeholder", "Enter Keyword").blur();
         search.css({
-            'max-height': $(row1).height()*0.75 + '%',
-            'max-width': '15%',
-            'position': 'relative',
-            'right': '1%',
-            'float': 'right',
-            'margin-top': '0.5%',
-            'border-style': 'solid',
-            'background-color': 'white',
-            'border-color': 'rgb(167,180,174)',
-            'border-width': '0.05em',
+            'max-height': $(row).height()*0.75 + '%',
             'font-size': $(container).height() * 0.014 + 'px',
-            'color': 'rgb(120,128,119)',
-            'z-index': '100'
         });
 
-        searchAndFilterContainer = $(document.createElement('div'));//Container of both the filter and the search objct.
-        searchAndFilterContainer.attr('id', 'searchFilter');
-        searchAndFilterContainer.append(search);
+        searchFilter.append(search);
+        searchFilter.append(searchTxt);
 
-        searchAndFilterContainer.append(searchTxt);
-        row1.append(searchAndFilterContainer);
+        row.append(searchFilter);
         
         // the following mousedown and mouseup handlers deal with clicking the 'X' in the search box
         var oldSearchTerm;
@@ -252,25 +179,12 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         var feedbackContainer = initFeedback();
 
         // Back button/overlay area
-        var backbuttonArea = $(document.createElement('div'));
-        backbuttonArea.addClass('backbuttonArea');
-        backbuttonArea.css({
-            'left': '3.5%',
-            'top': '1%',
-            'position': 'absolute',
-            'width': '15%',
-            'height': '5%',
-        });
+        var backbuttonArea = root.find('#backbuttonArea');
+
         leftbarHeader.append(backbuttonArea);
 
-        var backbuttonIcon = $(document.createElement('img'));
-        backbuttonIcon.attr('id', 'catalogBackButton');
-        backbuttonIcon.attr('src', 'images/icons/Back.svg');
+        var backbuttonIcon = root.find('#catalogBackButton');
         backbuttonIcon.css({
-            'width': '73.5%',
-            'height': 'auto',
-            'top': '28%',
-            'position': 'relative',
             'display': (!forSplitscreen && !LADS.Util.Splitscreen.on()) ? 'block' : 'none'
         });
 
@@ -284,6 +198,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
         //opens the splash screen when the back button is clicked
         backbuttonIcon.click(function () {
+            console.log('clicking');
             backbuttonIcon.off('click');
             LADS.Layout.StartPage(null, function (root) {
                 LADS.Util.Splitscreen.setOn(false);
@@ -293,28 +208,12 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         backbuttonArea.append(backbuttonIcon);
 
         // Labels (Exhibition)
-        exhibitionLabel = $(document.createElement('div'));
-        exhibitionLabel.attr('id', 'exhibition-label');
-        
-        exhibitionLabel.css({
-            'text-align': 'center',
-            'left': "19%",
-            'height': '7%',
-            'top': "2.5%",
-            'position': 'absolute',
-            'width': '45%',
-            'margin-left': '1.22%',
-        });
-
-        exhibitionSpan = $(document.createElement('div'));
-
         var fontSize = LADS.Util.getMaxFontSizeEM('Collections', 2.5, $(container).width() * 0.085, 1000, 0.2);//2.5
         exhibitionLabel.css({
             'font-size': fontSize,
             'display': (!forSplitscreen && !LADS.Util.Splitscreen.on()) ? 'display' : 'none'
         });
 
-        exhibitionSpan.text("Collections");
         exhibitionLabel.append(exhibitionSpan);
         leftbarHeader.append(exhibitionLabel);
 
@@ -324,64 +223,22 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         });
 
         // Buttons for sidebar to select Exhibitions
-        exhibitarea = $(document.createElement('div'));
-        exhibitarea.css({
-            width: '82%',//"100%",//90
-            height: "88%",//"92%",
-            'margin-top': '4%',
-            'margin-left': '4%',
-            'overflow': 'auto',
-            "background-color": "rgba(0, 0, 0, 0.7)"
-        });
         leftbar.append(exhibitarea);
 
         // Main display area
-        displayarea = $(document.createElement('div'));
-        displayarea.css({
-            width: "75%", height: "50%",
-            "left": "25%",
-            position: "absolute",
-        });
-        displayarea.addClass('displayarea');
-
         // Initial text displayed in display area
-
-        //var displayHelp = $(document.createElement('div'));
         displayHelp = $(document.createElement('div'));
-
-        displayHelp.addClass('displayHelp');
-        displayHelp.css({
-            position: 'relative',
-            left: "0%",
-            top: "0.5%",
-            width: "100%",
-            height: "100%",
-            "background-color": "rgba(0,0,0,0.5)",
-        });
+        displayHelp.attr('id', 'displayHelp');
         displayarea.append(displayHelp);
 
         var displayHelpTitle = $(document.createElement('div'));
+        displayHelpTitle.attr('id', 'displayHelpTitle');
         displayHelpTitle.text("Welcome to the " + LADS.Worktop.Database.getMuseumName());
-        displayHelpTitle.addClass('displayHelpTitle');
-        displayHelpTitle.css({
-            'position': 'relative',
-            'padding-top': '15%',
-            'margin': '0px auto',
-            'width': '60%',
-            'text-align': 'center',
-            'font-size': '2em',
-        });
 
         var displayHelpText = $(document.createElement('div'));
-        displayHelpText.addClass('displayHelpText');
+        displayHelpText.attr('id' ,'displayHelpText');
         displayHelpText.text("Select an exhibition or tour from the left menu to begin exploring artworks");
-        displayHelpText.css({
-            'position': 'relative',
-            'margin': '0px auto',
-            'width': '65%',
-            'text-align': 'center',
-            'font-size': '2.5em',
-        });
+
         displayHelp.append(displayHelpTitle);
         displayHelp.append(displayHelpText);
 
@@ -398,8 +255,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             root.append(feedbackContainer);
 
             currentExhElements = {};
-            currentExhElements.displayareasub = displayHelp;//asign displayhelp to displayareasub to each exhibition
-
+            currentExhElements.displayareasub = displayHelp; //asign displayhelp to displayareasub to each exhibition
 
             // Add exhibitions to sidebar
             var gotFirst = false;
@@ -426,7 +282,6 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             }
             else clickExhibition(0);//have the first exhibition selected
             loadingArea.hide();
-
         }   // end getting exhibition
 
     }   //end init()
@@ -452,39 +307,19 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         text = text.replace(/<br>/g, '').replace(/<br \/>/g, '');
 
         toAdd = $(document.createElement('div'));
-        toAdd.addClass('exhibition-selection');
+        toAdd.attr('id' ,'exhibition-selection');
 
         var titleBox = $(document.createElement('div'));
-        titleBox.addClass('exhibition-title');
+        titleBox.attr('id' ,'exhibition-title');
         
         titleBox.html(title);
 
-        toAdd.css({
-            "width": "100%",
-            "height": "9.6%",
-            'position': 'relative',
-            'border': 'solid transparent',
-            'border-width': '5px 0px 5px 0px',
-            'padding-bottom': '0.75%',
-            'display': 'inline-block',
-            'overflow': 'none',
-        });
-
         toAdd.append(titleBox);
-        //var exhibTitleSize = LADS.Util.getMaxFontSizeEM('WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW', 0, $(toAdd).width(), $(window).height() * 0.425 * 0.12 * 0.8, 0.01);
         var size = 0.096 * 0.45 * $(window).height();
         var exhibTitleSize = LADS.Util.getMaxFontSizeEM('W', 0.25, 9999, size * 0.85, 0.1);
 
         titleBox.css({
-            'width': '90%',
-            'height': '100%',
-            "font-size": exhibTitleSize,
-            'display': 'inline-block',
-            'white-space': 'nowrap',
-            'text-overflow': 'ellipsis',
-            'overflow': 'hidden',
-            'margin-left': '5%'
-            
+            "font-size": exhibTitleSize,            
         });
 
         exLabels.push(toAdd);
@@ -510,7 +345,6 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 }
             }
             $(this).attr('flagClicked', 'true');
-            //currExhibIndex = jQuery.inArray(toAdd, exhibitelements);
             currExhibition = exhibition;
             currentImage = null;
             loadExhibit.call(toAdd, currExhibition);
@@ -562,12 +396,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         }
 
         var displayareasub = $(document.createElement('div'));
-        displayareasub.addClass('displayareasub');
-        displayareasub.css({
-            'width': '100%',
-            'height': '100%',
-            'position': 'absolute'
-        });
+        displayareasub.attr('id' ,'displayareasub');
         displayarea.append(displayareasub);
 
         currentExhElements = {};
@@ -582,132 +411,56 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         }
 
         // Make titles
-        // fixed to work at small widths (in splitscreen and in portrait mode)
         titlediv = $(document.createElement('div'));
-        titlediv.addClass('exhibition-name-div');
+        titlediv.attr('id', 'exhibition-name-div');
         titlediv.text(LADS.Util.htmlEntityDecode(exhibition.Name));
-        // Font size & line-height is probably the easiest thing to dynamically update here
-        titlediv.css({
-            'width': '96%',//'100%',
-            'text-align': 'center',
-            'z-index': '100',
-            'white-space': 'nowrap',
-            'display': 'inline-block',
-            'text-overflow': 'ellipsis',
-            'overflow': 'hidden',
-        });
+
         var w = $(container).width() * 0.75 * 0.8;
         
-
         currentExhElements.title = titlediv;
 
         // Display contains description, thumbnails and view button
+        // TODO Might need to push this down farther (make top larger), Looks fine for now, though
         var display = $(document.createElement('div'));
-        display.addClass('exhibition-info');
-
-        // Might need to push this down farther (make top larger)
-        // Looks fine for now, though
-        display.css({
-            'top': '0%',
-           // "background-color": "rgba(255,255,255,0.9)",
-            'position': 'absolute',
-            "height": "96%",//"100%",
-            "width": "98%",
-            //'border-style': 'solid',
-            //'border-width': '0.1em',
-            //'border-color': 'rgba(16,14,12,0.92)',
-        });
+        display.attr('id', 'exhibition-info');
 
         displayareasub.append(display);
+
         currentExhElements.display = display;
         var fontSize = LADS.Util.getMaxFontSizeEM(exhibition.Name, 1.5, w, .2 * display.height(),0.2);
         titlediv.css({ 'font-size': fontSize });
         display.append(titlediv);
 
         // Contains text
-        var contentdiv = $(document.createElement('div'));
-        contentdiv.addClass('contentdiv');
-        var test1 = titlediv.height();
-        var test2 = display.height();
+        contentdiv = $(document.createElement('div'));
+        contentdiv.attr('id', 'contentdiv');
         contentdiv.css({
-            'width': '94%', 'height': (display.height()-titlediv.height()-20)+"px",
-            'position': 'relative',
-            'top': '2%', 'left': '3%',
-          //  'overflow': 'hidden',
-            'text-overflow': 'ellipsis',
+            'width': '94%', 
+            'height': (display.height()-titlediv.height()-20)+"px",
         });
         display.append(contentdiv);
 
         var w = .40 * contentdiv.width();
         var h = w / 1.4;
-        var imgDiv = $(document.createElement('div'));
-        imgDiv.addClass('img-container');
-        imgDiv.css({
-          //  "width": "32%",
-            //"height": "75%",
-           // "max-width": "32%",
-            //"float": "left",
-            //'margin-bottom': '2px',
-            //'margin-left': '0'         
+        imgDiv = $(document.createElement('div'));
+        imgDiv.attr('id', 'img-container');
+        imgDiv.css({       
             height: h,
             width:w,
             position: 'absolute',
             top: '0%',
         });
-        img1 = $(document.createElement('img'));
-        img1.attr('src', LADS.Worktop.Database.fixPath(exhibition.Metadata.DescriptionImage1));
-        img1.attr('thumbnail', LADS.Worktop.Database.fixPath(exhibition.Metadata.DescriptionImage1));
-       
 
-        img1.css({
-            //'padding-right': '1%',
-            "width": "100%",
-            "height": "100%",
-            //"max-width": "32%",
-            //"float": "left",
-            //'margin-bottom': '2px',
-            //'margin-left': '0'
-            'max-width': '100%',
-            'max-height':'100%',
-        }); //max : 49
-        img1.attr('id', 'img1');
+        img1 = $(document.createElement('img'));
+        img1.attr('id', 'image');
+        img1.attr('src', LADS.Worktop.Database.fixPath(exhibition.Metadata.DescriptionImage1));
+        img1.attr('thumbnail', LADS.Worktop.Database.fixPath(exhibition.Metadata.DescriptionImage1));       
         
         var exploreTabText = $(document.createElement('div'));
-        exploreTabText.addClass('explore-text');
-        exploreTabText.css({
-            //'left': '68%',
-            'position': 'relative',
-            'float':'right',
-            'top': '8%',
-            'margin-right': '3%',
-            //'font-size': '200%',
-        });
+        exploreTabText.attr('id','explore-text');
+
         var exploreTab = $(document.createElement('div'));
         exploreTab.addClass('explore-tab');
-        exploreTab.css({
-           //'border-width': '5px',// 0px', 
-           //'border-style': 'solid', 
-           // 'border-color': 'transparent', 
-            'left': '0%', 
-            //'width': '95%',
-            //'height': '8%',
-            'width': '100%',
-            //'max-width':img1.width(),
-            'height': '16%',
-            'top':'84%',
-            'color': 'white', 
-            'overflow': 'hidden', 
-            //'padding-top': '1.8%', 
-            //'padding-bottom': '1.3%', 
-            //'bottom':'2%',
-            'display': 'none',
-            'position': 'absolute',
-            'background-color': 'rgba(0,0,0,0.4)',
-
-        });
-
-        //var fontSize = LADS.Util.getMaxFontSizeEM(exploreTabText, 1.5, w, 100);
-        //exploreTab.css({ 'font-size': fontSize });
 
         exploreTabText.text("Explore");
         exploreTab.on('click', function () {
@@ -716,21 +469,12 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             }
         });
 
-        var exploreIcon=$(document.createElement('img'));
+        var exploreIcon = $(document.createElement('img'));
+        exploreIcon.attr('id', 'exploreIcon');
         exploreIcon.attr('src', 'images/icons/ExploreIcon.svg');
-        exploreIcon.css({
-            'width': 'auto',
-            'position':'relative',
-            //'left': '92%',
-            //'float': 'left',
-            float:'right',
-            'height': '50%',
-            'top': '25%',
-            'margin-right': '32%'
-        });
+
         exploreTab.append(exploreIcon);
-        exploreTab.append(exploreTabText)
-        
+        exploreTab.append(exploreTabText)    
 
         contentdiv.append(imgDiv);
         imgDiv.append(img1);
@@ -743,40 +487,21 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             }
         });
 
-        var moreInfo = $(document.createElement('div'));
-        moreInfo.addClass('info-text');
-        moreInfo.css({
-            'float': 'left',
-            'position': 'absolute',
-            'display': 'inline-block',
-            top:'100%',
-            'left': '0',
-            width:'100%',
-        });
-        artistInfo = $(document.createElement('div'));
-        //artistInfo.addClass('info-text-artist');
-        artistInfo.css({
-            'float': 'left',
-            'position': 'relative',
-            'width': '70%',
-            'white-space': 'nowrap',
-                'text-overflow': 'ellipsis',
-                'overflow': 'hidden',
-                'color': 'white',
-                'font-size': $(container).height() * 0.02 + 'px',
+        moreInfo = $(document.createElement('div'));
+        moreInfo.attr('id', 'info-text');
 
+        artistInfo = $(document.createElement('div'));
+        artistInfo.attr('id', 'artistInfo');
+        artistInfo.css({
+            'font-size': $(container).height() * 0.02 + 'px',
         });
 
         yearInfo = $(document.createElement('div'));
-        //yearInfo.addClass('info-text-year');
+        yearInfo.attr('id', 'yearInfo');
         yearInfo.css({
-            'float': 'right',
-            'position': 'relative',
-            width: '30%',//20%?
-            'color': 'white',
-            'text-align':'right',
             'font-size': $(container).height() * 0.02 + 'px',
         });
+
         moreInfo.append(artistInfo);
         moreInfo.append(yearInfo);
         imgDiv.append(moreInfo);
@@ -794,29 +519,11 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
         var h1 = $(display).height() * 0.9;
         var w1 = h1 * 1.4;
-        descriptiontext = $(document.createElement('div'));
-        descriptiontext.addClass('description-text');
-        descriptiontext.attr('id', 'description-text');
 
+        descriptiontext = $(document.createElement('div'));
+        descriptiontext.attr('id', 'description-text');
         descriptiontext.css({
-            //"line-height": "100%",
-            "height": "90%",
-            'font-size': h1*0.055 + 'px',//1.5
-            'color': 'white',
-            'white-space': 'normal',
-            'text-overflow': 'ellipsis',
-            'word-wrap': 'break-word',
-            "overflow-x": 'hidden',
-            "overflow-y": 'auto',
-           // 'margin-left': '5%',
-            width: '55%',
-            'position': 'absolute',
-            'left':'45%',
-            //height: '75%',
-            //width: w1,
-            //"overflow-x":"",
-            
-            'padding-right': '2%'
+            'font-size': h1*0.055 + 'px',
         });
 
         var str;
@@ -893,7 +600,6 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             if (toursGlobal && toursGlobal.length) {
                 artworks = toursGlobal.concat(artworks || []);//$.merge(toursGlobal, artworks);//causes error
             }
-            //$('.info-text').html("");
             createArtTiles(artworks);
             initSearch(artworks);
             callback && callback();
@@ -929,11 +635,9 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         for (var i = 0; i < infoSource.length; i++) {
             if (infoSource[i]["keys"].indexOf(content) > -1) {
                 matchedArts.push(currentArtworks[i]);
-                //$('.titles')[i].style.background = 'rgba(255,255,51,0.6)';
             }
             else {
                 unmatchedArts.push(currentArtworks[i]);
-                //$('.titles')[i].style.background = 'rgba(0,0,0,0.5)';
             }
         }
 
@@ -946,33 +650,11 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
 
     function makeTimeline() {
-        timelineDivContainer = $(document.createElement("div"));
-        timelineDivContainer.addClass('timelineDivContainer');
-        timelineDivContainer.css({
-            height: "42.5%",
-            width: "100%",
-            position: 'absolute',
-            top: '51%',
-        });
-
         root.append(timelineDivContainer);
 
-        timelineDiv = $(document.createElement("div"));
-        timelineDiv.css({
-            height: "100%",
-            top:'0%',//'0.5%',
-            width: "100%",
-            position: 'relative',
-            'z-index': '49',
-            'background-color': 'rgba(0,0,0,0.5)',
-            'overflow-x': 'auto',
-            'overflow-y':'hidden'
-
-        });
-
         timelineDiv.scrollLeft();
-        timelineDiv.addClass('timelineDiv');
-        timelineDivContainer.append(row1);
+
+        timelineDivContainer.append(row);
 
         timelineDivContainer.append(timelineDiv);
     }
@@ -999,7 +681,6 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         }
         if (artworks == null) return;
         var sortedArtworks = sortTimeline(artworks, tag);
-        //console.log("# of artworks: " + sortedArtworks.getContents().length);
         var each = sortedArtworks.min();
         var currentWork = (each) ? each.artwork : null;
         var i = start;
@@ -1012,12 +693,6 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             loadQueue.add(drawArtworkTile(works[k].artwork, tag, onSearch, k+i, w, h));
         }
 
-        //while (currentWork !== null) {
-        //    loadQueue.add(drawArtworkTile(currentWork, tag, onSearch, i, w, h));
-        //    each = sortedArtworks.findNext(each);
-        //    currentWork = (each) ? each.artwork : null;
-        //    ++i;
-        //}
         return works.length;
     }
 
@@ -1026,9 +701,9 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             var main = $(document.createElement('div'));
             main.addClass("tile");
             main.css({
-                height: h + "px",
-                width: w + "px",
-                position: 'absolute',
+                'height': h + "px",
+                'width': w + "px",
+                'position': 'absolute',
                 'margin-left': parseInt(i / 2) * w * 1.03 + 10 + "px",
                 'margin-top': (i % 2) * h * 1.05 + "px",
                 'border': '1px solid black',
@@ -1042,32 +717,13 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 }
             });
 
-            var iconCSS = ({
-                'height': '250%',
-                'width': 'auto',
-                'opacity': '0.7',
-                'z-index': '1000',
-            });
-
             var tourLabel = $(document.createElement('img'));
+            tourLabel.attr('id', 'tourLabel');
             tourLabel.attr('src', 'images/icons/catalog_tour_icon.svg');
-            tourLabel.css({
-                         'position': "absolute",
-                         "bottom": "0px",
-                         "right": "5px",
-                         //"background-color": "rgba(0,0,0,0.6)",
-                         //"border-top-left-radius":"5px"   
-                     });
 
             var videoLabel = $(document.createElement('img'));
+            videoLabel.attr('id', 'videoLabel');
             videoLabel.attr('src', 'images/icons/catalog_video_icon.svg');
-            videoLabel.css({
-                            'position': "absolute",
-                            "bottom": "0px",
-                            "right": "5px",
-                            //"background-color": "rgba(0,0,0,0.6)",
-                            //"border-top-left-radius":"5px"
-                        });
 
             var image = $(document.createElement('img'));
             image.attr("src", LADS.Worktop.Database.fixPath(currentWork.Metadata.Thumbnail));
@@ -1083,26 +739,17 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             });
 
             var artTitle = $(document.createElement('div'));
-            artTitle.addClass('artTitles');
+            artTitle.attr('id', 'artTitle');
             artTitle.css({
                 'width': specs.width + 'px',
                 'height': specs.height + 'px',
-                "background-color": "rgba(0, 0, 0, 0.6)",
-                'position': 'absolute',
-                'opacity': '1.0',
             });
-
 
             // text div for artwork
             var artText = $(document.createElement('div'));
+            artText.attr('id', 'artText');
             artText.css({
                 'font-size': ($(artTitle).height() * 0.55) + "px",
-                'width': '95%',
-                'margin': '0 auto',
-                'text-align': 'center',
-                'white-space': 'nowrap',
-                'text-overflow': 'ellipsis',
-                'overflow': 'hidden',
             });
 
             if (tag === 'Title') artText.text(LADS.Util.htmlEntityDecode(currentWork.Name));
@@ -1161,30 +808,21 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             img1.attr("src", LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail))
             .css('border', '1px solid white')
             .attr('guid', artwork.Identifier);
+            
             var titleSpan = $(document.createElement('div'))
                             .text(LADS.Util.htmlEntityDecode(artwork.Name))
+                            .attr('id', 'titleSpan')
                             .css({
-                                'font-size': ($(container).height() * 0.035) + "px",//0.025
+                                'font-size': ($(container).height() * 0.035) + "px",
                                 'height': ($(container).height() * 0.08) + "px",
-                                'margin-bottom': '15px',
-                                //'white-space': 'pre-wrap',
-                                'line-height': '100%',
-                                'text-overflow': 'ellipsis',
-                                "overflow-y": 'scroll',
-                                "overflow-x": 'none',
-                                //"word-wrap": 'break-word',
                             });
+            
             var descSpan = $(document.createElement('div'))
+                            .attr('id', 'descSpan')
                             .html(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '');
-            descSpan.css({
-                'text-overflow': 'ellipsis',
-                "word-wrap": 'break-word',
-            });
 
             descriptiontext.empty();
-            descriptiontext.append(titleSpan).append(descSpan);
-
-            
+            descriptiontext.append(titleSpan).append(descSpan);            
         }
     }
 
@@ -1353,8 +991,6 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             return avlTree;
         }
         else return null; // error case: should check 'tag'
-
-        //console.log(avlTree.min().Name);
     }
 
     function handleSelectTags(tag) {
@@ -1467,7 +1103,6 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             }
         }
         else if (currentImage.Metadata.Type === "VideoArtwork") {
-            //switchPageVideo(currentImage);
             var video = new LADS.Layout.VideoPlayer(currentImage, currExhibition);
             LADS.Util.UI.slidePageLeftSplit(root, video.getRoot());//have the page sliding to left and 
         }
@@ -1475,49 +1110,27 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             
             deepZoom = new LADS.Layout.Artmode("catalog", curOpts, currExhibition);
             LADS.Util.UI.slidePageLeftSplit(root, deepZoom.getRoot());//have the page sliding to left and 
-            //var video = new LADS.Layout.VideoPlayer(currentImage, currExhibition);
-            //LADS.Util.UI.slidePageLeftSplit(root, video.getRoot());//have the page sliding to left and 
         }
         root.css({ 'overflow-x': 'hidden' });
     }
 
     function initFeedback() {
-        var feedbackContainer = $(document.createElement('div'));
-        feedbackContainer.addClass('feedbackContainer');
-        feedbackContainer.css({
-            "width": "6%",
-            "height": "auto",
-            'bottom': '0%',
-            'right': '1.5%',
-            'position': "relative",
-            'padding-top': '5.25%',
-            'float': 'right',
-            //'background-color': 'rgba(0,0,0,0.25)'
-        });
+        var feedbackContainer = root.find('#feedbackContainer'); 
 
-        var feedbackIcon = $(document.createElement('img'));
-        feedbackIcon.addClass('feedback-icon');
-        feedbackIcon.attr('src', 'images/icons/FeedbackIcon.svg');
+        var feedbackIcon = root.find('#feedbackIcon'); 
         feedbackIcon.css({
-            'width': 'auto',
-            'height': '38%',
-            'position': 'absolute',
-            //'left': '10%',
             'display': (!forSplitscreen && !LADS.Util.Splitscreen.on()) ? 'inline' : 'none',
-            'top': '10%',//35%',
-            'vertical-align': 'middle',
-            'right': '5%'
         });
 
         var feedbackBox = LADS.Util.UI.FeedbackBox("Exhibition", getCurrentID);
         feedbackContainer.append(feedbackIcon);
-        //feedbackContainer.append(feedback);
         root.append(feedbackBox);
 
         feedbackContainer.click(makeFeedback);
         function makeFeedback() {
             $(feedbackBox).css({ 'display': 'block' });
         }
+
         return feedbackContainer;
     }
 
