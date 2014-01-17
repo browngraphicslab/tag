@@ -94,14 +94,14 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
         root.append(overlay);
 
-        row.css({
-            'position': 'relative',
-            'top':'0%',
-            'width': '100%',
-            'height': '12%',
-            'background-color': 'rgba(0, 0, 0, 0.5)',
-            'z-index': '10000'
-        });
+        // row.css({
+        //     'position': 'relative',
+        //     'top':'0%',
+        //     'width': '100%',
+        //     'height': '12%',
+        //     'background-color': 'rgba(0, 0, 0, 0.5)',
+        //     'z-index': '10000'
+        // });
 
         makeTimeline();
 
