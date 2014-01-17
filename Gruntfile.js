@@ -11,7 +11,8 @@ module.exports = function(grunt) {
 				    'LADS/css/Artmode.css': 'LADS/css/Artmode.styl',
 					'LADS/css/NewCatalog.css': 'LADS/css/NewCatalog.styl',
 					// 'LADS/css/VideoPlayer.css': 'LADS/css/VideoPlayer.styl',
-					'LADS/css/TourPlayer.css': 'LADS/css/TourPlayer.styl'
+					'LADS/css/TourPlayer.css': 'LADS/css/TourPlayer.styl',
+					'LADS/css/General.css': 'LADS/css/General.styl'
 				}
 			}
 		},

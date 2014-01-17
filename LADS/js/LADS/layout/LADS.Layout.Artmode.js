@@ -523,10 +523,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             var minimapt = (minimapContainer.height() / 2) - (minimap.height() / 2);
             var minimapl = (minimapContainer.width() / 2) - (minimap.width() / 2);
             minimaprect.css({
-                width: minimapw + "px",
-                height: minimaph + "px",
+                width: (minimapw - 1) + "px",
+                height: (minimaph - 1) + "px",
                 top: minimapt + "px",
-                left: minimapl + "px"
+                left: (minimapl - 1) + "px"
             });
             /*********************/
         }
@@ -601,10 +601,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             xp = xp * minimapw;
             yp = yp * minimaph;
             minimaprect.css({
-                width: xp + "px",
-                height: yp + "px",
+                width: (xp-1) + "px",
+                height: (yp - 1) + "px",
                 top: y + "px",
-                left: x + "px"
+                left: (x-1) + "px"
             });
         }
         zoomimage.addAnimateHandler(dzMoveHandler);
@@ -733,9 +733,9 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 
         locationHistoryToggle.click(toggleLocationPanel);
 
-        /*
-        **This is the click function LocationHistoryContainer. 
-        */
+        /**
+         * This is the click function LocationHistoryContainer. 
+         */
         function histOnClick() {
 
             locationList = LADS.Util.UI.getLocationList(options.doq.Metadata); //Location List is LOADED HERE
