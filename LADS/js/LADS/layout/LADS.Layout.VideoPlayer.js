@@ -80,7 +80,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
         hoverString(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
     };
 
-
+    /*
     var seekBar = root.find('#seek-bar');
   
     
@@ -95,17 +95,6 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
         }
     });
 	
-     /*
-     seekBar.addEventListener("change", function (evt) {
-        evt.stopPropagation();
-        // Calculate the new time
-        var time = video.duration * (seekBar.value / 100);
-        // Update the video time
-        if (!isNaN(time)) {
-            video.currentTime = time;
-        }
-    });
-    */
     seekBar.mouseover(function (evt) {
         var percent = evt.offsetX / $(seekBar).width();
         var hoverTime = $(video).get(0).duration * percent;
@@ -128,7 +117,56 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
         evt.stopPropagation();
     });
 
+   */
 
+     var sliderControl=root.find('#sliderControl');
+     var sliderContainer=root.find('#sliderContainer');
+        sliderContainer.click(function(evt) {
+		
+		var time = $(video).get(0).duration * (evt.offsetX/$('#sliderContainer').width()); 	
+		if (!isNaN(time)) {
+            		$(video).get(0).currentTime = time;
+        	}
+
+	});
+
+
+
+	sliderControl.on('mousedown', function() {
+	   
+	    // when the point has been clicked, add a move handler
+	    $('body').on('mousemove', function(evt) {
+		// move the point accordingly (in the x-direction)
+		// update the time of the video accordingly
+		 var percent = evt.offsetX / $('#sliderContainer').width();
+		var hoverTime = $(video).get(0).duration * percent;
+		var minutes = Math.floor(hoverTime / 60);
+		var seconds = Math.floor(hoverTime % 60);
+
+		hoverString = String(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);	    
+
+	          var time = $(video).get(0).duration * (parseFloat(evt.offsetX-$('#sliderContainer').offset().left)/$('#sliderContainer').width());
+		if(time<0)
+			time=0;
+		if(time>$(video).get(0).duration)
+			time=$(video).get(0).duration;
+
+        	// Update the video time
+        	if (!isNaN(time)) {
+            		$(video).get(0).currentTime = time;
+			//console.log('time is'+time);
+        	}
+
+		});
+		$('body').on('mouseup', function() {
+		    // when the mouse is released, remove the mousemove handler
+		    $('body').off('mousemove');
+		});
+
+	   
+	});
+
+	
 
 
 
@@ -155,36 +193,16 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
         LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot());
     });
 
-        /*
-    function createTimer() {
-        if (!player[0].pause()) {
-            return setTimeout(function () {
-                backButton.fadeOut(500);
-            }, 5000);
-        }
-    }
-
-    var hideTimer = createTimer();
-
-    root.on("mousemove", function () {
-        if (hideTimer != null) {
-            clearTimeout(hideTimer);
-            hideTimer = createTimer();
-            backButton.fadeIn(500);
-        }
-    });
-    */
-
-
-
 
 
     // Update the seek bar as the video plays
     $(video).get(0).addEventListener("timeupdate", function () {
         // Calculate the slider value
-        var value = (100 / $(video).get(0).duration) * $(video).get(0).currentTime;
+        var value = ($('#sliderContainer').width() / $(video).get(0).duration) * $(video).get(0).currentTime;
         // Update the slider value
-        $(seekBar).get(0).value = value;
+	$('#sliderControl').css('left',value);
+	$('#sliderPoint').css('width',value);
+
         var minutes = Math.floor($(video).get(0).currentTime / 60);
         var seconds = Math.floor($(video).get(0).currentTime % 60);
         var adjMin;
