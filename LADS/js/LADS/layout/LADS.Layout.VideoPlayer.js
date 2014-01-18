@@ -10,9 +10,7 @@
 LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
     "use strict";
 
-    var that = {
-        getRoot: getRoot,
-    };
+    var that = {};
 
     var root = LADS.Util.getHtmlAjax('VideoPlayer.html'),
         video = root.find('#video'),
@@ -118,7 +116,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
                 // Update the video time and slider values
                 if (!isNaN(currTime)) {
                     $('#currentTimeDisplay').text(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
-                    $('video')[0].currentTime = currTime;
+                    videoElt.currentTime = currTime;
                     
                     $('#sliderControl').css('left', currPx);
                     $('#sliderPoint').css('width', currPx);
@@ -129,19 +127,14 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
                 // when the mouse is released, remove the mousemove handler
                 $('body').off('mousemove.seek');
                 $('body').off('mouseup.seek');
-                $('video')[0].currentTime = currTime;
+                videoElt.currentTime = currTime;
             });
         });
     }
-
-
-	
-
-
-
+    
     var currentTimeDisplay = root.find('#currentTimeDisplay');
     $(currentTimeDisplay).text("00:00");
-   var backButton = root.find('#backButton');
+    var backButton = root.find('#backButton');
 
     backButton.mousedown(function () {
         LADS.Util.UI.cgBackColor("backButton", backButton, false);
@@ -151,13 +144,9 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
     });
 
     backButton.on('click', function () {
-        // backButton.off('click');
-        //player.stop();
-        $(video).get(0).pause();
+        videoElt.pause();
 
-        var catalog = new LADS.Layout.NewCatalog(null, exhibition);//doq vs null            
-
-        catalog.getRoot().css({ 'overflow-x': 'hidden' });
+        var catalog = new LADS.Layout.NewCatalog(videoSrc, exhibition);
 
         LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot());
     });
@@ -165,24 +154,28 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
 
 
     // Update the seek bar as the video plays
-    $(video).get(0).addEventListener("timeupdate", function () {
-        // Calculate the slider value
-        console.log('currentTime = ' + videoElt.currentTime);
-        var value = ($('#sliderContainer').width() / $(video).get(0).duration) * $(video).get(0).currentTime;
-        // Update the slider value
+    video.on("timeupdate", function () {
+        var value,
+            minutes,
+            seconds,
+            adjMin;
+
+        // Calculate the slider value and update the slider value
+
+        value = ($('#sliderContainer').width() / videoElt.duration) * videoElt.currentTime;
 	    $('#sliderControl').css('left',value);
 	    $('#sliderPoint').css('width',value);
 
-        var minutes = Math.floor($(video).get(0).currentTime / 60);
-        var seconds = Math.floor($(video).get(0).currentTime % 60);
-        var adjMin;
+        minutes = Math.floor(videoElt.currentTime / 60);
+        seconds = Math.floor(videoElt.currentTime % 60);
         if (String(minutes).length < 2) {
             adjMin = '0' + minutes;
         } else {
             adjMin = minutes;
         }
-        $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
+        currentTimeDisplay.text(adjMin + ":" + (seconds < 10 ? "0" : "") + seconds);
     });
+
     function getRoot() {
         return root;
     }
