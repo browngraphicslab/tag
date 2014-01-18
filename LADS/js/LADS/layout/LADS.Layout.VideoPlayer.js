@@ -10,161 +10,130 @@
 LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
     "use strict";
 
-
-    var root = LADS.Util.getHtmlAjax('VideoPlayer.html');
-
-
-
     var that = {
         getRoot: getRoot,
     };
-   /*
-    var video = document.createElement('video');
-    $(video).attr('preload', 'none');
-    $(video).attr('poster', (videoSrc.Metadata.Thumbnail && !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : '');
-    video.src = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source);
-    video.type = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
-	*/
-    var video=root.find('#video');
-    $(video).attr('poster', (videoSrc.Metadata.Thumbnail && !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : '');
-    $(video).attr('src', LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source));
-    $(video).attr('type','video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
-    video.controls = "false";
 
+    var root = LADS.Util.getHtmlAjax('VideoPlayer.html'),
+        video = root.find('#video'),
+        videoElt = video[0],
+        DURATION = parseFloat(videoSrc.Metadata.Duration),
+        play = root.find('#playPauseButton'),
+        vol = root.find('#videoControlsButton'),
+        sliderControl = root.find('#sliderControl'),
+        sliderContainer = root.find('#sliderContainer'),
+        dragBar = false,
+        hoverString,
+        setHoverValue,
+        currTime;
 
-    var play=root.find('#playPauseButton');
-    var vol=root.find('#videoControlsButton');
+    video.attr({
+        poster: (videoSrc.Metadata.Thumbnail && !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : '',
+        src: LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source),
+        type: 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
+        controls: false,
+        preload: 'metadata'
+    });
 
+    timeToZero();
+    initVideoPlayHandlers();
+
+    function timeToZero() {
+        if (videoElt.currentTime !== 0) {
+            videoElt.currentTime = 0;
+        }
+        play.attr('src', 'images/icons/PlayWhite.svg');
+    }
 
     function initVideoPlayHandlers() {
-        if ($(video).get(0).currentTime !== 0) $(video).get(0).currentTime = 0;
-        $(play).attr('src', 'images/icons/PlayWhite.svg');
-        $(play).on('click', function () {
-            if ($(video).get(0).paused) {
-		
-                $(video).get(0).play();
-                $(play).attr('src', 'images/icons/PauseWhite.svg');
+        play.attr('src', 'images/icons/PlayWhite.svg');
+        play.on('click', function () {
+            if (videoElt.paused) {
+                videoElt.play();
+                play.attr('src', 'images/icons/PauseWhite.svg');
             } else {
-		
-                $(video).get(0).pause();
-                $(play).attr('src', 'images/icons/PlayWhite.svg');
+                videoElt.pause();
+                play.attr('src', 'images/icons/PlayWhite.svg');
             }
         });
 
         $(vol).on('click', function () {
-            if ($(video).get(0).muted) {
-                $(video).get(0).muted = false;
-                $(vol).attr('src', 'images/icons/VolumeUpWhite.svg');
+            if (videoElt.muted) {
+                videoElt.muted = false;
+                vol.attr('src', 'images/icons/VolumeUpWhite.svg');
             } else {
-                $(video).get(0).muted = true;
-                $(vol).attr('src', 'images/icons/VolumeDownWhite.svg');
+                videoElt.muted = true;
+                vol.attr('src', 'images/icons/VolumeDownWhite.svg');
             }
         });
 
         video.on('ended', function () {
-            $(video).get(0).pause();
-	   
-            $(play).attr('src', 'images/icons/PlayWhite.svg');
-	    initVideoPlayHandlers();
+            videoElt.pause();
+            timeToZero();
+	        // initVideoPlayHandlers(); // is this necessary here TODO
         });
     }
-    initVideoPlayHandlers();
-    var dragBar = false;
-    var hoverString, setHoverValue;
-
+    
     setHoverValue = function (percent) {
-        var totalDuration = orchestrator.getNarrativeInfo().totalDuration;
-        var hoverTime = narrativeDuration * percent;
-        var minutes = Math.floor(hoverTime / 60);
-        var seconds = Math.floor(hoverTime % 60);
+        var totalDuration = orchestrator.getNarrativeInfo().totalDuration,
+            hoverTime = narrativeDuration * percent,
+            minutes = Math.floor(hoverTime / 60),
+            seconds = Math.floor(hoverTime % 60);
         hoverString(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
     };
 
-    /*
-    var seekBar = root.find('#seek-bar');
-  
-    
-    // Event listener for the seek bar
-      $(seekBar).get(0).addEventListener("change", function (evt) {
-        evt.stopPropagation();
-        // Calculate the new time
-        var time = $(video).get(0).duration * ($(seekBar).get(0).value / 100);
-        // Update the video time
-        if (!isNaN(time)) {
-            $(video).get(0).currentTime = time;
-        }
-    });
-	
-    seekBar.mouseover(function (evt) {
-        var percent = evt.offsetX / $(seekBar).width();
-        var hoverTime = $(video).get(0).duration * percent;
-        var minutes = Math.floor(hoverTime / 60);
-        var seconds = Math.floor(hoverTime % 60);
-	//console.log(minutes);
-	//console.log(seconds);
-        hoverString = String(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
-        seekBar.title = hoverString;
-        //console.log("minute "+ minutes+" seconds "+seconds+"hover "+ hoverString+"percent "+percent );
-    });
+    // handlers for seek bar
+    video.on('loadedmetadata', initSeekHandlers);
 
-    seekBar.mousedown(function (evt) {
-	dragBar = true;
-        evt.stopPropagation();
-    });
+    function initSeekHandlers() {
+        sliderContainer.on('mousedown', function(evt) {
+            var time = $(video).get(0).duration * (evt.offsetX / $('#sliderContainer').width());    
+            if (!isNaN(time)) {
+                $(video).get(0).currentTime = time;
+            }
+        });
 
-    seekBar.mouseup(function (evt) {
-        dragBar = false;
-        evt.stopPropagation();
-    });
+        sliderControl.on('mousedown', function(e) {
+            e.stopPropagation();
+            var origPoint = e.pageX,
+                origTime = videoElt.currentTime,
+                timePxRatio = DURATION / sliderContainer.width(); // sec/px
+            console.log('ratio = '+timePxRatio);
+            $('body').on('mousemove.seek', function(evt) {
+                var currPoint = evt.pageX,
+                    timeDiff = (currPoint - origPoint) * timePxRatio,
+                    currPx,
+                    minutes,
+                    seconds;
+                currTime = Math.max(0, Math.min(DURATION, origTime + timeDiff));
+                currPx = currTime / timePxRatio;
+                minutes = Math.floor(currTime / 60);
+                if((""+minutes).length < 2) {
+                    minutes = "0" + minutes;
+                }
+                seconds = Math.floor(currTime % 60);
 
-   */
+                console.log(currTime);
 
-     var sliderControl=root.find('#sliderControl');
-     var sliderContainer=root.find('#sliderContainer');
-        sliderContainer.click(function(evt) {
-		
-		var time = $(video).get(0).duration * (evt.offsetX/$('#sliderContainer').width()); 	
-		if (!isNaN(time)) {
-            		$(video).get(0).currentTime = time;
-        	}
+                // Update the video time and slider values
+                if (!isNaN(currTime)) {
+                    $('#currentTimeDisplay').text(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
+                    $('video')[0].currentTime = currTime;
+                    
+                    $('#sliderControl').css('left', currPx);
+                    $('#sliderPoint').css('width', currPx);
+                }
 
-	});
+            });
+            $('body').on('mouseup.seek', function() {
+                // when the mouse is released, remove the mousemove handler
+                $('body').off('mousemove.seek');
+                $('body').off('mouseup.seek');
+                $('video')[0].currentTime = currTime;
+            });
+        });
+    }
 
-
-
-	sliderControl.on('mousedown', function() {
-	   
-	    // when the point has been clicked, add a move handler
-	    $('body').on('mousemove', function(evt) {
-		// move the point accordingly (in the x-direction)
-		// update the time of the video accordingly
-		 var percent = evt.offsetX / $('#sliderContainer').width();
-		var hoverTime = $(video).get(0).duration * percent;
-		var minutes = Math.floor(hoverTime / 60);
-		var seconds = Math.floor(hoverTime % 60);
-
-		hoverString = String(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);	    
-
-	          var time = $(video).get(0).duration * (parseFloat(evt.offsetX-$('#sliderContainer').offset().left)/$('#sliderContainer').width());
-		if(time<0)
-			time=0;
-		if(time>$(video).get(0).duration)
-			time=$(video).get(0).duration;
-
-        	// Update the video time
-        	if (!isNaN(time)) {
-            		$(video).get(0).currentTime = time;
-			//console.log('time is'+time);
-        	}
-
-		});
-		$('body').on('mouseup', function() {
-		    // when the mouse is released, remove the mousemove handler
-		    $('body').off('mousemove');
-		});
-
-	   
-	});
 
 	
 
@@ -198,18 +167,19 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
     // Update the seek bar as the video plays
     $(video).get(0).addEventListener("timeupdate", function () {
         // Calculate the slider value
+        console.log('currentTime = ' + videoElt.currentTime);
         var value = ($('#sliderContainer').width() / $(video).get(0).duration) * $(video).get(0).currentTime;
         // Update the slider value
-	$('#sliderControl').css('left',value);
-	$('#sliderPoint').css('width',value);
+	    $('#sliderControl').css('left',value);
+	    $('#sliderPoint').css('width',value);
 
         var minutes = Math.floor($(video).get(0).currentTime / 60);
         var seconds = Math.floor($(video).get(0).currentTime % 60);
         var adjMin;
         if (String(minutes).length < 2) {
-            adjMin = String('0' + minutes);
+            adjMin = '0' + minutes;
         } else {
-            adjMin = String(minutes);
+            adjMin = minutes;
         }
         $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
     });
