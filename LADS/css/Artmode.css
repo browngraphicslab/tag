@@ -148,7 +148,7 @@
 }
 #artmodeRoot #minimaprect {
   position: absolute;
-  border: solid #fff 3px;
+  border: solid #fff 1px;
   width: 100%;
   z-index: 50;
 }

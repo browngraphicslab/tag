@@ -52,7 +52,7 @@ LADS.Layout.TourPlayer = function (tour, exhibition, artworkPrev, artwork) {
         },
         startPlayback: function () { // need to call this to ensure the tour will play when you exit and re-enter a tour, since sliding functionality and audio playback don't cooperate
             rin.processAll(null, 'js/RIN/web').then(function () {
-                var options = 'systemRootUrl=js/RIN/web/&autoplay=true';
+                var options = 'systemRootUrl=js/RIN/web/&autoplay=true&loop=true';
                 // create player
                 player = rin.createPlayerControl(rinPlayer[0], options);
                 for (var key in tour.resources) {

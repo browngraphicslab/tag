@@ -1,9 +1,12 @@
-#rinPlayer {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
+#tagRoot a {
+  color: #26e;
+}
+#tagRoot img {
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  user-select: none;
 }
 #VideoPlayerRoot {
   width: 100%;
@@ -33,6 +36,8 @@
   display: inline-block;
   color: #fff;
   position: relative;
+  vertical-align: top;
+  top: 29.333333333333332%;
 }
 #VideoPlayerRoot #overlayOnRoot {
   position: absolute;
@@ -48,7 +53,7 @@
   width: auto;
   display: inline-block;
   margin: 0 1%;
-  top: 5%;
+  top: 12%;
   margin-left: 22%;
 }
 #VideoPlayerRoot #playPauseButton {
@@ -106,4 +111,42 @@
   height: 100%;
   display: inline-block;
   position: relative;
+  vertical-align: top;
+  top: 22%;
+}
+#sliderContainer {
+  display: inline-block;
+  border: 1px solid #fff;
+  height: 10%;
+  position: relative;
+  width: 40%;
+  vertical-align: top;
+  top: 44%;
+}
+#sliderPoint {
+  display: inline-block;
+  height: 100%;
+  left: 0%;
+  position: absolute;
+  top: 0%;
+  width: 0%;
+  background-color: #fff;
+}
+#sliderControl {
+  display: inline-block;
+  height: 150%;
+  width: 2%;
+  left: 0%;
+  margin-top: -0.6%;
+  background-color: #fff;
+  position: absolute;
+  border-radius: 5px;
+  border-style: solid;
+  border-width: 5px;
+  border-bottom-color: #fff;
+  border-left-color: #fff;
+  border-right-color: #fff;
+  border-top-color: #fff;
+  height: 0px;
+  width: 0px;
 }

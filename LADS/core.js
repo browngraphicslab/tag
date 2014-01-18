@@ -19,6 +19,7 @@
         $('#widthSlider').on('change', function(evt) {
             var w = $(this).attr('value'),
                 h = 9/16 * w;
+            $('#tagWidth').text(w);
             $('#tagRoot').css({
                 'width': w + 'px',
                 'height': h + 'px'

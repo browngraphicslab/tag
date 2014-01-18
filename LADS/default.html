@@ -8,6 +8,7 @@
     <!-- STYLESHEETS -->
     <link rel="stylesheet" href="js/jQueryUI/css/ui-darkness/jquerydarkness.css" />
     <link rel="stylesheet" href="css/default.css" />
+    <link rel="stylesheet" href="css/General.css" />
     <link rel="stylesheet" href="css/StartPage.css" />
     <link rel="stylesheet" href="css/Artmode.css" />
     <link rel="stylesheet" href="css/InternetFailurePage.css" />
@@ -98,9 +99,12 @@
     <script src="core.js"></script>
 </head>
 <body>
-    Change TAG width: &nbsp 200px <input id='widthSlider' type='range' min='200' max='1500' step='10' value='960' /> 1500px
+    <div id="currentTAGWidth" style="width:200px; display:inline-block;">
+        Current TAG width: <span id="tagWidth">960</span>px
+    </div>
+    400px <input id='widthSlider' type='range' min='400' max='1500' step='10' value='960' /> 1500px
     <br />
     <br />
-    <div id="tagRoot" style="position: relative; width: 960px; height:540px; overflow: hidden;"></div>
+    <div id="tagRoot" style="position: relative; width: 960px; height: 540px; overflow: hidden;"></div>
 </body>
 </html>
