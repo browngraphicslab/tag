@@ -90,10 +90,6 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         // after loading finishes
         var overlay = root.find('#overlay');
         
-        leftbar.append(leftbarHeader);
-
-        root.append(overlay);
-
         row.css({
             'position': 'relative',
             'top':'0%',
@@ -136,11 +132,6 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             changeDisplayTag(currentArtworks, "Type");
         });
 
-        row.append(artistButton);
-        row.append(titleButton);
-        row.append(yearButton);
-        row.append(typeButton);
-
         searchTxt.css({
             'font-size': $(container).height() * 0.015 + 'px',
         });
@@ -151,11 +142,6 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             'max-height': $(row).height()*0.75 + '%',
             'font-size': $(container).height() * 0.014 + 'px',
         });
-
-        searchFilter.append(search);
-        searchFilter.append(searchTxt);
-
-        row.append(searchFilter);
         
         // the following mousedown and mouseup handlers deal with clicking the 'X' in the search box
         var oldSearchTerm;
@@ -181,8 +167,6 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         // Back button/overlay area
         var backbuttonArea = root.find('#backbuttonArea');
 
-        leftbarHeader.append(backbuttonArea);
-
         var backbuttonIcon = root.find('#catalogBackButton');
         backbuttonIcon.css({
             'display': (!forSplitscreen && !LADS.Util.Splitscreen.on()) ? 'block' : 'none'
@@ -205,7 +189,6 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 LADS.Util.UI.slidePageRight(root);
             }, true);
         });
-        backbuttonArea.append(backbuttonIcon);
 
         // Labels (Exhibition)
         var fontSize = LADS.Util.getMaxFontSizeEM('Collections', 2.5, $(container).width() * 0.085, 1000, 0.2);//2.5
@@ -214,16 +197,10 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             'display': (!forSplitscreen && !LADS.Util.Splitscreen.on()) ? 'display' : 'none'
         });
 
-        exhibitionLabel.append(exhibitionSpan);
-        leftbarHeader.append(exhibitionLabel);
-
         //have exhibition mode selected
         exhibitionSpan.mousedown(function () {
             $(this).css({ 'color': 'white' });
         });
-
-        // Buttons for sidebar to select Exhibitions
-        leftbar.append(exhibitarea);
 
         // Main display area
         // Initial text displayed in display area
@@ -247,13 +224,6 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
         /**helper function to exhibitions**/
         function getExhibitionsHelper(exhibitionsLocal) {
-            root.append(bgimage);
-
-            //append everything in callback
-            root.append(leftbar);
-            root.append(displayarea);
-            root.append(feedbackContainer);
-
             currentExhElements = {};
             currentExhElements.displayareasub = displayHelp; //asign displayhelp to displayareasub to each exhibition
 
@@ -650,13 +620,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
 
     function makeTimeline() {
-        root.append(timelineDivContainer);
-
         timelineDiv.scrollLeft();
-
-        timelineDivContainer.append(row);
-
-        timelineDivContainer.append(timelineDiv);
     }
 
     function createArtTiles(artworks) {
@@ -1123,7 +1087,6 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         });
 
         var feedbackBox = LADS.Util.UI.FeedbackBox("Exhibition", getCurrentID);
-        feedbackContainer.append(feedbackIcon);
         root.append(feedbackBox);
 
         feedbackContainer.click(makeFeedback);
