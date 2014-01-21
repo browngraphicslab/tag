@@ -22,7 +22,8 @@
             $('#tagWidth').text(w);
             $('#tagRoot').css({
                 'width': w + 'px',
-                'height': h + 'px'
+                'height': h + 'px',
+		'font-size': w/9.6 +'%'
             });
         });
 
