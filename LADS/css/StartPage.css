@@ -8,6 +8,9 @@
   -o-user-select: none;
   user-select: none;
 }
+#tagRoot * {
+  font-family: 'source sans pro regular' sans-serif;
+}
 #startPageRoot {
   position: absolute;
   width: 100%;
@@ -36,7 +39,6 @@
   left: 100%;
   position: absolute;
   top: 53%;
-  font-family: sans-serif;
 }
 #startPageRoot #expandImage {
   height: 30%;
@@ -58,7 +60,6 @@
   left: 20%;
   position: absolute;
   top: 60%;
-  font-family: sans-serif;
 }
 #startPageRoot #handGif {
   float: right;
@@ -115,7 +116,6 @@
   position: relative;
   width: 100%;
   word-wrap: break-word;
-  font-family: sans-serif;
 }
 #startPageRoot #museumName {
   color: #fff;
@@ -126,7 +126,6 @@
   position: relative;
   width: 100%;
   word-wrap: break-word;
-  font-family: sans-serif;
 }
 #startPageRoot #museumNameSpan {
   height: 100%;
@@ -153,7 +152,6 @@
   position: relative;
   text-align: center;
   top: 8%;
-  font-family: sans-serif;
 }
 #startPageRoot #serverTagBuffer {
   bottom: 0%;
@@ -172,7 +170,6 @@
 #startPageRoot #tagName {
   color: #fff;
   font-size: 200%;
-  font-family: 'arial';
   left: 20%;
   position: absolute;
   top: 10%;
@@ -185,7 +182,6 @@
   opacity: 0.8;
   text-shadow: #000 0.1em 0.1em 0.2em;
   width: 50%;
-  font-family: sans-serif;
 }
 #startPageRoot #touchHintDiv {
   height: 13%;

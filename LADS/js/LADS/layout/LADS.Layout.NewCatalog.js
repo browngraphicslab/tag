@@ -89,45 +89,29 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
         // after loading finishes
         var overlay = root.find('#overlay');
-        
-        row.css({
-            'position': 'relative',
-            'top':'0%',
-            'width': '100%',
-            'height': '12%',
-            'background-color': 'rgba(0, 0, 0, 0.5)',
-            'z-index': '10000'
-        });
 
         makeTimeline();
 
-        var fontsz = LADS.Util.getMaxFontSizeEM('Artist', 0, $(row).width(), $(window).height()*0.425*0.12*0.75, 0.1);
-        var btnCCSS = ({
-            float: "left",
-            "margin": "0.3% 2%",
-            'font-size': fontsz
-        });
-
         artistButton
-        .css(btnCCSS)
+        .addClass('rowButton')
         .click(function () {
             changeDisplayTag(currentArtworks, "Artist");
         });
 
         titleButton
-        .css(btnCCSS)
+        .addClass('rowButton')
         .click(function () {
             changeDisplayTag(currentArtworks, "Title");
         });
 
         yearButton
-        .css(btnCCSS)
+        .addClass('rowButton')
         .click(function () {
             changeDisplayTag(currentArtworks, "Year");
         });
 
         typeButton
-        .css(btnCCSS)
+        .addClass('rowButton')
         .click(function () {
             changeDisplayTag(currentArtworks, "Type");
         });
@@ -182,7 +166,6 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
         //opens the splash screen when the back button is clicked
         backbuttonIcon.click(function () {
-            console.log('clicking');
             backbuttonIcon.off('click');
             LADS.Layout.StartPage(null, function (root) {
                 LADS.Util.Splitscreen.setOn(false);

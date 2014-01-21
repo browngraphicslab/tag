@@ -8,6 +8,9 @@
   -o-user-select: none;
   user-select: none;
 }
+#tagRoot * {
+  font-family: 'source sans pro regular' sans-serif;
+}
 #newCatalogRoot {
   background-color: #7f7f7f;
   overflow-x: hidden;
@@ -258,6 +261,11 @@
   top: 0%;
   width: 100%;
   z-index: 10000;
+}
+#newCatalogRoot .rowButton {
+  float: left;
+  font-size: 90%;
+  margin: 0.3% 2%;
 }
 #newCatalogRoot #searchInput {
   background-color: #fff;
