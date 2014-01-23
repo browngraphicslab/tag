@@ -87,6 +87,13 @@ module.exports = function(grunt) {
 				dest: 'LADS/TAG.js'
 			}
 		},
+		uglify: {
+			my_target: {
+				files: {
+					'LADS/TAG-min.js': ['LADS/TAG.js']
+				}
+			}
+		},
 		stylus: {
 			compile: {
 				options: {
@@ -134,6 +141,7 @@ module.exports = function(grunt) {
 	});
 
 	grunt.loadNpmTasks('grunt-contrib-concat');
+	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-stylus');
 	grunt.loadNpmTasks('grunt-contrib-jade');
 	grunt.loadNpmTasks('grunt-contrib-watch');
