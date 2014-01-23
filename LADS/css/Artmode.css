@@ -8,6 +8,9 @@
   -o-user-select: none;
   user-select: none;
 }
+#tagRoot * {
+  font-family: 'source sans pro regular' sans-serif;
+}
 #artmodeRoot {
   width: 100%;
   height: 100%;
