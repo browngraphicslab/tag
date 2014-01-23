@@ -1,0 +1,1194 @@
+#tagRoot a {
+  color: #26e;
+}
+#tagRoot img {
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+#tagRoot * {
+  font-family: 'source sans pro regular' sans-serif;
+}
+#startPageRoot {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+#startPageRoot #background {
+  background-position: center;
+  background-size: cover;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+#startPageRoot #brownInfoBox {
+  background-color: #000;
+  border-bottom-left-radius: 20px;
+  height: 10%;
+  position: absolute;
+  right: 0%;
+  top: 10%;
+  width: 20%;
+}
+#startPageRoot #brownPeople {
+  color: #fff;
+  font-size: 0%;
+  height: 40%;
+  left: 100%;
+  position: absolute;
+  top: 53%;
+}
+#startPageRoot #expandImage {
+  height: 30%;
+  left: 50%;
+  position: relative;
+  top: 35%;
+  width: auto;
+}
+#startPageRoot #expandInfoButton {
+  background-color: #000;
+  border-bottom-left-radius: 20px;
+  height: 100%;
+  left: 0%;
+  width: 15%;
+}
+#startPageRoot #fullTag {
+  color: #fff;
+  font-size: 90%;
+  left: 20%;
+  position: absolute;
+  top: 60%;
+}
+#startPageRoot #handGif {
+  float: right;
+  height: auto;
+  margin: 2% 20% 0% 0%;
+  width: 9%;
+}
+#startPageRoot #infoDiv {
+  height: 45%;
+  position: absolute;
+  top: 42%;
+  width: 100%;
+}
+#startPageRoot #infoTextHolder {
+  height: 100%;
+  padding: 0% 4%;
+  position: relative;
+  top: 0%;
+}
+#startPageRoot #logo {
+  max-height: 85%;
+  max-width: 85%;
+  position: relative;
+  top: 7%;
+  width: auto;
+  height: auto;
+}
+#startPageRoot #logoContainer {
+  height: 10%;
+  position: absolute;
+  right: 0%;
+  text-align: center;
+  top: 0%;
+  width: 20%;
+}
+#startPageRoot #microsoftLogo {
+  height: auto;
+  left: 68%;
+  position: absolute;
+  top: 10%;
+  width: 20%;
+}
+#startPageRoot #museumInfoDiv {
+  color: #fff;
+  height: 50%;
+  position: relative;
+  width: 100%;
+  word-wrap: break-word;
+}
+#startPageRoot #museumLoc {
+  color: #fff;
+  font-size: 3em;
+  height: 20%;
+  position: relative;
+  width: 100%;
+  word-wrap: break-word;
+}
+#startPageRoot #museumName {
+  color: #fff;
+  height: 30%;
+  padding-top: -4%;
+  outline: 0;
+  outline-offset: 0;
+  position: relative;
+  width: 100%;
+  word-wrap: break-word;
+}
+#startPageRoot #museumNameSpan {
+  height: 100%;
+}
+#startPageRoot #overlay {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+#startPageRoot #serverSetUpContainer {
+  background-color: rgba(0,0,0,0.85);
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  bottom: 0%;
+  height: 60%;
+  position: absolute;
+  right: 18.5%;
+  text-align: center;
+  width: 63%;
+}
+#startPageRoot #serverSetUpLabel {
+  color: #fff;
+  font-size: 115%;
+  position: relative;
+  text-align: center;
+  top: 8%;
+}
+#startPageRoot #serverTagBuffer {
+  bottom: 0%;
+  height: 8%;
+  position: absolute;
+  right: 0%;
+  width: 23.8%;
+}
+#startPageRoot #sponsoredText {
+  height: auto;
+  left: 68%;
+  position: absolute;
+  top: 20%;
+  width: 20%;
+}
+#startPageRoot #tagName {
+  color: #fff;
+  font-size: 200%;
+  left: 20%;
+  position: absolute;
+  top: 10%;
+}
+#startPageRoot #touchHint {
+  color: #fff;
+  float: left;
+  font-size: 250%;
+  margin: 3% 0% 0% 10%;
+  opacity: 0.8;
+  text-shadow: #000 0.1em 0.1em 0.2em;
+  width: 50%;
+}
+#startPageRoot #touchHintDiv {
+  height: 13%;
+  position: absolute;
+  top: 29%;
+  width: 100%;
+}
+
+#tagRoot a {
+  color: #26e;
+}
+#tagRoot img {
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+#tagRoot * {
+  font-family: 'source sans pro regular' sans-serif;
+}
+#InternetFailureroot {
+  background-color: #fff;
+  color: #000;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  z-index: 1000000000;
+}
+#InternetFailureroot #mainPanel,
+#InternetFailureroot #sadFace {
+  font-size: 1000%;
+  color: #fff;
+  position: absolute;
+  top: 12%;
+  left: 35%;
+}
+#InternetFailureroot #noticeBox {
+  width: 50%;
+  height: 21%;
+  top: 40%;
+  right: 25%;
+  position: absolute;
+  background-color: #324b6b;
+}
+#InternetFailureroot #noticeLabel {
+  color: #fff;
+  font-size: 30px;
+  left-margin: 4%;
+  width: 96%;
+}
+
+#tagRoot a {
+  color: #26e;
+}
+#tagRoot img {
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+#tagRoot * {
+  font-family: 'source sans pro regular' sans-serif;
+}
+#artmodeRoot {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+#artmodeRoot #sideBar {
+  position: absolute;
+  display: block;
+  top: 0px;
+  background-color: rgba(0,0,0,0.7);
+  height: 100%;
+  width: 22%;
+  z-index: 100;
+}
+#artmodeRoot #toggler {
+  position: absolute;
+  top: 45%;
+  width: 12%;
+  height: 12%;
+  background-color: rgba(0,0,0,0.7);
+  z-index: 100;
+}
+#artmodeRoot #togglerImage {
+  position: absolute;
+  top: 35%;
+  left: 20%;
+  width: 20px;
+  height: 20px;
+}
+#artmodeRoot #backBttnContainer {
+  width: 13%;
+  height: auto;
+  margin: 4%;
+}
+#artmodeRoot #backButton {
+  width: 100%;
+  height: 100%;
+}
+#artmodeRoot #sideBarSections {
+  width: 89%;
+  height: 83%;
+  left: 5%;
+  position: relative;
+}
+#artmodeRoot #sideBarInfo {
+  width: 100%;
+  height: 73%;
+  margin-bottom: 2%;
+}
+#artmodeRoot #info {
+  font-size: 22px;
+  color: #fff;
+  width: 100%;
+  max-height: 20%;
+  overflow-y: scroll;
+  white-space: nowrap;
+  padding-right: 7%;
+}
+#artmodeRoot #infoTitle {
+  font-size: 30px;
+  clear: both;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#artmodeRoot #infoArtist {
+  font-size: 22px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+#artmodeRoot #infoYear {
+  font-size: 22px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+#artmodeRoot .infoCustom {
+  font-size: 22px;
+  margin-top: 5px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+#artmodeRoot #assetContainer {
+  overflow: visible;
+  margin-top: 5%;
+  height: 78%;
+}
+#artmodeRoot .tourHolder {
+  float: left;
+  margin: 1%;
+  width: 40%;
+  position: relative;
+  text-align: center;
+  border: 1px solid #fff;
+  color: #fff;
+}
+#artmodeRoot .assetHolder {
+  float: left;
+  margin: 1%;
+  width: 40%;
+  position: relative;
+  text-align: center;
+  border: 1px solid #fff;
+  color: #fff;
+}
+#artmodeRoot .mediaHolderDiv {
+  height: 70%;
+  width: 92%;
+  margin: 4% 4% 0 4%;
+}
+#artmodeRoot .mediaHolderImg {
+  max-width: 100%;
+  max-height: 100%;
+}
+#artmodeRoot .assetHolderImage {
+  max-width: 100%;
+  max-height: 100%;
+}
+#artmodeRoot .mediaHolderTitle {
+  margin: 1% 2% 0% 2%;
+  top: 80%;
+  height: 20%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#artmodeRoot #minimapContainer {
+  width: 80%;
+  height: 20%;
+  background-color: rgba(0,0,0,0.9);
+  bottom: 0%;
+  left: 10%;
+  position: absolute;
+  vertical-align: middle;
+  border: 1px solid #fff;
+}
+#artmodeRoot #minimaprect {
+  position: absolute;
+  border: solid #fff 1px;
+  width: 100%;
+  z-index: 50;
+}
+#artmodeRoot #minimap {
+  position: absolute;
+  top: 0%;
+  left: 0;
+  right: 0;
+  margin: auto;
+  bottom: 0%;
+  z-index: 10;
+}
+#artmodeRoot #locationHistoryContainer {
+  position: relative;
+  width: 100%;
+  margin-bottom: 0.5%;
+  float: left;
+}
+#artmodeRoot #locationHistory {
+  font-size: 20px;
+  position: relative;
+  display: inline;
+  vertical-align: middle;
+}
+#artmodeRoot #locationHistoryDiv {
+  display: none;
+  top: 10%;
+  height: 80%;
+  z-index: 99;
+  position: absolute;
+  overflow-x: hidden;
+}
+#artmodeRoot #locationHistoryPanel {
+  width: 87.5%;
+  height: 100%;
+  z-index: 99;
+  background-color: rgba(0,0,0,0.7);
+}
+#artmodeRoot .mapOverlay {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 10000;
+  background-color: rgba(0,0,0,0.5);
+  left: auto;
+  top: auto;
+}
+#artmodeRoot #mapOverlayLabel {
+  position: relative;
+  float: right;
+  margin-right: 21%;
+  top: 35%;
+  font-size: 22pt;
+}
+#artmodeRoot .lpContent {
+  position: relative;
+  left: 2.5%;
+  top: 2.5%;
+  width: 95%;
+  height: 95%;
+}
+#artmodeRoot .lpTitle {
+  font-size: 25px;
+  margin-bottom: 20px;
+}
+#artmodeRoot .lpMapDiv {
+  position: relative;
+  height: 50%;
+  border: 1px solid #fff;
+  text-align: center;
+  background-color: #5e5e5e;
+  margin-bottom: 20px;
+}
+#artmodeRoot .lpTextInfoDiv {
+  height: 40%;
+  width: 100%;
+  float: left;
+}
+#artmodeRoot .lpTextDiv {
+  height: 100%;
+  width: 40%;
+  float: left;
+  overflow: auto;
+  font-size: 20px;
+}
+#artmodeRoot .lpInfoDiv {
+  float: left;
+  right: 0;
+  top: 0;
+  padding-left: 2%;
+  height: 100%;
+  width: 58%;
+  overflow: auto;
+  font-size: 20px;
+}
+#artmodeRoot #locationHistoryToggle {
+  position: absolute;
+  background-color: rgba(0,0,0,0.7);
+  top: 45%;
+  width: 4.5%;
+  height: 15%;
+}
+#artmodeRoot .locations {
+  display: none;
+  width: 96%;
+  height: 12%;
+  padding: 2% 2% 4% 2%;
+  font-size: 100%;
+  color: #fff;
+  overflow: hidden;
+  background-color: rgba(0,0,0,0.01);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+#artmodeRoot .locationHistoryIcon {
+  position: absolute;
+  top: 35%;
+  left: 20%;
+  width: auto;
+}
+#artmodeRoot .drawer {
+  display: inline;
+}
+#artmodeRoot .drawerHeader {
+  width: 100%;
+  float: left;
+}
+#artmodeRoot .label {
+  font-size: 20px;
+  width: 50%;
+  float: left;
+  height: 30%;
+}
+#artmodeRoot .toggleContainer {
+  width: 45px;
+  position: relative;
+  float: right;
+}
+#artmodeRoot .plusToggle {
+  width: 23px;
+  height: 23px;
+}
+#artmodeRoot .drawerContents {
+  display: none;
+  clear: both;
+  font-size: 14px;
+  width: 95%;
+  color: #808080;
+  padding-right: 20px;
+  overflow: auto;
+}
+#artmodeRoot .exhibitionPicker {
+  width: 40%;
+  height: 40%;
+  position: absolute;
+  top: 20%;
+  left: 30%;
+  background-color: #000;
+  z-index: 10000;
+  border: 3px double #fff;
+  padding: 1.5%;
+  display: block;
+}
+#artmodeRoot .infoLabel {
+  width: 100%;
+  color: #fff;
+  font-size: 200%;
+  margin-bottom: 2%;
+}
+#artmodeRoot .exhibitionsList {
+  width: 100%;
+  height: 60%;
+  overflow: auto;
+  margin-bottom: 2%;
+}
+#artmodeRoot .cancelButton {
+  width: 10%;
+  left: 85%;
+  top: 89%;
+  color: #fff;
+  font-size: 140%;
+  border-color: #fff;
+  position: absolute;
+}
+#artmodeRoot .exhibitions-list-cell {
+  width: 100%;
+  height: 18%;
+  position: relative;
+  border: solid transparent;
+  border-width: 5px 0px 5px 0px;
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: text-top;
+  margin-bottom: 2%;
+}
+#artmodeRoot .textbox {
+  width: 70%;
+  height: 100%;
+  font-size: 180%;
+  display: inline-block;
+  word-wrap: '';
+  overflow: hidden;
+}
+#artmodeRoot .imgLoader {
+  width: 7.5%;
+  height: 100%;
+  float: left;
+  margin-right: 2.5%;
+  margin-left: 6%;
+  top: 5%;
+  display: inline-block;
+}
+#artmodeRoot #feedbackContainer {
+  width: 100%;
+  position: absolute;
+  text-align: center;
+}
+#artmodeRoot #feedback-text {
+  font-size: 20px;
+  height: 10%;
+  position: relative;
+  display: inline;
+  vertical-align: middle;
+  left: 5%;
+  color: #fff;
+}
+#artmodeRoot #feedback-icon {
+  width: 10%;
+  height: auto;
+  position: relative;
+  display: inline;
+  vertical-align: middle;
+}
+#artmodeRoot #splitscreenContainer {
+  font-size: 25px;
+  text-align: center;
+  width: 5%;
+  height: 5%;
+  position: absolute;
+  right: 0%;
+  top: 95%;
+  vertical-align: center;
+  background-color: rgba(0,0,0,0.6);
+  border-top-left-radius: 10px;
+  z-index: 500;
+}
+#artmodeRoot #splitscreenIcon {
+  width: 65%;
+  height: 50%;
+  position: relative;
+  opacity: 0.6;
+  left: 2%;
+}
+
+#tagRoot a {
+  color: #26e;
+}
+#tagRoot img {
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+#tagRoot * {
+  font-family: 'source sans pro regular' sans-serif;
+}
+#newCatalogRoot {
+  background-color: #7f7f7f;
+  overflow-x: hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+#newCatalogRoot #artistInfo {
+  color: #fff;
+  float: left;
+  position: relative;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 70%;
+}
+#newCatalogRoot #artText {
+  margin: 0 auto;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 95%;
+}
+#newCatalogRoot #artTitle {
+  background-color: rgba(0,0,0,0.6);
+  opacity: 1;
+  position: absolute;
+}
+#newCatalogRoot #backbuttonArea {
+  height: 5%;
+  left: 3.5%;
+  position: absolute;
+  top: 1%;
+  width: 15%;
+}
+#newCatalogRoot	#bgimage {
+  background-position: center;
+  background-size: cover;
+  opacity: 0.45;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+#newCatalogRoot #catalogBackButton {
+  height: auto;
+  position: relative;
+  top: 28%;
+  width: 73.5%;
+}
+#newCatalogRoot #contentdiv {
+  left: 3%;
+  position: relative;
+  text-overflow: ellipsis;
+  top: 2%;
+  width: 94%;
+}
+#newCatalogRoot #descSpan {
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+}
+#newCatalogRoot #description-text {
+  color: #fff;
+  height: 90%;
+  left: 45%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-right: 2%;
+  position: absolute;
+  text-overflow: ellipsis;
+  white-space: normal;
+  width: 55%;
+  word-wrap: break-word;
+}
+#newCatalogRoot #displayarea {
+  height: 50%;
+  left: 25%;
+  position: absolute;
+  width: 75%;
+}
+#newCatalogRoot #displayareasub {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+#newCatalogRoot #displayHelp {
+  background-color: rgba(0,0,0,0.5);
+  height: 100%;
+  left: 0%;
+  position: relative;
+  top: 0.5%;
+  width: 100%;
+}
+#newCatalogRoot #displayHelpText {
+  font-size: 2.5em;
+  margin: 0px auto;
+  position: relative;
+  text-align: center;
+  width: 65%;
+}
+#newCatalogRoot #displayHelpTitle {
+  font-size: 2em;
+  margin: 0px auto;
+  padding-top: 15%;
+  position: relative;
+  text-align: center;
+  width: 60%;
+}
+#newCatalogRoot #exhibitarea {
+  background-color: rgba(0,0,0,0.7);
+  height: 88%;
+  margin-left: 4%;
+  margin-top: 4%;
+  overflow: auto;
+  width: 82%;
+}
+#newCatalogRoot #exhibition-label {
+  height: 7%;
+  left: 19%;
+  margin-left: 1.22%;
+  position: absolute;
+  top: 2.5%;
+  text-align: center;
+  width: 45%;
+}
+#newCatalogRoot #exhibition-info {
+  height: 96%;
+  position: absolute;
+  top: 0%;
+  width: 98%;
+}
+#newCatalogRoot #exhibition-name-div {
+  display: inline-block;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 96%;
+  z-index: 100;
+}
+#newCatalogRoot #exhibition-selection {
+  border: solid transparent;
+  border-width: 5px 0px 5px 0px;
+  display: inline-block;
+  height: 9.6%;
+  position: relative;
+  padding-bottom: 0.75%;
+  overflow: none;
+  width: 100%;
+}
+#newCatalogRoot #exhibition-title {
+  display: inline-block;
+  height: 100%;
+  margin-left: 5%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 90%;
+}
+#newCatalogRoot #exploreIcon {
+  float: right;
+  height: 50%;
+  margin-right: 32%;
+  position: relative;
+  top: 25%;
+  width: auto;
+}
+#newCatalogRoot .explore-tab {
+  background-color: rgba(0,0,0,0.4);
+  color: #fff;
+  display: none;
+  height: 16%;
+  left: 0%;
+  overflow: hidden;
+  position: absolute;
+  top: 84%;
+  width: 100%;
+}
+#newCatalogRoot #explore-text {
+  float: right;
+  margin-right: 3%;
+  position: relative;
+  top: 8%;
+}
+#newCatalogRoot #feedbackContainer {
+  bottom: 0%;
+  float: right;
+  height: auto;
+  position: relative;
+  padding-top: 5.25%;
+  right: 1.5%;
+  width: 6%;
+}
+#newCatalogRoot #feedback-icon {
+  height: 38%;
+  position: absolute;
+  right: 5%;
+  top: 10%;
+  vertical-align: middle;
+  width: auto;
+}
+#newCatalogRoot #image {
+  max-height: 100%;
+  max-width: 100%;
+  width: 100%;
+  height: 100%;
+}
+#newCatalogRoot #img-container {
+  position: absolute;
+  top: 0%;
+}
+#newCatalogRoot #info-text {
+  display: inline-block;
+  float: left;
+  left: 0;
+  position: absolute;
+  top: 100%;
+  width: 100%;
+}
+#newCatalogRoot #leftbar {
+  height: 45%;
+  position: absolute;
+  width: 25%;
+}
+#newCatalogRoot #leftbar-header {
+  height: 5%;
+  margin-bottom: 15%;
+  overflow: hide;
+  padding-left: 60px;
+  width: 100%;
+}
+#newCatalogRoot #loadingArea {
+  background-color: rgba(0,0,0,0.7);
+  height: 100%;
+  position: absolute;
+  width: 100%;
+}
+#newCatalogRoot #overlay {
+  background-color: rgba(0,0,0,0.5);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+#newCatalogRoot #row {
+  background-color: rgba(0,0,0,0.5);
+  height: 12%;
+  position: relative;
+  top: 0%;
+  width: 100%;
+  z-index: 10000;
+}
+#newCatalogRoot .rowButton {
+  float: left;
+  font-size: 90%;
+  margin: 0.3% 2%;
+}
+#newCatalogRoot #searchInput {
+  background-color: #fff;
+  border-color: #a7b4ae;
+  border-style: solid;
+  border-width: 0.05em;
+  color: #788077;
+  float: right;
+  max-width: 15%;
+  margin-top: 0.5%;
+  position: relative;
+  right: 1%;
+  z-index: 100;
+}
+#newCatalogRoot #searchTxt {
+  color: #fff;
+  float: right;
+  margin: 0.65% 3% 0 0;
+  text-align: right;
+  width: 25%;
+}
+#newCatalogRoot #timelineDiv {
+  background-color: rgba(0,0,0,0.5);
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  position: relative;
+  top: 0%;
+  width: 100%;
+  z-index: 49;
+}
+#newCatalogRoot #timelineDivContainer {
+  height: 42.5%;
+  position: absolute;
+  top: 51%;
+  width: 100%;
+}
+#newCatalogRoot #titleSpan {
+  line-height: 100%;
+  margin-bottom: 15px;
+  overflow-y: scroll;
+  overflow-x: none;
+  text-overflow: ellipsis;
+}
+#newCatalogRoot #tourLabel {
+  bottom: 0px;
+  position: absolute;
+  right: 5px;
+}
+#newCatalogRoot #videoLabel {
+  bottom: 0px;
+  position: absolute;
+  right: 5px;
+}
+#newCatalogRoot #yearInfo {
+  color: #fff;
+  float: right;
+  position: relative;
+  text-align: right;
+  width: 30%;
+}
+
+#tagRoot a {
+  color: #26e;
+}
+#tagRoot img {
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+#tagRoot * {
+  font-family: 'source sans pro regular' sans-serif;
+}
+#VideoPlayerRoot {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+#VideoPlayerRoot #backButton {
+  width: 60%;
+  height: auto;
+}
+#VideoPlayerRoot #backButtonContainer {
+  position: absolute;
+  width: 5%;
+  top: 20%;
+  left: 1%;
+}
+#VideoPlayerRoot #bottomBar {
+  background-color: #3f3735;
+  height: 8%;
+  width: 100%;
+  top: 92%;
+  position: absolute;
+}
+#VideoPlayerRoot #currentTimeDisplay {
+  width: 5%;
+  height: 100%;
+  display: inline-block;
+  color: #fff;
+  position: relative;
+  vertical-align: top;
+  top: 29.333333333333332%;
+}
+#VideoPlayerRoot #overlayOnRoot {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  background-color: #f00;
+  width: 100%;
+  height: auto;
+}
+#VideoPlayerRoot #playHolder {
+  position: relative;
+  height: 70%;
+  width: auto;
+  display: inline-block;
+  margin: 0 1%;
+  top: 12%;
+  margin-left: 22%;
+}
+#VideoPlayerRoot #playPauseButton {
+  position: relative;
+  height: 100%;
+  width: auto;
+  display: inline-block;
+}
+#VideoPlayerRoot #seek-bar {
+  padding: 1%;
+  width: 40%;
+  height: 10%;
+  margin-top: 1%;
+  margin-left: 1%;
+  display: inline-block;
+}
+#VideoPlayerRoot #sliderControl {
+  display: inline-block;
+  left: 0%;
+  margin-top: -0.6%;
+  background-color: #fff;
+  position: absolute;
+  border-radius: 50%;
+  border-style: solid;
+  border-width: 100%;
+  border-bottom-color: #fff;
+  border-left-color: #fff;
+  border-right-color: #fff;
+  border-top-color: #fff;
+  height: 100%;
+  width: 1.5%;
+}
+#VideoPlayerRoot #sliderContainer {
+  display: inline-block;
+  border: 1px solid #fff;
+  height: 10%;
+  position: relative;
+  width: 40%;
+  vertical-align: top;
+  top: 44%;
+}
+#VideoPlayerRoot #sliderPoint {
+  display: inline-block;
+  height: 100%;
+  left: 0%;
+  position: absolute;
+  top: 0%;
+  width: 0%;
+  background-color: #fff;
+}
+#VideoPlayerRoot #timeContainer {
+  height: 20px;
+  width: 40px;
+  margin: 0px 1% 0px 1%;
+  padding: 0;
+  display: inline-block;
+  overflow: hidden;
+}
+#VideoPlayerRoot #topBar {
+  background-color: #3f3735;
+  position: absolute;
+  width: 100%;
+  height: 8%;
+}
+#VideoPlayerRoot #videoContainer {
+  background-color: #000;
+  position: absolute;
+  width: 100%;
+  height: 84%;
+  text-align: center;
+  top: 8%;
+}
+#VideoPlayerRoot #video {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+}
+#VideoPlayerRoot #videoControlsButton {
+  height: 50%;
+  width: auto;
+  position: relative;
+  display: inline-block;
+}
+#VideoPlayerRoot #volHolder {
+  margin: 0px 2.5%;
+  top: 15%;
+  width: auto;
+  height: 100%;
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+  top: 22%;
+}
+
+#tagRoot a {
+  color: #26e;
+}
+#tagRoot img {
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+#tagRoot * {
+  font-family: 'source sans pro regular' sans-serif;
+}
+#tourRoot {
+  left: 0px;
+  overflow: hidden;
+  position: relative;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+}
+#tourRoot #backButton {
+  height: auto;
+  position: absolute;
+  width: 100%;
+  z-index: 100000000;
+}
+#tourRoot #backButtonContainer {
+  left: 15px;
+  position: absolute;
+  top: 15px;
+  width: 5%;
+  height: 5%;
+  z-index: 100000000;
+}
+#tourRoot #overlayOnRoot {
+  background-color: #f00;
+  height: auto;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+#tourRoot #rinPlayer {
+  overflow: hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+#tagRoot div,
+#tagRoot span {
+  color: #eee;
+}
+#tagRoot a {
+  color: #26e;
+}
+#tagRoot img {
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
