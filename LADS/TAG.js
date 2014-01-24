@@ -30614,8 +30614,7 @@ d3.time.scale.utc = function() {
 })();
 
 ;
-var LADS = LADS || {},
-    Worktop = Worktop || {};
+var LADS = LADS || {};
 
 //LADS Utilities
 LADS.Util = (function () {
@@ -31143,18 +31142,8 @@ LADS.Util = (function () {
         var parts = namespaceString.split('.'),
         parent = window,
         currentPart = '';
-        var k=0;
-        if(parts[0] === 'LADS') {
-            LADS = LADS || {};
-            parent = LADS;
-            k = 1;
-        } else if (parts[0] === 'Worktop') {
-            Worktop = Worktop || {};
-            parent = Worktop;
-            k = 1;
-        }
 
-        for (var i = k, length = parts.length; i < length; i++) {
+        for (var i = 0, length = parts.length; i < length; i++) {
             currentPart = parts[i];
             parent[currentPart] = parent[currentPart] || {};
             parent = parent[currentPart];
@@ -32117,10 +32106,10 @@ LADS.Util.UI = (function () {
         });
         serverDialog.css({
             position: 'absolute',
-            left: serverDialogSpecs.x + 'px',
-            top: serverDialogSpecs.y + 'px',
-            width: serverDialogSpecs.width + 'px',
-            height: serverDialogSpecs.height + 'px',
+            left: '25%',//serverDialogSpecs.x + 'px',
+            top: '24%',//serverDialogSpecs.y + 'px',
+            width: '50%',   //serverDialogSpecs.width + 'px',
+            height: '50%',   //serverDialogSpecs.height + 'px',
             border: '3px double white',
             'background-color': 'black',
         });
@@ -32148,8 +32137,10 @@ LADS.Util.UI = (function () {
             margin: 'auto',
             'margin-bottom': '1%',
             'width': '60%',
+	    'height':'10%',
             'position':'relative',
-            'top':'15%'
+            'top':'15%',
+	    'font-size':'100%'
         });
         serverDialogInput.val(localStorage.ip);
         serverDialogInput.focus(function () {
@@ -32163,7 +32154,7 @@ LADS.Util.UI = (function () {
         });
 
         var serverDialogContact = $(document.createElement('div'));
-        serverDialogContact.css({ 'margin-top': '7%' , 'color':'white','margin-left': '10%'  });
+        serverDialogContact.css({ 'margin-top': '10%' , 'color':'white','margin-left': '10%'  });
         serverDialogContact.html(
             "Contact us for server setup at <a href='mailto:brown.touchartgallery@outlook.com'>brown.touchartgallery@outlook.com</a>."
         );
@@ -32176,19 +32167,19 @@ LADS.Util.UI = (function () {
         serverDialog.append(serverButtonRow);
         var serverSaveButton = $(document.createElement('button'));
         serverSaveButton.css({
-            'padding': '1%', 'border': '1px solid white', 'width': 'auto', 'position': 'relative', 'margin-top': '1%', 'float': "left", 'margin-left':'7%' 
+            'padding': '1%', 'border': '1px solid white', 'width': '12%','height':'3%' ,'position': 'relative','margin-top': '1%', 'float': "left", 'margin-left':'7%' ,'font-size':'90%','bottom':'1%'
         });
         serverSaveButton.text('Save');
         var serverErrorMessage = $(document.createElement('div'));
         serverErrorMessage.attr('id', 'serverErrorMessage');
         serverErrorMessage.css({
-            color: 'white',
-            'margin-bottom': '10px',
+            'color': 'white',
             'left': '10%',
             'width': '80%',
+	    'height':'10%',
             'text-align': 'center',
-            'bottom': '30%',
-            'position': 'absolute',
+            'bottom': '10%',
+            'position': 'relative',
         });
 
         serverErrorMessage.html('Could not connet to the specified address. Please try again.');
@@ -32197,7 +32188,7 @@ LADS.Util.UI = (function () {
 
         var serverCancelButton = $(document.createElement('button'));
         serverCancelButton.css({
-            'padding': '1%', 'border': '1px solid white', 'width': 'auto', 'position': 'relative', 'margin-top': '1%', 'float': "right", 'margin-right': '7%'
+            'padding': '1%', 'border': '1px solid white', 'width': '12%','height':'3%', 'position': 'relative', 'margin-top': '1%', 'float': "right", 'margin-right': '7%','font-size':'90%','bottom':'1%'
         });
         serverCancelButton.text('Cancel');
         serverCancelButton.attr('type', 'button');
@@ -33911,6 +33902,7 @@ if (!Math.constrain) {
         return Math.min(max, Math.max(min, num));
     };
 }
+
 ;
 /**
   @license html2canvas v0.34 <http://html2canvas.hertzen.com>
@@ -41867,21 +41859,21 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
                 nameSpanSize,
                 fontSizeSpan,
                 subheadingFont;
-            
-            // if (LADS.Util.elementInDocument(museumName)) {
-            //     subheadingFont = parseInt(museumLoc.css('font-size'), 10);
-            //     //here we are going to construct the function
-            //     nameDivSize = museumName.height();
-            //     fontSizeSpan = museumName.height();
-            //     museumNameSpan.css('font-size', nameDivSize + 'px');
-            //     nameSpanSize = museumNameSpan.height();
-            //     while (nameDivSize < nameSpanSize) {
-            //         fontSizeSpan--;
-            //         museumNameSpan.css('font-size', fontSizeSpan + 'px');
-            //         nameSpanSize = museumNameSpan.height();
-            //     }
-            //     museumNameSpan.css('height', nameSpanSize);
-            // }
+            if (LADS.Util.elementInDocument(museumName)) {
+                subheadingFont = parseInt(museumLoc.css('font-size'), 10);
+                //here we are going to construct the function
+                nameDivSize = museumName.height();
+                fontSizeSpan = museumName.height();
+		/*                
+		museumNameSpan.css('font-size', nameDivSize + 'px');
+                nameSpanSize = museumNameSpan.height();
+                while (nameDivSize < nameSpanSize) {
+                    fontSizeSpan--;
+                    museumNameSpan.css('font-size', fontSizeSpan + 'px');
+                    nameSpanSize = museumNameSpan.height();
+                }*/
+                museumNameSpan.css('height', nameSpanSize);
+            }
         }
         that.fixText = fixText;
 
@@ -41894,14 +41886,15 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             tempInfo = "";
         }
         museumInfoSpan.text(tempInfo);
-
+	
+	/*
         var loadedInterval = setInterval(function () { // TODO must be a better way...
             if (LADS.Util.elementInDocument(museumInfoDiv)) {
                 var subheadingFont = parseInt(museumLoc.css('font-size'), 10);
                 LADS.Util.UI.fitTextInDiv(museumInfoSpan, Math.round(subheadingFont * 2 / 3), Math.round(subheadingFont * 1 / 3));
                 clearInterval(loadedInterval);
             }
-        });
+        });*/
 
         infoTextHolder = root.find('#infoTextHolder');
 
@@ -41920,7 +41913,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         touchHint = root.find('#touchHint');
 
         handGif = root.find('#handGif');
-        LADS.Util.fitText(touchHint, 2);
+        //LADS.Util.fitText(touchHint, 2);
 
         handGif.onclick = switchPage;
 
@@ -41974,6 +41967,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 LADS.Layout.StartPage.default_options = {
     repository: "http://cs.brown.edu/research/lads/LADS2.0Data/repository.xml",
 };
+
 ;
 LADS.Util.makeNamespace("LADS.Layout.Artmode");
 
@@ -44962,6 +44956,7 @@ LADS.Util.makeNamespace("LADS.TESTS");
         $('body').on('scroll', function(evt) {
             evt.preventDefault();
         });
+
 
         //window.location = 'js/RIN/web/reload-test.html';
         //window.location = 'js/RIN/web/test.html';

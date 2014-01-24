@@ -102,21 +102,7 @@
             evt.preventDefault();
         });
 
-<<<<<<< HEAD
-        $('#widthSlider').on('change', function(evt) {
-            var w = $(this).attr('value'),
-                h = 9/16 * w;
-            $('#tagWidth').text(w);
-            $('#tagContainer').css({
-                'width': w + 'px',
-                'height': h + 'px',
-		        'font-size': w/9.6 +'%'
-            });
-	     $('#brownPeople').fitText(5);
-        });
 
-=======
->>>>>>> f4ac5eebdfcb38c8439be5883ab4d84a59b4b1bc
         //window.location = 'js/RIN/web/reload-test.html';
         //window.location = 'js/RIN/web/test.html';
         //window.location = 'js/RIN/web/index.html';
