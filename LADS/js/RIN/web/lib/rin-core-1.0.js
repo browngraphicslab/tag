@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-01-10 */
+/*! RIN | http://research.microsoft.com/rin | 2014-01-23 */
 /*!
 * RIN Core JavaScript Library v1.0
 * http://research.microsoft.com/rin

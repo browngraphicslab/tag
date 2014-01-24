@@ -4,10 +4,11 @@
  * Player for RIN tours
  * @param tour         RIN tour in Javascript object (pre-parsed from JSON)
  * @param exhibition   exhibition we came from (if any) (doq object)
- * @param artworkPrev  
- * @param artwork
+ * @param artworkPrev  value is 'artmode' when we arrive here from the art viewer
+ * @param artwork      options to pass into LADS.Layout.Artmode
+ * @param tourObj      the tour doq object, so we can return to the proper tour in the collections screen
  */
-LADS.Layout.TourPlayer = function (tour, exhibition, artworkPrev, artwork) {
+LADS.Layout.TourPlayer = function (tour, exhibition, artworkPrev, artwork, tourObj) {
     "use strict";
 
     var tagContainer = $('#tagRoot');
@@ -27,24 +28,26 @@ LADS.Layout.TourPlayer = function (tour, exhibition, artworkPrev, artwork) {
         LADS.Util.UI.cgBackColor("backButton", backButton, true);
     });
 
-    backButton.on('click', function () {
+    backButton.on('click', goBack);
+
+    function goBack () {
         var artmode, catalog;
 
         backButton.off('click');
         player.pause();
+        player.screenplayEnded.unsubscribe();
         player.unload();
 
         if (artworkPrev && artwork) {
             artmode = new LADS.Layout.Artmode(artworkPrev, artwork, exhibition);
             LADS.Util.UI.slidePageRightSplit(root, artmode.getRoot());
         } else {
-            // TODO FIX THIS TO GO BACK TO CURRENT ARTWORK/EXHIBITION
-            catalog = new LADS.Layout.NewCatalog(exhibition);
+            catalog = new LADS.Layout.NewCatalog(tourObj, exhibition);
             LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot());           
         }
         // TODO: do we need this next line?
-        tagContainer.css({ 'font-size': '11pt', 'font-family': DEFAULT_FONT_FAMILY }); // Quick hack to fix bug where rin.css was overriding styles for body element -jastern 4/30
-    });
+        tagContainer.css({ 'font-size': '11pt', 'font-family': "'source sans pro regular' sans-serif" }); // Quick hack to fix bug where rin.css was overriding styles for body element -jastern 4/30
+    };
 
     return {
         getRoot: function () {
@@ -52,7 +55,7 @@ LADS.Layout.TourPlayer = function (tour, exhibition, artworkPrev, artwork) {
         },
         startPlayback: function () { // need to call this to ensure the tour will play when you exit and re-enter a tour, since sliding functionality and audio playback don't cooperate
             rin.processAll(null, 'js/RIN/web').then(function () {
-                var options = 'systemRootUrl=js/RIN/web/&autoplay=true&loop=true';
+                var options = 'systemRootUrl=js/RIN/web/&autoplay=true&loop=false';
                 // create player
                 player = rin.createPlayerControl(rinPlayer[0], options);
                 for (var key in tour.resources) {
@@ -64,6 +67,9 @@ LADS.Layout.TourPlayer = function (tour, exhibition, artworkPrev, artwork) {
                 }
                 player.loadData(tour, function () {
                     
+                });
+                player.screenplayEnded.subscribe(function() { // at the end of a tour, go back to the collections view
+                    setTimeout(goBack, 1000);
                 });
             });
         }

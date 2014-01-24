@@ -1,3 +1,22 @@
+#tagRoot a {
+  color: #26e;
+}
+#tagRoot img {
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+#tagRoot * {
+  font-family: 'source sans pro regular' sans-serif;
+}
+#tagRoot {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
 #tagRoot div,
 #tagRoot span {
   color: #eee;

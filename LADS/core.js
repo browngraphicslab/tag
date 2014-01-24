@@ -2,13 +2,99 @@
 (function () {
     "use strict";
 
-    window.onload = load;
+    load(); // window.load is done in the html file
 
     function load() {
+        var container;
+        if(containerId && $('#'+containerId).length > 0) {
+            container = $('#'+containerId);
+        } else {
+            container = $('body');
+        }
+        localStorage.ip = ip || 'browntagserver.com';
+        var tagRootContainer = $(document.createElement('div')).attr('id', 'tagRootContainer');
+        container.append(tagRootContainer);
+        var tagRootInnerContainer = $(document.createElement('div')).attr('id', 'tagRootInnerContainer');
+        tagRootContainer.append(tagRootInnerContainer);
+        var tagRoot = $(document.createElement('div')).attr('id', 'tagRoot');
+        tagRootInnerContainer.append(tagRoot);
+        var w = container.width();
+        var h = container.height();
+        var l = 0;
+        if(w/h > 16/9) {
+            l = (w - 16/9*h)/2;
+            w = 16/9 * h;
+        } else {
+            h = 9/16 * w;
+        }
+        // debugger;
+        tagRoot.css({
+            'font-size': w/9.6 + '%', // so font-size percentages for descendents work well
+            height: h + "px",
+            left: l + "px",
+            'max-width': w + "px",
+            'max-height': h + "px",
+            width: w + "px"
+        });
+
+        $('#widthSlider').on('change', function(evt) {
+            container.empty();
+            var w = $(this).attr('value');
+            $('#tagWidth').text(w);
+            container.css({
+                width: w + 'px',
+                // 'font-size': w/9.6 +'%'
+            });
+        });
+
+        $('#heightSlider').on('change', function(evt) {
+            container.empty();
+            var h = $(this).attr('value');
+            $('#tagHeight').text(h);
+            container.css({
+                height: h + "px"
+            });
+        });
+
+        $('#refreshTAGButton').on('click', function(evt) {
+            container.empty();
+            $('#refreshTAGButton').off('click');
+            $('#heightSlider').off('change');
+            $('#widthSlider').off('change');
+            $('[src="js/raphael.js"]').remove();
+            $('[src="js/tagInk.js"]').remove();
+            $('[src="js/RIN/web/lib/rin-core-1.0.js"]').remove();
+            $('[href="css/TAG.css"]').remove();
+            TAG('tagContainer');
+        });
+
         init();
     }
 
     function init() {
+
+        var UTILSCRIPTS = [
+                'js/raphael.js',
+                'js/tagInk.js',
+                'js/RIN/web/lib/rin-core-1.0.js'
+            ],
+            UTILPATH = '',
+            i,
+            oHead,
+            oScript,
+            oCss;
+
+        oHead = document.getElementsByTagName('head').item(0);
+        for (i = 0; i < UTILSCRIPTS.length; i++) {
+            oScript = document.createElement("script");
+            oScript.type = "text/javascript";
+            oScript.src = UTILPATH + UTILSCRIPTS[i];
+            oHead.appendChild(oScript);
+        }
+        oCss = document.createElement("link");
+        oCss.rel = "stylesheet";
+        oCss.href = "css/TAG.css";
+        oHead.appendChild(oCss);
 
         var tagContainer = $('#tagRoot') || $("body"); // TODO more general
 
@@ -16,17 +102,21 @@
             evt.preventDefault();
         });
 
+<<<<<<< HEAD
         $('#widthSlider').on('change', function(evt) {
             var w = $(this).attr('value'),
                 h = 9/16 * w;
             $('#tagWidth').text(w);
-            $('#tagRoot').css({
+            $('#tagContainer').css({
                 'width': w + 'px',
                 'height': h + 'px',
-		'font-size': w/9.6 +'%'
+		        'font-size': w/9.6 +'%'
             });
+	     $('#brownPeople').fitText(5);
         });
 
+=======
+>>>>>>> f4ac5eebdfcb38c8439be5883ab4d84a59b4b1bc
         //window.location = 'js/RIN/web/reload-test.html';
         //window.location = 'js/RIN/web/test.html';
         //window.location = 'js/RIN/web/index.html';

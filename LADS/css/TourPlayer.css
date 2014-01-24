@@ -8,6 +8,9 @@
   -o-user-select: none;
   user-select: none;
 }
+#tagRoot * {
+  font-family: 'source sans pro regular' sans-serif;
+}
 #tourRoot {
   left: 0px;
   overflow: hidden;
