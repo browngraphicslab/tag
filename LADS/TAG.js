@@ -44918,6 +44918,7 @@ LADS.Util.makeNamespace("LADS.TESTS");
         });
 
         $('#refreshTAGButton').on('click', function(evt) {
+            container.empty();
             $('#refreshTAGButton').off('click');
             $('#heightSlider').off('change');
             $('#widthSlider').off('change');
