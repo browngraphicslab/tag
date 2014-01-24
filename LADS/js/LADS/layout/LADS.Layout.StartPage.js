@@ -175,20 +175,21 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
                 nameSpanSize,
                 fontSizeSpan,
                 subheadingFont;
-            if (LADS.Util.elementInDocument(museumName)) {
-                subheadingFont = parseInt(museumLoc.css('font-size'), 10);
-                //here we are going to construct the function
-                nameDivSize = museumName.height();
-                fontSizeSpan = museumName.height();
-                museumNameSpan.css('font-size', nameDivSize + 'px');
-                nameSpanSize = museumNameSpan.height();
-                while (nameDivSize < nameSpanSize) {
-                    fontSizeSpan--;
-                    museumNameSpan.css('font-size', fontSizeSpan + 'px');
-                    nameSpanSize = museumNameSpan.height();
-                }
-                museumNameSpan.css('height', nameSpanSize);
-            }
+            
+            // if (LADS.Util.elementInDocument(museumName)) {
+            //     subheadingFont = parseInt(museumLoc.css('font-size'), 10);
+            //     //here we are going to construct the function
+            //     nameDivSize = museumName.height();
+            //     fontSizeSpan = museumName.height();
+            //     museumNameSpan.css('font-size', nameDivSize + 'px');
+            //     nameSpanSize = museumNameSpan.height();
+            //     while (nameDivSize < nameSpanSize) {
+            //         fontSizeSpan--;
+            //         museumNameSpan.css('font-size', fontSizeSpan + 'px');
+            //         nameSpanSize = museumNameSpan.height();
+            //     }
+            //     museumNameSpan.css('height', nameSpanSize);
+            // }
         }
         that.fixText = fixText;
 

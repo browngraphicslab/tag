@@ -1,4 +1,4 @@
-<!-- RIN | http://research.microsoft.com/rin | 2014-01-22 -->
+<!-- RIN | http://research.microsoft.com/rin | 2014-01-23 -->
 <script type="text/html" id="Controller.tmpl">
 <div class="rin_mainContainer selectDisable" tabindex="0">
     <div class="rin_Header" data-bind="visible: isHeaderVisible()">
@@ -26,6 +26,9 @@
                         <li>
                             <div class="rin_debugCurrentTime" data-bind="html: debugCurrentTime"></div>
                         </li>
+                        <!-- <li data-bind="visible: areShareButtonsVisible">
+                            <div class="rin_ShareControl" data-bind="template: { name: 'ShareControl.tmpl', foreach: shareLinks, as : 'share'}"></div>
+                        </li> -->
                         <li data-bind="visible: isVolumeVisible">
                             <div class="rin_VolumeControl" data-bind="stopBinding: true"></div>
                         </li>
@@ -59,7 +62,7 @@
 <input type="button" class="rin_Button" data-bind="css: {rin_Pause: isPlaying(), rin_Play: !isPlaying()}, click: playPauseEvent" />
 </script>
 <script type="text/html" id="ShareControl.tmpl">
-<!-- <div data-bind="attr: {class:shareControlClass, title: linkTitle},click: getDeepstate"></div> -->
+<div data-bind="attr: {class:shareControlClass, title: linkTitle},click: getDeepstate"></div>
 </script>
 <script type="text/html" id="TroubleShooter.tmpl">
 <div data-bind="visible: showControls">

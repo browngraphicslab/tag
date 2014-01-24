@@ -5,10 +5,42 @@
     window.onload = load;
 
     function load() {
+        var container;
+        if(containerId && $('#'+containerId).length > 0) {
+            container = $('#'+containerId);
+        } else {
+            container = $('body');
+        }
+        localStorage.ip = ip || 'browntagserver.com';
+        var tagRoot = $(document.createElement('div')).attr('id', 'tagRoot');
+        container.append(tagRoot);
         init();
     }
 
     function init() {
+
+        var UTILSCRIPTS = [
+                'js/raphael.js',
+                'js/tagInk.js',
+                'js/RIN/web/lib/rin-core-1.0.js'
+            ],
+            UTILPATH = '',
+            i,
+            oHead,
+            oScript,
+            oCss;
+
+        oHead = document.getElementsByTagName('head').item(0);
+        for (i = 0; i < UTILSCRIPTS.length; i++) {
+            oScript = document.createElement("script");
+            oScript.type = "text/javascript";
+            oScript.src = UTILPATH + UTILSCRIPTS[i];
+            oHead.appendChild(oScript);
+        }
+        oCss = document.createElement("link");
+        oCss.rel = "stylesheet";
+        oCss.href = "css/TAG.css";
+        oHead.appendChild(oCss);
 
         var tagContainer = $('#tagRoot') || $("body"); // TODO more general
 
@@ -20,10 +52,10 @@
             var w = $(this).attr('value'),
                 h = 9/16 * w;
             $('#tagWidth').text(w);
-            $('#tagRoot').css({
+            $('#tagContainer').css({
                 'width': w + 'px',
                 'height': h + 'px',
-		'font-size': w/9.6 +'%'
+		        'font-size': w/9.6 +'%'
             });
         });
 

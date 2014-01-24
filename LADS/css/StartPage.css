@@ -129,6 +129,7 @@
 }
 #startPageRoot #museumNameSpan {
   height: 100%;
+  font-size: 400%;
 }
 #startPageRoot #overlay {
   position: relative;

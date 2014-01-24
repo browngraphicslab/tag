@@ -6,7 +6,7 @@
     <title>Touch Art Gallery</title>
 
     <!-- STYLESHEETS -->
-    <link rel="stylesheet" href="js/jQueryUI/css/ui-darkness/jquerydarkness.css" />
+    <!-- <link rel="stylesheet" href="js/jQueryUI/css/ui-darkness/jquerydarkness.css" /> -->
     <!-- <link rel="stylesheet" href="css/default.css" /> -->
     <!-- <link rel="stylesheet" href="css/General.css" />
     <link rel="stylesheet" href="css/StartPage.css" />
@@ -16,16 +16,17 @@
     <link rel="stylesheet" href="css/VideoPlayer.css" />
     <link rel="stylesheet" href="css/Artmode.css" />
     <link rel="stylesheet" href="css/NewCatalog.css" /> -->
-    <link rel="stylesheet" href="css/TAG.css" />
+    <!-- <link rel="stylesheet" href="css/TAG.css" /> -->
 
     <!-- UTILSCRIPTS -->
+    
+    <!-- <script src='js/jQueryUI/js/jquery-1.7.1.js'></script>
+    // <script src='js/jQueryUI/js/jquery-ui-1.8.16.custom.min.js'></script>
+    // <script src='js/jQueryUI/js/jquery.available.min.js'></script>
+    // <script src='js/jQueryUI/js/jquery.fittext.js'></script>
+    // <script src='js/jQueryUI/js/jquery.autoSize.js'></script>
+    // <script src='js/jQueryUI/js/jquery.numeric.js'></script> -->
     <!--
-    <script src='js/jQueryUI/js/jquery-1.7.1.js'></script>
-    <script src='js/jQueryUI/js/jquery-ui-1.8.16.custom.min.js'></script>
-    <script src='js/jQueryUI/js/jquery.available.min.js'></script>
-    <script src='js/jQueryUI/js/jquery.fittext.js'></script>
-    <script src='js/jQueryUI/js/jquery.autoSize.js'></script>
-    <script src='js/jQueryUI/js/jquery.numeric.js'></script>
     <script src='js/raphael.js'></script>
     <script src='js/tagInk.js'></script>
 
@@ -100,8 +101,16 @@
 
     <!-- START THINGS UP -->
     <!-- <script src="core.js"></script> -->
-
+    
     <script src="TAG.js"></script>
+    <script>
+        window.onload = load;
+        TAG('tagContainer');
+        function load() {
+            //debugger;
+            
+        }
+    </script>
 </head>
 <body>
     <div id="currentTAGWidth" style="width:200px; display:inline-block;">
@@ -110,6 +119,7 @@
     400px <input id='widthSlider' type='range' min='400' max='1500' step='10' value='960' /> 1500px
     <br />
     <br />
-    <div id="tagRoot" style="position: relative; width: 960px; height: 540px; overflow: hidden;"></div>
+    <div id="tagContainer" style="position: relative; width: 960px; height: 540px"></div>
+    <!-- <div id="tagRoot" style="position: relative; width: 960px; height: 540px; overflow: hidden;"></div> -->
 </body>
 </html>

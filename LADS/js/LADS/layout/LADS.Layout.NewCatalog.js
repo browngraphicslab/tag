@@ -1009,7 +1009,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 switching = false;
                 return;
             }
-         rinPlayer = new LADS.Layout.TourPlayer(rinData, tour);//error here-in util, line 524
+         rinPlayer = new LADS.Layout.TourPlayer(rinData, currExhibition, null, null, tour);//error here-in util, line 524
 
             if (LADS.Util.Splitscreen.on()) {//if the splitscreen is on, exit it.
                 var parentid = root.parent().attr('id');

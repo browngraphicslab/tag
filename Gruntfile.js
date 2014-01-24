@@ -3,8 +3,8 @@ module.exports = function(grunt) {
 		concat: {
 			options: {
 				separator: '\n;\n',
-				banner: 'var TAG = (function(container, ip) {',
-				footer: '})();'
+				banner: 'var TAG = function(containerId, ip) {',
+				footer: '};'
 			},
 			dist: {
 				src: [
@@ -14,8 +14,8 @@ module.exports = function(grunt) {
 					'LADS/js/jQueryUI/js/jquery.fittext.js',
 					'LADS/js/jQueryUI/js/jquery.autoSize.js',
 					'LADS/js/jQueryUI/js/jquery.numeric.js',
-					'LADS/js/raphael.js',
-					'LADS/js/tagInk.js',
+					// 'LADS/js/raphael.js',
+					// 'LADS/js/tagInk.js',
 
 					'LADS/js/seadragon/src/Seadragon.Core.js',
 					'LADS/js/seadragon/src/Seadragon.Config.js',
@@ -60,7 +60,7 @@ module.exports = function(grunt) {
 					'LADS/js/utils/hashtable.js',
 					'LADS/js/d3/d3.v2.js',
 					'LADS/js/LADS/util/LADS.Util.js',
-					'LADS/js/RIN/web/lib/rin-core-1.0.js',
+					// 'LADS/js/RIN/web/lib/rin-core-1.0.js',
 					'LADS/js/html2canvas/html2canvas.js',
 					'LADS/js/utils/jquery.livequery.js',
 
@@ -114,7 +114,7 @@ module.exports = function(grunt) {
 						'LADS/css/NewCatalog.styl',
 						'LADS/css/VideoPlayer.styl',
 						'LADS/css/TourPlayer.styl',
-						'LADS/css/General.styl',
+						'LADS/css/General.styl'
 					]
 				}
 			}
@@ -135,8 +135,8 @@ module.exports = function(grunt) {
 			}
 		},
 		watch: {
-			files: ['LADS/html/*.jade', 'LADS/css/*.styl'],
-			tasks: ['stylus', 'jade']
+			files: ['LADS/html/*.jade', 'LADS/css/*.styl', 'LADS/js/LADS/layout/*.js', 'LADS/core.js'],
+			tasks: ['stylus', 'jade', 'concat']
 		}
 	});
 
@@ -146,5 +146,5 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jade');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 
-	grunt.registerTask('default', ['jade', 'stylus']);
+	grunt.registerTask('default', ['jade', 'stylus', 'concat']);
 }
