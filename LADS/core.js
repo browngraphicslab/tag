@@ -12,61 +12,9 @@
             container = $('body');
         }
         localStorage.ip = ip || 'browntagserver.com';
-        var tagRootContainer = $(document.createElement('div')).attr('id', 'tagRootContainer');
-        container.append(tagRootContainer);
-        var tagRootInnerContainer = $(document.createElement('div')).attr('id', 'tagRootInnerContainer');
-        tagRootContainer.append(tagRootInnerContainer);
         var tagRoot = $(document.createElement('div')).attr('id', 'tagRoot');
-        tagRootInnerContainer.append(tagRoot);
-        var w = container.width();
-        var h = container.height();
-        var l = 0;
-        if(w/h > 16/9) {
-            l = (w - 16/9*h)/2;
-            w = 16/9 * h;
-        } else {
-            h = 9/16 * w;
-        }
-        // debugger;
-        tagRoot.css({
-            'font-size': w/9.6 + '%', // so font-size percentages for descendents work well
-            height: h + "px",
-            left: l + "px",
-            'max-width': w + "px",
-            'max-height': h + "px",
-            width: w + "px"
-        });
-
-        $('#widthSlider').on('change', function(evt) {
-            container.empty();
-            var w = $(this).attr('value');
-            $('#tagWidth').text(w);
-            container.css({
-                width: w + 'px',
-                // 'font-size': w/9.6 +'%'
-            });
-        });
-
-        $('#heightSlider').on('change', function(evt) {
-            container.empty();
-            var h = $(this).attr('value');
-            $('#tagHeight').text(h);
-            container.css({
-                height: h + "px"
-            });
-        });
-
-        $('#refreshTAGButton').on('click', function(evt) {
-            container.empty();
-            $('#refreshTAGButton').off('click');
-            $('#heightSlider').off('change');
-            $('#widthSlider').off('change');
-            $('[src="js/raphael.js"]').remove();
-            $('[src="js/tagInk.js"]').remove();
-            $('[src="js/RIN/web/lib/rin-core-1.0.js"]').remove();
-            $('[href="css/TAG.css"]').remove();
-            TAG('tagContainer');
-        });
+	container.append(tagRoot);
+        
 
         init();
     }
@@ -102,7 +50,7 @@
             evt.preventDefault();
         });
 
-<<<<<<< HEAD
+
         $('#widthSlider').on('change', function(evt) {
             var w = $(this).attr('value'),
                 h = 9/16 * w;
@@ -115,8 +63,7 @@
 	     $('#brownPeople').fitText(5);
         });
 
-=======
->>>>>>> f4ac5eebdfcb38c8439be5883ab4d84a59b4b1bc
+
         //window.location = 'js/RIN/web/reload-test.html';
         //window.location = 'js/RIN/web/test.html';
         //window.location = 'js/RIN/web/index.html';

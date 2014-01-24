@@ -1195,18 +1195,8 @@
 #tagRoot {
   overflow: hidden;
   position: relative;
-}
-#tagRootContainer {
-  display: table;
-  position: absolute;
   width: 100%;
   height: 100%;
-}
-#tagRootInnerContainer {
-  display: table-cell;
-  max-height: 100%;
-  max-width: 100%;
-  vertical-align: middle;
 }
 #tagRoot div,
 #tagRoot span {
