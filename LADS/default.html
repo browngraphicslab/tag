@@ -117,8 +117,15 @@
     </div>
     400px <input id='widthSlider' type='range' min='400' max='1500' step='10' value='960' /> 1500px
     <br />
+    <div id="currentTAGHeight" style="width:200px; display:inline-block;">
+        Current TAG height: <span id="tagHeight">500</span>px
+    </div>
+    225px <input id='heightSlider' type='range' min='225' max='845' step='10' value='500' /> 845px
     <br />
-    <div id="tagContainer" style="position: relative; width: 960px; height: 540px"></div>
+    <button type="button" id="refreshTAGButton">Refresh TAG</button>
+    <br />
+    <br />
+    <div id="tagContainer" style="position: relative; width: 960px; height: 500px; border: 1px solid black;"></div>
     <!-- <div id="tagRoot" style="position: relative; width: 960px; height: 540px; overflow: hidden;"></div> -->
 </body>
 </html>
