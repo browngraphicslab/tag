@@ -30614,8 +30614,8 @@ d3.time.scale.utc = function() {
 })();
 
 ;
-var LADS = LADS || {};
-
+var LADS = LADS || {},
+    Worktop = Worktop || {};
 //LADS Utilities
 LADS.Util = (function () {
     "use strict";
@@ -31142,8 +31142,18 @@ LADS.Util = (function () {
         var parts = namespaceString.split('.'),
         parent = window,
         currentPart = '';
-
-        for (var i = 0, length = parts.length; i < length; i++) {
+         var k=0;
+	if(parts[0] === 'LADS') {
+	LADS = LADS || {};
+	parent = LADS;
+	k = 1;
+	} else if (parts[0] === 'Worktop') {
+	Worktop = Worktop || {};
+	parent = Worktop;
+	k = 1;
+	}
+ 
+	for (var i = k, length = parts.length; i < length; i++) {
             currentPart = parts[i];
             parent[currentPart] = parent[currentPart] || {};
             parent = parent[currentPart];
