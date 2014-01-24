@@ -57,6 +57,7 @@
                 'height': h + 'px',
 		        'font-size': w/9.6 +'%'
             });
+	     $('#brownPeople').fitText(5);
         });
 
         //window.location = 'js/RIN/web/reload-test.html';

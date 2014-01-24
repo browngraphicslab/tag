@@ -175,21 +175,21 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
                 nameSpanSize,
                 fontSizeSpan,
                 subheadingFont;
-            
-            // if (LADS.Util.elementInDocument(museumName)) {
-            //     subheadingFont = parseInt(museumLoc.css('font-size'), 10);
-            //     //here we are going to construct the function
-            //     nameDivSize = museumName.height();
-            //     fontSizeSpan = museumName.height();
-            //     museumNameSpan.css('font-size', nameDivSize + 'px');
-            //     nameSpanSize = museumNameSpan.height();
-            //     while (nameDivSize < nameSpanSize) {
-            //         fontSizeSpan--;
-            //         museumNameSpan.css('font-size', fontSizeSpan + 'px');
-            //         nameSpanSize = museumNameSpan.height();
-            //     }
-            //     museumNameSpan.css('height', nameSpanSize);
-            // }
+            if (LADS.Util.elementInDocument(museumName)) {
+                subheadingFont = parseInt(museumLoc.css('font-size'), 10);
+                //here we are going to construct the function
+                nameDivSize = museumName.height();
+                fontSizeSpan = museumName.height();
+		/*                
+		museumNameSpan.css('font-size', nameDivSize + 'px');
+                nameSpanSize = museumNameSpan.height();
+                while (nameDivSize < nameSpanSize) {
+                    fontSizeSpan--;
+                    museumNameSpan.css('font-size', fontSizeSpan + 'px');
+                    nameSpanSize = museumNameSpan.height();
+                }*/
+                museumNameSpan.css('height', nameSpanSize);
+            }
         }
         that.fixText = fixText;
 
@@ -202,14 +202,15 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             tempInfo = "";
         }
         museumInfoSpan.text(tempInfo);
-
+	
+	/*
         var loadedInterval = setInterval(function () { // TODO must be a better way...
             if (LADS.Util.elementInDocument(museumInfoDiv)) {
                 var subheadingFont = parseInt(museumLoc.css('font-size'), 10);
                 LADS.Util.UI.fitTextInDiv(museumInfoSpan, Math.round(subheadingFont * 2 / 3), Math.round(subheadingFont * 1 / 3));
                 clearInterval(loadedInterval);
             }
-        });
+        });*/
 
         infoTextHolder = root.find('#infoTextHolder');
 
@@ -228,7 +229,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         touchHint = root.find('#touchHint');
 
         handGif = root.find('#handGif');
-        LADS.Util.fitText(touchHint, 2);
+        //LADS.Util.fitText(touchHint, 2);
 
         handGif.onclick = switchPage;
 

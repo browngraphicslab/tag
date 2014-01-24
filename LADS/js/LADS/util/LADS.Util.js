@@ -1,5 +1,4 @@
-﻿var LADS = LADS || {},
-    Worktop = Worktop || {};
+﻿var LADS = LADS || {};
 
 //LADS Utilities
 LADS.Util = (function () {
@@ -527,18 +526,8 @@ LADS.Util = (function () {
         var parts = namespaceString.split('.'),
         parent = window,
         currentPart = '';
-        var k=0;
-        if(parts[0] === 'LADS') {
-            LADS = LADS || {};
-            parent = LADS;
-            k = 1;
-        } else if (parts[0] === 'Worktop') {
-            Worktop = Worktop || {};
-            parent = Worktop;
-            k = 1;
-        }
 
-        for (var i = k, length = parts.length; i < length; i++) {
+        for (var i = 0, length = parts.length; i < length; i++) {
             currentPart = parts[i];
             parent[currentPart] = parent[currentPart] || {};
             parent = parent[currentPart];
@@ -1501,10 +1490,10 @@ LADS.Util.UI = (function () {
         });
         serverDialog.css({
             position: 'absolute',
-            left: serverDialogSpecs.x + 'px',
-            top: serverDialogSpecs.y + 'px',
-            width: serverDialogSpecs.width + 'px',
-            height: serverDialogSpecs.height + 'px',
+            left: '25%',//serverDialogSpecs.x + 'px',
+            top: '24%',//serverDialogSpecs.y + 'px',
+            width: '50%',   //serverDialogSpecs.width + 'px',
+            height: '50%',   //serverDialogSpecs.height + 'px',
             border: '3px double white',
             'background-color': 'black',
         });
@@ -1532,8 +1521,10 @@ LADS.Util.UI = (function () {
             margin: 'auto',
             'margin-bottom': '1%',
             'width': '60%',
+	    'height':'10%',
             'position':'relative',
-            'top':'15%'
+            'top':'15%',
+	    'font-size':'100%'
         });
         serverDialogInput.val(localStorage.ip);
         serverDialogInput.focus(function () {
@@ -1547,7 +1538,7 @@ LADS.Util.UI = (function () {
         });
 
         var serverDialogContact = $(document.createElement('div'));
-        serverDialogContact.css({ 'margin-top': '7%' , 'color':'white','margin-left': '10%'  });
+        serverDialogContact.css({ 'margin-top': '10%' , 'color':'white','margin-left': '10%'  });
         serverDialogContact.html(
             "Contact us for server setup at <a href='mailto:brown.touchartgallery@outlook.com'>brown.touchartgallery@outlook.com</a>."
         );
@@ -1560,19 +1551,19 @@ LADS.Util.UI = (function () {
         serverDialog.append(serverButtonRow);
         var serverSaveButton = $(document.createElement('button'));
         serverSaveButton.css({
-            'padding': '1%', 'border': '1px solid white', 'width': 'auto', 'position': 'relative', 'margin-top': '1%', 'float': "left", 'margin-left':'7%' 
+            'padding': '1%', 'border': '1px solid white', 'width': '12%','height':'3%' ,'position': 'relative','margin-top': '1%', 'float': "left", 'margin-left':'7%' ,'font-size':'90%','bottom':'1%'
         });
         serverSaveButton.text('Save');
         var serverErrorMessage = $(document.createElement('div'));
         serverErrorMessage.attr('id', 'serverErrorMessage');
         serverErrorMessage.css({
-            color: 'white',
-            'margin-bottom': '10px',
+            'color': 'white',
             'left': '10%',
             'width': '80%',
+	    'height':'10%',
             'text-align': 'center',
-            'bottom': '30%',
-            'position': 'absolute',
+            'bottom': '10%',
+            'position': 'relative',
         });
 
         serverErrorMessage.html('Could not connet to the specified address. Please try again.');
@@ -1581,7 +1572,7 @@ LADS.Util.UI = (function () {
 
         var serverCancelButton = $(document.createElement('button'));
         serverCancelButton.css({
-            'padding': '1%', 'border': '1px solid white', 'width': 'auto', 'position': 'relative', 'margin-top': '1%', 'float': "right", 'margin-right': '7%'
+            'padding': '1%', 'border': '1px solid white', 'width': '12%','height':'3%', 'position': 'relative', 'margin-top': '1%', 'float': "right", 'margin-right': '7%','font-size':'90%','bottom':'1%'
         });
         serverCancelButton.text('Cancel');
         serverCancelButton.attr('type', 'button');
