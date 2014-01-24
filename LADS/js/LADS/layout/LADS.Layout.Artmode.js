@@ -38,7 +38,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
     *initiate artmode with a root, artwork image and a sidebar on the left.
     */
     function init() {
-        root = LADS.Util.getHtmlAjax('artmode.html');
+        root = LADS.Util.getHtmlAjax('Artmode.html');
         root.data('split', options.split);
         //get the artwork
         if (doq) {

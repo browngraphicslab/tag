@@ -7,7 +7,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     
     options.tagContainer = $("#tagRoot"); // TODO more general
 
-    var root = LADS.Util.getHtmlAjax('startPage.html'), // use AJAX to load html from .html file
+    var root = LADS.Util.getHtmlAjax('StartPage.html'), // use AJAX to load html from .html file
         overlay = root.find('#overlay'),
         serverTagBuffer = root.find('#serverTagBuffer'),
         serverSetUpContainer = root.find('#serverSetUpContainer'),

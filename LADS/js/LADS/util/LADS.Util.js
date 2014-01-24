@@ -1292,7 +1292,7 @@ LADS.Util = (function () {
                 ret = $(data);
             },
             error: function (err) {
-                console.log("url = " + htmlDir + path);
+                console.log("url = " + path);
                 console.log("error: "+err.statusText);
                 ret = null;
             },
