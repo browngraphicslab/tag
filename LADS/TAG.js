@@ -44863,7 +44863,7 @@ LADS.Util.makeNamespace("LADS.TESTS");
 (function () {
     "use strict";
 
-    window.onload = load;
+    load(); // window.load is done in the html file
 
     function load() {
         var container;
