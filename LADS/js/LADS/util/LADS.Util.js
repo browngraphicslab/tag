@@ -550,8 +550,12 @@ LADS.Util = (function () {
         maxWidth: The maximum width the text should be.
         maxHeight: The maximum height the text should be.
         step: Optional.  The step to increment by when testing font size.
-*/
+    */
     function getMaxFontSizeEM(text, minFontSize, maxWidth, maxHeight, step) {
+        console.log('getting max font size.....');
+        if (!text) {
+            return;
+        }
         var testDiv = $(document.createElement('div'));
         var tagContainer = $('#'+tagContainerId) || $('body');
         step = step || 0.1;
@@ -564,6 +568,7 @@ LADS.Util = (function () {
             'width': 'auto',
             'font-size': minFontSize + 'em',
         });
+
         testDiv.text(text);
         tagContainer.append(testDiv);
 
