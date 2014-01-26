@@ -293,6 +293,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
         toAdd.click(function () {
             console.log('clicked');
+            console.log('clicking');
             //put this all in diff func and call in constructor 
             for (var i = 0; i < exhibitelements.length; i++) {
                 // prevents animation if exhibit is already selected
