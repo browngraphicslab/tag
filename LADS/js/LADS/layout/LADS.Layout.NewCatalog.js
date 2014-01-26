@@ -117,14 +117,14 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         });
 
         searchTxt.css({
-            'font-size': $(container).height() * 0.015 + 'px',
+            'font-size': '80%'
         });
 
         //The search and filter begins here.
         search.attr("placeholder", "Enter Keyword").blur();
         search.css({
             'max-height': $(row).height()*0.75 + '%',
-            'font-size': $(container).height() * 0.014 + 'px',
+            'font-size': '80%'
         });
         
         // the following mousedown and mouseup handlers deal with clicking the 'X' in the search box
@@ -174,9 +174,9 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         });
 
         // Labels (Exhibition)
-        var fontSize = LADS.Util.getMaxFontSizeEM('Collections', 2.5, $(container).width() * 0.085, 1000, 0.2);
+        //var fontSize = LADS.Util.getMaxFontSizeEM('Collections', 2.5, $(container).width() * 0.085, 1000, 0.2);
         exhibitionLabel.css({
-            'font-size': fontSize,
+            'font-size': '2.1em',
             'display': (!forSplitscreen && !LADS.Util.Splitscreen.on()) ? 'display' : 'none'
         });
 
@@ -269,10 +269,11 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
         toAdd.append(titleBox);
         var size = 0.096 * 0.45 * $(window).height();
-        var exhibTitleSize = LADS.Util.getMaxFontSizeEM('W', 0.25, 9999, size * 0.85, 0.1);
+        
+        // var exhibTitleSize = LADS.Util.getMaxFontSizeEM('W', 0.25, 9999, size * 0.85, 0.1);
 
         titleBox.css({
-            "font-size": exhibTitleSize,            
+            "font-size": '1.4em' //exhibTitleSize,            
         });
 
         exLabels.push(toAdd);
@@ -280,20 +281,16 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         toAdd.attr('flagClicked', 'false');
         toAdd.attr('id', 'exhib-' + exhibition.Identifier);
         toAdd.mousedown(function () {
-            console.log('mouse down');
             $(this).css({ 'background-color': 'white', 'color': 'black' });
             titleBox.css({'color': 'black'});
         });
         toAdd.mouseleave(function () {
-            console.log('mouse leave');
             if ($(this).attr('flagClicked') == 'false') {
                 $(this).css({ 'background-color': 'transparent', 'color': 'white' });
             }             
         });
 
         toAdd.click(function () {
-            console.log('clicked');
-            console.log('clicking');
             //put this all in diff func and call in constructor 
             for (var i = 0; i < exhibitelements.length; i++) {
                 // prevents animation if exhibit is already selected
