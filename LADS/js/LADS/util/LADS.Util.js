@@ -560,8 +560,12 @@ LADS.Util = (function () {
         maxWidth: The maximum width the text should be.
         maxHeight: The maximum height the text should be.
         step: Optional.  The step to increment by when testing font size.
-*/
+    */
     function getMaxFontSizeEM(text, minFontSize, maxWidth, maxHeight, step) {
+        console.log('getting max font size.....');
+        if (!text) {
+            return;
+        }
         var testDiv = $(document.createElement('div'));
         var tagContainer = $('#'+tagContainerId) || $('body');
         step = step || 0.1;
@@ -574,6 +578,7 @@ LADS.Util = (function () {
             'width': 'auto',
             'font-size': minFontSize + 'em',
         });
+
         testDiv.text(text);
         tagContainer.append(testDiv);
 
@@ -1697,10 +1702,10 @@ LADS.Util.UI = (function () {
 		var leftPos = ($('#tagRoot').width() - feedbackBoxSpecs.width) * 0.5;
         $(feedbackBox).css({
             position: 'absolute',
-            left: leftPos + 'px',
-            top: feedbackBoxSpecs.y + 'px',
-            width: feedbackBoxSpecs.width + 'px',
-            height: feedbackBoxSpecs.height + 'px',
+            left: '20%', //leftPos + 'px',
+            top: '25%', // feedbackBoxSpecs.y + 'px',
+            width: '62%', // feedbackBoxSpecs.width + 'px',
+            height: '45%', // feedbackBoxSpecs.height + 'px',
             border: '3px double white',
             'background-color': 'black',
 
@@ -1723,7 +1728,7 @@ LADS.Util.UI = (function () {
             'text-align': 'left',
             'color': 'white',
             'position': 'absolute',
-
+            'font-size': '100%'
         });
 
         var commentBox = $(document.createElement('textarea'));
@@ -1733,10 +1738,10 @@ LADS.Util.UI = (function () {
             'color': 'gray',
             'position': 'relative',
             'min-width': 0,
-           'left': '9%',
-        'top': '7%',
-        'width': '77%',
-        'height': '30%'
+            'left': '9%',
+            'top': '12%',
+            'width': '77%',
+            'height': '30%'
 
 
         });
@@ -1750,7 +1755,7 @@ LADS.Util.UI = (function () {
             'position': 'relative',
             'width': '80%',
             'left': '10%',
-            'bottom': '-68%',
+            'bottom': '-74%',
             'display': 'inline-block'
         });
         var submitButton = $(document.createElement('button'));
