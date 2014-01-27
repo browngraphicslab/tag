@@ -1091,7 +1091,9 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
         feedbackContainer.click(makeFeedback);
         function makeFeedback() {
-            $(feedbackBox).css({ 'display': 'block' });
+            $(feedbackBox).css({ 
+                'display': 'block'
+            });
         }
 
         return feedbackContainer;
