@@ -31176,8 +31176,12 @@ LADS.Util = (function () {
         maxWidth: The maximum width the text should be.
         maxHeight: The maximum height the text should be.
         step: Optional.  The step to increment by when testing font size.
-*/
+    */
     function getMaxFontSizeEM(text, minFontSize, maxWidth, maxHeight, step) {
+        console.log('getting max font size.....');
+        if (!text) {
+            return;
+        }
         var testDiv = $(document.createElement('div'));
         var tagContainer = $('#'+tagContainerId) || $('body');
         step = step || 0.1;
@@ -31190,6 +31194,7 @@ LADS.Util = (function () {
             'width': 'auto',
             'font-size': minFontSize + 'em',
         });
+
         testDiv.text(text);
         tagContainer.append(testDiv);
 
@@ -32313,10 +32318,10 @@ LADS.Util.UI = (function () {
 		var leftPos = ($('#tagRoot').width() - feedbackBoxSpecs.width) * 0.5;
         $(feedbackBox).css({
             position: 'absolute',
-            left: leftPos + 'px',
-            top: feedbackBoxSpecs.y + 'px',
-            width: feedbackBoxSpecs.width + 'px',
-            height: feedbackBoxSpecs.height + 'px',
+            left: '20%', //leftPos + 'px',
+            top: '25%', // feedbackBoxSpecs.y + 'px',
+            width: '62%', // feedbackBoxSpecs.width + 'px',
+            height: '45%', // feedbackBoxSpecs.height + 'px',
             border: '3px double white',
             'background-color': 'black',
 
@@ -32339,7 +32344,7 @@ LADS.Util.UI = (function () {
             'text-align': 'left',
             'color': 'white',
             'position': 'absolute',
-
+            'font-size': '100%'
         });
 
         var commentBox = $(document.createElement('textarea'));
@@ -32349,10 +32354,10 @@ LADS.Util.UI = (function () {
             'color': 'gray',
             'position': 'relative',
             'min-width': 0,
-           'left': '9%',
-        'top': '7%',
-        'width': '77%',
-        'height': '30%'
+            'left': '9%',
+            'top': '12%',
+            'width': '77%',
+            'height': '30%'
 
 
         });
@@ -32366,7 +32371,7 @@ LADS.Util.UI = (function () {
             'position': 'relative',
             'width': '80%',
             'left': '10%',
-            'bottom': '-68%',
+            'bottom': '-74%',
             'display': 'inline-block'
         });
         var submitButton = $(document.createElement('button'));
@@ -43355,14 +43360,14 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         });
 
         searchTxt.css({
-            'font-size': $(container).height() * 0.015 + 'px',
+            'font-size': '80%'
         });
 
         //The search and filter begins here.
         search.attr("placeholder", "Enter Keyword").blur();
         search.css({
             'max-height': $(row).height()*0.75 + '%',
-            'font-size': $(container).height() * 0.014 + 'px',
+            'font-size': '80%'
         });
         
         // the following mousedown and mouseup handlers deal with clicking the 'X' in the search box
@@ -43412,9 +43417,9 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         });
 
         // Labels (Exhibition)
-        var fontSize = LADS.Util.getMaxFontSizeEM('Collections', 2.5, $(container).width() * 0.085, 1000, 0.2);//2.5
+        //var fontSize = LADS.Util.getMaxFontSizeEM('Collections', 2.5, $(container).width() * 0.085, 1000, 0.2);
         exhibitionLabel.css({
-            'font-size': fontSize,
+            'font-size': '2.1em',
             'display': (!forSplitscreen && !LADS.Util.Splitscreen.on()) ? 'display' : 'none'
         });
 
@@ -43507,10 +43512,11 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
         toAdd.append(titleBox);
         var size = 0.096 * 0.45 * $(window).height();
-        var exhibTitleSize = LADS.Util.getMaxFontSizeEM('W', 0.25, 9999, size * 0.85, 0.1);
+        
+        // var exhibTitleSize = LADS.Util.getMaxFontSizeEM('W', 0.25, 9999, size * 0.85, 0.1);
 
         titleBox.css({
-            "font-size": exhibTitleSize,            
+            "font-size": '1.4em' //exhibTitleSize,            
         });
 
         exLabels.push(toAdd);
@@ -43519,10 +43525,12 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         toAdd.attr('id', 'exhib-' + exhibition.Identifier);
         toAdd.mousedown(function () {
             $(this).css({ 'background-color': 'white', 'color': 'black' });
+            titleBox.css({'color': 'black'});
         });
         toAdd.mouseleave(function () {
-            if ($(this).attr('flagClicked') == 'false')
+            if ($(this).attr('flagClicked') == 'false') {
                 $(this).css({ 'background-color': 'transparent', 'color': 'white' });
+            }             
         });
 
         toAdd.click(function () {
@@ -43533,9 +43541,11 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                     exhibitelements[i].css({ 'background-color': 'transparent', 'color': 'white' });
                     exhibitelements[i].data("selected", false);
                     exhibitelements[i].attr('flagClicked', 'false');
+                    exhibitelements[i].children().css({'color': 'white'});
                 }
             }
             $(this).attr('flagClicked', 'true');
+            titleBox.css({'color': 'black'});
             currExhibition = exhibition;
             currentImage = null;
             loadExhibit.call(toAdd, currExhibition);
@@ -43627,17 +43637,15 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         contentdiv.attr('id', 'contentdiv');
         contentdiv.css({
             'width': '94%', 
-            'height': (display.height()-titlediv.height()-20)+"px",
+            'height': '80%', //(display.height()-titlediv.height()-20)+"px",
         });
         display.append(contentdiv);
 
-        var w = .40 * contentdiv.width();
-        var h = w / 1.4;
         imgDiv = $(document.createElement('div'));
         imgDiv.attr('id', 'img-container');
         imgDiv.css({       
-            height: h,
-            width:w,
+            height: '91.5%', 
+            width: '40%', 
             position: 'absolute',
             top: '0%',
         });
@@ -43684,13 +43692,13 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         artistInfo = $(document.createElement('div'));
         artistInfo.attr('id', 'artistInfo');
         artistInfo.css({
-            'font-size': $(container).height() * 0.02 + 'px',
+            'font-size': '0.65em' 
         });
 
         yearInfo = $(document.createElement('div'));
         yearInfo.attr('id', 'yearInfo');
         yearInfo.css({
-            'font-size': $(container).height() * 0.02 + 'px',
+            'font-size': '0.65em' 
         });
 
         moreInfo.append(artistInfo);
@@ -43709,19 +43717,23 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         
 
         var h1 = $(display).height() * 0.9;
-        var w1 = h1 * 1.4;
 
         descriptiontext = $(document.createElement('div'));
         descriptiontext.attr('id', 'description-text');
-        descriptiontext.css({
-            'font-size': h1*0.055 + 'px',
-        });
 
         var str;
-        if (exhibition.Metadata.Description)
+        if (exhibition.Metadata.Description) {
             str = exhibition.Metadata.Description.replace(/\n\r?/g, '<br />');
-        else
+        } else {
             str = "";
+        }
+        
+        descriptiontext.css({
+            'height': '91.5%',
+            'width': '55%', 
+            'font-size': 0.2 * LADS.Util.getMaxFontSizeEM(exhibition.Metadata.Description, 1.5, .55 * $(contentdiv).width(), 0.915 * $(contentdiv).height(), 0.1), // h1*0.055 + 'px',
+        });
+           
         descriptiontext.html(str);
         contentdiv.append(descriptiontext);
         var circle = LADS.Util.showProgressCircle(descriptiontext, progressCircCSS, '0px', '0px', false);
@@ -43885,12 +43897,13 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         return function () {
             var main = $(document.createElement('div'));
             main.addClass("tile");
+            //if (i >= 2) return;
             main.css({
-                'height': h + "px",
-                'width': w + "px",
+                'height': '48%', 
+                'width': '16%', 
                 'position': 'absolute',
-                'margin-left': parseInt(i / 2) * w * 1.03 + 10 + "px",
-                'margin-top': (i % 2) * h * 1.05 + "px",
+                'margin-left': parseInt(i / 2) * 16.5 + 1 + '%', // (parseInt(i / 2) * $(timelineDiv).width() * 0.16 * 1.03) + 10 + "px",
+                'margin-top': (i % 2) * 12.25 + '%', // ((i % 2) * $(timelineDiv).height() * 0.48 * 1.05) + "px",
                 'border': '1px solid black',
             });
 
@@ -43905,10 +43918,18 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             var tourLabel = $(document.createElement('img'));
             tourLabel.attr('id', 'tourLabel');
             tourLabel.attr('src', 'images/icons/catalog_tour_icon.svg');
+            tourLabel.css({
+                'height': '50%', 
+                'width': '36%', 
+            });
 
             var videoLabel = $(document.createElement('img'));
             videoLabel.attr('id', 'videoLabel');
             videoLabel.attr('src', 'images/icons/catalog_video_icon.svg');
+            videoLabel.css({
+                'height': '50%', 
+                'width': '36%', 
+            });
 
             var image = $(document.createElement('img'));
             image.attr("src", LADS.Worktop.Database.fixPath(currentWork.Metadata.Thumbnail));
@@ -43926,18 +43947,20 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             var artTitle = $(document.createElement('div'));
             artTitle.attr('id', 'artTitle');
             artTitle.css({
-                'width': specs.width + 'px',
-                'height': specs.height + 'px',
+                'width': '100.5%', 
+                'height': '20%', 
             });
 
             // text div for artwork
             var artText = $(document.createElement('div'));
             artText.attr('id', 'artText');
             artText.css({
-                'font-size': ($(artTitle).height() * 0.55) + "px",
+                'font-size': '0.6em', // ($(artTitle).height() * 0.55) + "px",
             });
 
-            if (tag === 'Title') artText.text(LADS.Util.htmlEntityDecode(currentWork.Name));
+            if (tag === 'Title') {
+                artText.text(LADS.Util.htmlEntityDecode(currentWork.Name));
+            }
             else if (tag === 'Artist') artText.text(currentWork.Type === 'Empty' ? '(Interactive Tour)' : currentWork.Metadata.Artist);
             else if (tag === 'Year') artText.text(currentWork.Type === 'Empty' ? '(Interactive Tour)' : currentWork.Metadata.Year);
             else if (tag === 'Type') artText.text(LADS.Util.htmlEntityDecode(currentWork.Name));
@@ -43998,8 +44021,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                             .text(LADS.Util.htmlEntityDecode(artwork.Name))
                             .attr('id', 'titleSpan')
                             .css({
-                                'font-size': ($(container).height() * 0.035) + "px",
-                                'height': ($(container).height() * 0.08) + "px",
+                                'height': '14.5%'
                             });
             
             var descSpan = $(document.createElement('div'))
@@ -44312,7 +44334,9 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
         feedbackContainer.click(makeFeedback);
         function makeFeedback() {
-            $(feedbackBox).css({ 'display': 'block' });
+            $(feedbackBox).css({ 
+                'display': 'block'
+            });
         }
 
         return feedbackContainer;

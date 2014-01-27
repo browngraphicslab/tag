@@ -59,7 +59,7 @@
   font-size: 90%;
   left: 20%;
   position: absolute;
-  top: 60%;
+  top: 63%;
 }
 #startPageRoot #handGif {
   float: right;
@@ -152,7 +152,7 @@
 }
 #startPageRoot #serverSetUpLabel {
   color: #fff;
-  font-size: 115%;
+  font-size: 105%;
   position: relative;
   text-align: center;
   top: 8%;
@@ -176,7 +176,7 @@
   font-size: 200%;
   left: 20%;
   position: absolute;
-  top: 10%;
+  top: 8%;
 }
 #startPageRoot #touchHint {
   color: #fff;
@@ -906,7 +906,7 @@
 }
 #newCatalogRoot #row {
   background-color: rgba(0,0,0,0.5);
-  height: 12%;
+  height: 12.5%;
   position: relative;
   top: 0%;
   width: 100%;
