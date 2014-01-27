@@ -41701,7 +41701,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     
     options.tagContainer = $("#tagRoot"); // TODO more general
 
-    var root = LADS.Util.getHtmlAjax('startPage.html'), // use AJAX to load html from .html file
+    var root = LADS.Util.getHtmlAjax('StartPage.html'), // use AJAX to load html from .html file
         overlay = root.find('#overlay'),
         serverTagBuffer = root.find('#serverTagBuffer'),
         serverSetUpContainer = root.find('#serverSetUpContainer'),
@@ -42019,7 +42019,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
     *initiate artmode with a root, artwork image and a sidebar on the left.
     */
     function init() {
-        root = LADS.Util.getHtmlAjax('artmode.html');
+        root = LADS.Util.getHtmlAjax('Artmode.html');
         root.data('split', options.split);
         //get the artwork
         if (doq) {
@@ -44874,9 +44874,17 @@ LADS.Util.makeNamespace("LADS.TESTS");
         if(containerId && $('#'+containerId).length > 0) {
             container = $('#'+containerId);
         } else {
-            container = $('body');
+            console.log('no containerId specified, or the containerId does not match an element');
+            return; // no TAG for you
         }
         localStorage.ip = ip || 'browntagserver.com';
+
+        var positioning = container.css('position');
+        if(positioning !== 'relative' && positioning !== 'absolute') {
+            container.css('position', 'relative');
+        }
+
+
         var tagRootContainer = $(document.createElement('div')).attr('id', 'tagRootContainer');
         container.append(tagRootContainer);
         var tagRootInnerContainer = $(document.createElement('div')).attr('id', 'tagRootInnerContainer');

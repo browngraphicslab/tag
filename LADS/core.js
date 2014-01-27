@@ -9,9 +9,17 @@
         if(containerId && $('#'+containerId).length > 0) {
             container = $('#'+containerId);
         } else {
-            container = $('body');
+            console.log('no containerId specified, or the containerId does not match an element');
+            return; // no TAG for you
         }
         localStorage.ip = ip || 'browntagserver.com';
+
+        var positioning = container.css('position');
+        if(positioning !== 'relative' && positioning !== 'absolute') {
+            container.css('position', 'relative');
+        }
+
+
         var tagRootContainer = $(document.createElement('div')).attr('id', 'tagRootContainer');
         container.append(tagRootContainer);
         var tagRootInnerContainer = $(document.createElement('div')).attr('id', 'tagRootInnerContainer');
