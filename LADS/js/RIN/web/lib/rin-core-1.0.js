@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-01-23 */
+/*! RIN | http://research.microsoft.com/rin | 2014-01-29 */
 /*!
 * RIN Core JavaScript Library v1.0
 * http://research.microsoft.com/rin
@@ -7912,7 +7912,7 @@ window.rin = window.rin || {};
             isPlayerReady = ko.observable(false),
             isHeaderVisible = ko.observable(false),
             isPlayPauseVisible = ko.observable(true),
-            isInteractiveControlVisible = ko.observable(true),
+            isInteractiveControlVisible = ko.observable(false),
             isRightContainerVisible = ko.observable(true),
             areShareButtonsVisible = ko.observable(true),
             isVolumeVisible = ko.observable(true),
