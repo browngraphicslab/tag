@@ -208,11 +208,11 @@
   font-family: 'source sans pro regular' sans-serif;
 }
 #InternetFailureroot {
-  background-color: #fff;
+  background-color: #324b6b;
   color: #000;
   width: 100%;
   height: 100%;
-  position: fixed;
+  position: relative;
   left: 0px;
   top: 0px;
   z-index: 1000000000;
@@ -228,7 +228,7 @@
 #InternetFailureroot #noticeBox {
   width: 50%;
   height: 21%;
-  top: 40%;
+  top: 30%;
   right: 25%;
   position: absolute;
   background-color: #324b6b;
@@ -238,6 +238,12 @@
   font-size: 30px;
   left-margin: 4%;
   width: 96%;
+}
+#InternetFailureroot #reconnectButton,
+font-size: 150%,
+position: relative,
+left: 50% {
+  top: 5%;
 }
 
 #tagRoot a {
@@ -694,7 +700,7 @@
   height: 5%;
   left: 3.5%;
   position: absolute;
-  top: 1%;
+  top: 7.4%;
   width: 15%;
 }
 #newCatalogRoot	#bgimage {
@@ -708,8 +714,8 @@
 #newCatalogRoot #catalogBackButton {
   height: auto;
   position: relative;
-  top: 28%;
-  width: 73.5%;
+  top: 30%;
+  width: 76.3%;
 }
 #newCatalogRoot #contentdiv {
   left: 3%;
@@ -781,6 +787,7 @@
   height: 7%;
   left: 19%;
   margin-left: 1.22%;
+  padding: 0px 0px 0px 20px;
   position: absolute;
   top: 2.5%;
   text-align: center;
@@ -889,7 +896,6 @@
   height: 5%;
   margin-bottom: 15%;
   overflow: hide;
-  padding-left: 60px;
   width: 100%;
 }
 #newCatalogRoot #loadingArea {
@@ -1154,7 +1160,7 @@
   height: 100%;
 }
 #tourRoot #backButton {
-  height: auto;
+  height: 100%;
   position: absolute;
   width: 100%;
   z-index: 100000000;
