@@ -1,9 +1,0 @@
-C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ImageManipulationLib\bin\Debug\ZoomableCanvas.dll
-C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ImageManipulationLib\bin\Debug\ClassLibrary1.dll
-C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ImageManipulationLib\bin\Debug\ClassLibrary1.pdb
-C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ImageManipulationLib\bin\Debug\DeepZoom.dll
-C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ImageManipulationLib\bin\Debug\DeepZoomTools.DLL
-C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ImageManipulationLib\bin\Debug\DeepZoom.pdb
-C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ImageManipulationLib\obj\Debug\ResolveAssemblyReference.cache
-C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ImageManipulationLib\obj\Debug\ClassLibrary1.dll
-C:\LADS2_ServerAuthoring-Yuting&mme\ServerAuthoringApp\ImageManipulationLib\obj\Debug\ClassLibrary1.pdb

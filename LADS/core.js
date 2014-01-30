@@ -1,4 +1,4 @@
-﻿/// <reference path="js/rin/web/narratives/TAGTest/layeringOrderBug.js" />
+﻿// TAG (Touch Art Gallery) does not collect or publish any personal information.
 (function () {
     "use strict";
 

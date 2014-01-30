@@ -100,13 +100,6 @@ module.exports = function(grunt) {
 					compress: false
 				},
 				files: {
-					// 'LADS/css/StartPage.css': 'LADS/css/StartPage.styl',
-					// 'LADS/css/InternetFailurePage.css': 'LADS/css/InternetFailurePage.styl',
-				    // 'LADS/css/Artmode.css': 'LADS/css/Artmode.styl',
-					// 'LADS/css/NewCatalog.css': 'LADS/css/NewCatalog.styl',
-					// 'LADS/css/VideoPlayer.css': 'LADS/css/VideoPlayer.styl',
-					// 'LADS/css/TourPlayer.css': 'LADS/css/TourPlayer.styl',
-					// 'LADS/css/General.css': 'LADS/css/General.styl',
 					'LADS/css/TAG.css': [
 						'LADS/css/StartPage.styl',
 						'LADS/css/InternetFailurePage.styl',
