@@ -32101,7 +32101,7 @@ LADS.Util.UI = (function () {
             width: '100%',
             height: '100%',
             'background-color': 'rgba(0,0,0,0.6)',
-            'z-index': 1000000000 + 5,
+            'z-index': 1000000000 + 5
         });
 
         // dialog box for server changes
@@ -32117,7 +32117,7 @@ LADS.Util.UI = (function () {
             width: 0.5,
             height: 0.35,
             max_width: 560,
-            max_height: 230,
+            max_height: 230
         });
         serverDialog.css({
             position: 'absolute',
@@ -32127,7 +32127,7 @@ LADS.Util.UI = (function () {
             height: '50%',   //serverDialogSpecs.height + 'px',
             border: '3px double white',
             'text-align': 'center',
-            'background-color': 'black',
+            'background-color': 'black'
         });
 
         serverDialogOverlay.append(serverDialog);
@@ -32141,7 +32141,7 @@ LADS.Util.UI = (function () {
             'top': '12.5%',
             'font-size': '1.25em',
             'position': 'relative',
-            'text-align': 'center',
+            'text-align': 'center'
         });
         serverDialogTitle.text("TAG Server Address:");
         serverDialog.append(serverDialogTitle);
