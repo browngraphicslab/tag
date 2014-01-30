@@ -32126,6 +32126,7 @@ LADS.Util.UI = (function () {
             width: '50%',   //serverDialogSpecs.width + 'px',
             height: '50%',   //serverDialogSpecs.height + 'px',
             border: '3px double white',
+            'text-align': 'center',
             'background-color': 'black',
         });
 
@@ -32152,10 +32153,10 @@ LADS.Util.UI = (function () {
             margin: 'auto',
             'margin-bottom': '1%',
             'width': '60%',
-	    'height':'10%',
+	        'height':'10%',
             'position':'relative',
             'top':'15%',
-	    'font-size':'100%'
+	        'font-size':'100%'
         });
         serverDialogInput.val(localStorage.ip);
         serverDialogInput.focus(function () {
@@ -32171,7 +32172,7 @@ LADS.Util.UI = (function () {
         var serverDialogContact = $(document.createElement('div'));
         serverDialogContact.css({ 'margin-top': '10%' , 'color':'white','margin-left': '10%'  });
         serverDialogContact.html(
-            "Contact us for server setup at <a href='mailto:brown.touchartgallery@outlook.com'>brown.touchartgallery@outlook.com</a>."
+            "Contact us for server setup at:<br /><a href='mailto:brown.touchartgallery@outlook.com'>brown.touchartgallery@outlook.com</a>."
         );
         serverDialog.append(serverDialogContact);
 

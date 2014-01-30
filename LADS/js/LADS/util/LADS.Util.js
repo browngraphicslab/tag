@@ -1485,7 +1485,7 @@ LADS.Util.UI = (function () {
             width: '100%',
             height: '100%',
             'background-color': 'rgba(0,0,0,0.6)',
-            'z-index': 1000000000 + 5,
+            'z-index': 1000000000 + 5
         });
 
         // dialog box for server changes
@@ -1501,7 +1501,7 @@ LADS.Util.UI = (function () {
             width: 0.5,
             height: 0.35,
             max_width: 560,
-            max_height: 230,
+            max_height: 230
         });
         serverDialog.css({
             position: 'absolute',
@@ -1510,7 +1510,8 @@ LADS.Util.UI = (function () {
             width: '50%',   //serverDialogSpecs.width + 'px',
             height: '50%',   //serverDialogSpecs.height + 'px',
             border: '3px double white',
-            'background-color': 'black',
+            'text-align': 'center',
+            'background-color': 'black'
         });
 
         serverDialogOverlay.append(serverDialog);
@@ -1524,7 +1525,7 @@ LADS.Util.UI = (function () {
             'top': '12.5%',
             'font-size': '1.25em',
             'position': 'relative',
-            'text-align': 'center',
+            'text-align': 'center'
         });
         serverDialogTitle.text("TAG Server Address:");
         serverDialog.append(serverDialogTitle);
@@ -1536,10 +1537,10 @@ LADS.Util.UI = (function () {
             margin: 'auto',
             'margin-bottom': '1%',
             'width': '60%',
-	    'height':'10%',
+	        'height':'10%',
             'position':'relative',
             'top':'15%',
-	    'font-size':'100%'
+	        'font-size':'100%'
         });
         serverDialogInput.val(localStorage.ip);
         serverDialogInput.focus(function () {
@@ -1555,7 +1556,7 @@ LADS.Util.UI = (function () {
         var serverDialogContact = $(document.createElement('div'));
         serverDialogContact.css({ 'margin-top': '10%' , 'color':'white','margin-left': '10%'  });
         serverDialogContact.html(
-            "Contact us for server setup at <a href='mailto:brown.touchartgallery@outlook.com'>brown.touchartgallery@outlook.com</a>."
+            "Contact us for server setup at:<br /><a href='mailto:brown.touchartgallery@outlook.com'>brown.touchartgallery@outlook.com</a>."
         );
         serverDialog.append(serverDialogContact);
 
