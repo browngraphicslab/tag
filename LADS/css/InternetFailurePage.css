@@ -12,11 +12,11 @@
   font-family: 'source sans pro regular' sans-serif;
 }
 #InternetFailureroot {
-  background-color: #fff;
-  color: #000;
-  width: 100%;
-  height: 100%;
-  position: fixed;
+  background-color: rgb(50,75,107);
+  color: #fff;
+  /*width: 100%;
+  height: 100%;*/
+  position: relative;
   left: 0px;
   top: 0px;
   z-index: 1000000000;
@@ -42,4 +42,10 @@
   font-size: 30px;
   left-margin: 4%;
   width: 96%;
+}
+#InternetFailureroot #reconnectButton{
+  font-size: 150%;
+  position: relative;
+  left: 50%;
+  top: 5%; 
 }

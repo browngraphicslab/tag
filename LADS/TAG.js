@@ -44392,35 +44392,28 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
     };
 
 
-    var root = $(document.createElement('div'));
+    var root;
     var mainPanel = $(document.createElement('div'));
-    var serverDialogOverlay = $(document.createElement('div'));
 
     var needPassword = false; //used to determine whether password input box appears
 
     init();
 
     function init() {
-        root.css({ 'background-color': 'rgb(50,75,107)' });
-        root.css("color", "black");
-        root.css("width", "100%");
-        root.css("height", "100%");
-        root.css("position", "fixed");
-        root.css("left", "0px");
-        root.css("top", "0px");
-        root.css("z-index", 1000000000);
+        root = LADS.Util.getHtmlAjax('InternetFailurePage.html');
+        root.css("width", $("#tagRoot").width());
+        root.css("height", $("#tagRoot").height());
 
 
         var sadface = $(document.createElement('label'));
         // Commented out sadface for now
         //$(sadface).text(':(');
-        sadface.css({ 'font-size': '1000%', 'color': 'white', 'position': 'absolute', 'top': '12%', 'left': '35%' });
+        // sadface.css({ 'font-size': '1000%', 'color': 'white', 'position': 'absolute', 'top': '12%', 'left': '35%' });
+        sadface = root.find('#sadFace');
+        var noticeBox = root.find('#noticeBox');
 
-        var noticeBox = $(document.createElement('div'));
-        noticeBox.css({ 'width': '50%', 'height': '21%', 'top': '40%', 'right': '25%', 'position': 'absolute', 'background-color': 'rgb(50,75,107)' });
-
-        var noticeLabel = $(document.createElement('label'));
-        noticeLabel.css({ 'color': 'white', 'font-size': '30px', 'left-margin': '4%', 'width': '96%' });
+        var noticeLabel = root.find('#noticeLabel');//$(document.createElement('label'));
+        // noticeLabel.css({ 'color': 'white', 'font-size': '30px', 'left-margin': '4%', 'width': '96%' });
 
         var noticeText = getNoticeText(errorType);
 
@@ -44439,8 +44432,7 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
         noticeLabel.text(noticeText);
         noticeBox.append(noticeLabel).append("<br>");
 
-        var reconnectButton = $(document.createElement('button'));
-        reconnectButton.attr('type', 'button');
+        var reconnectButton = root.find('#reconnectButton');//$(document.createElement('button'));
         var changeServerButton = $(document.createElement('button'));
 
         changeServerButton.on('click', LADS.Util.UI.ChangeServerDialog);
@@ -44451,7 +44443,7 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
             var disagreeButton = $(document.createElement('button'));
             disagreeButton.text('I Disagree');
             disagreeButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '45%', 'top': '5%' });
-            reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '50%', 'top': '5%' });
+            // reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '50%', 'top': '5%' });
             noticeBox.append(disagreeButton);
             disagreeButton.click(function () {
                 window.close();
