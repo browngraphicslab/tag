@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Touch Art Gallery</title>
+    <script src="TAG.js"></script>
+    <script>
+        // set up TAG in the div with id = 'tagContainer'
+        window.onload = load;
+
+        function load() {
+            TAG('tagContainer', 'browntagserver.com');
+        }
+    </script>
+</head>
+<body>
+    <div id="currentTAGWidth" style="width:200px; display:inline-block;">
+        Current TAG width: <span id="tagWidth">960</span>px
+    </div>
+    400px <input id='widthSlider' type='range' min='400' max='1500' step='10' value='960' /> 1500px
+    <br />
+    <div id="currentTAGHeight" style="width:200px; display:inline-block;">
+        Current TAG height: <span id="tagHeight">500</span>px
+    </div>
+    225px <input id='heightSlider' type='range' min='225' max='845' step='10' value='500' /> 845px
+    <br />
+    <button type="button" id="refreshTAGButton">Refresh TAG</button>
+    <br />
+    <br />
+    <div id="tagContainer" style="width: 960px; height: 500px; border: 1px solid black;"></div>
+</body>
+</html>
