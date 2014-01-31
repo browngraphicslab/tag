@@ -238,7 +238,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 var holder = $(document.createElement('div'));
                 holder.addClass("tourHolder");
                 holder.css({
-                    'height': .15 * $(".root").height() + "px"
+                    'height': 0.15 * $(".root").height() + "px"
                 });
 
                 holder.on("click", tourClicked(tour));
@@ -261,7 +261,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 				title.addClass('mediaHolderTitle');
                 title.text(LADS.Util.htmlEntityDecode(tour.Name));
                 holder.append(title);
-            }
+            };
         }
 
         function createMediaHolder(container, media, isHotspot) {
@@ -269,7 +269,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 var holder = $(document.createElement('div'));
                 holder.addClass("assetHolder");
                 holder.css({
-                    'height': .15 * $(".root").height() + "px"
+                    'height': 0.15 * $(".root").height() + "px"
                 });
                 holder.attr("id", media.assetLinqID);
                 holder.data("assetHidden", true);
@@ -313,20 +313,20 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 				title.addClass('mediaHolderTitle');
                 title.text(LADS.Util.htmlEntityDecode(media.title));
                 holder.append(title);
-            }
+            };
         }
         ///////////////////////////////////////
         
         //get the hotspots for the artwork
-        for (var i = 0; i < hotspots.length; i++) {
-            loadQueue.add(createMediaHolder(hotspotsDrawer.contents, hotspots[i], true));
+        for (var k = 0; k < hotspots.length; k++) {
+            loadQueue.add(createMediaHolder(hotspotsDrawer.contents, hotspots[k], true));
         }
         assetContainer.append(hotspotsDrawer);
 
 
         var assetsDrawer = createDrawer('Assets', (assets.length===0));
-        for (var i = 0; i < assets.length; i++) {
-            loadQueue.add(createMediaHolder(assetsDrawer.contents, assets[i], false));
+        for (var j = 0; j< assets.length; j++) {
+            loadQueue.add(createMediaHolder(assetsDrawer.contents, assets[j], false));
         }
         assetContainer.append(assetsDrawer);
 
@@ -347,7 +347,6 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                     toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
                 }
                 var circle = hotspotsAsset.toggle();
-                ;
 
                 if (btn.data("ishotspot")) {//btn change for hotspots
                     if (btn.data("assetHidden") && $(circle).css('display') === 'block') {
@@ -355,7 +354,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                             'color': 'black',
                             'background-color': 'rgba(255,255,255, 0.75)',
                         });
-                        btn.data("assetHidden", false)
+                        btn.data("assetHidden", false);
                     }
                     else {
                         btn.css({
@@ -363,7 +362,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                             'background-color': ''
                         });
 
-                        btn.data("assetHidden", true)
+                        btn.data("assetHidden", true);
                     }
                 } else {//btn change for assets
                     if (btn.data("assetHidden")) {
@@ -371,14 +370,14 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                             'color': 'black',
                             'background-color': 'rgba(255,255,255, 0.75)',
                         });
-                        btn.data("assetHidden", false)
+                        btn.data("assetHidden", false);
                     } else {
                         btn.css({
                             'color': 'white',
                             'background-color': ''
                         });
 
-                        btn.data("assetHidden", true)
+                        btn.data("assetHidden", true);
                     }
                 }
                 hotspotsAsset.pauseAsset();
@@ -448,7 +447,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                         LADS.Util.UI.slidePageLeftSplit(root, rinPlayer.getRoot(), rinPlayer.startPlayback);
                     }
                 }
-            }
+            };
         }
         
 
@@ -465,7 +464,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 
         sideBarSections.append(minimapContainer);
 
-        feedbackContainer.css("top", (minimapContainer.position().top - .05 * $(document).height()) + "px");//set feedback location
+        feedbackContainer.css("top", (minimapContainer.position().top - 0.05 * $(document).height()) + "px");//set feedback location
 
 
         //A white rectangle for minimap to show the current shown area for artwork
@@ -653,7 +652,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 		var locationHistoryPanel = root.find('#locationHistoryPanel');
 
         //set the position of outtermost div and panel for locationhistory based on the which splitscreen
-        if (root.data('split') === 'R') {;
+        if (root.data('split') === 'R') {
             var locpaneloffset = locwidth * 0.125;
             locationHistoryPanel.css({
                 position: 'relative',
@@ -1106,7 +1105,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                                 newState.exhibition = toAdd;
                                 newState.tag = "Title";
                                 newState.currentImage = artwork;
-                                catalog.setState;
+                                //catalog.setState;  //commented out due to jshint error and unknown purpose
                             });
                         });
                     });
