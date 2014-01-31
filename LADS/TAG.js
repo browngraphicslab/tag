@@ -32216,30 +32216,43 @@ LADS.Util.UI = (function () {
 
         function saveClick() {
             var address = serverDialogInput.val();
-            if (address === 'tag') {
-                var unicorn = $(document.createElement('img'));
-                unicorn.attr('src', 'images/unicorn.jpg');
-                unicorn.css({
-                    width: '100%',
-                    height: '100%',
-                    'z-index': 2147483647, // we really want this unicorn to show up
-                    display: 'none',
-                    position: 'absolute',
-                });
-                tagContainer.append(unicorn);
-                unicorn.fadeIn(500);
-                setTimeout(function () {
-                    $('img').attr('src', 'images/unicorn.jpg');
-                    $('.background').css('background-image', 'url("images/unicorn.jpg")');
-                    unicorn.fadeOut(500, function () { unicorn.remove(); });
-                }, 5000);
-                return;
-            } else if (address === 'tagtest') {
-                address = 'tagtestserver.cloudapp.net';
-            } else if (address === 'taglive') {
-                address = 'browntagserver.com';
-            } else if (address === 'taglocal') {
-                address = '10.116.71.58';
+            switch(address) {
+                case 'tagunicorn':
+                    var unicorn = $(document.createElement('img'));
+                    unicorn.attr('src', 'images/unicorn.jpg');
+                    unicorn.css({
+                        width: '100%',
+                        height: '100%',
+                        'z-index': 2147483647, // we really want this unicorn to show up
+                        display: 'none',
+                        position: 'absolute',
+                    });
+                    tagContainer.append(unicorn);
+                    unicorn.fadeIn(500);
+                    setTimeout(function () {
+                        $('img').attr('src', 'images/unicorn.jpg');
+                        $('.background').css('background-image', 'url("images/unicorn.jpg")');
+                        unicorn.fadeOut(500, function () { unicorn.remove(); });
+                    }, 5000);
+                    return;
+                case 'tagtest':
+                    address = 'tagtestserver.cloudapp.net';
+                    break;
+                case 'tagdemo':
+                    address = 'tagdemo.cloudapp.net';
+                    break;
+                case 'taglive':
+                    address = 'browntagserver.com';
+                    break;
+                case 'taglocal':
+                    address = '10.116.71.58';
+                    break;
+                case 'sam':
+                case 'seattleartmuseum':
+                    address = 'tag.seattleartmuseum.org'
+                    break;
+                default:
+                    break;
             }
             serverCancelButton.hide();
             serverSaveButton.hide();
@@ -44895,7 +44908,7 @@ LADS.Util.makeNamespace("LADS.TESTS");
             console.log('no containerId specified, or the containerId does not match an element');
             return; // no TAG for you
         }
-        localStorage.ip = ip || 'browntagserver.com';
+        localStorage.ip = ip || localStorage.ip || 'browntagserver.com';
 
         var positioning = container.css('position');
         if(positioning !== 'relative' && positioning !== 'absolute') {

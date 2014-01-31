@@ -12,7 +12,7 @@
             console.log('no containerId specified, or the containerId does not match an element');
             return; // no TAG for you
         }
-        localStorage.ip = ip || 'browntagserver.com';
+        localStorage.ip = ip || localStorage.ip || 'browntagserver.com';
 
         var positioning = container.css('position');
         if(positioning !== 'relative' && positioning !== 'absolute') {

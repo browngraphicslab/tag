@@ -34,7 +34,7 @@
             isPlayerReady = ko.observable(false),
             isHeaderVisible = ko.observable(false),
             isPlayPauseVisible = ko.observable(true),
-            isInteractiveControlVisible = ko.observable(true),
+            isInteractiveControlVisible = ko.observable(false),
             isRightContainerVisible = ko.observable(true),
             areShareButtonsVisible = ko.observable(true),
             isVolumeVisible = ko.observable(true),
