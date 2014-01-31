@@ -1,3 +1,7 @@
+@font-face {
+  font-family: sourceSans;
+  src: url("../fonts/source-sans-pro.light.ttf");
+}
 #tagRoot a {
   color: #26e;
 }
@@ -9,7 +13,7 @@
   user-select: none;
 }
 #tagRoot * {
-  font-family: 'source sans pro regular' sans-serif;
+  font-family: sourceSans, sans-serif;
 }
 #startPageRoot {
   position: absolute;
@@ -195,6 +199,10 @@
   width: 100%;
 }
 
+@font-face {
+  font-family: sourceSans;
+  src: url("../fonts/source-sans-pro.light.ttf");
+}
 #tagRoot a {
   color: #26e;
 }
@@ -206,7 +214,7 @@
   user-select: none;
 }
 #tagRoot * {
-  font-family: 'source sans pro regular' sans-serif;
+  font-family: sourceSans, sans-serif;
 }
 #InternetFailureroot {
   background-color: #324b6b;
@@ -247,6 +255,10 @@ left: 50% {
   top: 5%;
 }
 
+@font-face {
+  font-family: sourceSans;
+  src: url("../fonts/source-sans-pro.light.ttf");
+}
 #tagRoot a {
   color: #26e;
 }
@@ -258,7 +270,7 @@ left: 50% {
   user-select: none;
 }
 #tagRoot * {
-  font-family: 'source sans pro regular' sans-serif;
+  font-family: sourceSans, sans-serif;
 }
 #artmodeRoot {
   width: 100%;
@@ -655,6 +667,10 @@ left: 50% {
   left: 2%;
 }
 
+@font-face {
+  font-family: sourceSans;
+  src: url("../fonts/source-sans-pro.light.ttf");
+}
 #tagRoot a {
   color: #26e;
 }
@@ -666,7 +682,7 @@ left: 50% {
   user-select: none;
 }
 #tagRoot * {
-  font-family: 'source sans pro regular' sans-serif;
+  font-family: sourceSans, sans-serif;
 }
 #newCatalogRoot {
   background-color: #7f7f7f;
@@ -986,6 +1002,10 @@ left: 50% {
   width: 30%;
 }
 
+@font-face {
+  font-family: sourceSans;
+  src: url("../fonts/source-sans-pro.light.ttf");
+}
 #tagRoot a {
   color: #26e;
 }
@@ -997,7 +1017,7 @@ left: 50% {
   user-select: none;
 }
 #tagRoot * {
-  font-family: 'source sans pro regular' sans-serif;
+  font-family: sourceSans, sans-serif;
 }
 #VideoPlayerRoot {
   width: 100%;
@@ -1140,6 +1160,10 @@ left: 50% {
   top: 22%;
 }
 
+@font-face {
+  font-family: sourceSans;
+  src: url("../fonts/source-sans-pro.light.ttf");
+}
 #tagRoot a {
   color: #26e;
 }
@@ -1151,7 +1175,7 @@ left: 50% {
   user-select: none;
 }
 #tagRoot * {
-  font-family: 'source sans pro regular' sans-serif;
+  font-family: sourceSans, sans-serif;
 }
 #tourRoot {
   left: 0px;
@@ -1190,6 +1214,10 @@ left: 50% {
   height: 100%;
 }
 
+@font-face {
+  font-family: sourceSans;
+  src: url("../fonts/source-sans-pro.light.ttf");
+}
 #tagRoot a {
   color: #26e;
 }
@@ -1201,7 +1229,7 @@ left: 50% {
   user-select: none;
 }
 #tagRoot * {
-  font-family: 'source sans pro regular' sans-serif;
+  font-family: sourceSans, sans-serif;
 }
 #tagRoot {
   overflow: hidden;
