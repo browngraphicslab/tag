@@ -83,7 +83,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 borderTopLeftRadius: "10px",
                 borderBottomLeftRadius: "10px"
             });
-            togglerImage.attr("src", 'images/icons/Right.png');
+            togglerImage.attr("src", tagPath+'images/icons/Right.png');
 
         }
         else {
@@ -93,7 +93,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 borderTopRightRadius: "10px",
                 borderBottomRightRadius: "10px"
             });
-				togglerImage.attr("src", 'images/icons/Left.png');
+				togglerImage.attr("src", tagPath+'images/icons/Left.png');
         }
 
         //set sidebar open as default.
@@ -252,7 +252,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 
                 var mediaHolderImage = $(document.createElement('img'));
                 mediaHolderImage.addClass('assetHolderImage');
-                mediaHolderImage.attr('src', (tour.Metadata.Thumbnail ? LADS.Worktop.Database.fixPath(tour.Metadata.Thumbnail) : 'images/tour_icon.svg'));
+                mediaHolderImage.attr('src', (tour.Metadata.Thumbnail ? LADS.Worktop.Database.fixPath(tour.Metadata.Thumbnail) : tagPath+'images/tour_icon.svg'));
                 mediaHolderImage.removeAttr('width');
                 mediaHolderImage.removeAttr('height');
                 mediaHolderDiv.append(mediaHolderImage);
@@ -292,7 +292,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 mediaHolderImage.addClass('assetHolderImage');
                 switch (media.contentType) {
                     case 'Audio':
-                        mediaHolderImage.attr('src', 'images/audio_icon.svg');
+                        mediaHolderImage.attr('src', tagPath+'images/audio_icon.svg');
                         break;
                     case 'Video':
                         mediaHolderImage.attr('src', (media.thumbnail && !media.thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(media.thumbnail) : 'images/video_icon.svg');
@@ -301,7 +301,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                         mediaHolderImage.attr('src', media.thumbnail ?  LADS.Worktop.Database.fixPath(media.thumbnail) :LADS.Worktop.Database.fixPath(media.source));
                         break;
                     default:
-                        mediaHolderImage.attr('src', 'images/text_icon.svg');
+                        mediaHolderImage.attr('src', tagPath+'images/text_icon.svg');
                         break;
                 }
 
@@ -720,14 +720,14 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 'border-bottom-left-radius': '10px',
                 'border-top-left-radius': '10px'
             });
-            locationHistoryToggleIcon.attr('src', 'images/icons/Right.png');
+            locationHistoryToggleIcon.attr('src', tagPath+'images/icons/Right.png');
         } else {
             locationHistoryToggle.css({
                 left: '87.5%',
                 'border-bottom-right-radius': '10px',
                 'border-top-right-radius': '10px'
             });
-            locationHistoryToggleIcon.attr('src', 'images/icons/Left.png');
+            locationHistoryToggleIcon.attr('src', tagPath+'images/icons/Left.png');
         }
 
         locationHistoryToggle.click(toggleLocationPanel);
@@ -761,10 +761,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                             lpInfoDiv.html($(this).html() + "<br/>");
 
                         $('div.locations').css(unselectedCSS);
-                        $('img.removeButton').attr('src', 'images/icons/minus.svg');
-                        $('img.editButton').attr('src', 'images/icons/edit.png');
-                        $(this).find('img.removeButton').attr('src', 'images/icons/minusB.svg');
-                        $(this).find('img.editButton').attr('src', 'images/icons/editB.png');
+                        $('img.removeButton').attr('src', tagPath+'images/icons/minus.svg');
+                        $('img.editButton').attr('src', tagPath+'images/icons/edit.png');
+                        $(this).find('img.removeButton').attr('src', tagPath+'images/icons/minusB.svg');
+                        $(this).find('img.editButton').attr('src', tagPath+'images/icons/editB.png');
                         $(this).css(selectedCSS);
                         var lat, long, location;
                         if (e.data.resource.latitude) {
@@ -793,7 +793,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                         };
                         var pushpinOptions = {
                             text: String(i + 1),
-                            icon: '/images/icons/locationPin.png',
+                            icon: tagPath+'/images/icons/locationPin.png',
                             width: 20,
                             height: 30
                         };
@@ -905,7 +905,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 
             var toggle = $(document.createElement('img'));
             toggle.addClass("plusToggle");
-            toggle.attr('src', 'images/icons/plus.svg');
+            toggle.attr('src', tagPath+'images/icons/plus.svg');
 
             toggle.appendTo(toggleContainer);
             drawer.isslided = false;
@@ -923,17 +923,17 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             drawerHeader.click(function () {
 
                 if (drawer.isslided === false) {
-                    root.find(".plusToggle").attr('src', 'images/icons/plus.svg');//ensure only one shows.
+                    root.find(".plusToggle").attr('src', tagPath+'images/icons/plus.svg');//ensure only one shows.
                     root.find(".drawerContents").slideUp();
 
                     $.each(drawers, function () {
                         this.isslided = false;
                     });
-                    toggle.attr('src', 'images/icons/minus.svg');
+                    toggle.attr('src', tagPath+'images/icons/minus.svg');
                     drawer.isslided = true;
                 }
                 else {
-                    toggle.attr('src', 'images/icons/plus.svg');
+                    toggle.attr('src', tagPath+'images/icons/plus.svg');
                     $.each(hotspotsHolderArray, function () {
                         if (!this.data("assetHidden")) {
                             this.css({
@@ -1123,7 +1123,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 
          var feedbackIcon = root.find('#feedback-icon');
 
-        feedbackIcon.attr('src', 'images/icons/FeedbackIcon.svg');
+        feedbackIcon.attr('src', tagPath+'images/icons/FeedbackIcon.svg');
 
         var feedbackBox = LADS.Util.UI.FeedbackBox("Artwork", doq.Identifier);//initiate the send feedback box
         setTimeout(function () {
@@ -1146,7 +1146,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         //create splitscreen Icon
         var splitscreenIcon = root.find('#splitscreenIcon');
 
-        splitscreenIcon.attr('src', 'images/icons/SplitW.svg');
+        splitscreenIcon.attr('src', tagPath+'images/icons/SplitW.svg');
 
         splitscreenContainer.click(function () {
             if (locationHistoryActive) {

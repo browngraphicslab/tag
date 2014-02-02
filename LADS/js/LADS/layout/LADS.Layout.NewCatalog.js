@@ -427,7 +427,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
         var exploreIcon = $(document.createElement('img'));
         exploreIcon.attr('id', 'exploreIcon');
-        exploreIcon.attr('src', 'images/icons/ExploreIcon.svg');
+        exploreIcon.attr('src', tagPath+'images/icons/ExploreIcon.svg');
 
         exploreTab.append(exploreIcon);
         exploreTab.append(exploreTabText)    
@@ -674,7 +674,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
             var tourLabel = $(document.createElement('img'));
             tourLabel.attr('id', 'tourLabel');
-            tourLabel.attr('src', 'images/icons/catalog_tour_icon.svg');
+            tourLabel.attr('src', tagPath+'images/icons/catalog_tour_icon.svg');
             tourLabel.css({
                 'height': '50%', 
                 'width': '36%', 
@@ -682,7 +682,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
             var videoLabel = $(document.createElement('img'));
             videoLabel.attr('id', 'videoLabel');
-            videoLabel.attr('src', 'images/icons/catalog_video_icon.svg');
+            videoLabel.attr('src', tagPath+'images/icons/catalog_video_icon.svg');
             videoLabel.css({
                 'height': '50%', 
                 'width': '36%', 

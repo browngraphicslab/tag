@@ -40,28 +40,28 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
         if (videoElt.currentTime !== 0) {
             videoElt.currentTime = 0;
         }
-        play.attr('src', 'images/icons/PlayWhite.svg');
+        play.attr('src', tagPath+'images/icons/PlayWhite.svg');
     }
 
     function initVideoPlayHandlers() {
-        play.attr('src', 'images/icons/PlayWhite.svg');
+        play.attr('src', tagPath+'images/icons/PlayWhite.svg');
         play.on('click', function () {
             if (videoElt.paused) {
                 videoElt.play();
-                play.attr('src', 'images/icons/PauseWhite.svg');
+                play.attr('src', tagPath+'images/icons/PauseWhite.svg');
             } else {
                 videoElt.pause();
-                play.attr('src', 'images/icons/PlayWhite.svg');
+                play.attr('src', tagPath+'images/icons/PlayWhite.svg');
             }
         });
 
         $(vol).on('click', function () {
             if (videoElt.muted) {
                 videoElt.muted = false;
-                vol.attr('src', 'images/icons/VolumeUpWhite.svg');
+                vol.attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
             } else {
                 videoElt.muted = true;
-                vol.attr('src', 'images/icons/VolumeDownWhite.svg');
+                vol.attr('src', tagPath+'images/icons/VolumeDownWhite.svg');
             }
         });
 

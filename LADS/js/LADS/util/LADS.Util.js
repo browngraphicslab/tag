@@ -491,7 +491,7 @@ LADS.Util = (function () {
         var progressCircle = $(document.createElement('img'));
         progressCircle.addClass("progressCircle");
         elAppendTo.append(progressCircle);
-        progressCircle.attr('src', "images/icons/progress-circle.gif");
+        progressCircle.attr('src', tagPath+"images/icons/progress-circle.gif");
         progressCircle.css(cssObject || { // css for entity loading circles
             'position': 'absolute',
             'left': '5%',
@@ -1292,7 +1292,7 @@ LADS.Util = (function () {
         $.ajax({
             async: false,
             cache: false,
-            url: "html/"+path,
+            url: tagPath+"html/"+path,
             success: function (data) {
                 ret = $(data);
             },
@@ -1603,7 +1603,7 @@ LADS.Util.UI = (function () {
             switch(address) {
                 case 'tagunicorn':
                     var unicorn = $(document.createElement('img'));
-                    unicorn.attr('src', 'images/unicorn.jpg');
+                    unicorn.attr('src', tagPath+'images/unicorn.jpg');
                     unicorn.css({
                         width: '100%',
                         height: '100%',
@@ -1614,8 +1614,8 @@ LADS.Util.UI = (function () {
                     tagContainer.append(unicorn);
                     unicorn.fadeIn(500);
                     setTimeout(function () {
-                        $('img').attr('src', 'images/unicorn.jpg');
-                        $('.background').css('background-image', 'url("images/unicorn.jpg")');
+                        $('img').attr('src', tagPath+'images/unicorn.jpg');
+                        $('.background').css('background-image', 'url('+tagPath+'"images/unicorn.jpg")');
                         unicorn.fadeOut(500, function () { unicorn.remove(); });
                     }, 5000);
                     return;
@@ -1665,7 +1665,7 @@ LADS.Util.UI = (function () {
             'margin-top': '2.5%',
             'float': 'right'
         });
-        serverCircle.attr('src', 'images/icons/progress-circle.gif');
+        serverCircle.attr('src', tagPath+'images/icons/progress-circle.gif');
 
         
 
@@ -2411,7 +2411,7 @@ LADS.Util.UI = (function () {
             }
             var pushpinOptions = {
                 text: String(i + 1),
-                icon: '/images/icons/locationPin.png',
+                icon: tagPath+'/images/icons/locationPin.png',
                 width: 20,
                 height: 30
             };
@@ -2437,7 +2437,7 @@ LADS.Util.UI = (function () {
     function addCustomPushpin(locs, currentLocationIndex) {
         var pushpinOptions = {
             text: String(currentLocationIndex),
-            icon: '/images/icons/locationPin.png',
+            icon: tagPath+'/images/icons/locationPin.png',
             width: 20,
             height: 30
         };
@@ -2462,7 +2462,7 @@ LADS.Util.UI = (function () {
         var location = new Microsoft.Maps.Location(lat, long);
         var pushpinOptions = {
             text: String(currentLocationIndex),
-            icon: '/images/icons/locationPin.png',
+            icon: tagPath+'/images/icons/locationPin.png',
             width: 20,
             height: 30
         };
@@ -2920,23 +2920,23 @@ LADS.Util.UI = (function () {
                 var shouldAppendTII = false;
 
                 if (comp.Metadata.ContentType === 'Audio') {
-                    compHolderImage.attr('src', 'images/audio_icon.svg');
+                    compHolderImage.attr('src', tagPath+'images/audio_icon.svg');
                 }
                 else if (comp.Metadata.ContentType === 'Video' || comp.Type === 'Video' || comp.Metadata.Type === 'VideoArtwork') {
                     compHolderImage.attr('src', (comp.Metadata.Thumbnail && !comp.Metadata.Thumbnail.match(/.mp4/)) ? FIXPATH(comp.Metadata.Thumbnail) : 'images/video_icon.svg');
                     shouldAppendTII = true;
-                    typeIndicatorImage.attr('src', 'images/icons/catalog_video_icon.svg');
+                    typeIndicatorImage.attr('src', tagPath+'images/icons/catalog_video_icon.svg');
                 }
                 else if (comp.Metadata.ContentType === 'Image' || comp.Type === 'Image') {
-                    compHolderImage.attr('src', comp.Metadata.Thumbnail ? FIXPATH(comp.Metadata.Thumbnail) : 'images/image_icon.svg');
+                    compHolderImage.attr('src', comp.Metadata.Thumbnail ? FIXPATH(comp.Metadata.Thumbnail) : tagPath+'images/image_icon.svg');
                 }
                 else if (comp.Type === 'Empty') { // tours....don't know why the type is 'Empty'
-                    compHolderImage.attr('src', comp.Metadata.Thumbnail ? FIXPATH(comp.Metadata.Thumbnail) : 'images/icons/catalog_tour_icon.svg');
+                    compHolderImage.attr('src', comp.Metadata.Thumbnail ? FIXPATH(comp.Metadata.Thumbnail) : tagPath+'images/icons/catalog_tour_icon.svg');
                     shouldAppendTII = true;
-                    typeIndicatorImage.attr('src', 'images/icons/catalog_tour_icon.svg');
+                    typeIndicatorImage.attr('src', tagPath+'images/icons/catalog_tour_icon.svg');
                 }
                 else {//text associated media without any media...
-                    compHolderImage.attr('src', 'images/text_icon.svg');
+                    compHolderImage.attr('src', tagPath+'images/text_icon.svg');
                 }
                 compHolderImage.css({
                     'width': '100%',

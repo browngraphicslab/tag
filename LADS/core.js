@@ -69,9 +69,9 @@
             $('#refreshTAGButton').off('click');
             $('#heightSlider').off('change');
             $('#widthSlider').off('change');
-            $('[src="js/raphael.js"]').remove();
-            $('[src="js/tagInk.js"]').remove();
-            $('[src="js/RIN/web/lib/rin-core-1.0.js"]').remove();
+            $('[src='+tagPath+'"js/raphael.js"]').remove();
+            $('[src='+tagPath+'"js/tagInk.js"]').remove();
+            $('[src='+tagPath+'"js/RIN/web/lib/rin-core-1.0.js"]').remove();
             $('[href="css/TAG.css"]').remove();
             TAG('tagContainer');
         });
@@ -86,26 +86,26 @@
                 'js/tagInk.js',
                 'js/RIN/web/lib/rin-core-1.0.js'
             ],
-            TAGPATH = tagPath || '',
+            tagPath = tagPath || '',
             i,
             oHead,
             oScript,
             oCss;
 
-        if(TAGPATH.length > 0 && TAGPATH[TAGPATH.length - 1] !== '/') {
-            TAGPATH += '/';
+        if(tagPath.length > 0 && tagPath[tagPath.length - 1] !== '/') {
+            tagPath += '/';
         }
 
         oHead = document.getElementsByTagName('head').item(0);
         for (i = 0; i < TAGSCRIPTS.length; i++) {
             oScript = document.createElement("script");
             oScript.type = "text/javascript";
-            oScript.src = TAGPATH + TAGSCRIPTS[i];
+            oScript.src = tagPath + TAGSCRIPTS[i];
             oHead.appendChild(oScript);
         }
         oCss = document.createElement("link");
         oCss.rel = "stylesheet";
-        oCss.href = TAGPATH+"css/TAG.css";
+        oCss.href = tagPath+"css/TAG.css";
         oHead.appendChild(oCss);
 
         var tagContainer = $('#tagRoot') || $("body"); // TODO more general
