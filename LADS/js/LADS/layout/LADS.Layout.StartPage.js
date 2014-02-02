@@ -220,7 +220,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         });
 
         serverSetUpContainer.on('click', function() {
-            LADS.Util.UI.ChangeServerDialog()
+            LADS.Util.UI.ChangeServerDialog();
         });
         serverTagBuffer.on('click', function (evt) {
             evt.stopPropagation();
