@@ -81,27 +81,27 @@
 
     function init() {
 
-        var UTILSCRIPTS = [
+        var TAGSCRIPTS = [
                 'js/raphael.js',
                 'js/tagInk.js',
                 'js/RIN/web/lib/rin-core-1.0.js'
             ],
-            UTILPATH = '',
+            TAGPATH = tagPath || '',
             i,
             oHead,
             oScript,
             oCss;
 
         oHead = document.getElementsByTagName('head').item(0);
-        for (i = 0; i < UTILSCRIPTS.length; i++) {
+        for (i = 0; i < TAGSCRIPTS.length; i++) {
             oScript = document.createElement("script");
             oScript.type = "text/javascript";
-            oScript.src = UTILPATH + UTILSCRIPTS[i];
+            oScript.src = TAGPATH + TAGSCRIPTS[i];
             oHead.appendChild(oScript);
         }
         oCss = document.createElement("link");
         oCss.rel = "stylesheet";
-        oCss.href = "css/TAG.css";
+        oCss.href = TAGPATH+"css/TAG.css";
         oHead.appendChild(oCss);
 
         var tagContainer = $('#tagRoot') || $("body"); // TODO more general
