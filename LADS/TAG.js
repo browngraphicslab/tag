@@ -41933,7 +41933,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         });
 
         serverSetUpContainer.on('click', function() {
-            LADS.Util.UI.ChangeServerDialog()
+            LADS.Util.UI.ChangeServerDialog();
         });
         serverTagBuffer.on('click', function (evt) {
             evt.stopPropagation();
@@ -44673,7 +44673,7 @@ LADS.Layout.TourPlayer = function (tour, exhibition, artworkPrev, artwork, tourO
         }
         // TODO: do we need this next line?
         // tagContainer.css({ 'font-size': '11pt', 'font-family': "'source sans pro regular' sans-serif" }); // Quick hack to fix bug where rin.css was overriding styles for body element -jastern 4/30
-    };
+    }
 
     return {
         getRoot: function () {
@@ -44702,6 +44702,7 @@ LADS.Layout.TourPlayer = function (tour, exhibition, artworkPrev, artwork, tourO
     };
 
 };
+
 ;
 LADS.Util.makeNamespace("LADS.Layout.VideoPlayer");
 
@@ -44771,9 +44772,9 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
         });
 
         video.on('ended', function () {
-            videoElt.pause();
-            timeToZero();
-	        // initVideoPlayHandlers(); // is this necessary here TODO
+		videoElt.pause();
+		timeToZero();
+		// initVideoPlayHandlers(); // is this necessary here TODO
         });
     }
     
@@ -44868,8 +44869,8 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
         // Calculate the slider value and update the slider value
 
         value = ($('#sliderContainer').width() / videoElt.duration) * videoElt.currentTime;
-	    $('#sliderControl').css('left',value);
-	    $('#sliderPoint').css('width',value);
+	$('#sliderControl').css('left',value);
+	$('#sliderPoint').css('width',value);
 
         minutes = Math.floor(videoElt.currentTime / 60);
         seconds = Math.floor(videoElt.currentTime % 60);
@@ -44987,6 +44988,10 @@ LADS.Util.makeNamespace("LADS.TESTS");
             oHead,
             oScript,
             oCss;
+
+        if(TAGPATH.length > 0 && TAGPATH[TAGPATH.length - 1] !== '/') {
+            TAGPATH += '/';
+        }
 
         oHead = document.getElementsByTagName('head').item(0);
         for (i = 0; i < TAGSCRIPTS.length; i++) {

@@ -92,6 +92,10 @@
             oScript,
             oCss;
 
+        if(TAGPATH.length > 0 && TAGPATH[TAGPATH.length - 1] !== '/') {
+            TAGPATH += '/';
+        }
+
         oHead = document.getElementsByTagName('head').item(0);
         for (i = 0; i < TAGSCRIPTS.length; i++) {
             oScript = document.createElement("script");
