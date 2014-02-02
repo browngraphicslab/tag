@@ -47,7 +47,7 @@ LADS.Layout.TourPlayer = function (tour, exhibition, artworkPrev, artwork, tourO
         }
         // TODO: do we need this next line?
         // tagContainer.css({ 'font-size': '11pt', 'font-family': "'source sans pro regular' sans-serif" }); // Quick hack to fix bug where rin.css was overriding styles for body element -jastern 4/30
-    };
+    }
 
     return {
         getRoot: function () {
