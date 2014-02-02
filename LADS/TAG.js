@@ -41818,6 +41818,10 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         LADS.Util.Constants.set("START_PAGE_SPLASH", tagPath+"images/birdtextile.jpg");
 
+        // set image paths
+        root.find('#expandImage').attr('src', tagPath+'images/icons/Left.png');
+        root.find('#handGif').attr('src', tagPath+'images/RippleNewSmall.gif');
+
         fullScreen = root.find('#background');
         fullScreen.css('background-image', "url(" + LADS.Worktop.Database.fixPath(main.Metadata["BackgroundImage"]) + ")");
 
@@ -43335,8 +43339,11 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         // create loading page
         loadingArea = $(document.createElement('div'));
         loadingArea.attr('id', 'loadingArea');
-
         root.append(loadingArea);
+
+        // set image paths
+        root.find('#catalogBackButton').attr('src', tagPath+'images/icons/Back.svg');
+        root.find('#feedback-icon').attr('src', tagPath+'images/icons/FeedbackIcon.svg');
 
         var progressCircCSS = { "position": 'absolute', 'z-index': '50', 'height': 'auto', 'width': '5%', 'left': '47.5%', 'top': '42.5%' };
         var centerhor = '0px';
@@ -44646,6 +44653,8 @@ LADS.Layout.TourPlayer = function (tour, exhibition, artworkPrev, artwork, tourO
         backButton = root.find('#backButton'),
         overlayOnRoot = root.find('#overlayOnRoot');
 
+    backButton.attr('src', tagPath+'images/icons/Back.svg');
+
     //clicked effect for back button
     backButton.on('mousedown', function(){
         LADS.Util.UI.cgBackColor("backButton", backButton, false);
@@ -44970,7 +44979,7 @@ LADS.Util.makeNamespace("LADS.TESTS");
             $('[src='+tagPath+'"js/tagInk.js"]').remove();
             $('[src='+tagPath+'"js/RIN/web/lib/rin-core-1.0.js"]').remove();
             $('[href="css/TAG.css"]').remove();
-            TAG('tagContainer');
+            TAG('', 'tagContainer', ip);
         });
 
         init();
@@ -44983,11 +44992,12 @@ LADS.Util.makeNamespace("LADS.TESTS");
                 'js/tagInk.js',
                 'js/RIN/web/lib/rin-core-1.0.js'
             ],
-            tagPath = tagPath || '',
             i,
             oHead,
             oScript,
             oCss;
+
+        tagPath = tagPath || '';
 
         if(tagPath.length > 0 && tagPath[tagPath.length - 1] !== '/') {
             tagPath += '/';

@@ -105,6 +105,10 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         LADS.Util.Constants.set("START_PAGE_SPLASH", tagPath+"images/birdtextile.jpg");
 
+        // set image paths
+        root.find('#expandImage').attr('src', tagPath+'images/icons/Left.png');
+        root.find('#handGif').attr('src', tagPath+'images/RippleNewSmall.gif');
+
         fullScreen = root.find('#background');
         fullScreen.css('background-image', "url(" + LADS.Worktop.Database.fixPath(main.Metadata["BackgroundImage"]) + ")");
 

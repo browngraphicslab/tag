@@ -73,7 +73,7 @@
             $('[src='+tagPath+'"js/tagInk.js"]').remove();
             $('[src='+tagPath+'"js/RIN/web/lib/rin-core-1.0.js"]').remove();
             $('[href="css/TAG.css"]').remove();
-            TAG('tagContainer');
+            TAG('', 'tagContainer', ip);
         });
 
         init();
@@ -86,11 +86,12 @@
                 'js/tagInk.js',
                 'js/RIN/web/lib/rin-core-1.0.js'
             ],
-            tagPath = tagPath || '',
             i,
             oHead,
             oScript,
             oCss;
+
+        tagPath = tagPath || '';
 
         if(tagPath.length > 0 && tagPath[tagPath.length - 1] !== '/') {
             tagPath += '/';

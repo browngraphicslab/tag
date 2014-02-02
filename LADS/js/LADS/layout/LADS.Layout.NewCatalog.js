@@ -79,8 +79,11 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         // create loading page
         loadingArea = $(document.createElement('div'));
         loadingArea.attr('id', 'loadingArea');
-
         root.append(loadingArea);
+
+        // set image paths
+        root.find('#catalogBackButton').attr('src', tagPath+'images/icons/Back.svg');
+        root.find('#feedback-icon').attr('src', tagPath+'images/icons/FeedbackIcon.svg');
 
         var progressCircCSS = { "position": 'absolute', 'z-index': '50', 'height': 'auto', 'width': '5%', 'left': '47.5%', 'top': '42.5%' };
         var centerhor = '0px';
