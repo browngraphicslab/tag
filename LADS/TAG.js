@@ -31107,7 +31107,7 @@ LADS.Util = (function () {
         var progressCircle = $(document.createElement('img'));
         progressCircle.addClass("progressCircle");
         elAppendTo.append(progressCircle);
-        progressCircle.attr('src', "images/icons/progress-circle.gif");
+        progressCircle.attr('src', tagPath+"images/icons/progress-circle.gif");
         progressCircle.css(cssObject || { // css for entity loading circles
             'position': 'absolute',
             'left': '5%',
@@ -31908,7 +31908,7 @@ LADS.Util = (function () {
         $.ajax({
             async: false,
             cache: false,
-            url: "html/"+path,
+            url: tagPath+"html/"+path,
             success: function (data) {
                 ret = $(data);
             },
@@ -32219,7 +32219,7 @@ LADS.Util.UI = (function () {
             switch(address) {
                 case 'tagunicorn':
                     var unicorn = $(document.createElement('img'));
-                    unicorn.attr('src', 'images/unicorn.jpg');
+                    unicorn.attr('src', tagPath+'images/unicorn.jpg');
                     unicorn.css({
                         width: '100%',
                         height: '100%',
@@ -32230,8 +32230,8 @@ LADS.Util.UI = (function () {
                     tagContainer.append(unicorn);
                     unicorn.fadeIn(500);
                     setTimeout(function () {
-                        $('img').attr('src', 'images/unicorn.jpg');
-                        $('.background').css('background-image', 'url("images/unicorn.jpg")');
+                        $('img').attr('src', tagPath+'images/unicorn.jpg');
+                        $('.background').css('background-image', 'url('+tagPath+'"images/unicorn.jpg")');
                         unicorn.fadeOut(500, function () { unicorn.remove(); });
                     }, 5000);
                     return;
@@ -32281,7 +32281,7 @@ LADS.Util.UI = (function () {
             'margin-top': '2.5%',
             'float': 'right'
         });
-        serverCircle.attr('src', 'images/icons/progress-circle.gif');
+        serverCircle.attr('src', tagPath+'images/icons/progress-circle.gif');
 
         
 
@@ -33027,7 +33027,7 @@ LADS.Util.UI = (function () {
             }
             var pushpinOptions = {
                 text: String(i + 1),
-                icon: '/images/icons/locationPin.png',
+                icon: tagPath+'/images/icons/locationPin.png',
                 width: 20,
                 height: 30
             };
@@ -33053,7 +33053,7 @@ LADS.Util.UI = (function () {
     function addCustomPushpin(locs, currentLocationIndex) {
         var pushpinOptions = {
             text: String(currentLocationIndex),
-            icon: '/images/icons/locationPin.png',
+            icon: tagPath+'/images/icons/locationPin.png',
             width: 20,
             height: 30
         };
@@ -33078,7 +33078,7 @@ LADS.Util.UI = (function () {
         var location = new Microsoft.Maps.Location(lat, long);
         var pushpinOptions = {
             text: String(currentLocationIndex),
-            icon: '/images/icons/locationPin.png',
+            icon: tagPath+'/images/icons/locationPin.png',
             width: 20,
             height: 30
         };
@@ -33536,23 +33536,23 @@ LADS.Util.UI = (function () {
                 var shouldAppendTII = false;
 
                 if (comp.Metadata.ContentType === 'Audio') {
-                    compHolderImage.attr('src', 'images/audio_icon.svg');
+                    compHolderImage.attr('src', tagPath+'images/audio_icon.svg');
                 }
                 else if (comp.Metadata.ContentType === 'Video' || comp.Type === 'Video' || comp.Metadata.Type === 'VideoArtwork') {
                     compHolderImage.attr('src', (comp.Metadata.Thumbnail && !comp.Metadata.Thumbnail.match(/.mp4/)) ? FIXPATH(comp.Metadata.Thumbnail) : 'images/video_icon.svg');
                     shouldAppendTII = true;
-                    typeIndicatorImage.attr('src', 'images/icons/catalog_video_icon.svg');
+                    typeIndicatorImage.attr('src', tagPath+'images/icons/catalog_video_icon.svg');
                 }
                 else if (comp.Metadata.ContentType === 'Image' || comp.Type === 'Image') {
-                    compHolderImage.attr('src', comp.Metadata.Thumbnail ? FIXPATH(comp.Metadata.Thumbnail) : 'images/image_icon.svg');
+                    compHolderImage.attr('src', comp.Metadata.Thumbnail ? FIXPATH(comp.Metadata.Thumbnail) : tagPath+'images/image_icon.svg');
                 }
                 else if (comp.Type === 'Empty') { // tours....don't know why the type is 'Empty'
-                    compHolderImage.attr('src', comp.Metadata.Thumbnail ? FIXPATH(comp.Metadata.Thumbnail) : 'images/icons/catalog_tour_icon.svg');
+                    compHolderImage.attr('src', comp.Metadata.Thumbnail ? FIXPATH(comp.Metadata.Thumbnail) : tagPath+'images/icons/catalog_tour_icon.svg');
                     shouldAppendTII = true;
-                    typeIndicatorImage.attr('src', 'images/icons/catalog_tour_icon.svg');
+                    typeIndicatorImage.attr('src', tagPath+'images/icons/catalog_tour_icon.svg');
                 }
                 else {//text associated media without any media...
-                    compHolderImage.attr('src', 'images/text_icon.svg');
+                    compHolderImage.attr('src', tagPath+'images/text_icon.svg');
                 }
                 compHolderImage.css({
                     'width': '100%',
@@ -41816,7 +41816,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             touchHint,
             handGif;
 
-        LADS.Util.Constants.set("START_PAGE_SPLASH", "images/birdtextile.jpg");
+        LADS.Util.Constants.set("START_PAGE_SPLASH", tagPath+"images/birdtextile.jpg");
 
         fullScreen = root.find('#background');
         fullScreen.css('background-image', "url(" + LADS.Worktop.Database.fixPath(main.Metadata["BackgroundImage"]) + ")");
@@ -41858,7 +41858,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         microsoftLogo = $(document.createElement('img'));
         microsoftLogo.attr('id', 'microsoftLogo');
-        microsoftLogo.attr('src', 'images/icons/MicrosoftLogo.png');
+        microsoftLogo.attr('src', tagPath+'images/icons/MicrosoftLogo.png');
 
         museumName = root.find('#museumName');
         museumNameSpan = root.find('#museumNameSpan');
@@ -42083,7 +42083,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 borderTopLeftRadius: "10px",
                 borderBottomLeftRadius: "10px"
             });
-            togglerImage.attr("src", 'images/icons/Right.png');
+            togglerImage.attr("src", tagPath+'images/icons/Right.png');
 
         }
         else {
@@ -42093,7 +42093,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 borderTopRightRadius: "10px",
                 borderBottomRightRadius: "10px"
             });
-				togglerImage.attr("src", 'images/icons/Left.png');
+				togglerImage.attr("src", tagPath+'images/icons/Left.png');
         }
 
         //set sidebar open as default.
@@ -42252,7 +42252,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 
                 var mediaHolderImage = $(document.createElement('img'));
                 mediaHolderImage.addClass('assetHolderImage');
-                mediaHolderImage.attr('src', (tour.Metadata.Thumbnail ? LADS.Worktop.Database.fixPath(tour.Metadata.Thumbnail) : 'images/tour_icon.svg'));
+                mediaHolderImage.attr('src', (tour.Metadata.Thumbnail ? LADS.Worktop.Database.fixPath(tour.Metadata.Thumbnail) : tagPath+'images/tour_icon.svg'));
                 mediaHolderImage.removeAttr('width');
                 mediaHolderImage.removeAttr('height');
                 mediaHolderDiv.append(mediaHolderImage);
@@ -42292,7 +42292,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 mediaHolderImage.addClass('assetHolderImage');
                 switch (media.contentType) {
                     case 'Audio':
-                        mediaHolderImage.attr('src', 'images/audio_icon.svg');
+                        mediaHolderImage.attr('src', tagPath+'images/audio_icon.svg');
                         break;
                     case 'Video':
                         mediaHolderImage.attr('src', (media.thumbnail && !media.thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(media.thumbnail) : 'images/video_icon.svg');
@@ -42301,7 +42301,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                         mediaHolderImage.attr('src', media.thumbnail ?  LADS.Worktop.Database.fixPath(media.thumbnail) :LADS.Worktop.Database.fixPath(media.source));
                         break;
                     default:
-                        mediaHolderImage.attr('src', 'images/text_icon.svg');
+                        mediaHolderImage.attr('src', tagPath+'images/text_icon.svg');
                         break;
                 }
 
@@ -42720,14 +42720,14 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 'border-bottom-left-radius': '10px',
                 'border-top-left-radius': '10px'
             });
-            locationHistoryToggleIcon.attr('src', 'images/icons/Right.png');
+            locationHistoryToggleIcon.attr('src', tagPath+'images/icons/Right.png');
         } else {
             locationHistoryToggle.css({
                 left: '87.5%',
                 'border-bottom-right-radius': '10px',
                 'border-top-right-radius': '10px'
             });
-            locationHistoryToggleIcon.attr('src', 'images/icons/Left.png');
+            locationHistoryToggleIcon.attr('src', tagPath+'images/icons/Left.png');
         }
 
         locationHistoryToggle.click(toggleLocationPanel);
@@ -42761,10 +42761,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                             lpInfoDiv.html($(this).html() + "<br/>");
 
                         $('div.locations').css(unselectedCSS);
-                        $('img.removeButton').attr('src', 'images/icons/minus.svg');
-                        $('img.editButton').attr('src', 'images/icons/edit.png');
-                        $(this).find('img.removeButton').attr('src', 'images/icons/minusB.svg');
-                        $(this).find('img.editButton').attr('src', 'images/icons/editB.png');
+                        $('img.removeButton').attr('src', tagPath+'images/icons/minus.svg');
+                        $('img.editButton').attr('src', tagPath+'images/icons/edit.png');
+                        $(this).find('img.removeButton').attr('src', tagPath+'images/icons/minusB.svg');
+                        $(this).find('img.editButton').attr('src', tagPath+'images/icons/editB.png');
                         $(this).css(selectedCSS);
                         var lat, long, location;
                         if (e.data.resource.latitude) {
@@ -42793,7 +42793,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                         };
                         var pushpinOptions = {
                             text: String(i + 1),
-                            icon: '/images/icons/locationPin.png',
+                            icon: tagPath+'/images/icons/locationPin.png',
                             width: 20,
                             height: 30
                         };
@@ -42905,7 +42905,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 
             var toggle = $(document.createElement('img'));
             toggle.addClass("plusToggle");
-            toggle.attr('src', 'images/icons/plus.svg');
+            toggle.attr('src', tagPath+'images/icons/plus.svg');
 
             toggle.appendTo(toggleContainer);
             drawer.isslided = false;
@@ -42923,17 +42923,17 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             drawerHeader.click(function () {
 
                 if (drawer.isslided === false) {
-                    root.find(".plusToggle").attr('src', 'images/icons/plus.svg');//ensure only one shows.
+                    root.find(".plusToggle").attr('src', tagPath+'images/icons/plus.svg');//ensure only one shows.
                     root.find(".drawerContents").slideUp();
 
                     $.each(drawers, function () {
                         this.isslided = false;
                     });
-                    toggle.attr('src', 'images/icons/minus.svg');
+                    toggle.attr('src', tagPath+'images/icons/minus.svg');
                     drawer.isslided = true;
                 }
                 else {
-                    toggle.attr('src', 'images/icons/plus.svg');
+                    toggle.attr('src', tagPath+'images/icons/plus.svg');
                     $.each(hotspotsHolderArray, function () {
                         if (!this.data("assetHidden")) {
                             this.css({
@@ -43123,7 +43123,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 
          var feedbackIcon = root.find('#feedback-icon');
 
-        feedbackIcon.attr('src', 'images/icons/FeedbackIcon.svg');
+        feedbackIcon.attr('src', tagPath+'images/icons/FeedbackIcon.svg');
 
         var feedbackBox = LADS.Util.UI.FeedbackBox("Artwork", doq.Identifier);//initiate the send feedback box
         setTimeout(function () {
@@ -43146,7 +43146,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         //create splitscreen Icon
         var splitscreenIcon = root.find('#splitscreenIcon');
 
-        splitscreenIcon.attr('src', 'images/icons/SplitW.svg');
+        splitscreenIcon.attr('src', tagPath+'images/icons/SplitW.svg');
 
         splitscreenContainer.click(function () {
             if (locationHistoryActive) {
@@ -43683,7 +43683,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
         var exploreIcon = $(document.createElement('img'));
         exploreIcon.attr('id', 'exploreIcon');
-        exploreIcon.attr('src', 'images/icons/ExploreIcon.svg');
+        exploreIcon.attr('src', tagPath+'images/icons/ExploreIcon.svg');
 
         exploreTab.append(exploreIcon);
         exploreTab.append(exploreTabText)    
@@ -43930,7 +43930,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
             var tourLabel = $(document.createElement('img'));
             tourLabel.attr('id', 'tourLabel');
-            tourLabel.attr('src', 'images/icons/catalog_tour_icon.svg');
+            tourLabel.attr('src', tagPath+'images/icons/catalog_tour_icon.svg');
             tourLabel.css({
                 'height': '50%', 
                 'width': '36%', 
@@ -43938,7 +43938,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
             var videoLabel = $(document.createElement('img'));
             videoLabel.attr('id', 'videoLabel');
-            videoLabel.attr('src', 'images/icons/catalog_video_icon.svg');
+            videoLabel.attr('src', tagPath+'images/icons/catalog_video_icon.svg');
             videoLabel.css({
                 'height': '50%', 
                 'width': '36%', 
@@ -44680,8 +44680,8 @@ LADS.Layout.TourPlayer = function (tour, exhibition, artworkPrev, artwork, tourO
             return root;
         },
         startPlayback: function () { // need to call this to ensure the tour will play when you exit and re-enter a tour, since sliding functionality and audio playback don't cooperate
-            rin.processAll(null, 'js/RIN/web').then(function () {
-                var options = 'systemRootUrl=js/RIN/web/&autoplay=true&loop=false';
+            rin.processAll(null, tagPath+'js/RIN/web').then(function () {
+                var options = 'systemRootUrl='+tagPath+'js/RIN/web/&autoplay=true&loop=false';
                 // create player
                 player = rin.createPlayerControl(rinPlayer[0], options);
                 for (var key in tour.resources) {
@@ -44746,28 +44746,28 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
         if (videoElt.currentTime !== 0) {
             videoElt.currentTime = 0;
         }
-        play.attr('src', 'images/icons/PlayWhite.svg');
+        play.attr('src', tagPath+'images/icons/PlayWhite.svg');
     }
 
     function initVideoPlayHandlers() {
-        play.attr('src', 'images/icons/PlayWhite.svg');
+        play.attr('src', tagPath+'images/icons/PlayWhite.svg');
         play.on('click', function () {
             if (videoElt.paused) {
                 videoElt.play();
-                play.attr('src', 'images/icons/PauseWhite.svg');
+                play.attr('src', tagPath+'images/icons/PauseWhite.svg');
             } else {
                 videoElt.pause();
-                play.attr('src', 'images/icons/PlayWhite.svg');
+                play.attr('src', tagPath+'images/icons/PlayWhite.svg');
             }
         });
 
         $(vol).on('click', function () {
             if (videoElt.muted) {
                 videoElt.muted = false;
-                vol.attr('src', 'images/icons/VolumeUpWhite.svg');
+                vol.attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
             } else {
                 videoElt.muted = true;
-                vol.attr('src', 'images/icons/VolumeDownWhite.svg');
+                vol.attr('src', tagPath+'images/icons/VolumeDownWhite.svg');
             }
         });
 
@@ -44966,9 +44966,9 @@ LADS.Util.makeNamespace("LADS.TESTS");
             $('#refreshTAGButton').off('click');
             $('#heightSlider').off('change');
             $('#widthSlider').off('change');
-            $('[src="js/raphael.js"]').remove();
-            $('[src="js/tagInk.js"]').remove();
-            $('[src="js/RIN/web/lib/rin-core-1.0.js"]').remove();
+            $('[src='+tagPath+'"js/raphael.js"]').remove();
+            $('[src='+tagPath+'"js/tagInk.js"]').remove();
+            $('[src='+tagPath+'"js/RIN/web/lib/rin-core-1.0.js"]').remove();
             $('[href="css/TAG.css"]').remove();
             TAG('tagContainer');
         });
@@ -44983,26 +44983,26 @@ LADS.Util.makeNamespace("LADS.TESTS");
                 'js/tagInk.js',
                 'js/RIN/web/lib/rin-core-1.0.js'
             ],
-            TAGPATH = tagPath || '',
+            tagPath = tagPath || '',
             i,
             oHead,
             oScript,
             oCss;
 
-        if(TAGPATH.length > 0 && TAGPATH[TAGPATH.length - 1] !== '/') {
-            TAGPATH += '/';
+        if(tagPath.length > 0 && tagPath[tagPath.length - 1] !== '/') {
+            tagPath += '/';
         }
 
         oHead = document.getElementsByTagName('head').item(0);
         for (i = 0; i < TAGSCRIPTS.length; i++) {
             oScript = document.createElement("script");
             oScript.type = "text/javascript";
-            oScript.src = TAGPATH + TAGSCRIPTS[i];
+            oScript.src = tagPath + TAGSCRIPTS[i];
             oHead.appendChild(oScript);
         }
         oCss = document.createElement("link");
         oCss.rel = "stylesheet";
-        oCss.href = TAGPATH+"css/TAG.css";
+        oCss.href = tagPath+"css/TAG.css";
         oHead.appendChild(oCss);
 
         var tagContainer = $('#tagRoot') || $("body"); // TODO more general
