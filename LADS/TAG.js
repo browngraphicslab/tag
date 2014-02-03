@@ -31338,7 +31338,7 @@ LADS.Util = (function () {
             tap_max_distance: 15,
             doubletap_distance: 17,
             doubletap_interval: 200,
-            swipe: false,
+            swipe: false
         });
 
         var lastTouched = null,
@@ -42216,9 +42216,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         }
         var test = doq;
         assetContainer.append(descriptionDrawer);
-        //location history
-        var locationHistorysec = initlocationHistory();
-        assetContainer.append(locationHistorysec);
+        
+        //location history TODO
+        // var locationHistorysec = initlocationHistory();
+        // assetContainer.append(locationHistorysec);
 
 
         var hotspotsDrawer = createDrawer('Hotspots', (hotspots.length === 0));

@@ -212,9 +212,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         }
         var test = doq;
         assetContainer.append(descriptionDrawer);
-        //location history
-        var locationHistorysec = initlocationHistory();
-        assetContainer.append(locationHistorysec);
+        
+        //location history TODO
+        // var locationHistorysec = initlocationHistory();
+        // assetContainer.append(locationHistorysec);
 
 
         var hotspotsDrawer = createDrawer('Hotspots', (hotspots.length === 0));
