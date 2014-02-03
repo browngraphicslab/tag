@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-01-30 */
+/*! RIN | http://research.microsoft.com/rin | 2014-02-02 */
 (function() {
     "use strict";
     var rin = window.rin || {};
@@ -1044,7 +1044,7 @@ window.rin = window.rin || {};
                 'z-index': '100000000000000000000'
             });
             cover.hide();
-            $('body').append(cover);
+            $('#tagRoot').append(cover);
 
             // If running on IE 10/RT, enable multitouch support.
             if (window.navigator.msPointerEnabled && typeof (MSGesture) !== "undefined") {
@@ -1063,6 +1063,9 @@ window.rin = window.rin || {};
                     e.preventDefault();
 
                     cover.show();
+					
+					// !!debug!!
+					console.log("mousedown");
                 };
                 Seadragon.Utils.addEvent(node, "MSPointerDown", onmspointerdown);
                 cover[0].addEventListener('MSPointerDown', onmspointerdown, true);
@@ -1072,6 +1075,9 @@ window.rin = window.rin || {};
                     e.stopPropagation();
                     e.preventDefault();
                     cover.hide();
+					
+					// !!debug!!
+					console.log("mouseup");
                 };
                 Seadragon.Utils.addEvent(node, "MSPointerUp", onmspointerup);
                 cover[0].addEventListener('MSPointerUp', onmspointerup, true);
@@ -1083,6 +1089,9 @@ window.rin = window.rin || {};
                         self._viewer.viewport.applyConstraints(true);
                     e.stopPropagation();
                     cover.show(); // we added MSPointerUp to hide the cover, so we want to show it again on gesture changed (e.g. bimanual pinch zooming)
+					
+					// !!debug!!
+					console.log("gesture change");
                 };
                 Seadragon.Utils.addEvent(node, "MSGestureChange", onmsgesturechanged);
                 cover[0].addEventListener('MSGestureChange', onmsgesturechanged, true);
@@ -1090,6 +1099,9 @@ window.rin = window.rin || {};
                 var onmsgestureend = function (e) {
                     if (self.msGesture) self.msGesture.stop();
                     cover.hide();
+					
+					// !!debug!!
+					console.log("gesture end");
                 };
                 Seadragon.Utils.addEvent(node, "MSGestureEnd", onmsgestureend);
                 cover[0].addEventListener('MSGestureEnd', onmsgestureend, true);
@@ -1097,6 +1109,9 @@ window.rin = window.rin || {};
                 var onmsgesturestart = function (e) {
                     e.stopPropagation();
                     cover.show();
+					
+					// !!debug!!
+					console.log("gesture start");
                 };
                 Seadragon.Utils.addEvent(node, "MSGestureStart", onmsgesturestart);
                 cover[0].addEventListener('MSGestureStart', onmsgesturestart, true);
@@ -1113,6 +1128,13 @@ window.rin = window.rin || {};
                 cover.on('touchmove', handler);
                 cover.on('touchend', handler);
                 cover.on('touchcancel', handler);
+				
+				self._userInterfaceControl.addEventListener("mousedown", handler, true);
+                self._userInterfaceControl.addEventListener("mousemove", handler, true);
+                self._userInterfaceControl.addEventListener("mouseup", handler, true);
+                cover.on('mousedown', handler);
+                cover.on('mousemove', handler);
+                cover.on('mouseup', handler);
 
                 self._userInterfaceControl.addEventListener("MSPointerDown", handler, true);
                 self._userInterfaceControl.addEventListener("MSPointerMove", handler, true);
