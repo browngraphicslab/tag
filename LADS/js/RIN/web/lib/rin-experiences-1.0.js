@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-02-02 */
+/*! RIN | http://research.microsoft.com/rin | 2014-02-03 */
 (function() {
     "use strict";
     var rin = window.rin || {};
@@ -83,6 +83,7 @@
             //Load the text as a element html
             this._userInterfaceControl = convertToHtmlDom(ELEMENTHTML).firstChild;
             this._image = this._userInterfaceControl.firstChild;
+            
             if (esData.resourceReferences && esData.resourceReferences[0] && esData.resourceReferences[0].resourceId) {
                 //Get the first resource and take it as the resource to be loaded.
                 this._url = orchestrator.getResourceResolver().resolveResource(esData.resourceReferences[0].resourceId, esData.experienceId);
@@ -182,7 +183,7 @@
                 'z-index': '100000000000000000000'
             });
             cover.hide();
-            $('body').append(cover);
+            //$('#tagRoot').append(cover);
 
             // If running on IE 10/RT, enable multitouch support.
             if (window.navigator.msPointerEnabled && typeof (MSGesture) !== "undefined") {
@@ -246,25 +247,41 @@
 
                 //Add the event listener for detecting interactions
                 var immousedown = function (event) {
+                    event.preventDefault();
                     /// <summary>Bind the mouse down to raise an interaction event</summary>
+                    
+                    // this._image.addEventListener("mousemove", immousemove.bind(this)); // bleveque
 
                     cover.show();
 
                     this.lastTouchPoint = { "x": event.x, "y": event.y };
                     this.isDragging = true;
-                    this._image.setCapture();
+                    // this._image.setCapture();
 
                     //Intimate Orchestrator that the user has interacted
                     this._orchestrator.startInteractionMode();
                     self._orchestrator.onESEvent(rin.contracts.esEventIds.interactionActivatedEventId, null);
+
+                    // console.log('adding event listener');
+                    // $('body').on('mousemove.ies', function(e) {
+                    //     e.preventDefault();
+                    //     immousemove.call(this, e);
+                    // });
+                    // $('body').on('mouseup.ies', function(e) {
+                    //     immouseup.call(this, e);
+                    // });
+
                     return false;
                 };
                 this._image.addEventListener("mousedown", immousedown.bind(this));
                 cover.on('mousedown', immousedown.bind(this));
 
                 var immouseup = function (event) {
+                    // $('body').off('mousemove.ies');
+                    // $('body').off('mouseup.ies');
+                    // this._image.removeEventListener("mousemove");
                     cover.hide();
-                    this._image.releaseCapture();
+                    // this._image.releaseCapture();
                     this.isDragging = false;
                     return false;
                 };
@@ -277,7 +294,7 @@
                         var diffy = event.y - this.lastTouchPoint.y;
                         this.lastTouchPoint.x = event.x;
                         this.lastTouchPoint.y = event.y;
-
+                        console.log('translating image by ('+diffx+','+diffy+')');
                         this._translateImage(diffx, diffy);
                     }
                     return false;
@@ -994,7 +1011,7 @@ window.rin = window.rin || {};
             };
             this.viewportChangedEvent.publish(pushstate);
             return pushstate;
-        },
+        }, 
 
         // Handle touch input for zoom and pan.
         touchHandler: function (event, cover) {
@@ -1002,29 +1019,32 @@ window.rin = window.rin || {};
              first = touches ? touches[0] : { screenX: event.screenX, screenY: event.screenY, clientX: event.clientX, clientY: event.clientY, target: event.target },
              type = "";
             switch (event.type) {
+                case "mousedown":
                 case "touchstart":
                     type = "mousedown"; cover.show(); break;
                 case "MSPointerDown":
                     type = "mousedown"; cover.show(); break;
+                case "mousemove":
                 case "touchmove":
                     type = "mousemove"; break;
                 case "MSPointerMove":
                     type = "mousemove"; break;
+                case "mouseup":
                 case "touchend":
                     type = "mouseup"; this.lastFirst = this.lastSecond = null; cover.hide(); break;
                 case "MSPointerUp":
                     type = "mouseup"; this.lastFirst = this.lastSecond = null; cover.hide(); break;
                 default: return;
             }
-
             var simulatedEvent = document.createEvent("MouseEvent");
             simulatedEvent.initMouseEvent(type, true, true, window, 1,
-            first.screenX, first.screenY,
-            first.clientX, first.clientY, false,
-            false, false, false, 0, null);
+                        first.screenX, first.screenY,
+                        first.clientX, first.clientY, false,
+                        false, false, false, 0, null);
 
             first.target.dispatchEvent(simulatedEvent);
             event.preventDefault();
+            self.raiseViewportUpdate();
             return false;
         },
 
@@ -1044,7 +1064,7 @@ window.rin = window.rin || {};
                 'z-index': '100000000000000000000'
             });
             cover.hide();
-            $('#tagRoot').append(cover);
+            //$('#tagRoot').append(cover);
 
             // If running on IE 10/RT, enable multitouch support.
             if (window.navigator.msPointerEnabled && typeof (MSGesture) !== "undefined") {
@@ -1120,28 +1140,35 @@ window.rin = window.rin || {};
                 var handler = function (event) {
                     return self.touchHandler(event, cover);
                 };
-                self._userInterfaceControl.addEventListener("touchstart", handler, true);
-                self._userInterfaceControl.addEventListener("touchmove", handler, true);
-                self._userInterfaceControl.addEventListener("touchend", handler, true);
-                self._userInterfaceControl.addEventListener("touchcancel", handler, true);
-                cover.on('touchstart', handler);
-                cover.on('touchmove', handler);
-                cover.on('touchend', handler);
-                cover.on('touchcancel', handler);
+                // self._userInterfaceControl.addEventListener("touchstart", handler, true);
+                // self._userInterfaceControl.addEventListener("touchmove", handler, true);
+                // self._userInterfaceControl.addEventListener("touchend", handler, true);
+                // self._userInterfaceControl.addEventListener("touchcancel", handler, true);
+                // cover.on('touchstart', handler);
+                // cover.on('touchmove', handler);
+                // cover.on('touchend', handler);
+                // cover.on('touchcancel', handler);
 				
-				self._userInterfaceControl.addEventListener("mousedown", handler, true);
-                self._userInterfaceControl.addEventListener("mousemove", handler, true);
-                self._userInterfaceControl.addEventListener("mouseup", handler, true);
-                cover.on('mousedown', handler);
-                cover.on('mousemove', handler);
-                cover.on('mouseup', handler);
+				// self._userInterfaceControl.addEventListener("mousedown", handler, true);
+    //             self._userInterfaceControl.addEventListener("mousemove", handler, true);
+    //             self._userInterfaceControl.addEventListener("mouseup", handler, true);
+    //             // cover.on('mousedown', handler);
+                // cover.on('mousemove', handler);
+                // cover.on('mouseup', handler);
 
-                self._userInterfaceControl.addEventListener("MSPointerDown", handler, true);
-                self._userInterfaceControl.addEventListener("MSPointerMove", handler, true);
-                self._userInterfaceControl.addEventListener("MSPointerUp", handler, true);
-                cover.addEventListener('MSPointerDown', handler, true);
-                cover.addEventListener('MSPointerMove', handler, true);
-                cover.addEventListener('MSPointerUp', handler, true);
+                Seadragon.Utils.addEvent(node, "mousedown", handler);
+                // cover[0].addEventListener('mousedown', handler, true);
+                Seadragon.Utils.addEvent(node, "mousemove", handler);
+                // cover[0].addEventListener('mousemove', handler, true);
+                Seadragon.Utils.addEvent(node, "mouseup", handler);
+                // cover[0].addEventListener('mouseup', handler, true);
+
+                // self._userInterfaceControl.addEventListener("MSPointerDown", handler, true);
+                // self._userInterfaceControl.addEventListener("MSPointerMove", handler, true);
+                // self._userInterfaceControl.addEventListener("MSPointerUp", handler, true);
+                // cover.addEventListener('MSPointerDown', handler, true);
+                // cover.addEventListener('MSPointerMove', handler, true);
+                // cover.addEventListener('MSPointerUp', handler, true);
             }
         },
 

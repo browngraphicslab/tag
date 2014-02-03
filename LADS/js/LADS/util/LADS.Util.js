@@ -722,7 +722,7 @@ LADS.Util = (function () {
             tap_max_distance: 15,
             doubletap_distance: 17,
             doubletap_interval: 200,
-            swipe: false,
+            swipe: false
         });
 
         var lastTouched = null,

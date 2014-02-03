@@ -40962,7 +40962,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 left: h + "%",
                 position: 'absolute',
                 'z-index': 1000,
-                'pointer-events': 'all'
+                // 'pointer-events': 'all'
             });
             $(outerContainer).show();
             assetCanvas.append(outerContainer);
@@ -45017,8 +45017,14 @@ LADS.Util.makeNamespace("LADS.TESTS");
 
         var tagContainer = $('#tagRoot') || $("body"); // TODO more general
 
-        $('body').on('scroll', function(evt) {
-            evt.preventDefault();
+        $('#tagRoot').on('mouseenter', function(evt) {
+            $('body').on('scroll.scr mousewheel.scr', function(evt) {
+                evt.preventDefault();
+            });
+        });
+
+        $('#tagRoot').on('mouseleave', function(evt) {
+            $('body').off('scroll.scr mousewheel.scr');
         });
 
 

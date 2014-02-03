@@ -356,7 +356,7 @@ window.rin = window.rin || {};
             };
             this.viewportChangedEvent.publish(pushstate);
             return pushstate;
-        },
+        }, 
 
         // Handle touch input for zoom and pan.
         touchHandler: function (event, cover) {
@@ -364,29 +364,32 @@ window.rin = window.rin || {};
              first = touches ? touches[0] : { screenX: event.screenX, screenY: event.screenY, clientX: event.clientX, clientY: event.clientY, target: event.target },
              type = "";
             switch (event.type) {
+                case "mousedown":
                 case "touchstart":
                     type = "mousedown"; cover.show(); break;
                 case "MSPointerDown":
                     type = "mousedown"; cover.show(); break;
+                case "mousemove":
                 case "touchmove":
                     type = "mousemove"; break;
                 case "MSPointerMove":
                     type = "mousemove"; break;
+                case "mouseup":
                 case "touchend":
                     type = "mouseup"; this.lastFirst = this.lastSecond = null; cover.hide(); break;
                 case "MSPointerUp":
                     type = "mouseup"; this.lastFirst = this.lastSecond = null; cover.hide(); break;
                 default: return;
             }
-
             var simulatedEvent = document.createEvent("MouseEvent");
             simulatedEvent.initMouseEvent(type, true, true, window, 1,
-            first.screenX, first.screenY,
-            first.clientX, first.clientY, false,
-            false, false, false, 0, null);
+                        first.screenX, first.screenY,
+                        first.clientX, first.clientY, false,
+                        false, false, false, 0, null);
 
             first.target.dispatchEvent(simulatedEvent);
             event.preventDefault();
+            self.raiseViewportUpdate();
             return false;
         },
 
@@ -406,7 +409,7 @@ window.rin = window.rin || {};
                 'z-index': '100000000000000000000'
             });
             cover.hide();
-            $('#tagRoot').append(cover);
+            //$('#tagRoot').append(cover);
 
             // If running on IE 10/RT, enable multitouch support.
             if (window.navigator.msPointerEnabled && typeof (MSGesture) !== "undefined") {
@@ -482,28 +485,35 @@ window.rin = window.rin || {};
                 var handler = function (event) {
                     return self.touchHandler(event, cover);
                 };
-                self._userInterfaceControl.addEventListener("touchstart", handler, true);
-                self._userInterfaceControl.addEventListener("touchmove", handler, true);
-                self._userInterfaceControl.addEventListener("touchend", handler, true);
-                self._userInterfaceControl.addEventListener("touchcancel", handler, true);
-                cover.on('touchstart', handler);
-                cover.on('touchmove', handler);
-                cover.on('touchend', handler);
-                cover.on('touchcancel', handler);
+                // self._userInterfaceControl.addEventListener("touchstart", handler, true);
+                // self._userInterfaceControl.addEventListener("touchmove", handler, true);
+                // self._userInterfaceControl.addEventListener("touchend", handler, true);
+                // self._userInterfaceControl.addEventListener("touchcancel", handler, true);
+                // cover.on('touchstart', handler);
+                // cover.on('touchmove', handler);
+                // cover.on('touchend', handler);
+                // cover.on('touchcancel', handler);
 				
-				self._userInterfaceControl.addEventListener("mousedown", handler, true);
-                self._userInterfaceControl.addEventListener("mousemove", handler, true);
-                self._userInterfaceControl.addEventListener("mouseup", handler, true);
-                cover.on('mousedown', handler);
-                cover.on('mousemove', handler);
-                cover.on('mouseup', handler);
+				// self._userInterfaceControl.addEventListener("mousedown", handler, true);
+    //             self._userInterfaceControl.addEventListener("mousemove", handler, true);
+    //             self._userInterfaceControl.addEventListener("mouseup", handler, true);
+    //             // cover.on('mousedown', handler);
+                // cover.on('mousemove', handler);
+                // cover.on('mouseup', handler);
 
-                self._userInterfaceControl.addEventListener("MSPointerDown", handler, true);
-                self._userInterfaceControl.addEventListener("MSPointerMove", handler, true);
-                self._userInterfaceControl.addEventListener("MSPointerUp", handler, true);
-                cover.addEventListener('MSPointerDown', handler, true);
-                cover.addEventListener('MSPointerMove', handler, true);
-                cover.addEventListener('MSPointerUp', handler, true);
+                Seadragon.Utils.addEvent(node, "mousedown", handler);
+                // cover[0].addEventListener('mousedown', handler, true);
+                Seadragon.Utils.addEvent(node, "mousemove", handler);
+                // cover[0].addEventListener('mousemove', handler, true);
+                Seadragon.Utils.addEvent(node, "mouseup", handler);
+                // cover[0].addEventListener('mouseup', handler, true);
+
+                // self._userInterfaceControl.addEventListener("MSPointerDown", handler, true);
+                // self._userInterfaceControl.addEventListener("MSPointerMove", handler, true);
+                // self._userInterfaceControl.addEventListener("MSPointerUp", handler, true);
+                // cover.addEventListener('MSPointerDown', handler, true);
+                // cover.addEventListener('MSPointerMove', handler, true);
+                // cover.addEventListener('MSPointerUp', handler, true);
             }
         },
 

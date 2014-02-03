@@ -101,6 +101,7 @@ module.exports = function(grunt) {
 				},
 				files: {
 					'LADS/css/TAG.css': [
+						'LADS/css/common.styl',
 						'LADS/css/StartPage.styl',
 						'LADS/css/InternetFailurePage.styl',
 						'LADS/css/Artmode.styl',
