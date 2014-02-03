@@ -567,7 +567,7 @@ LADS.Util = (function () {
             return;
         }
         var testDiv = $(document.createElement('div'));
-        var tagContainer = $('#'+tagContainerId) || $('body');
+        var tagContainer = $('#tagRoot');
         step = step || 0.1;
         var currSize = minFontSize;
 
@@ -1475,7 +1475,7 @@ LADS.Util.UI = (function () {
 
     function ChangeServerDialog() {
         var serverDialogOverlay = $(document.createElement('div'));
-        var tagContainer = $('#'+tagContainerId) || $('body');
+        var tagContainer = $('#tagRoot');
         serverDialogOverlay.attr('id', 'serverDialogOverlay');
         serverDialogOverlay.css({
             display: 'block',
@@ -1687,7 +1687,7 @@ LADS.Util.UI = (function () {
 
     function FeedbackBox(sourceType, sourceID) {
         var dialogOverlay = $(document.createElement('div'));
-        var tagContainer = $('#'+tagContainerId) || $('body');
+        var tagContainer = $('#tagRoot');
         $(dialogOverlay).attr('id', 'dialogOverlay');
 
         $(dialogOverlay).css({
@@ -2216,7 +2216,7 @@ LADS.Util.UI = (function () {
     function slidePageLeft(newpage, callback) {
         var outgoingDone = false;
         var incomingDone = false;
-        var tagContainer = $('#'+tagContainerId) || $('body');
+        var tagContainer = $('#tagRoot');
 
         var elements = tagContainer.children();
         elements.remove();
@@ -2256,7 +2256,7 @@ LADS.Util.UI = (function () {
     function slidePageRight(newpage, callback) {
         var outgoingDone = false;
         var incomingDone = false;
-        var tagContainer = $('#'+tagContainerId) || $('body');
+        var tagContainer = $('#tagRoot');
 
         var elements = tagContainer.children();
         elements.remove();

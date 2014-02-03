@@ -109,11 +109,14 @@
         oCss.href = tagPath+"css/TAG.css";
         oHead.appendChild(oCss);
 
-        var tagContainer = $('#tagRoot') || $("body"); // TODO more general
+        var tagContainer = $('#tagRoot'); // TODO more general?
 
         $('#tagRoot').on('mouseenter', function(evt) {
+            var currScroll = $('body').scrollTop();
+            console.log("new scroll = "+currScroll);
             $('body').on('scroll.scr mousewheel.scr', function(evt) {
-                evt.preventDefault();
+                $('body').scrollTop(currScroll);
+                console.log("new scroll = "+$('body').scrollTop());
             });
         });
 

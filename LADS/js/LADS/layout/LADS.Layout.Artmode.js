@@ -454,8 +454,8 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 
         
 
-        //Send Feedback
-        var feedbackContainer = initFeedback();
+        //Send Feedback (bleveque: commented it out for Curtis, need to put it back in)
+        var feedbackContainer = $('notmatchinganything'); // TODO initFeedback();
 
         //Create minimapContainer...
 		var minimapContainer = root.find('#minimapContainer');

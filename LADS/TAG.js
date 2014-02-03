@@ -31183,7 +31183,7 @@ LADS.Util = (function () {
             return;
         }
         var testDiv = $(document.createElement('div'));
-        var tagContainer = $('#'+tagContainerId) || $('body');
+        var tagContainer = $('#tagRoot');
         step = step || 0.1;
         var currSize = minFontSize;
 
@@ -32091,7 +32091,7 @@ LADS.Util.UI = (function () {
 
     function ChangeServerDialog() {
         var serverDialogOverlay = $(document.createElement('div'));
-        var tagContainer = $('#'+tagContainerId) || $('body');
+        var tagContainer = $('#tagRoot');
         serverDialogOverlay.attr('id', 'serverDialogOverlay');
         serverDialogOverlay.css({
             display: 'block',
@@ -32303,7 +32303,7 @@ LADS.Util.UI = (function () {
 
     function FeedbackBox(sourceType, sourceID) {
         var dialogOverlay = $(document.createElement('div'));
-        var tagContainer = $('#'+tagContainerId) || $('body');
+        var tagContainer = $('#tagRoot');
         $(dialogOverlay).attr('id', 'dialogOverlay');
 
         $(dialogOverlay).css({
@@ -32832,7 +32832,7 @@ LADS.Util.UI = (function () {
     function slidePageLeft(newpage, callback) {
         var outgoingDone = false;
         var incomingDone = false;
-        var tagContainer = $('#'+tagContainerId) || $('body');
+        var tagContainer = $('#tagRoot');
 
         var elements = tagContainer.children();
         elements.remove();
@@ -32872,7 +32872,7 @@ LADS.Util.UI = (function () {
     function slidePageRight(newpage, callback) {
         var outgoingDone = false;
         var incomingDone = false;
-        var tagContainer = $('#'+tagContainerId) || $('body');
+        var tagContainer = $('#tagRoot');
 
         var elements = tagContainer.children();
         elements.remove();
@@ -42459,7 +42459,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         
 
         //Send Feedback
-        var feedbackContainer = initFeedback();
+        var feedbackContainer = $('notmatchinganything'); // TODO initFeedback();
 
         //Create minimapContainer...
 		var minimapContainer = root.find('#minimapContainer');
@@ -45019,8 +45019,11 @@ LADS.Util.makeNamespace("LADS.TESTS");
         var tagContainer = $('#tagRoot') || $("body"); // TODO more general
 
         $('#tagRoot').on('mouseenter', function(evt) {
+            var currScroll = $('body').scrollTop();
+            console.log("new scroll = "+currScroll);
             $('body').on('scroll.scr mousewheel.scr', function(evt) {
-                evt.preventDefault();
+                $('body').scrollTop(currScroll);
+                console.log("new scroll = "+$('body').scrollTop());
             });
         });
 
