@@ -32170,7 +32170,7 @@ LADS.Util.UI = (function () {
         });
 
         var serverDialogContact = $(document.createElement('div'));
-        serverDialogContact.css({ 'margin-top': '10%' , 'color':'white','margin-left': '10%'  });
+        serverDialogContact.css({ 'margin-top': '10%' , 'color':'white'  });
         serverDialogContact.html(
             "Contact us for server setup at:<br /><a href='mailto:brown.touchartgallery@outlook.com'>brown.touchartgallery@outlook.com</a>."
         );
