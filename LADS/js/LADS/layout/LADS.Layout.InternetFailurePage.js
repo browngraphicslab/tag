@@ -74,10 +74,10 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
             reconnectButton.click(function () {
                 localStorage.acceptDataUsage = "true";
                 if (!detach) {
-                    $("#tagRoot").empty();
-                    LADS.Layout.StartPage(null, function (page) {
-                        $("#tagRoot").append(page);
-                    });
+                    LADS.Layout.StartPage(null, function (root) {
+                        LADS.Util.Splitscreen.setOn(false);
+                        LADS.Util.UI.slidePageRight(root);
+                    }, true);
                 } else {
                     root.remove();
                 }
@@ -118,11 +118,11 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
                         cache: false,
                         success: function () {
                             if (!detach) {
-                                $("body").empty();
-                                //$("body").append((new LADS.Layout.StartPage()).getRoot());
-                                LADS.Layout.StartPage(null, function (page) {
-                                    $("body").append(page);
-                                });
+                                LADS.Layout.StartPage(null, function (root) {
+                                    LADS.Util.Splitscreen.setOn(false);
+                                    LADS.Util.UI.slidePageRight(root);
+                                }, true);
+                            
                             } else {
                                 root.remove();
                             }

@@ -42458,7 +42458,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 
         
 
-        //Send Feedback
+        //Send Feedback (bleveque: commented it out for Curtis, need to put it back in)
         var feedbackContainer = $('notmatchinganything'); // TODO initFeedback();
 
         //Create minimapContainer...
@@ -44472,10 +44472,10 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
             reconnectButton.click(function () {
                 localStorage.acceptDataUsage = "true";
                 if (!detach) {
-                    $("#tagRoot").empty();
-                    LADS.Layout.StartPage(null, function (page) {
-                        $("#tagRoot").append(page);
-                    });
+                    LADS.Layout.StartPage(null, function (root) {
+                        LADS.Util.Splitscreen.setOn(false);
+                        LADS.Util.UI.slidePageRight(root);
+                    }, true);
                 } else {
                     root.remove();
                 }
@@ -44516,11 +44516,11 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
                         cache: false,
                         success: function () {
                             if (!detach) {
-                                $("body").empty();
-                                //$("body").append((new LADS.Layout.StartPage()).getRoot());
-                                LADS.Layout.StartPage(null, function (page) {
-                                    $("body").append(page);
-                                });
+                                LADS.Layout.StartPage(null, function (root) {
+                                    LADS.Util.Splitscreen.setOn(false);
+                                    LADS.Util.UI.slidePageRight(root);
+                                }, true);
+                            
                             } else {
                                 root.remove();
                             }
@@ -45016,7 +45016,7 @@ LADS.Util.makeNamespace("LADS.TESTS");
         oCss.href = tagPath+"css/TAG.css";
         oHead.appendChild(oCss);
 
-        var tagContainer = $('#tagRoot') || $("body"); // TODO more general
+        var tagContainer = $('#tagRoot'); // TODO more general?
 
         $('#tagRoot').on('mouseenter', function(evt) {
             var currScroll = $('body').scrollTop();
