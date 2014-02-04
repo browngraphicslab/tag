@@ -1148,6 +1148,7 @@ left: 50% {
 #tagRoot {
   overflow: hidden;
   position: relative;
+  cursor: default;
 }
 #tagRoot * {
   font-family: sourceSans, sans-serif;
