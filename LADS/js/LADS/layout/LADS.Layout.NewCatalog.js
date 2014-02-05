@@ -222,7 +222,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 } else {
                     privateState = false;
                 }
-                if (!privateState) {
+                if (!privateState && LADS.Util.localVisibility(e.Identifier)) {
                     if (!gotFirst) {
                         bgimage.css('background-image', "url(" + LADS.Worktop.Database.fixPath(e.Metadata.BackgroundImage) + ")");
                     }

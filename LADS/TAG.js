@@ -1,4 +1,8 @@
-var TAG = function(tagPath, containerId, ip) {/*!
+var TAG = function(tagInput) {
+ 					         tagPath = tagInput.path;
+ 					         containerId = tagInput.containerId;
+ 					         ip = tagInput.serverIp;
+/*!
  * jQuery JavaScript Library v1.7.1
  * http://jquery.com/
  *
@@ -30671,7 +30675,8 @@ LADS.Util = (function () {
         htmlEntityEncode: htmlEntityEncode,
         htmlEntityDecode: htmlEntityDecode,
         videoErrorHandler: videoErrorHandler,
-        getHtmlAjax: getHtmlAjax
+        getHtmlAjax: getHtmlAjax,
+        localVisibility: localVisibility
     };
 
     /* 
@@ -31920,6 +31925,32 @@ LADS.Util = (function () {
             dataType: 'html'
         });
         return ret;
+    }
+
+     /**
+     * @param collectionId      the id of the collection whose local visibility we want to check or set
+     * @param setValue          falsy if just want to return visibility status
+     *                          {visible: true}  if we want to set collection to be locally visible
+     *                          {visible: false} if we want to hide the collection locally
+     */
+    function localVisibility(collectionId, setValue) {
+        localStorage.invisibleCollectionsTAG = localStorage.invisibleCollectionsTAG || '[]';
+        var tempList, index;
+        try {
+            tempList = JSON.parse(localStorage.invisibleCollectionsTAG);
+        } catch (err) {
+            localStorage.invisibleCollectionsTAG = '[]';
+            tempList = [];
+        }
+        index = tempList.indexOf(collectionId);
+        if (setValue && setValue.visible) {
+            index >= 0 && tempList.splice(index, 1);
+        } else if (setValue && setValue.hasOwnProperty('visible')) {
+            index === -1 && tempList.push(collectionId);
+        } else {
+            return index >= 0 ? false : true;
+        }
+        localStorage.invisibleCollectionsTAG = JSON.stringify(tempList);
     }
 
 })();
@@ -43483,7 +43514,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 } else {
                     privateState = false;
                 }
-                if (!privateState) {
+                if (!privateState && LADS.Util.localVisibility(e.Identifier)) {
                     if (!gotFirst) {
                         bgimage.css('background-image', "url(" + LADS.Worktop.Database.fixPath(e.Metadata.BackgroundImage) + ")");
                     }

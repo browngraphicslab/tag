@@ -3,19 +3,17 @@
 <head>
     <meta charset="utf-8" />
     <title>Touch Art Gallery</title>
-    <!-- <style type='text/css'>
-        #leftbar {
-            border-right: 2px solid #ff7700;
-        }
-    </style> -->
-    <!-- <link rel='stylesheet' href='css/browserDefaults.css' /> -->
     <script src="TAG.js"></script>
     <script>
         // set up TAG in the div with id = 'tagContainer'
         window.onload = load;
 
         function load() {
-            TAG('', 'tagContainer', 'browntagserver.com');
+            TAG({
+                path: '',
+                containerId: 'tagContainer',
+                serverIp: 'browntagserver.com'
+            });
         }
     </script>
 </head>
@@ -33,8 +31,6 @@
     <button type="button" id="refreshTAGButton">Refresh TAG</button>
     <br />
     <br />
-    <div id="cssWrapper">
-        <div id="tagContainer" style="width: 960px; height: 500px; border: 1px solid black;"></div>
-    </div>
+    <div id="tagContainer" style="width: 960px; height: 500px; border: 1px solid black;"></div>
 </body>
 </html>
