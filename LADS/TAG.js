@@ -44763,8 +44763,10 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
     function initVideoPlayHandlers() {
         play.attr('src', tagPath+'images/icons/PlayWhite.svg');
         play.on('click', function () {
+            console.log("playbutton down");
             if (videoElt.paused) {
                 videoElt.play();
+                console.log("time to play");
                 play.attr('src', tagPath+'images/icons/PauseWhite.svg');
             } else {
                 videoElt.pause();
@@ -44802,6 +44804,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
 
     function initSeekHandlers() {
         sliderContainer.on('mousedown', function(evt) {
+            console.log("seeker mousedown detected!1");
             var time = $(video).get(0).duration * (evt.offsetX / $('#sliderContainer').width());    
             if (!isNaN(time)) {
                 $(video).get(0).currentTime = time;
@@ -44810,6 +44813,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
 
         sliderControl.on('mousedown', function(e) {
             e.stopPropagation();
+            console.log("seeker mousedown detected!2");
             var origPoint = e.pageX,
                 origTime = videoElt.currentTime,
                 timePxRatio = DURATION / sliderContainer.width(); // sec/px
@@ -44828,10 +44832,11 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
                 }
                 seconds = Math.floor(currTime % 60);
 
-                console.log(currTime);
+                console.log("currTime "+currTime);
 
                 // Update the video time and slider values
                 if (!isNaN(currTime)) {
+                    // debugger;
                     $('#currentTimeDisplay').text(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
                     videoElt.currentTime = currTime;
                     
@@ -44842,6 +44847,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
             });
             $('body').on('mouseup.seek', function() {
                 // when the mouse is released, remove the mousemove handler
+                // debugger;
                 $('body').off('mousemove.seek');
                 $('body').off('mouseup.seek');
                 videoElt.currentTime = currTime;
@@ -44862,7 +44868,8 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
 
     backButton.on('click', function () {
         videoElt.pause();
-
+        // delete(video[0]);
+        $(videoElt).attr('src',"");
         var catalog = new LADS.Layout.NewCatalog(videoSrc, exhibition);
 
         LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot());
