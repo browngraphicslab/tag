@@ -693,6 +693,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             });
 
             var image = $(document.createElement('img'));
+            // debugger;
             image.attr("src", LADS.Worktop.Database.fixPath(currentWork.Metadata.Thumbnail));
             image.css({ width: '100%', height: "100%", position: 'absolute' });
 

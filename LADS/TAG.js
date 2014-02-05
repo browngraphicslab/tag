@@ -40209,12 +40209,15 @@ LADS.Worktop.Database = (function () {
 
     function fixPath(path) {
         if (path) {
-            if (path.indexOf('http') !== -1 || path.indexOf('blob:') !== -1) {
+            if (path.indexOf('blob:') !== -1) {
                 return path;
-            } else {
-                if (path.indexOf('/') !== 0) path = '/' + path;
-                return _db.getFileURL() + path;
+            } else if (path.indexOf('http') !== -1) {
+                path = path.replace(/http.?.?\/\/[^\/]*/, '');
             }
+            if (path.indexOf('/') !== 0) {
+                path = '/' + path;
+            }
+            return _db.getFileURL() + path;
         }
     }
 
@@ -43985,6 +43988,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             });
 
             var image = $(document.createElement('img'));
+            // debugger;
             image.attr("src", LADS.Worktop.Database.fixPath(currentWork.Metadata.Thumbnail));
             image.css({ width: '100%', height: "100%", position: 'absolute' });
 
@@ -45168,18 +45172,18 @@ LADS.Util.makeNamespace("LADS.TESTS");
      * TODO: currently, the server URL is hardcoded since it cannot be fetched from the database since that
      * hasn't been instantiated. This must be changed.
      */
-    function checkServerConnectivity() {
-        var request = $.ajax({
-            url: "http://137.135.69.3:8080",
-            dataType: "text",
-            async: false,
-            error: function(err) {
-                $("body").append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
-                return false;
-            },
-        });
-        return true;
-    }
+    // function checkServerConnectivity() {
+    //     var request = $.ajax({
+    //         url: "http://137.135.69.3:8080",
+    //         dataType: "text",
+    //         async: false,
+    //         error: function(err) {
+    //             $("body").append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
+    //             return false;
+    //         },
+    //     });
+    //     return true;
+    // }
 
     function testThing() {
         LADS.TESTS.timeline();
