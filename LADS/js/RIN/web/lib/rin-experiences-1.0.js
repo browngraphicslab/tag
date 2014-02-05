@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-02-03 */
+/*! RIN | http://research.microsoft.com/rin | 2014-02-04 */
 (function() {
     "use strict";
     var rin = window.rin || {};
@@ -1044,7 +1044,7 @@ window.rin = window.rin || {};
 
             first.target.dispatchEvent(simulatedEvent);
             event.preventDefault();
-            self.raiseViewportUpdate();
+            // this.raiseViewportUpdate();
             return false;
         },
 

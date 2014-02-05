@@ -389,7 +389,7 @@ window.rin = window.rin || {};
 
             first.target.dispatchEvent(simulatedEvent);
             event.preventDefault();
-            self.raiseViewportUpdate();
+            // this.raiseViewportUpdate();
             return false;
         },
 

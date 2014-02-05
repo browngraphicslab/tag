@@ -17,7 +17,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         exhibitionSpan = root.find('#exhibitionSpan'), 
         contentdiv,
         imgDiv,
-        descriptiontext, 
+        descriptiontext,
         loadingArea,
         titlediv, 
         artworkSelected = false,
@@ -231,9 +231,10 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 }
             });
 
-            if (currExhibition !== null) {
+            if (currExhibition) {
                 loadExhibit(currExhibition, currExhibition);
                 showExhibition(currExhibition);
+                // debugger;
                 $("#exhib-" + currExhibition.Identifier).css({ 'background-color': 'rgb(255,255,255)', 'color': 'black' });
             }
             else clickExhibition(0);//have the first exhibition selected
@@ -293,7 +294,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             }             
         });
 
-        toAdd.click(function () {
+        toAdd.on('click', function () {
             //put this all in diff func and call in constructor 
             for (var i = 0; i < exhibitelements.length; i++) {
                 // prevents animation if exhibit is already selected
