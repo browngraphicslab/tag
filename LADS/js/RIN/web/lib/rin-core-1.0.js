@@ -7711,7 +7711,7 @@ window.rin = window.rin || {};
         var volumeControlSlider = $(".rin_VolumeSliderPlaceHolder", control),
             volumeButton = $(".rin_Button", control),
             self = this;
-
+        //mark1
         this.volumeSlider = new rin.internal.ui.VerticalSlider(volumeControlSlider, volumeButton, viewModel);
         this.volumeChangedEvent = rin.contracts.Event();
         this.volumeSlider.valueChangedEvent.subscribe(function (value) {
@@ -8237,7 +8237,8 @@ window.rin = window.rin || {};
                 case rin.contracts.playerState.stopped:
                 case rin.contracts.playerState.pausedForBuffering:
                 case rin.contracts.playerState.pausedForExplore:
-                    playerControl.play();
+		    playerControl.play();
+		   //mark1
                     break;
 
                 case rin.contracts.playerState.playing:
