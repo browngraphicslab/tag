@@ -43571,9 +43571,11 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         
         // var exhibTitleSize = LADS.Util.getMaxFontSizeEM('W', 0.25, 9999, size * 0.85, 0.1);
 
+		/*
         titleBox.css({
             "font-size": '1.4em' //exhibTitleSize,            
         });
+		*/
 
         exLabels.push(toAdd);
         exhibitarea.append(toAdd);
