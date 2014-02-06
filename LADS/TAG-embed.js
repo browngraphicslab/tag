@@ -31,8 +31,8 @@ var TAG_embed = function(tagInput) {
 		return;
 	}
 
-	container = $('#'+tagContainerId);
-	if(!tagContainerId || container.length === 0) {
+	container = document.getElementById(tagContainerId);
+	if(!tagContainerId || !container) {
 		console.log('no tagContainerId argument specified or no element with matching id');
 		return;
 	}
@@ -45,24 +45,23 @@ var TAG_embed = function(tagInput) {
 	}
 
 	ip = ip || 'browntagserver.com';
-	width = parseFloat(width || container.width() || '740');
-	height = parseFloat(height || container.height() || '460');
+	width = parseFloat(width || container.style.width || '740');
+	height = parseFloat(height || container.style.height || '460');
 
-	frameContainer = $(document.createElement('div')).attr('id', 'frameContainer');
-    container.append(frameContainer);
+	frameContainer = document.createElement('div');
+	frameContainer.id = 'frameContainer';
+    container.appendChild(frameContainer);
 
-    frameInnerContainer = $(document.createElement('div')).attr('id', 'frameInnerContainer');
-    frameContainer.append(frameInnerContainer);
+    frameInnerContainer = document.createElement('div');
+    frameInnerContainer.id = 'frameInnerContainer';
+    frameContainer.appendChild(frameInnerContainer);
 
-    frame = $(document.createElement('iframe'));
-	frame.attr('src', 'about:html');
-	frame.css({
-		width: width,
-		height: height,
-		position: 'relative',
-		border: '0px'
-	});
-	frameInnerContainer.append(frame);
+    frame = document.createElement('iframe');
+	frame.style.width = width + 'px';
+	frame.style.height = height + 'px';
+	frame.style.position = 'relative';
+	frame.style.border = '0px';
+	frameInnerContainer.appendChild(frame);
     
     // write out html of iframe document
     // ideally, we could just put demo.html as the src of the iframe, but
@@ -74,7 +73,7 @@ var TAG_embed = function(tagInput) {
                 <head> \
                     <meta charset="utf-8" /> \
                     <title>Touch Art Gallery</title> \
-                    <script src="TAG.js"></script> \
+                    <script src="'+tagPath+'TAG.js"></script> \
                     <script> \
                         window.onload = function() { \
                             TAG({ \
@@ -90,7 +89,7 @@ var TAG_embed = function(tagInput) {
 				</body> \
 			    </html>';
 
-    frameDoc = frame[0].contentWindow.document;
+    frameDoc = frame.contentWindow.document;
     frameDoc.open();
     frameDoc.write(htmlStr);
     frameDoc.close();

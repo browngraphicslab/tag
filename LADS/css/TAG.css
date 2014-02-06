@@ -933,7 +933,7 @@ left: 50% {
 #newCatalogRoot #titleSpan {
   line-height: 100%;
   margin-bottom: 15px;
-  overflow-y: scroll;
+  overflow-y: none;
   overflow-x: none;
   text-overflow: ellipsis;
 }
