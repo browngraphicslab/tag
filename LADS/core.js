@@ -222,18 +222,18 @@
      * TODO: currently, the server URL is hardcoded since it cannot be fetched from the database since that
      * hasn't been instantiated. This must be changed.
      */
-    function checkServerConnectivity() {
-        var request = $.ajax({
-            url: "http://137.135.69.3:8080",
-            dataType: "text",
-            async: false,
-            error: function(err) {
-                $("body").append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
-                return false;
-            },
-        });
-        return true;
-    }
+    // function checkServerConnectivity() {
+    //     var request = $.ajax({
+    //         url: "http://137.135.69.3:8080",
+    //         dataType: "text",
+    //         async: false,
+    //         error: function(err) {
+    //             $("body").append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
+    //             return false;
+    //         },
+    //     });
+    //     return true;
+    // }
 
     function testThing() {
         LADS.TESTS.timeline();

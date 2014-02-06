@@ -222,7 +222,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 } else {
                     privateState = false;
                 }
-                if (!privateState) {
+                if (!privateState && LADS.Util.localVisibility(e.Identifier)) {
                     if (!gotFirst) {
                         bgimage.css('background-image', "url(" + LADS.Worktop.Database.fixPath(e.Metadata.BackgroundImage) + ")");
                     }
@@ -693,6 +693,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             });
 
             var image = $(document.createElement('img'));
+            // debugger;
             image.attr("src", LADS.Worktop.Database.fixPath(currentWork.Metadata.Thumbnail));
             image.css({ width: '100%', height: "100%", position: 'absolute' });
 

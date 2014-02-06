@@ -3,7 +3,10 @@ module.exports = function(grunt) {
 		concat: {
 			options: {
 				separator: '\n;\n',
-				banner: 'var TAG = function(tagPath, containerId, ip) {',
+				banner: 'var TAG = function(tagInput) {\n \
+					         tagPath = tagInput.path;\n \
+					         containerId = tagInput.containerId;\n \
+					         ip = tagInput.serverIp;\n',
 				footer: '};'
 			},
 			dist: {

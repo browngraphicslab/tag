@@ -1,4 +1,8 @@
-var TAG = function(tagPath, containerId, ip) {/*!
+var TAG = function(tagInput) {
+ 					         tagPath = tagInput.path;
+ 					         containerId = tagInput.containerId;
+ 					         ip = tagInput.serverIp;
+/*!
  * jQuery JavaScript Library v1.7.1
  * http://jquery.com/
  *
@@ -30671,7 +30675,8 @@ LADS.Util = (function () {
         htmlEntityEncode: htmlEntityEncode,
         htmlEntityDecode: htmlEntityDecode,
         videoErrorHandler: videoErrorHandler,
-        getHtmlAjax: getHtmlAjax
+        getHtmlAjax: getHtmlAjax,
+        localVisibility: localVisibility
     };
 
     /* 
@@ -31920,6 +31925,32 @@ LADS.Util = (function () {
             dataType: 'html'
         });
         return ret;
+    }
+
+     /**
+     * @param collectionId      the id of the collection whose local visibility we want to check or set
+     * @param setValue          falsy if just want to return visibility status
+     *                          {visible: true}  if we want to set collection to be locally visible
+     *                          {visible: false} if we want to hide the collection locally
+     */
+    function localVisibility(collectionId, setValue) {
+        localStorage.invisibleCollectionsTAG = localStorage.invisibleCollectionsTAG || '[]';
+        var tempList, index;
+        try {
+            tempList = JSON.parse(localStorage.invisibleCollectionsTAG);
+        } catch (err) {
+            localStorage.invisibleCollectionsTAG = '[]';
+            tempList = [];
+        }
+        index = tempList.indexOf(collectionId);
+        if (setValue && setValue.visible) {
+            index >= 0 && tempList.splice(index, 1);
+        } else if (setValue && setValue.hasOwnProperty('visible')) {
+            index === -1 && tempList.push(collectionId);
+        } else {
+            return index >= 0 ? false : true;
+        }
+        localStorage.invisibleCollectionsTAG = JSON.stringify(tempList);
     }
 
 })();
@@ -40178,12 +40209,15 @@ LADS.Worktop.Database = (function () {
 
     function fixPath(path) {
         if (path) {
-            if (path.indexOf('http') !== -1 || path.indexOf('blob:') !== -1) {
+            if (path.indexOf('blob:') !== -1) {
                 return path;
-            } else {
-                if (path.indexOf('/') !== 0) path = '/' + path;
-                return _db.getFileURL() + path;
+            } else if (path.indexOf('http') !== -1) {
+                path = path.replace(/http.?.?\/\/[^\/]*/, '');
             }
+            if (path.indexOf('/') !== 0) {
+                path = '/' + path;
+            }
+            return _db.getFileURL() + path;
         }
     }
 
@@ -43483,7 +43517,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 } else {
                     privateState = false;
                 }
-                if (!privateState) {
+                if (!privateState && LADS.Util.localVisibility(e.Identifier)) {
                     if (!gotFirst) {
                         bgimage.css('background-image', "url(" + LADS.Worktop.Database.fixPath(e.Metadata.BackgroundImage) + ")");
                     }
@@ -43954,6 +43988,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             });
 
             var image = $(document.createElement('img'));
+            // debugger;
             image.attr("src", LADS.Worktop.Database.fixPath(currentWork.Metadata.Thumbnail));
             image.css({ width: '100%', height: "100%", position: 'absolute' });
 
@@ -45137,18 +45172,18 @@ LADS.Util.makeNamespace("LADS.TESTS");
      * TODO: currently, the server URL is hardcoded since it cannot be fetched from the database since that
      * hasn't been instantiated. This must be changed.
      */
-    function checkServerConnectivity() {
-        var request = $.ajax({
-            url: "http://137.135.69.3:8080",
-            dataType: "text",
-            async: false,
-            error: function(err) {
-                $("body").append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
-                return false;
-            },
-        });
-        return true;
-    }
+    // function checkServerConnectivity() {
+    //     var request = $.ajax({
+    //         url: "http://137.135.69.3:8080",
+    //         dataType: "text",
+    //         async: false,
+    //         error: function(err) {
+    //             $("body").append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
+    //             return false;
+    //         },
+    //     });
+    //     return true;
+    // }
 
     function testThing() {
         LADS.TESTS.timeline();

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="jquery.js"></script>
+	<script src='TAG-embed.js'></script>
+	<script 
+	<script>
+		window.onload = load;
+
+		function load() {
+			TAG_embed({
+				path: '../LADS',
+				containerId: 'tagContainer',
+				serverIp: 'browntagserver.com',
+				width: '800px',
+				height: '450px',
+				hiddenCollections: [
+					'e53b2104-7a2b-432e-81c8-31a14f00f9ce' // Getty Museum collection is hidden
+				]
+			});
+		}
+	</script>
+</head>
+<title>Embedding test</title>
+<body>
+	<div id='tagContainer'></div>
+</body>
+</html>
