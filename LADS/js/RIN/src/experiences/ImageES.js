@@ -72,6 +72,7 @@
             //Load the text as a element html
             this._userInterfaceControl = convertToHtmlDom(ELEMENTHTML).firstChild;
             this._image = this._userInterfaceControl.firstChild;
+            
             if (esData.resourceReferences && esData.resourceReferences[0] && esData.resourceReferences[0].resourceId) {
                 //Get the first resource and take it as the resource to be loaded.
                 this._url = orchestrator.getResourceResolver().resolveResource(esData.resourceReferences[0].resourceId, esData.experienceId);
@@ -171,7 +172,7 @@
                 'z-index': '100000000000000000000'
             });
             cover.hide();
-            $('body').append(cover);
+            //$('#tagRoot').append(cover);
 
             // If running on IE 10/RT, enable multitouch support.
             if (window.navigator.msPointerEnabled && typeof (MSGesture) !== "undefined") {
@@ -235,25 +236,41 @@
 
                 //Add the event listener for detecting interactions
                 var immousedown = function (event) {
+                    event.preventDefault();
                     /// <summary>Bind the mouse down to raise an interaction event</summary>
+                    
+                    // this._image.addEventListener("mousemove", immousemove.bind(this)); // bleveque
 
                     cover.show();
 
                     this.lastTouchPoint = { "x": event.x, "y": event.y };
                     this.isDragging = true;
-                    this._image.setCapture();
+                    // this._image.setCapture();
 
                     //Intimate Orchestrator that the user has interacted
                     this._orchestrator.startInteractionMode();
                     self._orchestrator.onESEvent(rin.contracts.esEventIds.interactionActivatedEventId, null);
+
+                    // console.log('adding event listener');
+                    // $('body').on('mousemove.ies', function(e) {
+                    //     e.preventDefault();
+                    //     immousemove.call(this, e);
+                    // });
+                    // $('body').on('mouseup.ies', function(e) {
+                    //     immouseup.call(this, e);
+                    // });
+
                     return false;
                 };
                 this._image.addEventListener("mousedown", immousedown.bind(this));
                 cover.on('mousedown', immousedown.bind(this));
 
                 var immouseup = function (event) {
+                    // $('body').off('mousemove.ies');
+                    // $('body').off('mouseup.ies');
+                    // this._image.removeEventListener("mousemove");
                     cover.hide();
-                    this._image.releaseCapture();
+                    // this._image.releaseCapture();
                     this.isDragging = false;
                     return false;
                 };
@@ -266,7 +283,7 @@
                         var diffy = event.y - this.lastTouchPoint.y;
                         this.lastTouchPoint.x = event.x;
                         this.lastTouchPoint.y = event.y;
-
+                        console.log('translating image by ('+diffx+','+diffy+')');
                         this._translateImage(diffx, diffy);
                     }
                     return false;

@@ -55,7 +55,8 @@ LADS.Util = (function () {
         htmlEntityEncode: htmlEntityEncode,
         htmlEntityDecode: htmlEntityDecode,
         videoErrorHandler: videoErrorHandler,
-        getHtmlAjax: getHtmlAjax
+        getHtmlAjax: getHtmlAjax,
+        localVisibility: localVisibility
     };
 
     /* 
@@ -491,7 +492,7 @@ LADS.Util = (function () {
         var progressCircle = $(document.createElement('img'));
         progressCircle.addClass("progressCircle");
         elAppendTo.append(progressCircle);
-        progressCircle.attr('src', "images/icons/progress-circle.gif");
+        progressCircle.attr('src', tagPath+"images/icons/progress-circle.gif");
         progressCircle.css(cssObject || { // css for entity loading circles
             'position': 'absolute',
             'left': '5%',
@@ -567,7 +568,7 @@ LADS.Util = (function () {
             return;
         }
         var testDiv = $(document.createElement('div'));
-        var tagContainer = $('#'+tagContainerId) || $('body');
+        var tagContainer = $('#tagRoot');
         step = step || 0.1;
         var currSize = minFontSize;
 
@@ -722,7 +723,7 @@ LADS.Util = (function () {
             tap_max_distance: 15,
             doubletap_distance: 17,
             doubletap_interval: 200,
-            swipe: false,
+            swipe: false
         });
 
         var lastTouched = null,
@@ -1292,7 +1293,7 @@ LADS.Util = (function () {
         $.ajax({
             async: false,
             cache: false,
-            url: "html/"+path,
+            url: tagPath+"html/"+path,
             success: function (data) {
                 ret = $(data);
             },
@@ -1304,6 +1305,32 @@ LADS.Util = (function () {
             dataType: 'html'
         });
         return ret;
+    }
+
+     /**
+     * @param collectionId      the id of the collection whose local visibility we want to check or set
+     * @param setValue          falsy if just want to return visibility status
+     *                          {visible: true}  if we want to set collection to be locally visible
+     *                          {visible: false} if we want to hide the collection locally
+     */
+    function localVisibility(collectionId, setValue) {
+        localStorage.invisibleCollectionsTAG = localStorage.invisibleCollectionsTAG || '[]';
+        var tempList, index;
+        try {
+            tempList = JSON.parse(localStorage.invisibleCollectionsTAG);
+        } catch (err) {
+            localStorage.invisibleCollectionsTAG = '[]';
+            tempList = [];
+        }
+        index = tempList.indexOf(collectionId);
+        if (setValue && setValue.visible) {
+            index >= 0 && tempList.splice(index, 1);
+        } else if (setValue && setValue.hasOwnProperty('visible')) {
+            index === -1 && tempList.push(collectionId);
+        } else {
+            return index >= 0 ? false : true;
+        }
+        localStorage.invisibleCollectionsTAG = JSON.stringify(tempList);
     }
 
 })();
@@ -1475,7 +1502,7 @@ LADS.Util.UI = (function () {
 
     function ChangeServerDialog() {
         var serverDialogOverlay = $(document.createElement('div'));
-        var tagContainer = $('#'+tagContainerId) || $('body');
+        var tagContainer = $('#tagRoot');
         serverDialogOverlay.attr('id', 'serverDialogOverlay');
         serverDialogOverlay.css({
             display: 'block',
@@ -1603,7 +1630,7 @@ LADS.Util.UI = (function () {
             switch(address) {
                 case 'tagunicorn':
                     var unicorn = $(document.createElement('img'));
-                    unicorn.attr('src', 'images/unicorn.jpg');
+                    unicorn.attr('src', tagPath+'images/unicorn.jpg');
                     unicorn.css({
                         width: '100%',
                         height: '100%',
@@ -1614,8 +1641,8 @@ LADS.Util.UI = (function () {
                     tagContainer.append(unicorn);
                     unicorn.fadeIn(500);
                     setTimeout(function () {
-                        $('img').attr('src', 'images/unicorn.jpg');
-                        $('.background').css('background-image', 'url("images/unicorn.jpg")');
+                        $('img').attr('src', tagPath+'images/unicorn.jpg');
+                        $('.background').css('background-image', 'url('+tagPath+'"images/unicorn.jpg")');
                         unicorn.fadeOut(500, function () { unicorn.remove(); });
                     }, 5000);
                     return;
@@ -1665,7 +1692,7 @@ LADS.Util.UI = (function () {
             'margin-top': '2.5%',
             'float': 'right'
         });
-        serverCircle.attr('src', 'images/icons/progress-circle.gif');
+        serverCircle.attr('src', tagPath+'images/icons/progress-circle.gif');
 
         
 
@@ -1687,7 +1714,7 @@ LADS.Util.UI = (function () {
 
     function FeedbackBox(sourceType, sourceID) {
         var dialogOverlay = $(document.createElement('div'));
-        var tagContainer = $('#'+tagContainerId) || $('body');
+        var tagContainer = $('#tagRoot');
         $(dialogOverlay).attr('id', 'dialogOverlay');
 
         $(dialogOverlay).css({
@@ -2216,7 +2243,7 @@ LADS.Util.UI = (function () {
     function slidePageLeft(newpage, callback) {
         var outgoingDone = false;
         var incomingDone = false;
-        var tagContainer = $('#'+tagContainerId) || $('body');
+        var tagContainer = $('#tagRoot');
 
         var elements = tagContainer.children();
         elements.remove();
@@ -2256,7 +2283,7 @@ LADS.Util.UI = (function () {
     function slidePageRight(newpage, callback) {
         var outgoingDone = false;
         var incomingDone = false;
-        var tagContainer = $('#'+tagContainerId) || $('body');
+        var tagContainer = $('#tagRoot');
 
         var elements = tagContainer.children();
         elements.remove();
@@ -2411,7 +2438,7 @@ LADS.Util.UI = (function () {
             }
             var pushpinOptions = {
                 text: String(i + 1),
-                icon: '/images/icons/locationPin.png',
+                icon: tagPath+'/images/icons/locationPin.png',
                 width: 20,
                 height: 30
             };
@@ -2437,7 +2464,7 @@ LADS.Util.UI = (function () {
     function addCustomPushpin(locs, currentLocationIndex) {
         var pushpinOptions = {
             text: String(currentLocationIndex),
-            icon: '/images/icons/locationPin.png',
+            icon: tagPath+'/images/icons/locationPin.png',
             width: 20,
             height: 30
         };
@@ -2462,7 +2489,7 @@ LADS.Util.UI = (function () {
         var location = new Microsoft.Maps.Location(lat, long);
         var pushpinOptions = {
             text: String(currentLocationIndex),
-            icon: '/images/icons/locationPin.png',
+            icon: tagPath+'/images/icons/locationPin.png',
             width: 20,
             height: 30
         };
@@ -2920,23 +2947,23 @@ LADS.Util.UI = (function () {
                 var shouldAppendTII = false;
 
                 if (comp.Metadata.ContentType === 'Audio') {
-                    compHolderImage.attr('src', 'images/audio_icon.svg');
+                    compHolderImage.attr('src', tagPath+'images/audio_icon.svg');
                 }
                 else if (comp.Metadata.ContentType === 'Video' || comp.Type === 'Video' || comp.Metadata.Type === 'VideoArtwork') {
                     compHolderImage.attr('src', (comp.Metadata.Thumbnail && !comp.Metadata.Thumbnail.match(/.mp4/)) ? FIXPATH(comp.Metadata.Thumbnail) : 'images/video_icon.svg');
                     shouldAppendTII = true;
-                    typeIndicatorImage.attr('src', 'images/icons/catalog_video_icon.svg');
+                    typeIndicatorImage.attr('src', tagPath+'images/icons/catalog_video_icon.svg');
                 }
                 else if (comp.Metadata.ContentType === 'Image' || comp.Type === 'Image') {
-                    compHolderImage.attr('src', comp.Metadata.Thumbnail ? FIXPATH(comp.Metadata.Thumbnail) : 'images/image_icon.svg');
+                    compHolderImage.attr('src', comp.Metadata.Thumbnail ? FIXPATH(comp.Metadata.Thumbnail) : tagPath+'images/image_icon.svg');
                 }
                 else if (comp.Type === 'Empty') { // tours....don't know why the type is 'Empty'
-                    compHolderImage.attr('src', comp.Metadata.Thumbnail ? FIXPATH(comp.Metadata.Thumbnail) : 'images/icons/catalog_tour_icon.svg');
+                    compHolderImage.attr('src', comp.Metadata.Thumbnail ? FIXPATH(comp.Metadata.Thumbnail) : tagPath+'images/icons/catalog_tour_icon.svg');
                     shouldAppendTII = true;
-                    typeIndicatorImage.attr('src', 'images/icons/catalog_tour_icon.svg');
+                    typeIndicatorImage.attr('src', tagPath+'images/icons/catalog_tour_icon.svg');
                 }
                 else {//text associated media without any media...
-                    compHolderImage.attr('src', 'images/text_icon.svg');
+                    compHolderImage.attr('src', tagPath+'images/text_icon.svg');
                 }
                 compHolderImage.css({
                     'width': '100%',

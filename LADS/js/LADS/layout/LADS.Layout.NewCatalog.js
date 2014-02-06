@@ -17,7 +17,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         exhibitionSpan = root.find('#exhibitionSpan'), 
         contentdiv,
         imgDiv,
-        descriptiontext, 
+        descriptiontext,
         loadingArea,
         titlediv, 
         artworkSelected = false,
@@ -79,8 +79,11 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         // create loading page
         loadingArea = $(document.createElement('div'));
         loadingArea.attr('id', 'loadingArea');
-
         root.append(loadingArea);
+
+        // set image paths
+        root.find('#catalogBackButton').attr('src', tagPath+'images/icons/Back.svg');
+        root.find('#feedback-icon').attr('src', tagPath+'images/icons/FeedbackIcon.svg');
 
         var progressCircCSS = { "position": 'absolute', 'z-index': '50', 'height': 'auto', 'width': '5%', 'left': '47.5%', 'top': '42.5%' };
         var centerhor = '0px';
@@ -219,7 +222,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 } else {
                     privateState = false;
                 }
-                if (!privateState) {
+                if (!privateState && LADS.Util.localVisibility(e.Identifier)) {
                     if (!gotFirst) {
                         bgimage.css('background-image', "url(" + LADS.Worktop.Database.fixPath(e.Metadata.BackgroundImage) + ")");
                     }
@@ -228,9 +231,10 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 }
             });
 
-            if (currExhibition !== null) {
+            if (currExhibition) {
                 loadExhibit(currExhibition, currExhibition);
                 showExhibition(currExhibition);
+                // debugger;
                 $("#exhib-" + currExhibition.Identifier).css({ 'background-color': 'rgb(255,255,255)', 'color': 'black' });
             }
             else clickExhibition(0);//have the first exhibition selected
@@ -290,7 +294,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             }             
         });
 
-        toAdd.click(function () {
+        toAdd.on('click', function () {
             //put this all in diff func and call in constructor 
             for (var i = 0; i < exhibitelements.length; i++) {
                 // prevents animation if exhibit is already selected
@@ -427,7 +431,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
         var exploreIcon = $(document.createElement('img'));
         exploreIcon.attr('id', 'exploreIcon');
-        exploreIcon.attr('src', 'images/icons/ExploreIcon.svg');
+        exploreIcon.attr('src', tagPath+'images/icons/ExploreIcon.svg');
 
         exploreTab.append(exploreIcon);
         exploreTab.append(exploreTabText);    
@@ -674,7 +678,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
             var tourLabel = $(document.createElement('img'));
             tourLabel.attr('id', 'tourLabel');
-            tourLabel.attr('src', 'images/icons/catalog_tour_icon.svg');
+            tourLabel.attr('src', tagPath+'images/icons/catalog_tour_icon.svg');
             tourLabel.css({
                 'height': '50%', 
                 'width': '36%', 
@@ -682,13 +686,14 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
             var videoLabel = $(document.createElement('img'));
             videoLabel.attr('id', 'videoLabel');
-            videoLabel.attr('src', 'images/icons/catalog_video_icon.svg');
+            videoLabel.attr('src', tagPath+'images/icons/catalog_video_icon.svg');
             videoLabel.css({
                 'height': '50%', 
                 'width': '36%', 
             });
 
             var image = $(document.createElement('img'));
+            // debugger;
             image.attr("src", LADS.Worktop.Database.fixPath(currentWork.Metadata.Thumbnail));
             image.css({ width: '100%', height: "100%", position: 'absolute' });
 

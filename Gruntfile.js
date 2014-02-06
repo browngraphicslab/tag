@@ -3,7 +3,10 @@ module.exports = function(grunt) {
 		concat: {
 			options: {
 				separator: '\n;\n',
-				banner: 'var TAG = function(containerId, ip) {',
+				banner: 'var TAG = function(tagInput) {\n \
+					         tagPath = tagInput.path;\n \
+					         containerId = tagInput.containerId;\n \
+					         ip = tagInput.serverIp;\n',
 				footer: '};'
 			},
 			dist: {
@@ -101,6 +104,7 @@ module.exports = function(grunt) {
 				},
 				files: {
 					'LADS/css/TAG.css': [
+						'LADS/css/common.styl',
 						'LADS/css/StartPage.styl',
 						'LADS/css/InternetFailurePage.styl',
 						'LADS/css/Artmode.styl',

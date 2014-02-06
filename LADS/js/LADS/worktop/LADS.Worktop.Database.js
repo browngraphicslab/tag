@@ -1956,12 +1956,15 @@ LADS.Worktop.Database = (function () {
 
     function fixPath(path) {
         if (path) {
-            if (path.indexOf('http') !== -1 || path.indexOf('blob:') !== -1) {
+            if (path.indexOf('blob:') !== -1) {
                 return path;
-            } else {
-                if (path.indexOf('/') !== 0) path = '/' + path;
-                return _db.getFileURL() + path;
+            } else if (path.indexOf('http') !== -1) {
+                path = path.replace(/http.?.?\/\/[^\/]*/, '');
             }
+            if (path.indexOf('/') !== 0) {
+                path = '/' + path;
+            }
+            return _db.getFileURL() + path;
         }
     }
 

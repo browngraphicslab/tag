@@ -69,11 +69,11 @@
             $('#refreshTAGButton').off('click');
             $('#heightSlider').off('change');
             $('#widthSlider').off('change');
-            $('[src="js/raphael.js"]').remove();
-            $('[src="js/tagInk.js"]').remove();
-            $('[src="js/RIN/web/lib/rin-core-1.0.js"]').remove();
+            $('[src='+tagPath+'"js/raphael.js"]').remove();
+            $('[src='+tagPath+'"js/tagInk.js"]').remove();
+            $('[src='+tagPath+'"js/RIN/web/lib/rin-core-1.0.js"]').remove();
             $('[href="css/TAG.css"]').remove();
-            TAG('tagContainer');
+            TAG('', 'tagContainer', ip);
         });
 
         init();
@@ -81,33 +81,47 @@
 
     function init() {
 
-        var UTILSCRIPTS = [
+        var TAGSCRIPTS = [
                 'js/raphael.js',
                 'js/tagInk.js',
                 'js/RIN/web/lib/rin-core-1.0.js'
             ],
-            UTILPATH = '',
             i,
             oHead,
             oScript,
             oCss;
 
+        tagPath = tagPath || '';
+
+        if(tagPath.length > 0 && tagPath[tagPath.length - 1] !== '/') {
+            tagPath += '/';
+        }
+
         oHead = document.getElementsByTagName('head').item(0);
-        for (i = 0; i < UTILSCRIPTS.length; i++) {
+        for (i = 0; i < TAGSCRIPTS.length; i++) {
             oScript = document.createElement("script");
             oScript.type = "text/javascript";
-            oScript.src = UTILPATH + UTILSCRIPTS[i];
+            oScript.src = tagPath + TAGSCRIPTS[i];
             oHead.appendChild(oScript);
         }
         oCss = document.createElement("link");
         oCss.rel = "stylesheet";
-        oCss.href = "css/TAG.css";
+        oCss.href = tagPath+"css/TAG.css";
         oHead.appendChild(oCss);
 
-        var tagContainer = $('#tagRoot') || $("body"); // TODO more general
+        var tagContainer = $('#tagRoot'); // TODO more general?
 
-        $('body').on('scroll', function(evt) {
-            evt.preventDefault();
+        $('#tagRoot').on('mouseenter', function(evt) {
+            var currScroll = $('body').scrollTop();
+            console.log("new scroll = "+currScroll);
+            $('body').on('scroll.scr mousewheel.scr', function(evt) {
+                $('body').scrollTop(currScroll);
+                console.log("new scroll = "+$('body').scrollTop());
+            });
+        });
+
+        $('#tagRoot').on('mouseleave', function(evt) {
+            $('body').off('scroll.scr mousewheel.scr');
         });
 
 
@@ -208,18 +222,18 @@
      * TODO: currently, the server URL is hardcoded since it cannot be fetched from the database since that
      * hasn't been instantiated. This must be changed.
      */
-    function checkServerConnectivity() {
-        var request = $.ajax({
-            url: "http://137.135.69.3:8080",
-            dataType: "text",
-            async: false,
-            error: function(err) {
-                $("body").append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
-                return false;
-            },
-        });
-        return true;
-    }
+    // function checkServerConnectivity() {
+    //     var request = $.ajax({
+    //         url: "http://137.135.69.3:8080",
+    //         dataType: "text",
+    //         async: false,
+    //         error: function(err) {
+    //             $("body").append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
+    //             return false;
+    //         },
+    //     });
+    //     return true;
+    // }
 
     function testThing() {
         LADS.TESTS.timeline();

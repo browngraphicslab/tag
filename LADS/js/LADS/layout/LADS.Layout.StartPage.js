@@ -103,7 +103,11 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             touchHint,
             handGif;
 
-        LADS.Util.Constants.set("START_PAGE_SPLASH", "images/birdtextile.jpg");
+        LADS.Util.Constants.set("START_PAGE_SPLASH", tagPath+"images/birdtextile.jpg");
+
+        // set image paths
+        root.find('#expandImage').attr('src', tagPath+'images/icons/Left.png');
+        root.find('#handGif').attr('src', tagPath+'images/RippleNewSmall.gif');
 
         fullScreen = root.find('#background');
         fullScreen.css('background-image', "url(" + LADS.Worktop.Database.fixPath(main.Metadata["BackgroundImage"]) + ")");
@@ -145,7 +149,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         microsoftLogo = $(document.createElement('img'));
         microsoftLogo.attr('id', 'microsoftLogo');
-        microsoftLogo.attr('src', 'images/icons/MicrosoftLogo.png');
+        microsoftLogo.attr('src', tagPath+'images/icons/MicrosoftLogo.png');
 
         museumName = root.find('#museumName');
         museumNameSpan = root.find('#museumNameSpan');
@@ -220,7 +224,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         });
 
         serverSetUpContainer.on('click', function() {
-            LADS.Util.UI.ChangeServerDialog()
+            LADS.Util.UI.ChangeServerDialog();
         });
         serverTagBuffer.on('click', function (evt) {
             evt.stopPropagation();
