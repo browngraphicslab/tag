@@ -73,7 +73,11 @@
             $('[src='+tagPath+'"js/tagInk.js"]').remove();
             $('[src='+tagPath+'"js/RIN/web/lib/rin-core-1.0.js"]').remove();
             $('[href="css/TAG.css"]').remove();
-            TAG('', 'tagContainer', ip);
+            TAG({
+                path: tagPath,
+                containerId: containerId,
+                serverIp: ip
+            });
         });
 
         init();
