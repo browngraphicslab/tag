@@ -1220,7 +1220,7 @@ LADS.TourAuthoring.ComponentControls = function (spec, my) {
                         container.track.updatePos(i);
                     });
                 },
-                ['.jpg', '.png', '.gif', '.tif', '.tiff'],
+                ['.jpg', '.png', '.gif'],
                 false,
                 function () {
                     root.append(LADS.Util.UI.popUpMessage(null, "There was an error uploading the file.  Please try again later."));
