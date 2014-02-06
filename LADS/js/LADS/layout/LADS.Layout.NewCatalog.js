@@ -492,7 +492,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         descriptiontext.css({
             'height': '91.5%',
             'width': '55%', 
-            'font-size': 0.2 * LADS.Util.getMaxFontSizeEM(exhibition.Metadata.Description, 1.5, .55 * $(contentdiv).width(), 0.915 * $(contentdiv).height(), 0.1), // h1*0.055 + 'px',
+            'font-size': 0.2 * LADS.Util.getMaxFontSizeEM(exhibition.Metadata.Description, 1.5, 0.55 * $(contentdiv).width(), 0.915 * $(contentdiv).height(), 0.1), // h1*0.055 + 'px',
         });
            
         descriptiontext.html(str);
@@ -597,7 +597,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         var matchedArts = [], unmatchedArts = [];
 
         for (var i = 0; i < infoSource.length; i++) {
-            if (infoSource[i]["keys"].indexOf(content) > -1) {
+            if (infoSource[i].keys.indexOf(content) > -1) {
                 matchedArts.push(currentArtworks[i]);
             }
             else {
@@ -637,7 +637,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 timelineDiv.empty();
             });
         }
-        if (artworks == null) return;
+        if (artworks === null) return;
         var sortedArtworks = sortTimeline(artworks, tag);
         var each = sortedArtworks.min();
         var currentWork = (each) ? each.artwork : null;
@@ -748,7 +748,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 main.append(videoLabel);
             }
             timelineDiv.append(main);
-        }
+        };
     }
 
     function showArtwork(artwork) {
@@ -792,13 +792,19 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
 
             descriptiontext.empty();
             descriptiontext.append(titleSpan).append(descSpan);            
-        }
+        };
     }
 
     function sortTimeline(artworks, tag) {
+        var identical = 0;
+        var comparator;
+        var valuation;
+        var avlTree;
+        var artNode;
+        var i;
         if (tag === 'Title') {
-            var identical = 0;
-            var comparator = function (a, b) {
+            identical = 0;
+            comparator = function (a, b) {
                 if (a.nameKey < b.nameKey) {
                     return -1;
                 } else if (a.nameKey > b.nameKey) {
@@ -815,7 +821,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 }
             };
 
-            var valuation = function (value, compareToNode) {
+            valuation = function (value, compareToNode) {
                 if (!compareToNode) {
                     return null;
                 } else if (value < compareToNode.nameKey) {
@@ -825,21 +831,21 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 } else {
                     return 0;
                 }
-            }
+            };
 
-            var avlTree = new AVLTree(comparator, valuation);
+            avlTree = new AVLTree(comparator, valuation);
             avlTree.clear();
-            for (var i = 0; i < artworks.length; i++) {
-                var artNode = {
+            for (i = 0; i < artworks.length; i++) {
+                artNode = {
                     artwork: artworks[i],
                     nameKey: artworks[i].Name,
-                }
+                };
                 avlTree.add(artNode);
             }
             return avlTree;
         } else if (tag === 'Artist') {
-            var identical = 0;
-            var comparator = function (a, b) {
+            identical = 0;
+            comparator = function (a, b) {
                 if (a.artistKey < b.artistKey) {
                     return -1;
                 } else if (a.artistKey > b.artistKey) {
@@ -856,7 +862,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 }
             };
 
-            var valuation = function (value, compareToNode) {
+            valuation = function (value, compareToNode) {
                 if (!compareToNode) {
                     return null;
                 } else if (value < compareToNode.artistKey) {
@@ -866,20 +872,20 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 } else {
                     return 0;
                 }
-            }
+            };
 
-            var avlTree = new AVLTree(comparator, valuation);
-            for (var i = 0; i < artworks.length; i++) {
-                var artNode = {
+            avlTree = new AVLTree(comparator, valuation);
+            for (i = 0; i < artworks.length; i++) {
+                artNode = {
                     artwork: artworks[i],
                     artistKey: artworks[i].Type === 'Empty' ? '~~~~' : artworks[i].Metadata.Artist
-                }
+                };
                 avlTree.add(artNode);
             }
             return avlTree;
         } else if (tag === 'Year') {
-            var identical = 0;
-            var comparator = function (a, b) {
+            identical = 0;
+            comparator = function (a, b) {
                 if (a.yearKey < b.yearKey) {
                     return -1;
                 } else if (a.yearKey > b.yearKey) {
@@ -896,7 +902,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 }
             };
 
-            var valuation = function (value, compareToNode) {
+            valuation = function (value, compareToNode) {
                 if (!compareToNode) {
                     return null;
                 } else if (value < compareToNode.yearKey) {
@@ -906,20 +912,20 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 } else {
                     return 0;
                 }
-            }
+            };
 
-            var avlTree = new AVLTree(comparator, valuation);
-            for (var i = 0; i < artworks.length; i++) {
-                var artNode = {
+            avlTree = new AVLTree(comparator, valuation);
+            for (i = 0; i < artworks.length; i++) {
+                artNode = {
                     artwork: artworks[i],
                     yearKey: artworks[i].Type === 'Empty' ? '~~~~' : artworks[i].Metadata.Year
-                }
+                };
                 avlTree.add(artNode);
             }
             return avlTree;
         } else if (tag === 'Type') {
-            var identical = 0;
-            var comparator = function (a, b) {
+            identical = 0;
+            comparator = function (a, b) {
                 if (a.typeKey < b.typeKey) {
                     return -1;
                 } else if (a.typeKey > b.typeKey) {
@@ -936,7 +942,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 }
             };
 
-            var valuation = function (value, compareToNode) {
+            valuation = function (value, compareToNode) {
                 if (!compareToNode) {
                     return null;
                 } else if (value < compareToNode.nameKey) {
@@ -946,15 +952,15 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 } else {
                     return 0;
                 }
-            }
+            };
 
-            var avlTree = new AVLTree(comparator, valuation);
-            for (var i = 0; i < artworks.length; i++) {
-                var artNode = {
+            avlTree = new AVLTree(comparator, valuation);
+            for (i = 0; i < artworks.length; i++) {
+                artNode = {
                     artwork: artworks[i],
                     nameKey: artworks[i].Name,
                     typeKey: artworks[i].Type === 'Empty' ? 1 : (artworks[i].Metadata.Type === 'Artwork' ? 2 : 3)
-                }
+                };
                 avlTree.add(artNode);
             }
             return avlTree;
