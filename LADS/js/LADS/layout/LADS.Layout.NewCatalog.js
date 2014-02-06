@@ -385,7 +385,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         displayareasub.append(display);
 
         currentExhElements.display = display;
-        var fontSize = LADS.Util.getMaxFontSizeEM(exhibition.Name, 1.5, w, .2 * display.height(),0.2);
+        var fontSize = LADS.Util.getMaxFontSizeEM(exhibition.Name, 1.5, w, 0.2 * display.height(),0.2);
         titlediv.css({ 'font-size': fontSize });
         display.append(titlediv);
 
@@ -430,12 +430,12 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         exploreIcon.attr('src', 'images/icons/ExploreIcon.svg');
 
         exploreTab.append(exploreIcon);
-        exploreTab.append(exploreTabText)    
+        exploreTab.append(exploreTabText);    
 
         contentdiv.append(imgDiv);
         imgDiv.append(img1);
         imgDiv.append(exploreTab);
-        exploreTabText.css("font-size", LADS.Util.getMaxFontSizeEM("Explore", .5, .5 * exploreTab.width(), .7 * exploreTab.height(),0.1));
+        exploreTabText.css("font-size", LADS.Util.getMaxFontSizeEM("Explore", 0.5, 0.5 * exploreTab.width(), 0.7 * exploreTab.height(),0.1));
 
         img1.on('click', function () {//exploreTab
             if (artworkSelected) {
@@ -529,7 +529,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 }
             }
 
-            if (numberOfTours == 0) {
+            if (numberOfTours === 0) {
                 noTours = true;
             }
             else {
