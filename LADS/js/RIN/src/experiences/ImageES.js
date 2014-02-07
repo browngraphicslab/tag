@@ -172,7 +172,7 @@
                 'z-index': '100000000000000000000'
             });
             cover.hide();
-            //$('#tagRoot').append(cover);
+            // $('#tagRoot').append(cover);
 
             // If running on IE 10/RT, enable multitouch support.
             if (window.navigator.msPointerEnabled && typeof (MSGesture) !== "undefined") {
