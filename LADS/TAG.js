@@ -43474,7 +43474,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         // Labels (Exhibition)
         //var fontSize = LADS.Util.getMaxFontSizeEM('Collections', 2.5, $(container).width() * 0.085, 1000, 0.2);
         exhibitionLabel.css({
-            'font-size': '2.1em',
+            //'font-size': '2.1em',
             'display': (!forSplitscreen && !LADS.Util.Splitscreen.on()) ? 'display' : 'none'
         });
 
@@ -43571,9 +43571,11 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         
         // var exhibTitleSize = LADS.Util.getMaxFontSizeEM('W', 0.25, 9999, size * 0.85, 0.1);
 
+		/*
         titleBox.css({
             "font-size": '1.4em' //exhibTitleSize,            
         });
+		*/
 
         exLabels.push(toAdd);
         exhibitarea.append(toAdd);
@@ -44004,16 +44006,19 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             var artTitle = $(document.createElement('div'));
             artTitle.attr('id', 'artTitle');
             artTitle.css({
-                'width': '100.5%', 
+                'width': '100%', 
                 'height': '20%', 
             });
 
             // text div for artwork
             var artText = $(document.createElement('div'));
             artText.attr('id', 'artText');
+			
+			/*
             artText.css({
                 'font-size': '0.6em', // ($(artTitle).height() * 0.55) + "px",
             });
+			*/
 
             if (tag === 'Title') {
                 artText.text(LADS.Util.htmlEntityDecode(currentWork.Name));
