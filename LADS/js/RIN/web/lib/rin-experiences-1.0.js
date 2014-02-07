@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-02-04 */
+/*! RIN | http://research.microsoft.com/rin | 2014-02-06 */
 (function() {
     "use strict";
     var rin = window.rin || {};
@@ -183,7 +183,7 @@
                 'z-index': '100000000000000000000'
             });
             cover.hide();
-            //$('#tagRoot').append(cover);
+            // $('#tagRoot').append(cover);
 
             // If running on IE 10/RT, enable multitouch support.
             if (window.navigator.msPointerEnabled && typeof (MSGesture) !== "undefined") {

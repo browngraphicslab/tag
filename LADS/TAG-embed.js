@@ -3,17 +3,21 @@ var TAG_embed = function(tagInput) {
 	 * Embed TAG as an iframe in your site, using the demo.html file as the source.
 	 * The tagPath argument is ignored here, but it is included for consistency
 	 * with the TAG function.
-	 * @param tagPath          ignored
-	 * @param tagContainerId   the id of the div in which we'll stick an iframe
-	 * @param ip               the ip adress of the server to which we'll connect
-	 * @param width
+	 * @param tagInput     object with the following properties:
+	 *                       path          relative path from your html file to the TAG directory
+	 *                                        (e.g., './a/b/TAG')
+	 *                       containerId   the id of the div in which you want to embed TAG
+	 *                       serverIp      the ip adress of the server to which you want to connect
+	 *                       width         the desired width of TAG
+	 *                       height        the desired height of TAG
+	 *                       hiddenCollections   a list of collection IDs for published collections to be hidden
 	 */
 
 	// embed iframe in $('#'+tagContainerId)
 	var tagPath = tagInput.path,
 		tagContainerId = tagInput.containerId,
 		ip = tagInput.serverIp,
-		hiddenCollections = tagInput.hiddenCollections,
+		hiddenCollections = tagInput.hiddenCollections || [],
 		width = tagInput.width,
 		height = tagInput.height,
 		container,
