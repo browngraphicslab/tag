@@ -22,6 +22,7 @@
 
         var tagRootContainer = $(document.createElement('div')).attr('id', 'tagRootContainer');
         container.append(tagRootContainer);
+
         var tagRootInnerContainer = $(document.createElement('div')).attr('id', 'tagRootInnerContainer');
         tagRootContainer.append(tagRootInnerContainer);
         var tagRoot = $(document.createElement('div')).attr('id', 'tagRoot');
@@ -114,19 +115,7 @@
         oHead.appendChild(oCss);
 
         var tagContainer = $('#tagRoot'); // TODO more general?
-
-        $('#tagRoot').on('mouseenter', function(evt) {
-            var currScroll = $('body').scrollTop();
-            console.log("new scroll = "+currScroll);
-            $('body').on('scroll.scr mousewheel.scr', function(evt) {
-                $('body').scrollTop(currScroll);
-                console.log("new scroll = "+$('body').scrollTop());
-            });
-        });
-
-        $('#tagRoot').on('mouseleave', function(evt) {
-            $('body').off('scroll.scr mousewheel.scr');
-        });
+    
 
 
         //window.location = 'js/RIN/web/reload-test.html';
