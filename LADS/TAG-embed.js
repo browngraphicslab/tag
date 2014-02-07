@@ -24,6 +24,7 @@ var TAG_embed = function(tagInput) {
 		frame,
 		frameDoc,
 		htmlStr,
+		tempImage,
 		frameContainer,
 		frameInnerContainer;
 	
@@ -53,6 +54,9 @@ var TAG_embed = function(tagInput) {
 	height = parseFloat(height || container.style.height || '460');
 
 	frameContainer = document.createElement('div');
+	frameContainer.style.width = width + 'px';
+	frameContainer.style.height = height + 'px';
+	frameContainer.style.position = 'relative';
 	frameContainer.id = 'frameContainer';
     container.appendChild(frameContainer);
 
@@ -66,6 +70,13 @@ var TAG_embed = function(tagInput) {
 	frame.style.position = 'relative';
 	frame.style.border = '0px';
 	frameInnerContainer.appendChild(frame);
+
+	// tempImage = document.createElement('img');
+	// tempImage.src = tagPath+'images/splash.jpg';
+	// tempImage.style.width = '100%';
+	// tempImage.style.height= '100%';
+	// tempImage.style.position = 'absolute';
+	// frameInnerContainer.appendChild(tempImage);
     
     // write out html of iframe document
     // ideally, we could just put demo.html as the src of the iframe, but
@@ -89,7 +100,8 @@ var TAG_embed = function(tagInput) {
 					</script> \
 				</head> \
 				<body> \
-					<div id="tagContainer" style="margin-left:16px;  width:'+(width-32)+'px; height:'+(height-18)+'px;"></div> \
+					<div id="tagContainer" style="margin-left:16px;  width:'+(width-32)+'px; height:'+(height-18)+'px;"> \
+					</div> \
 				</body> \
 			    </html>';
 
@@ -97,17 +109,23 @@ var TAG_embed = function(tagInput) {
     frameDoc.open();
     frameDoc.write(htmlStr);
     frameDoc.close();
+
+    // frameDoc.addEventListener('ready', function() {
+    // 	frameInnerContainer.innerHTML = '';
+    // });
+
     var mouseWheelHandler=function (evt){
     	evt.stopPropagation();
     	evt.preventDefault();
     }
     if (frame.addEventListener) {
-	// IE9, Chrome, Safari, Opera
-	frame.addEventListener("mousewheel", mouseWheelHandler, false);
-	// Firefox
-	frameContainer.addEventListener("DOMMouseScroll", mouseWheelHandler);
+		// IE9, Chrome, Safari, Opera
+		frame.addEventListener("mousewheel", mouseWheelHandler, false);
+		// Firefox
+		frameContainer.addEventListener("DOMMouseScroll", mouseWheelHandler);
 	}
-	// IE 6/7/8
-	else frame.attachEvent("onmousewheel", mouseWheelHandler);
+	else { // IE 6/7/8
+		frame.attachEvent("onmousewheel", mouseWheelHandler);
+	}
  
 };
