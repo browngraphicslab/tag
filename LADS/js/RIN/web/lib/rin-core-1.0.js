@@ -7720,6 +7720,19 @@ window.rin = window.rin || {};
         this.setVM = function (viewModel) {
             ko.applyBindings(viewModel, control.get(0));
         };
+		
+		volumeButton.attr("isMute", "false");
+		volumeButton.click(function (event) {
+			if (volumeButton.attr("isMute") === "true"){
+				self.volumeChangedEvent.publish(100);
+				volumeButton.css({"opacity":"1.0"});
+				volumeButton.attr("isMute", "false");
+			}else{
+				self.volumeChangedEvent.publish(0);
+				volumeButton.css({"opacity":"0.4"});
+				volumeButton.attr("isMute", "true");
+			}
+        });
     };
 
     rin.internal.ui.SeekerControl = function (control, viewModel) {

@@ -812,7 +812,6 @@ window.rin = window.rin || {};
 
             // Raise state transition event anytime the state of the ES has changed, like a pan or zoom.
             self._viewer.addEventListener('animationfinish', function () {
-				console.log("anim done");
                 var playerState = self._orchestrator.getPlayerState();
                 if (playerState === rin.contracts.playerState.pausedForExplore || playerState === rin.contracts.playerState.stopped) {
                     self._orchestrator.onESEvent(rin.contracts.esEventIds.stateTransitionEventId, { isUserInitiated: true, transitionState: "completed" });
@@ -1010,6 +1009,8 @@ window.rin = window.rin || {};
                 x: this.old_left, y: this.old_top,
                 width: this.old_width, height: this.old_height
             };
+			//console.log(this.old_left + ", " + this.old_top);
+			//console.log(this.old_width + ", " + this.old_height);
             this.viewportChangedEvent.publish(pushstate);
             return pushstate;
         }, 
@@ -1050,7 +1051,7 @@ window.rin = window.rin || {};
         },
 		
 		makeManipulatable: function (element, functions, stopOutside, noAccel) {
-			
+			console.log("makeManip called");
 			var hammer = new Hammer(element, {
 				hold_threshold: 3,
 				drag_min_distance: 9,
@@ -1437,6 +1438,7 @@ window.rin = window.rin || {};
 
         // Initialize touch gestures.
         initTouch: function () {
+			console.log("ALKWEFJIEWOJFASFISHEWIOFHSIEDHFIHEWIFHWEHFEHFIOWHEFOHIHWEIOFHIEWOHFOWEUHFWOEIUFHEWOFIHEWFIHWEUIOFHEWFUIOHEWFUIOHWEFIOHEWOFUIHEWIFUHEFIOHEWOFIUHEWFIOHWEFUIHEF");
             var self = this,
                 node = self._viewer.drawer.elmt,
                 cover = this.cover;
@@ -1533,42 +1535,40 @@ window.rin = window.rin || {};
                 };
 				
 				// begin new handler section - dz
-				
-				/*
-				var oldposX; var oldposY;
-				var onmousemove = function (event) {
-					console.log("mousemove, performing actions");
-					if (!oldposX || !oldposY) {
-						// if previously undefined, capture positional data
-						oldposX = event.clientX;
-						oldposY = event.clientY;
-						return { x: 0, y: 0 };
-					} else {
-						var dx = event.clientX - oldposX;
-						var dy = event.clientY - oldposY;
-						oldposX = event.clientX;
-						oldposY = event.clientY;
-						var delta = { 'x': dx, 'y': dy };
-						self._viewer.viewport.panBy(self._viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-delta.x, -delta.y), true), false);
-                        self._viewer.viewport.applyConstraints(true);
-					}
-				}
-				*/
-				
 				// now using hammer to do interactions
 				// DZ elements are stored in "node"
 				
+
 				self.makeManipulatable(node, {
 					onManipulate: function (res) {
+						console.log("logging mouse data");
+						console.log(res.translation.x);
+						console.log(res.translation.y);
 						self._viewer.viewport.panBy(self._viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-res.translation.x, -res.translation.y), true), false);
                         self._viewer.viewport.applyConstraints(true);
+						self.raiseViewportUpdate();
+					}
+				});
+
+				/*
+				self.makeManipulatable(self._seadragonContainer.firstChild, {
+					onManipulate: function (res) {
+					console.log("moving seadragon element");
+						self._viewer.viewport.panBy(self._viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-res.translation.x, -res.translation.y), true), false);
+						console.log("pan");
+                        self._viewer.viewport.applyConstraints(true);
+						console.log("constrain");
+						self.raiseViewportUpdate();
+						console.log("viewport update");
 					},
 				});
+				*/
 				
 				self.makeManipulatable(cover[0], {
 					onManipulate: function (res) {
 						self._viewer.viewport.panBy(self._viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-res.translation.x, -res.translation.y), true), false);
                         self._viewer.viewport.applyConstraints(true);
+						self.raiseViewportUpdate();
 					},
 				});
 				
@@ -2328,6 +2328,7 @@ window.rin = window.rin || {};
 
         // Interpolate volume for smooth fade in and out.
         _animateVolume: function (animationTime, targetVolume, onComplete) {
+			this._audio.volume = targetVolume; //abrupt stop to volume
             if (this._activeVolumeAnimation !== null) {
                 this._activeVolumeAnimation.stop();
                 this._activeVolumeAnimation = null;
@@ -2387,6 +2388,7 @@ window.rin = window.rin || {};
     rin.util.overrideProperties(AudioES.prototypeOverrides, AudioES.prototype);
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.AudioExperienceStream", function (orchestrator, esData) { return new AudioES(orchestrator, esData); });
 })(rin);
+
 /*!
 * RIN Experience Provider JavaScript Library v1.0
 * http://research.microsoft.com/rin

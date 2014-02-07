@@ -21,7 +21,7 @@ html, body, .rinPlayer /* TODO do we need to get rid of this? in iframe, so migh
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    //overflow: hidden;
     width: 100%;
     font-family: "Segoe" , Tahoma, Geneva, Verdana, sans-serif;
     font-size: 100%;

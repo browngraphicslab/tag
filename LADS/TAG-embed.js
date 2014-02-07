@@ -89,7 +89,7 @@ var TAG_embed = function(tagInput) {
 					</script> \
 				</head> \
 				<body> \
-					<div id="tagContainer" style="margin-left:16px; margin-top:'+(16*9/16)+'px; width:'+(width-32)+'px; height:'+(height-18)+'px;"></div> \
+					<div id="tagContainer" style="margin-left:16px;  width:'+(width-32)+'px; height:'+(height-18)+'px;"></div> \
 				</body> \
 			    </html>';
 
@@ -97,4 +97,17 @@ var TAG_embed = function(tagInput) {
     frameDoc.open();
     frameDoc.write(htmlStr);
     frameDoc.close();
+    var mouseWheelHandler=function (evt){
+    	evt.stopPropagation();
+    	evt.preventDefault();
+    }
+    if (frame.addEventListener) {
+	// IE9, Chrome, Safari, Opera
+	frame.addEventListener("mousewheel", mouseWheelHandler, false);
+	// Firefox
+	frameContainer.addEventListener("DOMMouseScroll", mouseWheelHandler);
+	}
+	// IE 6/7/8
+	else frame.attachEvent("onmousewheel", mouseWheelHandler);
+ 
 };

@@ -334,6 +334,7 @@ window.rin = window.rin || {};
 
         // Interpolate volume for smooth fade in and out.
         _animateVolume: function (animationTime, targetVolume, onComplete) {
+			this._audio.volume = targetVolume; //abrupt stop to volume
             if (this._activeVolumeAnimation !== null) {
                 this._activeVolumeAnimation.stop();
                 this._activeVolumeAnimation = null;

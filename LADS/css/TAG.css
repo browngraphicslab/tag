@@ -941,7 +941,6 @@ left: 50% {
 #newCatalogRoot #titleSpan {
   line-height: 100%;
   margin-bottom: 15px;
-  overflow-y: scroll;
   overflow-x: none;
   text-overflow: ellipsis;
 }
@@ -1121,9 +1120,9 @@ left: 50% {
   height: 100%;
 }
 #tourRoot #backButton {
-  height: 100%;
+  height: 40px;
   position: absolute;
-  width: 100%;
+  width: 40px;
   z-index: 100000000;
 }
 #tourRoot #backButtonContainer {
