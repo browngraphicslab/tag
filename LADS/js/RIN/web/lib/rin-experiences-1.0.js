@@ -606,6 +606,25 @@
 					functions.onScroll(delta, pivot);
 				}
 			}
+			
+			function processScrollFirefox(evt) {
+				console.log("capturing wheel events");
+				var pivot = { x: evt.x - $element.offset().left, y: evt.y - $element.offset().top };
+				var delta = -evt.detail;
+				/*
+				if (delta < 0) { 
+					console.log("here; " + delta);
+					delta = 1.0 / 1.1;
+				} else { 
+					console.log("there; " + delta);
+					delta = 1.1;
+				}
+				*/
+				evt.cancelBubble = true;
+				if (typeof functions.onScroll === "function") { 
+					functions.onScroll(delta, pivot);
+				}
+			}
 
 			hammer.on('touch', processDown);
 			hammer.on('drag', function(evt){
@@ -614,7 +633,7 @@
 			hammer.on('pinch', processPinch);
 			hammer.on('release', processUp);
 			element.onmousewheel = processScroll;
-			element.addEventListener("DOMMouseScroll", processScroll);
+			element.addEventListener("DOMMouseScroll", processScrollFirefox);
 			// double tap
 			var doubleTappedHandler, event;
 			if (typeof functions.onDoubleTapped === "function") {
