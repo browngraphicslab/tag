@@ -41700,7 +41700,7 @@ LADS.Auth = (function () {
             'margin-top': '2.5%',
             'float': 'right'
         });
-        circle.attr('src', 'images/icons/progress-circle.gif');
+        circle.attr('src', tagPath+'images/icons/progress-circle.gif');
 
 
         submitButton.text('Submit');
@@ -44838,7 +44838,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
     }
     
     setHoverValue = function (percent) {
-        var totalDuration = orchestrator.getNarrativeInfo().totalDuration,
+        var totalDuration = orchestrator.getNarrativeInfo().totalDuration, // ???
             hoverTime = narrativeDuration * percent,
             minutes = Math.floor(hoverTime / 60),
             seconds = Math.floor(hoverTime % 60);

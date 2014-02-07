@@ -82,8 +82,8 @@ var TAG_embed = function(tagInput) {
                         window.onload = function() { \
                             TAG({ \
                                 path:"'+tagPath+'", \
-                                containerId:"'+tagContainerId+'", \
-                                serverIp:"'+ip+'", \
+                                containerId:"tagContainer", \
+                                serverIp:"'+ip+'" \
                             }); \
 						}; \
 					</script> \

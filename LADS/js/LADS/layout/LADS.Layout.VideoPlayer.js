@@ -75,7 +75,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
     }
     
     setHoverValue = function (percent) {
-        var totalDuration = orchestrator.getNarrativeInfo().totalDuration,
+        var totalDuration = orchestrator.getNarrativeInfo().totalDuration, // ???
             hoverTime = narrativeDuration * percent,
             minutes = Math.floor(hoverTime / 60),
             seconds = Math.floor(hoverTime % 60);

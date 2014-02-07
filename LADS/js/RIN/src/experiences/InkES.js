@@ -224,7 +224,7 @@ window.rin = window.rin || {};
         },
         _interactionControls: null
     };
-    InkES.elementHTML = "<div style='height:100%;width:100%;position:relative;background:transparent'><div class='rinInkContainer inkCanv' style='pointer-events:none;height:100%;width:100%;left:0px;top:0px;position:absolute;background:transparent'></div></div>";
+    InkES.elementHTML = "<div style='height:100%;width:100%;position:relative;background:transparent;pointer-events:none;'><div class='rinInkContainer inkCanv' style='pointer-events:none;height:100%;width:100%;left:0px;top:0px;position:absolute;background:transparent'></div></div>";
     rin.util.overrideProperties(InkES.prototypeOverrides, InkES.prototype);
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.InkExperienceStream", function (orchestrator, esData) { return new InkES(orchestrator, esData); });
 })(rin);

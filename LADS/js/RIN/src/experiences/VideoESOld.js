@@ -20,6 +20,8 @@
 window.rin = window.rin || {};
 
 (function (rin) {
+    /*global $:true, ko:true*/
+    "use strict";
     // ES for playing video clips.
     var VideoES = function (orchestrator, esData) {
         VideoES.parentConstructor.apply(this, arguments);
@@ -32,7 +34,7 @@ window.rin = window.rin || {};
         this._url = orchestrator.getResourceResolver().resolveResource(esData.resourceReferences[0].resourceId, esData.experienceId);
 
         // Handle any interaction on the video and pause the player.
-        $(this._userInterfaceControl).bind("mousedown", function (e) {
+        $(this._userInterfaceControl).bind("mousedown", function () {
             self._orchestrator.pause();
         });
     };
@@ -69,8 +71,9 @@ window.rin = window.rin || {};
             this._video.onerror = function (error) {
                 var errorString = "Video failed to load. Error: " + (self._video.error ? self._video.error.code : error) + "<br/>Url: " + self._url;
                 var esInfo = self._orchestrator.debugOnlyGetESItemInfo();
+                debugger;
                 if (esInfo) {
-                    errorString += "<br/>ES Info: {0}:{1} <br/>Lifetime {2}-{3}".rinFormat(esInfo.providerName, esInfo.id,
+                    errorString += "<br/>ES Info: {0}:{1} <br/>Lifetime {2}-{3}".rinFormat(esInfo.providerId, esInfo.id,
                     esInfo.beginOffset, esInfo.endOffset);
                 }
                 self._orchestrator.eventLogger.logErrorEvent(errorString);
@@ -87,8 +90,7 @@ window.rin = window.rin || {};
             };
 
             // Handle ready state change and change the ES state accordingly.
-            this._video.onreadystatechange = function (args) {
-                var state = self._video.state();
+            this._video.onreadystatechange = function () {
                 self.readyStateCheck();
             };
 
@@ -121,6 +123,7 @@ window.rin = window.rin || {};
         // Unload the video.
         unload: function () {
             try {
+                console.log('unloading video >>>>>>>>>>>>>>>>>>>>>>>>>>');
                 this._video.pause();
                 var srcElements = this._video.getElementsByTagName("source");
                 for (var i = srcElements.length - 1; i >= 0; i--) {
@@ -137,24 +140,27 @@ window.rin = window.rin || {};
         // Play the video.
         play: function (offset, experienceStreamId) {
             try {
-                console.log('begin play >>>>>>');
-                var epsilon = 0.05; // Ignore minute seeks.
-                if (Math.abs(this._video.currentTime - (this._startMarker + offset)) > epsilon) {
-                    this._seek(offset, experienceStreamId);
-                }
-                this._updateMute();
+                // var epsilon = 0.05; // Ignore minute seeks.
+                // if (Math.abs(this._video.currentTime - (this._startMarker + offset)) > epsilon) {
+                //     this._seek(offset, experienceStreamId);
+                // }
+                // console.log('playing video >>>>>>>>>>>>>>>>>>>>>>>>>>>');
+                // this._updateMute();
+                this._video.currentTime = offset;
                 this._video.play();
             } catch (e) { rin.internal.debug.assert(false, "exception at video element " + e.Message); }
         },
         // Pause the video.
         pause: function (offset, experienceStreamId) {
             try {
-                var epsilon = 0.05; // Ignore minute seeks.
-                if (Math.abs(this._video.currentTime - (this._startMarker + offset)) > epsilon) {
-                    this._seek(offset, experienceStreamId);
-                }
+                // var epsilon = 0.05; // Ignore minute seeks.
+                // if (Math.abs(this._video.currentTime - (this._startMarker + offset)) > epsilon) {
+                //     this._seek(offset, experienceStreamId);
+                // }
+                console.log('pausing video >>>>>>>>>>>>>>>>>>>>>>>>>>>');
+                this._video.currentTime = offset;
                 this._video.pause();
-                console.log('end pause >>>>>>>');
+                // debugger;
             } catch (e) { rin.internal.debug.assert(false, "exception at video element " + e.Message); }
         },
         // Set the base volume for the ES. This will get multiplied with the keyframed volume to get to the final applied volume.
@@ -167,7 +173,8 @@ window.rin = window.rin || {};
             this._updateMute();
         },
 
-        onESEvent: function (sender, eventId, eventData) {
+        onESEvent: function (sender, eventId) {
+            debugger;
             if (eventId === rin.contracts.esEventIds.playerConfigurationChanged) {
                 this._updateMute();
             }
@@ -177,7 +184,8 @@ window.rin = window.rin || {};
         },
 
         // Handle seeking of video.
-        _seek: function (offset, experienceStreamId) {
+        _seek: function (offset) {
+            debugger;
             offset += this._startMarker;
 
             // See if the video element is ready.
@@ -207,10 +215,6 @@ window.rin = window.rin || {};
             if (keyframe && keyframe.state && keyframe.state.sound) {
                 return keyframe.state.sound.volume;
             }
-            else if (keyframe && keyframe.data && keyframe.data["default"]) {
-                var data = rin.internal.XElement(keyframeData.data["default"]);
-                if (data) return parseFloat(curData.attributeValue("Volume"));
-            }
             return 1;
         },
         _setAudioVolume: function (value) {
@@ -239,4 +243,4 @@ window.rin = window.rin || {};
     VideoES.elementHTML = "<video style='height:100%;width:100%;position:absolute' preload='auto'>Sorry, Your browser does not support HTML5 video.</video>";
     rin.util.overrideProperties(VideoES.prototypeOverrides, VideoES.prototype);
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.VideoExperienceStream", function (orchestrator, esData) { return new VideoES(orchestrator, esData); });
-})(rin);
+})(window.rin);

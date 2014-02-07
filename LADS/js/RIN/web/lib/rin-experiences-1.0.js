@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-02-06 */
+/*! RIN | http://research.microsoft.com/rin | 2014-02-07 */
 (function() {
     "use strict";
     var rin = window.rin || {};
@@ -1771,8 +1771,6 @@ window.rin = window.rin || {};
 window.rin = window.rin || {};
 
 (function (rin) {
-    /*global $:true, ko:true*/
-    "use strict";
     // ES for playing video clips.
     var VideoES = function (orchestrator, esData) {
         VideoES.parentConstructor.apply(this, arguments);
@@ -1785,7 +1783,7 @@ window.rin = window.rin || {};
         this._url = orchestrator.getResourceResolver().resolveResource(esData.resourceReferences[0].resourceId, esData.experienceId);
 
         // Handle any interaction on the video and pause the player.
-        $(this._userInterfaceControl).bind("mousedown", function () {
+        $(this._userInterfaceControl).bind("mousedown", function (e) {
             self._orchestrator.pause();
         });
     };
@@ -1840,7 +1838,8 @@ window.rin = window.rin || {};
             };
 
             // Handle ready state change and change the ES state accordingly.
-            this._video.onreadystatechange = function () {
+            this._video.onreadystatechange = function (args) {
+                var state = self._video.state();
                 self.readyStateCheck();
             };
 
@@ -1889,6 +1888,7 @@ window.rin = window.rin || {};
         // Play the video.
         play: function (offset, experienceStreamId) {
             try {
+                console.log('begin play >>>>>>');
                 var epsilon = 0.05; // Ignore minute seeks.
                 if (Math.abs(this._video.currentTime - (this._startMarker + offset)) > epsilon) {
                     this._seek(offset, experienceStreamId);
@@ -1905,6 +1905,7 @@ window.rin = window.rin || {};
                     this._seek(offset, experienceStreamId);
                 }
                 this._video.pause();
+                console.log('end pause >>>>>>>');
             } catch (e) { rin.internal.debug.assert(false, "exception at video element " + e.Message); }
         },
         // Set the base volume for the ES. This will get multiplied with the keyframed volume to get to the final applied volume.
@@ -1917,7 +1918,7 @@ window.rin = window.rin || {};
             this._updateMute();
         },
 
-        onESEvent: function (sender, eventId) {
+        onESEvent: function (sender, eventId, eventData) {
             if (eventId === rin.contracts.esEventIds.playerConfigurationChanged) {
                 this._updateMute();
             }
@@ -1927,7 +1928,7 @@ window.rin = window.rin || {};
         },
 
         // Handle seeking of video.
-        _seek: function (offset) {
+        _seek: function (offset, experienceStreamId) {
             offset += this._startMarker;
 
             // See if the video element is ready.
@@ -1957,6 +1958,10 @@ window.rin = window.rin || {};
             if (keyframe && keyframe.state && keyframe.state.sound) {
                 return keyframe.state.sound.volume;
             }
+            else if (keyframe && keyframe.data && keyframe.data["default"]) {
+                var data = rin.internal.XElement(keyframeData.data["default"]);
+                if (data) return parseFloat(curData.attributeValue("Volume"));
+            }
             return 1;
         },
         _setAudioVolume: function (value) {
@@ -1985,7 +1990,7 @@ window.rin = window.rin || {};
     VideoES.elementHTML = "<video style='height:100%;width:100%;position:absolute' preload='auto'>Sorry, Your browser does not support HTML5 video.</video>";
     rin.util.overrideProperties(VideoES.prototypeOverrides, VideoES.prototype);
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.VideoExperienceStream", function (orchestrator, esData) { return new VideoES(orchestrator, esData); });
-})(window.rin);
+})(rin);
 
 /*!
 * RIN Experience Provider JavaScript Library v1.0
@@ -2006,9 +2011,9 @@ window.rin = window.rin || {};
 /// <reference path="../core/ResourcesResolver.js" />
 /// <reference path="../core/TaskTimer.js" />
 
-(function (rin) {
-    "use strict";
+window.rin = window.rin || {};
 
+(function (rin) {
     // Code audio es to provide background as well as foreground audio.
     var AudioES = function (orchestrator, esData) {
         AudioES.parentConstructor.apply(this, arguments);
@@ -2018,7 +2023,7 @@ window.rin = window.rin || {};
         this._audio = this._userInterfaceControl.firstChild;
         this._esData = esData;
 
-        this._isBackgroundAudioMode = this._esData.data.markers && this._esData.data.markers.isBackgroundAudioMode;
+        this._isBackgroundAudioMode = false; //this._esData.data.markers && this._esData.data.markers.isBackgroundAudioMode;
         if (this._isBackgroundAudioMode) {
             this._audio.loop = true;
         }
@@ -2033,6 +2038,8 @@ window.rin = window.rin || {};
         if (typeof pauseVolume === "number") {
             this._pauseVolume = pauseVolume < 0 ? 0 : pauseVolume > 1 ? 1 : pauseVolume;
         }
+
+        this._desiredAudioPosition = -1;
 
         this._url = orchestrator.getResourceResolver().resolveResource(esData.resourceReferences[0].resourceId, esData.experienceId);
     };
@@ -2061,48 +2068,79 @@ window.rin = window.rin || {};
             rin.internal.debug.write("Load called for " + this._url);
 
             // Handle any error while loading audio.
-            this._audio.onerror = function (error) {
-                var errorString = "Audio failed to load. Error: " + (self._audio.error ? self._audio.error.code : error) + "<br/>Url: " + self._url;
-                var esInfo = self._orchestrator.debugOnlyGetESItemInfo();
+            this._audio.onerror = function (errorString) {
+                var errorStr = "Audio failed to load. Error: " + (self._audio.error ? self._audio.error.code : error) + "<br/>Url: " + self._url,
+                    esInfo = self._orchestrator.debugOnlyGetESItemInfo();
                 if (esInfo) {
-                    errorString += "<br/>ES Info: {0}:{1} <br/>Lifetime {2}-{3}".rinFormat(esInfo.providerName, esInfo.id,
+                    errorStr += "<br/>ES Info: {0}:{1} <br/>Lifetime {2}-{3}".rinFormat(esInfo.providerName, esInfo.id,
                     esInfo.beginOffset, esInfo.endOffset);
                 }
-                self._orchestrator.eventLogger.logErrorEvent(errorString);
+                try {
+                    this._audio.pause();
+                } catch (e) {
+                    // audio tag is broken, no need to pause
+                }
+                self._orchestrator.eventLogger.logErrorEvent(errorStr);
                 self.setState(rin.contracts.experienceStreamState.error);
+            };
+            //this._audio.onsuspend = function (args) {
+            //    // do nothing for now
+            //};
+            //this._audio.onabort = function (args) {
+            //    // do nothing for now
+            //};
+            this._audio.onstalled = function (args) {
+                // Not dead / real error yet, but something is probably wrong
+                console.log("STALLED STALLED STALLED STALLED STALLED!!!!!");
             };
 
             // Handle load complete of audio.
-            this._audio.oncanplay = function () {
+            this._audio.oncanplaythrough = function () {
                 rin.internal.debug.write("oncanplay called from " + self._url);
-                if (self._desiredAudioPositon >= 0 && Math.abs(self._audio.currentTime - self._desiredAudioPositon) > 0.01 /*epsilon*/) {
-                    self._seekAudio(self._desiredAudioPositon);
-                    self._desiredAudioPositon = -1;
+                self.setState(rin.contracts.experienceStreamState.ready);
+                if (self._desiredAudioPosition >= 0 && Math.abs(self._audio.currentTime - self._desiredAudioPosition) > 0.01 /*epsilon*/) {
+                    self._seekAudio(self._desiredAudioPosition);
+                    self._desiredAudioPosition = -1;
                 }
             };
 
-            // Handle ready state change to get notified on buffering start and stop.
-            this._audio.onreadystatechange = function () {
-                self.readyStateCheck();
-            };
-
-            // Constantly check if the audio is ready and update the state as necessary.
-            this.readyStateCheck = function () {
-                var state = self.getState();
-                if ((self._isMediaLoaded && state === rin.contracts.experienceStreamState.ready) || state === rin.contracts.experienceStreamState.error) return;
-
-                if (self._audio.readyState === self.const_ready_state) {
-                    if (!self._isMediaLoaded) {
-                        self._isMediaLoaded = true;
-                        self.setState(rin.contracts.experienceStreamState.ready);
-                        self._startBackgroundAudioOnReady();
+            // Handle running out of audio to play during playback
+            var isWaitingOver = function () {
+                if (self._audio.readyState >= 3) {
+                    self.setState(rin.contracts.experienceStreamState.ready);
+                    if (self._desiredAudioPosition >= 0 && Math.abs(self._audio.currentTime - self._desiredAudioPosition) > 0.01 /*epsilon*/) {
+                        self._seekAudio(self._desiredAudioPosition);
+                        self._desiredAudioPosition = -1;
                     }
-                }
-                else {
-                    if (!self._isBackgroundAudioMode) self.setState(rin.contracts.experienceStreamState.buffering);
-                    setTimeout(self.readyStateCheck, 250);
+                } else {
+                    setTimeout(isWaitingOver, 5);
                 }
             };
+            this._audio.onwaiting = function () {
+                rin.internal.debug.write("onwaiting called from " + self._url);
+                self.setState(rin.contracts.experienceStreamState.buffering);
+                isWaitingOver();
+            };
+
+            // RL: got rid of this, timeout check is completely unnecessary
+            // Constantly check if the audio is ready and update the state as necessary.
+            //this.readyStateCheck = function () {
+            //    console.log("AUDIO LOADING IN AUDIOES");
+            //    var state = self.getState();
+            //    if ((self._isMediaLoaded && state == rin.contracts.experienceStreamState.ready) || state == rin.contracts.experienceStreamState.error) return;
+
+            //    if (self._audio.readyState === self.const_ready_state) {
+            //        if (!self._isMediaLoaded){
+            //            self._isMediaLoaded = true;
+            //            self.setState(rin.contracts.experienceStreamState.ready);
+            //            self._startBackgroundAudioOnReady();
+            //        }
+            //    }
+            //    else {
+            //        if (!self._isBackgroundAudioMode) self.setState(rin.contracts.experienceStreamState.buffering);
+            //        setTimeout(self.readyStateCheck, 250);
+            //    }
+            //}
 
             // Set audio sources with all supported formats
             var baseUrl = (this._url.substr(0, this._url.lastIndexOf('.')) || this._url) + ".";
@@ -2112,15 +2150,17 @@ window.rin = window.rin || {};
                 srcElement.setAttribute("src", baseUrl + this._supportedFormats[i].ext);
                 this._audio.appendChild(srcElement);
             }
+            this._audio.load();
 
-            if (this._isBackgroundAudioMode) {
-                self.setState(rin.contracts.experienceStreamState.ready);
-            }
+            //if (this._isBackgroundAudioMode) {
+            //    self.setState(rin.contracts.experienceStreamState.ready);
+            //}
 
-            this.readyStateCheck();
+            //this.readyStateCheck();
         },
         // Unload the ES.
         unload: function () {
+            console.log("AUDIO UNLOAD CALLED");
             try {
                 this._audio.pause();
                 var srcElements = this._audio.getElementsByTagName("source");
@@ -2130,25 +2170,21 @@ window.rin = window.rin || {};
                 }
                 this._audio.removeAttribute("src");
                 this._audio.load(); //As per Best practices  - http://dev.w3.org/html5/spec-author-view/video.html#best-practices-for-authors-using-media-elements
-            } catch (e) { rin.internal.debug.assert(!e); } // Ignore errors on unload.
+            } catch (e) { rin.internal.debug.assert(!e);} // Ignore errors on unload.
         },
         // Play from the given offset.
         play: function (offset, experienceStreamId) {
-            try {
-                var preserveContinuity = this._isBackgroundAudioMode; //ToDO: enable this after everest. && this._currentExperienceStreamId !== experienceStreamId;
-                if (preserveContinuity) {
-                    this._startMarker = this._audio.currentTime;
-                }
-                else {
-                    var effectiveOffset = this._isBackgroundAudioMode ? ((this._startMarker + offset) % this._audio.duration) : offset;
-                    this._seekAudio(effectiveOffset);
-                }
+            console.log("Audio play, " + this._esData.experienceId + ', time: ' + offset);
 
+            try {
                 this._updateMute();
-                var effectiveVolume = this._computeEffectiveVolume(this._esBaseVolume);
                 this._playPauseActionCount++;
-                this._animateVolume(this.const_animation_time, effectiveVolume);
-                this._audio.play();
+                if (offset <= this._audio.duration) {
+                    this._seekAudio(offset);
+                    this._audio.play();
+                } else {
+                    this._audio.pause();
+                }
             } catch (e) {
                 rin.internal.debug.assert(false, "exception at audio element " + e.Message);
             }
@@ -2159,18 +2195,9 @@ window.rin = window.rin || {};
         // Pause at the given offset.
         pause: function (offset, experienceStreamId) {
             try {
-                var preserveContinuity = this._isBackgroundAudioMode; //ToDO: enable this after everest. && this._currentExperienceStreamId !== experienceStreamId;
-                if (!preserveContinuity) {
-                    var effectiveOffset = this._isBackgroundAudioMode ? ((this._startMarker + offset) % this._audio.duration) : offset;
-                    this._seekAudio(effectiveOffset);
-                }
-
-                var effectiveVolume = this._orchestrator.getIsOnStage() ? this._computeEffectiveVolume(this._pauseVolume) : 0;
                 this._playPauseActionCount++;
-                var localPlayPauseActionCount = this._playPauseActionCount; // This takes care of multiple calls to _animateVolume. Callback will be called only for last play or pause action.
-                this._animateVolume(this.const_animation_time, effectiveVolume, function () {
-                    if (localPlayPauseActionCount === this._playPauseActionCount && !this._isBackgroundAudioMode) this._audio.pause();
-                }.bind(this));
+                this._audio.pause();
+                this._seekAudio(offset);
             } catch (e) {
                 rin.internal.debug.assert(false, "exception at audio element " + e.Message);
             }
@@ -2178,15 +2205,18 @@ window.rin = window.rin || {};
             // Call pause on parent to maintain keyframe integrity.
             AudioES.parentPrototype.pause.call(this, offset, experienceStreamId);
         },
+
         // Set the base volume for the ES. This will get multiplied with the keyframed volume to get to the final applied volume.
         setVolume: function (baseVolume) {
             this._orchestratorVolume = baseVolume;
             var effectiveVolume = this._computeEffectiveVolume();
-            this._animateVolume(this.const_animation_time, effectiveVolume);
+            this._audio.volume = Math.min(1, Math.max(0, effectiveVolume));
+            //this._animateVolume(this.const_animation_time, effectiveVolume);
+            console.log("effective volume = " + effectiveVolume);
         },
 
         // Mute or Unmute the audio.
-        setIsMuted: function () {
+        setIsMuted: function (value) {
             this._updateMute();
         },
 
@@ -2205,7 +2235,7 @@ window.rin = window.rin || {};
             }
         },
 
-        _startBackgroundAudioOnReady: function () {
+        _startBackgroundAudioOnReady: function(){
             if (!this._isBackgroundAudioMode) return;
 
             //TODO: After everest, pass right offset and screenplayId to play/pause methods.
@@ -2219,30 +2249,38 @@ window.rin = window.rin || {};
 
         // Seek to a position in the audio.
         _seekAudio: function (offset) {
-            var epsilon = 0.4; // Ignore minute seeks.
+            var epsilon = 0.1; // Ignore minute seeks.
+            var debug = this._audio.currentTime;
             if (Math.abs(this._audio.currentTime - offset) < epsilon) return;
 
             // See if the video element is ready.
-            if (this._audio.readyState === this.const_ready_state) {
-                // In IE, video cannot seek before its initialTime. This property doesn't exist in Chrome.
-                if (this._audio.initialTime) {
-                    offset = Math.max(offset, this._audio.initialTime);
-                }
+            if (this._isBackgroundAudioMode || offset <= this._audio.duration) {
+                if (this._audio.readyState >= 1) { // 1 is metadata state
+                    // In IE, video cannot seek before its initialTime. This property doesn't exist in Chrome.
+                    if (this._audio.initialTime) {
+                        offset = Math.max(offset, this._audio.initialTime);
+                    }
 
-                rin.internal.debug.assert(this._audio.seekable);
-                // See if we can seek to the specified offset.
-                if (this._audio.seekable) {
-                    for (var i = 0; i < this._audio.seekable.length; i++) {
-                        if (this._audio.seekable.start(i) <= offset && offset <= this._audio.seekable.end(i)) {
-                            this._audio.currentTime = offset;
-                            break;
+
+                    rin.internal.debug.assert(this._audio.seekable);
+                    // See if we can seek to the specified offset.
+                    var didSeek = false;
+                    if (this._audio.seekable) {
+                        for (var i = 0; i < this._audio.seekable.length; i++) {
+                            if (this._audio.seekable.start(i) <= offset && offset <= this._audio.seekable.end(i)) {
+                                this._audio.currentTime = offset;
+                                didSeek = true;
+                                break;
+                            }
                         }
                     }
+                    if (!didSeek) {
+                        this._desiredAudioPosition = offset;
+                    }
                 }
-                this._desiredAudioPositon = offset;
-            }
-            else {
-                this._desiredAudioPositon = offset;
+                else {
+                    this._desiredAudioPosition = offset;
+                }
             }
         },
         // Apply/Interpolate to a keyframe.
@@ -2254,27 +2292,27 @@ window.rin = window.rin || {};
                 currentKeyframeVolume = this._getKeyframeVolume(keyframeData);
 
                 // start volume interpolation to next key volume if one is present.
-                if (nextKeyframeData !== null) {
+                if (nextKeyframeData) {
                     nextKeyframeVolume = this._getKeyframeVolume(nextKeyframeData);
                     var keyframeDuration = nextKeyframeData.offset - keyframeData.offset;
                     var animation = new rin.internal.DoubleAnimation(keyframeDuration, currentKeyframeVolume, nextKeyframeVolume);
                     currentKeyframeVolume = animation.getValueAt(interpolationOffset);
-                    this._audio.volume = currentKeyframeVolume;
-                    this._animateVolume(keyframeDuration - interpolationOffset, nextKeyframeVolume);
+                    this._audio.volume = this._computeEffectiveVolume(currentKeyframeVolume);
+                    this._animateVolume(keyframeDuration - interpolationOffset, this._computeEffectiveVolume(nextKeyframeVolume));
                 }
                 else {
-                    this._audio.volume = currentKeyframeVolume;
+                    this._audio.volume = this._computeEffectiveVolume(currentKeyframeVolume);
                 }
             }
         },
 
-        _getKeyframeVolume: function (keyframe) {
+        _getKeyframeVolume:function(keyframe){
             if (keyframe && keyframe.state && keyframe.state.sound) {
                 return keyframe.state.sound.volume;
             }
             else if (keyframe && keyframe.data && keyframe.data["default"]) {
-                var data = rin.internal.XElement(keyframe.data["default"]);
-                if (data) return parseFloat(data.attributeValue("Volume"));
+                var data = rin.internal.XElement(keyframeData.data["default"]);
+                if (data) return parseFloat(curData.attributeValue("Volume"));
             }
             return 1;
         },
@@ -2285,7 +2323,7 @@ window.rin = window.rin || {};
         },
 
         _computeEffectiveVolume: function (multiplicationFactor) {
-            return this._orchestratorVolume * this._getCurrentKeyframeVolume() * ((typeof multiplicationFactor === "number") ? multiplicationFactor : 1);
+            return this._orchestratorVolume * this._getCurrentKeyframeVolume() * ((typeof multiplicationFactor === "number") ? multiplicationFactor: 1);
         },
 
         // Interpolate volume for smooth fade in and out.
@@ -2315,15 +2353,15 @@ window.rin = window.rin || {};
             volumeAnimationStoryboard.begin();
             this._activeVolumeAnimation = volumeAnimationStoryboard;
         },
-        _updateMute: function () {
+        _updateMute: function(){
             var playerConfiguration = this._orchestrator.getPlayerConfiguration();
             var isMuted = playerConfiguration.isMuted || (playerConfiguration.activePopup && playerConfiguration.activePopup.hasAudio)
                 || (this._isBackgroundAudioMode && playerConfiguration.isMusicMuted) || (!this._isBackgroundAudioMode && playerConfiguration.isNarrativeMuted);
             this._audio.muted = !!isMuted;
         },
         const_ready_state: 4,
-        const_animation_time: 1.0,
-        _desiredAudioPositon: -1, // Store audio seek location in case of audio is not yet ready.
+        const_animation_time: 0,
+        _desiredAudioPosition: -1, // Store audio seek location in case of audio is not yet ready.
         _url: null,
         _activeVolumeAnimation: null, // storyboard of an active volume interpolation.
         _orchestratorVolume: 1, // volume from orchestrator.
@@ -2336,9 +2374,9 @@ window.rin = window.rin || {};
         _isMediaLoaded: false,
         // List of formats supported by the ES. Browser will pick the first one which it supports.
         // All the below sources are added to the Audio tag irrespective of the source file format.
-        _supportedFormats: [
+        _supportedFormats : [
             { ext: "ogg", type: "audio/ogg; codecs=\"theora, vorbis\"" },
-            { ext: "mp3", type: "audio/mp3" },
+            { ext: "mp3", type: "audio/mpeg" },
             { ext: "mp4", type: "audio/mp4" },
             { ext: "aac", type: "audio/aac" },
             { ext: "wav", type: "audio/wav" }
@@ -2348,7 +2386,7 @@ window.rin = window.rin || {};
     AudioES.elementHTML = "<audio style='height:0;width:0' preload='auto'>Sorry, Your browser does not support HTML5 audio.</audio>";
     rin.util.overrideProperties(AudioES.prototypeOverrides, AudioES.prototype);
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.AudioExperienceStream", function (orchestrator, esData) { return new AudioES(orchestrator, esData); });
-})(window.rin = window.rin || {});
+})(rin);
 /*!
 * RIN Experience Provider JavaScript Library v1.0
 * http://research.microsoft.com/rin
@@ -4424,7 +4462,7 @@ window.rin = window.rin || {};
         },
         _interactionControls: null
     };
-    InkES.elementHTML = "<div style='height:100%;width:100%;position:relative;background:transparent'><div class='rinInkContainer inkCanv' style='pointer-events:none;height:100%;width:100%;left:0px;top:0px;position:absolute;background:transparent'></div></div>";
+    InkES.elementHTML = "<div style='height:100%;width:100%;position:relative;background:transparent;pointer-events:none;'><div class='rinInkContainer inkCanv' style='pointer-events:none;height:100%;width:100%;left:0px;top:0px;position:absolute;background:transparent'></div></div>";
     rin.util.overrideProperties(InkES.prototypeOverrides, InkES.prototype);
     rin.ext.registerFactory(rin.contracts.systemFactoryTypes.esFactory, "MicrosoftResearch.Rin.InkExperienceStream", function (orchestrator, esData) { return new InkES(orchestrator, esData); });
 })(rin);

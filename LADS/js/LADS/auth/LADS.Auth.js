@@ -263,7 +263,7 @@ LADS.Auth = (function () {
             'margin-top': '2.5%',
             'float': 'right'
         });
-        circle.attr('src', 'images/icons/progress-circle.gif');
+        circle.attr('src', tagPath+'images/icons/progress-circle.gif');
 
 
         submitButton.text('Submit');
