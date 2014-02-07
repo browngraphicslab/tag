@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-02-06 */
+/*! RIN | http://research.microsoft.com/rin | 2014-02-07 */
 /*!
 * RIN Core JavaScript Library v1.0
 * http://research.microsoft.com/rin
@@ -7720,6 +7720,19 @@ window.rin = window.rin || {};
         this.setVM = function (viewModel) {
             ko.applyBindings(viewModel, control.get(0));
         };
+		
+		volumeButton.attr("isMute", "false");
+		volumeButton.click(function (event) {
+			if (volumeButton.attr("isMute") === "true"){
+				self.volumeChangedEvent.publish(100);
+				volumeButton.css({"opacity":"1.0"});
+				volumeButton.attr("isMute", "false");
+			}else{
+				self.volumeChangedEvent.publish(0);
+				volumeButton.css({"opacity":"0.4"});
+				volumeButton.attr("isMute", "true");
+			}
+        });
     };
 
     rin.internal.ui.SeekerControl = function (control, viewModel) {
