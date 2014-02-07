@@ -44077,9 +44077,6 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             var titleSpan = $(document.createElement('div'))
                             .text(LADS.Util.htmlEntityDecode(artwork.Name))
                             .attr('id', 'titleSpan')
-                            .css({
-                                'height': '14.5%'
-                            });
             
             var descSpan = $(document.createElement('div'))
                             .attr('id', 'descSpan')
