@@ -290,8 +290,21 @@
             narrativeDuration = 0,
             currentTime = ko.observable("0.00"),
             seekPositionPercent = ko.observable("0%"),
-            markers = ko.observableArray([]),
-            onChangeSeekerPosition = function (value, fromSetter) {
+            markers = ko.observableArray([]);
+
+        // bleveque -- disable seek bar if there's a non-seekable vid
+        // var vids = $('video'),
+        //     vidlength = vids.length,
+        //     ii;
+        // for(ii=0;ii<vidlength;ii++) {
+        //     if(!vids[i].seekable || vids[i].seekable.length === 0) {
+        //         isSeekEnabled = false;
+        //         break;
+        //     }
+        // }
+        // end bleveque;
+
+        var onChangeSeekerPosition = function (value, fromSetter) {
                 fromSetter = fromSetter || false;
                 if (isSeekEnabled && seekPosition !== value) {
                     seekPosition = value;
