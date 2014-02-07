@@ -301,6 +301,7 @@
 
         // Interpolate volume for smooth fade in and out.
         _animateVolume: function (animationTime, targetVolume, onComplete) {
+			this._audio.volume = targetVolume; //abrupt stop to volume
             if (this._activeVolumeAnimation !== null) {
                 this._activeVolumeAnimation.stop();
                 this._activeVolumeAnimation = null;
@@ -333,7 +334,7 @@
             this._audio.muted = !!isMuted;
         },
         const_ready_state: 4,
-        const_animation_time: 1.0,
+        const_animation_time: null,
         _desiredAudioPositon: -1, // Store audio seek location in case of audio is not yet ready.
         _url: null,
         _activeVolumeAnimation: null, // storyboard of an active volume interpolation.
