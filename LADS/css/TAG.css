@@ -53,10 +53,10 @@
 }
 #startPageRoot #fullTag {
   color: #fff;
-  font-size: 90%;
+  font-size: 70%;
   left: 20%;
   position: absolute;
-  top: 63%;
+  top: 60%;
 }
 #startPageRoot #handGif {
   float: right;
@@ -101,17 +101,18 @@
 }
 #startPageRoot #museumInfoDiv {
   color: #fff;
-  height: 50%;
+  height: 49.25%;
   position: relative;
   width: 100%;
   word-wrap: break-word;
+  padding-top: 0.75%;
 }
 #startPageRoot #museumInfoSpan {
-  font-size: 200%;
+  font-size: 1.5em;
 }
 #startPageRoot #museumLoc {
   color: #fff;
-  font-size: 3em;
+  font-size: 2.25em;
   height: 20%;
   position: relative;
   width: 100%;
@@ -149,7 +150,7 @@
 }
 #startPageRoot #serverSetUpLabel {
   color: #fff;
-  font-size: 105%;
+  font-size: 85%;
   position: relative;
   text-align: center;
   top: 8%;
@@ -170,7 +171,7 @@
 }
 #startPageRoot #tagName {
   color: #fff;
-  font-size: 200%;
+  font-size: 150%;
   left: 20%;
   position: absolute;
   top: 8%;
@@ -654,12 +655,15 @@ left: 50% {
   width: 70%;
 }
 #newCatalogRoot #artText {
-  margin: 0 auto;
+  margin-top: 0.84%;
+  font-size: 0.75em;
   overflow: hidden;
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 95%;
+  width: 90%;
+  position: relative;
+  left: 5%;
 }
 #newCatalogRoot #artTitle {
   background-color: rgba(0,0,0,0.6);
@@ -691,7 +695,7 @@ left: 50% {
   left: 3%;
   position: relative;
   text-overflow: ellipsis;
-  top: 2%;
+  top: 2.25%;
   width: 94%;
 }
 #newCatalogRoot #descSpan {
@@ -757,11 +761,12 @@ left: 50% {
   height: 7%;
   left: 19%;
   margin-left: 1.22%;
-  padding: 0px 0px 0px 20px;
+  padding: 0px 0px 0px 10px;
   position: absolute;
-  top: 2.5%;
+  top: 2.45%;
   text-align: center;
   width: 45%;
+  font-size: 1.7em;
 }
 #newCatalogRoot #exhibition-info {
   height: 96%;
@@ -777,6 +782,7 @@ left: 50% {
   white-space: nowrap;
   width: 96%;
   z-index: 100;
+  margin-top: 5px;
 }
 #newCatalogRoot #exhibition-selection {
   border: solid transparent;
@@ -796,6 +802,8 @@ left: 50% {
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 90%;
+  font-size: 1.1em;
+  margin-top: 2.15%;
 }
 #newCatalogRoot #exploreIcon {
   float: right;
@@ -891,8 +899,8 @@ left: 50% {
 #newCatalogRoot .rowButton {
   cursor: pointer;
   float: left;
-  font-size: 90%;
-  margin: 0.3% 2%;
+  font-size: 92.5%;
+  margin: 0.475% 2%;
 }
 #newCatalogRoot #searchInput {
   background-color: #fff;
@@ -933,7 +941,6 @@ left: 50% {
 #newCatalogRoot #titleSpan {
   line-height: 100%;
   margin-bottom: 15px;
-  overflow-y: scroll;
   overflow-x: none;
   text-overflow: ellipsis;
 }

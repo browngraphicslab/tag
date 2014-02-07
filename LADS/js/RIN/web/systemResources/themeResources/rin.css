@@ -692,7 +692,7 @@ div .rin_blurb_bottom
     user-select: text;
 }
 
-html, body, .rinPlayer
+html, body, .rinPlayer /* TODO do we need to get rid of this? in iframe, so might not matter */
 {
     height: 100%;
     margin: 0;
@@ -717,6 +717,12 @@ html, body, .rinPlayer
     float: left;
     width: 100%;
     height: 100%;
+    pointer-events: none; /* added by bleveque */
+}
+
+.rin_StageElement /* added by bleveque */
+{
+    pointer-events: none;
 }
 
 .rin_Header {
