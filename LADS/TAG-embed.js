@@ -69,6 +69,7 @@ var TAG_embed = function(tagInput) {
 	frame.style.height = height + 'px';
 	frame.style.position = 'relative';
 	frame.style.border = '0px';
+	// frame.style.background = '#222222';
 	frameInnerContainer.appendChild(frame);
 
 	// tempImage = document.createElement('img');
@@ -100,7 +101,7 @@ var TAG_embed = function(tagInput) {
 					</script> \
 				</head> \
 				<body> \
-					<div id="tagContainer" style="margin-left:16px;  width:'+(width-32)+'px; height:'+(height-18)+'px;"> \
+					<div id="tagContainer" style="background:#222222;margin-left:16px;  width:'+(width-32)+'px; height:'+(height-18)+'px;"> \
 					</div> \
 				</body> \
 			    </html>';

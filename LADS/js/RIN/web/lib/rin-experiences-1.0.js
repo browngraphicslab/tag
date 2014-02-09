@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-02-07 */
+/*! RIN | http://research.microsoft.com/rin | 2014-02-09 */
 (function() {
     "use strict";
     var rin = window.rin || {};
@@ -2312,7 +2312,7 @@ window.rin = window.rin || {};
             for (var i = 0; i < this._supportedFormats.length; i++) {
                 var srcElement = document.createElement("source");
                 srcElement.setAttribute("type", this._supportedFormats[i].type);
-                srcElement.setAttribute("src", 'http://wdh.blob.core.windows.net/mptourism/en.mp4');//baseUrl + this._supportedFormats[i].ext);
+                srcElement.setAttribute("src", baseUrl + this._supportedFormats[i].ext);
                 this._video.appendChild(srcElement);
             }
 
