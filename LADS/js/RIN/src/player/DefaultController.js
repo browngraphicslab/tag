@@ -169,7 +169,7 @@
 
         this.sliderContainer = $(".rin_SliderContainer", controlPlaceHolder);
         this.slider = $(".rin_Slider", controlPlaceHolder);
-
+        this.tourRoot = $("#tourRoot"); //Reference to the entire player body
         this.valueChangedEvent = new rin.contracts.Event();
 
         /* Custom Events*/
@@ -197,6 +197,7 @@
             event.preventDefault();
             event.stopPropagation();
         });
+
         /* Custom Events*/
         controlPlaceHolder.mouseover(function (event) {
             if(controlTimerId) clearTimeout(controlTimerId);
@@ -222,7 +223,29 @@
             self.sliderContainer.trigger("changeValue", event);
         });
 
-        this.sliderContainer.mouseleave(function (event) {
+        //Continuing movement of slider even when cursor moves out of sliderContainer
+        this.tourRoot.mousemove(function (event) {
+            if (thumbSelected) {
+                self.sliderContainer.trigger("changeValue", event);
+            }
+            event.preventDefault();
+        });
+
+        this.tourRoot.mousedown(function (event) {
+            if (thumbSelected) {
+                self.sliderContainer.trigger("changeValue", event);
+                thumbSelected = false;
+            }
+        });
+        
+        this.tourRoot.mouseup(function (event) {
+            if (thumbSelected) {
+                self.sliderContainer.trigger("changeValue", event);
+                thumbSelected = false;
+            }
+        });
+
+        this.tourRoot.mouseleave(function (event) {
             thumbSelected = false;
         });
 

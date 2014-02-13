@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-02-09 */
+/*! RIN | http://research.microsoft.com/rin | 2014-02-12 */
 /*!
 * RIN Core JavaScript Library v1.0
 * http://research.microsoft.com/rin
@@ -7608,7 +7608,7 @@ window.rin = window.rin || {};
 
         this.sliderContainer = $(".rin_SliderContainer", controlPlaceHolder);
         this.slider = $(".rin_Slider", controlPlaceHolder);
-
+        this.tourRoot = $("#tourRoot"); //Reference to the entire player body
         this.valueChangedEvent = new rin.contracts.Event();
 
         /* Custom Events*/
@@ -7636,6 +7636,7 @@ window.rin = window.rin || {};
             event.preventDefault();
             event.stopPropagation();
         });
+
         /* Custom Events*/
         controlPlaceHolder.mouseover(function (event) {
             if(controlTimerId) clearTimeout(controlTimerId);
@@ -7661,7 +7662,29 @@ window.rin = window.rin || {};
             self.sliderContainer.trigger("changeValue", event);
         });
 
-        this.sliderContainer.mouseleave(function (event) {
+        //Continuing movement of slider even when cursor moves out of sliderContainer
+        this.tourRoot.mousemove(function (event) {
+            if (thumbSelected) {
+                self.sliderContainer.trigger("changeValue", event);
+            }
+            event.preventDefault();
+        });
+
+        this.tourRoot.mousedown(function (event) {
+            if (thumbSelected) {
+                self.sliderContainer.trigger("changeValue", event);
+                thumbSelected = false;
+            }
+        });
+        
+        this.tourRoot.mouseup(function (event) {
+            if (thumbSelected) {
+                self.sliderContainer.trigger("changeValue", event);
+                thumbSelected = false;
+            }
+        });
+
+        this.tourRoot.mouseleave(function (event) {
             thumbSelected = false;
         });
 
