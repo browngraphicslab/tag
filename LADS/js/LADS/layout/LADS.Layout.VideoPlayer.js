@@ -141,7 +141,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
     var currentTimeDisplay = root.find('#currentTimeDisplay');
     $(currentTimeDisplay).text("00:00");
     var backButton = root.find('#backButton');
-
+    $(backButton).attr('src',tagPath+'images/icons/Back.svg');
     backButton.mousedown(function () {
         LADS.Util.UI.cgBackColor("backButton", backButton, false);
     });

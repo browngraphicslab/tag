@@ -42172,6 +42172,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         //Create back button TODO: See todo in constructor
 		var backBttnContainer = root.find("#backBttnContainer");
 		backButton = root.find('#backButton');
+        $(backButton).attr('src',tagPath+'images/icons/Back.svg');
 
         //change the backColor to show the button is being clicked. 
         //mouseleave for lifting the finger from the back button
@@ -44901,7 +44902,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
     var currentTimeDisplay = root.find('#currentTimeDisplay');
     $(currentTimeDisplay).text("00:00");
     var backButton = root.find('#backButton');
-
+    $(backButton).attr('src',tagPath+'images/icons/Back.svg');
     backButton.mousedown(function () {
         LADS.Util.UI.cgBackColor("backButton", backButton, false);
     });
