@@ -43466,7 +43466,6 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
         //opens the splash screen when the back button is clicked
         backbuttonIcon.click(function () {
             backbuttonIcon.off('click');
-            debugger;
             LADS.Layout.StartPage(null, function (root) {
                 LADS.Util.Splitscreen.setOn(false);
                 LADS.Util.UI.slidePageRight(root);
