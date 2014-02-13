@@ -56,7 +56,7 @@ LADS.Util.Splitscreen = (function () {
             'position': 'absolute',
             'left': '0%',
             'top': '0%',
-            'width': '49.5%', //49
+            'width': '  .5%', //49
             'height': '100%',
             'z-index': '999',
             'overflow': 'hidden',
@@ -86,6 +86,7 @@ LADS.Util.Splitscreen = (function () {
             'z-index': '1000',
             'background-color': '#191915',
         });
+        debugger;
        /* spliticon.attr('src', 'images/icons/Ellipsis_w.svg');
         spliticon.css({
             position: 'absolute',
@@ -140,7 +141,6 @@ LADS.Util.Splitscreen = (function () {
                     $(viewerR.container).css({ 'width': $(viewerR.container).width() + 'px', 'height': '100%' });
                 }
             });
-
             body.on('mousemove.splitbar', function (ev) {
                 debounce();
                 var mousepercent = (ev.pageX / window.innerWidth) * 100,
