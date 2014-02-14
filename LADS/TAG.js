@@ -32124,6 +32124,7 @@ LADS.Util.UI = (function () {
         var serverDialogOverlay = $(document.createElement('div'));
         var tagContainer = $('#tagRoot');
         serverDialogOverlay.attr('id', 'serverDialogOverlay');
+        debugger;
         serverDialogOverlay.css({
             display: 'block',
             position: 'absolute',
@@ -37190,7 +37191,7 @@ LADS.Util.Splitscreen = (function () {
             'position': 'absolute',
             'left': '0%',
             'top': '0%',
-            'width': '49.5%', //49
+            'width': '  .5%', //49
             'height': '100%',
             'z-index': '999',
             'overflow': 'hidden',
@@ -37220,6 +37221,7 @@ LADS.Util.Splitscreen = (function () {
             'z-index': '1000',
             'background-color': '#191915',
         });
+        debugger;
        /* spliticon.attr('src', 'images/icons/Ellipsis_w.svg');
         spliticon.css({
             position: 'absolute',
@@ -37274,7 +37276,6 @@ LADS.Util.Splitscreen = (function () {
                     $(viewerR.container).css({ 'width': $(viewerR.container).width() + 'px', 'height': '100%' });
                 }
             });
-
             body.on('mousemove.splitbar', function (ev) {
                 debounce();
                 var mousepercent = (ev.pageX / window.innerWidth) * 100,
@@ -42159,16 +42160,15 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                     opts.left = "0%";
                 }
                 isBarOpen = true;
+                togglerImage.attr("src", tagPath+'images/icons/Right.png');
             }
             else {
                 isBarOpen = false;
+                togglerImage.attr("src", tagPath+'images/icons/Left.png');
             }
             //when click the toggler, the arrow will rotate 180 degree to change direction.
             $(sideBar).animate(opts, 1000, function () {
-                if(!isBarOpen)
-		    $(togglerImage[0]).rotate("180deg");
-                else
-		    $(togglerImage[0]).rotate("0deg");
+                $(togglerImage[0]).rotate("180deg");
 	    });
         });
 
@@ -42176,6 +42176,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         //Create back button TODO: See todo in constructor
 		var backBttnContainer = root.find("#backBttnContainer");
 		backButton = root.find('#backButton');
+        $(backButton).attr('src',tagPath+'images/icons/Back.svg');
 
         //change the backColor to show the button is being clicked. 
         //mouseleave for lifting the finger from the back button
@@ -43966,7 +43967,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 'position': 'absolute',
                 'margin-left': parseInt(i / 2) * 16.5 + 1 + '%', // (parseInt(i / 2) * $(timelineDiv).width() * 0.16 * 1.03) + 10 + "px",
                 'margin-top': (i % 2) * 12.25 + '%', // ((i % 2) * $(timelineDiv).height() * 0.48 * 1.05) + "px",
-                'border': '1px solid black',
+                'border': '1px solid rgba(0,0,0,0.85)',
             });
 
             main.on('click', function () {
@@ -44080,8 +44081,8 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             }
                 
             img1.attr("src", LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail))
-            .css('border', '1px solid white')
-            .attr('guid', artwork.Identifier);
+                .css('border', '1px solid rgba(0,0,0,0.5)')
+                .attr('guid', artwork.Identifier);
             
             var titleSpan = $(document.createElement('div'))
                             .text(LADS.Util.htmlEntityDecode(artwork.Name))
@@ -44905,7 +44906,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
     var currentTimeDisplay = root.find('#currentTimeDisplay');
     $(currentTimeDisplay).text("00:00");
     var backButton = root.find('#backButton');
-
+    $(backButton).attr('src',tagPath+'images/icons/Back.svg');
     backButton.mousedown(function () {
         LADS.Util.UI.cgBackColor("backButton", backButton, false);
     });
@@ -44934,8 +44935,8 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
         // Calculate the slider value and update the slider value
 
         value = ($('#sliderContainer').width() / videoElt.duration) * videoElt.currentTime;
-	$('#sliderControl').css('left',value);
-	$('#sliderPoint').css('width',value);
+	   $('#sliderControl').css('left',value);
+	   $('#sliderPoint').css('width',value);
 
         minutes = Math.floor(videoElt.currentTime / 60);
         seconds = Math.floor(videoElt.currentTime % 60);

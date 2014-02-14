@@ -121,9 +121,11 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                     opts.left = "0%";
                 }
                 isBarOpen = true;
+                togglerImage.attr("src", tagPath+'images/icons/Right.png');
             }
             else {
                 isBarOpen = false;
+                togglerImage.attr("src", tagPath+'images/icons/Left.png');
             }
             //when click the toggler, the arrow will rotate 180 degree to change direction.
             $(sideBar).animate(opts, 1000, function () {
@@ -135,6 +137,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         //Create back button TODO: See todo in constructor
 		var backBttnContainer = root.find("#backBttnContainer");
 		backButton = root.find('#backButton');
+        $(backButton).attr('src',tagPath+'images/icons/Back.svg');
 
         //change the backColor to show the button is being clicked. 
         //mouseleave for lifting the finger from the back button

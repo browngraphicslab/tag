@@ -141,7 +141,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
     var currentTimeDisplay = root.find('#currentTimeDisplay');
     $(currentTimeDisplay).text("00:00");
     var backButton = root.find('#backButton');
-
+    $(backButton).attr('src',tagPath+'images/icons/Back.svg');
     backButton.mousedown(function () {
         LADS.Util.UI.cgBackColor("backButton", backButton, false);
     });
@@ -170,8 +170,8 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
         // Calculate the slider value and update the slider value
 
         value = ($('#sliderContainer').width() / videoElt.duration) * videoElt.currentTime;
-	$('#sliderControl').css('left',value);
-	$('#sliderPoint').css('width',value);
+	   $('#sliderControl').css('left',value);
+	   $('#sliderPoint').css('width',value);
 
         minutes = Math.floor(videoElt.currentTime / 60);
         seconds = Math.floor(videoElt.currentTime % 60);

@@ -1,0 +1,62 @@
+/* FONTS */
+
+@font-face {
+	font-family: 'sourceSansLight';
+	src: url('fonts/source-sans-pro.light.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'sourceSans';
+	src: url('fonts/source-sans-pro.regular.ttf') format('truetype');
+}
+
+* {
+	font-family: 'sourceSans';
+}
+
+/* CSS */
+
+h1 {
+	font-size: 2em;
+	margin: 0.5em auto;
+	text-align: center;
+	font-weight: 400;
+}
+
+#controls {
+	text-align: center;
+}
+
+#widthContainer, #heightContainer {
+	display: block;
+	text-align: center;
+}
+
+#currentTAGWidth, #currentTAGHeight, #widthSliderContainer, #heightSliderContainer {
+	margin: 0.1em 0.5em;
+	display: inline-block;
+	text-align: left;}
+
+strong {
+	text-transform: uppercase;
+}
+
+#refreshTAGButton {
+	display: block;
+	text-align: center;
+	margin: 0.5em auto 1.5em auto;
+	font-size: 1em;
+}
+
+#cpContainer {
+	text-align: center;
+	margin: 0.5em auto;
+}
+
+#tagContainer {
+	margin: auto;
+	border: 1px solid black;
+	height: 540px;
+	width: 960px;
+	margin: 1em auto;
+}
