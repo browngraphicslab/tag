@@ -32153,10 +32153,10 @@ LADS.Util.UI = (function () {
         });
         serverDialog.css({
             position: 'absolute',
-            left: '25%',//serverDialogSpecs.x + 'px',
-            top: '24%',//serverDialogSpecs.y + 'px',
-            width: '50%',   //serverDialogSpecs.width + 'px',
-            height: '50%',   //serverDialogSpecs.height + 'px',
+            left: '30%',//serverDialogSpecs.x + 'px',
+            top: '30%',//serverDialogSpecs.y + 'px',
+            width: '40%',   //serverDialogSpecs.width + 'px',
+            height: '40%',   //serverDialogSpecs.height + 'px',
             border: '3px double white',
             'text-align': 'center',
             'background-color': 'black'
@@ -32170,8 +32170,8 @@ LADS.Util.UI = (function () {
             'width': '80%',
             'height': '15%',
             'left': '10%',
-            'top': '12.5%',
-            'font-size': '1.25em',
+            'top': '10%',
+            'font-size': '1.35em',
             'position': 'relative',
             'text-align': 'center'
         });
@@ -32202,7 +32202,7 @@ LADS.Util.UI = (function () {
         });
 
         var serverDialogContact = $(document.createElement('div'));
-        serverDialogContact.css({ 'margin-top': '10%' , 'color':'white','margin-left': '10%'  });
+        serverDialogContact.css({ 'margin-top': '10%' , 'color':'white','text-align': 'center'  });
         serverDialogContact.html(
             "Contact us for server setup at:<br /><a href='mailto:brown.touchartgallery@outlook.com'>brown.touchartgallery@outlook.com</a>."
         );
@@ -32224,7 +32224,7 @@ LADS.Util.UI = (function () {
             'color': 'white',
             'left': '10%',
             'width': '80%',
-	    'height':'10%',
+	        'height':'10%',
             'text-align': 'center',
             'bottom': '10%',
             'position': 'relative',
@@ -42107,7 +42107,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         var button;
         //sideBar is the outermost container for sidebar
         //Sets entire sidebar to this...
-        var sideBarWidth = window.innerWidth * 0.20; //Define width in absolute terms to work with split screen
+        var sideBarWidth = window.innerWidth * 0.20; //innerWidth Define width in absolute terms to work with split screen
 		sideBar = root.find('#sideBar');
         sideBar.css({"width": sideBarWidth});
 
@@ -42134,22 +42134,22 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             });
 				togglerImage.attr("src", tagPath+'images/icons/Left.png');
         }
-
+        
         //set sidebar open as default.
         var isBarOpen = true;
         //click toggler to hide/show sidebar
         toggler.click(function () {
             var opts;
+	    
             //when the bar is open, set the sidebar position according to splitscreen states.
             if (root.data('split') === 'R') {
                 opts = {
-
-                    right: '-22%'//-(sideBarWidth)
+                    right: -(sideBarWidth)
                 };
             }
             else {
                 opts = {
-                    left: '-22%'//-(sideBarWidth)
+                    left: -(sideBarWidth)
                 };
             }
             //if the bar is not open
@@ -42169,7 +42169,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             //when click the toggler, the arrow will rotate 180 degree to change direction.
             $(sideBar).animate(opts, 1000, function () {
                 $(togglerImage[0]).rotate("180deg");
-	    });
+            });
         });
 
 
@@ -43297,6 +43297,7 @@ LADS.Layout.Artmode.default_options = {
     doq: null,
     split: 'L',
 };
+
 ;
 LADS.Util.makeNamespace("LADS.Layout.NewCatalog");
 //catalog should only get artworks and exhibitions
@@ -44999,6 +45000,20 @@ LADS.Util.makeNamespace("LADS.TESTS");
         } else {
             h = 9/16 * w;
         }
+
+
+        var artmodeRoot= $(document.createElement('div')).attr('id', 'sideBar');
+        artmodeRoot.css({
+            'font-size': w/9.6 + '%', // so font-size percentages for descendents work well
+            //height: h + "px",
+            //left: l + "px",
+            //'max-width': w + "px",
+            //'max-height': h + "px",
+           // width: w + "px"
+        });	
+
+
+
         // debugger;
         tagRoot.css({
             'font-size': w/9.6 + '%', // so font-size percentages for descendents work well
