@@ -42142,12 +42142,13 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             //when the bar is open, set the sidebar position according to splitscreen states.
             if (root.data('split') === 'R') {
                 opts = {
-                    right: -(sideBarWidth)
+
+                    right: '-22%'//-(sideBarWidth)
                 };
             }
             else {
                 opts = {
-                    left: -(sideBarWidth)
+                    left: '-22%'//-(sideBarWidth)
                 };
             }
             //if the bar is not open
@@ -42164,8 +42165,11 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             }
             //when click the toggler, the arrow will rotate 180 degree to change direction.
             $(sideBar).animate(opts, 1000, function () {
-                $(togglerImage[0]).rotate("180deg");
-            });
+                if(!isBarOpen)
+		    $(togglerImage[0]).rotate("180deg");
+                else
+		    $(togglerImage[0]).rotate("0deg");
+	    });
         });
 
 

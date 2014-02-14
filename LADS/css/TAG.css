@@ -250,7 +250,7 @@ left: 50% {
   top: 0px;
   background-color: rgba(0,0,0,0.7);
   height: 100%;
-  width: 22%;
+  width: 22% !important;
   z-index: 100;
 }
 #artmodeRoot #toggler {
@@ -264,9 +264,9 @@ left: 50% {
 #artmodeRoot #togglerImage {
   position: absolute;
   top: 35%;
-  left: 20%;
-  width: 20px;
-  height: 20px;
+  left: 0%;
+  width: 109%;
+  height: 42%;
 }
 #artmodeRoot #backBttnContainer {
   width: 13%;
@@ -298,26 +298,26 @@ left: 50% {
   padding-right: 7%;
 }
 #artmodeRoot #infoTitle {
-  font-size: 30px;
+  font-size: 188%;
   clear: both;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 #artmodeRoot #infoArtist {
-  font-size: 22px;
+  font-size: 110%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 #artmodeRoot #infoYear {
-  font-size: 22px;
+  font-size: 147%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 #artmodeRoot .infoCustom {
-  font-size: 22px;
+  font-size: 147%;
   margin-top: 5px;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -508,24 +508,24 @@ left: 50% {
   float: left;
 }
 #artmodeRoot .label {
-  font-size: 20px;
+  font-size: 133%;
   width: 50%;
   float: left;
   height: 30%;
 }
 #artmodeRoot .toggleContainer {
-  width: 45px;
+  width: 26%;
   position: relative;
   float: right;
 }
 #artmodeRoot .plusToggle {
-  width: 23px;
-  height: 23px;
+  width: 51%;
+  height: 51%;
 }
 #artmodeRoot .drawerContents {
   display: none;
   clear: both;
-  font-size: 14px;
+  font-size: 93%;
   width: 95%;
   color: #808080;
   padding-right: 20px;

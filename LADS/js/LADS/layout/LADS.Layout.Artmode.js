@@ -68,7 +68,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         var button;
         //sideBar is the outermost container for sidebar
         //Sets entire sidebar to this...
-        var sideBarWidth = window.innerWidth * 0.20; //Define width in absolute terms to work with split screen
+        var sideBarWidth = window.innerWidth * 0.20; //innerWidth Define width in absolute terms to work with split screen
 		sideBar = root.find('#sideBar');
         sideBar.css({"width": sideBarWidth});
 
@@ -95,12 +95,13 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
             });
 				togglerImage.attr("src", tagPath+'images/icons/Left.png');
         }
-
+        
         //set sidebar open as default.
         var isBarOpen = true;
         //click toggler to hide/show sidebar
         toggler.click(function () {
             var opts;
+	    
             //when the bar is open, set the sidebar position according to splitscreen states.
             if (root.data('split') === 'R') {
                 opts = {
