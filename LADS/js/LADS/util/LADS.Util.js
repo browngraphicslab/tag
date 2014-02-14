@@ -1504,6 +1504,7 @@ LADS.Util.UI = (function () {
         var serverDialogOverlay = $(document.createElement('div'));
         var tagContainer = $('#tagRoot');
         serverDialogOverlay.attr('id', 'serverDialogOverlay');
+        debugger;
         serverDialogOverlay.css({
             display: 'block',
             position: 'absolute',

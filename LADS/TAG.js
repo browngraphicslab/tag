@@ -32124,6 +32124,7 @@ LADS.Util.UI = (function () {
         var serverDialogOverlay = $(document.createElement('div'));
         var tagContainer = $('#tagRoot');
         serverDialogOverlay.attr('id', 'serverDialogOverlay');
+        debugger;
         serverDialogOverlay.css({
             display: 'block',
             position: 'absolute',
@@ -43965,7 +43966,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 'position': 'absolute',
                 'margin-left': parseInt(i / 2) * 16.5 + 1 + '%', // (parseInt(i / 2) * $(timelineDiv).width() * 0.16 * 1.03) + 10 + "px",
                 'margin-top': (i % 2) * 12.25 + '%', // ((i % 2) * $(timelineDiv).height() * 0.48 * 1.05) + "px",
-                'border': '1px solid black',
+                'border': '1px solid rgba(0,0,0,0.85)',
             });
 
             main.on('click', function () {
@@ -44079,8 +44080,8 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             }
                 
             img1.attr("src", LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail))
-            .css('border', '1px solid white')
-            .attr('guid', artwork.Identifier);
+                .css('border', '1px solid rgba(0,0,0,0.5)')
+                .attr('guid', artwork.Identifier);
             
             var titleSpan = $(document.createElement('div'))
                             .text(LADS.Util.htmlEntityDecode(artwork.Name))
@@ -44933,8 +44934,8 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
         // Calculate the slider value and update the slider value
 
         value = ($('#sliderContainer').width() / videoElt.duration) * videoElt.currentTime;
-	$('#sliderControl').css('left',value);
-	$('#sliderPoint').css('width',value);
+	   $('#sliderControl').css('left',value);
+	   $('#sliderPoint').css('width',value);
 
         minutes = Math.floor(videoElt.currentTime / 60);
         seconds = Math.floor(videoElt.currentTime % 60);
