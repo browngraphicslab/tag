@@ -264,15 +264,10 @@ left: 50% {
 #artmodeRoot #togglerImage {
   position: absolute;
   top: 35%;
-<<<<<<< HEAD
   left: 0%;
   width: 109%;
   height: 42%;
-=======
-  left: 20%;
-  width: 15px;
-  height: 20px;
->>>>>>> 89ae581384d24f687451e5871e2af067bf873b0f
+
 }
 #artmodeRoot #backBttnContainer {
   width: 13%;
