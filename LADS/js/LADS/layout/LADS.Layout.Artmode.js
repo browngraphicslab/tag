@@ -120,9 +120,11 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                     opts.left = "0%";
                 }
                 isBarOpen = true;
+                togglerImage.attr("src", tagPath+'images/icons/Right.png');
             }
             else {
                 isBarOpen = false;
+                togglerImage.attr("src", tagPath+'images/icons/Left.png');
             }
             //when click the toggler, the arrow will rotate 180 degree to change direction.
             $(sideBar).animate(opts, 1000, function () {
