@@ -488,8 +488,11 @@ LADS.Layout.Exhibitions = function (options, exhibitionCallback) {
         } else {
             splitopts = 'L';
         }
+        /* nbowditch _editted 2/13/2014 : added prevInfo */
+        var prevInfo = { prevPage: "catalog", prevScroll: 0 };
         curOpts = { catalogState: opts, doq: currentImage, split: splitopts, };
-        deepZoom = new LADS.Layout.Artmode("catalog", curOpts, exhibition);
+        deepZoom = new LADS.Layout.Artmode(prevInfo, curOpts, exhibition);
+        /* end nbowditch edit */
 
         root.css({ 'overflow-x': 'hidden' });
         LADS.Util.UI.slidePageLeftSplit(root, deepZoom.getRoot());//have the page sliding to left and change to artmode animation.
@@ -1969,9 +1972,12 @@ LADS.Layout.Exhibitions = function (options, exhibitionCallback) {
         art.append(artName);
         //go to selected artwork mode when clicked
         art.click(function () {
+            /* nbowditch _editted 2/13/2014 : added prevInfo */
+            var prevInfo = { prevPage: "exhibitions", prevScroll: 0 };
             var curOpts = { catalogState: null, doq: artInfo, split: null };
             curOpts.split = 'L';
-            var deepZoom = new LADS.Layout.Artmode("exhibitions", curOpts, tour);
+            var deepZoom = new LADS.Layout.Artmode(prevPage, curOpts, tour);
+            /* end nbowditch edit */
             root.css({ 'overflow-x': 'hidden' });
             LADS.Util.UI.slidePageLeftSplit(root, deepZoom.getRoot());
         });

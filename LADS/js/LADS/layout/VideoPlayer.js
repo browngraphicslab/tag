@@ -83,11 +83,14 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
         backButton.off('click');
         player.pause();
 
+        /* nbowditch _editted 2/13/2014 : added backInfo */
+        var backInfo = { backArtwork: null, backScroll: prevScroll };
         var catalog = new LADS.Layout.NewCatalog(null, function (exhibitions) {
 
             //catalog.clickExhibitionByDoq(exhibitionID);
             root.css({ 'overflow-x': 'hidden' });
         });
+        /* end nbowditch edit */
         LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot());
     });
 

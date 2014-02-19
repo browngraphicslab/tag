@@ -42043,13 +42043,24 @@ LADS.Util.makeNamespace("LADS.Layout.Artmode");
 *   The layout definition for Artmode. Contains a sidebar with tools,
 *   and a central area for deepzoom.
 *   Author: Alex Hills
+*    
 */
 
-//Constructor. Takes in prevPage string (currently "catalog" or "exhibitions"), {previousState, doq, split}, exhibition
+//Constructor. Takes in prevInfo object {prevPage: [string (currently "catalog" or "exhibitions")], prevScroll: [int value of scrollbar
+// on NewCatalog page, used for backbutton]}, {previousState, doq, split}, exhibition
 //TODO: Adjust this so the back button can go to any arbitrary layout, not just Timeline
-LADS.Layout.Artmode = function (prevPage, options, exhibition) {
+LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
     "use strict";
-    var previous = prevPage;
+
+    /* nbowditch _editted 2/13/2014 : added prevInfo */
+    var prevPage;
+    var prevScroll = 0;
+    if (prevInfo) {
+        prevPage = prevInfo.prevPage,
+        prevScroll = prevInfo.prevScroll;
+    }
+    /* end nbowditch edit */
+
     var locationList = LADS.Util.UI.getLocationList(options.doq.Metadata);
     var initialized = false;
     var root, doq, map, splitscreen, locsize, backButton,
@@ -42195,7 +42206,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 			
 			backButton.off('click');
 			zoomimage.unload();
-			var catalog = new LADS.Layout.NewCatalog(doq, exhibition);
+		    /* nbowditch _editted 2/13/2014 : added backInfo */
+			var backInfo = { backArtwork: doq, backScroll: prevScroll };
+			var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
+            /* end nbowditch edit */
 			//catalog.showExhibiton(exhibition);
 			catalog.getRoot().css({ 'overflow-x': 'hidden' });
 			LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
@@ -42457,8 +42471,11 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                         if (!switching) {
                             switching = true;
                             zoomimage.unload();
+                            /* nbowditch _editted 2/13/2014 : added prevInfo */
+                            prevInfo = { artworkPrev: "artmode", prevScroll: prevScroll };
                             var rinData = JSON.parse(unescape(tour.Metadata.Content)),
-                            rinPlayer = new LADS.Layout.TourPlayer(rinData, exhibition, "artmode", options);
+                            rinPlayer = new LADS.Layout.TourPlayer(rinData, exhibition, prevInfo, options);
+                            /* end nbowditch edit */
                             //check if the screen split is on, exit the other one if splitscreen is on to play the tour on full screen.
                             if (LADS.Util.Splitscreen.on()) {
                                 var parentid = $(root).parent().attr('id');
@@ -42481,8 +42498,11 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                     if (!switching) {
                         switching = true;
                         zoomimage.unload();
+                        /* nbowditch _editted 2/13/2014 */
+                        prevInfo = { artworkPrev: "artmode", prevScroll: prevScroll };
                         var rinData = JSON.parse(unescape(tour.Metadata.Content)),
-                        rinPlayer = new LADS.Layout.TourPlayer(rinData, exhibition, "artmode", options);
+                        rinPlayer = new LADS.Layout.TourPlayer(rinData, exhibition, prevInfo, options);
+                        /* end nbowditch edit */
                         //check if the screen split is on, exit the other one if splitscreen is on to play the tour on full screen.
                         if (LADS.Util.Splitscreen.on()) {
                             var parentid = $(root).parent().attr('id');
@@ -43127,7 +43147,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                     exhibitionsList.append(listCell);
                     listCell.click(function () {
 
-                        var newSplit = new LADS.Layout.NewCatalog(null, toAdd);//added null
+                        /* nbowditch _editted 2/14/2013 : added backInfo */
+                        var backInfo = { backArtwork: null, backScroll: prevScroll };
+                        var newSplit = new LADS.Layout.NewCatalog(backInfo, toAdd);
+                        /* end nbowditch edit */
                         LADS.Util.Splitscreen.init(root, newSplit.getRoot());
                         splitscreen.text('Exit Split Screen');
                         locsize = $('#metascreen-L').width() - window.innerWidth * 0.2;
@@ -43139,7 +43162,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                         backButton.on('click', function () {
                             backButton.off('click');
                             zoomimage.unload();
-                            var catalog = new LADS.Layout.NewCatalog(doq, toAdd);
+                            /* nbowditch _editted 2/13/2014 */
+                            var backInfo = { backArtwork: doq, backScroll: prevScroll };
+                            var catalog = new LADS.Layout.NewCatalog(backInfo, toAdd);
+                            /* end nbowditch edit */
 
                             catalog.getRoot().css({ 'overflow-x': 'hidden' });
                             LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
@@ -43202,7 +43228,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
                 locationHistoryActive = false;
             }
-            if (previous === "catalog" && initialized === true) {
+            if (prevPage === "catalog" && initialized === true) {
                 enterSplitScreen(true);
             } else {
                 enterSplitScreen();
@@ -43224,7 +43250,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 //if the user enter artmode from tour tab in exhibition
                 var newSplit;
                 if (exhibition) {
-                    newSplit = new LADS.Layout.NewCatalog(doq, exhibition, null, true);
+                    /* nbowditch _editted 2/13/2014 : added backInfo */
+                    var backInfo = { backArtwork: doq, backScroll: prevScroll };
+                    newSplit = new LADS.Layout.NewCatalog(backInfo, exhibition, null, true);
+                    /* end nbowditch edit */
                     (function () {
                         splitscreenContainer.hide();
                         LADS.Util.Splitscreen.init(root, newSplit.getRoot());
@@ -43302,8 +43331,19 @@ LADS.Layout.Artmode.default_options = {
 LADS.Util.makeNamespace("LADS.Layout.NewCatalog");
 //catalog should only get artworks and exhibitions
 
-LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSplitscreen) {
+// backInfo: {backArtwork: [artwork selected], backScroll: [int; position of scroll on timelineDiv] }
+
+LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplitscreen) {
     "use strict";
+
+    /* nbowditch _editted 2/13/2014 */
+    var backArtwork;
+    var scrollPos = 0;
+    if (backInfo) {
+        backArtwork = backInfo.backArtwork;
+        scrollPos = backInfo.backScroll || 0;
+    }
+    /* end nbowditch edit */
 
     //vars from exhibition
     var root = LADS.Util.getHtmlAjax('NewCatalog.html'), // use AJAX to load html from .html file
@@ -43613,6 +43653,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             currExhibition = exhibition;
             currentImage = null;
             loadExhibit.call(toAdd, currExhibition);
+            scrollPos = 0; // nbowditch _editted 2/13/2014 
             showExhibition(currExhibition);
         });
 
@@ -43953,6 +43994,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             var k = j;
             loadQueue.add(drawArtworkTile(works[k].artwork, tag, onSearch, k+i, w, h));
         }
+        loadQueue.add(function () { timelineDiv.animate({ scrollLeft: scrollPos }, 1000);});
 
         return works.length;
     }
@@ -44340,7 +44382,11 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 switching = false;
                 return;
             }
-         rinPlayer = new LADS.Layout.TourPlayer(rinData, currExhibition, null, null, tour);//error here-in util, line 524
+            /* nbowditch _editted 2/13/2014 : added prevInfo */
+            scrollPos = timelineDiv.scrollLeft();
+            var prevInfo = { artworkPrev: null, prevScroll: scrollPos };
+            rinPlayer = new LADS.Layout.TourPlayer(rinData, currExhibition, prevInfo, null, tour);//error here-in util, line 524
+            /* end nbowditch edit */
 
             if (LADS.Util.Splitscreen.on()) {//if the splitscreen is on, exit it.
                 var parentid = root.parent().attr('id');
@@ -44381,12 +44427,20 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             }
         }
         else if (currentImage.Metadata.Type === "VideoArtwork") {
-            var video = new LADS.Layout.VideoPlayer(currentImage, currExhibition);
+            /* nbowditch _editted 2/13/2013 : added prevInfo */
+            scrollPos = timelineDiv.scrollLeft();
+            var prevInfo = {artworkPrev: null, prevScroll: scrollPos};
+            var video = new LADS.Layout.VideoPlayer(currentImage, currExhibition, prevInfo);
+            /* end nbowditch edit */
             LADS.Util.UI.slidePageLeftSplit(root, video.getRoot());//have the page sliding to left and 
         }
         else {//if it's an image
             
-            deepZoom = new LADS.Layout.Artmode("catalog", curOpts, currExhibition);
+            /* nbowditch _editted 2/13/2014 : added prevInfo */
+            scrollPos = timelineDiv.scrollLeft();
+            var prevInfo = {prevPage: "catalog", prevScroll: scrollPos};
+            deepZoom = new LADS.Layout.Artmode(prevInfo, curOpts, currExhibition);
+            /* end nbowditch edit */
             LADS.Util.UI.slidePageLeftSplit(root, deepZoom.getRoot());//have the page sliding to left and 
         }
         root.css({ 'overflow-x': 'hidden' });
@@ -44688,12 +44742,23 @@ LADS.Util.makeNamespace("LADS.Layout.TourPlayer");
  * Player for RIN tours
  * @param tour         RIN tour in Javascript object (pre-parsed from JSON)
  * @param exhibition   exhibition we came from (if any) (doq object)
- * @param artworkPrev  value is 'artmode' when we arrive here from the art viewer
+ * @param prevInfo   object containing previous page info 
+ *    artworkPrev      value is 'artmode' when we arrive here from the art viewer
+ *    prevScroll       value of scrollbar from new catalog page
  * @param artwork      options to pass into LADS.Layout.Artmode
  * @param tourObj      the tour doq object, so we can return to the proper tour in the collections screen
  */
-LADS.Layout.TourPlayer = function (tour, exhibition, artworkPrev, artwork, tourObj) {
+LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj) {
     "use strict";
+
+    /* nbowditch _editted 2/13/2014 : added prevInfo */
+    var artworkPrev;
+    var prevScroll = 0;
+    if (prevInfo) {
+        artworkPrev = prevInfo.artworkPrev,
+        prevScroll = prevInfo.prevScroll || 0;
+    }
+    /* end nbowditch edit */
 
     var tagContainer = $('#tagRoot');
 
@@ -44725,10 +44790,16 @@ LADS.Layout.TourPlayer = function (tour, exhibition, artworkPrev, artwork, tourO
         player.unload();
 
         if (artworkPrev && artwork) {
-            artmode = new LADS.Layout.Artmode(artworkPrev, artwork, exhibition);
+            /* nbowditch _editted 2/13/2014 : added prevInfo */
+            var prevInfo = {prevPage: artworkPrev, prevScroll: prevScroll} // for now, scrollbar will reset if you go further than 1 page
+            artmode = new LADS.Layout.Artmode(prevInfo, artwork, exhibition);
+            /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, artmode.getRoot());
         } else {
-            catalog = new LADS.Layout.NewCatalog(tourObj, exhibition);
+            /* nbowditch _editted 2/13/2014 : added backInfo */
+            var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
+            catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
+            /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot());           
         }
         // TODO: do we need this next line?
@@ -44770,11 +44841,22 @@ LADS.Util.makeNamespace("LADS.Layout.VideoPlayer");
  * Player for RIN tours
  * @param tour      RIN tour in Javascript object (pre-parsed from JSON)
  *@param exhibition: 
- *@param artworkPrev: thumbnail of the artwork
+ *@param prevInfo   object containing previous page info 
+ *    artworkPrev      value is 'artmode' when we arrive here from the art viewer
+ *    prevScroll       value of scrollbar from new catalog page
  *@param artwork:the artworks in this tour
  */
-LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
+LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
     "use strict";
+
+    /* nowditch _editted 2/13/2014 : added prevScroll */
+    var artworkPrev;
+    var prevScroll = 0;
+    if (prevInfo) {
+        artworkPrev = prevInfo.artworkPrev,
+        prevScroll = prevInfo.prevScroll || 0;
+    }
+    /* end nbowditch edit */
 
     var that = {};
 
@@ -44918,8 +45000,12 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
     backButton.on('click', function () {
         videoElt.pause();
         // delete(video[0]);
-        $(videoElt).attr('src',"");
-        var catalog = new LADS.Layout.NewCatalog(videoSrc, exhibition);
+        $(videoElt).attr('src', "");
+
+        /* nbowditch _editted 2/13/2014 : added backInfo */
+        var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
+        var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
+        /* end nbowditch edit */
 
         LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot());
     });
