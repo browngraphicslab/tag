@@ -263,16 +263,16 @@ left: 50% {
 }
 #artmodeRoot #togglerImage {
   position: absolute;
-  top: 35%;
+  top: 30%;
   left: 0%;
-  width: 109%;
+  width: 72%;
   height: 42%;
 
 }
 #artmodeRoot #backBttnContainer {
   width: 13%;
-  height: auto;
-  margin: 4%;
+  height: 5%;
+  margin: 4% 4% 1% 4%;
 }
 #artmodeRoot #backButton {
   width: 100%;
@@ -293,13 +293,11 @@ left: 50% {
   font-size: 22px;
   color: #fff;
   width: 100%;
-  max-height: 20%;
-  overflow-y: scroll;
-  white-space: nowrap;
+  max-height: 4.5em;
   padding-right: 7%;
 }
 #artmodeRoot #infoTitle {
-  font-size: 188%;
+  font-size: 160%;
   clear: both;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -312,7 +310,7 @@ left: 50% {
   text-overflow: ellipsis;
 }
 #artmodeRoot #infoYear {
-  font-size: 147%;
+  font-size: 110%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -518,10 +516,11 @@ left: 50% {
   width: 26%;
   position: relative;
   float: right;
+  padding-top:2%;
 }
 #artmodeRoot .plusToggle {
-  width: 51%;
-  height: 51%;
+  width: 40%;
+  height: 40%;
 }
 #artmodeRoot .drawerContents {
   display: none;
