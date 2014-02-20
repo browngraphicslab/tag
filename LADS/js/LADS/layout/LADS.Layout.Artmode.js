@@ -116,12 +116,12 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             //when the bar is open, set the sidebar position according to splitscreen states.
             if (root.data('split') === 'R') {
                 opts = {
-                    right: -(sideBarWidth)
+                    right: '-22%' //-(sideBarWidth)
                 };
             }
             else {
                 opts = {
-                    left: -(sideBarWidth)
+                    left: '-22%' //-(sideBarWidth)
                 };
             }
             //if the bar is not open
