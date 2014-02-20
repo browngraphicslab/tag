@@ -53,7 +53,7 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
 
         if (artworkPrev && artwork) {
             /* nbowditch _editted 2/13/2014 : added prevInfo */
-            var prevInfo = {prevPage: artworkPrev, prevScroll: prevScroll} // for now, scrollbar will reset if you go further than 1 page
+            var prevInfo = {prevPage: artworkPrev, prevScroll: prevScroll}; // for now, scrollbar will reset if you go further than 1 page
             artmode = new LADS.Layout.Artmode(prevInfo, artwork, exhibition);
             /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, artmode.getRoot());
