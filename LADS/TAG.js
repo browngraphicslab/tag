@@ -45002,16 +45002,6 @@ LADS.Util.makeNamespace("LADS.TESTS");
         }
 
 
-        var artmodeRoot= $(document.createElement('div')).attr('id', 'sideBar');
-        artmodeRoot.css({
-            'font-size': w/9.6 + '%', // so font-size percentages for descendents work well
-            //height: h + "px",
-            //left: l + "px",
-            //'max-width': w + "px",
-            //'max-height': h + "px",
-           // width: w + "px"
-        });	
-
 
 
         // debugger;
