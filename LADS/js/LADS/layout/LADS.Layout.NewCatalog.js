@@ -1,8 +1,19 @@
 ﻿LADS.Util.makeNamespace("LADS.Layout.NewCatalog");
 //catalog should only get artworks and exhibitions
 
-LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSplitscreen) {
+// backInfo: {backArtwork: [artwork selected], backScroll: [int; position of scroll on timelineDiv] }
+
+LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplitscreen) {
     "use strict";
+
+    /* nbowditch _editted 2/13/2014 */
+    var backArtwork;
+    var scrollPos = 0;
+    if (backInfo) {
+        backArtwork = backInfo.backArtwork;
+        scrollPos = backInfo.backScroll || 0;
+    }
+    /* end nbowditch edit */
 
     //vars from exhibition
     var root = LADS.Util.getHtmlAjax('NewCatalog.html'), // use AJAX to load html from .html file
@@ -312,6 +323,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             currExhibition = exhibition;
             currentImage = null;
             loadExhibit.call(toAdd, currExhibition);
+            scrollPos = 0; // nbowditch _editted 2/13/2014 
             showExhibition(currExhibition);
         });
 
@@ -652,6 +664,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             var k = j;
             loadQueue.add(drawArtworkTile(works[k].artwork, tag, onSearch, k+i, w, h));
         }
+        loadQueue.add(function () { timelineDiv.animate({ scrollLeft: scrollPos }, 1000);});
 
         return works.length;
     }
@@ -1039,7 +1052,11 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 switching = false;
                 return;
             }
-         rinPlayer = new LADS.Layout.TourPlayer(rinData, currExhibition, null, null, tour);//error here-in util, line 524
+            /* nbowditch _editted 2/13/2014 : added prevInfo */
+            scrollPos = timelineDiv.scrollLeft();
+            var prevInfo = { artworkPrev: null, prevScroll: scrollPos };
+            rinPlayer = new LADS.Layout.TourPlayer(rinData, currExhibition, prevInfo, null, tour);//error here-in util, line 524
+            /* end nbowditch edit */
 
             if (LADS.Util.Splitscreen.on()) {//if the splitscreen is on, exit it.
                 var parentid = root.parent().attr('id');
@@ -1080,12 +1097,20 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             }
         }
         else if (currentImage.Metadata.Type === "VideoArtwork") {
-            var video = new LADS.Layout.VideoPlayer(currentImage, currExhibition);
+            /* nbowditch _editted 2/13/2013 : added prevInfo */
+            scrollPos = timelineDiv.scrollLeft();
+            var prevInfo = {artworkPrev: null, prevScroll: scrollPos};
+            var video = new LADS.Layout.VideoPlayer(currentImage, currExhibition, prevInfo);
+            /* end nbowditch edit */
             LADS.Util.UI.slidePageLeftSplit(root, video.getRoot());//have the page sliding to left and 
         }
         else {//if it's an image
             
-            deepZoom = new LADS.Layout.Artmode("catalog", curOpts, currExhibition);
+            /* nbowditch _editted 2/13/2014 : added prevInfo */
+            scrollPos = timelineDiv.scrollLeft();
+            var prevInfo = {prevPage: "catalog", prevScroll: scrollPos};
+            deepZoom = new LADS.Layout.Artmode(prevInfo, curOpts, currExhibition);
+            /* end nbowditch edit */
             LADS.Util.UI.slidePageLeftSplit(root, deepZoom.getRoot());//have the page sliding to left and 
         }
         root.css({ 'overflow-x': 'hidden' });
