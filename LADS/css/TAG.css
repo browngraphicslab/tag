@@ -250,7 +250,7 @@ left: 50% {
   top: 0px;
   background-color: rgba(0,0,0,0.7);
   height: 100%;
-  width: 22%  !important;
+  width: 22% !important;
   z-index: 100;
 }
 #artmodeRoot #toggler {
@@ -267,7 +267,6 @@ left: 50% {
   left: 0%;
   width: 72%;
   height: 42%;
-
 }
 #artmodeRoot #backBttnContainer {
   width: 13%;
@@ -294,6 +293,8 @@ left: 50% {
   color: #fff;
   width: 100%;
   max-height: 4.5em;
+  overflow-y: visible;
+  white-space: nowrap;
   padding-right: 7%;
 }
 #artmodeRoot #infoTitle {
@@ -516,12 +517,11 @@ left: 50% {
   width: 26%;
   position: relative;
   float: right;
-  padding-top:2%;
+  padding-top: 2%;
 }
 #artmodeRoot .plusToggle {
   width: 40%;
   height: 40%;
-
 }
 #artmodeRoot .drawerContents {
   display: none;
