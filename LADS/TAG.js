@@ -13395,12 +13395,17 @@ var SeadragonViewport = Seadragon.Viewport = function(containerSize, contentSize
             centerSpringY.resetTo(center.y);
             return;
         }
-        
-        if (!zoomPoint) {
-            centerSpringX.springTo(center.x);
-            centerSpringY.springTo(center.y);
-            return;
+
+        if(!zoomPoint) {
+            zoomPoint = new Seadragon.Point(0,0);
         }
+        
+        // if (!zoomPoint) { // commented out by bleveque -- broke tour manipulation
+        //     centerSpringX.springTo(center.x);
+        //     centerSpringY.springTo(center.y);
+        //     return;
+        // }
+
                 
         // manually calculate bounds based on this unadjusted target center.
         // this is mostly a duplicate of getBounds() above. note that this is

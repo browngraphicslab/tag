@@ -17,8 +17,6 @@ module.exports = function(grunt) {
 					'LADS/js/jQueryUI/js/jquery.fittext.js',
 					'LADS/js/jQueryUI/js/jquery.autoSize.js',
 					'LADS/js/jQueryUI/js/jquery.numeric.js',
-					// 'LADS/js/raphael.js',
-					// 'LADS/js/tagInk.js',
 
 					'LADS/js/seadragon/src/Seadragon.Core.js',
 					'LADS/js/seadragon/src/Seadragon.Config.js',
@@ -63,7 +61,6 @@ module.exports = function(grunt) {
 					'LADS/js/utils/hashtable.js',
 					'LADS/js/d3/d3.v2.js',
 					'LADS/js/LADS/util/LADS.Util.js',
-					// 'LADS/js/RIN/web/lib/rin-core-1.0.js',
 					'LADS/js/html2canvas/html2canvas.js',
 					'LADS/js/utils/jquery.livequery.js',
 

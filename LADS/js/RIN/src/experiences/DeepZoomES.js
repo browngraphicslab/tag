@@ -508,13 +508,14 @@ window.rin = window.rin || {};
 				lastEvt = null;
 				lastTouched = evt.srcElement;
 				currentAccelId++;
+                console.log('DDddddddddfdfdfdadfasdfasdfasdfasdfasdfasdfasdf');
 				resetDir();
 				clearTimeout(timer);
 			}
 
 			// mouse move
 			function processMove(evt) {
-				manipulationHandler(evt);
+                isDown && manipulationHandler(evt);
 			}
 
 			// requestAnimationFrame polyfill by Erik Möller
@@ -653,6 +654,9 @@ window.rin = window.rin || {};
 			hammer.on('pinch', processPinch);
 			hammer.on('release', processUp);
 			element.onmousewheel = processScroll;
+            // $(element).on('mousemove', function(evt) {
+            //     processMove(evt);
+            // });
 
 			// double tap
 			var doubleTappedHandler, event;
