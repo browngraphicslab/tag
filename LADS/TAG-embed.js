@@ -65,6 +65,7 @@ var TAG_embed = function(tagInput) {
     frameContainer.appendChild(frameInnerContainer);
 
     frame = document.createElement('iframe');
+    frame.setAttribute('allowfullscreen', 'true');
 	frame.style.width = width + 'px';
 	frame.style.height = height + 'px';
 	frame.style.position = 'relative';
