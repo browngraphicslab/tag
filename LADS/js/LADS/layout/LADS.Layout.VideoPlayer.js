@@ -4,11 +4,22 @@
  * Player for RIN tours
  * @param tour      RIN tour in Javascript object (pre-parsed from JSON)
  *@param exhibition: 
- *@param artworkPrev: thumbnail of the artwork
+ *@param prevInfo   object containing previous page info 
+ *    artworkPrev      value is 'artmode' when we arrive here from the art viewer
+ *    prevScroll       value of scrollbar from new catalog page
  *@param artwork:the artworks in this tour
  */
-LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
+LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
     "use strict";
+
+    /* nowditch _editted 2/13/2014 : added prevScroll */
+    var artworkPrev;
+    var prevScroll = 0;
+    if (prevInfo) {
+        artworkPrev = prevInfo.artworkPrev,
+        prevScroll = prevInfo.prevScroll || 0;
+    }
+    /* end nbowditch edit */
 
     var that = {};
 
@@ -152,8 +163,12 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
     backButton.on('click', function () {
         videoElt.pause();
         // delete(video[0]);
-        $(videoElt).attr('src',"");
-        var catalog = new LADS.Layout.NewCatalog(videoSrc, exhibition);
+        $(videoElt).attr('src', "");
+
+        /* nbowditch _editted 2/13/2014 : added backInfo */
+        var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
+        var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
+        /* end nbowditch edit */
 
         LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot());
     });
@@ -170,8 +185,8 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
         // Calculate the slider value and update the slider value
 
         value = ($('#sliderContainer').width() / videoElt.duration) * videoElt.currentTime;
-	$('#sliderControl').css('left',value);
-	$('#sliderPoint').css('width',value);
+	   $('#sliderControl').css('left',value);
+	   $('#sliderPoint').css('width',value);
 
         minutes = Math.floor(videoElt.currentTime / 60);
         seconds = Math.floor(videoElt.currentTime % 60);

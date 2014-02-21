@@ -4,12 +4,23 @@
  * Player for RIN tours
  * @param tour         RIN tour in Javascript object (pre-parsed from JSON)
  * @param exhibition   exhibition we came from (if any) (doq object)
- * @param artworkPrev  value is 'artmode' when we arrive here from the art viewer
+ * @param prevInfo   object containing previous page info 
+ *    artworkPrev      value is 'artmode' when we arrive here from the art viewer
+ *    prevScroll       value of scrollbar from new catalog page
  * @param artwork      options to pass into LADS.Layout.Artmode
  * @param tourObj      the tour doq object, so we can return to the proper tour in the collections screen
  */
-LADS.Layout.TourPlayer = function (tour, exhibition, artworkPrev, artwork, tourObj) {
+LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj) {
     "use strict";
+
+    /* nbowditch _editted 2/13/2014 : added prevInfo */
+    var artworkPrev;
+    var prevScroll = 0;
+    if (prevInfo) {
+        artworkPrev = prevInfo.artworkPrev,
+        prevScroll = prevInfo.prevScroll || 0;
+    }
+    /* end nbowditch edit */
 
     var tagContainer = $('#tagRoot');
 
@@ -41,10 +52,16 @@ LADS.Layout.TourPlayer = function (tour, exhibition, artworkPrev, artwork, tourO
         player.unload();
 
         if (artworkPrev && artwork) {
-            artmode = new LADS.Layout.Artmode(artworkPrev, artwork, exhibition);
+            /* nbowditch _editted 2/13/2014 : added prevInfo */
+            var prevInfo = {prevPage: artworkPrev, prevScroll: prevScroll}; // for now, scrollbar will reset if you go further than 1 page
+            artmode = new LADS.Layout.Artmode(prevInfo, artwork, exhibition);
+            /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, artmode.getRoot());
         } else {
-            catalog = new LADS.Layout.NewCatalog(tourObj, exhibition);
+            /* nbowditch _editted 2/13/2014 : added backInfo */
+            var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
+            catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
+            /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot());           
         }
         // TODO: do we need this next line?

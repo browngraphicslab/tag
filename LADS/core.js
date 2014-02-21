@@ -36,6 +36,10 @@
         } else {
             h = 9/16 * w;
         }
+
+
+
+
         // debugger;
         tagRoot.css({
             'font-size': w/9.6 + '%', // so font-size percentages for descendents work well

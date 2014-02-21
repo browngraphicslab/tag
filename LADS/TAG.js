@@ -13395,12 +13395,17 @@ var SeadragonViewport = Seadragon.Viewport = function(containerSize, contentSize
             centerSpringY.resetTo(center.y);
             return;
         }
-        
-        if (!zoomPoint) {
-            centerSpringX.springTo(center.x);
-            centerSpringY.springTo(center.y);
-            return;
+
+        if(!zoomPoint) { // added by bleveque for tour manipulation
+            zoomPoint = new Seadragon.Point(0,0);
         }
+        
+        // if (!zoomPoint) { // commented out by bleveque -- broke tour manipulation
+        //     centerSpringX.springTo(center.x);
+        //     centerSpringY.springTo(center.y);
+        //     return;
+        // }
+
                 
         // manually calculate bounds based on this unadjusted target center.
         // this is mostly a duplicate of getBounds() above. note that this is
@@ -32124,6 +32129,7 @@ LADS.Util.UI = (function () {
         var serverDialogOverlay = $(document.createElement('div'));
         var tagContainer = $('#tagRoot');
         serverDialogOverlay.attr('id', 'serverDialogOverlay');
+        debugger;
         serverDialogOverlay.css({
             display: 'block',
             position: 'absolute',
@@ -32152,10 +32158,10 @@ LADS.Util.UI = (function () {
         });
         serverDialog.css({
             position: 'absolute',
-            left: '25%',//serverDialogSpecs.x + 'px',
-            top: '24%',//serverDialogSpecs.y + 'px',
-            width: '50%',   //serverDialogSpecs.width + 'px',
-            height: '50%',   //serverDialogSpecs.height + 'px',
+            left: '30%',//serverDialogSpecs.x + 'px',
+            top: '30%',//serverDialogSpecs.y + 'px',
+            width: '40%',   //serverDialogSpecs.width + 'px',
+            height: '40%',   //serverDialogSpecs.height + 'px',
             border: '3px double white',
             'text-align': 'center',
             'background-color': 'black'
@@ -32169,8 +32175,8 @@ LADS.Util.UI = (function () {
             'width': '80%',
             'height': '15%',
             'left': '10%',
-            'top': '12.5%',
-            'font-size': '1.25em',
+            'top': '10%',
+            'font-size': '1.35em',
             'position': 'relative',
             'text-align': 'center'
         });
@@ -32201,7 +32207,7 @@ LADS.Util.UI = (function () {
         });
 
         var serverDialogContact = $(document.createElement('div'));
-        serverDialogContact.css({ 'margin-top': '10%' , 'color':'white','margin-left': '10%'  });
+        serverDialogContact.css({ 'margin-top': '10%' , 'color':'white','text-align': 'center'  });
         serverDialogContact.html(
             "Contact us for server setup at:<br /><a href='mailto:brown.touchartgallery@outlook.com'>brown.touchartgallery@outlook.com</a>."
         );
@@ -32223,7 +32229,7 @@ LADS.Util.UI = (function () {
             'color': 'white',
             'left': '10%',
             'width': '80%',
-	    'height':'10%',
+	        'height':'10%',
             'text-align': 'center',
             'bottom': '10%',
             'position': 'relative',
@@ -42042,13 +42048,24 @@ LADS.Util.makeNamespace("LADS.Layout.Artmode");
 *   The layout definition for Artmode. Contains a sidebar with tools,
 *   and a central area for deepzoom.
 *   Author: Alex Hills
+*    
 */
 
-//Constructor. Takes in prevPage string (currently "catalog" or "exhibitions"), {previousState, doq, split}, exhibition
+//Constructor. Takes in prevInfo object {prevPage: [string (currently "catalog" or "exhibitions")], prevScroll: [int value of scrollbar
+// on NewCatalog page, used for backbutton]}, {previousState, doq, split}, exhibition
 //TODO: Adjust this so the back button can go to any arbitrary layout, not just Timeline
-LADS.Layout.Artmode = function (prevPage, options, exhibition) {
+LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
     "use strict";
-    var previous = prevPage;
+
+    /* nbowditch _editted 2/13/2014 : added prevInfo */
+    var prevPage;
+    var prevScroll = 0;
+    if (prevInfo) {
+        prevPage = prevInfo.prevPage,
+        prevScroll = prevInfo.prevScroll;
+    }
+    /* end nbowditch edit */
+
     var locationList = LADS.Util.UI.getLocationList(options.doq.Metadata);
     var initialized = false;
     var root, doq, map, splitscreen, locsize, backButton,
@@ -42106,7 +42123,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
         var button;
         //sideBar is the outermost container for sidebar
         //Sets entire sidebar to this...
-        var sideBarWidth = window.innerWidth * 0.20; //Define width in absolute terms to work with split screen
+        var sideBarWidth = window.innerWidth * 0.20; //innerWidth Define width in absolute terms to work with split screen
 		sideBar = root.find('#sideBar');
         sideBar.css({"width": sideBarWidth});
 
@@ -42121,7 +42138,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 borderTopLeftRadius: "10px",
                 borderBottomLeftRadius: "10px"
             });
-            togglerImage.attr("src", tagPath+'images/icons/Right.png');
+            togglerImage.attr("src", tagPath+'images/icons/Close.svg');
 
         }
         else {
@@ -42131,23 +42148,24 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 borderTopRightRadius: "10px",
                 borderBottomRightRadius: "10px"
             });
-				togglerImage.attr("src", tagPath+'images/icons/Left.png');
+				togglerImage.attr("src", tagPath+'images/icons/Open.svg');
         }
-
+        
         //set sidebar open as default.
         var isBarOpen = true;
         //click toggler to hide/show sidebar
         toggler.click(function () {
             var opts;
+	    
             //when the bar is open, set the sidebar position according to splitscreen states.
             if (root.data('split') === 'R') {
                 opts = {
-                    right: -(sideBarWidth)
+                    right: '-22%' //-(sideBarWidth)
                 };
             }
             else {
                 opts = {
-                    left: -(sideBarWidth)
+                    left: '-22%' //-(sideBarWidth)
                 };
             }
             //if the bar is not open
@@ -42158,11 +42176,11 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                     opts.left = "0%";
                 }
                 isBarOpen = true;
-                togglerImage.attr("src", tagPath+'images/icons/Right.png');
+                togglerImage.attr("src", tagPath+'images/icons/Close.svg');
             }
             else {
                 isBarOpen = false;
-                togglerImage.attr("src", tagPath+'images/icons/Left.png');
+                togglerImage.attr("src", tagPath+'images/icons/Open.svg');
             }
             //when click the toggler, the arrow will rotate 180 degree to change direction.
             $(sideBar).animate(opts, 1000, function () {
@@ -42193,7 +42211,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
 			
 			backButton.off('click');
 			zoomimage.unload();
-			var catalog = new LADS.Layout.NewCatalog(doq, exhibition);
+		    /* nbowditch _editted 2/13/2014 : added backInfo */
+			var backInfo = { backArtwork: doq, backScroll: prevScroll };
+			var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
+            /* end nbowditch edit */
 			//catalog.showExhibiton(exhibition);
 			catalog.getRoot().css({ 'overflow-x': 'hidden' });
 			LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
@@ -42455,8 +42476,11 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                         if (!switching) {
                             switching = true;
                             zoomimage.unload();
+                            /* nbowditch _editted 2/13/2014 : added prevInfo */
+                            prevInfo = { artworkPrev: "artmode", prevScroll: prevScroll };
                             var rinData = JSON.parse(unescape(tour.Metadata.Content)),
-                            rinPlayer = new LADS.Layout.TourPlayer(rinData, exhibition, "artmode", options);
+                            rinPlayer = new LADS.Layout.TourPlayer(rinData, exhibition, prevInfo, options);
+                            /* end nbowditch edit */
                             //check if the screen split is on, exit the other one if splitscreen is on to play the tour on full screen.
                             if (LADS.Util.Splitscreen.on()) {
                                 var parentid = $(root).parent().attr('id');
@@ -42479,8 +42503,11 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                     if (!switching) {
                         switching = true;
                         zoomimage.unload();
+                        /* nbowditch _editted 2/13/2014 */
+                        prevInfo = { artworkPrev: "artmode", prevScroll: prevScroll };
                         var rinData = JSON.parse(unescape(tour.Metadata.Content)),
-                        rinPlayer = new LADS.Layout.TourPlayer(rinData, exhibition, "artmode", options);
+                        rinPlayer = new LADS.Layout.TourPlayer(rinData, exhibition, prevInfo, options);
+                        /* end nbowditch edit */
                         //check if the screen split is on, exit the other one if splitscreen is on to play the tour on full screen.
                         if (LADS.Util.Splitscreen.on()) {
                             var parentid = $(root).parent().attr('id');
@@ -42762,14 +42789,14 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 'border-bottom-left-radius': '10px',
                 'border-top-left-radius': '10px'
             });
-            locationHistoryToggleIcon.attr('src', tagPath+'images/icons/Right.png');
+            locationHistoryToggleIcon.attr('src', tagPath+'images/icons/Close.svg');
         } else {
             locationHistoryToggle.css({
                 left: '87.5%',
                 'border-bottom-right-radius': '10px',
                 'border-top-right-radius': '10px'
             });
-            locationHistoryToggleIcon.attr('src', tagPath+'images/icons/Left.png');
+            locationHistoryToggleIcon.attr('src', tagPath+'images/icons/Open.svg');
         }
 
         locationHistoryToggle.click(toggleLocationPanel);
@@ -43125,7 +43152,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                     exhibitionsList.append(listCell);
                     listCell.click(function () {
 
-                        var newSplit = new LADS.Layout.NewCatalog(null, toAdd);//added null
+                        /* nbowditch _editted 2/14/2013 : added backInfo */
+                        var backInfo = { backArtwork: null, backScroll: prevScroll };
+                        var newSplit = new LADS.Layout.NewCatalog(backInfo, toAdd);
+                        /* end nbowditch edit */
                         LADS.Util.Splitscreen.init(root, newSplit.getRoot());
                         splitscreen.text('Exit Split Screen');
                         locsize = $('#metascreen-L').width() - window.innerWidth * 0.2;
@@ -43137,7 +43167,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                         backButton.on('click', function () {
                             backButton.off('click');
                             zoomimage.unload();
-                            var catalog = new LADS.Layout.NewCatalog(doq, toAdd);
+                            /* nbowditch _editted 2/13/2014 */
+                            var backInfo = { backArtwork: doq, backScroll: prevScroll };
+                            var catalog = new LADS.Layout.NewCatalog(backInfo, toAdd);
+                            /* end nbowditch edit */
 
                             catalog.getRoot().css({ 'overflow-x': 'hidden' });
                             LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
@@ -43200,7 +43233,7 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
                 locationHistoryActive = false;
             }
-            if (previous === "catalog" && initialized === true) {
+            if (prevPage === "catalog" && initialized === true) {
                 enterSplitScreen(true);
             } else {
                 enterSplitScreen();
@@ -43222,7 +43255,10 @@ LADS.Layout.Artmode = function (prevPage, options, exhibition) {
                 //if the user enter artmode from tour tab in exhibition
                 var newSplit;
                 if (exhibition) {
-                    newSplit = new LADS.Layout.NewCatalog(doq, exhibition, null, true);
+                    /* nbowditch _editted 2/13/2014 : added backInfo */
+                    var backInfo = { backArtwork: doq, backScroll: prevScroll };
+                    newSplit = new LADS.Layout.NewCatalog(backInfo, exhibition, null, true);
+                    /* end nbowditch edit */
                     (function () {
                         splitscreenContainer.hide();
                         LADS.Util.Splitscreen.init(root, newSplit.getRoot());
@@ -43295,12 +43331,24 @@ LADS.Layout.Artmode.default_options = {
     doq: null,
     split: 'L',
 };
+
 ;
 LADS.Util.makeNamespace("LADS.Layout.NewCatalog");
 //catalog should only get artworks and exhibitions
 
-LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSplitscreen) {
+// backInfo: {backArtwork: [artwork selected], backScroll: [int; position of scroll on timelineDiv] }
+
+LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplitscreen) {
     "use strict";
+
+    /* nbowditch _editted 2/13/2014 */
+    var backArtwork;
+    var scrollPos = 0;
+    if (backInfo) {
+        backArtwork = backInfo.backArtwork;
+        scrollPos = backInfo.backScroll || 0;
+    }
+    /* end nbowditch edit */
 
     //vars from exhibition
     var root = LADS.Util.getHtmlAjax('NewCatalog.html'), // use AJAX to load html from .html file
@@ -43610,6 +43658,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             currExhibition = exhibition;
             currentImage = null;
             loadExhibit.call(toAdd, currExhibition);
+            scrollPos = 0; // nbowditch _editted 2/13/2014 
             showExhibition(currExhibition);
         });
 
@@ -43950,6 +43999,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             var k = j;
             loadQueue.add(drawArtworkTile(works[k].artwork, tag, onSearch, k+i, w, h));
         }
+        loadQueue.add(function () { timelineDiv.animate({ scrollLeft: scrollPos }, 1000);});
 
         return works.length;
     }
@@ -43965,7 +44015,7 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 'position': 'absolute',
                 'margin-left': parseInt(i / 2) * 16.5 + 1 + '%', // (parseInt(i / 2) * $(timelineDiv).width() * 0.16 * 1.03) + 10 + "px",
                 'margin-top': (i % 2) * 12.25 + '%', // ((i % 2) * $(timelineDiv).height() * 0.48 * 1.05) + "px",
-                'border': '1px solid black',
+                'border': '1px solid rgba(0,0,0,0.85)',
             });
 
             main.on('click', function () {
@@ -44079,8 +44129,8 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             }
                 
             img1.attr("src", LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail))
-            .css('border', '1px solid white')
-            .attr('guid', artwork.Identifier);
+                .css('border', '1px solid rgba(0,0,0,0.5)')
+                .attr('guid', artwork.Identifier);
             
             var titleSpan = $(document.createElement('div'))
                             .text(LADS.Util.htmlEntityDecode(artwork.Name))
@@ -44337,7 +44387,11 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
                 switching = false;
                 return;
             }
-         rinPlayer = new LADS.Layout.TourPlayer(rinData, currExhibition, null, null, tour);//error here-in util, line 524
+            /* nbowditch _editted 2/13/2014 : added prevInfo */
+            scrollPos = timelineDiv.scrollLeft();
+            var prevInfo = { artworkPrev: null, prevScroll: scrollPos };
+            rinPlayer = new LADS.Layout.TourPlayer(rinData, currExhibition, prevInfo, null, tour);//error here-in util, line 524
+            /* end nbowditch edit */
 
             if (LADS.Util.Splitscreen.on()) {//if the splitscreen is on, exit it.
                 var parentid = root.parent().attr('id');
@@ -44378,12 +44432,20 @@ LADS.Layout.NewCatalog = function (backArtwork, backExhibition, container, forSp
             }
         }
         else if (currentImage.Metadata.Type === "VideoArtwork") {
-            var video = new LADS.Layout.VideoPlayer(currentImage, currExhibition);
+            /* nbowditch _editted 2/13/2013 : added prevInfo */
+            scrollPos = timelineDiv.scrollLeft();
+            var prevInfo = {artworkPrev: null, prevScroll: scrollPos};
+            var video = new LADS.Layout.VideoPlayer(currentImage, currExhibition, prevInfo);
+            /* end nbowditch edit */
             LADS.Util.UI.slidePageLeftSplit(root, video.getRoot());//have the page sliding to left and 
         }
         else {//if it's an image
             
-            deepZoom = new LADS.Layout.Artmode("catalog", curOpts, currExhibition);
+            /* nbowditch _editted 2/13/2014 : added prevInfo */
+            scrollPos = timelineDiv.scrollLeft();
+            var prevInfo = {prevPage: "catalog", prevScroll: scrollPos};
+            deepZoom = new LADS.Layout.Artmode(prevInfo, curOpts, currExhibition);
+            /* end nbowditch edit */
             LADS.Util.UI.slidePageLeftSplit(root, deepZoom.getRoot());//have the page sliding to left and 
         }
         root.css({ 'overflow-x': 'hidden' });
@@ -44685,12 +44747,23 @@ LADS.Util.makeNamespace("LADS.Layout.TourPlayer");
  * Player for RIN tours
  * @param tour         RIN tour in Javascript object (pre-parsed from JSON)
  * @param exhibition   exhibition we came from (if any) (doq object)
- * @param artworkPrev  value is 'artmode' when we arrive here from the art viewer
+ * @param prevInfo   object containing previous page info 
+ *    artworkPrev      value is 'artmode' when we arrive here from the art viewer
+ *    prevScroll       value of scrollbar from new catalog page
  * @param artwork      options to pass into LADS.Layout.Artmode
  * @param tourObj      the tour doq object, so we can return to the proper tour in the collections screen
  */
-LADS.Layout.TourPlayer = function (tour, exhibition, artworkPrev, artwork, tourObj) {
+LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj) {
     "use strict";
+
+    /* nbowditch _editted 2/13/2014 : added prevInfo */
+    var artworkPrev;
+    var prevScroll = 0;
+    if (prevInfo) {
+        artworkPrev = prevInfo.artworkPrev,
+        prevScroll = prevInfo.prevScroll || 0;
+    }
+    /* end nbowditch edit */
 
     var tagContainer = $('#tagRoot');
 
@@ -44722,10 +44795,16 @@ LADS.Layout.TourPlayer = function (tour, exhibition, artworkPrev, artwork, tourO
         player.unload();
 
         if (artworkPrev && artwork) {
-            artmode = new LADS.Layout.Artmode(artworkPrev, artwork, exhibition);
+            /* nbowditch _editted 2/13/2014 : added prevInfo */
+            var prevInfo = {prevPage: artworkPrev, prevScroll: prevScroll}; // for now, scrollbar will reset if you go further than 1 page
+            artmode = new LADS.Layout.Artmode(prevInfo, artwork, exhibition);
+            /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, artmode.getRoot());
         } else {
-            catalog = new LADS.Layout.NewCatalog(tourObj, exhibition);
+            /* nbowditch _editted 2/13/2014 : added backInfo */
+            var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
+            catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
+            /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot());           
         }
         // TODO: do we need this next line?
@@ -44767,11 +44846,22 @@ LADS.Util.makeNamespace("LADS.Layout.VideoPlayer");
  * Player for RIN tours
  * @param tour      RIN tour in Javascript object (pre-parsed from JSON)
  *@param exhibition: 
- *@param artworkPrev: thumbnail of the artwork
+ *@param prevInfo   object containing previous page info 
+ *    artworkPrev      value is 'artmode' when we arrive here from the art viewer
+ *    prevScroll       value of scrollbar from new catalog page
  *@param artwork:the artworks in this tour
  */
-LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
+LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
     "use strict";
+
+    /* nowditch _editted 2/13/2014 : added prevScroll */
+    var artworkPrev;
+    var prevScroll = 0;
+    if (prevInfo) {
+        artworkPrev = prevInfo.artworkPrev,
+        prevScroll = prevInfo.prevScroll || 0;
+    }
+    /* end nbowditch edit */
 
     var that = {};
 
@@ -44915,8 +45005,12 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
     backButton.on('click', function () {
         videoElt.pause();
         // delete(video[0]);
-        $(videoElt).attr('src',"");
-        var catalog = new LADS.Layout.NewCatalog(videoSrc, exhibition);
+        $(videoElt).attr('src', "");
+
+        /* nbowditch _editted 2/13/2014 : added backInfo */
+        var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
+        var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
+        /* end nbowditch edit */
 
         LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot());
     });
@@ -44933,8 +45027,8 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition) {
         // Calculate the slider value and update the slider value
 
         value = ($('#sliderContainer').width() / videoElt.duration) * videoElt.currentTime;
-	$('#sliderControl').css('left',value);
-	$('#sliderPoint').css('width',value);
+	   $('#sliderControl').css('left',value);
+	   $('#sliderPoint').css('width',value);
 
         minutes = Math.floor(videoElt.currentTime / 60);
         seconds = Math.floor(videoElt.currentTime % 60);
@@ -44997,6 +45091,10 @@ LADS.Util.makeNamespace("LADS.TESTS");
         } else {
             h = 9/16 * w;
         }
+
+
+
+
         // debugger;
         tagRoot.css({
             'font-size': w/9.6 + '%', // so font-size percentages for descendents work well

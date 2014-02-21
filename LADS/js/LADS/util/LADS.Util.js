@@ -1504,6 +1504,7 @@ LADS.Util.UI = (function () {
         var serverDialogOverlay = $(document.createElement('div'));
         var tagContainer = $('#tagRoot');
         serverDialogOverlay.attr('id', 'serverDialogOverlay');
+        debugger;
         serverDialogOverlay.css({
             display: 'block',
             position: 'absolute',
@@ -1532,10 +1533,10 @@ LADS.Util.UI = (function () {
         });
         serverDialog.css({
             position: 'absolute',
-            left: '25%',//serverDialogSpecs.x + 'px',
-            top: '24%',//serverDialogSpecs.y + 'px',
-            width: '50%',   //serverDialogSpecs.width + 'px',
-            height: '50%',   //serverDialogSpecs.height + 'px',
+            left: '30%',//serverDialogSpecs.x + 'px',
+            top: '30%',//serverDialogSpecs.y + 'px',
+            width: '40%',   //serverDialogSpecs.width + 'px',
+            height: '40%',   //serverDialogSpecs.height + 'px',
             border: '3px double white',
             'text-align': 'center',
             'background-color': 'black'
@@ -1549,8 +1550,8 @@ LADS.Util.UI = (function () {
             'width': '80%',
             'height': '15%',
             'left': '10%',
-            'top': '12.5%',
-            'font-size': '1.25em',
+            'top': '10%',
+            'font-size': '1.35em',
             'position': 'relative',
             'text-align': 'center'
         });
@@ -1581,7 +1582,7 @@ LADS.Util.UI = (function () {
         });
 
         var serverDialogContact = $(document.createElement('div'));
-        serverDialogContact.css({ 'margin-top': '10%' , 'color':'white','margin-left': '10%'  });
+        serverDialogContact.css({ 'margin-top': '10%' , 'color':'white','text-align': 'center'  });
         serverDialogContact.html(
             "Contact us for server setup at:<br /><a href='mailto:brown.touchartgallery@outlook.com'>brown.touchartgallery@outlook.com</a>."
         );
@@ -1603,7 +1604,7 @@ LADS.Util.UI = (function () {
             'color': 'white',
             'left': '10%',
             'width': '80%',
-	    'height':'10%',
+	        'height':'10%',
             'text-align': 'center',
             'bottom': '10%',
             'position': 'relative',
