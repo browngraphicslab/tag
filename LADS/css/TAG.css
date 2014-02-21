@@ -366,6 +366,7 @@ left: 50% {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 75%;
 }
 #artmodeRoot #minimapContainer {
   width: 80%;
