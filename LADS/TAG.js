@@ -41002,7 +41002,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 left: h + "%",
                 position: 'absolute',
                 'z-index': 1000,
-                // 'pointer-events': 'all'
+                'pointer-events': 'all'
             });
             $(outerContainer).show();
             assetCanvas.append(outerContainer);
@@ -42138,7 +42138,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 borderTopLeftRadius: "10px",
                 borderBottomLeftRadius: "10px"
             });
-            togglerImage.attr("src", tagPath+'images/icons/Close.svg');
+            togglerImage.attr("src", tagPath+'images/icons/Open.svg');
 
         }
         else {
@@ -42148,7 +42148,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 borderTopRightRadius: "10px",
                 borderBottomRightRadius: "10px"
             });
-				togglerImage.attr("src", tagPath+'images/icons/Open.svg');
+				togglerImage.attr("src", tagPath+'images/icons/Close.svg');
         }
         
         //set sidebar open as default.
@@ -42176,11 +42176,11 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     opts.left = "0%";
                 }
                 isBarOpen = true;
-                togglerImage.attr("src", tagPath+'images/icons/Close.svg');
+                togglerImage.attr("src", tagPath+'images/icons/Open.svg');
             }
             else {
                 isBarOpen = false;
-                togglerImage.attr("src", tagPath+'images/icons/Open.svg');
+                togglerImage.attr("src", tagPath+'images/icons/Close.svg');
             }
             //when click the toggler, the arrow will rotate 180 degree to change direction.
             $(sideBar).animate(opts, 1000, function () {
@@ -42789,14 +42789,14 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 'border-bottom-left-radius': '10px',
                 'border-top-left-radius': '10px'
             });
-            locationHistoryToggleIcon.attr('src', tagPath+'images/icons/Close.svg');
+            locationHistoryToggleIcon.attr('src', tagPath+'images/icons/Open.svg');
         } else {
             locationHistoryToggle.css({
                 left: '87.5%',
                 'border-bottom-right-radius': '10px',
                 'border-top-right-radius': '10px'
             });
-            locationHistoryToggleIcon.attr('src', tagPath+'images/icons/Open.svg');
+            locationHistoryToggleIcon.attr('src', tagPath+'images/icons/Close.svg');
         }
 
         locationHistoryToggle.click(toggleLocationPanel);

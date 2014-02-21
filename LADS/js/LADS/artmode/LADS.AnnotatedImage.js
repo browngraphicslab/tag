@@ -754,7 +754,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 left: h + "%",
                 position: 'absolute',
                 'z-index': 1000,
-                // 'pointer-events': 'all'
+                'pointer-events': 'all'
             });
             $(outerContainer).show();
             assetCanvas.append(outerContainer);
