@@ -124,7 +124,7 @@ var TAG_embed = function(tagInput) {
         frame.addEventListener("mousewheel", mouseWheelHandler, false);
         // Firefox
         frameContainer.addEventListener("DOMMouseScroll", mouseWheelHandler);
-    }
+    } 
     else { // IE 6/7/8
         frame.attachEvent("onmousewheel", mouseWheelHandler);
     }
