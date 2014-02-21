@@ -257,7 +257,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 var holder = $(document.createElement('div'));
                 holder.addClass("tourHolder");
                 holder.css({
-                    'height': 0.15 * $(".root").height() + "px"
+                    'height': 0.15 * $("#tagRoot").height() + "px"
                 });
 
                 holder.on("click", tourClicked(tour));
@@ -288,7 +288,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 var holder = $(document.createElement('div'));
                 holder.addClass("assetHolder");
                 holder.css({
-                    'height': 0.15 * $(".root").height() + "px"
+                    'height': 0.15 * $("#tagRoot").height() + "px"
                 });
                 holder.attr("id", media.assetLinqID);
                 holder.data("assetHidden", true);
