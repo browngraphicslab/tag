@@ -13396,7 +13396,7 @@ var SeadragonViewport = Seadragon.Viewport = function(containerSize, contentSize
             return;
         }
 
-        if(!zoomPoint) {
+        if(!zoomPoint) { // added by bleveque for tour manipulation
             zoomPoint = new Seadragon.Point(0,0);
         }
         
@@ -42138,7 +42138,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 borderTopLeftRadius: "10px",
                 borderBottomLeftRadius: "10px"
             });
-            togglerImage.attr("src", tagPath+'images/icons/Right.png');
+            togglerImage.attr("src", tagPath+'images/icons/Close.svg');
 
         }
         else {
@@ -42148,7 +42148,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 borderTopRightRadius: "10px",
                 borderBottomRightRadius: "10px"
             });
-				togglerImage.attr("src", tagPath+'images/icons/Left.png');
+				togglerImage.attr("src", tagPath+'images/icons/Open.svg');
         }
         
         //set sidebar open as default.
@@ -42160,8 +42160,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             //when the bar is open, set the sidebar position according to splitscreen states.
             if (root.data('split') === 'R') {
                 opts = {
-                    right: '-22%' //(sideBarWidth)
-
+                    right: '-22%' //-(sideBarWidth)
                 };
             }
             else {
@@ -42177,11 +42176,11 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     opts.left = "0%";
                 }
                 isBarOpen = true;
-                togglerImage.attr("src", tagPath+'images/icons/Right.png');
+                togglerImage.attr("src", tagPath+'images/icons/Close.svg');
             }
             else {
                 isBarOpen = false;
-                togglerImage.attr("src", tagPath+'images/icons/Left.png');
+                togglerImage.attr("src", tagPath+'images/icons/Open.svg');
             }
             //when click the toggler, the arrow will rotate 180 degree to change direction.
             $(sideBar).animate(opts, 1000, function () {
@@ -42790,14 +42789,14 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 'border-bottom-left-radius': '10px',
                 'border-top-left-radius': '10px'
             });
-            locationHistoryToggleIcon.attr('src', tagPath+'images/icons/Right.png');
+            locationHistoryToggleIcon.attr('src', tagPath+'images/icons/Close.svg');
         } else {
             locationHistoryToggle.css({
                 left: '87.5%',
                 'border-bottom-right-radius': '10px',
                 'border-top-right-radius': '10px'
             });
-            locationHistoryToggleIcon.attr('src', tagPath+'images/icons/Left.png');
+            locationHistoryToggleIcon.attr('src', tagPath+'images/icons/Open.svg');
         }
 
         locationHistoryToggle.click(toggleLocationPanel);
@@ -44797,7 +44796,7 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
 
         if (artworkPrev && artwork) {
             /* nbowditch _editted 2/13/2014 : added prevInfo */
-            var prevInfo = {prevPage: artworkPrev, prevScroll: prevScroll} // for now, scrollbar will reset if you go further than 1 page
+            var prevInfo = {prevPage: artworkPrev, prevScroll: prevScroll}; // for now, scrollbar will reset if you go further than 1 page
             artmode = new LADS.Layout.Artmode(prevInfo, artwork, exhibition);
             /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, artmode.getRoot());
