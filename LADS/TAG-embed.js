@@ -65,10 +65,12 @@ var TAG_embed = function(tagInput) {
     frameContainer.appendChild(frameInnerContainer);
 
     frame = document.createElement('iframe');
+    frame.id = 'tagiFrame';
 	frame.style.width = width + 'px';
 	frame.style.height = height + 'px';
 	frame.style.position = 'relative';
 	frame.style.border = '0px';
+	frame.setAttribute('allowfullscreen', 'true');
 	// frame.style.background = '#222222';
 	frameInnerContainer.appendChild(frame);
 
