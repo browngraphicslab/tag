@@ -40507,6 +40507,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             left: h + "%",
             position: 'absolute',
             'z-index': 1000,
+            'pointer-events': 'all'
         });
 
         // add title
@@ -40996,13 +40997,13 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         function showAsset() {
             var t = Math.min(Math.max(10, Math.random() * 100), 60);
             var h = Math.min(Math.max(30, Math.random() * 100), 70);
-            debugger;
+            // debugger;
             $(outerContainer).css({
                 top: t + "%",
                 left: h + "%",
                 position: 'absolute',
                 'z-index': 1000,
-                // 'pointer-events': 'all'
+                'pointer-events': 'all'
             });
             $(outerContainer).show();
             assetCanvas.append(outerContainer);
@@ -41143,7 +41144,13 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                     if (split === 'R' && splitbar[0]) {
                         l = l - splitbar.offset().left - splitbar.width();
                     }
-                    $(hotspot.getRoot()).css({ top: t, left: l });
+                    $(hotspot.getRoot()).css({
+                        top: t,
+                        left: l,
+                        position: 'absolute',
+                        'z-index': 1000,
+                        'pointer-events': 'all'
+                    });
                     $(hotspot.getRoot()).show();
                     assetCanvas.append(hotspot.getRoot());
                     isInfoShowing = true;
@@ -41174,6 +41181,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         }
 
         if (info.assetType === "Hotspot") {
+            // debugger;
             hotspots.push({
                 title: info.title,
                 assetType: info.assetType,
@@ -41428,6 +41436,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                     newhotspot.resizeControlElements();
                 }
             }
+            // debugger;
             var gr = LADS.Util.makeManipulatable(currRoot, {
                 onManipulate: onManip,
                 onScroll: onScroll

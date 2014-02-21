@@ -70,7 +70,6 @@ var TAG_embed = function(tagInput) {
 	frame.style.height = height + 'px';
 	frame.style.position = 'relative';
 	frame.style.border = '0px';
-	// frame.style.background = '#222222';
 	frameInnerContainer.appendChild(frame);
 
 	// tempImage = document.createElement('img');
