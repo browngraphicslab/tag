@@ -42339,7 +42339,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 mediaHolderImage.removeAttr('width');
                 mediaHolderImage.removeAttr('height');
 
-                mediaHolderImage.css({
+                mediaHolderImage.css({ // TODO do this the right way... this isn't flexible at all, but it will probably do for the release
                     'max-height': 0.15 * 0.7 * $("#tagRoot").height() + "px",
                     'max-width': 0.22 * 0.89 * 0.95 * 0.40 * 0.92 * $("#tagRoot").width() + "px"
                 });
@@ -42376,8 +42376,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 var mediaHolderDiv = $(document.createElement('div'));
                 mediaHolderDiv.addClass('mediaHolderDiv');
                 holder.append(mediaHolderDiv);
-
-                console.log('mediaHolderDiv.height = ' + mediaHolderDiv.height());
 
                 var holderContainer = $(document.createElement('div')).addClass('holderContainer');
                 mediaHolderDiv.append(holderContainer);

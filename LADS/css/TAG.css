@@ -1172,7 +1172,7 @@ left: 50% {
   cursor: default;
   background-color: #111;
 }
-#tagRoot * {
+#tagRoot *:not(tspan) {
   font-family: sourceSans, sans-serif;
 }
 #tagRootContainer {
