@@ -41143,14 +41143,14 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                     isInfoShowing = false;
                 }
                 else {
-                    t = $(circle).offset().top + $(circle).height();
-                    l = $(circle).offset().left + $(circle).width();
+                    t = parseInt($(circle).css('top'))+ $(circle).height();
+                    l = parseInt($(circle).css('left')) + $(circle).width();
                     if (split === 'R' && splitbar[0]) {
                         l = l - splitbar.offset().left - splitbar.width();
                     }
                     $(hotspot.getRoot()).css({
-                        top: t,
-                        left: l,
+                        top: t+'px',
+                        left: l+'px',
                         position: 'absolute',
                         'z-index': 1000,
                         'pointer-events': 'all'
