@@ -16,6 +16,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
     /* nbowditch _editted 2/13/2014 : added prevInfo */
     var prevPage;
     var prevScroll = 0;
+	var prevExhib = exhibition;
     if (prevInfo) {
         prevPage = prevInfo.prevPage,
         prevScroll = prevInfo.prevScroll;
@@ -175,7 +176,10 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 			//catalog.showExhibiton(exhibition);
 			catalog.getRoot().css({ 'overflow-x': 'hidden' });
 			LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
-				//catalog.showExhibiton(exhibition);
+				var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
+				selectedExhib.attr('flagClicked', 'true');
+				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
+				$(selectedExhib[0].firstChild).css({'color': 'black'});
 			});
 		});
 
