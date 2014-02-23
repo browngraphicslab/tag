@@ -95,27 +95,40 @@ headerTitle(size)
 	margin 1%
 	width 40%
 	position relative
-	text-align center
-	border 1px solid white
+	border 1px solid rgba(255,255,255,0.4)
 	color white
+
+#artmodeRoot .holderContainer
+	display table
+	position relative
+	// max-width 100%
+	// max-height 100%
+	wh 100%
+
+#artmodeRoot .holderInnerContainer
+	display table-cell
+	max-height 100%
+	max-width 100%
+	vertical-align middle
+	text-align center
 
 #artmodeRoot .assetHolder
 	float left
 	margin 1%
 	width 40%
 	position relative
-	text-align center
-	border 1px solid white
+	border 1px solid rgba(255,255,255,0.4)
 	color white
 	
 #artmodeRoot .mediaHolderDiv
 	height 70%
+	position relative
 	width 92%
 	margin 4% 4% 0 4%
 
 #artmodeRoot .mediaHolderImg
 	max-width 100%
-	max-height 100%
+	// max-height 100%
 
 #artmodeRoot .assetHolderImage
 	max-width 100%
@@ -128,6 +141,8 @@ headerTitle(size)
 	white-space nowrap
 	overflow hidden
 	text-overflow ellipsis
+	text-align center
+	font-size 75%
 
 #artmodeRoot #minimapContainer
 	width 80%

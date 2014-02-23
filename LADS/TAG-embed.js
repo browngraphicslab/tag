@@ -65,14 +65,12 @@ var TAG_embed = function(tagInput) {
     frameContainer.appendChild(frameInnerContainer);
 
     frame = document.createElement('iframe');
-    frame.id = 'tagiFrame';
-    frame.style.width = width + 'px';
-    frame.style.height = height + 'px';
-    frame.style.position = 'relative';
-    frame.style.border = '0px';
     frame.setAttribute('allowfullscreen', 'true');
-    // frame.style.background = '#222222';
-    frameInnerContainer.appendChild(frame);
+	frame.style.width = width + 'px';
+	frame.style.height = height + 'px';
+	frame.style.position = 'relative';
+	frame.style.border = '0px';
+	frameInnerContainer.appendChild(frame);
 
     // tempImage = document.createElement('img');
     // tempImage.src = tagPath+'images/splash.jpg';
@@ -126,7 +124,7 @@ var TAG_embed = function(tagInput) {
         frame.addEventListener("mousewheel", mouseWheelHandler, false);
         // Firefox
         frameContainer.addEventListener("DOMMouseScroll", mouseWheelHandler);
-    }
+    } 
     else { // IE 6/7/8
         frame.attachEvent("onmousewheel", mouseWheelHandler);
     }

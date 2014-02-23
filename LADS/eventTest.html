@@ -1,0 +1,22 @@
+<!DOCTYPE>
+<html>
+<head>
+	<script>
+		window.onload = load;
+
+		function load() {
+			var testdiv = document.getElementById('test'),
+				numEvents = 0;
+			testdiv.addEventListener('mousewheel', function() {
+				testdiv.innerHTML = ++numEvents;
+			});
+		}
+	</script>
+</head>
+<title>Event Testing</title>
+<body>
+<div id='test' style='position:relative;width:400px;height:200px;left:100px;top:100px;background-color:#cccccc;'>
+0
+</div>
+</body>
+</html>
