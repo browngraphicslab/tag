@@ -128,13 +128,26 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
             var origPoint = e.pageX,
                 origTime = videoElt.currentTime,
                 timePxRatio = DURATION / sliderContainer.width(); // sec/px
-            console.log('ratio = '+timePxRatio);
+                console.log('ratio = '+timePxRatio);
+                currTime = Math.max(0, Math.min(DURATION, origTime));
+                var currPx = currTime / timePxRatio;
+                var minutes = Math.floor(currTime / 60);
+                if((""+minutes).length < 2) {
+                    minutes = "0" + minutes;
+                }
+                var seconds = Math.floor(currTime % 60);
+
+                //console.log("currTime1 "+origTime);
+
+                // Update the video time and slider values
+            
+
             $('body').on('mousemove.seek', function(evt) {
                 var currPoint = evt.pageX,
-                    timeDiff = (currPoint - origPoint) * timePxRatio,
-                    currPx,
-                    minutes,
-                    seconds;
+                    timeDiff = (currPoint - origPoint) * timePxRatio;
+                    //currPx,
+                    //minutes,
+                    //seconds;
                 currTime = Math.max(0, Math.min(DURATION, origTime + timeDiff));
                 currPx = currTime / timePxRatio;
                 minutes = Math.floor(currTime / 60);
@@ -152,16 +165,19 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
                     videoElt.currentTime = currTime;
                     
                     //$('#sliderContainer').css('left', currPx);
-                    //$('#sliderPoint').css('width', currPx);
+                    $('#sliderPoint').css('width', currPx);
                 }
 
             });
+
             $('body').on('mouseup.seek', function() {
                 // when the mouse is released, remove the mousemove handler
                 // debugger;
                 $('body').off('mousemove.seek');
                 $('body').off('mouseup.seek');
+		$('#currentTimeDisplay').text(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
                 videoElt.currentTime = currTime;
+		$('#sliderPoint').css('width', currPx);
             });
         });
     }
