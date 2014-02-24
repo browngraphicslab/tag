@@ -29,12 +29,16 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         DURATION = parseFloat(videoSrc.Metadata.Duration),
         play = root.find('#playPauseButton'),
         vol = root.find('#videoControlsButton'),
-        sliderControl = root.find('#sliderControl'),
+        //sliderControl = root.find('#sliderControl'),
         sliderContainer = root.find('#sliderContainer'),
         dragBar = false,
         hoverString,
         setHoverValue,
         currTime;
+
+
+
+
 
     video.attr({
         poster: (videoSrc.Metadata.Thumbnail && !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : '',
@@ -85,6 +89,9 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         });
     }
     
+
+
+
     setHoverValue = function (percent) {
         var totalDuration = orchestrator.getNarrativeInfo().totalDuration, // ???
             hoverTime = narrativeDuration * percent,
@@ -105,7 +112,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
             }
         });
 
-        sliderControl.on('mousedown', function(e) {
+        sliderContainer.on('mousedown', function(e) {
             e.stopPropagation();
             console.log("seeker mousedown detected!2");
             var origPoint = e.pageX,
@@ -134,8 +141,8 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
                     $('#currentTimeDisplay').text(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
                     videoElt.currentTime = currTime;
                     
-                    $('#sliderControl').css('left', currPx);
-                    $('#sliderPoint').css('width', currPx);
+                    //$('#sliderContainer').css('left', currPx);
+                    //$('#sliderPoint').css('width', currPx);
                 }
 
             });
@@ -185,7 +192,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         // Calculate the slider value and update the slider value
 
         value = ($('#sliderContainer').width() / videoElt.duration) * videoElt.currentTime;
-	   $('#sliderControl').css('left',value);
+	  // $('#sliderControl').css('left',value);
 	   $('#sliderPoint').css('width',value);
 
         minutes = Math.floor(videoElt.currentTime / 60);

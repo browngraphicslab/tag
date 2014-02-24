@@ -44044,9 +44044,10 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
         var works = sortedArtworks.getContents();
         for (var j = 0; j < works.length; j++) {
             var k = j;
-            loadQueue.add(drawArtworkTile(works[k].artwork, tag, onSearch, k+i, w, h));
+            loadQueue.add(drawArtworkTile(works[k].artwork, tag, onSearch, k + i, w, h));
+            loadQueue.add(function () { timelineDiv.animate({ scrollLeft: scrollPos }, 0); });
         }
-        loadQueue.add(function () { timelineDiv.animate({ scrollLeft: scrollPos }, 1000);});
+        
 
         return works.length;
     }
@@ -44918,12 +44919,16 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         DURATION = parseFloat(videoSrc.Metadata.Duration),
         play = root.find('#playPauseButton'),
         vol = root.find('#videoControlsButton'),
-        sliderControl = root.find('#sliderControl'),
+        //sliderControl = root.find('#sliderControl'),
         sliderContainer = root.find('#sliderContainer'),
         dragBar = false,
         hoverString,
         setHoverValue,
         currTime;
+
+
+
+
 
     video.attr({
         poster: (videoSrc.Metadata.Thumbnail && !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : '',
@@ -44974,6 +44979,9 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         });
     }
     
+
+
+
     setHoverValue = function (percent) {
         var totalDuration = orchestrator.getNarrativeInfo().totalDuration, // ???
             hoverTime = narrativeDuration * percent,
@@ -44994,7 +45002,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
             }
         });
 
-        sliderControl.on('mousedown', function(e) {
+        sliderContainer.on('mousedown', function(e) {
             e.stopPropagation();
             console.log("seeker mousedown detected!2");
             var origPoint = e.pageX,
@@ -45023,8 +45031,8 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
                     $('#currentTimeDisplay').text(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
                     videoElt.currentTime = currTime;
                     
-                    $('#sliderControl').css('left', currPx);
-                    $('#sliderPoint').css('width', currPx);
+                    //$('#sliderContainer').css('left', currPx);
+                    //$('#sliderPoint').css('width', currPx);
                 }
 
             });
@@ -45074,7 +45082,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         // Calculate the slider value and update the slider value
 
         value = ($('#sliderContainer').width() / videoElt.duration) * videoElt.currentTime;
-	   $('#sliderControl').css('left',value);
+	  // $('#sliderControl').css('left',value);
 	   $('#sliderPoint').css('width',value);
 
         minutes = Math.floor(videoElt.currentTime / 60);
@@ -45193,6 +45201,29 @@ LADS.Util.makeNamespace("LADS.TESTS");
         });
 
         init();
+
+        /* nbowditch _editted 2/23/2014 : stopped scrolling when over tag*/
+        /* NOTE: had to do this in 2 places for cross-browser support.
+           for FF and IE, propogation had to be stopped inside the iframe.
+           For chrome, it had to be stopped outside iframe.
+        */
+        var frameDiv = document.getElementById('tagRootContainer');
+        frameDiv.addEventListener('mousewheel', function (evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            return false;
+        });
+        frameDiv.addEventListener('DOMMouseScroll', function (evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            return false;
+        });
+        frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            return false;
+        });
+        /* end nbowditch edit */
     }
 
     function init() {

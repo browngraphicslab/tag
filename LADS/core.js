@@ -91,6 +91,29 @@
         });
 
         init();
+
+        /* nbowditch _editted 2/23/2014 : stopped scrolling when over tag*/
+        /* NOTE: had to do this in 2 places for cross-browser support.
+           for FF and IE, propogation had to be stopped inside the iframe.
+           For chrome, it had to be stopped outside iframe.
+        */
+        var frameDiv = document.getElementById('tagRootContainer');
+        frameDiv.addEventListener('mousewheel', function (evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            return false;
+        });
+        frameDiv.addEventListener('DOMMouseScroll', function (evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            return false;
+        });
+        frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            return false;
+        });
+        /* end nbowditch edit */
     }
 
     function init() {
