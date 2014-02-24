@@ -111,13 +111,14 @@ var TAG_embed = function(tagInput) {
     frameDoc.write(htmlStr);
     frameDoc.close();
 
-    
     /* nbowditch _editted 2/23/2014 : stopped scrolling when over tag*/
     /* NOTE: had to do this in 2 places for cross-browser support.
        for FF and IE, propogation had to be stopped inside the iframe.
        For chrome, it had to be stopped outside iframe.
     */
+
     /*
+>>>>>>> 8a7bd2dda7b5de062e36b8bbaf03321e0e363de2
     var frameDiv = document.getElementById('tagRootContainer');
     frameDiv.addEventListener('mousewheel', function (evt) {
         evt.stopPropagation();
@@ -134,6 +135,8 @@ var TAG_embed = function(tagInput) {
         evt.preventDefault();
         return false;
     });
+<<<<<<< HEAD
+=======
     */
     /* end nbowditch edit */
 };

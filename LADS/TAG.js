@@ -32231,7 +32231,6 @@ LADS.Util.UI = (function () {
             'width': '80%',
 	        'height':'10%',
             'text-align': 'center',
-            'bottom': '10%',
             'position': 'relative',
         });
 
@@ -32304,6 +32303,10 @@ LADS.Util.UI = (function () {
                 serverSaveButton.show();
                 serverErrorMessage.html('Could not connet to the specified address. Please try again.');
                 serverErrorMessage.show();
+                serverDialog.css({
+                    width: '40%',   //serverDialogSpecs.width + 'px',
+                    height: '50%',   //serverDialogSpecs.height + 'px',
+                });
             });
         }
 
@@ -41449,6 +41452,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         makeCircle(info, newhotspot, isHotspot);
     }
 };
+
 ;
 var LADS = LADS || {};
 
@@ -44935,8 +44939,8 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
     });
 
     //Adding sources for the video file
-    //var source = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source);
-    var source = 'http://techslides.com/demos/sample-videos/small.webm'; //Video file to test code without server conversion
+    var source = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source);
+    //var source = 'http://techslides.com/demos/sample-videos/small.webm'; //Video file to test code without server conversion
     var sourceSansExtension = source.substring(0, source.lastIndexOf('.')) || input;
     sourceMP4 = sourceSansExtension + ".mp4";
     sourceWEBM = sourceSansExtension + ".webm";
@@ -45017,13 +45021,26 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
             var origPoint = e.pageX,
                 origTime = videoElt.currentTime,
                 timePxRatio = DURATION / sliderContainer.width(); // sec/px
-            console.log('ratio = '+timePxRatio);
+                console.log('ratio = '+timePxRatio);
+                currTime = Math.max(0, Math.min(DURATION, origTime));
+                var currPx = currTime / timePxRatio;
+                var minutes = Math.floor(currTime / 60);
+                if((""+minutes).length < 2) {
+                    minutes = "0" + minutes;
+                }
+                var seconds = Math.floor(currTime % 60);
+
+                //console.log("currTime1 "+origTime);
+
+                // Update the video time and slider values
+            
+
             $('body').on('mousemove.seek', function(evt) {
                 var currPoint = evt.pageX,
-                    timeDiff = (currPoint - origPoint) * timePxRatio,
-                    currPx,
-                    minutes,
-                    seconds;
+                    timeDiff = (currPoint - origPoint) * timePxRatio;
+                    //currPx,
+                    //minutes,
+                    //seconds;
                 currTime = Math.max(0, Math.min(DURATION, origTime + timeDiff));
                 currPx = currTime / timePxRatio;
                 minutes = Math.floor(currTime / 60);
@@ -45041,16 +45058,19 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
                     videoElt.currentTime = currTime;
                     
                     //$('#sliderContainer').css('left', currPx);
-                    //$('#sliderPoint').css('width', currPx);
+                    $('#sliderPoint').css('width', currPx);
                 }
 
             });
+
             $('body').on('mouseup.seek', function() {
                 // when the mouse is released, remove the mousemove handler
                 // debugger;
                 $('body').off('mousemove.seek');
                 $('body').off('mouseup.seek');
+		$('#currentTimeDisplay').text(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
                 videoElt.currentTime = currTime;
+		$('#sliderPoint').css('width', currPx);
             });
         });
     }
@@ -45217,6 +45237,7 @@ LADS.Util.makeNamespace("LADS.TESTS");
            For chrome, it had to be stopped outside iframe.
         */
         /*
+>>>>>>> 8a7bd2dda7b5de062e36b8bbaf03321e0e363de2
         var frameDiv = document.getElementById('tagRootContainer');
         frameDiv.addEventListener('mousewheel', function (evt) {
             evt.stopPropagation();
@@ -45233,8 +45254,9 @@ LADS.Util.makeNamespace("LADS.TESTS");
             evt.preventDefault();
             return false;
         });
-        */
-        /* end nbowditch edit */
+<<<<<<< HEAD
+=======
+        */        /* end nbowditch edit */
     }
 
     function init() {

@@ -1606,7 +1606,6 @@ LADS.Util.UI = (function () {
             'width': '80%',
 	        'height':'10%',
             'text-align': 'center',
-            'bottom': '10%',
             'position': 'relative',
         });
 
@@ -1679,6 +1678,10 @@ LADS.Util.UI = (function () {
                 serverSaveButton.show();
                 serverErrorMessage.html('Could not connet to the specified address. Please try again.');
                 serverErrorMessage.show();
+                serverDialog.css({
+                    width: '40%',   //serverDialogSpecs.width + 'px',
+                    height: '50%',   //serverDialogSpecs.height + 'px',
+                });
             });
         }
 
