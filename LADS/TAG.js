@@ -45141,6 +45141,11 @@ LADS.Util.makeNamespace("LADS.TESTS");
             h = 9/16 * w;
         }
 
+        $("body").css({ //disable page zoomming in IE.
+            "-ms-touch-action":"none",
+            "-ms-content-zooming":"none",
+        });
+
 
 
 
@@ -45221,6 +45226,13 @@ LADS.Util.makeNamespace("LADS.TESTS");
         oCss.rel = "stylesheet";
         oCss.href = tagPath+"css/TAG.css";
         oHead.appendChild(oCss);
+
+     /*   var oMeta= document.createElement("meta");
+        oMeta.name="viewport";
+        oMeta.content="width=device-width, initial-scale=1.0, user-scalable=no";
+        oHead.appendChild(oMeta);*/
+        
+
 
         var tagContainer = $('#tagRoot'); // TODO more general?
     
