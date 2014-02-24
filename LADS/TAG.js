@@ -44179,7 +44179,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
                 yearInfo.text(" " );
             }
                 
-            img1.attr("src", LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail))
+            img1.attr("src", artwork.Metadata.Thumbnail ? LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail) : (tagPath+'Images/no_thumbnail.svg'))
                 .css('border', '1px solid rgba(0,0,0,0.5)')
                 .attr('guid', artwork.Identifier);
             
@@ -45236,27 +45236,33 @@ LADS.Util.makeNamespace("LADS.TESTS");
            for FF and IE, propogation had to be stopped inside the iframe.
            For chrome, it had to be stopped outside iframe.
         */
-        /*
->>>>>>> 8a7bd2dda7b5de062e36b8bbaf03321e0e363de2
+        
         var frameDiv = document.getElementById('tagRootContainer');
-        frameDiv.addEventListener('mousewheel', function (evt) {
-            evt.stopPropagation();
-            evt.preventDefault();
-            return false;
-        });
-        frameDiv.addEventListener('DOMMouseScroll', function (evt) {
-            evt.stopPropagation();
-            evt.preventDefault();
-            return false;
-        });
-        frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
-            evt.stopPropagation();
-            evt.preventDefault();
-            return false;
-        });
-<<<<<<< HEAD
-=======
-        */        /* end nbowditch edit */
+
+        // $('body').on('scroll.b mousewheel.b MozMousePixelScroll.b DOMMouseScroll.b', function(e) {
+        //     e.stopPropagation();
+        //     e.stopImmediatePropagation();
+        //     e.preventDefault();
+        //     return false;
+        // });
+        // frameDiv.addEventListener('mousewheel', function (evt) {
+        //     evt.stopPropagation();
+        //     evt.preventDefault();
+        //     return false;
+        // });
+        // frameDiv.addEventListener('DOMMouseScroll', function (evt) {
+        //     evt.stopPropagation();
+        //     evt.preventDefault();
+        //     return false;
+        // });
+        // frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
+        //     evt.stopPropagation();
+        //     evt.preventDefault();
+        //     return false;
+        // });
+        
+
+        /* end nbowditch edit */
     }
 
     function init() {

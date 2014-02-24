@@ -97,30 +97,32 @@
            for FF and IE, propogation had to be stopped inside the iframe.
            For chrome, it had to be stopped outside iframe.
         */
-<<<<<<< HEAD
-=======
-        /*
->>>>>>> 8a7bd2dda7b5de062e36b8bbaf03321e0e363de2
+        
         var frameDiv = document.getElementById('tagRootContainer');
-        frameDiv.addEventListener('mousewheel', function (evt) {
-            evt.stopPropagation();
-            evt.preventDefault();
-            return false;
-        });
-        frameDiv.addEventListener('DOMMouseScroll', function (evt) {
-            evt.stopPropagation();
-            evt.preventDefault();
-            return false;
-        });
-        frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
-            evt.stopPropagation();
-            evt.preventDefault();
-            return false;
-        });
-<<<<<<< HEAD
-=======
-        */
->>>>>>> 8a7bd2dda7b5de062e36b8bbaf03321e0e363de2
+
+        // $('body').on('scroll.b mousewheel.b MozMousePixelScroll.b DOMMouseScroll.b', function(e) {
+        //     e.stopPropagation();
+        //     e.stopImmediatePropagation();
+        //     e.preventDefault();
+        //     return false;
+        // });
+        // frameDiv.addEventListener('mousewheel', function (evt) {
+        //     evt.stopPropagation();
+        //     evt.preventDefault();
+        //     return false;
+        // });
+        // frameDiv.addEventListener('DOMMouseScroll', function (evt) {
+        //     evt.stopPropagation();
+        //     evt.preventDefault();
+        //     return false;
+        // });
+        // frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
+        //     evt.stopPropagation();
+        //     evt.preventDefault();
+        //     return false;
+        // });
+        
+
         /* end nbowditch edit */
     }
 

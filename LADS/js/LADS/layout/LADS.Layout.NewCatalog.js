@@ -802,7 +802,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
                 yearInfo.text(" " );
             }
                 
-            img1.attr("src", LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail))
+            img1.attr("src", artwork.Metadata.Thumbnail ? LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail) : (tagPath+'Images/no_thumbnail.svg'))
                 .css('border', '1px solid rgba(0,0,0,0.5)')
                 .attr('guid', artwork.Identifier);
             

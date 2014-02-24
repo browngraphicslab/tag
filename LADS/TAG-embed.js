@@ -117,26 +117,44 @@ var TAG_embed = function(tagInput) {
        For chrome, it had to be stopped outside iframe.
     */
 
-    /*
->>>>>>> 8a7bd2dda7b5de062e36b8bbaf03321e0e363de2
-    var frameDiv = document.getElementById('tagRootContainer');
-    frameDiv.addEventListener('mousewheel', function (evt) {
-        evt.stopPropagation();
-        evt.preventDefault();
-        return false;
+    var frameDiv = document.getElementById('frameInnerContainer');
+
+    $frameDiv = $(frameDiv);
+
+    $frameDiv.on('mouseenter', function() {
+        $frameDiv.off('mouseleave');
+        console.log('in frame div');
+        // $('*').on('scroll.a mousewheel.a DOMMouseScroll.a MozMousePixelScroll.a', function(e) {
+        //     console.log('in body scroll');
+        //     e.stopPropagation();
+        //     e.cancelBubble = true;
+        //     return false;
+        // });
+        $('body').css('position', 'fixed');
+
+        $frameDiv.on('mouseleave', function() {
+            //console.log('leaving frame div');
+            //$('*').off('scroll.a mousewheel.a DOMMouseScroll.a MozMousePixelScroll.a');
+            $('body').css('position', 'static');
+        });
     });
-    frameDiv.addEventListener('DOMMouseScroll', function (evt) {
-        evt.stopPropagation();
-        evt.preventDefault();
-        return false;
-    });
-    frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
-        evt.stopPropagation();
-        evt.preventDefault();
-        return false;
-    });
-<<<<<<< HEAD
-=======
-    */
+
+
+    // frameDiv.addEventListener('mousewheel', function (evt) {
+    //     evt.stopPropagation();
+    //     evt.preventDefault();
+    //     return false;
+    // });
+    // frameDiv.addEventListener('DOMMouseScroll', function (evt) {
+    //     evt.stopPropagation();
+    //     evt.preventDefault();
+    //     return false;
+    // });
+    // frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
+    //     evt.stopPropagation();
+    //     evt.preventDefault();
+    //     return false;
+    // });
+
     /* end nbowditch edit */
 };
