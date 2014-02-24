@@ -25,6 +25,9 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
 
     var root = LADS.Util.getHtmlAjax('VideoPlayer.html'),
         video = root.find('#video'),
+        sourceMP4,
+        sourceWEBM,
+        sourceOGG,
         videoElt = video[0],
         DURATION = parseFloat(videoSrc.Metadata.Duration),
         play = root.find('#playPauseButton'),
@@ -36,17 +39,24 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         setHoverValue,
         currTime;
 
-
-
-
-
     video.attr({
         poster: (videoSrc.Metadata.Thumbnail && !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : '',
-        src: LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source),
-        type: 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
         controls: false,
         preload: 'metadata'
     });
+
+    //Adding sources for the video file
+    var source = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source);
+    //var source = 'http://techslides.com/demos/sample-videos/small.webm'; //Video file to test code without server conversion
+    var sourceSansExtension = source.substring(0, source.lastIndexOf('.')) || input;
+    sourceMP4 = sourceSansExtension + ".mp4";
+    sourceWEBM = sourceSansExtension + ".webm";
+    sourceOGG = sourceSansExtension + ".ogg";
+    
+    //video[0] converts the jQuery object 'video' into an HTML object, allowing us to use innerHTML on it
+    video[0].innerHTML = '<source src="' + sourceMP4 + '" type="video/mp4; codecs="avc1.42E01E, mp4a.40.2"">';
+    video[0].innerHTML += '<source src="' + sourceWEBM + '" type="video/webm; codecs="vorbis, vp8"">';
+    video[0].innerHTML += '<source src="' + sourceOGG + '" type="video/ogg; codecs="theora, vorbis"">';
 
     timeToZero();
     initVideoPlayHandlers();
@@ -83,9 +93,9 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         });
 
         video.on('ended', function () {
-		videoElt.pause();
-		timeToZero();
-		// initVideoPlayHandlers(); // is this necessary here TODO
+        videoElt.pause();
+        timeToZero();
+        // initVideoPlayHandlers(); // is this necessary here TODO
         });
     }
     
@@ -192,8 +202,8 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         // Calculate the slider value and update the slider value
 
         value = ($('#sliderContainer').width() / videoElt.duration) * videoElt.currentTime;
-	  // $('#sliderControl').css('left',value);
-	   $('#sliderPoint').css('width',value);
+      // $('#sliderControl').css('left',value);
+       $('#sliderPoint').css('width',value);
 
         minutes = Math.floor(videoElt.currentTime / 60);
         seconds = Math.floor(videoElt.currentTime % 60);
