@@ -41453,6 +41453,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         makeCircle(info, newhotspot, isHotspot);
     }
 };
+
 ;
 var LADS = LADS || {};
 
@@ -44073,16 +44074,16 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             tourLabel.attr('id', 'tourLabel');
             tourLabel.attr('src', tagPath+'images/icons/catalog_tour_icon.svg');
             tourLabel.css({
-                'height': '50%', 
-                'width': '36%', 
+                'height': '30%', 
+                'width': '30%', 
             });
 
             var videoLabel = $(document.createElement('img'));
             videoLabel.attr('id', 'videoLabel');
             videoLabel.attr('src', tagPath+'images/icons/catalog_video_icon.svg');
             videoLabel.css({
-                'height': '50%', 
-                'width': '36%', 
+                'height': '35%', 
+                'width': '20%', 
             });
 
             var image = $(document.createElement('img'));
@@ -45021,13 +45022,26 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
             var origPoint = e.pageX,
                 origTime = videoElt.currentTime,
                 timePxRatio = DURATION / sliderContainer.width(); // sec/px
-            console.log('ratio = '+timePxRatio);
+                console.log('ratio = '+timePxRatio);
+                currTime = Math.max(0, Math.min(DURATION, origTime));
+                var currPx = currTime / timePxRatio;
+                var minutes = Math.floor(currTime / 60);
+                if((""+minutes).length < 2) {
+                    minutes = "0" + minutes;
+                }
+                var seconds = Math.floor(currTime % 60);
+
+                //console.log("currTime1 "+origTime);
+
+                // Update the video time and slider values
+            
+
             $('body').on('mousemove.seek', function(evt) {
                 var currPoint = evt.pageX,
-                    timeDiff = (currPoint - origPoint) * timePxRatio,
-                    currPx,
-                    minutes,
-                    seconds;
+                    timeDiff = (currPoint - origPoint) * timePxRatio;
+                    //currPx,
+                    //minutes,
+                    //seconds;
                 currTime = Math.max(0, Math.min(DURATION, origTime + timeDiff));
                 currPx = currTime / timePxRatio;
                 minutes = Math.floor(currTime / 60);
@@ -45045,16 +45059,19 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
                     videoElt.currentTime = currTime;
                     
                     //$('#sliderContainer').css('left', currPx);
-                    //$('#sliderPoint').css('width', currPx);
+                    $('#sliderPoint').css('width', currPx);
                 }
 
             });
+
             $('body').on('mouseup.seek', function() {
                 // when the mouse is released, remove the mousemove handler
                 // debugger;
                 $('body').off('mousemove.seek');
                 $('body').off('mouseup.seek');
+		$('#currentTimeDisplay').text(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
                 videoElt.currentTime = currTime;
+		$('#sliderPoint').css('width', currPx);
             });
         });
     }
