@@ -32235,22 +32235,12 @@ LADS.Util.UI = (function () {
             'width': '80%',
 	        'height':'10%',
             'text-align': 'center',
-            'bottom': '10%',
             'position': 'relative',
         });
 
         serverErrorMessage.html('Could not connet to the specified address. Please try again.');
         serverButtonRow.append(serverErrorMessage);
         serverErrorMessage.hide();
-<<<<<<< Updated upstream
-
-=======
-        serverDialog.css({
-            width: '70%',   //serverDialogSpecs.width + 'px',
-            height: '70%',   //serverDialogSpecs.height + 'px',
-        })
->>>>>>> Stashed changes
-
 
         var serverCancelButton = $(document.createElement('button'));
         serverCancelButton.css({
@@ -32317,6 +32307,10 @@ LADS.Util.UI = (function () {
                 serverSaveButton.show();
                 serverErrorMessage.html('Could not connet to the specified address. Please try again.');
                 serverErrorMessage.show();
+                serverDialog.css({
+                    width: '40%',   //serverDialogSpecs.width + 'px',
+                    height: '50%',   //serverDialogSpecs.height + 'px',
+                });
             });
         }
 
@@ -44082,16 +44076,16 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             tourLabel.attr('id', 'tourLabel');
             tourLabel.attr('src', tagPath+'images/icons/catalog_tour_icon.svg');
             tourLabel.css({
-                'height': '50%', 
-                'width': '36%', 
+                'height': '30%', 
+                'width': '30%', 
             });
 
             var videoLabel = $(document.createElement('img'));
             videoLabel.attr('id', 'videoLabel');
             videoLabel.attr('src', tagPath+'images/icons/catalog_video_icon.svg');
             videoLabel.css({
-                'height': '50%', 
-                'width': '36%', 
+                'height': '35%', 
+                'width': '20%', 
             });
 
             var image = $(document.createElement('img'));
@@ -44948,8 +44942,8 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
     });
 
     //Adding sources for the video file
-    //var source = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source);
-    var source = 'http://techslides.com/demos/sample-videos/small.webm'; //Video file to test code without server conversion
+    var source = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source);
+    //var source = 'http://techslides.com/demos/sample-videos/small.webm'; //Video file to test code without server conversion
     var sourceSansExtension = source.substring(0, source.lastIndexOf('.')) || input;
     sourceMP4 = sourceSansExtension + ".mp4";
     sourceWEBM = sourceSansExtension + ".webm";
@@ -45249,8 +45243,7 @@ LADS.Util.makeNamespace("LADS.TESTS");
         });
 <<<<<<< HEAD
 =======
-        */
-        /* end nbowditch edit */
+        */        /* end nbowditch edit */
     }
 
     function init() {
