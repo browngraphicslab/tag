@@ -333,27 +333,38 @@ left: 50% {
   margin: 1%;
   width: 40%;
   position: relative;
-  text-align: center;
-  border: 1px solid #fff;
+  border: 1px solid rgba(255,255,255,0.4);
   color: #fff;
+}
+#artmodeRoot .holderContainer {
+  display: table;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+#artmodeRoot .holderInnerContainer {
+  display: table-cell;
+  max-height: 100%;
+  max-width: 100%;
+  vertical-align: middle;
+  text-align: center;
 }
 #artmodeRoot .assetHolder {
   float: left;
   margin: 1%;
   width: 40%;
   position: relative;
-  text-align: center;
-  border: 1px solid #fff;
+  border: 1px solid rgba(255,255,255,0.4);
   color: #fff;
 }
 #artmodeRoot .mediaHolderDiv {
   height: 70%;
+  position: relative;
   width: 92%;
   margin: 4% 4% 0 4%;
 }
 #artmodeRoot .mediaHolderImg {
   max-width: 100%;
-  max-height: 100%;
 }
 #artmodeRoot .assetHolderImage {
   max-width: 100%;
@@ -366,6 +377,8 @@ left: 50% {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: center;
+  font-size: 75%;
 }
 #artmodeRoot #minimapContainer {
   width: 80%;
@@ -991,12 +1004,13 @@ left: 50% {
 }
 #VideoPlayerRoot #currentTimeDisplay {
   width: 5%;
-  height: 100%;
+  height: 80%;
   display: inline-block;
   color: #fff;
   position: relative;
   vertical-align: top;
-  top: 29.333333333333332%;
+  top: 17.6%;
+  margin-left: 75%;
 }
 #VideoPlayerRoot #overlayOnRoot {
   position: absolute;
@@ -1009,16 +1023,17 @@ left: 50% {
 #VideoPlayerRoot #playHolder {
   position: relative;
   height: 70%;
-  width: auto;
+  width: 10%;
   display: inline-block;
   margin: 0 1%;
-  top: 12%;
-  margin-left: 22%;
+  top: 4%;
+  margin-left: 1%;
 }
 #VideoPlayerRoot #playPauseButton {
   position: relative;
   height: 100%;
   width: auto;
+  padding-left: 2%;
   display: inline-block;
 }
 #VideoPlayerRoot #seek-bar {
@@ -1029,30 +1044,13 @@ left: 50% {
   margin-left: 1%;
   display: inline-block;
 }
-#VideoPlayerRoot #sliderControl {
-  display: inline-block;
-  left: 0%;
-  margin-top: -0.6%;
-  background-color: #fff;
-  position: absolute;
-  border-radius: 50%;
-  border-style: solid;
-  border-width: 100%;
-  border-bottom-color: #fff;
-  border-left-color: #fff;
-  border-right-color: #fff;
-  border-top-color: #fff;
-  height: 100%;
-  width: 1.5%;
-}
 #VideoPlayerRoot #sliderContainer {
   display: inline-block;
-  border: 1px solid #fff;
-  height: 10%;
-  position: relative;
-  width: 40%;
-  vertical-align: top;
-  top: 44%;
+  height: 25%;
+  position: absolute;
+  width: 100%;
+  left: 0px;
+  bottom: 0px;
 }
 #VideoPlayerRoot #sliderPoint {
   display: inline-block;
@@ -1061,7 +1059,7 @@ left: 50% {
   position: absolute;
   top: 0%;
   width: 0%;
-  background-color: #fff;
+  background-color: #3cf;
 }
 #VideoPlayerRoot #timeContainer {
   height: 20px;
@@ -1098,10 +1096,10 @@ left: 50% {
   display: inline-block;
 }
 #VideoPlayerRoot #volHolder {
-  margin: 0px 2.5%;
-  top: 15%;
-  width: auto;
-  height: 100%;
+  margin: 0px;
+  top: 10%;
+  width: 1%;
+  height: 80%;
   display: inline-block;
   position: relative;
   vertical-align: top;
@@ -1159,7 +1157,7 @@ left: 50% {
   cursor: default;
   background-color: #111;
 }
-#tagRoot * {
+#tagRoot *:not(tspan) {
   font-family: sourceSans, sans-serif;
 }
 #tagRootContainer {

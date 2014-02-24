@@ -21,7 +21,7 @@ var tagInk = function (canvId, html_elt) {
         shapes: 0, //shape manipulation
         draw: 1,
         erase: 2,
-        text: 5,
+        text: 5
     };
 
     // brush variables

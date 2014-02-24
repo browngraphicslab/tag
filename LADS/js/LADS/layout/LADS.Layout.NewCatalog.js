@@ -662,9 +662,10 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
         var works = sortedArtworks.getContents();
         for (var j = 0; j < works.length; j++) {
             var k = j;
-            loadQueue.add(drawArtworkTile(works[k].artwork, tag, onSearch, k+i, w, h));
+            loadQueue.add(drawArtworkTile(works[k].artwork, tag, onSearch, k + i, w, h));
+            loadQueue.add(function () { timelineDiv.animate({ scrollLeft: scrollPos }, 0); });
         }
-        loadQueue.add(function () { timelineDiv.animate({ scrollLeft: scrollPos }, 1000);});
+        
 
         return works.length;
     }

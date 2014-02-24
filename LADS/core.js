@@ -37,6 +37,11 @@
             h = 9/16 * w;
         }
 
+        $("body").css({ //disable page zoomming in IE.
+            "-ms-touch-action":"none",
+            "-ms-content-zooming":"none",
+        });
+
 
 
 
@@ -86,6 +91,31 @@
         });
 
         init();
+
+        /* nbowditch _editted 2/23/2014 : stopped scrolling when over tag*/
+        /* NOTE: had to do this in 2 places for cross-browser support.
+           for FF and IE, propogation had to be stopped inside the iframe.
+           For chrome, it had to be stopped outside iframe.
+        */
+        /*
+        var frameDiv = document.getElementById('tagRootContainer');
+        frameDiv.addEventListener('mousewheel', function (evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            return false;
+        });
+        frameDiv.addEventListener('DOMMouseScroll', function (evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            return false;
+        });
+        frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            return false;
+        });
+        */
+        /* end nbowditch edit */
     }
 
     function init() {
@@ -117,6 +147,13 @@
         oCss.rel = "stylesheet";
         oCss.href = tagPath+"css/TAG.css";
         oHead.appendChild(oCss);
+
+     /*   var oMeta= document.createElement("meta");
+        oMeta.name="viewport";
+        oMeta.content="width=device-width, initial-scale=1.0, user-scalable=no";
+        oHead.appendChild(oMeta);*/
+        
+
 
         var tagContainer = $('#tagRoot'); // TODO more general?
     
