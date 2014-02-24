@@ -44810,6 +44810,7 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
     /* nbowditch _editted 2/13/2014 : added prevInfo */
     var artworkPrev;
     var prevScroll = 0;
+	var prevExhib = exhibition;
     if (prevInfo) {
         artworkPrev = prevInfo.artworkPrev,
         prevScroll = prevInfo.prevScroll || 0;
@@ -44856,7 +44857,13 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
             var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
             catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
             /* end nbowditch edit */
-            LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot());           
+            LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
+				artworkPrev = "catalog";
+				var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
+				selectedExhib.attr('flagClicked', 'true');
+				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
+				$(selectedExhib[0].firstChild).css({'color': 'black'});
+			});           
         }
         // TODO: do we need this next line?
         // tagContainer.css({ 'font-size': '11pt', 'font-family': "'source sans pro regular' sans-serif" }); // Quick hack to fix bug where rin.css was overriding styles for body element -jastern 4/30
@@ -44908,6 +44915,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
     /* nowditch _editted 2/13/2014 : added prevScroll */
     var artworkPrev;
     var prevScroll = 0;
+	var prevExhib = exhibition;
     if (prevInfo) {
         artworkPrev = prevInfo.artworkPrev,
         prevScroll = prevInfo.prevScroll || 0;
@@ -45095,8 +45103,14 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
         var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
         /* end nbowditch edit */
-
-        LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot());
+		catalog.getRoot().css({ 'overflow-x': 'hidden' });
+        LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
+				artworkPrev = "catalog";
+				var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
+				selectedExhib.attr('flagClicked', 'true');
+				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
+				$(selectedExhib[0].firstChild).css({'color': 'black'});
+			});
     });
 
 

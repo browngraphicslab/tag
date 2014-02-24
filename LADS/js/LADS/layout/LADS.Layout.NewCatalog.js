@@ -1,4 +1,4 @@
-﻿LADS.Util.makeNamespace("LADS.Layout.NewCatalog");
+LADS.Util.makeNamespace("LADS.Layout.NewCatalog");
 //catalog should only get artworks and exhibitions
 
 // backInfo: {backArtwork: [artwork selected], backScroll: [int; position of scroll on timelineDiv] }

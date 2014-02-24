@@ -1,4 +1,4 @@
-﻿LADS.Util.makeNamespace("LADS.Layout.VideoPlayer");
+LADS.Util.makeNamespace("LADS.Layout.VideoPlayer");
 
 /**
  * Player for RIN tours
@@ -15,6 +15,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
     /* nowditch _editted 2/13/2014 : added prevScroll */
     var artworkPrev;
     var prevScroll = 0;
+	var prevExhib = exhibition;
     if (prevInfo) {
         artworkPrev = prevInfo.artworkPrev,
         prevScroll = prevInfo.prevScroll || 0;
@@ -202,8 +203,14 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
         var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
         /* end nbowditch edit */
-
-        LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot());
+		catalog.getRoot().css({ 'overflow-x': 'hidden' });
+        LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
+				artworkPrev = "catalog";
+				var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
+				selectedExhib.attr('flagClicked', 'true');
+				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
+				$(selectedExhib[0].firstChild).css({'color': 'black'});
+			});
     });
 
 
