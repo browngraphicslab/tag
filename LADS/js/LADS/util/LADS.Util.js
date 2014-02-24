@@ -1617,10 +1617,7 @@ LADS.Util.UI = (function () {
         serverErrorMessage.html('Could not connet to the specified address. Please try again.');
         serverButtonRow.append(serverErrorMessage);
         serverErrorMessage.hide();
-        serverDialog.css({
-            width: '70%',   //serverDialogSpecs.width + 'px',
-            height: '70%',   //serverDialogSpecs.height + 'px',
-        }
+
 
 
         var serverCancelButton = $(document.createElement('button'));

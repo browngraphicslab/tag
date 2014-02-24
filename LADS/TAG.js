@@ -32242,10 +32242,7 @@ LADS.Util.UI = (function () {
         serverErrorMessage.html('Could not connet to the specified address. Please try again.');
         serverButtonRow.append(serverErrorMessage);
         serverErrorMessage.hide();
-        serverDialog.css({
-            width: '70%',   //serverDialogSpecs.width + 'px',
-            height: '70%',   //serverDialogSpecs.height + 'px',
-        }
+
 
 
         var serverCancelButton = $(document.createElement('button'));
@@ -42185,7 +42182,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             }
             else {
                 opts = {
-                    left: -(sideBarWidth)
+                    left: '-22%' //-(sideBarWidth)
                 };
             }
             //if the bar is not open
@@ -45151,6 +45148,8 @@ LADS.Util.makeNamespace("LADS.TESTS");
             "-ms-touch-action":"none",
             "-ms-content-zooming":"none",
         });
+
+
 
 
         // debugger;
