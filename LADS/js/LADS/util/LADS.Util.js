@@ -1619,7 +1619,6 @@ LADS.Util.UI = (function () {
         serverErrorMessage.hide();
 
 
-
         var serverCancelButton = $(document.createElement('button'));
         serverCancelButton.css({
             'padding': '1%', 'border': '1px solid white', 'width': '12%','height':'3%', 'position': 'relative', 'margin-top': '1%', 'float': "right", 'margin-right': '7%','font-size':'90%','bottom':'1%'
