@@ -32245,7 +32245,7 @@ LADS.Util.UI = (function () {
         serverDialog.css({
             width: '70%',   //serverDialogSpecs.width + 'px',
             height: '70%',   //serverDialogSpecs.height + 'px',
-            }
+        }
 
 
         var serverCancelButton = $(document.createElement('button'));
