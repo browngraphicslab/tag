@@ -7,8 +7,23 @@
 		function load() {
 			var testdiv = document.getElementById('test'),
 				numEvents = 0;
-			testdiv.addEventListener('mousewheel', function() {
-				testdiv.innerHTML = ++numEvents;
+			testdiv.addEventListener('mousewheel', function(evt) {
+			    testdiv.innerHTML = ++numEvents;
+			    evt.stopPropagation();
+			    evt.preventDefault();
+			    return false;
+			});
+			testdiv.addEventListener('DOMMouseScroll', function (evt) {
+			    testdiv.innerHTML = ++numEvents;
+			    evt.stopPropagation();
+			    evt.preventDefault();
+			    return false;
+			});
+			testdiv.addEventListener('MozMousePixelScroll', function (evt) {
+			    testdiv.innerHTML = ++numEvents;
+			    evt.stopPropagation();
+			    evt.preventDefault();
+			    return false;
 			});
 		}
 	</script>
