@@ -10,7 +10,7 @@
 	src: url('fonts/source-sans-pro.regular.ttf') format('truetype');
 }
 
-* {
+*:not(tspan) {
 	font-family: 'sourceSans';
 }
 

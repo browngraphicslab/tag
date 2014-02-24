@@ -31487,10 +31487,6 @@ LADS.Util = (function () {
         }());
 
         function accel(vx, vy, delay, id) {
-            return;
-
-            // for web app, return right away
-
             if (!lastEvt) return;
             if (currentAccelId !== id) return;
             if (Math.abs(vx) <= 4 && Math.abs(vy) <= 4) {
@@ -40451,7 +40447,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 // debugger;
                 dzManip(res.pivot, res.translation, res.scale);
             }
-        });
+        }, null, true); // NO ACCELERATION FOR NOW
 
         assetCanvas = $(document.createElement('div'));
         assetCanvas.css({
@@ -41444,7 +41440,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             var gr = LADS.Util.makeManipulatable(currRoot, {
                 onManipulate: onManip,
                 onScroll: onScroll
-            });
+            }, null, true); // NO ACCELERATION FOR NOW
         }
 
 
@@ -42345,7 +42341,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
                 mediaHolderImage.css({ // TODO do this the right way... this isn't flexible at all, but it will probably do for the release
                     'max-height': 0.15 * 0.7 * $("#tagRoot").height() + "px",
-                    'max-width': 0.22 * 0.89 * 0.95 * 0.40 * 0.92 * $("#tagRoot").width() + "px"
+                    'max-width': 0.22 * 0.89 * 0.95 * 0.40 * 0.92 * $("#tagRoot").width() + "px" // these are all the % widths propagating down from the tag root
                 });
 
                 holderInnerContainer.append(mediaHolderImage);
@@ -44920,10 +44916,6 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         hoverString,
         setHoverValue,
         currTime;
-
-
-
-
 
     video.attr({
         poster: (videoSrc.Metadata.Thumbnail && !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : '',

@@ -36,10 +36,6 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         setHoverValue,
         currTime;
 
-
-
-
-
     video.attr({
         poster: (videoSrc.Metadata.Thumbnail && !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : '',
         src: LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source),

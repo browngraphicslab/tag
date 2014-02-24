@@ -862,10 +862,6 @@ LADS.Util = (function () {
         }());
 
         function accel(vx, vy, delay, id) {
-            return;
-
-            // for web app, return right away
-
             if (!lastEvt) return;
             if (currentAccelId !== id) return;
             if (Math.abs(vx) <= 4 && Math.abs(vy) <= 4) {
