@@ -90,11 +90,11 @@
   width: 1.5%;
 }
 #VideoPlayerRoot #sliderContainer {
-  display: inline-block;
+  display: block;
   border: 1px solid #fff;
   height: 10%;
   position: relative;
-  width: 40%;
+  width: 100%;
   vertical-align: top;
   top: 44%;
 }
