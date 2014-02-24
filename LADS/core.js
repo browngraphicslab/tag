@@ -97,6 +97,7 @@
            for FF and IE, propogation had to be stopped inside the iframe.
            For chrome, it had to be stopped outside iframe.
         */
+        /*
         var frameDiv = document.getElementById('tagRootContainer');
         frameDiv.addEventListener('mousewheel', function (evt) {
             evt.stopPropagation();
@@ -113,6 +114,7 @@
             evt.preventDefault();
             return false;
         });
+        */
         /* end nbowditch edit */
     }
 
