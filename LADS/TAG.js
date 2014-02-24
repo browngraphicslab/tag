@@ -42225,7 +42225,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 		backButton.on('click', function () {
 			
 			backButton.off('click');
-			debugger;
 			zoomimage.unload();
 		    /* nbowditch _editted 2/13/2014 : added backInfo */
 			var backInfo = { backArtwork: doq, backScroll: prevScroll };
@@ -42234,7 +42233,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 			//catalog.showExhibiton(exhibition);
 			catalog.getRoot().css({ 'overflow-x': 'hidden' });
 			LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
-				debugger;
 				var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
 				selectedExhib.attr('flagClicked', 'true');
 				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
@@ -44041,9 +44039,10 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
         var works = sortedArtworks.getContents();
         for (var j = 0; j < works.length; j++) {
             var k = j;
-            loadQueue.add(drawArtworkTile(works[k].artwork, tag, onSearch, k+i, w, h));
+            loadQueue.add(drawArtworkTile(works[k].artwork, tag, onSearch, k + i, w, h));
+            loadQueue.add(function () { timelineDiv.animate({ scrollLeft: scrollPos }, 0); });
         }
-        loadQueue.add(function () { timelineDiv.animate({ scrollLeft: scrollPos }, 1000);});
+        
 
         return works.length;
     }
@@ -45185,6 +45184,29 @@ LADS.Util.makeNamespace("LADS.TESTS");
         });
 
         init();
+
+        /* nbowditch _editted 2/23/2014 : stopped scrolling when over tag*/
+        /* NOTE: had to do this in 2 places for cross-browser support.
+           for FF and IE, propogation had to be stopped inside the iframe.
+           For chrome, it had to be stopped outside iframe.
+        */
+        var frameDiv = document.getElementById('tagRootContainer');
+        frameDiv.addEventListener('mousewheel', function (evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            return false;
+        });
+        frameDiv.addEventListener('DOMMouseScroll', function (evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            return false;
+        });
+        frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            return false;
+        });
+        /* end nbowditch edit */
     }
 
     function init() {

@@ -7,6 +7,7 @@
 		window.onload = load;
 
 		function load() {
+		    
 			TAG_embed({
 				path: '',
 				containerId: 'tagContainer',
@@ -17,6 +18,26 @@
 					'e53b2104-7a2b-432e-81c8-31a14f00f9ce' // Getty Museum collection is hidden
 				]
 			});
+
+			
+
+            /*
+		    // do not let scroll events bubble out of tag container
+		    // when the mouse is in the container
+			var frameDiv = document.getElementById('frameContainer'),
+		        numEvents = 0;
+		    //frameDiv.innerHTML = 0;
+			frameDiv.addEventListener('mousewheel', function (evt) {
+			    //frameDiv.innerHTML = ++numEvents;
+			    evt.stopPropagation();
+			    evt.preventDefault();
+			});
+			frameDiv.addEventListener('DOMMouseScroll', function (evt) {
+			    //frameDiv.innerHTML = ++numEvents;
+			    evt.stopPropagation();
+			    evt.preventDefault();
+			});*/
+		    
 		}
 	</script>
 </head>
