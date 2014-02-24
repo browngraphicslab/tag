@@ -44069,21 +44069,29 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             tourLabel.attr('id', 'tourLabel');
             tourLabel.attr('src', tagPath+'images/icons/catalog_tour_icon.svg');
             tourLabel.css({
-                'height': '50%', 
-                'width': '36%', 
+                'height': '30%', 
+                'width': '30%', 
             });
 
             var videoLabel = $(document.createElement('img'));
             videoLabel.attr('id', 'videoLabel');
             videoLabel.attr('src', tagPath+'images/icons/catalog_video_icon.svg');
             videoLabel.css({
-                'height': '50%', 
-                'width': '36%', 
+                'height': '35%', 
+                'width': '20%', 
             });
 
             var image = $(document.createElement('img'));
-            // debugger;
-            image.attr("src", LADS.Worktop.Database.fixPath(currentWork.Metadata.Thumbnail));
+            //debugger;
+            if(currentWork.Metadata.Thumbnail != null) {
+                image.attr("src", LADS.Worktop.Database.fixPath(currentWork.Metadata.Thumbnail));
+            }
+            
+            //<img style="width: 100%; height: 100%; position: absolute;" src="http://browntagserver.com:8086/Images/20121002202624.jpg">
+            else {
+                image.attr("src", tagPath+'Images/no_thumbnail.svg');
+            }
+            
             image.css({ width: '100%', height: "100%", position: 'absolute' });
 
             var specs = LADS.Util.constrainAndPosition(w, h,
@@ -44906,6 +44914,9 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
 
     var root = LADS.Util.getHtmlAjax('VideoPlayer.html'),
         video = root.find('#video'),
+        sourceMP4,
+        sourceWEBM,
+        sourceOGG,
         videoElt = video[0],
         DURATION = parseFloat(videoSrc.Metadata.Duration),
         play = root.find('#playPauseButton'),
@@ -44919,11 +44930,22 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
 
     video.attr({
         poster: (videoSrc.Metadata.Thumbnail && !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : '',
-        src: LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source),
-        type: 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
         controls: false,
         preload: 'metadata'
     });
+
+    //Adding sources for the video file
+    //var source = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source);
+    var source = 'http://techslides.com/demos/sample-videos/small.webm'; //Video file to test code without server conversion
+    var sourceSansExtension = source.substring(0, source.lastIndexOf('.')) || input;
+    sourceMP4 = sourceSansExtension + ".mp4";
+    sourceWEBM = sourceSansExtension + ".webm";
+    sourceOGG = sourceSansExtension + ".ogg";
+    
+    //video[0] converts the jQuery object 'video' into an HTML object, allowing us to use innerHTML on it
+    video[0].innerHTML = '<source src="' + sourceMP4 + '" type="video/mp4; codecs="avc1.42E01E, mp4a.40.2"">';
+    video[0].innerHTML += '<source src="' + sourceWEBM + '" type="video/webm; codecs="vorbis, vp8"">';
+    video[0].innerHTML += '<source src="' + sourceOGG + '" type="video/ogg; codecs="theora, vorbis"">';
 
     timeToZero();
     initVideoPlayHandlers();
@@ -44960,9 +44982,9 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         });
 
         video.on('ended', function () {
-		videoElt.pause();
-		timeToZero();
-		// initVideoPlayHandlers(); // is this necessary here TODO
+        videoElt.pause();
+        timeToZero();
+        // initVideoPlayHandlers(); // is this necessary here TODO
         });
     }
     
@@ -45069,8 +45091,8 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         // Calculate the slider value and update the slider value
 
         value = ($('#sliderContainer').width() / videoElt.duration) * videoElt.currentTime;
-	  // $('#sliderControl').css('left',value);
-	   $('#sliderPoint').css('width',value);
+      // $('#sliderControl').css('left',value);
+       $('#sliderPoint').css('width',value);
 
         minutes = Math.floor(videoElt.currentTime / 60);
         seconds = Math.floor(videoElt.currentTime % 60);

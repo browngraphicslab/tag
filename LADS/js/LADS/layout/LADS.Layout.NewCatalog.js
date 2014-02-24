@@ -696,21 +696,29 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             tourLabel.attr('id', 'tourLabel');
             tourLabel.attr('src', tagPath+'images/icons/catalog_tour_icon.svg');
             tourLabel.css({
-                'height': '50%', 
-                'width': '36%', 
+                'height': '30%', 
+                'width': '30%', 
             });
 
             var videoLabel = $(document.createElement('img'));
             videoLabel.attr('id', 'videoLabel');
             videoLabel.attr('src', tagPath+'images/icons/catalog_video_icon.svg');
             videoLabel.css({
-                'height': '50%', 
-                'width': '36%', 
+                'height': '35%', 
+                'width': '20%', 
             });
 
             var image = $(document.createElement('img'));
-            // debugger;
-            image.attr("src", LADS.Worktop.Database.fixPath(currentWork.Metadata.Thumbnail));
+            //debugger;
+            if(currentWork.Metadata.Thumbnail != null) {
+                image.attr("src", LADS.Worktop.Database.fixPath(currentWork.Metadata.Thumbnail));
+            }
+            
+            //<img style="width: 100%; height: 100%; position: absolute;" src="http://browntagserver.com:8086/Images/20121002202624.jpg">
+            else {
+                image.attr("src", tagPath+'Images/no_thumbnail.svg');
+            }
+            
             image.css({ width: '100%', height: "100%", position: 'absolute' });
 
             var specs = LADS.Util.constrainAndPosition(w, h,
