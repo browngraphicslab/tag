@@ -270,8 +270,8 @@ left: 50% {
 }
 #artmodeRoot #backBttnContainer {
   width: 13%;
-  height: 5%;
-  margin: 4% 4% 1% 4%;
+  height: auto;
+  margin: 4%;
 }
 #artmodeRoot #backButton {
   width: 100%;
@@ -298,26 +298,26 @@ left: 50% {
   padding-right: 7%;
 }
 #artmodeRoot #infoTitle {
-  font-size: 160%;
+  font-size: 30px;
   clear: both;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 #artmodeRoot #infoArtist {
-  font-size: 110%;
+  font-size: 22px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 #artmodeRoot #infoYear {
-  font-size: 110%;
+  font-size: 22px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 #artmodeRoot .infoCustom {
-  font-size: 147%;
+  font-size: 22px;
   margin-top: 5px;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -521,13 +521,13 @@ left: 50% {
   float: left;
 }
 #artmodeRoot .label {
-  font-size: 133%;
+  font-size: 20px;
   width: 50%;
   float: left;
   height: 30%;
 }
 #artmodeRoot .toggleContainer {
-  width: 26%;
+  width: 45px;
   position: relative;
   float: right;
   padding-top: 2%;
@@ -539,7 +539,7 @@ left: 50% {
 #artmodeRoot .drawerContents {
   display: none;
   clear: both;
-  font-size: 93%;
+  font-size: 14px;
   width: 95%;
   color: #808080;
   padding-right: 20px;

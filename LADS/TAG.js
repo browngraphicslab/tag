@@ -42185,7 +42185,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             }
             else {
                 opts = {
-                    left: '-22%' //-(sideBarWidth)
+                    left: -(sideBarWidth)
                 };
             }
             //if the bar is not open
@@ -45153,8 +45153,6 @@ LADS.Util.makeNamespace("LADS.TESTS");
         });
 
 
-
-
         // debugger;
         tagRoot.css({
             'font-size': w/9.6 + '%', // so font-size percentages for descendents work well
@@ -45207,8 +45205,6 @@ LADS.Util.makeNamespace("LADS.TESTS");
            for FF and IE, propogation had to be stopped inside the iframe.
            For chrome, it had to be stopped outside iframe.
         */
-<<<<<<< HEAD
-=======
         /*
 >>>>>>> 8a7bd2dda7b5de062e36b8bbaf03321e0e363de2
         var frameDiv = document.getElementById('tagRootContainer');
@@ -45230,7 +45226,6 @@ LADS.Util.makeNamespace("LADS.TESTS");
 <<<<<<< HEAD
 =======
         */
->>>>>>> 8a7bd2dda7b5de062e36b8bbaf03321e0e363de2
         /* end nbowditch edit */
     }
 
