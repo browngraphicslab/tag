@@ -6,7 +6,8 @@ module.exports = function(grunt) {
 				banner: 'var TAG = function(tagInput) {\n \
 					         tagPath = tagInput.path;\n \
 					         containerId = tagInput.containerId;\n \
-					         ip = tagInput.serverIp;\n',
+					         ip = tagInput.serverIp;\n \
+					         allowServerChange = tagInput.allowServerChange;\n',
 				footer: '};'
 			},
 			dist: {

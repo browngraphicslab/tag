@@ -1921,9 +1921,6 @@ window.rin = window.rin || {};
                     e.preventDefault();
 
                     cover.show();
-					
-					// !!debug!!
-					console.log("mousedown");
                 };
                 Seadragon.Utils.addEvent(node, "MSPointerDown", onmspointerdown);
                 cover[0].addEventListener('MSPointerDown', onmspointerdown, true);

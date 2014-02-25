@@ -105,6 +105,12 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         LADS.Util.Constants.set("START_PAGE_SPLASH", tagPath+"images/birdtextile.jpg");
 
+        if(!allowServerChange) {
+            $('#serverTagBuffer').remove();
+        } else {
+            $('#serverTagBuffer').css('display', 'block');
+        }
+
         // set image paths
         root.find('#expandImage').attr('src', tagPath+'images/icons/Left.png');
         root.find('#handGif').attr('src', tagPath+'images/RippleNewSmall.gif');

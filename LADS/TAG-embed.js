@@ -10,6 +10,7 @@ var TAG_embed = function(tagInput) {
      *                       serverIp      the ip adress of the server to which you want to connect
      *                       width         the desired width of TAG
      *                       height        the desired height of TAG
+     *                       allowServerChange   should a button be shown on the splash screen that allows server change?
      *                       hiddenCollections   a list of collection IDs for published collections to be hidden
      */
 
@@ -18,6 +19,7 @@ var TAG_embed = function(tagInput) {
         tagContainerId = tagInput.containerId,
         ip = tagInput.serverIp,
         hiddenCollections = tagInput.hiddenCollections || [],
+        allowServerChange = tagInput.allowServerChange,
         width = tagInput.width,
         height = tagInput.height,
         container,
@@ -95,7 +97,8 @@ var TAG_embed = function(tagInput) {
                             TAG({ \
                                 path:"'+tagPath+'", \
                                 containerId:"tagContainer", \
-                                serverIp:"'+ip+'" \
+                                serverIp:"'+ip+'", \
+                                allowServerChange:'+allowServerChange+' \
                             }); \
                         }; \
                     </script> \

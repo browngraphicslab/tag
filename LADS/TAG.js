@@ -2,6 +2,7 @@ var TAG = function(tagInput) {
  					         tagPath = tagInput.path;
  					         containerId = tagInput.containerId;
  					         ip = tagInput.serverIp;
+ 					         allowServerChange = tagInput.allowServerChange;
 /*!
  * jQuery JavaScript Library v1.7.1
  * http://jquery.com/
@@ -32129,7 +32130,7 @@ LADS.Util.UI = (function () {
         var serverDialogOverlay = $(document.createElement('div'));
         var tagContainer = $('#tagRoot');
         serverDialogOverlay.attr('id', 'serverDialogOverlay');
-        debugger;
+        // debugger;
         serverDialogOverlay.css({
             display: 'block',
             position: 'absolute',
@@ -41870,6 +41871,13 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             handGif;
 
         LADS.Util.Constants.set("START_PAGE_SPLASH", tagPath+"images/birdtextile.jpg");
+
+        debugger;
+        if(!allowServerChange) {
+            $('#serverTagBuffer').remove();
+        } else {
+            $('#serverTagBuffer').css('display', 'block');
+        }
 
         // set image paths
         root.find('#expandImage').attr('src', tagPath+'images/icons/Left.png');

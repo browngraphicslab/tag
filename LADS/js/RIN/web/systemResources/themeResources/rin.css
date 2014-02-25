@@ -864,6 +864,7 @@ html, body, .rinPlayer /* TODO do we need to get rid of this? in iframe, so migh
     height: 100%;
     bottom: 0px;
     position: absolute;
+    pointer-events: none;
 }
 
 .rin_PlayPauseContainer
@@ -982,6 +983,7 @@ html, body, .rinPlayer /* TODO do we need to get rid of this? in iframe, so migh
     background-image: url('images/play.png');
     background-repeat: no-repeat;
     margin-left: 10px;
+    outline: none;
 }
 
 .rin_Pause
@@ -989,6 +991,7 @@ html, body, .rinPlayer /* TODO do we need to get rid of this? in iframe, so migh
     background-image: url('images/pause.png');
     background-repeat: no-repeat;
     margin-left: 10px;
+    outline: none;
 }
 
 .rin_Volume
@@ -998,6 +1001,7 @@ html, body, .rinPlayer /* TODO do we need to get rid of this? in iframe, so migh
     clear: both;
     height: 36px;
     width: 36px;
+    outline: none;
 }
 
 .rin_Mute
@@ -1007,18 +1011,21 @@ html, body, .rinPlayer /* TODO do we need to get rid of this? in iframe, so migh
     clear: both;
     height: 36px;
     width: 36px;
+    outline: none;
 }
 
 .rin_FullScreen
 {
     background-image: url('images/Collapse.png');
     background-repeat: no-repeat;
+    outline: none;
 }
 
 .rin_RestoreScreen
 {
     background-image: url('images/FullScreen.png');
     background-repeat: no-repeat;
+    outline: none;
 }
 
 .rin_FullScreenContent {
