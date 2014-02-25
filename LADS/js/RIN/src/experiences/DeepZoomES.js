@@ -890,7 +890,7 @@ window.rin = window.rin || {};
 
 				self.makeManipulatable(node, {
 					onTapped: function (res) {
-						this._orchestrator.startInteractionMode();
+						self._orchestrator.startInteractionMode(); // bleveque: was this._orch.....
 						self._orchestrator.onESEvent(rin.contracts.esEventIds.interactionActivatedEventId, null);
 					},
 					onManipulate: function (res) {
