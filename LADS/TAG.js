@@ -2,6 +2,7 @@ var TAG = function(tagInput) {
  					         tagPath = tagInput.path;
  					         containerId = tagInput.containerId;
  					         ip = tagInput.serverIp;
+ 					         allowServerChange = tagInput.allowServerChange;
 /*!
  * jQuery JavaScript Library v1.7.1
  * http://jquery.com/
@@ -31487,10 +31488,6 @@ LADS.Util = (function () {
         }());
 
         function accel(vx, vy, delay, id) {
-            return;
-
-            // for web app, return right away
-
             if (!lastEvt) return;
             if (currentAccelId !== id) return;
             if (Math.abs(vx) <= 4 && Math.abs(vy) <= 4) {
@@ -32133,7 +32130,7 @@ LADS.Util.UI = (function () {
         var serverDialogOverlay = $(document.createElement('div'));
         var tagContainer = $('#tagRoot');
         serverDialogOverlay.attr('id', 'serverDialogOverlay');
-        debugger;
+        // debugger;
         serverDialogOverlay.css({
             display: 'block',
             position: 'absolute',
@@ -32235,7 +32232,6 @@ LADS.Util.UI = (function () {
             'width': '80%',
 	        'height':'10%',
             'text-align': 'center',
-            'bottom': '10%',
             'position': 'relative',
         });
 
@@ -32308,6 +32304,10 @@ LADS.Util.UI = (function () {
                 serverSaveButton.show();
                 serverErrorMessage.html('Could not connet to the specified address. Please try again.');
                 serverErrorMessage.show();
+                serverDialog.css({
+                    width: '40%',   //serverDialogSpecs.width + 'px',
+                    height: '50%',   //serverDialogSpecs.height + 'px',
+                });
             });
         }
 
@@ -40451,7 +40451,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 // debugger;
                 dzManip(res.pivot, res.translation, res.scale);
             }
-        });
+        }, null, true); // NO ACCELERATION FOR NOW
 
         assetCanvas = $(document.createElement('div'));
         assetCanvas.css({
@@ -41444,7 +41444,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             var gr = LADS.Util.makeManipulatable(currRoot, {
                 onManipulate: onManip,
                 onScroll: onScroll
-            });
+            }, null, true); // NO ACCELERATION FOR NOW
         }
 
 
@@ -41453,6 +41453,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         makeCircle(info, newhotspot, isHotspot);
     }
 };
+
 ;
 var LADS = LADS || {};
 
@@ -41870,6 +41871,13 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             handGif;
 
         LADS.Util.Constants.set("START_PAGE_SPLASH", tagPath+"images/birdtextile.jpg");
+
+        debugger;
+        if(!allowServerChange) {
+            $('#serverTagBuffer').remove();
+        } else {
+            $('#serverTagBuffer').css('display', 'block');
+        }
 
         // set image paths
         root.find('#expandImage').attr('src', tagPath+'images/icons/Left.png');
@@ -42345,7 +42353,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
                 mediaHolderImage.css({ // TODO do this the right way... this isn't flexible at all, but it will probably do for the release
                     'max-height': 0.15 * 0.7 * $("#tagRoot").height() + "px",
-                    'max-width': 0.22 * 0.89 * 0.95 * 0.40 * 0.92 * $("#tagRoot").width() + "px"
+                    'max-width': 0.22 * 0.89 * 0.95 * 0.40 * 0.92 * $("#tagRoot").width() + "px" // these are all the % widths propagating down from the tag root
                 });
 
                 holderInnerContainer.append(mediaHolderImage);
@@ -44180,7 +44188,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
                 yearInfo.text(" " );
             }
                 
-            img1.attr("src", LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail))
+            img1.attr("src", artwork.Metadata.Thumbnail ? LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail) : (tagPath+'Images/no_thumbnail.svg'))
                 .css('border', '1px solid rgba(0,0,0,0.5)')
                 .attr('guid', artwork.Identifier);
             
@@ -44811,6 +44819,7 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
     /* nbowditch _editted 2/13/2014 : added prevInfo */
     var artworkPrev;
     var prevScroll = 0;
+	var prevExhib = exhibition;
     if (prevInfo) {
         artworkPrev = prevInfo.artworkPrev,
         prevScroll = prevInfo.prevScroll || 0;
@@ -44857,7 +44866,13 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
             var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
             catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
             /* end nbowditch edit */
-            LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot());           
+            LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
+				artworkPrev = "catalog";
+				var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
+				selectedExhib.attr('flagClicked', 'true');
+				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
+				$(selectedExhib[0].firstChild).css({'color': 'black'});
+			});           
         }
         // TODO: do we need this next line?
         // tagContainer.css({ 'font-size': '11pt', 'font-family': "'source sans pro regular' sans-serif" }); // Quick hack to fix bug where rin.css was overriding styles for body element -jastern 4/30
@@ -44909,6 +44924,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
     /* nowditch _editted 2/13/2014 : added prevScroll */
     var artworkPrev;
     var prevScroll = 0;
+	var prevExhib = exhibition;
     if (prevInfo) {
         artworkPrev = prevInfo.artworkPrev,
         prevScroll = prevInfo.prevScroll || 0;
@@ -45022,13 +45038,26 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
             var origPoint = e.pageX,
                 origTime = videoElt.currentTime,
                 timePxRatio = DURATION / sliderContainer.width(); // sec/px
-            console.log('ratio = '+timePxRatio);
+                console.log('ratio = '+timePxRatio);
+                currTime = Math.max(0, Math.min(DURATION, origTime));
+                var currPx = currTime / timePxRatio;
+                var minutes = Math.floor(currTime / 60);
+                if((""+minutes).length < 2) {
+                    minutes = "0" + minutes;
+                }
+                var seconds = Math.floor(currTime % 60);
+
+                //console.log("currTime1 "+origTime);
+
+                // Update the video time and slider values
+            
+
             $('body').on('mousemove.seek', function(evt) {
                 var currPoint = evt.pageX,
-                    timeDiff = (currPoint - origPoint) * timePxRatio,
-                    currPx,
-                    minutes,
-                    seconds;
+                    timeDiff = (currPoint - origPoint) * timePxRatio;
+                    //currPx,
+                    //minutes,
+                    //seconds;
                 currTime = Math.max(0, Math.min(DURATION, origTime + timeDiff));
                 currPx = currTime / timePxRatio;
                 minutes = Math.floor(currTime / 60);
@@ -45046,16 +45075,19 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
                     videoElt.currentTime = currTime;
                     
                     //$('#sliderContainer').css('left', currPx);
-                    //$('#sliderPoint').css('width', currPx);
+                    $('#sliderPoint').css('width', currPx);
                 }
 
             });
+
             $('body').on('mouseup.seek', function() {
                 // when the mouse is released, remove the mousemove handler
                 // debugger;
                 $('body').off('mousemove.seek');
                 $('body').off('mouseup.seek');
+		$('#currentTimeDisplay').text(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
                 videoElt.currentTime = currTime;
+		$('#sliderPoint').css('width', currPx);
             });
         });
     }
@@ -45080,8 +45112,14 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
         var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
         /* end nbowditch edit */
-
-        LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot());
+		catalog.getRoot().css({ 'overflow-x': 'hidden' });
+        LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
+				artworkPrev = "catalog";
+				var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
+				selectedExhib.attr('flagClicked', 'true');
+				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
+				$(selectedExhib[0].firstChild).css({'color': 'black'});
+			});
     });
 
 
@@ -45221,24 +45259,32 @@ LADS.Util.makeNamespace("LADS.TESTS");
            for FF and IE, propogation had to be stopped inside the iframe.
            For chrome, it had to be stopped outside iframe.
         */
-        /*
+        
         var frameDiv = document.getElementById('tagRootContainer');
-        frameDiv.addEventListener('mousewheel', function (evt) {
-            evt.stopPropagation();
-            evt.preventDefault();
-            return false;
-        });
-        frameDiv.addEventListener('DOMMouseScroll', function (evt) {
-            evt.stopPropagation();
-            evt.preventDefault();
-            return false;
-        });
-        frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
-            evt.stopPropagation();
-            evt.preventDefault();
-            return false;
-        });
-        */
+
+        // $('body').on('scroll.b mousewheel.b MozMousePixelScroll.b DOMMouseScroll.b', function(e) {
+        //     e.stopPropagation();
+        //     e.stopImmediatePropagation();
+        //     e.preventDefault();
+        //     return false;
+        // });
+        // frameDiv.addEventListener('mousewheel', function (evt) {
+        //     evt.stopPropagation();
+        //     evt.preventDefault();
+        //     return false;
+        // });
+        // frameDiv.addEventListener('DOMMouseScroll', function (evt) {
+        //     evt.stopPropagation();
+        //     evt.preventDefault();
+        //     return false;
+        // });
+        // frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
+        //     evt.stopPropagation();
+        //     evt.preventDefault();
+        //     return false;
+        // });
+        
+
         /* end nbowditch edit */
     }
 

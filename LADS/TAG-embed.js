@@ -10,6 +10,7 @@ var TAG_embed = function(tagInput) {
      *                       serverIp      the ip adress of the server to which you want to connect
      *                       width         the desired width of TAG
      *                       height        the desired height of TAG
+     *                       allowServerChange   should a button be shown on the splash screen that allows server change?
      *                       hiddenCollections   a list of collection IDs for published collections to be hidden
      */
 
@@ -18,6 +19,7 @@ var TAG_embed = function(tagInput) {
         tagContainerId = tagInput.containerId,
         ip = tagInput.serverIp,
         hiddenCollections = tagInput.hiddenCollections || [],
+        allowServerChange = tagInput.allowServerChange,
         width = tagInput.width,
         height = tagInput.height,
         container,
@@ -95,7 +97,8 @@ var TAG_embed = function(tagInput) {
                             TAG({ \
                                 path:"'+tagPath+'", \
                                 containerId:"tagContainer", \
-                                serverIp:"'+ip+'" \
+                                serverIp:"'+ip+'", \
+                                allowServerChange:'+allowServerChange+' \
                             }); \
                         }; \
                     </script> \
@@ -111,29 +114,50 @@ var TAG_embed = function(tagInput) {
     frameDoc.write(htmlStr);
     frameDoc.close();
 
-    
     /* nbowditch _editted 2/23/2014 : stopped scrolling when over tag*/
     /* NOTE: had to do this in 2 places for cross-browser support.
        for FF and IE, propogation had to be stopped inside the iframe.
        For chrome, it had to be stopped outside iframe.
     */
-    /*
-    var frameDiv = document.getElementById('tagRootContainer');
-    frameDiv.addEventListener('mousewheel', function (evt) {
-        evt.stopPropagation();
-        evt.preventDefault();
-        return false;
-    });
-    frameDiv.addEventListener('DOMMouseScroll', function (evt) {
-        evt.stopPropagation();
-        evt.preventDefault();
-        return false;
-    });
-    frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
-        evt.stopPropagation();
-        evt.preventDefault();
-        return false;
-    });
-    */
+
+    var frameDiv = document.getElementById('frameInnerContainer');
+
+    $frameDiv = $(frameDiv);
+
+    // $frameDiv.on('mouseenter', function() {
+    //     $frameDiv.off('mouseleave');
+    //     console.log('in frame div');
+    //     // $('*').on('scroll.a mousewheel.a DOMMouseScroll.a MozMousePixelScroll.a', function(e) {
+    //     //     console.log('in body scroll');
+    //     //     e.stopPropagation();
+    //     //     e.cancelBubble = true;
+    //     //     return false;
+    //     // });
+    //     $('body').css('position', 'fixed');
+
+    //     $frameDiv.on('mouseleave', function() {
+    //         //console.log('leaving frame div');
+    //         //$('*').off('scroll.a mousewheel.a DOMMouseScroll.a MozMousePixelScroll.a');
+    //         $('body').css('position', 'static');
+    //     });
+    // });
+
+
+    // frameDiv.addEventListener('mousewheel', function (evt) {
+    //     evt.stopPropagation();
+    //     evt.preventDefault();
+    //     return false;
+    // });
+    // frameDiv.addEventListener('DOMMouseScroll', function (evt) {
+    //     evt.stopPropagation();
+    //     evt.preventDefault();
+    //     return false;
+    // });
+    // frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
+    //     evt.stopPropagation();
+    //     evt.preventDefault();
+    //     return false;
+    // });
+
     /* end nbowditch edit */
 };

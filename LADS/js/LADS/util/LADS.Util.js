@@ -862,10 +862,6 @@ LADS.Util = (function () {
         }());
 
         function accel(vx, vy, delay, id) {
-            return;
-
-            // for web app, return right away
-
             if (!lastEvt) return;
             if (currentAccelId !== id) return;
             if (Math.abs(vx) <= 4 && Math.abs(vy) <= 4) {
@@ -1508,7 +1504,7 @@ LADS.Util.UI = (function () {
         var serverDialogOverlay = $(document.createElement('div'));
         var tagContainer = $('#tagRoot');
         serverDialogOverlay.attr('id', 'serverDialogOverlay');
-        debugger;
+        // debugger;
         serverDialogOverlay.css({
             display: 'block',
             position: 'absolute',
@@ -1610,7 +1606,6 @@ LADS.Util.UI = (function () {
             'width': '80%',
 	        'height':'10%',
             'text-align': 'center',
-            'bottom': '10%',
             'position': 'relative',
         });
 
@@ -1683,6 +1678,10 @@ LADS.Util.UI = (function () {
                 serverSaveButton.show();
                 serverErrorMessage.html('Could not connet to the specified address. Please try again.');
                 serverErrorMessage.show();
+                serverDialog.css({
+                    width: '40%',   //serverDialogSpecs.width + 'px',
+                    height: '50%',   //serverDialogSpecs.height + 'px',
+                });
             });
         }
 

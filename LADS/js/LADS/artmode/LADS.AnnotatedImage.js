@@ -199,7 +199,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 // debugger;
                 dzManip(res.pivot, res.translation, res.scale);
             }
-        });
+        }, null, true); // NO ACCELERATION FOR NOW
 
         assetCanvas = $(document.createElement('div'));
         assetCanvas.css({
@@ -1192,7 +1192,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             var gr = LADS.Util.makeManipulatable(currRoot, {
                 onManipulate: onManip,
                 onScroll: onScroll
-            });
+            }, null, true); // NO ACCELERATION FOR NOW
         }
 
 

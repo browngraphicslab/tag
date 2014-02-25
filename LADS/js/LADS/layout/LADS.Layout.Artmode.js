@@ -288,7 +288,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
                 mediaHolderImage.css({ // TODO do this the right way... this isn't flexible at all, but it will probably do for the release
                     'max-height': 0.15 * 0.7 * $("#tagRoot").height() + "px",
-                    'max-width': 0.22 * 0.89 * 0.95 * 0.40 * 0.92 * $("#tagRoot").width() + "px"
+                    'max-width': 0.22 * 0.89 * 0.95 * 0.40 * 0.92 * $("#tagRoot").width() + "px" // these are all the % widths propagating down from the tag root
                 });
 
                 holderInnerContainer.append(mediaHolderImage);

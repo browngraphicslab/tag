@@ -3,6 +3,7 @@
 <head>
 	<title>TAG Embedded Demo</title>
 	<script src='TAG-embed.js'></script>
+	<script src='js/jquery-1.10.2.min.js'></script>
 	<script>
 		window.onload = load;
 
@@ -16,7 +17,8 @@
 				height: '450px',
 				hiddenCollections: [
 					'e53b2104-7a2b-432e-81c8-31a14f00f9ce' // Getty Museum collection is hidden
-				]
+				],
+				allowServerChange: true
 			});
 
 			
@@ -41,7 +43,7 @@
 		}
 	</script>
 </head>
-<body>
+<body style="height:2000px">
 	<div id='tagContainer'></div>
 </body>
 </html>

@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-02-19 */
+/*! RIN | http://research.microsoft.com/rin | 2014-02-24 */
 (function() {
     "use strict";
     var rin = window.rin || {};
@@ -1921,9 +1921,6 @@ window.rin = window.rin || {};
                     e.preventDefault();
 
                     cover.show();
-					
-					// !!debug!!
-					console.log("mousedown");
                 };
                 Seadragon.Utils.addEvent(node, "MSPointerDown", onmspointerdown);
                 cover[0].addEventListener('MSPointerDown', onmspointerdown, true);
@@ -1990,7 +1987,7 @@ window.rin = window.rin || {};
 
 				self.makeManipulatable(node, {
 					onTapped: function (res) {
-						this._orchestrator.startInteractionMode();
+						self._orchestrator.startInteractionMode(); // bleveque: was this._orch.....
 						self._orchestrator.onESEvent(rin.contracts.esEventIds.interactionActivatedEventId, null);
 					},
 					onManipulate: function (res) {
