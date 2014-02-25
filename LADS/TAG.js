@@ -44075,6 +44075,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             tourLabel.css({
                 'height': '30%', 
                 'width': '30%', 
+                'margin-right': '-7%'
             });
 
             var videoLabel = $(document.createElement('img'));
@@ -44939,8 +44940,8 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
     });
 
     //Adding sources for the video file
-    //var source = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source);
-    var source = 'http://techslides.com/demos/sample-videos/small.webm'; //Video file to test code without server conversion
+    var source = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source);
+    //var source = 'http://techslides.com/demos/sample-videos/small.webm'; //Video file to test code without server conversion
     var sourceSansExtension = source.substring(0, source.lastIndexOf('.')) || input;
     sourceMP4 = sourceSansExtension + ".mp4";
     sourceWEBM = sourceSansExtension + ".webm";
