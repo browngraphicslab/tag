@@ -1,0 +1,44 @@
+
+@font-face {
+	font-family: 'sourceSansLight';
+	src: url('fonts/source-sans-pro.light.ttf');
+}
+
+@font-face {
+	font-family: 'sourceSans';
+	src: url('fonts/source-sans-pro.regular.ttf');
+}
+
+*:not(tspan) {
+	font-family: 'sourceSans';
+}
+
+/* CSS */
+body {
+	background-color: #0A0A0F;
+}
+
+h1 {
+	font-size: 3em;
+	margin: 0.5em auto;
+	text-align: center;
+	font-weight: 400;
+	color: white;
+}
+
+strong {
+	text-transform: uppercase;
+}
+
+#cpContainer {
+	text-align: center;
+	margin: 0.5em auto;
+}
+
+#tagContainer {
+	margin: auto;
+	height: 648px;
+	width: 1152px;
+	text-align: center;
+	margin: 1em auto 3em auto;
+}
