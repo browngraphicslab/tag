@@ -332,7 +332,7 @@ left: 50% {
 #artmodeRoot .tourHolder {
   float: left;
   margin: 1%;
-  width: 46%;
+  width: 40%;
   position: relative;
   border: 1px solid rgba(255,255,255,0.4);
   color: #fff;
@@ -353,7 +353,7 @@ left: 50% {
 #artmodeRoot .assetHolder {
   float: left;
   margin: 1%;
-  width: 46%;
+  width: 40%;
   position: relative;
   border: 1px solid rgba(255,255,255,0.4);
   color: #fff;

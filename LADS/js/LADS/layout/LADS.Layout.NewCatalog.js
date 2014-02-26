@@ -717,7 +717,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             
             //<img style="width: 100%; height: 100%; position: absolute;" src="http://browntagserver.com:8086/Images/20121002202624.jpg">
             else {
-                image.attr("src", tagPath+'Images/no_thumbnail.svg');
+                image.attr("src", tagPath+'images/no_thumbnail.svg');
             }
             
             image.css({ width: '100%', height: "100%", position: 'absolute' });
@@ -803,7 +803,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
                 yearInfo.text(" " );
             }
                 
-            img1.attr("src", artwork.Metadata.Thumbnail ? LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail) : (tagPath+'Images/no_thumbnail.svg'))
+            img1.attr("src", artwork.Metadata.Thumbnail ? LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail) : (tagPath+'images/no_thumbnail.svg'))
                 .css('border', '1px solid rgba(0,0,0,0.5)')
                 .attr('guid', artwork.Identifier);
             
