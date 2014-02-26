@@ -1,13 +1,13 @@
 /* FONTS */
 
 @font-face {
-	font-family: 'sourceSansLight';
-	src: url('fonts/source-sans-pro.light.ttf') format('truetype');
+	font-family: 'sourceSans';
+	src: url("../fonts/source-sans-pro-light/source-sans-pro-light.eot?") format('eot'), url("../fonts/source-sans-pro-light/source-sans-pro-light.woff") format('woff'), url("../fonts/source-sans-pro-light/source-sans-pro-light.ttf") format('ttf');
 }
 
 @font-face {
-	font-family: 'sourceSans';
-	src: url('fonts/source-sans-pro.regular.ttf') format('truetype');
+	font-family: 'sourceSansRegular';
+	src: url("../fonts/source-sans-pro-regular/source-sans-pro-regular.eot?") format('eot'), url("../fonts/source-sans-pro-regular/source-sans-pro-regular.woff") format('woff'), url("../fonts/source-sans-pro-regular/source-sans-pro-regular.ttf") format('ttf');
 }
 
 *:not(tspan) {
