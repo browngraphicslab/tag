@@ -805,7 +805,8 @@ window.rin = window.rin || {};
             //$('#tagRoot').append(cover);
 
             // If running on IE 10/RT, enable multitouch support.
-            if (window.navigator.msPointerEnabled && typeof (MSGesture) !== "undefined") {
+            //Disabled ie handlers since pinch zooming was not working. In future, reenable, and fix scrolling bug. For now, run hammer handlers in all cases.
+           /* if (window.navigator.msPointerEnabled && typeof (MSGesture) !== "undefined") { 
                 var onmspointerdown = function (e) {
                     self._orchestrator.startInteractionMode();
                     self._orchestrator.onESEvent(rin.contracts.esEventIds.interactionActivatedEventId, null);
@@ -874,8 +875,8 @@ window.rin = window.rin || {};
                 };
                 Seadragon.Utils.addEvent(node, "MSGestureStart", onmsgesturestart);
                 cover[0].addEventListener('MSGestureStart', onmsgesturestart, true);
-            }
-            else { // Not IE 10, use normal single touch handlers.
+            } */
+           // else { // Not IE 10, use normal single touch handlers.
                 var handler = function (event) {
                     return self.touchHandler(event, cover);
                 };
@@ -890,6 +891,7 @@ window.rin = window.rin || {};
 						self._orchestrator.startInteractionMode(); // bleveque: was this._orch.....
 						self._orchestrator.onESEvent(rin.contracts.esEventIds.interactionActivatedEventId, null);
 					},
+                    onScroll: dzScroll,
 					onManipulate: function (res) {
 						console.log("logging mouse data");
 						console.log(res.translation.x);
@@ -899,6 +901,11 @@ window.rin = window.rin || {};
 						self.raiseViewportUpdate();
 					}
 				});
+                function dzScroll(delta, pivot) { //function to handle deep zoom scrolling
+                    self._viewer.viewport.zoomBy(delta, self._viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
+                    self._viewer.viewport.applyConstraints();
+                }
+
 
 				/*
 				self.makeManipulatable(self._seadragonContainer.firstChild, {
@@ -984,7 +991,7 @@ window.rin = window.rin || {};
                 cover.addEventListener('MSPointerDown', handler, true);
                 cover.addEventListener('MSPointerMove', handler, true);
                 cover.addEventListener('MSPointerUp', handler, true);
-            }
+           // } 
         },
 
         // Get an instance of the interaction controls for this ES.

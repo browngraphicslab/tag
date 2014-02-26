@@ -37,14 +37,6 @@
             h = 9/16 * w;
         }
 
-        $("body").css({ //disable page zoomming in IE.
-            "-ms-touch-action":"none",
-            "-ms-content-zooming":"none",
-        });
-
-
-
-
         // debugger;
         tagRoot.css({
             'font-size': w/9.6 + '%', // so font-size percentages for descendents work well
