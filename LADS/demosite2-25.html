@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>TAG Embedded Demo</title>
+	<link rel='stylesheet' href='demosite_css.css' />
+	<script src='TAG-embed.js'></script>
+	<script src='js/jquery-1.10.2.min.js'></script>
+	<script>
+		window.onload = load;
+
+		function load() {
+		    
+			TAG_embed({
+				path: '',
+				containerId: 'tagContainer',
+				serverIp: 'browntagserver.com',
+				width: '1152',
+				height: '648',
+				hiddenCollections: [
+					'e53b2104-7a2b-432e-81c8-31a14f00f9ce' // Getty Museum collection is hidden
+				],
+				allowServerChange: true
+			});
+
+			
+
+            /*
+		    // do not let scroll events bubble out of tag container
+		    // when the mouse is in the container
+			var frameDiv = document.getElementById('frameContainer'),
+		        numEvents = 0;
+		    //frameDiv.innerHTML = 0;
+			frameDiv.addEventListener('mousewheel', function (evt) {
+			    //frameDiv.innerHTML = ++numEvents;
+			    evt.stopPropagation();
+			    evt.preventDefault();
+			});
+			frameDiv.addEventListener('DOMMouseScroll', function (evt) {
+			    //frameDiv.innerHTML = ++numEvents;
+			    evt.stopPropagation();
+			    evt.preventDefault();
+			});*/
+		    
+		}
+	</script>
+</head>
+<body style="height:2000px">
+		<h1>TAG WEB DEMO</h1>
+	<div id='tagContainer'></div>
+</body>
+</html>
