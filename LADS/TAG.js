@@ -32235,9 +32235,9 @@ LADS.Util.UI = (function () {
             'position': 'relative',
         });
 
-        serverErrorMessage.html('Could not connet to the specified address. Please try again.');
         serverButtonRow.append(serverErrorMessage);
         serverErrorMessage.hide();
+
 
         var serverCancelButton = $(document.createElement('button'));
         serverCancelButton.css({
@@ -32302,12 +32302,15 @@ LADS.Util.UI = (function () {
             }, function () {
                 serverCancelButton.show();
                 serverSaveButton.show();
-                serverErrorMessage.html('Could not connet to the specified address. Please try again.');
+                serverErrorMessage.html('Could not connect to the specified address. Please try again.');
+                serverErrorMessage.css({ 'margin-top': '-3%'});
                 serverErrorMessage.show();
+                serverDialogTitle.css({ 'margin-bottom': '-3%'});
                 serverDialog.css({
                     width: '40%',   //serverDialogSpecs.width + 'px',
-                    height: '50%',   //serverDialogSpecs.height + 'px',
+                    height: '45%',   //serverDialogSpecs.height + 'px',
                 });
+                serverDialogContact.css({ 'margin-top': '13%' , 'color':'white','text-align': 'center'  });        
             });
         }
 
@@ -44101,7 +44104,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             
             //<img style="width: 100%; height: 100%; position: absolute;" src="http://browntagserver.com:8086/Images/20121002202624.jpg">
             else {
-                image.attr("src", tagPath+'Images/no_thumbnail.svg');
+                image.attr("src", tagPath+'images/no_thumbnail.svg');
             }
             
             image.css({ width: '100%', height: "100%", position: 'absolute' });
@@ -44187,7 +44190,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
                 yearInfo.text(" " );
             }
                 
-            img1.attr("src", artwork.Metadata.Thumbnail ? LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail) : (tagPath+'Images/no_thumbnail.svg'))
+            img1.attr("src", artwork.Metadata.Thumbnail ? LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail) : (tagPath+'images/no_thumbnail.svg'))
                 .css('border', '1px solid rgba(0,0,0,0.5)')
                 .attr('guid', artwork.Identifier);
             
@@ -45198,14 +45201,6 @@ LADS.Util.makeNamespace("LADS.TESTS");
             h = 9/16 * w;
         }
 
-        $("body").css({ //disable page zoomming in IE.
-            "-ms-touch-action":"none",
-            "-ms-content-zooming":"none",
-        });
-
-
-
-
         // debugger;
         tagRoot.css({
             'font-size': w/9.6 + '%', // so font-size percentages for descendents work well
@@ -45287,6 +45282,7 @@ LADS.Util.makeNamespace("LADS.TESTS");
         //     return false;
         // });
         
+
 
         /* end nbowditch edit */
     }
