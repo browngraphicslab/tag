@@ -1176,8 +1176,11 @@ window.rin = window.rin || {};
                         .then(function () {
                             return self.sequentialLoader([
                                 { src: rin.util.combinePathElements(systemRoot, 'lib/jquery.easing.1.3.js'), loadChecker: function () { return window.jQuery.easing.jswing !== undefined; } },
-                                { src: rin.util.combinePathElements(systemRoot, 'lib/jquery.pxtouch.min.js'), loadChecker: function () { return window.PxTouch !== undefined; } },
-                                { src: rin.util.combinePathElements(systemRoot, "lib/rin-experiences-1.0.js"), loadChecker: function () { return rin.experiences !== undefined; } }
+                                { src: rin.util.combinePathElements(systemRoot, 'lib/jquery.pxtouch.min.js'), loadChecker: function() { return $('[src$="jquery.pxtouch.min.js"]').length > 0; } }, // bleveque: existing checks weren't working correctly
+                                { src: rin.util.combinePathElements(systemRoot, "lib/rin-experiences-1.0.js"), loadChecker: function() { return $('[src$="rin-experiences-1.0.js"]').length > 0; } }
+                                // { src: rin.util.combinePathElements(systemRoot, 'lib/jquery.easing.1.3.js'), loadChecker: function () { return window.jQuery.easing.jswing !== undefined; } },
+                                // { src: rin.util.combinePathElements(systemRoot, 'lib/jquery.pxtouch.min.js'), loadChecker: function () { return window.PxTouch !== undefined; } },
+                                // { src: rin.util.combinePathElements(systemRoot, "lib/rin-experiences-1.0.js"), loadChecker: function () { return rin.experiences !== undefined; } }
                             ]);
                         }).then(function () {
                             rin.internal.systemResourcesProcessed = true;

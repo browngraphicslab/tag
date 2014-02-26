@@ -1,8 +1,8 @@
-var TAG = function(tagInput) {
- 					         tagPath = tagInput.path;
- 					         containerId = tagInput.containerId;
- 					         ip = tagInput.serverIp;
- 					         allowServerChange = tagInput.allowServerChange;
+var TAG = function(tagInput) { 					        
+    tagPath = tagInput.path; 					        
+    containerId = tagInput.containerId; 					        
+    ip = tagInput.serverIp; 					        
+    allowServerChange = tagInput.allowServerChange;
 /*!
  * jQuery JavaScript Library v1.7.1
  * http://jquery.com/
@@ -41872,7 +41872,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         LADS.Util.Constants.set("START_PAGE_SPLASH", tagPath+"images/birdtextile.jpg");
 
-        debugger;
         if(!allowServerChange) {
             $('#serverTagBuffer').remove();
         } else {
@@ -45235,7 +45234,7 @@ LADS.Util.makeNamespace("LADS.TESTS");
             });
         });
 
-        $('#refreshTAGButton').on('click', function(evt) {
+        $('#refreshTAGButton').on('click', function(evt) { // currently doesn't work to refresh TAG if a tour has been played
             container.empty();
             $('#refreshTAGButton').off('click');
             $('#heightSlider').off('change');
@@ -45244,6 +45243,10 @@ LADS.Util.makeNamespace("LADS.TESTS");
             $('[src='+tagPath+'"js/tagInk.js"]').remove();
             $('[src='+tagPath+'"js/RIN/web/lib/rin-core-1.0.js"]').remove();
             $('[href="css/TAG.css"]').remove();
+            $('[src$="rin-experiences-1.0.js"]').remove();
+            $('[src$="jquery.pxtouch.min.js"]').remove();
+            $('[href$="themeResources/rin.css"]').remove();
+
             TAG({
                 path: tagPath,
                 containerId: containerId,
