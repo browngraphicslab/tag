@@ -32235,9 +32235,9 @@ LADS.Util.UI = (function () {
             'position': 'relative',
         });
 
-        serverErrorMessage.html('Could not connet to the specified address. Please try again.');
         serverButtonRow.append(serverErrorMessage);
         serverErrorMessage.hide();
+
 
         var serverCancelButton = $(document.createElement('button'));
         serverCancelButton.css({
@@ -32302,12 +32302,15 @@ LADS.Util.UI = (function () {
             }, function () {
                 serverCancelButton.show();
                 serverSaveButton.show();
-                serverErrorMessage.html('Could not connet to the specified address. Please try again.');
+                serverErrorMessage.html('Could not connect to the specified address. Please try again.');
+                serverErrorMessage.css({ 'margin-top': '-3%'});
                 serverErrorMessage.show();
+                serverDialogTitle.css({ 'margin-bottom': '-3%'});
                 serverDialog.css({
                     width: '40%',   //serverDialogSpecs.width + 'px',
-                    height: '50%',   //serverDialogSpecs.height + 'px',
+                    height: '45%',   //serverDialogSpecs.height + 'px',
                 });
+                serverDialogContact.css({ 'margin-top': '13%' , 'color':'white','text-align': 'center'  });        
             });
         }
 
@@ -45279,6 +45282,7 @@ LADS.Util.makeNamespace("LADS.TESTS");
         //     return false;
         // });
         
+
 
         /* end nbowditch edit */
     }

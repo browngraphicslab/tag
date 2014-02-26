@@ -1,11 +1,11 @@
 @font-face {
   font-family: sourceSans;
-  src: url("../fonts/source-sans-pro.light.ttf");
+  src: url("../fonts/source-sans-pro-light/source-sans-pro-light.eot?") format('eot'), url("../fonts/source-sans-pro-light/source-sans-pro-light.woff") format('woff'), url("../fonts/source-sans-pro-light/source-sans-pro-light.ttf") format('ttf');
 }
 
 @font-face {
   font-family: sourceSans;
-  src: url("../fonts/source-sans-pro.light.ttf");
+  src: url("../fonts/source-sans-pro-light/source-sans-pro-light.eot?") format('eot'), url("../fonts/source-sans-pro-light/source-sans-pro-light.woff") format('woff'), url("../fonts/source-sans-pro-light/source-sans-pro-light.ttf") format('ttf');
 }
 #startPageRoot {
   position: absolute;
@@ -195,7 +195,7 @@
 
 @font-face {
   font-family: sourceSans;
-  src: url("../fonts/source-sans-pro.light.ttf");
+  src: url("../fonts/source-sans-pro-light/source-sans-pro-light.eot?") format('eot'), url("../fonts/source-sans-pro-light/source-sans-pro-light.woff") format('woff'), url("../fonts/source-sans-pro-light/source-sans-pro-light.ttf") format('ttf');
 }
 #InternetFailureroot {
   background-color: #324b6b;
@@ -238,7 +238,7 @@ left: 50% {
 
 @font-face {
   font-family: sourceSans;
-  src: url("../fonts/source-sans-pro.light.ttf");
+  src: url("../fonts/source-sans-pro-light/source-sans-pro-light.eot?") format('eot'), url("../fonts/source-sans-pro-light/source-sans-pro-light.woff") format('woff'), url("../fonts/source-sans-pro-light/source-sans-pro-light.ttf") format('ttf');
 }
 #artmodeRoot {
   width: 100%;
@@ -332,7 +332,7 @@ left: 50% {
 #artmodeRoot .tourHolder {
   float: left;
   margin: 1%;
-  width: 40%;
+  width: 46%;
   position: relative;
   border: 1px solid rgba(255,255,255,0.4);
   color: #fff;
@@ -353,7 +353,7 @@ left: 50% {
 #artmodeRoot .assetHolder {
   float: left;
   margin: 1%;
-  width: 40%;
+  width: 46%;
   position: relative;
   border: 1px solid rgba(255,255,255,0.4);
   color: #fff;
@@ -652,7 +652,7 @@ left: 50% {
 
 @font-face {
   font-family: sourceSans;
-  src: url("../fonts/source-sans-pro.light.ttf");
+  src: url("../fonts/source-sans-pro-light/source-sans-pro-light.eot?") format('eot'), url("../fonts/source-sans-pro-light/source-sans-pro-light.woff") format('woff'), url("../fonts/source-sans-pro-light/source-sans-pro-light.ttf") format('ttf');
 }
 #newCatalogRoot {
   background-color: #7f7f7f;
@@ -980,7 +980,7 @@ left: 50% {
 
 @font-face {
   font-family: sourceSans;
-  src: url("../fonts/source-sans-pro.light.ttf");
+  src: url("../fonts/source-sans-pro-light/source-sans-pro-light.eot?") format('eot'), url("../fonts/source-sans-pro-light/source-sans-pro-light.woff") format('woff'), url("../fonts/source-sans-pro-light/source-sans-pro-light.ttf") format('ttf');
 }
 #VideoPlayerRoot {
   width: 100%;
@@ -1110,7 +1110,7 @@ left: 50% {
 
 @font-face {
   font-family: sourceSans;
-  src: url("../fonts/source-sans-pro.light.ttf");
+  src: url("../fonts/source-sans-pro-light/source-sans-pro-light.eot?") format('eot'), url("../fonts/source-sans-pro-light/source-sans-pro-light.woff") format('woff'), url("../fonts/source-sans-pro-light/source-sans-pro-light.ttf") format('ttf');
 }
 #tourRoot {
   left: 0px;
@@ -1121,9 +1121,9 @@ left: 50% {
   height: 100%;
 }
 #tourRoot #backButton {
-  height: 40px;
+  height: 29px;
   position: absolute;
-  width: 40px;
+  width: 29px;
   z-index: 100000000;
 }
 #tourRoot #backButtonContainer {
@@ -1151,7 +1151,7 @@ left: 50% {
 
 @font-face {
   font-family: sourceSans;
-  src: url("../fonts/source-sans-pro.light.ttf");
+  src: url("../fonts/source-sans-pro-light/source-sans-pro-light.eot?") format('eot'), url("../fonts/source-sans-pro-light/source-sans-pro-light.woff") format('woff'), url("../fonts/source-sans-pro-light/source-sans-pro-light.ttf") format('ttf');
 }
 #tagRoot {
   overflow: hidden;
