@@ -805,7 +805,7 @@ window.rin = window.rin || {};
             //$('#tagRoot').append(cover);
 
             // If running on IE 10/RT, enable multitouch support.
-            if (window.navigator.msPointerEnabled && typeof (MSGesture) !== "undefined") {
+            if (!(window.navigator.msPointerEnabled && typeof (MSGesture) !== "undefined")) {
                 var onmspointerdown = function (e) {
                     self._orchestrator.startInteractionMode();
                     self._orchestrator.onESEvent(rin.contracts.esEventIds.interactionActivatedEventId, null);
