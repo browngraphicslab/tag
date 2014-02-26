@@ -698,6 +698,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             tourLabel.css({
                 'height': '30%', 
                 'width': '30%', 
+                'margin-right': '-7%'
             });
 
             var videoLabel = $(document.createElement('img'));
