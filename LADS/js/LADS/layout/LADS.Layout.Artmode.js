@@ -176,10 +176,12 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 			//catalog.showExhibiton(exhibition);
 			catalog.getRoot().css({ 'overflow-x': 'hidden' });
 			LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
-				var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
-				selectedExhib.attr('flagClicked', 'true');
-				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
-				$(selectedExhib[0].firstChild).css({'color': 'black'});
+                if(prevExhib && prevExhib.Identifier) {
+    				var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
+    				selectedExhib.attr('flagClicked', 'true');
+    				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
+    				$(selectedExhib[0].firstChild).css({'color': 'black'});
+                }
 			});
 		});
 

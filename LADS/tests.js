@@ -1,5 +1,16 @@
 ﻿LADS.Util.makeNamespace("LADS.TESTS");
 
+/**
+ * TAG testing framework
+ *
+ * The TEST SCRIPTS section below has a few test routines. These
+ * routines are made public at the bottom of this file. They call
+ * runTests on a collection of TEST SCRIPT ACTIONs, which are defined
+ * in the second section. These are 'atomic' actions that can
+ * be combined to make more complex routines. There are a few
+ * TEST SUPPORT FUNCTIONs defined in the last section below.
+ */
+
 LADS.TESTS = (function () {
 
 	var emptyTest = {
@@ -7,7 +18,18 @@ LADS.TESTS = (function () {
 		intervals: []
 	};
 
-	/**** TEST SCRIPTS ****/
+	var highlightColors = [
+		'rgba(255,100,0,0.9)',
+		'rgba(255,0,100,0.9)',
+		'rgba(100,255,0,0.9)',
+		'rgba(100,0,255,0.9)',
+		'rgba(0,255,100,0.9)',
+		'rgba(0,100,255,0.9)'
+	];
+
+	/**********************\
+	|**** TEST SCRIPTS ****|
+	\**********************/
 
 	function testEnterCollections() {
 		runTests(combineTestObjs([
@@ -36,16 +58,24 @@ LADS.TESTS = (function () {
 		]));
 	}
 
+	function testDragArtwork() {
+		runTests(combineTestObjs([
+			navigate_to_garibaldi,
+			pan_artwork,
+			{tests: 4, intervals: 2}
+		]));
+	}
 
-	/**** TEST SCRIPT ACTIONS ****/
+	/*****************************\
+	|**** TEST SCRIPT ACTIONS ****|
+	\*****************************/
 
 	/* navigate from the start screen to the collections view */
 	function start_to_collections() {
 		return {
 			tests: [
 				function() {
-					highlightTarget($('#overlay'));
-					$('#overlay').trigger('click');
+					clickEvent($('#overlay'));
 				}
 			],
 			intervals: [
@@ -59,8 +89,7 @@ LADS.TESTS = (function () {
 		return {
 			tests: [
 				function() {
-					highlightTarget($('#catalogBackButton'));
-					$('#catalogBackButton').trigger('click');
+					clickEvent($('#catalogBackButton'));
 				}
 			],
 			intervals: [
@@ -77,8 +106,7 @@ LADS.TESTS = (function () {
 					var collectionClickables = $('.collectionClickable'),
 						collection = randElt(collectionClickables);
 					if(collection) {
-						highlightTarget($(collection));
-						$(collection).trigger('click');
+						clickEvent($(collection));
 					}
 				}
 			],
@@ -106,8 +134,76 @@ LADS.TESTS = (function () {
 					}
 					alreadySelected.removeClass('already_selected_in_test');
 					$(tile).addClass('already_selected_in_test');
-					highlightTarget($(tile));
-					$(tile).trigger('click');
+					clickEvent($(tile));
+				}
+			],
+			intervals: [
+				1000
+			]
+		}
+	}
+
+	/* pan the given artwork */
+	function pan_artwork() {
+		var tagWidth = $('#tagRoot').width(),
+			tagHeight = $('#tagRoot').height();
+		return {
+			tests: [
+				function() {
+					dragEvent($('.artworkCanvasTesting')[0], {
+						startX: tagWidth/2,
+						endX: 2*tagWidth/3,
+						startY: tagHeight/2,
+						endY: 4*tagHeight/5
+					});
+				},
+				function() {
+					dragEvent($('.artworkCanvasTesting')[0], {
+						startX: tagWidth/2,
+						endX: tagWidth - 10,
+						startY: tagHeight/2,
+						endY: tagHeight - 10
+					});
+				},
+				function() {
+					dragEvent($('.artworkCanvasTesting')[0], {
+						startX: tagWidth/2,
+						endX: 10,
+						startY: tagHeight/2,
+						endY: tagHeight/2
+					});
+				},
+				function() {
+					dragEvent($('.artworkCanvasTesting')[0], {
+						startX: tagWidth/2,
+						endX: tagWidth/2,
+						startY: tagHeight/2,
+						endY: 10
+					});
+				}
+			],
+			intervals: [
+				1500,
+				1500,
+				1500,
+				1500
+			]
+		}
+	}
+
+	/* navigate to the garibaldi panorama */
+	function navigate_to_garibaldi() {
+		return {
+			tests: [
+				function() {
+					var garibaldiId = "48880741-040a-4657-a3ef-0a2f9bbe27cd";
+
+					LADS.Worktop.Database.getDoq(garibaldiId, function(doq) {
+						var prevInfo = {prevPage: "catalog", prevScroll: 0},
+							options = {catalogState: {}, doq: doq, split: 'L' },
+			            	deepZoom = new LADS.Layout.Artmode(prevInfo, options, null);
+		            	LADS.Util.UI.slidePageLeft(deepZoom.getRoot());
+					}, genErrorHandler('navigate_to_garibaldi'), genErrorHandler('navigate_to_garibaldi'));
 				}
 			],
 			intervals: [
@@ -148,17 +244,16 @@ LADS.TESTS = (function () {
         }
 	}
 
-
-	/**** TESTING SUPPORT FUNCTIONS ****/
+	/***********************************\
+	|**** TESTING SUPPORT FUNCTIONS ****|
+	\***********************************/
 
 	/**
-	 * Tests
+	 * Run a series of tests
 	 * @param testObj.tests       an array of tests to run
 	 * @param testObj.intervals   array of time intervals (ms) between these tests
-	 *                            an interval of 0
-	 * @return                    "failed" if tests failed (i.e., an error was thrown)
+	 * @return                    -1 if an error was thrown during testing
 	 */
-
 	function runTests(testObj) {
 		var tests = testObj.tests,
 			intervals = testObj.intervals;
@@ -167,7 +262,7 @@ LADS.TESTS = (function () {
 			runTest(0, tests, intervals);
 		} catch(e) {
 			console.log('error in runTests: '+e.message);
-			return "failed";
+			return -1;
 		}
 	}
 
@@ -221,17 +316,145 @@ LADS.TESTS = (function () {
 	}
 
 	/**
-	 * Highlight the target of a testing event
+	 * Create click event on the input element
 	 */
-	function highlightTarget(target) {
+	function clickEvent(target) {
+		var $target = $(target);
+		highlightTarget($target);
+		$target.trigger('click');
+	}
+
+	/**
+	 * Simulate a pinch zoom event
+	 */
+	function pinchZoomEvent(target, eventData) {
+		// TODO
+	}
+
+	/**
+	 * Create mousemove event -- be careful to leave enough interval time to call this
+	 * @param target       target element for event
+	 * @param eventData    object with the following properties:
+	 *            startX     starting x coordinate relative to #tagRoot
+	 *            startY     ...
+	 *            endX       ...
+	 *            endY
+	 */
+	function dragEvent(target, eventData) {
+		var $target = $(target),
+			simulatedEvent,
+			clientX = eventData.startX + $('#tagRoot').offset().left,
+			clientY = eventData.startY + $('#tagRoot').offset().top,
+			screenX = clientX,
+			screenY = clientY,
+			endX = clientX + (eventData.endX - eventData.startX),
+			endY = clientY + (eventData.endY - eventData.startY),
+			deltaX = endX - clientX,
+			deltaY = endY - clientY,
+			distance = Math.sqrt(deltaX*deltaX + deltaY*deltaY),
+			distancePerMove = 20,
+			numMoves = distance/distancePerMove,
+			i;
+
+		// mousedown at (startX, startY)
+		simulatedEvent = document.createEvent('MouseEvent');
+        simulatedEvent.initMouseEvent('mousedown', true, true, window, 1,
+                   screenX, screenY,
+                   clientX, clientY, false,
+                   false, false, false, 0, null);
+        highlightTarget($target, eventData.startX, eventData.startY, true);
+        $target[0].dispatchEvent(simulatedEvent);
+
+        // call mouseMoves to create mousemove events
+        mouseMoves(0, numMoves, {
+		       	target: $target,
+		       	startClientX: clientX,
+		       	startClientY: clientY,
+		       	startScreenX: screenX,
+		       	startScreenY: screenY,
+		       	endClientX: endX,
+		       	endClientY: endY,
+		       	endScreenX: endX,
+		       	endScreenY: endY
+		    }, function() {
+	       	    // mouseup at (endX, endY)
+			 	simulatedEvent = document.createEvent('MouseEvent');
+		        simulatedEvent.initMouseEvent('mouseup', true, true, window, 1,
+		                    endX, endY,
+		                    endX, endY, false,
+		                    false, false, false, 0, null);
+		        $target[0].dispatchEvent(simulatedEvent);
+	        }
+	    );
+	}
+
+	/**
+	 * Recursive call to execute timed mousemove events
+	 * @param ctr        the number of move events we've called
+	 * @param numMoves   the number of move events we will call
+	 * @param data       event data with properties:
+	 *           startClientX        starting x position in context of browser window
+	 *           startClientY        ...
+	 *           endClientX          ...
+	 *           endClientY          ...
+	 *           target              target element
+	 * @param callback   function to be called when all moves have executed
+	 */
+	function mouseMoves(ctr, numMoves, data, callback) {
+		var simulatedEvent,
+			f = (ctr + 1) / numMoves,
+			startX = data.startClientX,
+			startY = data.startClientY,
+			endX = data.endClientX,
+			endY = data.endClientY,
+			$target = data.target,
+			lerpX = lerp(startX, endX, f),
+			lerpY = lerp(startY, endY, f);
+		if(ctr < numMoves) {
+			simulatedEvent = document.createEvent('MouseEvent');
+	        simulatedEvent.initMouseEvent('mousemove', true, true, window, 1,
+	                    lerpX, lerpY,
+	                    lerpX, lerpY, false,
+	                    false, false, false, 0, null);
+	        highlightTarget($target, lerpX - $('#tagRoot').offset().left, lerpY - $('#tagRoot').offset().top, true);
+	       	$($target)[0].dispatchEvent(simulatedEvent);
+	       	setTimeout(function() {
+	       		mouseMoves(ctr+1, numMoves, data, callback);
+	       	}, 0);
+		} else {
+			callback && callback();
+		}
+	}
+
+	/**
+	 * Linearly interpolate between start and stop by t in [0,1]
+	 */
+	function lerp(start, stop, t) {
+		return (1-t)*start + t*stop;
+	}
+
+
+	/**
+	 * Highlight the target of a testing event (visualize events)
+	 * @param target          the element to highlight
+	 * @param left            (optional) the left offset of the event within the target
+	 * @param top             (optional) ....
+	 * @param animateRadius   (optional) if true, highlights get smaller as they disappear
+	 * @param highlightWidth  (optional) width of the highlight circle
+	 */
+	function highlightTarget(target, left, top, animateRadius, highlightWidth) {
 		var $target = $(target),
 			tagname = $target.prop('tagName').toLowerCase(),
 			highlightOverlay = $(document.createElement('div')),
-			overlayWidth = 30,
+			highlightWidth = highlightWidth || 30,
 			isAbs = ($target.css('position') === 'absolute' || $target.css('position') === 'relative'),
-			oldBackgroundColor;
+			oldBackgroundColor,
+			marginLeftOffset = left ? $target.width() - left : $target.width()/2,
+			marginTopOffset = top ? $target.height() - top : $target.height()/2,
+			leftOffset = left ? left : $target.width()/2,
+			topOffset = top ? top : $target.height()/2;
 
-		if(tagname === 'img' || tagname === 'video') {
+		if(tagname === 'img' || tagname === 'video') { // can't append a highlight inside an img or video
 			oldBackgroundColor = $target.css('background-color');
 			$target.css('background-color', 'rgba(255,100,0,0.8)');
 			setTimeout(function() {
@@ -240,33 +463,42 @@ LADS.TESTS = (function () {
 		} else {
 			highlightOverlay.css({
 				'border-radius': '100px',
-				'background-color': 'rgba(255,100,0,0.9)',
+				'background-color': randElt(highlightColors),
 				'position': 'absolute',
-				'margin-top': isAbs ? '' : '-' + ($target.height()/2 + overlayWidth/2) + 'px',
-				'margin-left': isAbs ? '' : ($target.width()/2 - overlayWidth/2) + 'px',
-				'top': isAbs ? ($target.height()/2 - overlayWidth) + 'px' : '',
-				'left': isAbs ? ($target.width()/2 - overlayWidth) + 'px' : '',
+				'margin-top': isAbs ? '' : '-' + (marginTopOffset + highlightWidth/2) + 'px',
+				'margin-left': isAbs ? '' : (marginLeftOffset - highlightWidth/2) + 'px',
+				'top': isAbs ? (topOffset - highlightWidth/2) + 'px' : '',
+				'left': isAbs ? (leftOffset - highlightWidth/2) + 'px' : '',
 				'opacity': 0,
-				'width': overlayWidth+'px',
-				'height': overlayWidth+'px'
+				'width': highlightWidth+'px',
+				'height': highlightWidth+'px'
 			});
 			$target.append(highlightOverlay);
 			highlightOverlay.animate({
-				opacity: 1
+				opacity: 1,
 			}, 20, function() {
-				console.log("SHOULD BE A HIGHLIGHT");
-				highlightOverlay.animate({
+				var animOpts = {
 					opacity: 0
-				}, 1200, function() {
+				};
+				if(animateRadius) {
+					animOpts.width = highlightWidth/2;
+					animOpts.height = highlightWidth/2;
+					if(isAbs) {
+						animOpts.left = (leftOffset - highlightWidth/2) + highlightWidth/4;
+						animOpts.top = (topOffset - highlightWidth/2) + highlightWidth/4;
+					} else {
+						animOpts.marginLeft = (marginLeftOffset - highlightWidth/2 + highlightWidth/4);
+						animOpts.marginTop = -(marginTopOffset + highlightWidth/2 - highlightWidth/4);
+					}
+				}
+				highlightOverlay.animate(animOpts, 1200, function() {
 					highlightOverlay.remove();
 				});
 			});
 		}
-		// $(target).css('background-color', 'yellow');
 	}
 
 	/**
-	 * returns an index in [0, arr.length)
 	 * @param arr     array for which we want a random index
 	 * @return        random index into array, -1 if arr is empty
 	 */
@@ -281,7 +513,7 @@ LADS.TESTS = (function () {
 	/**
 	 * returns random element from input array
 	 * @param arr     input array
-	 * @return        random element
+	 * @return        random element, null if arr=[]
 	 */
 	function randElt(arr) {
 		var ind;
@@ -295,11 +527,25 @@ LADS.TESTS = (function () {
 		}
 	}
 
+	/**
+	 * Returns a basic error callback function (long-term, should define
+	 * case-specific error funcs that actually do some error handling).
+	 *
+	 * @param calling      string: calling function's name
+	 */
+	function genErrorHandler(calling) {
+		var str = calling ? ('error in '+calling) : 'error';
+		return function(err) {
+			console.log(str + ': ' + e.message);
+		};
+	}
 
+	// publicize test functions
 	return {
 		testEnterCollections: testEnterCollections,
 		testSelectCollections: testSelectCollections,
 		testSelectArtworks: testSelectArtworks,
+		testDragArtwork: testDragArtwork,
 		runTests: runTests
 	};
 })();

@@ -75,6 +75,7 @@
         $('#tb1').on('click', LADS.TESTS.testEnterCollections);
         $('#tb2').on('click', LADS.TESTS.testSelectCollections);
         $('#tb3').on('click', LADS.TESTS.testSelectArtworks);
+        $('#tb4').on('click', LADS.TESTS.testDragArtwork);
 
         $('#refreshTAGButton').on('click', function(evt) { // currently doesn't work to refresh TAG if a tour has been played
             container.empty();
