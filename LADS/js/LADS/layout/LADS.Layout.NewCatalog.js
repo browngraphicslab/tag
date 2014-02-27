@@ -296,6 +296,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
         exLabels.push(toAdd);
         exhibitarea.append(toAdd);
         toAdd.attr('flagClicked', 'false');
+        toAdd.addClass('collectionClickable');
         toAdd.attr('id', 'exhib-' + exhibition.Identifier);
         toAdd.mousedown(function () {
             $(this).css({ 'background-color': 'white', 'color': 'black' });
@@ -645,7 +646,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
     function drawTimeline(artworks, tag, start, onSearch) {
         if (!currExhibition) return;
         if (start === 0) {
-            console.log('currExhib = ' + currExhibition.Name);
+            // console.log('currExhib = ' + currExhibition.Name);
             loadQueue.clear();
             setTimeout(function () {
                 timelineDiv.empty();

@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-02-25 */
+/*! RIN | http://research.microsoft.com/rin | 2014-02-26 */
 (function() {
     "use strict";
     var rin = window.rin || {};
@@ -2002,6 +2002,7 @@ window.rin = window.rin || {};
 					}
 				});
                 function dzScroll(delta, pivot) { //function to handle deep zoom scrolling
+                    // debugger;
                     self._viewer.viewport.zoomBy(delta, self._viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
                     self._viewer.viewport.applyConstraints();
                 }
