@@ -247,8 +247,9 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
                 showExhibition(currExhibition);
                 // debugger;
                 $("#exhib-" + currExhibition.Identifier).css({ 'background-color': 'rgb(255,255,255)', 'color': 'black' });
+            } else {
+                clickExhibition(0);//have the first exhibition selected
             }
-            else clickExhibition(0);//have the first exhibition selected
             loadingArea.hide();
         }   // end getting exhibition
 

@@ -45,12 +45,22 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
     backButton.on('click', goBack);
 
     function goBack () {
-        var artmode, catalog;
+        console.log('player: '+player);
 
-        backButton.off('click');
-        player.pause();
-        player.screenplayEnded.unsubscribe();
-        player.unload();
+        var artmode, catalog;
+        
+        if(player) {
+            player.pause();
+            player.screenplayEnded.unsubscribe();
+            console.log('UNLOADING PLAYER');
+            player.unload();
+        }
+
+        if(!player || rinPlayer.children().length === 0) {
+            return; // if page hasn't loaded yet, don't exit (TODO -- should have slide page overlay)
+        }
+
+        backButton.off('click'); // prevent user from clicking twice
 
         if (artworkPrev && artwork) {
             /* nbowditch _editted 2/13/2014 : added prevInfo */
@@ -65,10 +75,12 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
             /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
 				artworkPrev = "catalog";
-				var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
+				var selectedExhib = $('#exhib-' + prevExhib.Identifier);
 				selectedExhib.attr('flagClicked', 'true');
 				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
-				$(selectedExhib[0].firstChild).css({'color': 'black'});
+                if(selectedExhib[0] && selectedExhib[0].firstChild) {
+    				$(selectedExhib[0].firstChild).css({'color': 'black'});
+                }
 			});           
         }
         // TODO: do we need this next line?

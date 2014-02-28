@@ -31189,7 +31189,7 @@ LADS.Util = (function () {
         step: Optional.  The step to increment by when testing font size.
     */
     function getMaxFontSizeEM(text, minFontSize, maxWidth, maxHeight, step) {
-        // console.log('getting max font size.....');
+        console.log('getting max font size.....');
         if (!text) {
             return;
         }
@@ -42128,12 +42128,12 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 assets = zoomimage.getAssets();
                 hotspots.sort(function (a, b) { return a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1; });
                 assets.sort(function (a, b) { return a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1; });
-                try { // TODO figure out why loadDoq sometimes causes a NetworkError
+                try { // TODO figure out why loadDoq sometimes causes a NetworkError (still happening?)
                     zoomimage.loadDoq(doq);
                 } catch(err) {
-                    console.log(err);
+                    console.log(err); // TODO if we hit a network error, show an error message on screen
                 }
-                LADS.Util.Splitscreen.setViewers(root, zoomimage);
+                LADS.Util.Splitscreen.setViewers(root, zoomimage); // TODO should we get rid of all splitscreen stuff?
                 makeSidebar();
                 initialized = true;
             });
@@ -42235,21 +42235,22 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         //this is called when the user entered the artmode from catalog, 
 		// have the "artmode" case because if user goes back to artmode from tourplayer, the prevpage will stay as artmode. 
 		backButton.on('click', function () {
-			
-			backButton.off('click');
-			zoomimage.unload();
+			backButton.off('click'); // prevent user from clicking twice
+			zoomimage && zoomimage.unload();
 		    /* nbowditch _editted 2/13/2014 : added backInfo */
 			var backInfo = { backArtwork: doq, backScroll: prevScroll };
 			var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
             /* end nbowditch edit */
 			//catalog.showExhibiton(exhibition);
-			catalog.getRoot().css({ 'overflow-x': 'hidden' });
+			catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO this line shouldn't be necessary -- do in styl file
 			LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
                 if(prevExhib && prevExhib.Identifier) {
-    				var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
+    				var selectedExhib = $('#exhib-' + prevExhib.Identifier);
     				selectedExhib.attr('flagClicked', 'true');
     				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
-    				$(selectedExhib[0].firstChild).css({'color': 'black'});
+                    if(selectedExhib[0] && selectedExhib[0].firstChild) {
+    	       			$(selectedExhib[0].firstChild).css({'color': 'black'});
+                    }
                 }
 			});
 		});
@@ -43090,6 +43091,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
     // exhibition picker
     function createExhibitionPicker(artworkObj) {
+        debugger; // this shouldn't be called in the web app...
         var exhibitionPicker = $(document.createElement('div'));
         exhibitionPicker.addClass("exhibitionPicker");
 
@@ -43222,7 +43224,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                         backButton.off('click');
                         backButton.on('click', function () {
                             backButton.off('click');
-                            zoomimage.unload();
+                            zoomimage && zoomimage.unload();
                             /* nbowditch _editted 2/13/2014 */
                             var backInfo = { backArtwork: doq, backScroll: prevScroll };
                             var catalog = new LADS.Layout.NewCatalog(backInfo, toAdd);
@@ -43638,8 +43640,9 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
                 showExhibition(currExhibition);
                 // debugger;
                 $("#exhib-" + currExhibition.Identifier).css({ 'background-color': 'rgb(255,255,255)', 'color': 'black' });
+            } else {
+                clickExhibition(0);//have the first exhibition selected
             }
-            else clickExhibition(0);//have the first exhibition selected
             loadingArea.hide();
         }   // end getting exhibition
 
@@ -44859,12 +44862,22 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
     backButton.on('click', goBack);
 
     function goBack () {
-        var artmode, catalog;
+        console.log('player: '+player);
 
-        backButton.off('click');
-        player.pause();
-        player.screenplayEnded.unsubscribe();
-        player.unload();
+        var artmode, catalog;
+        
+        if(player) {
+            player.pause();
+            player.screenplayEnded.unsubscribe();
+            console.log('UNLOADING PLAYER');
+            player.unload();
+        }
+
+        if(!player || rinPlayer.children().length === 0) {
+            return; // if page hasn't loaded yet, don't exit (TODO -- should have slide page overlay)
+        }
+
+        backButton.off('click'); // prevent user from clicking twice
 
         if (artworkPrev && artwork) {
             /* nbowditch _editted 2/13/2014 : added prevInfo */
@@ -44879,10 +44892,12 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
             /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
 				artworkPrev = "catalog";
-				var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
+				var selectedExhib = $('#exhib-' + prevExhib.Identifier);
 				selectedExhib.attr('flagClicked', 'true');
 				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
-				$(selectedExhib[0].firstChild).css({'color': 'black'});
+                if(selectedExhib[0] && selectedExhib[0].firstChild) {
+    				$(selectedExhib[0].firstChild).css({'color': 'black'});
+                }
 			});           
         }
         // TODO: do we need this next line?

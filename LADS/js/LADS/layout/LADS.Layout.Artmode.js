@@ -60,12 +60,12 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 assets = zoomimage.getAssets();
                 hotspots.sort(function (a, b) { return a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1; });
                 assets.sort(function (a, b) { return a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1; });
-                try { // TODO figure out why loadDoq sometimes causes a NetworkError
+                try { // TODO figure out why loadDoq sometimes causes a NetworkError (still happening?)
                     zoomimage.loadDoq(doq);
                 } catch(err) {
-                    console.log(err);
+                    console.log(err); // TODO if we hit a network error, show an error message on screen
                 }
-                LADS.Util.Splitscreen.setViewers(root, zoomimage);
+                LADS.Util.Splitscreen.setViewers(root, zoomimage); // TODO should we get rid of all splitscreen stuff?
                 makeSidebar();
                 initialized = true;
             });
@@ -167,21 +167,22 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         //this is called when the user entered the artmode from catalog, 
 		// have the "artmode" case because if user goes back to artmode from tourplayer, the prevpage will stay as artmode. 
 		backButton.on('click', function () {
-			
-			backButton.off('click');
-			zoomimage.unload();
+			backButton.off('click'); // prevent user from clicking twice
+			zoomimage && zoomimage.unload();
 		    /* nbowditch _editted 2/13/2014 : added backInfo */
 			var backInfo = { backArtwork: doq, backScroll: prevScroll };
 			var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
             /* end nbowditch edit */
 			//catalog.showExhibiton(exhibition);
-			catalog.getRoot().css({ 'overflow-x': 'hidden' });
+			catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO this line shouldn't be necessary -- do in styl file
 			LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
                 if(prevExhib && prevExhib.Identifier) {
-    				var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
+    				var selectedExhib = $('#exhib-' + prevExhib.Identifier);
     				selectedExhib.attr('flagClicked', 'true');
     				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
-    				$(selectedExhib[0].firstChild).css({'color': 'black'});
+                    if(selectedExhib[0] && selectedExhib[0].firstChild) {
+    	       			$(selectedExhib[0].firstChild).css({'color': 'black'});
+                    }
                 }
 			});
 		});
@@ -1022,6 +1023,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
     // exhibition picker
     function createExhibitionPicker(artworkObj) {
+        debugger; // this shouldn't be called in the web app...
         var exhibitionPicker = $(document.createElement('div'));
         exhibitionPicker.addClass("exhibitionPicker");
 
@@ -1154,7 +1156,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                         backButton.off('click');
                         backButton.on('click', function () {
                             backButton.off('click');
-                            zoomimage.unload();
+                            zoomimage && zoomimage.unload();
                             /* nbowditch _editted 2/13/2014 */
                             var backInfo = { backArtwork: doq, backScroll: prevScroll };
                             var catalog = new LADS.Layout.NewCatalog(backInfo, toAdd);
