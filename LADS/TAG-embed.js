@@ -102,6 +102,12 @@ var TAG_embed = function(tagInput) {
                             }); \
                         }; \
                     </script> \
+                    <style> \
+                        * { \
+                            margin: 0px; \
+                            padding: 0px; \
+                        } \
+                    </style> \
                 </head> \
                 <body> \
                     <div id="tagContainer" style="background:#222222;margin-left:16px;  width:'+(width-32)+'px; height:'+(height-18)+'px;"> \
