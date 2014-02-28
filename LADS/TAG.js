@@ -45880,14 +45880,15 @@ LADS.TESTS = (function () {
         oCss.href = tagPath+"css/TAG.css";
         oHead.appendChild(oCss);
 
-     /*   var oMeta= document.createElement("meta");
-        oMeta.name="viewport";
-        oMeta.content="width=device-width, initial-scale=1.0, user-scalable=no";
-        oHead.appendChild(oMeta);*/
         
 
 
         var tagContainer = $('#tagRoot'); // TODO more general?
+
+
+        $("body").css("-ms-touch-action","none");
+    
+
 
 
        // if (checkInternetConnectivity())
