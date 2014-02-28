@@ -134,15 +134,16 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     opts.left = "0%";
                 }
                 isBarOpen = true;
-                togglerImage.attr("src", tagPath+'images/icons/Open.svg');
+                //togglerImage.attr("src", tagPath+'images/icons/Open.svg');
             }
             else {
                 isBarOpen = false;
-                togglerImage.attr("src", tagPath+'images/icons/Close.svg');
+                //togglerImage.attr("src", tagPath+'images/icons/Close.svg');
             }
             //when click the toggler, the arrow will rotate 180 degree to change direction.
             $(sideBar).animate(opts, 1000, function () {
-                $(togglerImage[0]).rotate("180deg");
+                // $(togglerImage[0]).rotate("180deg");
+                togglerImage.attr('src', tagPath + 'images/icons/' + (!isBarOpen ? 'Open.svg' : 'Close.svg'));
             });
         });
 
