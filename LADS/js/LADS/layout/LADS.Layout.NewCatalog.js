@@ -300,13 +300,17 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
         toAdd.attr('id', 'exhib-' + exhibition.Identifier);
     
         toAdd.mousedown(function () {
-            $(this).css({ 'background-color': 'white', 'color': 'black' });
+            $(this).css({ 'background-color': 'white'});
             titleBox.css({'color': 'black'});
         });
        
         toAdd.mouseleave(function () {
             if ($(this).attr('flagClicked') == 'false') {
+<<<<<<< HEAD
                 $(this).css({ 'background-color': 'transparent', 'color': 'white' });
+=======
+                $(this).css({ 'background-color': 'transparent'});
+>>>>>>> ef859a2df7e7527eb8dcb937b5f38ad354b0d001
                 titleBox.css({'color': 'white'});
             }             
         });
