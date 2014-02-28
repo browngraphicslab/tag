@@ -191,6 +191,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         that.viewer.clearControls();
 
         var canvas = that.viewer.canvas;
+        $(canvas).addClass('artworkCanvasTesting');
         LADS.Util.makeManipulatable(canvas, {
             onScroll: function (delta, pivot) {
                 dzScroll(delta, pivot);

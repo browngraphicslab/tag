@@ -2,6 +2,12 @@
 (function () {
     "use strict";
 
+    function runTestScripts() { // called at end of init
+        // LADS.TESTS.testEnterCollections();
+        // LADS.TESTS.testSelectCollections();
+        // LADS.TESTS.testSelectArtworks();
+    }
+
     load(); // window.load is done in the html file
 
     function load() {
@@ -65,6 +71,11 @@
                 height: h + "px"
             });
         });
+
+        $('#tb1').on('click', LADS.TESTS.testEnterCollections);
+        $('#tb2').on('click', LADS.TESTS.testSelectCollections);
+        $('#tb3').on('click', LADS.TESTS.testSelectArtworks);
+        $('#tb4').on('click', LADS.TESTS.testDragArtwork);
 
         $('#refreshTAGButton').on('click', function(evt) { // currently doesn't work to refresh TAG if a tour has been played
             container.empty();
@@ -153,20 +164,16 @@
         oCss.href = tagPath+"css/TAG.css";
         oHead.appendChild(oCss);
 
-     /*   var oMeta= document.createElement("meta");
-        oMeta.name="viewport";
-        oMeta.content="width=device-width, initial-scale=1.0, user-scalable=no";
-        oHead.appendChild(oMeta);*/
         
 
 
         var tagContainer = $('#tagRoot'); // TODO more general?
+
+
+        $("body").css("-ms-touch-action","none");
     
 
 
-        //window.location = 'js/RIN/web/reload-test.html';
-        //window.location = 'js/RIN/web/test.html';
-        //window.location = 'js/RIN/web/index.html';
 
        // if (checkInternetConnectivity())
         //     checkServerConnectivity();
@@ -210,28 +217,14 @@
                 }
             });
         }
-        //else if (("" + page).substring(0, 3) === "art") { // n.b. if your art has the same name as a tour, might fail
-        //    LADS.Worktop.Database.load();
-        //    var artwork = LADS.Worktop.Database.getDoqByName(page.substring(4).trim());
-        //    if (!artwork || artwork.Extension === ".txt") {
-        //        LADS.Layout.StartPage(null, function (x) {
-        //            $("body").append(x);
-        //        });
-        //    }
-        //    else {
-        //        $('body').append((new LADS.Layout.ArtworkEditor(artwork)).getRoot());
-        //    }
-        //}
         else {
-            //$("body").append((new LADS.Layout.StartPage()).getRoot());
-            
             LADS.Layout.StartPage(null, function (page) {
                 tagContainer.append(page);
             });
         }
-        //$("body").append((new LADS.Layout.ArtworkEditor()).getRoot());
-        //LADS.Worktop.Database.load();
-        //$("body").append((new LADS.Authoring.SettingsView()).getRoot());
+
+        console.log('running test scripts');
+        runTestScripts();
     }
     
     /*
