@@ -72,10 +72,11 @@
             });
         });
 
-        $('#tb1').on('click', LADS.TESTS.testEnterCollections);
-        $('#tb2').on('click', LADS.TESTS.testSelectCollections);
-        $('#tb3').on('click', LADS.TESTS.testSelectArtworks);
-        $('#tb4').on('click', LADS.TESTS.testDragArtwork);
+        $('#TAG_tb1').on('click', LADS.TESTS.testEnterCollections);
+        $('#TAG_tb2').on('click', LADS.TESTS.testSelectCollections);
+        $('#TAG_tb3').on('click', LADS.TESTS.testSelectArtworks);
+        $('#TAG_tb4').on('click', LADS.TESTS.testDragArtwork);
+        $('#TAG_cancelTest').on('click', LADS.TESTS.cancelTest);
 
         $('#refreshTAGButton').on('click', function(evt) { // currently doesn't work to refresh TAG if a tour has been played
             container.empty();

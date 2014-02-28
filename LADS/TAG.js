@@ -45192,6 +45192,8 @@ LADS.TESTS = (function () {
 		'rgba(0,100,255,0.9)'
 	];
 
+	var testTimeout; // the currently-running timeout
+
 	/**********************\
 	|**** TEST SCRIPTS ****|
 	\**********************/
@@ -45424,6 +45426,7 @@ LADS.TESTS = (function () {
 			intervals = testObj.intervals;
 		// TODO check that tests and intervals are arrays, that they have equal lengths, etc...
 		try {
+			showStartOverlay();
 			runTest(0, tests, intervals);
 		} catch(e) {
 			console.log('error in runTests: '+e.message);
@@ -45439,7 +45442,7 @@ LADS.TESTS = (function () {
 		var type;
 		if(index < tests.length) {
 			type = typeof tests[index];
-			setTimeout(function() {
+			testTimeout = setTimeout(function() {
 				if(type === "function") {
 					console.log("RUNNING TEST #"+testNum);
 					tests[index]();
@@ -45554,7 +45557,7 @@ LADS.TESTS = (function () {
 	}
 
 	/**
-	 * Recursive call to execute timed mousemove events
+	 * Recursive call to execute mousemove events
 	 * @param ctr        the number of move events we've called
 	 * @param numMoves   the number of move events we will call
 	 * @param data       event data with properties:
@@ -45705,12 +45708,66 @@ LADS.TESTS = (function () {
 		};
 	}
 
+	/**
+	 * Show an overlay explaining that the first step in the test is to
+	 * navigate to the correct starting page.
+	 */
+	function showStartOverlay() {
+		var rootContainer = $('#tagContainer'), // this is demo.html-specific!
+			overlay = $(document.createElement('div')),
+			message = $(document.createElement('div'));
+
+		overlay.css({
+			'background-color': 'rgba(0,0,0,0.9)',
+			height: '100%',
+			opacity: 0,
+			position: 'absolute',
+			width: '100%',
+			'z-index': 100000000000000000
+		});
+
+		message.css({
+			color: '#ffdd00',
+			position: 'absolute',
+			'font-family': 'sourceSans',
+			'font-size': '60px',
+			'text-align': 'center',
+			top: '40%',
+			width: '100%'
+		});
+
+		message.text('starting test...');
+
+		overlay.append(message);
+		rootContainer.append(overlay);
+
+		overlay.animate({
+			opacity: 1
+		}, 100, function() {
+			setTimeout(function(){
+				overlay.animate({
+					opacity: 0
+				}, 100, function() {
+					overlay.remove();
+				});
+			}, 1000);
+		});
+	}
+
+	/**
+	 * Cancels the currently-running test
+	 */
+	function cancelTest() {
+		clearTimeout(testTimeout);
+	}
+
 	// publicize test functions
 	return {
 		testEnterCollections: testEnterCollections,
 		testSelectCollections: testSelectCollections,
 		testSelectArtworks: testSelectArtworks,
 		testDragArtwork: testDragArtwork,
+		cancelTest: cancelTest,
 		runTests: runTests
 	};
 })();
@@ -45789,10 +45846,11 @@ LADS.TESTS = (function () {
             });
         });
 
-        $('#tb1').on('click', LADS.TESTS.testEnterCollections);
-        $('#tb2').on('click', LADS.TESTS.testSelectCollections);
-        $('#tb3').on('click', LADS.TESTS.testSelectArtworks);
-        $('#tb4').on('click', LADS.TESTS.testDragArtwork);
+        $('#TAG_tb1').on('click', LADS.TESTS.testEnterCollections);
+        $('#TAG_tb2').on('click', LADS.TESTS.testSelectCollections);
+        $('#TAG_tb3').on('click', LADS.TESTS.testSelectArtworks);
+        $('#TAG_tb4').on('click', LADS.TESTS.testDragArtwork);
+        $('#TAG_cancelTest').on('click', LADS.TESTS.cancelTest);
 
         $('#refreshTAGButton').on('click', function(evt) { // currently doesn't work to refresh TAG if a tour has been played
             container.empty();
