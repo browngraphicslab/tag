@@ -43688,16 +43688,19 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
         toAdd.attr('flagClicked', 'false');
         toAdd.addClass('collectionClickable');
         toAdd.attr('id', 'exhib-' + exhibition.Identifier);
+    
         toAdd.mousedown(function () {
             $(this).css({ 'background-color': 'white', 'color': 'black' });
             titleBox.css({'color': 'black'});
         });
+       
         toAdd.mouseleave(function () {
             if ($(this).attr('flagClicked') == 'false') {
                 $(this).css({ 'background-color': 'transparent', 'color': 'white' });
+                titleBox.css({'color': 'white'});
             }             
         });
-
+    
         toAdd.on('click', function () {
             //put this all in diff func and call in constructor 
             for (var i = 0; i < exhibitelements.length; i++) {
@@ -43716,6 +43719,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             loadExhibit.call(toAdd, currExhibition);
             scrollPos = 0; // nbowditch _editted 2/13/2014 
             showExhibition(currExhibition);
+
         });
 
         exhibitelements.push(toAdd);
