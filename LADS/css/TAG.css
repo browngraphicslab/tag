@@ -12,6 +12,31 @@
   width: 100%;
   height: 100%;
 }
+#startPageRoot #authoringButtonBuffer {
+  bottom: 0%;
+  height: 8%;
+  left: 0%;
+  position: absolute;
+  width: 23.8%;
+}
+#startPageRoot #authoringButtonContainer {
+  background-color: rgba(0,0,0,0.85);
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  bottom: 0%;
+  height: 60%;
+  left: 18.5%;
+  position: absolute;
+  text-align: center;
+  width: 63%;
+}
+#startPageRoot #authoringLabel {
+  color: #fff;
+  font-size: 85%;
+  position: relative;
+  text-align: center;
+  top: 8%;
+}
 #startPageRoot #background {
   background-position: center;
   background-size: cover;

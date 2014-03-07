@@ -73,6 +73,7 @@ module.exports = function(grunt) {
 					'LADS/js/LADS/worktop/LADS.Worktop.Database.js',
 					'LADS/js/LADS/artmode/LADS.AnnotatedImage.js',
 					'LADS/js/LADS/auth/LADS.Auth.js',
+					
 					'LADS/js/LADS/layout/LADS.Layout.StartPage.js',
 					'LADS/js/LADS/layout/LADS.Layout.Artmode.js',
 					'LADS/js/LADS/layout/LADS.Layout.NewCatalog.js',
@@ -80,6 +81,11 @@ module.exports = function(grunt) {
 					'LADS/js/LADS/layout/LADS.Layout.MetroSplitscreenMessage.js',
 					'LADS/js/LADS/layout/LADS.Layout.TourPlayer.js',
 					'LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js',
+					
+					'LADS/js/LADS/authoring/LADS.Authoring.NewSettingsView.js',
+					'LADS/js/LADS/authoring/LADS.Authoring.ButtonGroup.js',
+					'LADS/js/LADS/authoring/LADS.Authoring.FileUploader.js',
+					'LADS/js/LADS/authoring/jscolor/jscolor.js',
 					
 					'LADS/tests.js',
 					
@@ -203,6 +209,11 @@ module.exports = function(grunt) {
 				'LADS/js/LADS/layout/LADS.Layout.MetroSplitscreenMessage.js',
 				'LADS/js/LADS/layout/LADS.Layout.TourPlayer.js',
 				'LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js',
+
+				'LADS/js/LADS/authoring/LADS.Authoring.NewSettingsView.js',
+				'LADS/js/LADS/authoring/LADS.Authoring.ButtonGroup.js',
+				'LADS/js/LADS/authoring/LADS.Authoring.FileUploader.js',
+				'LADS/js/LADS/authoring/jscolor/jscolor.js',
 				
 				'LADS/tests.js',
 				

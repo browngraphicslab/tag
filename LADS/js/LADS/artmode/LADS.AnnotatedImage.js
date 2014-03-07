@@ -854,6 +854,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         clickable.setAttribute('style', "display: block; width: 0px;height: 0px;background: rgba(0,0,0,0);border: solid rgba(0,0,0,0.01) 15px;border-radius:50%;");
         clickable.innerText = "";
         innercircle.appendChild(clickable);
+        // debugger;
         var position = new Seadragon.Point(info.x, info.y);
 
         var isInfoShowing = false;

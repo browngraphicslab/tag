@@ -11,7 +11,8 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         overlay = root.find('#overlay'),
         serverTagBuffer = root.find('#serverTagBuffer'),
         serverSetUpContainer = root.find('#serverSetUpContainer'),
-        // repository = options.repository,
+        authoringButtonContainer = root.find('#authoringButtonContainer'),
+        authoringButtonBuffer = root.find('#authoringButtonBuffer'),
         serverURL,
         tagContainer;
 
@@ -110,6 +111,11 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         } else {
             $('#serverTagBuffer').css('display', 'block');
         }
+
+        authoringButtonContainer.on('click', openDialog);
+        authoringButtonBuffer.on('click', function (evt) {
+            evt.stopPropagation();
+        });
 
         // set image paths
         root.find('#expandImage').attr('src', tagPath+'images/icons/Left.png');
@@ -213,7 +219,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         }
         museumInfoSpan.text(tempInfo);
 	
-	/*
+	   /*
         var loadedInterval = setInterval(function () { // TODO must be a better way...
             if (LADS.Util.elementInDocument(museumInfoDiv)) {
                 var subheadingFont = parseInt(museumLoc.css('font-size'), 10);
@@ -278,6 +284,18 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             overlay.on('click', function(){});
             LADS.Util.UI.slidePageLeft(newCatalog.getRoot());
         }
+    }
+
+    function openDialog() {
+        LADS.Auth.authenticate(enterAuthoringMode);
+        return;
+    }
+
+    function enterAuthoringMode() {
+        overlay.on('click', function() {;});
+        authoringButtonContainer.off('click');
+        var authoringMode = new LADS.Authoring.NewSettingsView();
+        LADS.Util.UI.slidePageLeft(authoringMode.getRoot());
     }
 
     function getRoot() {
