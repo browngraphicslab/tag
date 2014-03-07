@@ -120,7 +120,7 @@ LADS.TourAuthoring.TopMenu = function (spec, my) {
             }
             backButton.off('click');
             $('.rightClickMenu').hide();//shuts the menu that appears on right clicking on a track
-            var tempSettings = new LADS.Authoring.NewSettingsView('Tours', null, null, tourobj.Identifier);
+            var tempSettings = new LADS.Authoring.SettingsView('Tours', null, null, tourobj.Identifier);
             viewer.stop();
             viewer.unload();
             LADS.Util.UI.slidePageRight(tempSettings.getRoot());

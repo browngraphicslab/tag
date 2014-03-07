@@ -100,7 +100,7 @@ LADS.Layout.ArtworkEditor = function (artwork) {
             zoomimage = new LADS.AnnotatedImage(root, artwork, false, function () {
                 if (!(zoomimage.loadDoq(artwork))) {
                     var popup = LADS.Util.UI.popUpMessage(function () {
-                        LADS.Authoring.NewSettingsView("Artworks", function (settingsView) {
+                        LADS.Authoring.SettingsView("Artworks", function (settingsView) {
                             LADS.Util.UI.slidePageRight(settingsView.getRoot());
                         }, null, artwork.Identifier);
                     }, "There was an error loading the image.", "Go Back", true);
@@ -2960,7 +2960,7 @@ LADS.Layout.ArtworkEditor = function (artwork) {
                 assetUploader.cancelPromises();
             }
             $(backButton).off('click');
-            var tempSettings = new LADS.Authoring.NewSettingsView("Artworks", null, null, artwork.Identifier);
+            var tempSettings = new LADS.Authoring.SettingsView("Artworks", null, null, artwork.Identifier);
             LADS.Util.UI.slidePageRight(tempSettings.getRoot());
         }
 

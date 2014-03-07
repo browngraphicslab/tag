@@ -294,7 +294,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     function enterAuthoringMode() {
         overlay.on('click', function() {;});
         authoringButtonContainer.off('click');
-        var authoringMode = new LADS.Authoring.NewSettingsView();
+        var authoringMode = new LADS.Authoring.SettingsView();
         LADS.Util.UI.slidePageLeft(authoringMode.getRoot());
     }
 

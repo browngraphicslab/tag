@@ -41109,7 +41109,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         clickable.setAttribute('style', "display: block; width: 0px;height: 0px;background: rgba(0,0,0,0);border: solid rgba(0,0,0,0.01) 15px;border-radius:50%;");
         clickable.innerText = "";
         innercircle.appendChild(clickable);
-        debugger;
+        // debugger;
         var position = new Seadragon.Point(info.x, info.y);
 
         var isInfoShowing = false;
@@ -41190,7 +41190,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         }
 
         if (info.assetType === "Hotspot") {
-            debugger;
+            // debugger;
             hotspots.push({
                 title: info.title,
                 assetType: info.assetType,
@@ -42066,7 +42066,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     function enterAuthoringMode() {
         overlay.on('click', function() {;});
         authoringButtonContainer.off('click');
-        var authoringMode = new LADS.Authoring.NewSettingsView();
+        var authoringMode = new LADS.Authoring.SettingsView();
         LADS.Util.UI.slidePageLeft(authoringMode.getRoot());
     }
 
@@ -45201,7 +45201,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
 };
 
 ;
-LADS.Util.makeNamespace("LADS.Authoring.NewSettingsView");
+LADS.Util.makeNamespace("LADS.Authoring.SettingsView");
 
 /*  Creates a SettingsView.  
         startView argument sets the starting setting.  
@@ -45257,7 +45257,7 @@ LADS.Util.makeNamespace("LADS.Authoring.NewSettingsView");
         smoother experience for the user without UI lockups.  Also note that spinning circles
         should be used when possible to show loading status.
 */
-LADS.Authoring.NewSettingsView = function (startView, callback, backPage, startLabelID) {
+LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabelID) {
     "use strict";
     // Constants
     // Stuff that's commented here is used to put the nav bar on top
@@ -52170,7 +52170,7 @@ LADS.TESTS = (function () {
         //LADS.Worktop.Database.load();
         if (("" + page).toLowerCase() === "settings view") {
             //LADS.Worktop.Database.load();
-            tagContainer.append((new LADS.Authoring.NewSettingsView()).getRoot());
+            tagContainer.append((new LADS.Authoring.SettingsView()).getRoot());
         }
         else if (page) { // n.b. if your tour has the same name as an artwork, might fail
             //LADS.Worktop.Database.load();

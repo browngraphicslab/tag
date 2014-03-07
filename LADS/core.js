@@ -197,7 +197,7 @@
         //LADS.Worktop.Database.load();
         if (("" + page).toLowerCase() === "settings view") {
             //LADS.Worktop.Database.load();
-            tagContainer.append((new LADS.Authoring.NewSettingsView()).getRoot());
+            tagContainer.append((new LADS.Authoring.SettingsView()).getRoot());
         }
         else if (page) { // n.b. if your tour has the same name as an artwork, might fail
             //LADS.Worktop.Database.load();

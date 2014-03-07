@@ -1,143 +1,1822 @@
 ﻿LADS.Util.makeNamespace("LADS.Authoring.SettingsView");
 
-// This class lays out the general settings page and the exhibition settings page.
-LADS.Authoring.SettingsView = function (layoutType, settingsViewCallback, backButtonType, showLoading) {
-    var currentSetting = null;
-    var prevSelectedSetting = null;
-    var prevSelectedName = null;
-    var middlePrevSelectedSetting = null;
-    var middlePrevSelectedSettingText = null;
-    var exhibitionfilter = null;
-    var currentUploadedArtworkGuid = null;
+/*  Creates a SettingsView.  
+        startView argument sets the starting setting.  
+        This arguent can be "Exhibitions", "Artworks", "Tours",
+        or "General Settings".  Undefined/null, etc. goes to General Settings.
+        TODO: Use constants instead of strings
 
-    var root = $(document.createElement('div'));
-    var topbar = $(document.createElement('div'));
-    var mainPanel = $(document.createElement('div'));
-    var leftSection = document.createElement('div');
-    var middeLabel = document.createElement('div');
-    var middleSection = document.createElement('div');
-    var middleSettings = document.createElement('div');
-    var rightSection = document.createElement('div');
-    var rightSettings = document.createElement('div');
-    var rightSettingsLabels = document.createElement('div');
-    var rightSettingsFields = document.createElement('div');
-    var rightSettingsEntries = document.createElement('div');
-    var overlayOnRoot = $(document.createElement('div'));
-    var editExhibitionCurrentSelected;
-    var searchbar = document.createElement('textarea');
-    var searchbarcontainer = document.createElement('div');
-    var mainSettings = {};
-    var mainDoq;
-    var exhibitions, exhibitionNames, exhibitionCount = 0, exhibitionGuids;
-    var currentExhibitionXML;
-    var artworkByGuid = {};
-    var currentArtwork = null;
-    var currentTour = null;
-    var artworkExhibition = {}; // mapping from artwork -> exhibitions it belongs to
-    var exhibitionByGuid = {}; // mapping from ExhibitionGuid -> exhibition JSON object
-    var artworkNames = [];
-    var currentExhibitionNumber;
-    var splashFrame;
-    var filePicker = new Windows.Storage.Pickers.FileOpenPicker();
-    var currentUpload;
-    var changesSavedLabel;
-    var prevSelectedExhibition;
-    var topMiddleLabelContainer;
-    var artworksList; /////////////////////////////////////////////
-    var uploadingOverlay;
-    var exhibitionCBArray = [];
-    var artworkFolderId;
-    var innerProgressBar;
-    var searchIndices = [];
-    var characterLimitLabel;
-    var tourObjects;
-    var passwordcontent;
+        callback is called after the UI is done being created.
+        The callback function is passed the setttings view object
+
+        backPage is a function to create the page to go back to (null/undefined goes
+        back to the main page).  This function, when called with no arguments,
+        should return a dom element that can be provided as an argument to 
+        slidePageRight.
+        
+        startLabelID selects a left label automatically if it matches that id.
+        The label will be scrolled to if it is off screen.
+
+    Terminology:
+        left label, left container, etc... (anything with left) really refers to the
+        middle panel.  It is left ignoring the nav panel.  Anything with right refers
+        to the right panel which includes the viewer.
+
+    Notes:
+        Use helper functions to avoid massive functions and avoid string comparisons
+        for navigating the UI.  
+        
+        Buttons/anything with click handlers should be created
+        in a function that takes a function as an argument to define the click behavior.
+        Button creator functions shouldn't try to figure out a button's functionality
+        from its name!
+
+        Try to define constants at the top of the function in capitals when possible
+        for ease of editing.
+
+        If adding a new nav section create a function to load it that is similar to loadGeneralView(),
+        loadTourView(), etc... and name it load____View.  If this section has labels that should be selectable
+        on load then it should take some identifier that can be used to select a label.  If you add a label
+        and it matches that identifier use the selectLabel() function to visually select (ie. give it a white
+        background) and then call load____() to load the right side.
+
+        For any operations that can take long a queue should be used.  These operations
+        include adding objects to the DOM as this can take a while sometimes.  
+        The queue objects leftQueue and rightQueue represent two separete queues that can
+        act independently.  These queues will process events in order, but asynchronously so
+        they can be completed in the 'background' (unfortunately JS is still single threaded).
+        leftQueue is generally used to add things to the left label container, while rightQueue
+        is used to add things to the right panel, but they can be used elsewhere (such as the
+        artwork picker in the exhibition view).  Calling .add(fn) adds a function to the queue
+        while .clear() clears the queue.  Note that an in progress function will not be canceled
+        by .clear().  Additionally, use asynchronous DB calls (supply the callback function) 
+        whenever possible.  Combining queues and asynchronous DB calls will result in a much
+        smoother experience for the user without UI lockups.  Also note that spinning circles
+        should be used when possible to show loading status.
+*/
+LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabelID) {
+    "use strict";
+    // Constants
+    // Stuff that's commented here is used to put the nav bar on top
+    // under the top bar instead of putting it on the left.
+    var ROOT_BGCOLOR = 'rgb(219,217,204)',
+        ROOT_COLOR = 'black',
+        TEXT_COLOR = 'black',
+        TOPBAR_HEIGHT = '8',
+        TOPBAR_BGCOLOR = 'rgb(63,55,53)',
+        //NAVBAR_HEIGHT = '6%',
+        NAVBAR_HEIGHT = '92%',
+        //NAVBAR_HEIGHT = '76px',
+        //NAVBAR_FONTSIZE = '200%',
+        NAVBAR_FONTSIZE = '215%',
+        NAVBAR_SUBFONTSIZE = '120%',
+        HIGHLIGHT = 'white',
+        //CONTENT_HEIGHT = '89',
+        CONTENT_HEIGHT = '92',
+        //LEFT_WIDTH = '25',
+        LEFT_WIDTH = '22',
+        LEFT_FONTSIZE = '160%',
+        LEFT_LABEL_HEIGHT = '40',
+        BUTTON_HEIGHT = '40',
+        //RIGHT_WIDTH = '75',
+        RIGHT_WIDTH = '54',
+        NAV_WIDTH = '23',
+        SETTING_FONTSIZE = '150%',
+        INPUT_FONTSIZE = '120%',
+        SETTING_HEIGHT = '40',
+        INPUT_BORDER = 'rgb(167, 180, 174)',
+        // Use the apps's aspect ratio for the viewer
+        VIEWER_ASPECTRATIO = $(window).width() / $(window).height(),
+        DEFAULT_SEARCH_TEXT = 'Search...',
+        PICKER_SEARCH_TEXT = 'Search by Name, Artist, or Year...';
+
+
+    // Text for Navagation labels
+    var NAV_TEXT = {
+        general: {
+            text: 'General Settings',
+            subtext: 'Customize TAG experience'
+        },
+        exhib: {
+            text: 'Collections',
+            subtext: 'Create and edit collections'
+        },
+        art: {
+            text: 'Artworks',
+            subtext: 'Import and manage artworks'
+        },
+        media: {
+            text: 'Associated Media',
+            subtext: 'Manage associated media'
+        },
+        tour: {
+            text: 'Tours',
+            subtext: 'Build interactive tours'
+        },
+        feedback: {
+            text: 'Feedback',
+            subtext: 'View comments and reports'
+        },
+    };
 
     var that = {
         getRoot: getRoot,
-        setView: setView,
-        clickElementById: clickElementById,
-        selectItemByName: selectItemByName,
-        selectArtworkByGuid: selectArtworkByGuid
-    };
+    },
+        root,
+        leftLabelContainer,
+        leftLoading,
+        leftbar,
+        rightbar,
+        prevSelectedSetting,
+        prevSelectedLeftLabel,
+        viewer,
+        searchbar,
+        settingsContainer,
+        settings,
+        searchContainer,
+        buttonContainer,
+        newButton,
+        secondaryButton,
+        // These are 'asynchronous' queues to perform tasks
+        leftQueue = LADS.Util.createQueue(),
+        rightQueue = LADS.Util.createQueue(),
+        cancelLastSetting,
+        artPickerOpen = false,
+        nav = [],
+        artworks = [],
+        assetUploader,
+        mediaMetadata = [],
+        numFiles = 0,
+        isUploading = false,
+        isCreatingMedia = false,
+        artworkAssociations = [], // entry i contains the artwork info for the ith associated media
+        artworkList = [], // save artworks retrieved from the database
+        mediaCheckedIDs = [], // artworks checked in associated media uploading
+        mediaUncheckedIDs = [], // artworks unchecked in associated media uploading
+        editArt; // enter artwork editor button
+
+    // Sets up the UI
+    function init() {
+        root = $(document.createElement('div'));
+        root.css({
+            'background-color': ROOT_BGCOLOR,
+            'color': TEXT_COLOR,
+            'width': '100%',
+            'height': '100%',
+        });
+
+        // Sets up the structure of settings view and assigns
+        // necessary variables
+        // dz - modified as necessary to work with documentFragment
+        var rootDocfrag = document.createDocumentFragment();
+
+        // creating elements for instance vars
+        searchContainer = createSearch();
+        leftbar = createLeftBar();
+        leftLabelContainer = createLeftLabelContainer();
+        leftLoading = createLeftLoading();
+        rightbar = createRightBar();
+        viewer = createViewer();
+        buttonContainer = createButtonContainer();
+        settings = createSettings();
+        settingsContainer = createSettingsContainer();
+
+        // one-use var for docfrag
+        var leftBarContainer = createLeftBarContainer();
+
+        // Add the top bar (back button and 'Authoring Mode' label) - needs html element (i.e. not the jQuery object) for docfrag, thus the [0]
+        rootDocfrag.appendChild(createTopBar()[0]);
+        // Add the nav bar (General Settings, Exhibitions, etc...) - needs html element (i.e. not the jQuery object) for docfrag, thus the [0]
+        rootDocfrag.appendChild(createNavBar()[0]);
+        // Create a container for the 'left' bar - needs html element (i.e. not the jQuery object) for docfrag, thus the [0]
+        rootDocfrag.appendChild(leftBarContainer[0]);
+        // Add the search bar/button to the left container
+        leftBarContainer.append(searchContainer);
+        // The left bar holds the label container  so it can scroll.
+        leftBarContainer.append(leftbar);
+        // Add the label container to the left bar.
+        // The label container holds all of the labels
+        leftbar.append(leftLabelContainer);
+        // Add the loading (Loading... with spinning circle) label.
+        leftLabelContainer.append(leftLoading);
+        // Add the right bar to the root - needs html element (i.e. not the jQuery object) for docfrag, thus the [0]
+        rootDocfrag.appendChild(rightbar[0]);
+        // Add the viewer to the right bar
+        rightbar.append(viewer);
+        // Add the button container to the right bar (for save, delete, etc)
+        rightbar.append(buttonContainer);
+        // Add the settings bar
+        rightbar.append(settings);
+        // Add the container that holds all of the settings to the settings bar
+        settings.append(settingsContainer);
+
+        // finally, append the docfrag to root
+        root.append(rootDocfrag);
+        switchView(startView, startLabelID);
+        if (callback)
+            callback(that);
+    }
+
+    // Programatically switch view
+    function switchView(view, id) {
+        resetLabels('.navContainer');
+        switch (view) {
+            case "Exhibitions":
+                selectLabel(nav[NAV_TEXT.exhib.text]);
+                prevSelectedSetting = nav[NAV_TEXT.exhib.text];
+                loadExhibitionsView(id);
+                break;
+            case "Artworks":
+                selectLabel(nav[NAV_TEXT.art.text]);
+                prevSelectedSetting = nav[NAV_TEXT.art.text];
+                loadArtView(id);
+                break;
+            case "Associated Media": 
+                selectLabel(nav[NAV_TEXT.media.text]);
+                prevSelectedSetting = nav[NAV_TEXT.media.text];
+                loadAssocMediaView(id);
+                break;
+            case "Tours":
+                selectLabel(nav[NAV_TEXT.tour.text]);
+                prevSelectedSetting = nav[NAV_TEXT.tour.text];
+                loadTourView(id);
+                break;
+            case "Feedback":
+                selectLabel(nav[NAV_TEXT.feedback.text]);
+                prevSelectedSetting = nav[NAV_TEXT.feedback.text];
+                loadFeedbackView(id);
+                break;
+            case "General Settings":
+            default:
+                selectLabel(nav[NAV_TEXT.general.text]);
+                prevSelectedSetting = nav[NAV_TEXT.general.text];
+                loadGeneralView();
+                break;
+        }
+    }
+
     init();
-    getMainDoq();
     return that;
+
+    // Functions that can be called from external sources
 
     function getRoot() {
         return root;
     }
 
-    function clickElementById(id) {
-        var elem = $('#' + id);
-        if (elem.length) {
-            elem.click();
+    // Functions to change layout
+
+    // General Settings Functions
+
+    // Loads the General Settings view
+    function loadGeneralView() {
+        prepareNextView(false);
+
+        // Add this to our queue so the UI doesn't lock up
+        leftQueue.add(function () {
+            var label;
+            // Add the Splash Screen label and set it as previously selected because its our default
+            leftLoading.before(label = selectLabel(createLeftLabel('Splash Screen', null, loadSplashScreen), true));
+            prevSelectedLeftLabel = label;
+            // Default to loading the splash screen
+            loadSplashScreen();
+            // Add the Password Settings label
+            // As of now this is disabled
+            leftLoading.before(createLeftLabel('Password Settings', null, loadPasswordScreen).attr('id', 'password'));
+            leftLoading.hide();
+        });
+        cancelLastSetting = null;
+    }
+
+    // Sets up the right side of the UI for the splash screen
+    // including the viewer, buttons, and settings container.
+    function loadSplashScreen() {
+        prepareViewer(true);
+        clearRight();
+
+        // Load the start page, the callback will add it to the viewer when its done
+        var startPage = new LADS.Layout.StartPage(null, function (startPage) {
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.general.text]) {
+                return;
+            }
+            viewer.append(startPage);
+            // Don't allow the viewer to be clicked
+            preventClickthrough(viewer);
+        }, true);
+
+        // Get DB Values
+        var alpha = LADS.Worktop.Database.getMuseumOverlayTransparency();
+        var overlayColor = LADS.Worktop.Database.getMuseumOverlayColor();
+        var name = LADS.Worktop.Database.getMuseumName();
+        var loc = LADS.Worktop.Database.getMuseumLoc();
+        var info = LADS.Worktop.Database.getMuseumInfo();
+        if (name === undefined) {
+            name = "";
+        }
+        if (loc === undefined) {
+            loc = "";
+        }
+        if (info === undefined) {
+            info = "";
+        }
+        var logoColor = LADS.Worktop.Database.getLogoBackgroundColor();
+
+        // Create inputs
+        var alphaInput = createTextInput(Math.floor(alpha * 100), true);
+        // Touch keyboard breaks everything...
+        //verticalSlider(alphaInput, 0, 100);
+        var bgImgInput = createButton('Change Image', function () {
+            uploadFile(LADS.Authoring.FileUploadTypes.Standard, function (urls) {
+                var url = urls[0];
+                bgImgInput.val(url);
+                $('#background').css({
+                    'background-image': 'url("' + LADS.Worktop.Database.fixPath(url) + '")',
+                    'background-size': 'cover',
+                });
+            });
+        });
+        var logoInput = createButton('Change Logo', function () {
+            uploadFile(LADS.Authoring.FileUploadTypes.Standard, function (urls) {
+                var url = urls[0];
+                logoInput.val(url);
+                $('#logo')[0].src = LADS.Worktop.Database.fixPath(url);
+            });
+        });
+        var overlayColorInput = createBGColorInput(overlayColor, '.infoDiv', function () { return alphaInput.val(); });
+        var nameInput = createTextInput(LADS.Util.htmlEntityDecode(name), true, 40);
+        var locInput = createTextInput(LADS.Util.htmlEntityDecode(loc), true, 45);
+        var infoInput = createTextAreaInput(LADS.Util.htmlEntityDecode(info), true);
+        var logoColorInput = createBGColorInput(logoColor, '.logoContainer', function () { return 100; });
+
+        // Handle changes
+        onChangeUpdateNum(alphaInput, 0, 100, function (num) {
+            updateBGColor('.infoDiv', overlayColorInput.val(), num);
+        });
+        onChangeUpdateText(nameInput, '#museumName', 40);
+        nameInput.keyup(function () {
+            startPage.fixText();
+        });
+        nameInput.keydown(function () {
+            startPage.fixText();
+        });
+        nameInput.change(function () {
+            startPage.fixText();
+        });
+        onChangeUpdateText(locInput, '#subheading', 33);
+        onChangeUpdateText(infoInput, '#museumInfo', 300);
+
+        var bgImage = createSetting('Background Image', bgImgInput);
+        var overlayAlpha = createSetting('Overlay Transparency (0-100)', alphaInput);
+        var overlayColorSetting = createSetting('Overlay Color', overlayColorInput);
+        var museumName = createSetting('Museum Name', nameInput);
+        var museumLoc = createSetting('Museum Location', locInput);
+        var museumInfo = createSetting('Museum Info', infoInput);
+        var museumLogo = createSetting('Museum Logo', logoInput);
+        var logoColorSetting = createSetting('Museum Logo Background Color', logoColorInput);
+
+        settingsContainer.append(bgImage);
+        settingsContainer.append(overlayColorSetting);
+        settingsContainer.append(overlayAlpha);
+        settingsContainer.append(museumName);
+        settingsContainer.append(museumLoc);
+        settingsContainer.append(museumInfo);
+        settingsContainer.append(museumLogo);
+        settingsContainer.append(logoColorSetting);
+
+        // Save button
+        var saveButton = createButton('Save Changes', function () {
+            if (locInput === undefined) {
+                locInput = "";
+            }
+            if (infoInput === undefined) {
+                infoInput = "";
+            }
+            saveSplashScreen({
+                alphaInput: alphaInput,
+                overlayColorInput: overlayColorInput,
+                nameInput: nameInput,
+                locInput: locInput,
+                infoInput: infoInput,
+                logoColorInput: logoColorInput,
+                bgImgInput: bgImgInput,
+                logoInput: logoInput,
+            });
+        }, {
+            'margin-right': '3%',
+            'margin-top': '1%',
+            'margin-bottom': '1%',
+            'margin-left': '.5%',
+            'float': 'right'
+        });
+
+        buttonContainer.append(saveButton);
+    }
+
+    // Saves the splash screen settings.  inputs should be the 
+    // inputs where the settings are held with the following keys:
+    //      alphaInput:         Overlay Transparency
+    //      overlayColorInput:  Overlay Color
+    //      nameInput:          Museum Name
+    //      locInput:           Museum Location
+    //      infoInput:          Museum Info
+    //      logoColorInput:     Logo background color
+    //      bgImgInput:         Background image
+    //      logoInput:          Logo image
+    function saveSplashScreen(inputs) {
+        prepareNextView(false, null, null, "Saving...");
+        clearRight();
+        prepareViewer(true);
+
+        var alpha = inputs.alphaInput.val()/100;
+        var overlayColor = inputs.overlayColorInput.val();
+        var name = inputs.nameInput.val();
+        var loc = inputs.locInput.val();
+        var info = inputs.infoInput.val().replace('/\n\r?/g', '<br />');
+        var logoColor = inputs.logoColorInput.val();
+        var bgImg = inputs.bgImgInput.val();
+        var logo = inputs.logoInput.val();
+      
+        var options = {
+            Name: name,
+            OverlayColor: overlayColor,
+            OverlayTrans: alpha,
+            Location: loc,
+            Info: info,
+            IconColor: logoColor,
+        };
+        if (bgImg) options.Background = bgImg;
+        if (logo) options.Icon = logo;
+
+        LADS.Worktop.Database.changeMain(options, function () {
+            LADS.Worktop.Database.getMain(loadGeneralView, error(loadGeneralView), null);
+            ;
+        }, authError, conflict({ Name: 'Main' }, 'Update', loadGeneralView), error(loadGeneralView));
+    }
+
+    // Set up the right side of the UI for the  password changer
+    function loadPasswordScreen() {
+        prepareViewer(false);
+        clearRight();
+
+        var loading = createLabel('Loading...');
+        var loadingSetting = createSetting('', loading);
+        settingsContainer.append(loadingSetting);
+
+        LADS.Worktop.Database.checkSetting('AllowChangePassword', function (val) {
+            loadingSetting.remove();
+            if (val.toLowerCase() === 'true') {
+                var oldInput = createTextInput('', false);
+                var newInput1 = createTextInput('', false);
+                var newInput2 = createTextInput('', false);
+                var msgLabel = createLabel('');
+
+                oldInput.attr('type', 'password');
+                newInput1.attr('type', 'password');
+                newInput2.attr('type', 'password');
+
+                var old = createSetting('Current Password', oldInput);
+                var new1 = createSetting('New Password', newInput1);
+                var new2 = createSetting('Confirm New Password', newInput2);
+                var msg = createSetting('', msgLabel);
+
+                settingsContainer.append(old);
+                settingsContainer.append(new1);
+                settingsContainer.append(new2);
+                settingsContainer.append(msg);
+
+                var saveButton = createButton('Update Password', function () {
+                    savePassword({
+                        old: oldInput,
+                        new1: newInput1,
+                        new2: newInput2,
+                        msg: msgLabel,
+                    });
+                });
+                // Make the save button respond to enter
+                saveButton.removeAttr('type');
+
+                var save = createSetting('', saveButton);
+                settingsContainer.append(save);
+            } else {
+                passwordChangeNotSupported();
+            }
+        });
+    }
+
+    function passwordChangeNotSupported() {
+        var label = createLabel('');
+        var setting = createSetting('Changing the password has been disabled by the server.  Contact the server administrator for more information', label);
+        settingsContainer.append(setting);
+    }
+
+    // Updates the new password.  Inputs has the following keys:
+    //  old: Old password
+    //  new1: New password
+    //  new2: New password confirmation
+    //  msg:  Message area
+    function savePassword(inputs) {
+        inputs.msg.text('Processing...');
+        if (inputs.new1.val() !== inputs.new2.val()) {
+            inputs.msg.text('New passwords do not match.');
         } else {
-            setTimeout(function () {
-                clickElementById(id);
-            }, 50);
+            LADS.Auth.changePassword(inputs.old.val(), inputs.new1.val(),
+                function () {
+                    inputs.msg.text('Password Saved.');
+                    inputs.old.val('');
+                    inputs.new1.val('');
+                    inputs.new2.val('');
+                },
+                function (msg) {
+                    if (msg) {
+                        inputs.msg.html(msg);
+                    } else {
+                        inputs.msg.text('Incorrect Password.');
+                    }
+                },
+                function () {
+                    inputs.msg.text('There was an error contacting the server.');
+                });
         }
     }
 
-    function setView(view) {
-        $(leftSection).children('.labelContainer').each(function (i, e) {
-            if (view === $(e).children('.label').text()) {
-                $(e).click();
-                return false;
-            }
+    // Exhibition Functions
+
+    // Loads the exhibitions view
+    function loadExhibitionsView(id) {
+        var cancel = false;
+        // Set the new button text to "New"
+        prepareNextView(true, "New", createExhibition);
+        clearRight();
+        prepareViewer(true);
+
+        // Make an async call to get the list of exhibitions
+        LADS.Worktop.Database.getExhibitions(function (result) {
+            if (cancel) return;
+            sortAZ(result);
+            $.each(result, function (i, val) {
+                if (cancel) return;
+                // Add each label as a separate function in the queue
+                // So they don't lock up the UI
+                leftQueue.add(function () {
+                    if (cancel) return;
+                    if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
+                        return;
+                    }
+                    var label;
+                    if (!prevSelectedLeftLabel &&
+                        ((id && val.Identifier === id) || (!id && i === 0))) {
+                        // Select the first one or the specifeid id
+                        leftLoading.before(selectLabel(label = createLeftLabel(val.Name, null, function () {
+                            loadExhibition(val);
+                        }, val.Identifier), true));
+
+                        // Scroll to the selected label if the user hasn't already scrolled somewhere
+                        if (leftbar.scrollTop() === 0 && label.offset().top - leftbar.height() > 0) {
+                            leftbar.animate({
+                                scrollTop: (label.offset().top - leftbar.height())
+                            }, 1000);
+                        }
+
+                        prevSelectedLeftLabel = label;
+                        loadExhibition(val);
+                    } else {
+                        leftLoading.before(label = createLeftLabel(val.Name, null, function () {
+                            loadExhibition(val);
+                        }, val.Identifier));
+                    }
+                    // Hide the label if it doesn't match the current search criteria
+                    if (!LADS.Util.searchString(val.Name, searchbar.val())) {
+                        label.hide();
+                    }
+                });
+            });
+            // Hide the loading label when we're done
+            leftQueue.add(function () {
+                leftLoading.hide();
+            });
         });
+        cancelLastSetting = function () { cancel = true; };
     }
 
-    function selectItemByName(name) {
-        $(middleSettings).children('.labelContainer').each(function (i, e) {
-            if (name === $(e).text()) {
-                $(e).click();
-                return false;
-            }
+    // Set up the right side for an exhibition
+    function loadExhibition(exhibition) {
+        prepareViewer(true);
+        clearRight();
+
+        // Set the viewer to exhibition view (see function below)
+        exhibitionView(exhibition);
+
+        // inputs
+        var privateState;
+        if (exhibition.Metadata.Private) {
+            privateState = (/^true$/i).test(exhibition.Metadata.Private);
+        } else {
+            privateState = false;
+        }
+        var privateInput = createButton('Unpublish', function () {
+            privateState = true;
+            privateInput.css('background-color', 'white');
+            publicInput.css('background-color', '');
+        }, {
+            'min-height': '0px',
+            'margin-right': '4%',
+            'width': '48%',
         });
+        var publicInput = createButton('Publish', function () {
+            privateState = false;
+            publicInput.css('background-color', 'white');
+            privateInput.css('background-color', '');
+        }, {
+            'min-height': '0px',
+            'width': '48%',
+        });
+        if (privateState) {
+            privateInput.css('background-color', 'white');
+        } else {
+            publicInput.css('background-color', 'white');
+        }
+        var pubPrivDiv = $(document.createElement('div'));
+        pubPrivDiv.append(privateInput).append(publicInput);
+
+        var nameInput = createTextInput(LADS.Util.htmlEntityDecode(exhibition.Name), 'Collection name', 40);
+        //var sub1Input = createTextInput(LADS.Util.htmlEntityDecode(exhibition.Metadata.Subheading1), 'Subheading 1', 60);
+        //var sub2Input = createTextInput(LADS.Util.htmlEntityDecode(exhibition.Metadata.Subheading2), 'Subheading 2', 80);
+        var descInput = createTextAreaInput(LADS.Util.htmlEntityDecode(exhibition.Metadata.Description), false);
+        var bgInput = createButton('Change Background Image', function () {
+            uploadFile(LADS.Authoring.FileUploadTypes.Standard, function (urls) {
+                var url = urls[0];
+                bgInput.val(url);
+                $('#bgimage').css({
+                    'background-image': 'url("' + LADS.Worktop.Database.fixPath(url) + '")',
+                    'background-size': 'cover',
+                });
+            });
+        });
+        var previewInput = createButton('Change Image', function () {
+            uploadFile(LADS.Authoring.FileUploadTypes.Standard, function (urls) {
+                var url = urls[0];
+                previewInput.val(url);
+                $('#img1')[0].src = LADS.Worktop.Database.fixPath(url);
+            });
+        });
+
+        nameInput.focus(function () {
+            if (nameInput.val() === 'Collection')
+                nameInput.select();
+        });
+        //sub1Input.focus(function () {
+        //    if (sub1Input.val() === 'First Subheading')
+        //        sub1Input.select();
+        //});
+        //sub2Input.focus(function () {
+        //    if (sub2Input.val() === 'Second Subheading')
+        //        sub2Input.select();
+        //});
+        descInput.focus(function () {
+            if (descInput.val() === 'Description')
+                descInput.select();
+        });
+
+        // Handle Changes
+        onChangeUpdateText(nameInput, '#exhibition-title', 40);
+        //onChangeUpdateText(sub1Input, '#exhibition-subtitle-1', 53);
+        //onChangeUpdateText(sub2Input, '#exhibition-subtitle-2', 70);
+        onChangeUpdateText(descInput, '#description-text', 1790);
+
+        var privateSetting = createSetting('Change Publish Setting', pubPrivDiv);
+        var name = createSetting('Collection Name', nameInput);
+        //var sub1 = createSetting('Subheading 1', sub1Input);
+        //var sub2 = createSetting('Subheading 2', sub2Input);
+        var desc = createSetting('Collection Description', descInput);
+        var bg = createSetting('Collection Background Image', bgInput);
+        var preview = createSetting('Collection Preview Image', previewInput);
+
+        settingsContainer.append(privateSetting);
+        settingsContainer.append(name);
+        //settingsContainer.append(sub1);
+        //settingsContainer.append(sub2);
+        settingsContainer.append(desc);
+        settingsContainer.append(bg);
+        settingsContainer.append(preview);
+
+        // Buttons
+        var saveButton = createButton('Save Changes', function () {
+            if (nameInput.val() === undefined || nameInput.val() === "") {
+                nameInput.val("Untitled Collection");
+            }
+            saveExhibition(exhibition, {
+                privateInput: privateState,
+                nameInput: nameInput,
+                //sub1Input: sub1Input,
+                //sub2Input: sub2Input,
+                descInput: descInput,
+                bgInput: bgInput,
+                previewInput: previewInput,
+            });
+        }, {
+            'margin-right': '3%',
+            'margin-top': '1%',
+            'margin-bottom': '1%',
+            'margin-left': '.5%',
+            'float': 'right',
+        });
+
+        var deleteButton = createButton('Delete Collection', function () {
+            deleteExhibition(exhibition);
+        }, {
+            'margin-left': '2%',
+            'margin-top': '1%',
+            'margin-right': '0',
+            'margin-bottom': '3%',
+        });
+
+
+        var catalogNext = true;
+        // Creates the button to toggle between views
+        var switchViewButton = createButton('Preview Catalog', function () {
+            viewer.empty();
+            if (catalogNext) {
+                // If there is no art the program crashes when entering catalog mode
+                // Show a message and return if thats the case (would prefer not having
+                // to request all the artwork)
+                LADS.Worktop.Database.getArtworksIn(exhibition.Identifier, function (artworks) {
+                    if (!artworks || !artworks[0]) {
+                        var messageBox = LADS.Util.UI.popUpMessage(null, "Cannot view in catalog mode because there is no artwork in this exhibit.", null, true);
+                        root.append(messageBox);
+                        $(messageBox).show();
+                        exhibitionView();
+                    } else {
+                        switchViewButton.text('Preview Collection');
+                        catalogView();
+                        catalogNext = !catalogNext;
+                    }
+                });
+
+                return;
+            } else {
+                switchViewButton.text('Preview Catalog');
+                exhibitionView();
+            }
+            catalogNext = !catalogNext;
+        }, {
+            'margin-left': '2%',
+            'margin-top': '1%',
+            'margin-right': '0%',
+            'margin-bottom': '3%',
+        });
+
+        var artPickerButton = createButton('Manage Collection', function () {
+            LADS.Util.UI.createAssociationPicker(root, "Add and Remove Artworks in this Collection",
+                { comp: exhibition, type: 'exhib' },
+                'exhib', [{
+                    name: 'All Artworks',
+                    getObjs: LADS.Worktop.Database.getArtworksAndTours,
+                }, {
+                    name: 'Artworks in this Collection',
+                    getObjs: LADS.Worktop.Database.getArtworksIn,
+                    args: [exhibition.Identifier]
+                }], {
+                    getObjs: LADS.Worktop.Database.getArtworksIn,
+                    args: [exhibition.Identifier]
+                }, function () {
+                    prepareNextView(true, "New", createExhibition);
+                    clearRight();
+                    prepareViewer(true);
+                    loadExhibitionsView(exhibition.Identifier);
+                });
+
+        }, {
+            'margin-left': '2%',
+            'margin-top': '1%',
+            'margin-right': '0%',
+            'margin-bottom': '3%',
+        });
+
+        // Sets the viewer to catalog view
+        function catalogView() {
+            rightQueue.add(function () {
+                var catalog;
+                if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
+                    return;
+                }
+                LADS.Layout.Catalog(exhibition, null, function (catalog) {
+                    viewer.append(catalog.getRoot());
+                    catalog.loadInteraction();
+                    preventClickthrough(viewer);
+                    
+                });
+            });
+        }
+        // Sets the viewer to exhibition view
+        function exhibitionView(exhibition) {
+            rightQueue.add(function () {
+                var exhibView = new LADS.Layout.NewCatalog(null, exhibition, viewer);
+                var exroot = exhibView.getRoot();
+                $(exroot).css('z-index','-1'); // otherwise, you can use the search box and sorting tabs!
+                viewer.append(exroot);
+                preventClickthrough(viewer);
+                //var exhibView = new LADS.Layout.Exhibitions(null, function (exhib) {
+                //    if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
+                //        return;
+                //    }
+                //    viewer.append(exhib.getRoot());
+                //    var exhibButton = $('#exhib-' + exhibition.Identifier);
+                //    if (exhibButton.length)
+                //        clickWhenReady(exhibButton);
+                //    else {
+                //        exhibView.loadExhibit(exhibition, true);
+                //    }
+                //    preventClickthrough(viewer);
+                //});
+            });
+        }
+
+        buttonContainer.append(artPickerButton).append(deleteButton).append(saveButton);
+    }
+
+    // Create an exhibition
+    function createExhibition() {
+        prepareNextView(false);
+        clearRight();
+        prepareViewer(true);
+
+        LADS.Worktop.Database.createExhibition(null, function (newDoq) {
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
+                return;
+            }
+            if (!newDoq) { // Shouldn't happen!
+                // TODO: Error Message
+                loadExhibitionsView();
+                return;
+            }
+            loadExhibitionsView(newDoq.Identifier);
+        }, authError, error(loadExhibitionsView), true);
+    }
+
+    // Save an exhibition where inputs holds
+    // the inputs that contain the values with the following keys:
+    //      nameInput:      Exhibition Name
+    //      sub1Input:      Exhibition subheading 1
+    //      sub2Input:      Exhibition subheading 2
+    //      descInput:      Exhibition description
+    //      bgInput:        Exhibition background image
+    //      previewInput:   Exhibition preview image
+    //      privateInput
+    function saveExhibition(exhibition, inputs) {
+        prepareNextView(false, null, null, "Saving...");
+        clearRight();
+        prepareViewer(true);
+
+        var name = inputs.nameInput.val();
+        //var sub1 = inputs.sub1Input.val();
+        //var sub2 = inputs.sub2Input.val();
+        var desc = inputs.descInput.val();
+        var bg = inputs.bgInput.val();
+        var preview = inputs.previewInput.val();
+        var priv = inputs.privateInput;
+
+        var options = {
+            Name: name,
+            //Sub1: sub1,
+            //Sub2: sub2,
+            Private: priv,
+            Description: desc,
+        }
+
+        if (bg)
+            options.Background = bg;
+        if (preview)
+            options.Img1 = preview;
+
+        LADS.Worktop.Database.changeExhibition(exhibition.Identifier, options, function () {
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
+                return;
+            }
+            loadExhibitionsView(exhibition.Identifier);
+        }, authError, conflict(exhibition, "Update", loadExhibitionsView), error(loadExhibitionsView));
+    }
+
+    // Delete an exhibition
+    function deleteExhibition(exhibition) {
+        var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
+            prepareNextView(false);
+            clearRight();
+            prepareViewer(true);
+
+            // actually delete the exhibition
+            LADS.Worktop.Database.deleteDoq(exhibition.Identifier, function () {
+                if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
+                    return;
+                }
+                loadExhibitionsView();
+            }, authError, conflict(exhibition, "Delete", loadExhibitionsView), error(loadExhibitionsView));
+        }, "Are you sure you want to delete " + exhibition.Name + "?", "Delete", true, function() { $(confirmationBox).hide(); });
+        root.append(confirmationBox);
+        $(confirmationBox).show();
     }
 
 
-    function selectArtworkByGuid(guid) {
-        // bmost: hack to select artwork, retry every 50ms if it isn't in the DOM yet
-        if ($('#artwork-' + guid).length == 0) {
-            setTimeout(function () {
-                selectArtworkByGuid(guid);
-            }, 50);
+    // Tour Functions
+
+    // Load the tour view
+    function loadTourView(id) {
+        prepareNextView(true, "New", createTour);
+        clearRight();
+        prepareViewer(true);
+        var cancel = false;
+        // Make an async call to get tours
+        LADS.Worktop.Database.getTours(function (result) {
+            if (cancel) return;
+            sortAZ(result);
+
+            $.each(result, function (i, val) {
+                if (cancel) return false;
+                // Add each label as a separate function to the queue
+                // so the UI doesn't lock up
+                leftQueue.add(function () {
+                    if (cancel) return;
+                    if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+                        return;
+                    }
+                    var label;
+                    if (!prevSelectedLeftLabel &&
+                        ((id && val.Identifier === id) || (!id && i === 0))) {
+                        // Select the first one
+                        leftLoading.before(selectLabel(label = createLeftLabel(val.Name, null, function () {
+                            loadTour(val);
+                        }, val.Identifier, false, function () {
+                            editTour(val);
+                        }), true));
+
+                        // Scroll to the selected label if the user hasn't already scrolled somewhere
+                        if (leftbar.scrollTop() === 0 && label.offset().top - leftbar.height() > 0) {
+                            leftbar.animate({
+                                scrollTop: (label.offset().top - leftbar.height())
+                            }, 1000);
+                        }
+
+                        prevSelectedLeftLabel = label;
+                        loadTour(val);
+                    } else {
+                        leftLoading.before(label = createLeftLabel(val.Name, null, function () {
+                            loadTour(val);
+                        }, val.Identifier, false, function () {
+                            editTour(val);
+                        }));
+                    }
+                    // Hide if it doesn't match search criteria
+                    if (!LADS.Util.searchString(val.Name, searchbar.val())) {
+                        label.hide();
+                    }
+                });
+            });
+            // Hide the loading label when we're done
+            leftQueue.add(function () {
+                leftLoading.hide();
+            });
+        });
+        cancelLastSetting = function () { cancel = true; };
+    }
+
+    // Load a tour to the right side
+    function loadTour(tour) {
+        prepareViewer(true);
+        clearRight();
+
+        // Create an img element just to load the image
+        var img = $(document.createElement('img'));
+        img.attr('src', LADS.Worktop.Database.fixPath(tour.Metadata.Thumbnail));
+
+        // Create a progress circle
+        var progressCircCSS = {
+            'position': 'absolute',
+            'left': '30%',
+            'top': '22%',
+            'z-index': '50',
+            'height': viewer.height() / 2 + 'px',
+            'width': 'auto'
+        };
+        var circle = LADS.Util.showProgressCircle(viewer, progressCircCSS, '0px', '0px', false);
+        var selectedLabel = prevSelectedLeftLabel;
+        img.load(function () {
+            // If the selection has changed since we started loading return
+            if (prevSelectedLeftLabel && prevSelectedLeftLabel.text() !== tour.Name) {
+                LADS.Util.removeProgressCircle(circle);
+                return;
+            }
+            LADS.Util.removeProgressCircle(circle);
+            // Set the image as a background image, centered and contained
+            viewer.css('background', 'black url(' + LADS.Worktop.Database.fixPath(tour.Metadata.Thumbnail) + ') no-repeat center / contain');
+        });
+
+        // Create inputs
+        // inputs
+        var privateState;
+        if (tour.Metadata.Private) {
+            privateState = (/^true$/i).test(tour.Metadata.Private);
+        } else {
+            privateState = false;
+        }
+        var privateInput = createButton('Unpublish', function () {
+            privateState = true;
+            privateInput.css('background-color', 'white');
+            publicInput.css('background-color', '');
+        }, {
+            'min-height': '0px',
+            'margin-right': '4%',
+            'width': '48%',
+        });
+        var publicInput = createButton('Publish', function () {
+            privateState = false;
+            publicInput.css('background-color', 'white');
+            privateInput.css('background-color', '');
+        }, {
+            'min-height': '0px',
+            'width': '48%',
+        });
+        if (privateState) {
+            privateInput.css('background-color', 'white');
+        } else {
+            publicInput.css('background-color', 'white');
+        }
+        var pubPrivDiv = $(document.createElement('div'));
+        pubPrivDiv.append(privateInput).append(publicInput);
+
+        var nameInput = createTextInput(LADS.Util.htmlEntityDecode(tour.Name), true, 120);
+        var descInput = createTextAreaInput(LADS.Util.htmlEntityDecode(tour.Metadata.Description).replace(/\n/g,'<br />') || "", false);
+
+        nameInput.focus(function () {
+            if (nameInput.val() === 'Untitled Tour')
+                nameInput.select();
+        });
+        descInput.focus(function () {
+            if (descInput.val() === 'Tour Description')
+                descInput.select();
+        });
+
+        // on change behavior
+        onChangeUpdateText(descInput, null, 1500); // What should max length be?
+
+        var privateSetting = createSetting('Change Publish Setting', pubPrivDiv);
+        var name = createSetting('Tour Name', nameInput);
+        var desc = createSetting('Tour Description', descInput);
+
+        settingsContainer.append(privateSetting);
+        settingsContainer.append(name);
+        settingsContainer.append(desc);
+
+
+        // Create buttons
+        var editButton = createButton('Edit Tour',
+            function () { editTour(tour); },
+            {
+                'margin-left': '2%',
+                'margin-top': '1%',
+                'margin-right': '0%',
+                'margin-bottom': '3%',
+            });
+        var deleteButton = createButton('Delete Tour',
+            function () { deleteTour(tour); },
+            {
+                'margin-left': '2%',
+                'margin-top': '1%',
+                'margin-right': '0%',
+                'margin-bottom': '3%',
+            });
+        var duplicateButton = createButton('Duplicate Tour',
+            function () {
+                duplicateTour(tour, {
+                    privateInput: privateState,
+                    nameInput: nameInput,
+                    descInput: descInput,
+                });
+            },
+            {
+                'margin-left': '2%',
+                'margin-top': '1%',
+                'margin-right': '0%',
+                'margin-bottom': '3%',
+            });
+        var saveButton = createButton('Save Changes',
+            function () {
+                if (nameInput.val() === undefined || nameInput.val() === "") {
+                    nameInput.val() = "Untitled Tour";
+                }
+                saveTour(tour, {
+                    privateInput: privateState,
+                    nameInput: nameInput,
+                    descInput: descInput,
+                });
+            }, {
+                'margin-right': '3%',
+                'margin-top': '1%',
+                'margin-bottom': '1%',
+                'margin-left': '.5%',
+                'float': 'right'
+            });
+
+        buttonContainer.append(editButton).append(duplicateButton).append(deleteButton).append(saveButton);
+    }
+
+    // Creates a tour
+    function createTour() {
+        prepareNextView(false);
+        clearRight();
+        prepareViewer(true);
+
+        LADS.Worktop.Database.createTour(null, function (newDoq) {
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+                return;
+            }
+            if (!newDoq) {
+                // TODO: ERROR
+                loadTourView();
+                return;
+            }
+            loadTourView(newDoq.Identifier);
+        }, authError, error(loadTourView), true);
+    }
+
+    // Edit a tour
+    function editTour(tour) {
+        // Overlay doesn't spin... not sure how to fix without redoing tour authoring to be more async
+        loadingOverlay('Loading Tour...');
+        leftQueue.clear();
+        rightQueue.clear();
+        setTimeout(function () {
+            var toureditor = new LADS.Layout.TourAuthoringNew(tour, function () {
+                LADS.Util.UI.slidePageLeft(toureditor.getRoot());
+            });
+        }, 1);
+    }
+
+    // Delete a tour
+    function deleteTour(tour) {
+        var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
+            prepareNextView(false);
+            clearRight();
+            prepareViewer(true);
+
+            // actually delete the exhibition
+            LADS.Worktop.Database.deleteDoq(tour.Identifier, function () {
+                if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+                    return;
+                }
+                loadTourView();
+            }, authError, conflict(tour, "Delete", loadTourView), error(loadTourView));
+        }, "Are you sure you want to delete " + tour.Name + "?", "Delete", true, function () { $(confirmationBox).hide(); });
+        root.append(confirmationBox);
+        $(confirmationBox).show();
+    }
+
+    // Duplicate a tour
+    function duplicateTour(tour, inputs) {
+        prepareNextView(false);
+        clearRight();
+        prepareViewer(true);
+        var options = {
+            Name: "Copy: " + tour.Name,
+            Description: tour.Metadata.Description,
+            Content: tour.Metadata.Content,
+            Thumbnail: tour.Metadata.Thumbnail,
+            Private: "true", // always want to create duplicates as unpublished
+        };
+
+        LADS.Worktop.Database.createTour(options, function (tewer) {
+            console.log("success");
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+                return;
+            }
+            loadTourView(tewer.Identifier);
+        }, function () {
+            console.log("error");
+        }, function () {
+            console.log("cacheError");
+        });
+
+        //// first, create a new tour (code lifted from createTour)
+        //LADS.Worktop.Database.createTour(function (newDoq) {
+        //    if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+        //        return;
+        //    }
+        //    if (!newDoq) {
+        //        // TODO: ERROR
+        //        loadTourView();
+        //        return;
+        //    }
+
+        //    // grab the data to be copied from the tour we're duplicating
+        //    // not just copying everything because we want the new tour to have a unique identifier, etc...
+        //    var name = "Copy: " + tour.Name;
+        //    var desc = tour.Metadata.Description;
+        //    var content = tour.Metadata.Content;
+        //    var relatedArtworks = tour.Metadata.RelatedArtworks;
+        //    var thumbnailMeta = tour.Metadata.Thumbnail;
+        //    var privateMeta = "true"; // always want to create duplicates as unpublished
+        //    var keywords = tour._Keywords;
+        //    var thumbnail = tour.Thumbnail;
+        //    var type = tour.Type;
+
+        //    // set the XML of the new tour to account for the data above (code lifted from editTour)
+        //    LADS.Worktop.Database.getDoqXML(newDoq.Identifier, function (xml) {
+        //        var parser = new DOMParser();
+        //        var currentXML = $(parser.parseFromString(xml, 'text/xml'));
+
+        //        name = LADS.Util.encodeXML(name);
+        //        var desc = inputs.descInput.val().replace(/\n\r?/g, '<br />');
+
+        //        // set the name, etc...
+        //        // not sure what keywords, thumbnai, and type do, but set them here for good measure
+        //        currentXML.find('Name').text(name);
+        //        currentXML.find('_Keywords').text(keywords);
+        //        currentXML.find('Thumbnail').text(thumbnail);
+        //        currentXML.find('Type').text(type);
+
+        //        // set metadata, most importantly the content of the tour
+        //        //getFieldValueFromMetadata(currentXML[0], "Description").data = LADS.Util.encodeXML(desc);
+        //        //getFieldValueFromMetadata(currentXML[0], "Content").data = LADS.Util.encodeXML(content);
+        //        //getFieldValueFromMetadata(currentXML[0], "RelatedArtworks").data = LADS.Util.encodeXML(relatedArtworks);
+        //        //getFieldValueFromMetadata(currentXML[0], "Thumbnail").data = LADS.Util.encodeXML(thumbnailMeta);
+        //        //getFieldValueFromMetadata(currentXML[0], "Private").data = LADS.Util.encodeXML(privateMeta);
+
+        //        // Fix escape characters
+        //        currentXML.find("d3p1\\:Key:contains('Content') + d3p1\\:Value").text(LADS.Util.encodeXML(currentXML.find("d3p1\\:Key:contains('Content') + d3p1\\:Value").text()));
+
+        //        var privateField = getFieldValueFromMetadata(currentXML[0], "Private");
+        //        if (!privateField) {
+        //            privateField = addFieldToMetadata(currentXML[0], "Private", LADS.Util.encodeXML(privateMeta));
+        //        } else {
+        //            privateField.data = LADS.Util.encodeXML(privateMeta);
+        //        }
+
+        //        var descriptionField = getFieldValueFromMetadata(currentXML[0], "Description");
+        //        if (!descriptionField) {
+        //            descriptionField = addFieldToMetadata(currentXML[0], "Description", desc);
+        //        } else {
+        //            descriptionField.data = LADS.Util.encodeXML(desc);
+        //        }
+
+        //        var contentField = getFieldValueFromMetadata(currentXML[0], "Content");
+        //        if (!contentField) {
+        //            contentField = addFieldToMetadata(currentXML[0], "Content", content);
+        //        } else {
+        //            contentField.data = LADS.Util.encodeXML(content);
+        //        }
+
+        //        var relatedField = getFieldValueFromMetadata(currentXML[0], "RelatedArtworks");
+        //        if (!relatedField) {
+        //            relatedField = addFieldToMetadata(currentXML[0], "RelatedArtworks", relatedArtworks);
+        //        } else {
+        //            relatedField.data = LADS.Util.encodeXML(relatedArtworks);
+        //        }
+
+        //        var thumbnailField = getFieldValueFromMetadata(currentXML[0], "Thumbnail");
+        //        if (!thumbnailField) {
+        //            thumbnailField = addFieldToMetadata(currentXML[0], "Thumbnail", thumbnailMeta);
+        //        } else {
+        //            thumbnailField.data = LADS.Util.encodeXML(thumbnailMeta);
+        //        }
+
+        //        LADS.Worktop.Database.pushXML(currentXML[0], newDoq.Identifier, "Tour", function () {
+        //            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+        //                return;
+        //            }
+        //            loadTourView(newDoq.Identifier);
+        //        }, authError, authError);
+        //    });
+        //}, authError, authError);
+
+    }
+
+    // Save a tour where inputs contains the inputs with the values
+    // expected keys are:
+    //      nameInput: Name of the tour
+    //      descInput: Description of the tour
+    //      privateInput
+    function saveTour(tour, inputs) {
+        var name = inputs.nameInput.val();
+        var desc = inputs.descInput.val();
+
+        if (name.indexOf(' ') === 0) {
+            var messageBox = LADS.Util.UI.popUpMessage(null, "Tour Name cannot start with a space.", null, true);
+            $(root).append(messageBox);
+            $(messageBox).show();
             return;
         }
-        $('#artwork-' + guid).click();
+
+        prepareNextView(false, null, null, "Saving...");
+        clearRight();
+        prepareViewer(true);
+
+        LADS.Worktop.Database.changeTour(tour.Identifier, {
+            Name: name,
+            Description: desc,
+            Private: inputs.privateInput,
+        }, function () {
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+                return;
+            }
+            loadTourView(tour.Identifier);
+        }, authError, conflict(tour, "Update", loadTourView), error(loadTourView));
     }
 
-    function selectTourByGuid(guid) {
-        var tourNumber = 0;
-        for (var tourNumber = 0; tourNumber < tourObjects.length; tourNumber++) {
-            if (guid == tourObjects[tourNumber].Identifier) {
-                currentTour = tourObjects[tourNumber];
-                break;
+    // Associated Media functions
+
+    // Save an associated media with input data. The inputs parameter has:
+    //      titleInput:     media title
+    //      descInput:    media description
+    function saveAssocMedia(media, inputs) {
+        var name = inputs.titleInput.val();
+        var desc = inputs.descInput.val();
+        //desc = desc === "Description" ? "" : desc; // TODO do this using placeholders instead of this hacky thing
+
+        prepareNextView(false, null, null, "Saving...");
+        clearRight();
+        prepareViewer(true);
+
+        LADS.Worktop.Database.changeHotspot(media, {
+            Name: name,
+            Description: desc,
+        }, function () {
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.media.text]) {
+                return;
             }
+            loadAssocMediaView(media.Identifier);
+        }, authError, conflict(media, "Update", loadAssocMediaView), error(loadAssocMediaView));
+    }
+
+    // Brings up an artwork chooser -- check the boxes of the art
+    function assocToArtworks(media) {
+        artworkAssociations = [[]];
+        numFiles = 1;
+        // chooseAssociatedArtworks(media);
+        LADS.Util.UI.createAssociationPicker(root, "Choose artworks", { comp: media, type: 'media' }, "artwork", [{
+            name: "All Artworks",
+            getObjs: LADS.Worktop.Database.getArtworks
+        }], {
+            getObjs: LADS.Worktop.Database.getArtworksAssocTo,
+            args: [media.Identifier]
+        }, function () { });
+    }
+
+    function loadAssocMediaView(id) {
+        prepareNextView(true, "Import", createAsset);
+        prepareViewer(true);
+        clearRight();
+        var cancel = false;
+
+        // Make an async call to get artworks
+        LADS.Worktop.Database.getAssocMedia(function (result) {
+            if (cancel) return;
+            sortAZ(result);
+            console.log('media in hand');
+            if (result[0] && result[0].Metadata) {
+                $.each(result, function (i, val) {
+                    if (cancel) return;
+                    // Add each label in a separate function in the queue
+                    // so the UI doesn't lock up
+                    leftQueue.add(function () {
+                        if (cancel) return;
+                        if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.media.text]) {
+                            return;
+                        }
+                        var label;
+                        var imagesrc;
+                        switch (val.Metadata.ContentType.toLowerCase()) {
+                            case 'video':
+                                imagesrc = (val.Metadata.Thumbnail && !val.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(val.Metadata.Thumbnail) : 'images/video_icon.svg';
+                                break;
+                            case 'audio':
+                                imagesrc = 'images/audio_icon.svg';
+                                break;
+                            case 'image':
+                                imagesrc = val.Metadata.Thumbnail ? LADS.Worktop.Database.fixPath(val.Metadata.Thumbnail) : 'images/image_icon.svg';
+                                break;
+                            default:
+                                imagesrc = null;
+                                break;
+                        }
+                        if (!prevSelectedLeftLabel &&
+                            ((id && val.Identifier === id) || (!id && i === 0))) {
+                            // Select the first one
+                            leftLoading.before(selectLabel(label = createLeftLabel(val.Name, imagesrc, function () {
+                                loadAssocMedia(val);
+                            }, val.Identifier, false), true));
+
+                            // Scroll to the selected label if the user hasn't already scrolled somewhere
+                            if (leftbar.scrollTop() === 0 && label.offset().top - leftbar.height() > 0) {
+                                leftbar.animate({
+                                    scrollTop: (label.offset().top - leftbar.height())
+                                }, 1000);
+                            }
+
+                            prevSelectedLeftLabel = label;
+                            loadAssocMedia(val);
+                        } else {
+                            leftLoading.before(label = createLeftLabel(val.Name, imagesrc, function () {
+                                loadAssocMedia(val);
+                            }, val.Identifier, false));
+                        }
+                        // Hide if it doesn't match search criteria
+                        if (!LADS.Util.searchString(val.Name, searchbar.val())) {
+                            label.hide();
+                        }
+                    });
+                });
+                // Hide the loading label when we're done
+                leftQueue.add(function () {
+                    leftLoading.hide();
+                });
+            } else {
+                leftLoading.hide();
+            }
+        });
+        cancelLastSetting = function () { cancel = true; };
+    }
+
+    // Loads an artwork to the right side
+    function loadAssocMedia(media) {
+        prepareViewer(true);
+        clearRight();
+
+        // Create an img element to load the image
+        var type = media.Metadata.ContentType.toLowerCase();
+        var holder;
+        var source = LADS.Worktop.Database.fixPath(media.Metadata.Source);
+        switch (type) {
+            case "image":
+                holder = $(document.createElement('img'));
+                break;
+            case "video":
+                holder = $(document.createElement('video'));
+                holder.attr('id', 'videoInPreview');
+                holder.attr('poster', (media.Metadata.Thumbnail && !media.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(media.Metadata.Thumbnail) : '');
+                holder.attr('identifier', media.Identifier);
+                holder.attr("preload", "none");
+                holder.attr("controls", "");
+                holder.css({ "width": "100%", "max-width": "100%", "max-height": "100%" });
+                holder[0].onerror = LADS.Util.videoErrorHandler(holder, viewer);
+                break;
+            case "audio":
+                holder = $(document.createElement('audio'));
+                holder.attr("preload", "none");
+                holder.attr("controls", "");
+                holder.css({ 'width': '80%' });
+                break;
+            case "text":
+            default:
+                holder = $(document.createElement('div'));
+                holder.css({
+                    "font-size": "24px",
+                    "top": "20%",
+                    "width": "80%",
+                    //"margin-left": "10%",
+                    "text-align": "center",
+                    "color": "white"
+                });
+                holder.html(media.Name + "<br /><br />" + media.Metadata.Description);
+                break;
+        }
+        (source && type !== 'text') && holder.attr('src', source);
+
+        // Create a progress circle
+        var progressCircCSS = {
+            'position': 'absolute',
+            'left': '40%',
+            'top': '40%',
+            'z-index': '50',
+            'height': 'auto',
+            'width': '20%'
+        };
+        var circle = LADS.Util.showProgressCircle(viewer, progressCircCSS, '0px', '0px', false);
+        var selectedLabel = prevSelectedLeftLabel;
+
+        switch (type) {
+            case "image":
+                holder.load(function () {
+                    // If the selection has changed since we started loading then return
+                    if (prevSelectedLeftLabel && prevSelectedLeftLabel.text() !== media.Name) {
+                        LADS.Util.removeProgressCircle(circle);
+                        return;
+                    }
+                    LADS.Util.removeProgressCircle(circle);
+                    // Set the image as a background image
+                    viewer.css('background', 'black url(' + source + ') no-repeat center / contain');
+                });
+                break;
+            case "video":
+                LADS.Util.removeProgressCircle(circle);
+                viewer.css('background', 'black');
+                viewer.append(holder);
+                break;
+            case "audio":
+                LADS.Util.removeProgressCircle(circle);
+                viewer.css('background', 'black');
+                //center the the audio element in the viewer
+                viewer.append(holder);
+                var left = viewer.width() / 2 - holder.width() / 2 + "px";
+                var top = viewer.height() /2 - holder.height() /2 + "px";
+                holder.css({ "position": "absolute", "left": left, "top" : top });
+                break;
+            case "text":
+                LADS.Util.removeProgressCircle(circle);
+                viewer.css({ 'background': 'black'});
+                viewer.append(holder);
+                var left = viewer.width() / 2 - holder.width() / 2 + "px";
+                var top = viewer.height() / 2 - holder.height() / 2 + "px";
+                holder.css({ "position": "absolute", "left": left, "top": top });
+                break;
+            default:
+                LADS.Util.removeProgressCircle(circle);
+                viewer.css('background', 'black');
+                break;
         }
 
-        $(middleSettings).children('.labelContainer').each(function (i, e) {
-            if (i == tourNumber) {
-                $(e).click();
-                return false;
-            }
+        // Create labels
+        var titleInput = createTextInput(LADS.Util.htmlEntityDecode(media.Name) || "", true, 55);
+        var descInput = createTextAreaInput(LADS.Util.htmlEntityDecode(media.Metadata.Description).replace(/\n/g,'<br />') || "", true);
+
+        titleInput.focus(function () {
+            if (titleInput.val() === 'Title')
+                titleInput.select();
+        });
+        descInput.focus(function () {
+            if (descInput.val() === 'Description')
+                descInput.select();
+        });
+
+        var title = createSetting('Title', titleInput);
+        var desc = createSetting('Description', descInput);
+
+        settingsContainer.append(title);
+        settingsContainer.append(desc);
+
+        // Create buttons
+        var assocButton = createButton('Associate to Artworks',
+            function () { assocToArtworks(media); },
+            {
+                'float': 'left',
+                'margin-left': '2%',
+                'margin-top': '1%',
+                'margin-right': '0%',
+                'margin-bottom': '3%',
+            });
+        var deleteButton = createButton('Delete',
+            function () {
+                var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
+                    prepareNextView(false);
+                    clearRight();
+                    prepareViewer(true);
+
+                    // stupid way to force associated artworks to increment their linq counts and refresh their lists of media
+                    LADS.Worktop.Database.changeHotspot(media.Identifier, { Name: media.Name }, function () {
+                        // success handler
+                        LADS.Worktop.Database.deleteDoq(media.Identifier, function () {
+                            console.log("deleted");
+                            loadAssocMediaView();
+                        }, function () {
+                            console.log("noauth error");
+                        }, function () {
+                            console.log("conflict error");
+                        }, function () {
+                            console.log("general error");
+                        });
+                    }, function () {
+                        // unauth handler
+                    }, function () {
+                        // conflict handler
+                    }, function () {
+                        // error handler
+                    });
+                }, "Are you sure you want to delete " + media.Name + "?", "Delete", true, function () { $(confirmationBox).hide(); });
+                root.append(confirmationBox);
+                $(confirmationBox).show();
+                 },
+            {
+                'margin-left': '2%',
+                'margin-top': '1%',
+                'margin-right': '0%',
+                'margin-bottom': '3%',
+                'float': 'left',
+            });
+
+        var generateAssocMediaThumbnailButton = createButton('Generate Thumbnail',
+            function () {
+                generateAssocMediaThumbnail(media);
+            }, {
+                'margin-right': '0%',
+                'margin-top': '1%',
+                'margin-bottom': '1%',
+                'margin-left': '2%',
+                'float': 'left'
+            });
+
+        var saveButton = createButton('Save Changes',
+            function () {
+                if (titleInput.val() === undefined || titleInput.val() === "") {
+                    titleInput.val("Untitled Asset");
+                }
+                saveAssocMedia(media, {
+                    titleInput: titleInput,
+                    descInput: descInput
+                });
+            }, {
+                'margin-right': '3%',
+                'margin-top': '1%',
+                'margin-bottom': '1%',
+                'margin-left': '.5%',
+                'float': 'right'
+            });
+
+        var thumbnailButton = createButton('Capture Thumbnail',
+            function () {
+                saveThumbnail(media, false);
+            }, {
+                'margin-right': '0%',
+                'margin-top': '1%',
+                'margin-bottom': '3%',
+                'margin-left': '2%',
+                'float': 'left'
+            });
+
+        buttonContainer.append(assocButton);
+        if (media.Metadata.ContentType.toLowerCase() === 'video') {
+            buttonContainer.append(thumbnailButton);
+        } else if (media.Metadata.ContentType.toLowerCase() === 'image' && !media.Metadata.Thumbnail && media.Metadata.Source[0] === '/' && !source.match(/.mp3/)) {
+            // hacky way to see if asset was imported recently enough to support thumbnailing (these are /Images/_____.__
+            // rather than http:// _______/Images/_______.__
+            buttonContainer.append(generateAssocMediaThumbnailButton);
+        }
+        buttonContainer.append(deleteButton).append(saveButton);
+    }
+
+    function generateAssocMediaThumbnail(media) {
+        prepareNextView(false, null, null, "Saving...");
+        clearRight();
+        prepareViewer(true);
+        LADS.Worktop.Database.changeHotspot(media.Identifier, { Thumbnail: 'generate' }, function () {
+            //$("#" + media.Identifier).find('img')[0].src = LADS.Worktop.Database.fixPath(media.Metadata.Source);
+            console.log('success?');
+            loadAssocMediaView(media.Identifier);
+        }, unauth, conflict, error);
+    }
+
+    function loadAssociatedMedia_OLD() {
+        secondaryButton.css("display","none");
+        prepareNextView(true, "Batch Upload Media", createMedia);
+        leftQueue.add(function () {
+            leftLoading.hide();
         });
     }
 
-    this.selectArtworkByGuid = selectArtworkByGuid;
+    //
+    function createAsset() {
+        uploadFile(LADS.Authoring.FileUploadTypes.AssociatedMedia, function (urls, names, contentTypes, files) {
+            var check, i, url, name, done = 0, total = urls.length, durations = [];
+            prepareNextView(false);
+            clearRight();
+            prepareViewer(true);
+
+            if(files.length > 0) {
+                durationHelper(0);
+            }
+
+            function durationHelper(j) {
+                if (contentTypes[j] === 'Video') {
+                    files[j].properties.getVideoPropertiesAsync().done(function (VideoProperties) {
+                        durations.push(VideoProperties.duration / 1000); // duration in seconds
+                        updateDoq(j);
+                    }, function (err) {
+                        console.log(err);
+                    });
+                } else if (contentTypes[j] === 'Audio') {
+                    files[j].properties.getMusicPropertiesAsync().done(function (MusicProperties) {
+                        durations.push(MusicProperties.duration / 1000); // duration in seconds
+                        updateDoq(j);
+                    }, function (error) {
+                        console.log(error);
+                    });
+                } else {
+                    durations.push(null);
+                    updateDoq(j);
+                }
+            }
+
+            function incrDone() {
+                done++;
+                if (done >= total) {
+                    loadAssocMediaView();
+                } else {
+                    durationHelper(done);
+                }
+            }
+
+            function updateDoq(j) {
+                var newDoq;
+                try {
+                    newDoq = new Worktop.Doq(urls[j]);
+                    var options = {Name: names[j]};
+                    if (durations[j]) {
+                        options.Duration = durations[j];
+                    }
+                    LADS.Worktop.Database.changeHotspot(newDoq.Identifier, options, incrDone, LADS.Util.multiFnHandler(authError, incrDone), LADS.Util.multiFnHandler(conflict(newDoq, "Update", incrDone)), error(incrDone));
+                } catch (error) {
+                    done++;
+                    console.log("error in uploading: " + error.message);
+                    return;
+                }
+                
 
 
-    function init() {
-        root.css("background-color", "rgb(219,217,204)");
-        root.css("color", "black");
-        root.css("width", "100%");
-        root.css("height", "100%");
+                //var newDoq;
+                //try {
+                //    var options = {
+                //        Name: names[j],
+                //        ContentType: contentTypes[j],
+                //        Source: urls[j]
+                //    };
+                //    if (durations[j]) {
+                //        options.Duration = durations[j];
+                //    }
+                //    LADS.Worktop.Database.createHotspot(options, incrDone, function () { console.log("error1") }, function () { console.log("error2") }, newDoq);
+                //} catch (error) {
+                //    done++;
+                //    console.log("error in uploading: " + error.message);
+                //    return;
+                //}
+                //LADS.Worktop.Database.changeArtwork(newDoq.Identifier, { Name: names[j] }, incrDone, function () { console.log("error1") }, function () { console.log("error2") }, function () { console.log("error3") });
+            }
 
+            //for (i = 0; i < urls.length; i++) {
+            //    updateDoq(i);
+            //}
+        }, true, ['.jpg', '.png', '.gif', '.tif', '.tiff', '.mp4', '.mp3']);
+    }
 
-        $(overlayOnRoot).addClass('overlayOnRoot');
-        $(overlayOnRoot).css({
+    // Create an associated media (import) --- possibly more than one
+    function createMedia() {
+        batchAssMedia();
+    }
+
+    function batchAssMedia() {
+        var uniqueUrls = []; // Used to make sure we don't override data for the wrong media (not actually airtight but w/e)
+        mediaMetadata = [];
+        artworkAssociations = [];
+        numFiles = 0;
+        isUploading = true;
+        assetUploader = LADS.Authoring.FileUploader( // multi-file upload now
+            root,
+            LADS.Authoring.FileUploadTypes.AssociatedMedia,
+            function (files, localURLs) { // localCallback
+                var file, localURL, i;
+                var img, video, audio;
+                var contentType;
+                numFiles = files.length;
+                for (i = 0; i < files.length; i++) {
+                    artworkAssociations.push([]);
+                    file = files[i];
+                    localURL = localURLs[i];
+                    if (file.contentType.match(/image/)) {
+                        contentType = 'Image';
+                    } else if (file.contentType.match(/video/)) {
+                        contentType = 'Video';
+                    } else if (file.contentType.match(/audio/)) {
+                        contentType = 'Audio';
+                    }
+                    uniqueUrls.push(localURL);
+                    mediaMetadata.push({
+                        'title': file.displayName,
+                        'contentType': contentType,
+                        'localUrl': localURL,
+                        'assetType': 'Asset',
+                        'assetLinqID': undefined,
+                        'assetDoqID': undefined
+                    });
+                }
+            },
+            function (dataReaderLoads) { // finished callback: set proper contentUrls, if not first, save it
+                var i, dataReaderLoad;
+                for (i = 0; i < dataReaderLoads.length; i++) {
+                    dataReaderLoad = dataReaderLoads[i];
+                    mediaMetadata[i].contentUrl = dataReaderLoad;
+                }
+
+                // chooseAssociatedArtworks(); // need to send in media objects here TODO
+            },
+            ['.jpg', '.png', '.gif', '.tif', '.tiff', '.mp4', '.mp3'], // filters
+            false, // useThumbnail
+            null, // errorCallback
+            true // multiple file upload enabled?
+        );
+    }
+
+    // Creates the art picker for a given media
+    function chooseAssociatedArtworks(media) {
+        var i;
+
+        // Overlay over the whole page
+        var overlay = $(document.createElement('div'));
+        overlay.css({
             'position': 'fixed',
             'width': '100%',
             'height': '100%',
@@ -148,2854 +1827,2551 @@ LADS.Authoring.SettingsView = function (layoutType, settingsViewCallback, backBu
             'display': 'block'
         });
 
-        var progressIcon = $(document.createElement('img'));
-        progressIcon.css({
-            'position': 'relative', 'top': '45%', 'left': '43%', 'width': '15%', 'height': 'auto',
+        // Container for the picker
+        var container = $(document.createElement('div'));
+        container.css({
+            'height': '70%',
+            'width': '50%',
+            'position': 'absolute',
+            'top': '15%',
+            'left': '25%',
+            'background-color': 'black',
+            'border': '3px double white',
+            'padding': '2%',
         });
-        progressIcon.attr('src', 'images/icons/progress-circle.gif');
 
-        overlayOnRoot.append(progressIcon);
+        // Title for the picker
+        var label = $(document.createElement('div'));
+        label.css({
+            'font-size': '180%',
+            'color': 'white',
+            'margin-bottom': '2%',
+            'height': '10%',
+        });
+        label.text('Choose artworks to associate to.');
 
-        //    LADS.Util.showLoading($(overlayOnRoot));
-        $(root).append(overlayOnRoot);
+        var searchInput = $(document.createElement('input'));
+        searchInput.attr('type', 'text');
+        searchInput.css({
+        });
+        searchInput.keyup(function () {
+            searchData(searchInput.val(), '.artPickerButton');
+        });
+        searchInput.change(function () {
+            searchData(searchInput.val(), '.artPickerButton');
+        });
+        // Workaround for clear button (doesn't fire a change event...)
+        searchInput.mouseup(function () {
+            setTimeout(function () {
+                searchData(searchInput.val(), '.artPickerButton');
+            }, 1);
+        });
+        searchInput.attr('placeholder', PICKER_SEARCH_TEXT);
 
-        $(searchbar).css({ 'border-color': 'rgb(167,180,174)', 'left': '10%', 'min-width': '50%', 'max-width': '50%', 'min-height': '1.4em', 'max-height': '1.4em', 'position': 'relative', 'font-size': '170%', 'color': 'gray', 'height': '1em', 'border-width': '0.15em', });
-        $(searchbar).text('Search');
+        // Art section of the picker
+        var art = $(document.createElement('div'));
+        art.css({
+            'height': '72%',
+            'overflow': 'auto',
+            'margin-bottom': '2%',
+        });
+
+        // Container for the art inside the art section
+        var artContainer = $(document.createElement('div'));
+        artContainer.css({
+            'padding': '1%',
+        });
+
+        // Container for buttons/loading/saving indicator
+        var buttonContainer = $(document.createElement('div'));
+        buttonContainer.css({
+            'height': '8%',
+        });
+
+        // Loading/saving indicator
+        var loadingContainer = $(document.createElement('div'));
+        loadingContainer.css({
+            'width': '20%',
+            'display': 'inline-block',
+        });
+
+        // Loading/saving text
+        var loading = $(document.createElement('label'));
+        loading.css({
+            'color': 'white',
+            'font-size': '140%',
+        });
+        loading.text('Loading...');
+
+        var circle = $(document.createElement('img'));
+        circle.attr('src', 'images/icons/progress-circle.gif');
+        circle.css({
+            'height': $(document).height() * 0.03 + 'px',
+            'width': 'auto',
+            'float': 'right',
+        });
+
+        var save = $(document.createElement('button'));
+        save.attr('type', 'button');
+        save.text('Save');
+        save.css({
+            'float': 'right',
+            'margin': '2%',
+            'padding': '1%',
+        });
+
+        var cancel = $(document.createElement('button'));
+        cancel.attr('type', 'button');
+        cancel.text('Cancel');
+        cancel.css({
+            'float': 'right',
+            'margin': '2%',
+            'padding': '1%',
+        });
+
+        // Hide and remove the overlay when cancel is clicked
+        cancel.click(function () {
+            overlay.hide();
+            root[0].removeChild(overlay[0]);
+            artPickerOpen = false;
+        });
+
+        art.append(artContainer);
+
+        loadingContainer.append(loading);
+        loadingContainer.append(circle);
+
+        buttonContainer.append(loadingContainer);
+        buttonContainer.append(cancel);
+        buttonContainer.append(save);
+
+        container.append(label);
+        container.append(searchInput);
+        container.append(art);
+        container.append(buttonContainer);
+
+        overlay.append(container);
+
+        root.append(overlay);
+
+        var origMediaCheckedIDs;
+        mediaCheckedIDs = [];
+        mediaUncheckedIDs = [];
+        artworkList = [];
+        callAll();
+        //LADS.Worktop.Database.getAssocMediaTo(media.Identifier, function (artworks) {
+        //    console.log("artworks.length = " + artworks.length);
+        //    $.each(artworks, function (i, artwork) { console.log(artwork.Name) });
+        //    callAll();
+        //}, function () {
+        //    console.log("error");
+        //}, function() {
+        //    console.log("cache error");
+        //});
+        
+
+        // Get all artworks
+        function callAll() {
+            LADS.Worktop.Database.getArtworks(setUpButtons, null, null);
+        }
+
+        // set up buttons and checkboxes in picker, populate mediaCheckedIDs
+        function setUpButtons(allArtworks) {
+            sortAZ(allArtworks);
+            artworkList = allArtworks;
+            // Add each artwork to the artwork container.
+            $.each(allArtworks, function (i, artwork) {
+                leftQueue.add(function () {
+                    var label, index;
+                    // check if media is associated to this artwork
+
+                    artContainer.append(label = createArtButton(artwork,
+                        // Oncheck/uncheck function
+                        // If it is checked adds the artwork to the checkedIDs and
+                        // removes it from the uncheckedIDs.  If unchecked it removes it
+                        // from the checkedIDs and adds it to the uncheckedIDs
+                        function (checked) {
+                            if (checked) {
+                                if (mediaCheckedIDs.indexOf(i) === -1) {
+                                    mediaCheckedIDs.push(i);
+                                }
+                                index = mediaUncheckedIDs.indexOf(i);
+                                if (index !== -1) {
+                                    mediaUncheckedIDs.splice(index, 1);
+                                }
+                            } else {
+                                index = mediaCheckedIDs.indexOf(i);
+                                if (index !== -1) {
+                                    mediaCheckedIDs.splice(index, 1);
+                                }
+                                if (mediaUncheckedIDs.indexOf(i) === -1) {
+                                    mediaUncheckedIDs.push(i);
+                                }
+                            }
+                            // Set the initial checked/unchecked value
+                        }, $.inArray(i, mediaCheckedIDs) !== -1));
+                    // Hide if it doesn't match search criteria
+                    searchData(searchInput.val(), label);
+                });
+            });
+            // Hide loading when we're done
+            leftQueue.add(function () {
+                loadingContainer.hide();
+            });
+
+        }
+
+        // Hide save/cancel buttons, clear the left queue, and change Loading to Saving...
+        save.click(function () {
+            var j;
+            loading.text('Saving...');
+            loadingContainer.show();
+            save.hide();
+            cancel.hide();
+            leftQueue.clear();
+            var len = media ? 1 : numFiles;
+            // Save the art
+            for (i = 0; i < len; i++) {
+                for (j = 0; j < mediaCheckedIDs.length; j++) {
+                    artworkAssociations[i].push(artworkList[mediaCheckedIDs[j]]);
+                }
+            }
+
+            createAssociations(media, artworkAssociations[0], 0, overlay); // for now, don't worry about multiple media
+
+            //saveAssMedia(0);
+            //overlay.hide();
+            //root[0].removeChild(overlay[0]);
+        });
+    }
+
+    // adds media as an associated media of each artwork in artworks
+    function createAssociations(media, artworks, index, overlay) {
+        LADS.Worktop.Database.changeArtwork(artworks[index].Identifier, {
+            AddIDs: media.Identifier
+        }, function () {
+            if (index < artworks.length - 1) {
+                createAssociations(media, artworks, index + 1, overlay)
+            } else {
+                overlay.hide();
+                root[0].removeChild(overlay[0]);
+            }
+        }, authError, conflict(media, "Update", loadAssocMediaView), error(loadAssocMediaView));
+    }
+
+    function saveAssMedia(i) {
+        var len = artworkAssociations[i].length;
+        uploadHotspotHelper(i, 0, len);
+    }
+
+    /**
+     * Uploads hotspot i to artwork j in its list of artworks to associate to.
+     * @param i    the index of the asset we're uploading
+     * @param j    each asset has a list of artworks it'll be associated with; j is the index in this list
+     * @param len  the length of the list above
+     */
+    function uploadHotspotHelper(i, j, len) {
+        // uploads hotspot hotspot i to artwork j in its list
+        var activeMM = mediaMetadata[i];
+        uploadHotspot(artworkAssociations[i][j], { // this info isn't changing, so maybe we can do this more easily in uploadHotspot
+            title: LADS.Util.encodeXML(activeMM.title || 'Untitled media'),
+            desc: LADS.Util.encodeXML(''),
+            pos: null, // bogus entry for now -- should set it to {x: 0, y: 0} in uploadHotspot
+            contentType: activeMM.contentType,
+            contentUrl: activeMM.contentUrl,
+            assetType: activeMM.assetType,
+            metadata: {
+                assetLinqID: activeMM.assetLinqID,
+                assetDoqID: activeMM.assetDoqID
+            }
+        },
+        i, j, len);
+    }
+
+    function uploadHotspot(artwork, info, i, j, len) {
+        var title = info.title,
+            desc = info.desc,
+            pixel = info.pos,
+            contentType = info.contentType,
+            contentUrl = info.contentUrl,
+            assetType = info.assetType,
+            worktopInfo = info.metadata || {},
+            dzPos = pixel ? zoomimage.viewer.viewport.pointFromPixel(pixel) : { x: 0, y: 0 },
+            rightbarLoadingSave;
+
+        var options = {
+            Name: title,
+            ContentType: contentType,
+            Duration: duration,
+            Source: contentUrl,
+            LinqTo: artwork.Identifier,
+            X: dzPos.x,
+            Y: dzPos.y,
+            LinqType: assetType,
+            Description: desc
+        };
+
+        LADS.Worktop.Database.createHotspot(artwork.CreatorID, artwork.Identifier, createHotspotHelper);
+
+        function createHotspotHelper(isNewAsset, xmlHotspot) { // currently for creating both hotspots and assoc media
+            var $xmlHotspot,
+                hotspotId,
+                hotspotContentId,
+                hotspotContentDoq,
+                $hotspotContentDoq,
+                titleField,
+                metadata,
+                descField,
+                contentTypeField,
+                sourceField,
+                position;
+            $xmlHotspot = $(xmlHotspot);
+            hotspotId = $xmlHotspot.find("Identifier").text();
+            hotspotContentId = $xmlHotspot.find("BubbleContentID:last").text();
+            hotspotContentDoq = $.parseXML(LADS.Worktop.Database.getDoqXML(hotspotContentId));
+            $hotspotContentDoq = $(hotspotContentDoq);
+            // update doq info and send back to server
+            titleField = $hotspotContentDoq.find('Name').text(title);
+            metadata = $hotspotContentDoq.find('Metadata');
+            descField = metadata.find("d3p1\\:Key:contains('Description') + d3p1\\:Value").text(desc);
+            contentTypeField = metadata.find("d3p1\\:Key:contains('ContentType') + d3p1\\:Value").text(contentType);
+            sourceField = metadata.find("d3p1\\:Key:contains('Source') + d3p1\\:Value").text(contentUrl);
+            position = $xmlHotspot.find('Offset > d2p1\\:_x').text(dzPos.x); // why is position getting reset?
+            position = $xmlHotspot.find('Offset > d2p1\\:_y').text(dzPos.y);
+            //add linq type : Hotspot vs. Asset
+            $xmlHotspot.find("d3p1\\:Key:contains('Type') + d3p1\\:Value").text(assetType);
+            LADS.Worktop.Database.pushLinq(xmlHotspot, hotspotId);
+            LADS.Worktop.Database.pushXML(hotspotContentDoq, hotspotContentId);
+            if (j < len - 1) {
+                uploadHotspotHelper(i, j + 1, len);
+            }
+            else if (j === len - 1 && i < numFiles - 1) {
+                saveAssMedia(i + 1);
+            }
+            else {
+                isUploading = false;
+                isCreatingMedia = false;
+                //$topProgressDiv.css("visibility", "hidden");
+            }
+        }
+    }
+
+    // Art Functions
+
+    // Loads art labels
+    function loadArtView(id) {
+        prepareNextView(true, "Import", createArtwork);
+        //secondaryButton.css("display", "block");
+        //secondaryButton.off('click');
+        //secondaryButton.on('click', function () {
+        //    uploadFile(LADS.Authoring.FileUploadTypes.VideoArtwork, function (urls, names) {
+        //        var check, i, url, name, done = 0, total = urls.length;
+        //        prepareNextView(false);
+        //        clearRight();
+        //        prepareViewer(true);
+
+        //        function incrDone() {
+        //            done++;
+        //            if (done >= total) {
+        //                loadArtView();
+        //            }
+        //        }
+
+        //        function updateDoq(j) {
+        //            var newDoq;
+        //            try {
+        //                newDoq = new Worktop.Doq(urls[j]);
+        //            } catch (error) {
+        //                done++;
+        //                console.log("error in uploading: " + error.message);
+        //                return;
+        //            }
+        //            LADS.Worktop.Database.changeArtwork(newDoq.Identifier, { Name: names[j] }, incrDone, LADS.Util.multiFnHandler(authError, incrDone), LADS.Util.multiFnHandler(conflict(newDoq, "Update", incrDone)), error(incrDone));
+        //        }
+
+        //        for (i = 0; i < urls.length; i++) {
+        //            updateDoq(i);
+        //        }
+        //    }, true,['.mp4']);
+        //});
+        prepareViewer(true);
+        clearRight();
+        var cancel = false;
+
+        // Make an async call to get artworks
+        LADS.Worktop.Database.getArtworks(function (result) {
+            if (cancel) return;
+            sortAZ(result);
+            if (result[0] && result[0].Metadata) {
+                $.each(result, function (i, val) {
+                    if (cancel) return;
+                    // Add each label in a separate function in the queue
+                    // so the UI doesn't lock up
+                    val.Name = LADS.Util.htmlEntityDecode(val.Name);
+                    leftQueue.add(function () {
+                        if (cancel) return;
+                        if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.art.text]) {
+                            return;
+                        }
+                        var label;
+                        var imagesrc;
+                        switch (val.Metadata.Type) {
+                            case 'Artwork':
+                                imagesrc = LADS.Worktop.Database.fixPath(val.Metadata.Thumbnail);
+                                break;
+                            case 'VideoArtwork':
+                                imagesrc = val.Metadata.Thumbnail ? LADS.Worktop.Database.fixPath(val.Metadata.Thumbnail) : "images/video_icon.svg";
+                                break
+                            default:
+                                imagesrc = null;
+                        }
+                        if (!prevSelectedLeftLabel &&
+                            ((id && val.Identifier === id) || (!id && i === 0))) {
+                            // Select the first one
+                            leftLoading.before(selectLabel(label = createLeftLabel(val.Name, imagesrc, function () {
+                                loadArtwork(val);
+                            }, val.Identifier, false, function () {
+                                editArtwork(val);
+                            }, true, val.Extension), true));
+
+                            // Scroll to the selected label if the user hasn't already scrolled somewhere
+                            if (leftbar.scrollTop() === 0 && label.offset().top - leftbar.height() > 0) {
+                                leftbar.animate({
+                                    scrollTop: (label.offset().top - leftbar.height())
+                                }, 1000);
+                            }
+
+                            prevSelectedLeftLabel = label;
+                            loadArtwork(val);
+                        } else {
+                            leftLoading.before(label = createLeftLabel(val.Name, imagesrc, function () {
+                                loadArtwork(val);
+                            }, val.Identifier, false, function () {
+                                editArtwork(val);
+                            }, true, val.Extension));
+                        }
+                        // Hide if it doesn't match search criteria
+                        if (!LADS.Util.searchString(val.Name, searchbar.val())) {
+                            label.hide();
+                        }
+                    });
+                });
+                // Hide the loading label when we're done
+                leftQueue.add(function () {
+                    leftLoading.hide();
+                });
+            } else {
+                leftLoading.hide();
+            }
+        });
+
+        cancelLastSetting = function () { cancel = true; };
+    }
+
+    // Loads an artwork to the right side
+    function loadArtwork(artwork) {
+        prepareViewer(true);
+        clearRight();
+
+        // Create an img element to load the image
+        var mediaElement;
+        if (artwork.Metadata.Type !== 'VideoArtwork') {
+            mediaElement = $(document.createElement('img'));
+            mediaElement.attr('src', LADS.Worktop.Database.fixPath(artwork.URL));
+        } else {
+            mediaElement = $(document.createElement('video'));
+            mediaElement.attr('id', 'videoInPreview');
+            mediaElement.attr('poster', (artwork.Metadata.Thumbnail && !artwork.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail) : '');
+            mediaElement.attr('identifier', artwork.Identifier);
+            mediaElement.attr("preload", "none");
+            mediaElement.attr("controls", "");
+            mediaElement.css({ "width": "100%", "max-width": "100%", "max-height": "100%" });
+            mediaElement.attr('src', LADS.Worktop.Database.fixPath(artwork.Metadata.Source));
+            mediaElement[0].onerror = LADS.Util.videoErrorHandler(mediaElement, viewer);
+        }
+
+        // Create a progress circle
+        var progressCircCSS = {
+            'position': 'absolute',
+            'left': '40%',
+            'top': '40%',
+            'z-index': '50',
+            'height': 'auto',
+            'width': '20%'
+        };
+        var circle;
+        if (artwork.Metadata.Type !== 'VideoArtwork') {
+            circle = LADS.Util.showProgressCircle(viewer, progressCircCSS, '0px', '0px', false);
+        }
+        var selectedLabel = prevSelectedLeftLabel;
+
+        if (artwork.Metadata.Type !== 'VideoArtwork') {
+            mediaElement.load(function () {
+                // If the selection has changed since we started loading then return
+                if (prevSelectedLeftLabel && prevSelectedLeftLabel.text() !== artwork.Name) {
+                    LADS.Util.removeProgressCircle(circle);
+                    return;
+                }
+                LADS.Util.removeProgressCircle(circle);
+                // Set the image as a background image
+                viewer.css('background', 'black url(' + LADS.Worktop.Database.fixPath(artwork.URL) + ') no-repeat center / contain');
+            });
+        } else {
+            viewer.append(mediaElement);
+        }
+
+        // Create labels
+        // BM - Whoever wrote this... sigh
+        //function checkForLongName(d) {
+        //    if (d.length > 55)
+        //        return d.substr(0, 55) + "...";
+        //    return d;
+        //}
+        var titleInput = createTextInput(LADS.Util.htmlEntityDecode(artwork.Name), true, 55);
+        var artistInput = createTextInput(LADS.Util.htmlEntityDecode(artwork.Metadata.Artist), true, 55);
+        var yearInput = createTextInput(LADS.Util.htmlEntityDecode(artwork.Metadata.Year), true, 20);
+        var descInput = createTextAreaInput(LADS.Util.htmlEntityDecode(artwork.Metadata.Description).replace(/\n/g, '<br />') || "", "", false);
+        var customInputs = {};
+        var customSettings = {};
+
+        if (artwork.Metadata.InfoFields) {
+            $.each(artwork.Metadata.InfoFields, function (key, val) {
+                customInputs[key] = createTextInput(LADS.Util.htmlEntityDecode(val), true);
+                customSettings[key] = createSetting(key, customInputs[key]);
+            });
+        }
+
+        titleInput.focus(function () {
+            if (titleInput.val() === 'Title')
+                titleInput.select();
+        });
+        artistInput.focus(function () {
+            if (artistInput.val() === 'Artist')
+                artistInput.select();
+        });
+        yearInput.focus(function () {
+            if (yearInput.val() === 'Year')
+                yearInput.select();
+        });
+        descInput.focus(function () {
+            if (descInput.val() === 'Description')
+                descInput.select();
+        });
+
+        var title = createSetting('Title', titleInput);
+        var artist = createSetting('Artist', artistInput);
+        var year = createSetting('Year', yearInput);
+        var desc = createSetting('Description', descInput);
+
+        settingsContainer.append(title);
+        settingsContainer.append(artist);
+        settingsContainer.append(year);
+        settingsContainer.append(desc);
+
+        $.each(customSettings, function (key, val) {
+            settingsContainer.append(val);
+        });
+
+        // Create buttons
+        editArt = createButton('Enter Artwork Editor',
+            function () { editArtwork(artwork); },
+            {
+                'margin-left': '2%',
+                'margin-top': '1%',
+                'margin-right': '0%',
+                'margin-bottom': '3%',
+            });
+        editArt.attr("id", "artworkEditorButton");
+        var deleteArt = createButton('Delete Artwork',
+            function () { deleteArtwork(artwork); },
+            {
+                'margin-left': '2%',
+                'margin-top': '1%',
+                'margin-right': '0%',
+                'margin-bottom': '3%',
+            });
+        var saveButton = createButton('Save Changes',
+            function () {
+                if (titleInput.val() === undefined || titleInput.val() === "") {
+                    titleInput.val("Untitled Artwork");
+                }
+                saveArtwork(artwork, {
+                    artistInput: artistInput,
+                    nameInput: titleInput,
+                    yearInput: yearInput,
+                    descInput: descInput,
+                    customInputs: customInputs,
+                });
+            }, {
+                'margin-right': '3%',
+                'margin-top': '1%',
+                'margin-bottom': '1%',
+                'margin-left': '.5%',
+                'float': 'right'
+            });
+
+        var thumbnailButton = createButton('Capture Thumbnail',
+            function () {
+                saveThumbnail(artwork, true);
+            }, {
+                'margin-right': '0%',
+                'margin-top': '1%',
+                'margin-bottom': '1%',
+                'margin-left': '2%',
+                'float': 'left'
+            });
+        if (artwork.Metadata.Type !== 'VideoArtwork') {
+            buttonContainer.append(editArt).append(deleteArt).append(saveButton);
+        } else {
+            buttonContainer.append(thumbnailButton).append(deleteArt).append(saveButton);
+        }
+    }
+
+    function saveThumbnail(component, isArtwork) {
+        var id = $('#videoInPreview').attr('identifier');
+        var pop = Popcorn('#videoInPreview');
+        var time = $('#videoInPreview')[0].currentTime;
+        var dataurl = pop.capture({ type: 'jpg' }); // modified popcorn.capture a bit to
+        prepareNextView(false, null, null, "Saving...");
+        clearRight();
+        prepareViewer(true);
+        LADS.Worktop.Database.uploadImage(dataurl, function (imageURL) {
+            if (isArtwork) {
+                LADS.Worktop.Database.changeArtwork(id, { Thumbnail: imageURL }, function () {
+                    console.log("success?");
+                    loadArtView(component.Identifier);
+                }, unauth, conflict, error);
+            
+            } else { // here, it must be a video assoc media
+                LADS.Worktop.Database.changeHotspot(id, { Thumbnail: imageURL }, function () {
+                    console.log("success?");
+                    loadAssocMediaView(component.Identifier);
+                }, unauth, conflict, error);
+            }
+        }, unauth, error);
+    }
+
+    function unauth() {
+        dialogOverlay.hide();
+        var popup = LADS.Util.UI.popUpMessage(null, "Thumbnail not saved.  You must log in to save changes.");
+        $('body').append(popup);
+        $(popup).show();
+    }
+
+    function conflict(jqXHR, ajaxCall) {
+        ajaxCall.force();
+    }
+
+    function error() {
+        dialogOverlay.hide();
+        var popup = LADS.Util.UI.popUpMessage(null, "Thumbnail not saved.  There was an error contacting the server.");
+        $('body').append(popup);
+        $(popup).show();
+    }
+
+    // Create an artwork (import) --- possibly more than one artwork
+    function createArtwork() {
+        uploadFile(LADS.Authoring.FileUploadTypes.DeepZoom, function (urls, names, contentTypes, files) {
+            var check, i, url, name, done=0, total=urls.length, durations=[];
+            prepareNextView(false);
+            clearRight();
+            prepareViewer(true);
+
+            function incrDone() {
+                done++;
+                if (done >= total) {
+                    loadArtView();
+                } else {
+                    durationHelper(done);
+                }
+            }
+
+            //////////
+            if (files.length > 0) {
+                durationHelper(0);
+            }
+
+            function durationHelper(j) {
+                if (contentTypes[j] === 'Video') {
+                    files[j].properties.getVideoPropertiesAsync().done(function (VideoProperties) {
+                        durations.push(VideoProperties.duration / 1000); // duration in seconds
+                        updateDoq(j);
+                    }, function (err) {
+                        console.log(err);
+                    });
+                } else {
+                    durations.push(null);
+                    updateDoq(j);
+                }
+            }
+            ///////////
+
+            function updateDoq(j) {
+                var newDoq;
+                try {
+                    newDoq = new Worktop.Doq(urls[j]);
+                } catch (error) {
+                    done++;
+                    console.log("error in uploading: " + error.message);
+                    return;
+                }
+                var ops = { Name: names[j] };
+                if (durations[j]) {
+                    ops.Duration = durations[j];
+                }
+                LADS.Worktop.Database.changeArtwork(newDoq.Identifier, ops, incrDone, LADS.Util.multiFnHandler(authError, incrDone), LADS.Util.multiFnHandler(conflict(newDoq, "Update", incrDone)), error(incrDone));
+            }
+
+            //for (i = 0; i < urls.length; i++) {
+            //    updateDoq(i);
+            //}
+        }, true, ['.jpg', '.png', '.gif', '.tif', '.tiff', '.mp4']);
+    }
+
+    // Edits an artwork
+    function editArtwork(artwork) {
+        // Overlay doesn't spin... not sure how to fix without redoing tour authoring to be more async
+        loadingOverlay('Loading Artwork...');
+        leftQueue.clear();
+        rightQueue.clear();
+        setTimeout(function () {
+            LADS.Util.UI.slidePageLeft((new LADS.Layout.ArtworkEditor(artwork)).getRoot());
+        }, 1);
+    }
+
+    // Deletes an artwork
+    function deleteArtwork(artwork) {
+        var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
+            prepareNextView(false);
+            clearRight();
+            prepareViewer(true);
+
+            // actually delete the artwork
+            LADS.Worktop.Database.deleteDoq(artwork.Identifier, function () {
+                if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.art.text]) {
+                    return;
+                }
+                loadArtView();
+            }, authError, authError);
+        }, "Are you sure you want to delete " + artwork.Name + "?", "Delete", true, function () { $(confirmationBox).hide() });
+        root.append(confirmationBox);
+        $(confirmationBox).show();
+    }
+
+    // Save an artwork with input data. The inputs parameter has:
+    //      titleInput:     artwork title
+    //      artistInput:    artwork artist
+    //      yearInput:      artwork year
+    //      customInputs:   artwork custom info fields
+    function saveArtwork(artwork, inputs) {
+        var name = inputs.nameInput.val();
+        var artist = inputs.artistInput.val();
+        var year = inputs.yearInput.val();
+        var description = inputs.descInput.val();
+        //description = (description === 'Description') ? "" : description;
+
+        var infoFields = {};
+        $.each(inputs.customInputs, function (key, val) {
+            infoFields[key] = val.val();
+        });
+
+        prepareNextView(false, null, null, "Saving...");
+        clearRight();
+        prepareViewer(true);
+        
+        LADS.Worktop.Database.changeArtwork(artwork, {
+            Name: name,
+            Artist: artist,
+            Year: year,
+            Description: description,
+            InfoFields: JSON.stringify(infoFields),
+        }, function () {
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.art.text]) {
+                return;
+            }
+            loadArtView(artwork.Identifier);
+        }, authError, conflict(artwork, "Update", loadArtView), error(loadArtView)); 
+    }
+
+    // Feedback Functions
+    function loadFeedbackView(id) {
+        prepareNextView(true, "");
+        prepareViewer(false);
+        clearRight();
+
+        var cancel = false;
+        // Make an async call to get feedback
+        LADS.Worktop.Database.getFeedback(function (result) {
+            if (cancel) return;
+            sortDate(result);
+
+            $.each(result, function (i, val) {
+                if (cancel) return false;
+                // Add each label as a separate function to the queue
+                // so the UI doesn't lock up
+                leftQueue.add(function () {
+                    if (cancel) return;
+                    if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.feedback.text]) {
+                        return;
+                    }
+                    var label;
+                    var text = $.datepicker.formatDate('(m/dd/yy) ', new Date(val.Metadata.Date * 1000)) + val.Metadata.Feedback;
+                    if (!prevSelectedLeftLabel &&
+                        ((id && val.Identifier === id) || (!id && i === 0))) {
+                        // Select the first one
+                        leftLoading.before(selectLabel(label = createLeftLabel(text, null, function () {
+                            loadFeedback(val);
+                        }, val.Identifier, true)));
+
+                        // Scroll to the selected label if the user hasn't already scrolled somewhere
+                        if (leftbar.scrollTop() === 0 && label.offset().top - leftbar.height() > 0) {
+                            leftbar.animate({
+                                scrollTop: (label.offset().top - leftbar.height())
+                            }, 1000);
+                        }
+
+                        prevSelectedLeftLabel = label;
+                        loadFeedback(val);
+                    } else {
+                        leftLoading.before(label = createLeftLabel(text, null, function () {
+                            loadFeedback(val);
+                        }, val.Identifier, true));
+                    }
+                    // Hide if it doesn't match search criteria
+                    if (!LADS.Util.searchString(text, searchbar.val())) {
+                        label.hide();
+                    }
+                });
+            });
+            // Hide the loading label when we're done
+            leftQueue.add(function () {
+                leftLoading.hide();
+            });
+        });
+        cancelLastSetting = function () { cancel = true; };
+    }
+
+    function loadFeedback(feedback) {
+        clearRight();
+        prepareViewer(true, feedback.Metadata.Feedback);
+
+        var sourceLabel = createLabel('Loading...');
+        var dateLabel = createLabel($.datepicker.formatDate('DD, MM d, yy ', new Date(feedback.Metadata.Date * 1000)));
+        //if (feedback.Metadata.SourceID) {
+        //    var sourceButton = createButton('Go To Source', function () {
+        //        followSource(feedback);
+        //    });
+        //}
+
+        var source = createSetting('Submitted From', sourceLabel);
+        //if (feedback.Metadata.SourceID) {
+        //    var sourceButtonSetting = createSetting('', sourceButton);
+        //}
+        var dateSetting = createSetting('Date', dateLabel);
+
+        settingsContainer.append(source);
+        var sourceType = feedback.Metadata.SourceType === "Exhibition" ? "Collection" : feedback.Metadata.SourceType;
+        if (feedback.Metadata.SourceID) {
+            getSourceName(feedback, function (sourceName) {
+                sourceLabel.text(sourceName + ' (' + sourceType + ')');
+                var sourceButton = createButton(sourceName + ' (' + sourceType + ')', function () {
+                    followSource(feedback);
+                });
+                var sourceSetting = createSetting('Submitted From', sourceButton);
+                source.remove();
+                dateSetting.prepend(sourceSetting);
+            }, function (sourceName) {
+                sourceLabel.text(sourceName + ' (' + sourceType + ', Deleted)');
+            }, function () {
+                sourceLabel.text('Deleted');
+            });
+        } else {
+            sourceLabel.text(sourceType + " Page (No " + sourceType + " Selected)");
+        }
+        settingsContainer.append(dateSetting);
+
+        var deleteButton = createButton('Delete Feedback', function () {
+            deleteFeedback(feedback);
+        },
+        {
+            'margin-left': '2%',
+            'margin-top': '1%',
+            'margin-right': '0%',
+            'margin-bottom': '3%',
+        });
+
+        buttonContainer.append(deleteButton);
+    }
+
+    function getSourceName(feedback, onSuccess, onDeleted, onError) {
+        LADS.Worktop.Database.getDoq(feedback.Metadata.SourceID,
+            function (doq) {
+                if (doq.Metadata.Deleted) {
+                    onDeleted(doq.Name);
+                } else {
+                    onSuccess(doq.Name);
+                }
+            }, function () {
+                onError();
+            });
+    }
+
+    function followSource(feedback) {
+        switch (feedback.Metadata.SourceType) {
+            case "Exhibition":
+            case "Exhibitions":
+                switchView("Exhibitions", feedback.Metadata.SourceID);
+                break;
+            case "Tour":
+            case "Tours":
+                switchView("Tours", feedback.Metadata.SourceID);
+                break;
+            case "Art":
+            case "Artwork":
+            case "Artworks":
+                switchView("Artworks", feedback.Metadata.SourceID);
+                break;
+        }
+    }
+
+    function deleteFeedback(feedback) {
+        prepareNextView(false);
+        clearRight();
+
+        // actually delete the exhibition
+        LADS.Worktop.Database.deleteDoq(feedback.Identifier, function () {
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.feedback.text]) {
+                return;
+            }
+            loadFeedbackView();
+        }, authError, conflict(feedback), error(loadFeedbackView));
+    }
+
+    // Sets up the left side for the next view
+    //  showSearch: if true show the search bar, otherwise hide it
+    //  newText: Text for the new button
+    //  newBehavior: onclick function for the new button
+    function prepareNextView(showSearch, newText, newBehavior, loadingText) {
+        leftQueue.clear();
+        leftLabelContainer.empty();
+        leftLabelContainer.append(leftLoading);
+        leftLoading.show();
+        secondaryButton.css("display", "none");
+        newButton.text(newText);
+        newButton.unbind('click').click(newBehavior);
+        if (!newText) newButton.hide();
+        else newButton.show();
+        prevSelectedLeftLabel = null;
+        if (cancelLastSetting) cancelLastSetting();
+
+        if (loadingText) {
+            leftLoading.children('label').text(loadingText);
+        } else {
+            leftLoading.children('label').text('Loading...');
+        }
+
+        if (showSearch) {
+            searchContainer.show();
+            searchContainer.css('display', 'inline-block');
+            searchbar.val("");
+        } else {
+            searchContainer.hide();
+        }
+    }
+
+    // Clears the right side
+    function clearRight() {
+        settingsContainer.empty();
+        buttonContainer.empty();
+        rightQueue.clear();
+    }
+
+    // Clears the viewer
+    function prepareViewer(showViewer, text) {
+        viewer.empty();
+        viewer.css('background', 'black');
+        if (showViewer) {
+            viewer.show();
+            buttonContainer.css({
+                'top': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
+                'margin-top': '0.35%',
+            });
+            settings.css({
+                'height': getSettingsHeight() + 'px',
+            });
+            if (text) {
+                var textbox = $(document.createElement('textarea'));
+                if (typeof text == 'string')
+                    text = text.replace(/<br \/>/g, '\n').replace(/<br>/g, '\n').replace(/<br\/>/g, '\n');
+                textbox.val(text);
+                textbox.css({
+                    'color': TEXT_COLOR,
+                    'border-color': INPUT_BORDER,
+                    'padding': '.5%',
+                    'width': '100%',
+                    'height': '100%',
+                    'box-sizing': 'border-box',
+                    'margin': '0px',
+                });
+                textbox.attr('readonly', 'true');
+                viewer.append(textbox);
+                viewer.css('background', 'transparent');
+            } else {
+                viewer.css('background', 'black');
+            }
+        } else {
+            viewer.hide();
+            buttonContainer.css({
+                'top': leftbar.width() * 0.05 + 'px',
+                'margin-top': '0',
+            });
+            settings.css({
+                'height': ($(window).height() * CONTENT_HEIGHT / 100) -
+                    (BUTTON_HEIGHT * 1) + 'px',
+            });
+        }
+    }
+
+    // Clicks an element determined by a jquery selector when it is
+    // added to the page
+    function clickWhenReady(selector, maxtries, tries) {
+        doWhenReady(selector, function (elem) { elem.click(); }, maxtries, tries);
+    }
+
+    // Calls fn with selector when the element determined by the selector
+    // is added to the page
+    function doWhenReady(selector, fn, maxtries, tries) {
+        maxtries = maxtries || 100;
+        tries = tries || 0;
+        if (tries > maxtries) return;
+        if ($.contains(document.documentElement, $(selector)[0])) {
+            fn($(selector));
+        } else {
+            rightQueue.add(function () {
+                doWhenReady(selector, fn, maxtries, tries + 1);
+            });
+        }
+    }
+
+    // Resets mouse interaction for labels
+    function resetLabels(selector) {
+        $(selector).css('background', 'transparent');
+        $.each($(selector), function (i, current) {
+            if ($(current).attr('disabled') === 'disabled')
+                return;
+            $(current).mousedown(function () {
+                $(current).css({
+                    'background': HIGHLIGHT
+                });
+            });
+            $(current).mouseup(function () {
+                $(current).css({
+                    'background': 'transparent'
+                });
+            });
+            $(current).mouseleave(function () {
+                $(current).css({
+                    'background': 'transparent'
+                });
+            });
+        });
+    }
+
+    // Selects a label unbinding mouse events
+    function selectLabel(label, expand) {
+        label.css('background', HIGHLIGHT);
+        label.unbind('mousedown').unbind('mouseleave').unbind('mouseup');
+
+        if (expand) {
+            label.css('height', '');
+            label.children('div').css('white-space', '');
+
+            if (prevSelectedLeftLabel) {
+                prevSelectedLeftLabel.css('height', LEFT_LABEL_HEIGHT + 'px');
+                prevSelectedLeftLabel.children('div').css('white-space', 'nowrap');
+            }
+        }
+        return label;
+    }
+
+    // Disables a label, unbinding mouse events
+    function disableLabel(label) {
+        label.css({
+            'color': 'gray',
+        });
+        label.unbind('mousedown').unbind('mouseleave').unbind('mouseup').unbind('click').attr('disabled', true);
+        return label;
+    }
 
 
-        currentSetting = "General Settings";
+    // Helper functions for creating and managing the UI
 
+    // Creates the top bar where the back button and 'Authoring Mode' label are
+    function createTopBar() {
+        var topBar = $(document.createElement('div'));
+        topBar.css({
+            'background-color': TOPBAR_BGCOLOR,
+            'width': '100%',
+            'height': TOPBAR_HEIGHT + '%',
+        });
 
-        exhibitionByGuid = {};
+        var backButton = $(document.createElement('img'));
+        backButton.attr('src', 'images/icons/Back.svg');
+        backButton.css({
+            'height': '63%',
+            'margin-left': '1.2%',
+            'width': 'auto',
+            'top': '18.5%',
+            'position': 'relative',
+        });
 
-        //LADS.Util.showLoading($(root));
-        LADS.Worktop.Database.getExhibitions(getExhibitionsHelper);
+        backButton.mousedown(function () {
+            LADS.Util.UI.cgBackColor("backButton", backButton, false);
+        });
 
-        function getExhibitionsHelper(_exhibitions) {
-            $('.overlayOnRoot').show();
-            exhibitions = _exhibitions;
-            _exhibitions.sort(function (a, b) {
-                if (a.Name < b.Name) {
-                    return -1;
-                } else if (a.Name > b.Name) {
+        backButton.mouseleave(function () {
+            LADS.Util.UI.cgBackColor("backButton", backButton, true);
+        });
+
+        backButton.click(function () {
+            LADS.Auth.clearToken();
+            rightQueue.clear();
+            leftQueue.clear();
+            backButton.off('click');
+            if (backPage) {
+                var bpage = backPage();
+                LADS.Util.UI.slidePageRight(bpage);
+            } else {
+                LADS.Layout.StartPage(null, function (page) {
+                    LADS.Util.UI.slidePageRight(page);
+                });
+            }
+        });
+
+        var topBarLabel = $(document.createElement('div'));
+        var topBarLabelSpecs = LADS.Util.constrainAndPosition($(window).width(), $(window).height() * 0.08,
+        {
+            width: 0.4,
+            height: 0.9,
+        });
+        topBarLabel.css({
+            'margin-right': '2%',
+            'margin-top': 8 * 0.045 + '%',
+            'color': 'white',
+            'position': 'absolute',
+            'text-align': 'right',
+            'right': '0px',
+            'top': '0px',
+            'height': topBarLabelSpecs.height + 'px',
+            'width': topBarLabelSpecs.width + 'px',
+        });
+
+        var fontsize = LADS.Util.getMaxFontSizeEM('Tour Authoring', 0.5, topBarLabelSpecs.width, topBarLabelSpecs.height * 0.8, 0.1);
+        topBarLabel.css({ 'font-size': fontsize });
+
+        topBarLabel.text('Authoring Mode');
+
+        topBar.append(backButton);
+        topBar.append(topBarLabel);
+
+        return topBar;
+    }
+
+    // Creates the nav bar
+    function createNavBar() {
+        var navBar = $(document.createElement('div'));
+        navBar.css({
+            'height': NAVBAR_HEIGHT,
+            'float': 'left',
+            'width': NAV_WIDTH + '%',
+        });
+
+        // Assing the nav labels to a nav object with their name as the key
+        navBar.append(nav[NAV_TEXT.general.text] = createNavLabel(NAV_TEXT.general, loadGeneralView));
+        navBar.append(nav[NAV_TEXT.exhib.text] = createNavLabel(NAV_TEXT.exhib, loadExhibitionsView));
+        navBar.append(nav[NAV_TEXT.art.text] = createNavLabel(NAV_TEXT.art, loadArtView));
+        navBar.append(nav[NAV_TEXT.media.text] = createNavLabel(NAV_TEXT.media, loadAssocMediaView)); // COMMENT!!!!!!!!
+        navBar.append(nav[NAV_TEXT.tour.text] = createNavLabel(NAV_TEXT.tour, loadTourView));
+        navBar.append(nav[NAV_TEXT.feedback.text] = createNavLabel(NAV_TEXT.feedback, loadFeedbackView));
+
+        return navBar;
+    }
+
+    // Creates a single nav label.  text is an object
+    // with keys 'text' and 'subtext' and onclick is called
+    // when the label is clicked
+    function createNavLabel(text, onclick) {
+        var container = $(document.createElement('div'));
+        container.attr('class', 'navContainer');
+        container.attr('id', 'nav-' + text.text);
+        container.css({
+            //'width': 100/Object.keys(NAV_TEXT).length + '%',
+            //'height': '100%',
+            'height': '80px',
+            //'display': 'inline-block',
+            'background': 'transparent',
+            'color': TEXT_COLOR,
+            'margin-top': '2%',
+            //'margin-bottom': '5%',
+            'padding-top': '4%',
+            'padding-bottom': '4%',
+        });
+        container.mousedown(function () {
+            container.css({
+                'background': HIGHLIGHT
+            });
+        });
+        container.mouseup(function () {
+            container.css({
+                'background': 'transparent'
+            });
+        });
+        container.mouseleave(function () {
+            container.css({
+                'background': 'transparent'
+            });
+        });
+        container.click(function () {
+            // If a label is clicked return if its already selected.
+            if (prevSelectedSetting === container)
+                return;
+            // Reset all labels and then select this one
+            resetLabels('.navContainer');
+            selectLabel(container);
+            // Do the onclick function
+            if (onclick)
+                onclick();
+            prevSelectedSetting = container;
+        });
+
+        var navtext = $(document.createElement('label'));
+        navtext.css({
+            'font-size': NAVBAR_FONTSIZE,
+            'display': 'block',
+            'margin-left': '6.95%',
+            'margin-top': '0.372%',
+        });
+        navtext.text(text.text);
+
+        var navsubtext = $(document.createElement('label'));
+        navsubtext.css({
+            'font-size': NAVBAR_SUBFONTSIZE,
+            'display': 'block',
+            'margin-left': '7.65%',
+            'margin-top': '0.372%',
+        });
+        navsubtext.text(text.subtext);
+
+        container.append(navtext);
+        container.append(navsubtext);
+        return container;
+    }
+
+    // Create the left bar container where the search bar and left bar are placed
+    function createLeftBarContainer() {
+        var container = $(document.createElement('div'));
+        container.css({
+            'width': LEFT_WIDTH + '%',
+            'float': 'left',
+        });
+        return container;
+    }
+
+    // Holds the left bar for scrolling
+    function createLeftBar() {
+        var container = $(document.createElement('div'));
+        container.css({
+            // Set the height to CONTENT_HEIGHT percent of the window height, but subtract
+            // LEFT_LABEL_HEIGHT for the search bar which goes above it and the margin for the
+            // search bar
+            'height': ($(window).height() * CONTENT_HEIGHT / 100 - (LEFT_LABEL_HEIGHT * 1 + $(window).width() * 0.22 * 0.05)) + 'px',
+            'width': '100%',
+            'overflow': 'auto',
+        });
+
+        return container;
+    }
+
+    // Create the label container where labels are added
+    function createLeftLabelContainer() {
+        var container = $(document.createElement('div'));
+        container.css({
+            'padding-left': '3.5%',
+            // So it doesn't go under scroll bar
+            'padding-right': '20px',
+            'padding-bottom': '5%',
+            'padding-top': '2%',
+        });
+        return container;
+    }
+
+    // Create the search bar with the new button
+    function createSearch() {
+        var container = $(document.createElement('div'));
+        container.css({
+            'height': LEFT_LABEL_HEIGHT + 'px',
+            'width': '100%',
+            'margin-top': '2.5%',
+            'margin-bottom': '2.5%',
+        });
+
+        searchbar = $(document.createElement('input'));
+        searchbar.attr('type', 'text');
+        searchbar.attr('id', 'searchbar');
+        searchbar.css({
+            //'float': 'left',
+            'width': '55%',
+            'border-color': INPUT_BORDER,
+            'margin-top': '2%',
+            'margin-left': '3.5%',
+        });
+        searchbar.keyup(function () {
+            search(searchbar.val(), '.leftLabel', 'div');
+        });
+        searchbar.change(function () {
+            search(searchbar.val(), '.leftLabel', 'div');
+        });
+        // Workaround for clear button (doesn't fire a change event...)
+        searchbar.mouseup(function () {
+            setTimeout(function () {
+                search(searchbar.val(), '.leftLabel', 'div');
+            }, 1);
+        });
+        searchbar.attr('placeholder', DEFAULT_SEARCH_TEXT);
+
+        newButton = $(document.createElement('button'));
+        newButton.attr('type', 'button');
+        newButton.css({
+            'float': 'right',
+            'height': '100%',
+            'color': TEXT_COLOR,
+            'border-color': TEXT_COLOR,
+            'margin-top': '1%',
+            'padding-bottom': '1%',
+        });
+        newButton.text('New');
+
+        secondaryButton = $(document.createElement('button'));
+        secondaryButton.attr('type', 'button');
+        secondaryButton.css({
+            'float': 'right',
+            'height': '100%',
+            'color': TEXT_COLOR,
+            'border-color': TEXT_COLOR,
+            'margin-top': '1%',
+            'padding-bottom': '1%',
+            'margin-right': '15px',
+            'display': 'none'
+        });
+        secondaryButton.text('Video');
+
+        container.append(searchbar);
+        container.append(newButton);
+        container.append(secondaryButton);
+
+        return container;
+    }
+
+    // Create the left loading label which has a spinning circle
+    // Ideally this should always be at the bottom, so use jquery
+    // .before to add elements before it
+    function createLeftLoading() {
+        var container = $(document.createElement('div'));
+        container.attr('id', 'leftLoading');
+        container.css({
+            'padding': '2%',
+            'height': LEFT_LABEL_HEIGHT + 'px',
+            'margin-right': '3%',
+        });
+
+        var label = $(document.createElement('label'));
+        label.css({
+            'font-size': LEFT_FONTSIZE,
+        });
+        label.text('Loading...');
+
+        var circle = $(document.createElement('img'));
+        circle.attr('src', 'images/icons/progress-circle.gif');
+        circle.css({
+            'height': LEFT_LABEL_HEIGHT * 0.96 + 'px',
+            'width': 'auto',
+            'float': 'right',
+        });
+
+        container.append(label);
+        container.append(circle);
+
+        return container;
+    }
+
+    // Creates a left label with
+    //      text:       the text of the label
+    //      imagesrc:   src for the image.  If not specified then no image is added
+    //      onclick:    function to do on click
+    //      id:         id to set if specified
+    function createLeftLabel(text, imagesrc, onclick, id, noexpand, onDoubleClick, inArtMode, extension) {
+        var container = $(document.createElement('div'));
+        text = LADS.Util.htmlEntityDecode(text);
+        container.attr('class', 'leftLabel');
+        if (id) {
+            container.attr('id', id);
+        }
+        container.css({
+            'height': LEFT_LABEL_HEIGHT + 'px',
+            'min-height': LEFT_LABEL_HEIGHT + 'px',
+            'padding-left': '2%',
+            'padding-top': '2%',
+            'padding-bottom': '2%',
+            // 'margin-right': '3.2%',
+            'margin-bottom': '3%',
+            'overflow': 'hidden',
+            'position': 'relative',
+        });
+
+        if (inArtMode) {
+            if(extension.match(/mp4/)) {
+                container.data('isVideoArtwork', true);
+            } else {
+                container.data('isStaticArtwork', true);
+            }
+        }
+
+        container.mousedown(function () {
+            container.css({
+                'background': HIGHLIGHT
+            });
+        });
+        container.mouseup(function () {
+            container.css({
+                'background': 'transparent'
+            });
+        });
+        container.mouseleave(function () {
+            container.css({
+                'background': 'transparent'
+            });
+        });
+        container.click(function () {
+            if (prevSelectedLeftLabel == container)
+                return;
+            resetLabels('.leftLabel');
+            selectLabel(container, !noexpand);
+            if (onclick)
+                onclick();
+            prevSelectedLeftLabel = container;
+        });
+        if (onDoubleClick) {
+            container.dblclick(onDoubleClick);
+        }
+        var width;
+        if (imagesrc) {
+            var image = $(document.createElement('img'));
+            image.attr('src', imagesrc);
+            image.css({
+                'height': 'auto',
+                'width': '20%',
+                'margin-right': '5%',
+            });
+            container.append(image);
+            
+
+            var progressCircCSS = {
+                'position': 'absolute',
+                'left': '5%',
+                'z-index': '50',
+                'height': 'auto',
+                'width': '10%',
+                'top': '20%',
+            };
+            var circle = LADS.Util.showProgressCircle(container, progressCircCSS, '0px', '0px', false);
+            image.load(function () {
+                LADS.Util.removeProgressCircle(circle);
+            });
+            width = '75%';
+        } else {
+            width = '95%';
+        }
+
+        var label = $(document.createElement('div'));
+        label.attr('class', 'labelText');
+        label.css({
+            'font-size': LEFT_FONTSIZE,
+            'display': 'inline-block',
+            'white-space': 'nowrap',
+            'width': width,
+            'overflow': 'hidden',
+            'text-overflow': 'ellipsis',
+            'vertical-align': 'top',
+            //'word-wrap': 'break-word',
+        });
+
+        if (!imagesrc) {
+            label.css({
+                'padding-top': '0.4%',
+                'padding-left': '1.3%',
+            });
+        }
+        label.text(text);
+
+        container.append(label);
+
+        return container;
+    }
+
+    // Creates the right bar which holds the viewer
+    // button container and settings container
+    function createRightBar() {
+        var container = $(document.createElement('div'));
+        container.css({
+            'height': CONTENT_HEIGHT + '%',
+            'width': RIGHT_WIDTH + '%',
+            'float': 'right',
+            'position': 'relative',
+        });
+
+        return container;
+    }
+
+    // Creates the viewer
+    function createViewer() {
+        var container = $(document.createElement('div'));
+        container.attr('id', 'previewContainer');
+        container.css({
+            'width': $(window).width() * RIGHT_WIDTH / 100 + 'px', // 100% should work, need to figure out height though
+            'height': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
+            'color': 'white',
+            'position': 'absolute',
+            'font-size': '6pt',
+            'background': 'black',
+            'top': '0%',
+            'right': '0px',
+            'z-index': '5',
+            'overflow': 'hidden',
+        });
+        return container;
+    }
+
+    // Creates the button container
+    function createButtonContainer() {
+        var container = $(document.createElement('div'));
+        container.css({
+            'width': '100%',
+            'position': 'absolute',
+            'top': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
+            'height': BUTTON_HEIGHT + 'px',
+            'z-index': '5',
+            'background': ROOT_BGCOLOR,
+            'margin-top': '0.35%',
+            'margin-bottom': '2.5%',
+        });
+        return container;
+    }
+
+    // Creates the settings bar which holds the settings container
+    function createSettings() {
+        var container = $(document.createElement('div'));
+        container.css({
+            // Be careful with this height
+            'height': getSettingsHeight() + 'px',
+            'width': '100%',
+            'position': 'absolute',
+            'bottom': '0px',
+            'overflow': 'auto',
+        });
+        return container;
+    }
+
+    // Gets the height of the settings section
+    // Since the viewer has to be positioned absolutely,
+    // the entire right bar needs to be position absolutely.
+    // Settings has bottom: 0, so the height needs to be correct
+    // to not have this be under the buttons container.  If any
+    // of the heights of the right components changes it should be
+    // updated here.
+    function getSettingsHeight() {
+        var height =
+        // Start with the entire height of the right side
+        ($(window).height() * CONTENT_HEIGHT / 100) -
+        // Subtract:
+        (
+            // Height of the viewer
+            $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO +
+            // Height of the button container
+            BUTTON_HEIGHT * 1 +
+            // Height of the padding of the button container
+            $(window).width() * RIGHT_WIDTH / 100 * 0.0285
+        );
+        return height;
+    }
+
+    // Creates a setting to be inserted into the settings container
+    //  text:       text for the setting
+    //  input:      the input for the setting
+    //  width: if not-falsey then assumed to be a number (ex. 75) representing the pecent, must be less than 95
+    function createSetting(text, input, width) {
+        var container = $(document.createElement('div'));
+        container.css({
+            'width': '100%',
+            'margin-bottom': '4%',
+        });
+
+        var label = $(document.createElement('div'));
+        label.css({
+            'font-size': SETTING_FONTSIZE,
+            'width': width ? 45 - (width - 50) + '%' : '45%',
+            'overflow': 'hidden',
+            'text-overflow': 'ellipsis',
+            'font-style': 'italic',
+            'display': 'inline-block',
+        });
+        label.text(text);
+
+        if (width) {
+            width = width + '%';
+        } else {
+            width = '50%';
+        }
+        input.css({
+            'width': width,
+            'font-size': INPUT_FONTSIZE,
+            'float': 'right',
+            'margin-right': '3%',
+            'box-sizing': 'border-box',
+        });
+
+        var clear = $(document.createElement('div'));
+        clear.css('clear', 'both');
+
+        container.append(label);
+        container.append(input);
+        container.append(clear);
+
+        return container;
+    }
+
+    // Creates the settings container where settings are inserted
+    function createSettingsContainer() {
+        var container = $(document.createElement('div'));
+        container.css({
+            'margin-left': '2%',
+            'margin-top': '3%',
+            'margin-bottom': '3%',
+            'margin-right': '0%',
+        });
+        return container;
+    }
+
+    // Creates a button with text set to 'text', on click
+    // function set to onclick, and additional css applied if specified
+    function createButton(text, onclick, css) {
+        var button = $(document.createElement('button')).text(text);
+        button.attr('type', 'button');
+        button.css({
+            'color': TEXT_COLOR,
+            'border-color': TEXT_COLOR,
+        });
+        if (css) {
+            button.css(css);
+        }
+        button.click(onclick);
+        return button;
+    }
+
+    function createLabel(text) {
+        var label = $(document.createElement('label')).text(text || "");
+        return label;
+    }
+
+    // Creates a text input
+    //  text:       the default text for the input
+    //  defaultval: if true then the input will reset to the default text if its empty and loses focus
+    //  maxlength:  max length of the input in characters
+    function createTextInput(text, defaultval, maxlength, hideOnClick) {
+        var input = $(document.createElement('input')).val(text);
+        //if (defaultval) {
+        //    defaultVal(text, input, !!hideOnClick);
+        //}
+        input.css({
+            'color': TEXT_COLOR,
+            'border-color': INPUT_BORDER,
+            'padding': '.5%',
+        });
+        input.attr({
+            'type': 'text',
+            'maxlength': maxlength
+        });
+        return input;
+    }
+
+    // Create a text area input with text/defaultval the same as createTextInput()
+    function createTextAreaInput(text, defaultval, hideOnClick) {
+        if (typeof text === 'string')
+            text = text.replace(/<br \/>/g, '\n').replace(/<br>/g, '\n').replace(/<br\/>/g, '\n');
+        var input = $(document.createElement('textarea')).val(text);
+        //if (defaultval) {
+        //    defaultVal(text, input, !!hideOnClick);
+        //}
+        input.css({
+            'color': TEXT_COLOR,
+            'border-color': INPUT_BORDER,
+            'padding': '.5%'
+        });
+        //input.attr('placeholder', text);
+        input.autoSize();
+        doWhenReady(input, function (elem) {
+            var realHeight = input[0].scrollHeight;
+            $(input).css('height', realHeight + 'px');
+        });
+        return input;
+    }
+
+    // Creates a color input which modifies the background color
+    // of all elements matching the jquery selector 'selector'.
+    // getTransValue should return a valid transparency value
+    function createBGColorInput(color, selector, getTransValue) {
+        if (color.indexOf('#') !== -1) {
+            color = color.substring(1, color.length);
+        }
+        var container = $(document.createElement('input'));
+        container.attr('type', 'text');
+        container.css({
+            'border-color': INPUT_BORDER,
+        });
+        var picker = new jscolor.color(container[0], {});
+        var hex = LADS.Util.UI.colorToHex(color);
+        container.val(color);
+        picker.fromString(color);
+        picker.onImmediateChange = function () {
+            updateBGColor(selector, container.val(), getTransValue());
+        };
+        return container;
+    }
+
+    // Sets the bg color of elements maching jquery selector 'selector'
+    // given a hex value and a transparency value
+    function updateBGColor(selector, hex, trans) {
+        $(selector).css('background-color', LADS.Util.UI.hexToRGB(hex) + trans / 100.0 + ')');
+
+    }
+
+    // Prevents a container from being clicked on by added a div on top of it
+    function preventClickthrough(container) {
+        var cover = document.createElement('div');
+        $(cover).css({
+            'height': '100%',
+            'width': '100%',
+            'float': 'left',
+            'position': 'absolute',
+            'background-color': 'white',
+            'opacity': '0',
+            'top': '0px',
+            'right': '0px',
+            'z-index': '499',
+        });
+        $(cover).bind('click', function () { return false; });
+        $(container).append(cover);
+    }
+
+    // Sorts a list with propery Name alphabetically
+    // case insensitive
+    function sortAZ(list) {
+        if (list.sort) {
+            list.sort(function (a, b) {
+                var aLower = a.Name.toLowerCase();
+                var bLower = b.Name.toLowerCase();
+                return (aLower < bLower) ? -1 : 1;
+            });
+        }
+    }
+
+    // Sorts a list with date metadata by date with most recent date first
+    function sortDate(list) {
+        if (list.sort) {
+            list.sort(function (a, b) {
+                var aint = parseInt(a.Metadata.Date, 10);
+                var bint = parseInt(b.Metadata.Date, 10);
+                if (aint < bint) {
                     return 1;
+                } else if (aint > bint) {
+                    return -1;
                 } else {
                     return 0;
                 }
             });
-            exhibitionNames = [];
-            exhibitionGuids = [];
-            for (var i = 0; i < _exhibitions.length; i++) {
-                exhibitionByGuid[_exhibitions[i].Identifier] = _exhibitions[i];
-                exhibitionNames.push(_exhibitions[i].Name);
-                exhibitionGuids.push(_exhibitions[i].Identifier);
-            }
-
-            var topbarHeight = 8;
-            createTopBar(topbarHeight);
-
-
-            mainPanel.css({ width: '100%', height: (100 - topbarHeight) + '%' });
-            makeLeftSection();
-            makeFeedbackSection();
-            makeMiddleSection();
-            makeRightSection();
-            root.append(topbar);
-            root.append(mainPanel);
-
-            // RYAN - moved to FileUploader
-            uploadingOverlay = $(document.createElement('div'));
-            uploadingOverlay.css({ 'position': 'absolute', 'left': '0%', 'top': '0%', 'background-color': 'rgba(0, 0, 0, .5)', 'width': '100%', 'height': '100%', 'z-index': '100' });
-
-            var uploadOverlayText = $(document.createElement('label'));
-            uploadOverlayText.css({ 'color': 'white', 'width': '10%', 'height': '5%', 'top': '38%', 'left': '40%', 'position': 'relative', 'font-size': '250%' });
-            uploadOverlayText.text('Uploading File. Please wait.');
-
-            var progressIcon = $(document.createElement('img'));
-            progressIcon.css({
-                'position': 'relative', 'top': '50%', 'left': '14%'
-            });
-            progressIcon.attr('src', 'images/icons/progress-circle.gif');
-
-            var progressBar = $(document.createElement('div'));
-            progressBar.css({
-                'position': 'relative', 'top': '42%', 'left': '45%', 'border-style': 'solid', 'border-color': 'white', 'width': '10%', 'height': '2%'
-            });
-
-            innerProgressBar = $(document.createElement('div'));
-            innerProgressBar.css({
-                'background-color': 'white',
-                'width': '0%', 'height': '100%'
-            });
-
-            progressBar.append(innerProgressBar);
-
-            uploadingOverlay.append(uploadOverlayText);
-            uploadingOverlay.append(progressBar);
-            // RYAN - end of FileUploader section
-
-            root.append(uploadingOverlay);
-            uploadingOverlay.hide();
-            if (settingsViewCallback && backButtonType == null) {
-                settingsViewCallback(that);
-            }
-
         }
     }
-    var feedbackSelected = false;
 
-    //Left panel to choose between different settings pages
-    function makeLeftSection() {
-
-        $(leftSection).css({ 'width': '25%', 'height': '100%', 'z-index': '100', 'position': 'relative', 'left': '0%', 'background-color': "rgb(219,217,204)", 'float': 'left' });
-        createMainLabel('General Settings', 'Customize appearance');
-        createMainLabel('Exhibitions', 'Edit exhibition settings');
-        createMainLabel('Artworks', 'Edit list of artworks');
-        createMainLabel('Tour Authoring', 'Build interactive tours');
-        createMainLabel('Feedback', 'Comments and Reports');
-
-        mainPanel.append(leftSection);
+    // Sets the default value of an input to val
+    // If the input loses focus when its empty it will revert
+    // to val.  Additionally, if hideOnClick is true then
+    // if the value is val and the input gains focus it will be
+    // set to the empty string
+    function defaultVal(val, input, hideOnClick) {
+        input.val(val);
+        if (hideOnClick) {
+            input.focus(function () {
+                if (input.val() === val)
+                    input.val('').change();
+            });
+        }
+        input.blur(function () {
+            if (input.val() === '') {
+                input.val(val).change();
+                search('', '.leftLabel', 'div');
+            }
+        });
     }
 
-    function makeFeedbackSection() {
-        var feedbackComments = document.createElement('div');
-        $(feedbackComments).addClass('feedbackComments');
-        $(feedbackComments).css({
-            'background-color': 'rgb(219, 217, 204)',
-            'position': 'absolute',
-            'z-index': '999', //too big?
-            'left': '50%',
-            'width': '50%',
-            'height': '100%',
-            'display': 'none'
-        });
-        var leveldiv = document.createElement('div');
-        $(leveldiv).addClass('level');
-        $(leveldiv).css({
-            'position': 'relative',
-            'top': '10%',
-            'left': '5%',
-            'height': '50%'
-        });
-        $(feedbackComments).append(leveldiv);
-        var prioritylevel = document.createElement('label');
-        $(prioritylevel).addClass('prioritylevel');
-        $(prioritylevel).text('Priority Level');
-        $(prioritylevel).css({
-            'font-size': '1em',
-            'position': 'absolute',
-            'font-weight': '777',
-            'top': '0.7%'
-        });
-        //var slider = document.createElement('div');
-        //$(slider).addClass('slider');
-        //$(slider).css({
-        //    'left': '23%',
-        //    'top': '0%',
-        //    'width': '40%'
-        //});
-        //$(slider).slider();
-        //$('ui-slider-handle ui-state-default ui-corner-all')
-        //var handle = document.getElementsByClassName('ui-slider-handle ui-state-default ui-corner-all');
-        //change the color of the handle to white
-
-        //radio buttons
-        var lowButton = document.createElement("input");
-        $(lowButton).addClass('lowButton');
-        lowButton.id = "lowButton";
-        lowButton.setAttribute('Name', 'buttonRow');
-        lowButton.setAttribute('type', 'Radio');
-        $(lowButton).css({
-            'position': 'absolute',
-            'left': '18%'
-        });
-        var mediumButton = document.createElement("input");
-        $(mediumButton).addClass('mediumButton');
-        mediumButton.id = "mediumButton";
-        mediumButton.setAttribute('Name', 'buttonRow');
-        mediumButton.setAttribute('type', 'Radio');
-        mediumButton.setAttribute('checked', 'true');
-        $(mediumButton).css({
-            'position': 'absolute',
-            'left': '30%'
-        });
-        var highButton = document.createElement("input");
-        $(highButton).addClass('highButton');
-        highButton.id = "highButton";
-        highButton.setAttribute('Name', 'buttonRow');
-        highButton.setAttribute('type', 'Radio');
-        $(highButton).css({
-            'position': 'absolute',
-            'left': '47%'
-        });
-
-        var low = document.createElement('label');
-        $(low).addClass('low');
-        $(low).text('Low');
-        $(low).css({
-            'font-size': '1em',
-            'position': 'absolute',
-            'font-weight': '777',
-            'left': '24%',
-            'top': '.7%'
-        });
-        var medium = document.createElement('label');
-        $(medium).addClass('medium');
-        $(medium).text('Medium');
-        $(medium).css({
-            'font-size': '1em',
-            'position': 'absolute',
-            'font-weight': '777',
-            'left': '36%',
-            'top': '.7%'
-        });
-        var high = document.createElement('label');
-        $(high).addClass('high');
-        $(high).text('High');
-        $(high).css({
-            'font-size': '1em',
-            'position': 'absolute',
-            'font-weight': '777',
-            'left': '53%',
-            'top': '.7%'
-        });
-
-
-        var checkbox = document.createElement('input');
-        $(checkbox).addClass('checkbox');
-        checkbox.id = "feedbackCheckBox";
-        checkbox.setAttribute('type', 'checkbox');
-        checkbox.setAttribute('checked', 'true');
-        $(checkbox).css({
-            'position': 'absolute',
-            'top': '10%',
-            'border': 'solid 2px gray'
-        });
-
-        var wantemail = document.createElement('label');
-        $(wantemail).addClass('wantemail');
-        $(wantemail).text('Email me questions and updates on this feature.');
-        $(wantemail).css({
-            'position': 'absolute',
-            'left': '7%',
-            'font-size': '1em',
-            'top': '11%'
-        });
-        var address = document.createElement('label');
-        $(address).addClass('address');
-        $(address).text('Your email address');
-        $(address).css({
-            'position': 'absolute',
-            'left': '7%',
-            'font-size': '1em',
-            'top': '20%'
-        });
-        var emailinput = document.createElement('input');
-        $(emailinput).addClass('emailinput');
-        $(emailinput).css({
-            'position': 'absolute',
-            'left': '35%',
-            'top': '19%',
-            'height': '7%',
-            'width': '40%',
-            'border': 'solid 2px gray'
-        });
-
-        var send = document.createElement('button');
-        $(send).addClass('send');
-        $(send).text('Send');
-        $(send).css({
-            'position': 'absolute',
-            'left': '56.5%',
-            'top': '40%',
-            'border': '2px solid black',
-            'color': 'black',
-            'font-size': '1 em'
-        });
-
-        var sendingMsg = document.createElement('label');
-        $(sendingMsg).addClass('sendingMsg');
-        $(sendingMsg).text('Sending feedback...');
-        $(sendingMsg).css({
-            'position': 'absolute',
-            'left': '56.5%',
-            'top': '50%'
-        });
-        $(sendingMsg).hide();
-
-        send.onclick = function () {
-            $(sendingMsg).show();
-            setTimeout(function () {
-                $(sendingMsg).hide();
-                //also clear textboxes and reset buttons after sending
-                $(emailinput).val("");
-                $(checkbox).prop('checked', 'true');
-                $(mediumButton).prop('checked', 'true');
-                var feedbackBox = document.getElementById('feedbackBox');
-                $(feedbackBox).text("");
-            }, 3000);
-            feedbackSelected = false;
-        }
-
-        $(leveldiv).append(send);
-        $(leveldiv).append(sendingMsg);
-        $(leveldiv).append(emailinput);
-        $(leveldiv).append(address);
-        $(leveldiv).append(wantemail);
-        $(leveldiv).append(checkbox);
-        $(leveldiv).append(low);
-        $(leveldiv).append(medium);
-        $(leveldiv).append(high);
-        $(leveldiv).append(lowButton);
-        $(leveldiv).append(mediumButton);
-        $(leveldiv).append(highButton);
-        //$(leveldiv).append(slider);
-        $(leveldiv).append(prioritylevel);
-        //figure out the best place to append this!
-        $(mainPanel).append(feedbackComments);
-    }
-
-
-    //helper function to generate settings page selector buttons
-    function createMainLabel(name, subText) {
-        var labelContainer = document.createElement('div');
-        $(labelContainer).addClass('labelContainer');
-        $(labelContainer).css({ 'top': '5%', 'position': 'relative', 'width': '100%', 'margin-bottom': '10%', 'padding-bottom': '2.5%' });
-
-        var label = document.createElement('div');
-        $(label).addClass('label');
-        $(label).css({ 'top': '5%', 'position': 'relative', 'left': '10%', 'font-size': '350%', 'color': 'black', 'font-weight': '500' });
-        $(label).text(name);
-        LADS.Util.fitText(label, 0.9);
-
-        var labelInfo = document.createElement('div');
-        $(labelInfo).css({ 'top': '5%', 'position': 'relative', 'left': '10%', 'font-size': '200%', 'color': 'black' });
-        $(labelInfo).text(subText);
-        LADS.Util.fitText(labelInfo, 1.4);
-        $(labelContainer).append(label);
-        $(labelContainer).append(labelInfo);
-
-        /*if (name == 'Tour Authoring') { //until tour authoring is available
-            labelContainer.onclick = function () {
-                //display message 
-                var dialogOverlay = document.createElement('div');
-                dialogOverlay.onclick = function () {
-                    $(dialogOverlay).fadeOut(500);
-                };
-                dialogOverlay = $(dialogOverlay);
-                dialogOverlay.attr('id', 'dialogOverlay');
-                dialogOverlay.css({
-                    display: 'none',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    'background-color': 'rgba(0,0,0,0.6)',
-                    'z-index': '1000',
-                });
-
-                var tourAuthBox = document.createElement('div');
-                $(tourAuthBox).addClass('tourAuthBox');
-                $(tourAuthBox).css({
-                    'width': '45%',
-      
-                    'position': 'fixed',
-                    'top': '40%',
-                    'left': '25%',
-                    'padding': '2% 2%',
-                    'background-color': 'black',
-                    'border': '3px double white',
-                    'z-index': '100',
-                    'id': 'deleteOptionBox'
-                });
-                var tourAuthLabel = document.createElement('p');
-                $(tourAuthLabel).css({
-                    'font-size': '150%',
-                    'text-align':'center',
-                    'color':'white'
-                });
-                $(tourAuthLabel).text('Tour Authoring under development. Coming Soon.');
-                dialogOverlay.append($(tourAuthBox));
-                $(tourAuthBox).append($(tourAuthLabel));
-                root.append(dialogOverlay);
-                dialogOverlay.fadeIn(500);
-                
-            };
-        }
-        else {*/
-
-        $(labelContainer).attr('flagClicked', 'false');
-        labelContainer.onmousedown = function () {
-            if (name == "Feedback") {
+    // Performs a search 
+    function search(val, selector, childType) {
+        $.each($(selector), function (i, child) {
+            if ($(child).attr('id') === 'leftLoading')
                 return;
-            }
-            $(labelContainer).css({ 'background-color': 'white' });
-            //if (name != "Feedback")
-                //$(document.getElementsByClassName('overlayOnRoot')).fadeIn();
-            //labelContainer.click();
-        };
-        labelContainer.onmouseup = function () {
-            if ($(this).attr('flagClicked') == 'false')
-                $(this).css({ 'background-color': 'transparent' });
-        }
-        labelContainer.onmouseleave = function () {
-            if ($(this).attr('flagClicked') == 'false')
-                $(this).css({ 'background-color': 'transparent' });
-        }
-
-        if (name == "Feedback") {
-            $(label).css('color', 'gray');
-            $(labelInfo).css('color', 'gray');
-        }
-        labelContainer.onclick = function () {
-            if (name == "Feedback") {
-                return;
-            }
-            if (prevSelectedName && prevSelectedName === name) {
-                $('.overlayOnRoot').hide();
-                return;
-            }
-
-            /************************/
-            //pop up a window to confirm if the user is going to leave the current editing feedback page
-            var feedbackWarning = document.createElement('div');
-            $(feedbackWarning).addClass('feedbackWarning');
-            $(feedbackWarning).css({
-                'position': 'absolute',
-                'top': '40%',
-                'left': '35%',
-                'height': '20%',
-                'width': '30%',
-                'background-color': 'black',
-                'border': 'double white 1px'
-            });
-            var leavingmsg = document.createElement('label');
-            $(leavingmsg).addClass('leavingmsg');
-            $(leavingmsg).text('Are you sure you want to leave this page? \n   You have started writing feedback.');
-            $(leavingmsg).css({ 'position': 'absolute', 'font-size': '1.2em', 'color': 'white', 'top': '20%', 'text-align': 'center' });
-            $(feedbackWarning).append(leavingmsg);
-            //confirm button for the warning msg, continue going to the other page when clicked
-            var confirm = document.createElement('button');
-            $(confirm).addClass('confirm');
-            $(confirm).text('Leave Page');
-            $(confirm).css({
-                'position': 'absolute',
-                'left': '15%',
-                'bottom': '10%',
-                'border': '2px solid white',
-                'color': 'white',
-                'font-size': '1 em',
-                'text-color': '2%'
-            });
-            confirm.onclick = function () {
-                feedbackSelected = false;
-                //overlay disappear
-                $(feedbackWarningOverlay).css({ 'display': 'none' });
-                loadSetting();
-
-            };
-            $(feedbackWarning).append(confirm);
-            //cancel button for the warning msg, stay in the feedback page when clicked
-            var cancel = document.createElement('button');
-            $(cancel).addClass('cancel');
-            $(cancel).text('Cancel');
-            $(cancel).css({
-                'position': 'absolute',
-                'left': '60%',
-                'bottom': '10%',
-                'border': '2px solid white',
-                'color': 'white',
-                'font-size': '1 em'
-            });
-            cancel.onclick = function () {
-                $(feedbackWarningOverlay).css({
-                    'display': 'none'
-                })
-                if (name !== "Feedback") {
-                    $('.overlayOnRoot').fadeOut();
-                    $(labelContainer).css({ 'background-color': "rgb(219,217,204)" });
-                }
-                feedbackSelected = true;
-            }
-            $(feedbackWarning).append(cancel);
-            var feedbackWarningOverlay = LADS.Util.UI.blockInteractionOverlay();
-            $(feedbackWarningOverlay).css({
-                'display': 'none'
-            })
-            root.append(feedbackWarningOverlay);
-            $(feedbackWarningOverlay).append(feedbackWarning);
-
-            /************************/
-
-
-            if (feedbackSelected === true) {
-                if (feedbackSelected && name != "Feedback") {
-                    $(feedbackWarningOverlay).css({
-                        'display': 'block'
-                    })
-                    feedbackSelected = false;
-                }
-
+            if (LADS.Util.searchString($(child).children(childType).text(), val)) {
+                $(child).show();
             } else {
-                loadSetting();
-            };
-        }
+                $(child).hide();
+            }
+        });
+    }
 
-
-
-        //set default selection as General sittings
-        if (name == "General Settings") {
-            $(labelContainer).click();
-        }
-
-        if (name != 'Exhibitions') {
-            $(searchbar).text('Search');
-        }
-
-
-        $(leftSection).append(labelContainer);
-
-        function loadSetting() {
-            console.log("LOADING: " + name);
-            currentSetting = name;
-
-            if (name != "Exhibitions") {
-                $(searchbar).hide();
+    function searchData(val, selector) {
+        $.each($(selector), function (i, element) {
+            var data = $(element).data();
+            var show = false;
+            $.each(data, function (k, v) {
+                if (LADS.Util.searchString(v, val)) {
+                    show = true;
+                }
+            });
+            if (show) {
+                $(element).show();
             } else {
-                $(searchbar).show();
-            }
-
-            if (prevSelectedSetting != null) {
-                $(prevSelectedSetting).css({ 'background-color': "rgb(219,217,204)" });
-                $(prevSelectedSetting).attr('flagClicked', 'false');
-            }
-
-            if (name == "Artworks") {
-
-                //   $(document.getElementsByClassName('overlayOnRoot')).fadeIn();
-
-                $('.overlayOnRoot').show();
-                LADS.Worktop.Database.getAllArtworks(getAllArtworksHelper);
-
-                $(rightSettingsEntries).css({ 'height': '44.36%' });
-
-                function getAllArtworksHelper(artworks) {
-
-                    artworksList = artworks;
-
-                    if (artworksList[0]) {
-                        artworksList.sort(function (a, b) {
-                            if (a.Name < b.Name) {
-                                return -1;
-                            } else if (a.Name > b.Name) {
-                                return 1;
-                            } else {
-                                return 0;
-                            }
-                        });
-                    }
-
-                    console.log("EMPTY SETTINGS A");
-                    $(middleSettings).empty();
-                    $(middeLabel).text(name);
-
-                    // bmost: hackish fix for overlays not showing up when button is clicked
-                    setTimeout(function () {
-                        updateMiddlePanel(name);
-                        if (!showLoading) {
-                            $('.overlayOnRoot').hide();
-                            showLoading = false;
-                        }
-                    }, 1);
-                    $(labelContainer).css({ 'background-color': 'white' });
-                    $(labelContainer).attr('flagClicked', 'true');
-                    prevSelectedSetting = labelContainer;
-                    prevSelectedName = name;
-                }
-            }
-            else if (name == "Feedback") {
-                //this works BUT need to have it only appear when on feedback
-                //think about how to work with clicking off of elements
-
-                //$(feedbackComments).css({ "display": "block" });
-                var feedbackDiv = document.getElementsByClassName('feedbackComments');
-                $(feedbackDiv).css({ "display": "block" });
-            }
-
-
-            else {
-                $(rightSettingsEntries).css({ 'height': '55%' });
-            }
-
-
-            if (name != "Feedback") {
-                var feedbackDiv = document.getElementsByClassName('feedbackComments');
-                $(feedbackDiv).css({
-                    "display": "none"
-                });
-
-                var emailInput = document.getElementsByClassName('emailinput');
-                $(emailInput).val("");
-
-                var checkBox = document.getElementById('feedbackCheckBox');
-                $(checkBox).prop('checked', 'true');
-                var mediumButton = document.getElementById('mediumButton');
-                $(mediumButton).prop('checked', 'true');
-
-            }
-
-            if (name == "Artworks")
-                return;
-
-            if (name == "Exhibitions" || name == "Tour Authoring") {
-                $('.overlayOnRoot').show();
-            }
-
-            //if (name != "Artworks") {
-                $(rightSettingsEntries).css({ 'height': '55%' });
-                console.log("EMPTY SETTINGS B");
-                $(middleSettings).empty();
-                $(middeLabel).text(name);
-                // bmost: hackish fix for overlays not showing up when button is clicked
-                setTimeout(function () {
-                    updateMiddlePanel(name);
-                    if (name == "Exhibitions") {
-                        $('.overlayOnRoot').hide();
-                    }
-                }, 1);
-            //}
-
-            $(labelContainer).css({ 'background-color': 'white' });
-            $(labelContainer).attr('flagClicked', 'true');
-            prevSelectedSetting = labelContainer;
-            prevSelectedName = name;
-            //if (name == "Exhibitions") {
-            //    $('.overlayOnRoot').hide();
-            //}
-
-        };
-    }
-
-
-
-
-    //on selecting a settings page, this function updates the information displayed regarding that settings mode
-    function updateMiddlePanel(name, flag) {
-        var entries = [];
-        var type = [];
-        var icons = [];
-        var artworkGuids = [];
-        var isFirst = true;
-        switch (name) {
-
-            case "General Settings":
-                entries = getGeneralSettingsOptions();
-                break;
-            case "Exhibitions":
-                exhibitionCount = 0;
-                entries = getExhibitions();
-                type = "exhibition";
-                break;
-            case "Artworks":
-
-                currentUploadedArtworkGuid = (!artworksList[0]) ? null : artworksList[0].Identifier;
-
-                for (var i = 0; i < artworksList.length; i++) {
-                    entries.push(artworksList[i].Name);
-                    //icons.push(artworksList[i].URL);
-                    icons.push(artworksList[i].Metadata.Thumbnail);
-                    artworkGuids.push(artworksList[i].Identifier);
-                }
-                type = "Artworks";
-                break;
-            case "Feedback":
-
-                var feedbackBox = document.createElement('textarea');
-                $(feedbackBox).addClass('feedbackBox');
-                feedbackBox.id = "feedbackBox";
-                $(feedbackBox).text("Questions or comments");
-                $(feedbackBox).css({
-                    'position': 'absolute',
-                    'left': '5%',
-                    'width': '70%',
-                    'height': '80%',
-                    'color': 'gray',
-                    'border': '3px solid gray'
-                });
-
-                //used for having text reset only once from default to inputable
-                var feedbackOn = false;
-                $(middleSettings).append(feedbackBox);
-
-                feedbackBox.onclick = function () {
-                    if (feedbackOn === false) {
-                        feedbackOn = true;
-                        $(feedbackBox).text("");
-                        $(feedbackBox).css({ 'color': 'black' });
-                    }
-                    feedbackSelected = true;
-                }
-                type = "Feedback";
-                break;
-        }
-        var i = 0;
-
-        // if name == "Tour Authoring"
-        if (name == "Tour Authoring") {
-            console.log("in tour authoring, get tour");
-            getTours(function (localTours) {
-                type = "Tours";
-                $.each(localTours, function () {
-                    var label = createMiddleLabel(this + "", "Tours", "", "", tourObjects[i]);
-                    // Give labels unique ids based on the tour id
-                    $(label).attr('id', 'tour-' + tourObjects[i].Identifier);
-                    i++;
-                });
-                if (tourObjects[0])
-                    selectTourByGuid(tourObjects[0].Identifier);
-                //edit here
-                //$('#newButton').css({ 'margin-top': '-8%', 'margin-right': '-8%', 'font-size': '80%', 'height': '60%' });
-                $('#newButton').show();
-                $('#newButton').unbind('click').click(function () {
-                    // Create new document
-                    $('.overlayOnRoot').fadeIn();
-                    LADS.Worktop.Database.createTour(function (newtour) {
-                        getTours(function (tours) {
-                            console.log("EMPTY SETTINGS C");
-                            $(middleSettings).empty();
-                            var i = 0;
-                            $.each(tours, function () {
-                                var label = createMiddleLabel(this + "", "Tours", "", "", tourObjects[i]);
-                                // Give labels unique ids based on the tour id
-                                $(label).attr('id', 'tour-' + tourObjects[i].Identifier);
-                                i++;
-                            });
-                            if (newtour)
-                                selectTourByGuid(newtour.Identifier);
-                            $('.overlayOnRoot').fadeOut();
-                        });
-                    });
-                });
-
-            });
-        }
-
-
-        if (type != "Tours") {
-            $.each(entries, function () {
-                if (type == 'Artworks') {
-                   // if (i < 5)
-                    var label = createMiddleLabel(this + "", type, icons[i], artworkExhibition[artworkGuids[i]], artworksList[i], isFirst);
-                    $(label).attr('id', 'artwork-' + artworkGuids[i]);
-                    isFirst = false;
-                }
-
-                else
-                    createMiddleLabel(this + "", type, flag);
-                i++;
-            });
-        }
-
-        if (name == "Exhibitions") {
-            console.log("in exhibition get list");
-            $('#newButton').show();
-            $(newButton).css({ 'margin-top': '3.7%' });
-            $('#newButton').unbind('click').click(function () {
-                // Create new document
-                var newButtonLoading = $(document.getElementsByClassName("previewContainer"));
-                LADS.Util.showLoading(newButtonLoading);
-                
-                $('.overlayOnRoot').show();
-                LADS.Worktop.Database.createNewExhibition(function () {
-                    console.log("create new exhibition?");
-                    reloadExhibitions(null, function () {
-                        LADS.Util.hideLoading(newButtonLoading);
-                        newButtonLoading.css({ 'opacity': '1' });
-                        $('.overlayOnRoot').hide();
-                    });
-                });
-
-                //createExhibitionContent();
-            });
-        }
-        else if (name != "Tour Authoring") {
-            console.log("HIDING NEW BUTTON");
-            $('#newButton').hide();
-        }
-
-        if (name == "Artworks")
-            $('#importNew').show();
-        else
-            $('#importNew').hide();
-
-
-        // bmost: what is this?
-        var hello = $(searchbar).text();
-        var papa = searchbar.innerText;
-
-        //search filtering screws up the exhibition index, disable for release
-        //if (name == 'Exhibitions' && $(searchbar).text() == 'Search') {
-        if (name == 'Exhibitions' && $(searchbar).text() == 'Search') {
-            $(topMiddleLabelContainer).append(searchbar);
-        }
-        else if (name != 'Exhibitions') {
-            $(searchbar).remove();
-            $(searchbar).text('')
-            //search();
-            $(searchbar).text('Search')
-            searchIndices = [];
-
-        }
-        //$('.overlayOnRoot').fadeOut();
-    }
-
-
-    //add div elements to contain the information in the middle panel
-    function createMiddleLabel(name, type, icon, exhibition, artworkObj, isFirst) {
-
-        var labelContainer = document.createElement('div');
-        $(labelContainer).addClass('labelContainer');
-        $(labelContainer).css({
-            'top': '1%',
-            'position': 'relative',
-            'width': '96%',
-            'margin-bottom': '2%',
-            'height': '7%',
-            'left': '2%'
-        });
-        $(labelContainer).attr('flagClicked', 'true');
-        $(middleSettings).append(labelContainer);
-
-        var imgWidth = 0;
-        if (type === 'Artworks') {
-            var containerHeight = $(labelContainer).height();
-            var containerWidth = $(labelContainer).width();
-            var ratio = 1.564;
-            var imgHeight = containerHeight * .80;
-            imgWidth = imgHeight * ratio
-
-            $(labelContainer).css({ 'height': '11%' });
-            var imageThumbnail = document.createElement('img');
-            $(imageThumbnail).attr('src', icon);
-            $(imageThumbnail).css({
-                'height': imgHeight + 'px',
-                'width': imgWidth + 'px',
-                'top': '20%', // 7
-                'position': 'relative',
-                'overflow': 'hidden',
-                'float': 'left',
-                'left': '5%'
-            });
-
-            if (isFirst)
-                $('.overlayOnRoot').fadeOut();
-            // add spinning circle for each image thumbnail
-            var progressCircCSS = { "position": 'absolute', 'z-index': '50', 'height': 'auto', 'width': '10%', 'left': '5%', 'top': '20%' };
-            var centerHor = '0px';
-            var centerVert = '0px';
-            var circle = LADS.Util.showProgressCircle($(labelContainer), progressCircCSS, centerHor, centerVert, false);
-            $(imageThumbnail).load(function () {
-
-                LADS.Util.removeProgressCircle(circle);
-            });
-
-            $(labelContainer).append(imageThumbnail);
-
-            var numExhibitionLabel = document.createElement('div');
-            //  if (exhibition.length == 1)
-            //      $(numExhibitionLabel).text(exhibition.length + " Exhibition");
-            //  else
-            //      $(numExhibitionLabel).text(exhibition.length + " Exhibitions");
-
-            $(numExhibitionLabel).css({ 'position': 'absolute', 'float': 'right', 'font-size': '130%', 'top': '52%', 'right': '37%' });
-        }
-
-        var label = document.createElement('div');
-        $(label).addClass('label');
-
-        var labelleft = (type === 'Artworks') ? 10 : 5;
-        var labelTop = (type === 'Artworks') ? 20 : 5;
-
-        var textWidth = $('.labelContainer').width() - $('.labelContainer').width() * 0.14 - imgWidth;
-        if (textWidth === 0) { // Hack to keep things working before loading
-            textWidth = 350;
-        }
-        $(label).css({
-            'top': labelTop + "%",
-            'position': 'relative',
-            'left': labelleft + '%',
-            'font-size': '185%',
-            'color': 'black',
-            'height': '100%', //100
-            'width': textWidth + 'px',
-            'float': 'left',
-            //'white-space': 'no-wrap',
-            'overflow': 'hidden',
-            'text-overflow': 'ellipsis',
-            'white-space': 'nowrap',
-        });
-
-        $(label).text(name);
-        $(label).attr('text', name);
-
-        $(labelContainer).append(label);
-
-        var exhibitionNumber = exhibitionCount;
-
-        $(labelContainer).attr('flagClicked', 'false');
-        labelContainer.onmousedown = function () {
-            if (name == "Password Settings") {
-                return;
-            }
-            $(labelContainer).css({ 'background-color': 'white' });
-        };
-        labelContainer.onmouseleave = function () {
-            if ($(this).attr('flagClicked') == 'false')
-                $(this).css({ 'background-color': 'transparent' });
-
-        }
-        if (name == "Password Settings") {
-            $(label).css('color', 'gray');
-        }
-        labelContainer.onclick = function () {
-            if (name == "Password Settings") {
-                return;
-            }
-            if (middlePrevSelectedSetting == labelContainer) {
-                return;
-            }
-
-            if (middlePrevSelectedSetting != null) {
-                $(middlePrevSelectedSetting).css({ 'background-color': "rgb(219,217,204)" });
-
-            }
-
-            middlePrevSelectedSetting = labelContainer;
-            $(middlePrevSelectedSetting).attr('flagClicked', 'true');
-            middlePrevSelectedSettingText = label;
-
-            $(rightSection).empty();
-            $(rightSettings).empty();
-            $(rightSettingsEntries).empty();
-            $(rightSettingsFields).empty();
-            $(rightSettingsLabels).empty();
-
-            if (name == "Splash Screen") {
-                createSplashScreenContent();
-                $('.overlayOnRoot').fadeOut();
-            }
-
-            if (name == "Password Settings") {
-                createPasswordSettingsContent();
-            }
-
-            else if (type == "exhibition") {
-                //$('.overlayOnRoot').fadeIn();
-
-                exhibitionCount = exhibitionNumber;
-
-                //setTimeout(function () {
-                    createExhibitionContent(name);
-                //}, 1);
-
-                LADS.Worktop.Database.getDoqXML(exhibitionGuids[currentExhibitionNumber], function (xml) {
-                    var parser = new DOMParser();
-                    currentExhibitionXML = parser.parseFromString(xml, 'text/xml');
-                });
-                //$('.overlayOnRoot').fadeOut();
-                
-            }
-            else if (type == "Artworks") {
-                createArtworkContent(artworkObj);
-                currentArtwork = artworkObj;
-                changeArtworkPreview();
-            }
-            else if (type === "Tours") {
-                // temp name hack
-                for (var i = 0; i < tourObjects.length; i++) {
-                    if (tourObjects[i].Identifier == artworkObj.Identifier) {
-                        currentTour = tourObjects[i]
-                        break;
-                    }
-                }
-                createTourContent();
-                $('.overlayOnRoot').fadeOut();
-            }
-            //TODO: add other generators for content
-            $(labelContainer).css({ 'background-color': 'white' });
-        };
-
-        if (type == 'Artworks') {
-            $(labelContainer).append(numExhibitionLabel);
-
-            if (currentUploadedArtworkGuid == artworkObj.Identifier)
-                $(labelContainer).click();
-
-        }
-
-        if (name == "Splash Screen" || (name == getExhibitions()[0] && icon != "search")) {
-            //|| name == getArtworks()[0]
-            $(labelContainer).click();
-        }
-
-        //increment the total number of exhibitions if we created a new exhibition
-        if (type == "exhibition") {
-            exhibitionCount++;
-        }
-
-        // Return the labelContainer so it can be modified
-        return labelContainer;
-    }
-
-
-    function createExhibitionContent() {
-        createPreviewScreen('Exhibitions');
-        createModifyContent();
-        insertNameOfSetting();
-
-        if (exhibitionCount == null)
-            exhibitionCount = 0;
-
-        var currentExhibit = exhibitions[exhibitionCount];
-        insertSetting('Exhibition Name', 'textarea', null, currentExhibit.Name);
-        insertSetting('Subheading 1', 'textarea', null, currentExhibit.Metadata.Subheading1);
-        insertSetting('Subheading 2', 'textarea', null, currentExhibit.Metadata.Subheading2);
-        insertSetting('Exhibition Description', 'textarea', null, currentExhibit.Metadata.Description);
-        insertSetting('Exhibition Background Image', 'file', null, 'Change Background Image', 'bgimage');
-        //insertSetting('Exhibition Background Size', 'dropdown', null, null, 'bgimage'); // not hooked up to the server, disable for release
-        insertSetting('Exhibition Preview Image', 'file', null, 'Change Image', 'descriptionimg1');
-       // insertSetting('Exhibition Description Image 2', 'file', null, 'Change Image', 'descriptionimg2');
-
-
-        //This section has only the real modifiers. It has not headers nor the save button. 
-        $(rightSettingsEntries).attr('id', 'pureSettings');
-
-        $(rightSettings).append(rightSettingsEntries);
-        $(rightSection).append(rightSettings);
-
-        $(rightSection).attr('id', 'parentSetting');
-
-
-    }
-
-
-    function createArtworkContent(artworkObj) {
-        createPreviewScreen('Artworks');
-        createModifyContent();
-        insertNameOfSetting();
-        insertSetting('Title', 'blank', null, artworkObj.Name);
-        insertSetting('Artist', 'blank', null, artworkObj.Metadata.Artist);
-        insertSetting('Year', 'blank', null, artworkObj.Metadata.Year);
-        //insertSetting('Medium', 'blank', null, artworkObj.Metadata.Medium);
-        //removing location because it now contains the json text for image locations and should not be displayed
-        //insertSetting('Location', 'blank', null, artworkObj.Metadata.Location);
-        //insertSetting('Accession Number', 'blank');
-
-        var editExhibitionsLabel = document.createElement('label');
-        $(editExhibitionsLabel).css({ 'font-size': '200%', 'color': 'black' });
-        $(editExhibitionsLabel).text('Exhibitions');
-
-
-        var editExhibitionsButton = document.createElement('button');
-        $(editExhibitionsButton).css({ 'border-color': 'black', 'color': 'black', 'position': 'relative', 'left': '5%' });
-        $(editExhibitionsButton).text('Add to Exhibition');
-
-        var editExhibitionsOverlay = LADS.Util.UI.blockInteractionOverlay();
-        root.append(editExhibitionsOverlay);
-
-        var editExhibitionsBox = document.createElement('div');
-
-        $(editExhibitionsBox).addClass("editExhibitionsBox");
-        $(editExhibitionsBox).css({
-            'height': '70%',
-            'width': '30%',
-            'position': 'absolute',
-            'top': '15%',
-            'left': '34%',
-            'background-color': 'black',
-            'z-index': '10000',
-            'border': '3px double white',
-            'padding': '1.5%',
-        });
-
-        //sets minimum width of editexhibitionsbox
-        if ($(root).width() * .3 < 450) {
-            $(editExhibitionsBox).css({ width: '450px', });
-        }
-
-        var infoLabel = document.createElement('div');
-        $(infoLabel).addClass("infoLabel");
-        $(infoLabel).css({
-            'width': '100%',
-            'color': 'white',
-            'font-size': '200%',
-            'margin-bottom': '2%'
-        });
-        $(infoLabel).text('Choose the exhibitions you wish to link this artwork to.');
-
-        var exhibitionsList = document.createElement('div');
-        $(exhibitionsList).addClass("exhibitionsList");
-        $(exhibitionsList).css({
-            'width': '100%',
-            'height' : '75%',
-            'overflow': 'auto'
-        });
-
-        function exhibitionPicker(artworkObj) {
-            exhibitionByGuid;
-            artworkObj;
-            var xml = LADS.Worktop.Database.getDoqXML(currentArtwork.Identifier);
-            var parser = new DOMParser();
-            var artworkXML = parser.parseFromString(xml, 'text/xml');
-            exhibitionCBArray = [];
-            var currentExhibitions = [];
-            var exhibitionLabelArray = [];
-
-            for (var i = 0; i < artworkXML.getElementsByTagName('FolderId').length; i++) {
-                var exhib_id = artworkXML.getElementsByTagName('FolderId')[i].textContent;
-                if (exhibitionByGuid[exhib_id] == undefined) {
-                    artworkFolderId = exhib_id;
-                } else {
-                    currentExhibitions.push(exhib_id);
-                }
-            }
-
-            for (var i = 0; i < exhibitions.length; i++) {
-                var exhibitionLabelWrapper = document.createElement('div');
-                var exhibitionCB = document.createElement('input');
-                exhibitionCB.type = "checkbox";
-                $(exhibitionCB).addClass("exhibitionCB");
-                $(exhibitionCB).css({
-                    float: 'right',
-                    'margin-right': '20px',
-                });
-                exhibitionCB.name = "exhibitions";
-                exhibitionCB.value = exhibitions[i].Identifier;
-                if (currentExhibitions.indexOf(exhibitionCB.value) > -1) {
-                    exhibitionCB.checked = true;
-                };
-                var exhibitionLabel = document.createElement('div');
-                $(exhibitionLabel).css({
-                    width: '80%',
-                    color: 'white',
-                    'font-size': '180%',
-                });
-                $(exhibitionLabel).text(exhibitions[i].Name);
-                var exhibitionObject = exhibitions[i];
-
-                $(exhibitionLabelWrapper).append(exhibitionCB);
-                $(exhibitionLabelWrapper).append(exhibitionLabel);
-                exhibitionLabelArray.push(exhibitionLabelWrapper);
-                exhibitionCBArray.push(exhibitionCB);
-            }
-            $(exhibitionsList).empty();
-            for (var i = 0; i < exhibitionLabelArray.length; i++) {
-                $(exhibitionsList).append(exhibitionLabelArray[i]);
-                $(exhibitionsList).append("<hr>");
-            }
-        }
-
-        function readExhibitionCB() {
-            var selectedExhibitions = [];
-            for (var i = 0; i < exhibitionCBArray.length; i++) {
-                if (exhibitionCBArray[i].checked === true) {
-                    selectedExhibitions.push(exhibitionCBArray[i].value);
-                }
-            }
-            selectedExhibitions.push(artworkFolderId);
-            return selectedExhibitions;
-        }
-
-
-        var confirmationButtonDiv = document.createElement('div');
-        $(confirmationButtonDiv).addClass("confirmationButtonDiv");
-        $(confirmationButtonDiv).css({
-            'width': '100%',
-            'height': '10%',
-        });
-        var saveConfirmationButton = document.createElement('button');
-        $(saveConfirmationButton).addClass('cancelConfirmationButton');
-        $(saveConfirmationButton).css({ 'font-size': '140%', 'margin-left': '4%', 'float': 'right' });
-        $(saveConfirmationButton).text('Save');
-        var cancelConfirmationButton = document.createElement('button');
-        $(cancelConfirmationButton).addClass('cancelConfirmationButton');
-        $(cancelConfirmationButton).css({ 'font-size': '140%', 'margin-left': '2%', 'float': 'right' });
-        $(cancelConfirmationButton).text('Cancel');
-
-
-        cancelConfirmationButton.onclick = function () {
-            $(editExhibitionsOverlay).fadeOut();
-            editExhibitionCurrentSelected = null;
-            if (prevSelectedExhibition != null)
-                $(prevSelectedExhibition).css({ 'background-color': 'black', 'color': 'white' });
-
-        }
-
-        saveConfirmationButton.onclick = function () {
-
-            $(editExhibitionsOverlay).fadeOut();
-            // actually link the exhibitions
-            var selectedExhibitions = readExhibitionCB();
-            var creatorId = currentArtwork.CreatorID;
-
-            var xml = LADS.Worktop.Database.getDoqXML(currentArtwork.Identifier);
-            var parser = new DOMParser();
-            var artworkXML = parser.parseFromString(xml, 'text/xml');
-            //add artwork folder
-            artworkXML.getElementsByTagName("_Folders")[0].childNodes[0].childNodes[0].textContent = creatorId;
-            artworkXML.getElementsByTagName("_Folders")[0].childNodes[0].childNodes[1].textContent = selectedExhibitions[0];
-
-            //delete old folders
-            for (var i = 1; i < artworkXML.getElementsByTagName("FolderData").length; i++) {
-                var y = artworkXML.getElementsByTagName("FolderData")[i];
-                artworkXML.getElementsByTagName("_Folders")[0].removeChild(y);
-            }
-
-            //add remaining exhibitions
-            for (var i = 1; i < selectedExhibitions.length; i++) {
-                var node = artworkXML.getElementsByTagName("FolderData")[0];
-                var newNode = node.cloneNode(true);
-                //clones first node
-                artworkXML.getElementsByTagName("_Folders")[0].appendChild(newNode);
-                //edits info
-                artworkXML.getElementsByTagName("_Folders")[0].childNodes[i].childNodes[0].textContent = creatorId;
-                artworkXML.getElementsByTagName("_Folders")[0].childNodes[i].childNodes[1].textContent = selectedExhibitions[i];
-
-            }
-
-            //printExhibitions(artworkXML);
-
-            LADS.Worktop.Database.pushXML(artworkXML, currentArtwork.Identifier, "Artwork");
-        }
-
-        function printExhibitions(artxml) {
-            for (var i = 0; i < artxml.getElementsByTagName('FolderId').length; i++) {
-                console.log(artxml.getElementsByTagName('FolderId')[i].textContent);
-            }
-        }
-
-        $(confirmationButtonDiv).append(cancelConfirmationButton);
-        $(confirmationButtonDiv).append(saveConfirmationButton);
-
-
-
-        $(editExhibitionsBox).append(infoLabel);
-        $(editExhibitionsBox).append(exhibitionsList);
-        $(editExhibitionsBox).append(confirmationButtonDiv);
-
-
-        $(editExhibitionsOverlay).append(editExhibitionsBox);
-
-        editExhibitionsButton.onclick = function () {
-            exhibitionPicker(currentArtwork);
-            $(editExhibitionsOverlay).fadeToggle();
-        };
-
-        //This section has only the real modifiers. It has not headers nor the save button. 
-        $(rightSettingsEntries).attr('id', 'pureSettings');
-        $(rightSettingsEntries).css({
-            'height': '44.36%',
-            'margin-bottom': '3%'
-        });
-
-        $(rightSettings).append(rightSettingsEntries);
-        $(rightSettings).append(editExhibitionsLabel);
-        $(rightSettings).append(editExhibitionsButton);
-
-        $(rightSection).append(rightSettings);
-
-    }
-
-    function makeMiddleSection(type) {
-
-        $(middleSection).css({ 'width': '25%', 'height': '100%', 'z-index': '100', 'position': 'relative', 'left': '0%', 'background-color': "rgb(219,217,204)", 'float': 'left' });
-
-        topMiddleLabelContainer = document.createElement('div');
-        $(topMiddleLabelContainer).css({ 'top': '5%', 'position': 'relative', 'width': '100%', 'margin-bottom': '0' });
-
-
-        $(middeLabel).css({ 'top': '5%', 'position': 'relative', 'float': 'left', 'left': '10%', 'font-size': '300%', 'color': 'black', 'width': '100%', 'font-weight': '500' });
-
-
-        $(middeLabel).text(currentSetting);
-
-        LADS.Util.fitText(middeLabel, 1.1);
-
-        var newButton = $(document.createElement('button'));
-        newButton.css({ 'float': 'left', 'color': 'black', 'border-color': 'black', 'min-width': '15%', 'position': 'absolute', 'left': '75%', 'margin-top': '3.7%' });
-        newButton.text('New');
-        newButton.attr('id', 'newButton');
-
-        newButton.click(function () {
-            // Create new document
-            //LADS.Worktop.Database.createNewExhibition(function () { reloadExhibitions(); });
-            console.log("new button created");
-            //createExhibitionContent();
-        });
-
-        var importNewButton = $(document.createElement('button'));
-        importNewButton.css({ 'float': 'right', 'color': 'black', 'border-color': 'black', 'min-width': '27%', 'position': 'absolute', 'left': '65%', 'margin-top': '3.7%' }); //left 67
-        importNewButton.text('Import New');
-        importNewButton.attr('id', 'importNew');
-
-        // ARTWORK UPLOAD
-        importNewButton.click(function () {
-            var newName;
-            LADS.Authoring.FileUploader(
-                root,
-                LADS.Authoring.FileUploadTypes.DeepZoom,
-                // local callback - get filename
-                function (file, localURL) {
-                    newName = file.displayName;
-                },
-                // remote callback - save correct name
-                function (url) {
-                    $('.overlayOnRoot').show();
-                    LADS.Worktop.Database.setArtworkDirty();
-                    var check=0;
-                    while (!check) {
-                        console.log("checking for valid xml in file uploader response");
-                        try {
-                            newDoq = new Worktop.Doq(url);
-                            check = 1;
-                        }
-                        catch (err) {
-                            console.log("error in uploading, trying again: " + err.message);
-                        }
-                    }
-                    LADS.Worktop.Database.getDoqXML(newDoq.Identifier, function (xml) {
-                        var parser = new DOMParser(),
-                            artXML = $(parser.parseFromString(xml, 'text/xml'));
-                        artXML.find('Name').text(LADS.Util.encodeText(newName));
-                        LADS.Worktop.Database.pushXML(artXML[0], newDoq.Identifier, "Artwork",
-                            function () {
-                                reloadArtworks(function () {
-                                    $('.overlayOnRoot').hide();
-                                });
-                            });
-                    });
-                },
-                ['*'], // TODO: what image types does this take?
-                false, // show thumbnails, this is artwork!
-                null, // error callback
-                true // multiple file upload enabled
-                );
-        });
-
-
-
-        $(middleSettings).css({ 'height': '80.5%', 'width': '100%', 'overflow-y': 'auto', 'position': 'relative', 'top': '6.5%' }); //top 4
-        $(middleSettings).attr('id', 'middleSettingsLabelContainer');
-
-        $(topMiddleLabelContainer).append(middeLabel);
-
-        $(topMiddleLabelContainer).append(newButton);
-        newButton.hide();
-        $(topMiddleLabelContainer).append(importNewButton);
-
-        LADS.Util.fitText(importNewButton, .6);
-
-        importNewButton.hide();
-
-
-        searchbar.onclick = function () {
-            if ($(searchbar).text() == 'Search')
-                $(searchbar).text('');
-        };
-
-        searchbar.onblur = function () {
-            if ($(searchbar).text() == '')
-                $(searchbar).text('Search');
-        };
-
-        searchbar.onkeyup = function () {
-
-            search();
-            console.log("EMPTY SETTINGS D");
-            $(middleSettings).empty();
-            updateMiddlePanel('Exhibitions', 'search');
-        };
-
-        $(topMiddleLabelContainer).addClass('topMiddleLabelContainer');
-        $(middleSettings).addClass('middleSettings');
-        $(middleSection).addClass('middleSettings');
-        $(middleSection).append(topMiddleLabelContainer);
-        $(middleSection).append(middleSettings);
-        mainPanel.append(middleSection);
-    }
-
-
-    //function that filters results based on the search bar content
-    function search() {
-        var itemsToSearch = exhibitionNames;
-        exhibitionfilter = [];
-        searchIndices = [];
-        $.each(itemsToSearch, function (i) {
-            if ((this.toLowerCase()).indexOf($(searchbar).text().toLowerCase()) != -1) {
-                exhibitionfilter.push(this);
-                searchIndices.push(i);
-            }
-        });
-
-        //TODO: add artworks search
-    }
-
-    function createTourContent() {
-        createPreviewScreen('Tour');
-        createModifyContent();
-        insertNameOfSetting();
-
-        insertSetting('Tour Name', 'textarea', null, currentTour.Name);
-        insertSetting('Tour Description', 'textarea', null, currentTour.Metadata.Description);
-
-        $(rightSettings).append(rightSettingsEntries);
-        $(rightSection).append(rightSettings);
-
-        $(rightSection).attr('id', 'parentSetting');
-    }
-
-    function makeRightSection() {
-        $(rightSection).css({ 'width': '50%', 'height': '100%', 'position': 'relative', 'left': '0%', 'float': 'left' });
-        $(rightSettings).css({ 'height': '50%', 'width': '100%', 'position': 'relative', "background-color": "rgb(219,217,204)", "left": "5.5%" });
-        $(rightSettingsEntries).css({ 'width': '90%', 'height': '61%', 'position': 'relative', 'overflow': 'auto', 'top': '4%' });
-        mainPanel.append(rightSection);
-    }
-
-    //generates splash screen settings
-    function createSplashScreenContent() {
-
-
-
-        createPreviewScreen(null, function () {
-            createModifyContent();
-            insertNameOfSetting();
-            insertSetting('Background Image', 'file', null, 'Change Image', 'background');
-            //insertSetting('Background Size', 'dropdown', null, null, 'background'); //not hooked up to the server, disable for release
-            insertSetting('Overlay Color', 'colorpicker', null);
-            insertSetting('Overlay Transparency', 'number', null, LADS.Worktop.Database.getOverlayTransparency(), 'overlayTrans');
-            insertSetting('Museum Name', 'textarea', null, LADS.Worktop.Database.getMuseumName());
-            insertSetting('Museum Location', 'textarea', null, LADS.Worktop.Database.getMuseumLoc());
-            insertSetting('Museum Info', 'textarea', null, LADS.Worktop.Database.getMuseumInfo());
-            insertSetting('Museum Logo', 'file', null, 'Change Logo', 'logo');
-            insertSetting('Museum Logo Background color', 'colorpicker', null);
-
-            //This section has only the real modifiers. It has not headers nor the save button. 
-            $(rightSettingsEntries).attr('id', 'pureSettings');
-
-            $(rightSettings).append(rightSettingsEntries);
-            $(rightSection).append(rightSettings);
-            if (backButtonType == 'Artworks' || backButtonType == 'Tours') {
-                backButtonType = null;
-                settingsViewCallback(that);
+                $(element).hide();
             }
         });
     }
 
-    function createPasswordSettingsContent() {
-        
-        passwordcontent = true;
-        insertSetting('', 'blank', null);
-        insertSetting('', 'blank', null);
-        insertSetting('', 'blank', null);
-        insertSetting('', 'blank', null);
-        insertSetting('Current password', 'password', null);
-        insertSetting('New password', 'password', null);
-        insertSetting('Confirm password', 'password', null);
-        $(rightSettingsEntries).css('height', '80%');
-        $(rightSettings).append(rightSettingsEntries);
-        createModifyContent();
-        $(rightSection).append(rightSettings);
-        passwordcontent = false;
-    }
-
-
-    // RYAN - Moved into FileUploader
-    function uploadFile(id, type) {
-        //  var filePicker = new Windows.Storage.Pickers.FileOpenPicker();
-        filePicker.fileTypeFilter.replaceAll(["*"]);
-
-        filePicker.pickSingleFileAsync().then(function (file) {
-            if (!file) {
-                //printLog("No file selected");
-                return;
+    // When a text input is changed keeps its length no greater than
+    // maxlength
+    function onChangeUpdateText(input, selector, maxlength) {
+        input.keyup(function () {
+            if (input.val().length > maxlength) {
+                input.val(input.val().substring(0, maxlength));
             }
-
-            var upload = new UploadOp();
-            //  var uriString = document.getElementById("serverAddressField").value;
-            //deep zoom creation
-
-            if (type === "Standard")
-                var uriString = LADS.Worktop.Database.getURL() + "/?Type=FileUpload&Client=Windows";
-            else if (type === "Deepzoom")
-                var uriString = LADS.Worktop.Database.getURL() + "/?Type=FileUploadDeepzoom&Client=Windows&Guid=" + LADS.Worktop.Database.getCreatorID();
-
-
-            //var uriString = Worktop.Database.getURL() + "/?Type=FileUpload&Client=Windows";
-            upload.start(uriString, file);
-
-            // Store the upload operation in the uploadOps array.
-            //    uploadOperations.push(upload);
-
-            var objectUrl = window.URL.createObjectURL(file, { oneTimeOnly: true });
-
-            if (id === 'background' || id === 'bgimage') {
-                //set background image and dropdown menu that selects background size
-                $('#' + id).css({
-                    'background-image': 'url("' + objectUrl + '")',
-                    'background-size': 'cover',
-                });
-                //related to background-size, disabled for release
-                //$('#select')[0].selectedIndex = 0;
-                //$('#select').change();
-                if (id == 'background')
-                    mainSettings["Background Image"] = file.path;
-
-            } else if (id == 'logo') {
-                //set image source
-                $('#' + id)[0].src = objectUrl;
-            }
+            $(selector).html(input.val().replace(/\n\r?/g, '<br />'));
         });
-
-    }
-    // RYAN - end of move
-
-
-
-
-    /* 
-    Generator for settings content.
-
-    labelName: Name of the setting
-    type: Chooses the type of setting
-    clickFunction: function that activates onclick
-    text: text that goes into buttons
-    id: id of the element that will be manipulated (used for type == 'file' or 'dropdown')
-
-    */
-    function insertSetting(labelName, type, clickFunction, text, id) {
-        //This new variable give the settings section a new structure containing on the left side the lable and on the right the fields.
-        var rightSettingsSection = document.createElement('div');
-        $(rightSettingsSection).css({
-            'width': '100%',
-            'clear': 'both',
-            'margin-bottom': '3%',
-            'float': 'left'
-        });
-
-        var label = document.createElement('div');
-        $(rightSettingsSection).append(label);
-        $(label).attr('class', 'setting_name');
-        $(label).css({ 'font-size': '150%', 'float': 'left' });
-        if (!passwordcontent) {
-            $(label).css({ 'font-style': 'italic', 'width': '50%' });
-        }
-        else {
-            $(label).css({ 'width': '35%' });
-        }
-        $(label).text(labelName);
-        var itemContainer = document.createElement('div');
-
-        $(itemContainer).css({'float': 'left' });
-        if (!passwordcontent) {
-            $(itemContainer).css({ 'width': '50%' });
-        }
-        else {
-            $(itemContainer).css({ 'width': '65%' });
-        }
-        switch (type) {
-
-            case "file":
-
-                var item = document.createElement('div');
-                var selectButton = document.createElement('button');
-                $(selectButton).text(text);
-                $(selectButton).css({ 'color': 'black', 'border-color': 'black', 'margin-left': '4.5%' });
-
-                $(item).append(selectButton);
-
-                //add event listener for file event
-                //file.onchange = handleFileSelect(id);
-                selectButton.onclick = function () {
-                    currentUpload = labelName;
-                    uploadFile(id, "Standard");
-                };
-
-                break;
-            case "dropdown":
-                var item = document.createElement('form');
-                $(item).css({ 'width': '60%' });
-                var select = document.createElement('select');
-                $(select).css({ 'border-color': 'gray', 'color': 'gray' });
-                $(select).attr('id', 'select');
-                var optionArr = ['cover', '100% 100%', 'contain', 'auto'];
-                for (var i = 0, option; option = optionArr[i]; i++) {
-                    opt = document.createElement('option');
-                    $(opt).attr('value', option);
-                    $(opt).html(option);
-                    $(select).append(opt);
-                }
-
-                //add event listener for dropdown menu
-                select.onchange = function () {
-                    $('#' + id).css('background-size', select.options[select.selectedIndex].text + '');
-                };
-                $(item).append(select);
-                break;
-            case "password":
-                var item = document.createElement('input');
-                $(item).attr('type', "password");
-                $(item).attr('id', labelName);
-                $(item).css({ 'border-color': 'gray', 'color': 'black', 'min-width': '95%' });
-                $(item).css({ 'height': '2px'});
-                break;
-
-            case "textarea":
-                var item = document.createElement('textarea');
-                ////$(item).autoGrow();
-                $(item).attr('class', 'text_displayed');
-                $(item).css({ 'border-color': 'gray', 'color': 'gray', 'min-width': '80%', 'margin-left':'4.5%' });
-                $(item).text(text);
-
-                if (labelName === 'Museum Name') {
-                    //update museum name when typing
-                    item.onkeyup = changeText('museumName', item);
-                    $(item).attr('maxlength', 40);
-                } else if (labelName === 'Museum Location') {
-                    //update museum subtitle when typing
-                    item.onkeyup = changeText('subheading', item);
-                    $(item).attr('maxlength', 45);
-                } else if (labelName === 'Museum Info') {
-                    //update museum info when typing                    
-                    item.onkeyup = changeText('museumInfo', item);
-                    $(item).attr('maxlength', 1174, item);
-                } else if (labelName === 'Exhibition Name') {
-                    item.onkeyup = changeText('exhibition-title', item);
-                    $(item).attr('id', "exhibition-title-settings-editor");
-                    $(item).attr('maxlength', 24);
-                    var default_value = item.value;
-                    $(item).focus(function () {
-                        if (this.value == "Exhibition") {
-                            this.value = '';
-                        }
-                    });
-                    $(this).blur(function () {
-                        if (this.value == '') {
-                            this.value = default_value;
-                        }
-                    });
-                }
-                else if (labelName === 'Subheading 1') {
-                    item.onkeyup = changeText('exhibition-subtitle-1', item);
-                    $(item).attr('id', "exhibition-subtitle-1-settings-editor");
-                    $(item).attr('maxlength', 53);
-                    var default_value = item.value;
-                    $(item).focus(function () {
-                        if (this.value == "First Subheading") {
-                            this.value = '';
-                        }
-                    });
-                    $(this).blur(function () {
-                        if (this.value == '') {
-                            this.value = default_value;
-                        }
-                    });
-                }
-                else if (labelName === 'Subheading 2') {
-                    item.onkeyup = changeText('exhibition-subtitle-2', item);
-                    $(item).attr('id', "exhibition-subtitle-2-settings-editor");
-                    $(item).attr('maxlength', 70);
-                    var default_value = item.value;
-                    $(item).focus(function () {
-                        if (this.value == "Second Subheading") {
-                            this.value = '';
-                        }
-                    });
-                    $(this).blur(function () {
-                        if (this.value == '') {
-                            this.value = default_value;
-                        }
-                    });
-                }
-                else if (labelName === 'Exhibition Description') {
-                    item.onkeyup = changeText('description-text', item);
-                    $(item).attr('id', "description-text-settings-editor");
-                    $(item).attr('maxlength', 1790);
-                    $(item).focus(function () {
-                        if (this.value == "Description") {
-                            this.value = '';
-                        }
-                    });
-                    $(this).blur(function () {
-                        if (this.value == '') {
-                            this.value = default_value;
-                        }
-                    });
-                } else if (labelName === "Tour Name") {
-                    $(item).attr('maxlength', 120);
-                }
-                // change text to default when no edition happened
-                $(item).each(function () {
-                    var default_value = this.value;
-                    $(this).focus(function () {
-                        if (this.value == "Untitled Tour"||this.value=="Tour Description") {
-                            this.value = '';
-                        }
-                    });
-                    $(this).blur(function () {
-                        if (this.value == '') {
-                            this.value = default_value;
-                        }
-                    });
-                });
-
-                //This next part makes the size adapt to the size of the text inserted
-                item.addEventListener('DOMNodeInserted', function () {
-                        var realHeight = item.scrollHeight;
-                        $(item).css('height', realHeight + 'px');
-                        $(item).autoSize();
-                     });
-    
-                break;
-            case "colorpicker":
-                var item = document.createElement('input');
-                $(item).attr('class', 'color');
-
-                if (item.addEventListener) {
-                    item.addEventListener('DOMNodeInserted', function () {
-
-                        //initialize colorpicker object on current element
-                        var myPicker = new jscolor.color(item, {});
-                        if (labelName == 'Overlay Color') {
-                            var infoDiv = $('.infoDiv');
-                            if (infoDiv.length > 0) {
-                                //initialize colorpicker value to be the current background color of the overlay
-                                var color = infoDiv.css('background-color');
-                                var hex = LADS.Util.UI.colorToHex(color);
-                                $(item).val(hex);
-                                $(item).css('margin-left', '4.5%');
-                                myPicker.fromString(hex);
-
-                                //set event handler to change overlay color as user manipulates the colorpicker
-                                myPicker.onImmediateChange = function () { infoDiv.css('background-color', LADS.Util.UI.hexToRGB(item.value) + $('#overlayTrans').val() / 100.0 + ')') };
-                            } else {
-                                console.log("$('.infoDiv') length = 0");
-                            }
-
-                            //change text to default value when no edition
-                            $('#overlayTrans').each(function () {
-                                var default_value = this.value;
-                                $(this).focus(function () {
-                                    if (this.value == default_value) {
-                                        this.value = '';
-                                    }
-                                });
-                                $(this).blur(function () {
-                                    if (this.value == '') {
-                                        this.value = default_value;
-                                    }
-                                });
-                            });
-
-                        } else if (labelName == 'Museum Logo Background Color') {
-                            var logoContainer = $('.logoContainer');
-                            if (logoContainer.length > 0) {
-                                //initialize colorpicker value to be the current background color of the museum logo
-                                var color = $('.logoContainer').css('background-color');
-                                var hex = LADS.Util.UI.colorToHex(color);
-                                $(item).val(hex);
-                                myPicker.fromString(hex);
-
-                                //set event handler to change museum logo background color as user manipulates the colorpicker
-                                myPicker.onImmediateChange = function () {
-                                    $('#logoContainer').css('background-color', '#' + item.value);
-                                };
-                            } else {
-                                console.log("$('.logoContainer') length = 0");
-                            }
-                        }
-                    }, false);
-                }
-
-                break;
-            case "blank":
-                var item = document.createElement('p');
-                $(item).text(text);
-                // $(item).attr('id', 'slider');
-                $(item).css({
-                    'font-size': '135%',
-                    'word-wrap': 'break-word',
-                    'padding-right': '4%',
-                    'margin': '0%'
-                });
-                //if (item.addEventListener) {
-                //     item.addEventListener('DOMNodeInserted', setSlider, false);
-                // }
-
-                break;
-            case "number":
-                var item = document.createElement('textarea');
-                //$(item).attr('class', 'text_displayed');
-                $(item).attr('id', id);
-                $(item).css({ 'border-color': 'gray', 'margin-left': '4.3%', 'color': 'gray', 'min-width': '20%' });
-                $(item).text(parseFloat(text) * 100);//(text)
-                $(item).numeric();
-                $(item).autoSize();
-                item.onkeyup = function () {
-                    var num = parseInt($('#' + id).val());
-                    num = (num > 100) ? 100 : num;
-                    num = (num < 0) ? 0 : num;
-                    if (!isNaN(num))
-                        $(item).text(num);
-
-                    var color = $('.infoDiv').css('background-color');
-                    var idx = color.lastIndexOf(',') + 1;
-                    alpha = color.substring(idx, color.lastIndexOf(')'));
-
-                    color = $('.infoDiv').css('background-color');
-                    idx = color.lastIndexOf(',') + 1;
-                    alpha = color.substring(idx, color.lastIndexOf(')'));
-                    $('.infoDiv').css('background-color', color.substring(0, idx) + num / 100.0 + ')');
-                }
-                break;
-                //doesn't handle touch, useless
-            case "slider": //jquery UI slider
-                var item = document.createElement('div');
-                $(item).attr('id', 'slider');
-                $(item).css({ 'border-botton': '5em', 'width': '60%', 'float': 'left', 'top': '30%' });
-                if (item.addEventListener) {
-                    item.addEventListener('DOMNodeInserted', setSlider, false);
-                }
-
-                //slider value display
-                var display = document.createElement('div');
-                $(display).css({ 'width': '10%', 'float': 'left', 'height': '100%', 'margin-left': '6%', 'position': 'relative', 'top': '17%', 'font-weight': 'bold' });
-
-        }
-        mainSettings[labelName] = item;
-
-        $(itemContainer).append(item);
-        $(rightSettingsSection).append(itemContainer);
-
-        if (display != null) {
-            $(itemContainer).append(display);
-        }
-        //At this point the larger div appends each new section.
-        $(rightSettingsEntries).append(rightSettingsSection);
-
-        //function that sets images
-        function handleFileSelect(target) {
-
-            //closure to get the event while keeping the parameters of this function
-            return function (evt) {
-                var files = evt.target.files; // FileList object
-
-                // Loop through the FileList and render image files as thumbnails.
-                for (var i = 0, f; f = files[i]; i++) {
-
-                    // Only process image files.
-                    if (!f.type.match('image.*')) {
-                        continue;
-                    }
-
-                    var reader = new FileReader();
-                    // Read in the image file as a data URL.
-                    reader.readAsDataURL(f);
-
-                    // Closure to capture the file information.
-                    reader.onload = (function (theFile) {
-                        return function (e) {
-                            if (id == 'background') {
-                                $('#' + id).css({
-                                    'background': 'url(' + e.target.result + ')',
-                                    width: '100%',
-                                });
-                                //related to background-size, disabled for release
-                                //$('#select')[0].selectedIndex = 0;
-                                //$('#select').change();
-                                mainSettings["Background Image"] = e.target.result;
-                            } else if (id == 'logo') {
-                                $('#' + id).attr('src', e.target.result);
-                            }
-                        };
-                    })(f);
-                }
+        input.keydown(function () {
+            if (input.val().length > maxlength) {
+                input.val(input.val().substring(0, maxlength));
             }
-        }
-
-        // function to initialize jquery ui slider within the settings page
-        function setSlider() {
-            $(item).ready(function () {
-                var color = $('.overlay').css('background-color');
-                var idx = color.lastIndexOf(',') + 1;
-                alpha = color.substring(idx, color.lastIndexOf(')'));
-                $(item).slider({
-                    min: 0,
-                    max: 1,
-                    step: 0.01,
-                    value: alpha,
-                    slide: function (event, ui) {
-                        color = $('.overlay').css('background-color');
-                        idx = color.lastIndexOf(',') + 1;
-                        alpha = color.substring(idx, color.lastIndexOf(')'));
-                        $('.overlay').css('background-color', color.substring(0, idx) + ui.value + ')');
-                        $(display).html(Math.round(ui.value * 100) + '%');
-                    },
-                    create: function (event, ui) {
-                        $(display).html(Math.round(alpha * 100) + '%');
-                    }
-                });
-            });
-
-        }
-
-        //function that when bind to an event, changes the element with the specified id to have the same text as the element the event originated from
-        var nameDivSize;
-        var nameSpanSize;
-        var fontSizeSpan;
-        var fontSizeArray;
-        var fontSize;
-        var divHeight;
-        var spanHeight;
-        var spanScrollHeight;
-        function changeText(id, item) {
-            return function (evt) {
-
-                $('#' + id).html(evt.target.textContent.replace(/\n\r?/g, '<br />'));
-                if ($(item).attr('maxlength') == item.value.length) {
-                    $(characterLimitLabel).show();
-                    setTimeout(function () {
-                        $(characterLimitLabel).hide();
-                    }, 3000);
-                }
-                //write fittext constraints below for the individual elements
-
-                switch (id) {
-                    case 'museumInfo':
-                        var subheadingFont = parseInt($('#subheading').css('font-size'));
-                        LADS.Util.UI.fitTextInDiv($('#' + id), Math.round(subheadingFont * 2 / 3), Math.round(subheadingFont * 1 / 3));
-                        break;
-
-
-
-                    case 'museumName':
-
-                        /*
-                        fontSizeDiv = $('#museumName').css('font-size');
-                        fontSizeDiv = fontSizeDiv[0].splice(2, 2);
-                        fontSizeSpan = $('#nameSpan').css('font-size');*/
-                        //$(museumNameSpan).css('font-size', nameDivSize + 'px');
-                        fontSizeSpan = $('#museumName').css('font-size');
-                        fontSizeArray = fontSizeSpan.split("px");
-                        fontSize = fontSizeArray[0];
-                        spanHeight = $('#museumName').height();
-                        divHeight = $('#divName').height();
-                        while (spanHeight > divHeight) {
-                            fontSize--;
-                            $('#museumName').css('font-size', fontSize);
-                            spanHeight = $('#museumName')[0].scrollHeight;
-                        }
-
-                        var subheadingFont = parseInt($('#subheading').css('font-size'));
-                        LADS.Util.UI.fitTextInDiv($('#' + id), Math.round(subheadingFont * 5 / 3), Math.round(subheadingFont * 4 / 3));
-                        break;
-                }
-            };
-        }
-    }
-
-    // Changes the text of some element with id 'id' to the value
-    // of an input 'item'.  Does no length checking (Used to update
-    // the preview when the mode is changed).
-    function changeTextSimple(id, item) {
-        $('#' + id).html(item.val().replace(/\n\r?/g, '<br />'));
-    }
-
-    function logData(hex, rgb) {
-        // $("#console").prepend('HEX: ' + hex + ' (RGB: ' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + ')<br />');
-    }
-
-
-    //preview screen for the current settings mode
-    function createPreviewScreen(type, callback) {
-      /*  var previewLoading = $(document.createElement('div'));
-        $(previewLoading).addClass('previewLoading');
-        $(previewLoading).css({
-            'position': 'absolute',
-            'width': '100%',
-            'height': '54.36%',
-            'top': '0px',
-            'left': '0px',
-            'background-color': 'rgba(0,0,0,0.5)',
-            'display': 'none'
+            $(selector).html(input.val().replace(/\n\r?/g, '<br />'));
         });
-
-
-        LADS.Util.showLoading($(previewLoading));
-        $(rightSection).append(previewLoading);
-        */
-        var previewContainer = document.createElement('div');
-        $(previewContainer).addClass('previewContainer');
-        $(previewContainer).css({
-            'position': 'relative',
-            'width': '100%',
-            'height': '54.36%',
-            'top': '0%',
-            'background': 'no-repeat center / contain black',
-
+        input.change(function () {
+            if (input.val().length > maxlength) {
+                input.val(input.val().substring(0, maxlength));
+            }
+            $(selector).html(input.val().replace(/\n\r?/g, '<br />'));
         });
-        $(rightSection).append(previewContainer);
-
-
-
-        //Splash screen preview
-        if ($(middlePrevSelectedSetting).text() == 'Splash Screen' || type == "Exhibitions") {
-            //get screen resolution
-            var w = window, d = document, e = d.documentElement, g = d.getElementsByTagName('body')[0], x = w.innerWidth || e.clientWidth || g.clientWidth, y = w.innerHeight || e.clientHeight || g.clientHeight;
-            var ratio = x / y;
-
-            //create div to display the entire splash screen
-            splashFrame = document.createElement('div');
-            $(splashFrame).addClass('splashFrame');
-            $(splashFrame).css({
-                'height': '100%',
-                'width': '100%',
-                'position': 'absolute',
-                'color': 'white', // This is hardcoded since the page does not inherent the color settings
-                'font-size': '6.5pt' // This is also hardcoded to make the font fit the screen
-            });
-            //$(splashFrame).attr('disabled', 'true');
-
-
-
-            if ($(middlePrevSelectedSetting).text() == 'Splash Screen')
-                // $(splashFrame).append((new LADS.Layout.StartPage()).getRoot());
-                new LADS.Layout.StartPage(null, function (startPage) {
-
-                    $(splashFrame).append(startPage.getRoot());
-                    callback();
-                });
-            else if (type == "Exhibitions") {
-
-                if (searchIndices.length != 0) {
-                    exhibitionCount = searchIndices[exhibitionCount];
-                }
-                currentExhibitionNumber = exhibitionCount;
-                new LADS.Layout.Exhibitions(null, exhibitionsHelper);
-
-                function exhibitionsHelper(exhibition) {
-                    exhibition.clickExhibition(exhibitionCount);
-
-                    $(splashFrame).append(exhibition.getRoot());
-
-                    $('.overlayOnRoot').fadeOut();
-
-                }
-
-
-            }
-
-            $(previewContainer).append(splashFrame);
-            $('.tour').outerWidth(($('.toursBar').outerWidth() / 60 * 100) / 3);
-            $('.tourContent').outerWidth($('.tour').outerWidth() * 5);
-
-            //create transparent div over preview div to disable clicking
-            var cover = document.createElement('div');
-            $(cover).attr('id', 'cover');
-            $(cover).css({
-                'height': '100%',
-                'width': '100%',
-                'float': 'left',
-                'position': 'absolute',
-                'background-color': 'white',
-                'opacity': '0'
-            });
-            $(cover).bind('click', function () { return false; });
-            $(previewContainer).append(cover);
-            /*$(previewContainer).ready(function () {
-                $(splashFrame).css({ 'height': $(previewContainer).width() / ratio + 'px' });
-                console.log($(splashFrame).width());
-            });*/
-        }
-        else if (type == 'Tour') {
-            $(previewContainer).css({ 'background-image': 'url(' + currentTour.Metadata.Thumbnail + ')' });
-        }
+        return input;
     }
 
-
-    // changes the preview scren 
-    function changeArtworkPreview() {
-
-        $('.previewContainer').empty();
-
-
-        var imgLoading = $(document.createElement('div'));
-        $(imgLoading).addClass('imgLoading');
-        $(imgLoading).css({
-            'position': 'absolute',
-            'width': '100%',
-            'height': '54.36%',
-            'top': '0px',
-            'left': '0px',
-            'background-color': 'rgba(0,0,0,0.5)',
+    // When a text input is changed makes sure its a number and is within
+    // min and max.  Performs doOnChange when it changes
+    function onChangeUpdateNum(input, min, max, doOnChange) {
+        input.keyup(function () {
+            var replace = input.val().replace(/[^0-9]/g, '');
+            replace = Math.constrain(parseInt(replace, 10), min, max);
+            if (isNaN(replace)) replace = 0;
+            if (input.val() !== replace + '') {
+                input.val(replace);
+            }
+            if (doOnChange)
+                doOnChange(replace);
         });
-
-
-        LADS.Util.showLoading($(imgLoading));
-        $(rightSection).append(imgLoading);
-        var previewBackground = $('<img>').attr('src', currentArtwork.URL);
-        previewBackground.load(function () {
-            imgLoading.fadeOut();
-            $('.previewContainer').css({ 'background-image': 'url(' + currentArtwork.URL + ')' });
+        input.keydown(function () {
+            var replace = input.val().replace(/[^0-9]/g, '');
+            replace = Math.constrain(parseInt(replace, 10), min, max);
+            if (isNaN(replace)) replace = 0;
+            if (input.val() !== replace + '') {
+                input.val(replace);
+            }
+            if (doOnChange)
+                doOnChange(replace);
         });
-
-
-        $('.previewContainer').show();
-
-    }
-
-    function passwordsettingChanges() {
-        console.log("am saving the passwordddd");
-    }
-
-    function createModifyContent() {
-        // save & delete stuff including listeners
-
-        var modifyButtonContainer = document.createElement('div');
-        $(modifyButtonContainer).css({ 'position': 'relative', 'width': '90%', 'height': '10%', 'top': '2%' });
-        var saveDraftButton = document.createElement('button');
-        $(saveDraftButton).text('Save');
-        $(saveDraftButton).css({ 'margin-right': '2.5%', 'position': 'relative', 'color': 'black', 'border-color': 'black', 'float': 'right' });
-
-        var deleteButton = document.createElement('button');
-        $(deleteButton).css({ 'margin-right': '3%', 'position': 'relative', 'color': 'black', 'border-color': 'black', 'float': 'left' });
-        $(deleteButton).text('Delete');
-
-        var catalogModeViewButton = document.createElement('button');
-        $(catalogModeViewButton).text('View Catalog Mode');
-        $(catalogModeViewButton).css({ 'margin-right': '3%', 'position': 'relative', 'color': 'black', 'border-color': 'black', 'float': 'left' });
-
-
-        catalogModeViewButton.onclick = function () {
-
-
-            if ($(catalogModeViewButton).text() == 'View Exhibition Mode') {
-                $(splashFrame).empty();
-
-                new LADS.Layout.Exhibitions(null, exhibitionsHelper);
-
-                function exhibitionsHelper(exhibition) {
-                    $(splashFrame).append(exhibition.getRoot());
-                    exhibition.clickExhibition(exhibitionCount);
-
-
-                    // Adjust the preview to match the entered text
-                    changeTextSimple('exhibition-title', $('#exhibition-title-settings-editor'));
-                    changeTextSimple('exhibition-subtitle-1', $('#exhibition-subtitle-1-settings-editor'));
-                    changeTextSimple('exhibition-subtitle-2', $('#exhibition-subtitle-2-settings-editor'));
-                    changeTextSimple('description-text', $('#description-text-settings-editor'));
-                }
-
-                $(catalogModeViewButton).text('View Catalog Mode');
+        input.change(function () {
+            var replace = input.val().replace(/[^0-9]/g, '');
+            replace = Math.constrain(parseInt(replace, 10), min, max);
+            if (isNaN(replace)) replace = 0;
+            if (input.val() !== replace + '') {
+                input.val(replace);
             }
-            else {
-                var artworks = LADS.Worktop.Database.getArtworks(exhibitions[currentExhibitionNumber]);
-                // if there is no artwork in the selected exhibition, alert user
-                if (!artworks || !artworks[0]) {
-                    var noArtworksOptionBox = LADS.Util.UI.makeNoArtworksOptionBox();
-                    root.append(noArtworksOptionBox);
-                    $(noArtworksOptionBox).fadeIn(500);
-                    return;
-                }
-                $(splashFrame).empty();
-                var catalogMode = new LADS.Layout.Catalog(exhibitions[currentExhibitionNumber]);
-                $(splashFrame).append(catalogMode.getRoot());
-                $(catalogModeViewButton).text('View Exhibition Mode');
-            }
-        }
-
-        saveDraftButton.onclick = function () {
-            //add action performed
-            if (currentSetting == "General Settings") {
-                if ($(middlePrevSelectedSetting).text() == 'Splash Screen') {
-                    pushMainChanges();
-                }
-                else {
-                    passwordsettingChanges();
-                }
-
-            }
-            else if (currentSetting == "Exhibitions")
-                pushExhibitionsSettings();
-            else if (currentSetting == "Tour Authoring") {
-                $('.overlayOnRoot').fadeIn();
-                pushTourSettings();
-            }
-        };
-
-        deleteButton.onclick = function () {
-            var currentExhibitionName = exhibitionNames[currentExhibitionNumber];
-            var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
-                // actually delete the artwork
-                $('.overlayOnRoot').show();
-                LADS.Worktop.Database.deleteDoq(exhibitionGuids[exhibitionCount], "Exhibition", function () {
-                    reloadExhibitions(null, function () {
-                        $('.overlayOnRoot').hide();
-                    });
-                });
-            }, "Are you sure you want to delete " + currentExhibitionName + "?", "Delete");
-            root.append(confirmationBox);
-            $(confirmationBox).fadeIn(500);
-        };
-
-        if (currentSetting == "Exhibitions") {
-            $(modifyButtonContainer).append(saveDraftButton);
-            $(modifyButtonContainer).append(deleteButton);
-            $(modifyButtonContainer).append(catalogModeViewButton);
-
-            $(rightSettings).append(modifyButtonContainer);
-        }
-        else if (currentSetting == "General Settings") {
-            if (passwordcontent) {
-                $(rightSettingsEntries).append(saveDraftButton);
-            } else {
-                $(modifyButtonContainer).append(saveDraftButton);
-                $(rightSettings).append(modifyButtonContainer);
-            }
-        }
-        else if (currentSetting == "Artworks") {
-
-            var editArtworkInfoButton = document.createElement('button');
-            $(editArtworkInfoButton).text('Edit Artwork Info');
-            $(editArtworkInfoButton).css({ 'border-color': 'black', 'top': '2%', 'color': 'black', 'position': 'relative' });
-            $(modifyButtonContainer).append(editArtworkInfoButton);
-
-            var deleteArtworkButton = document.createElement('button');
-            $(deleteArtworkButton).text('Delete Artwork');
-            $(deleteArtworkButton).css({ 'border-color': 'black', 'top': '2%', 'color': 'black', 'position': 'relative', 'left': '3%' });
-            $(modifyButtonContainer).append(deleteArtworkButton);
-
-
-            $(rightSettings).append(modifyButtonContainer);
-
-            editArtworkInfoButton.onclick = function () {
-                LADS.Util.UI.slidePageLeft((new LADS.Layout.ArtworkEditor(currentArtwork)).getRoot());
-            };
-
-            deleteArtworkButton.onclick = function () {
-                var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
-                    $('.overlayOnRoot').show();
-                    LADS.Worktop.Database.deleteDoq(currentArtwork.Identifier, "Artwork", function () {
-                        reloadArtworks(function () {
-                            $('.overlayOnRoot').hide();
-                        });
-                    });
-                }, "Are you sure you want to delete "+currentArtwork.Name+"?", "Delete");
-
-                root.append(confirmationBox);
-                $(confirmationBox).fadeIn(500);
-            };
-
-        }
-        else if (currentSetting == "Tour Authoring") {
-            $(modifyButtonContainer).append(saveDraftButton);
-
-            var editTourButton = document.createElement('button');
-            $(editTourButton).text('Edit Tour');
-            $(editTourButton).css({ 'border-color': 'black', 'top': '2%', 'color': 'black', 'position': 'relative' });
-            $(modifyButtonContainer).append(editTourButton);
-
-            var deleteTourButton = document.createElement('button');
-            $(deleteTourButton).text('Delete Tour');
-            $(deleteTourButton).css({ 'border-color': 'black', 'top': '2%', 'color': 'black', 'position': 'relative', 'left': '3%' });
-            $(modifyButtonContainer).append(deleteTourButton);
-
-
-            $(rightSettings).append(modifyButtonContainer);
-
-            $(rightSection).append(rightSettings);
-
-            editTourButton.onclick = function () {
-                LADS.Util.UI.slidePageLeft((new LADS.Layout.TourAuthoringNew(currentTour)).getRoot());
-            };
-
-            deleteTourButton.onclick = function () {
-                var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
-                    $('.overlayOnRoot').fadeIn();
-                    LADS.Worktop.Database.deleteDoq(currentTour.Identifier, "Tour", function () {
-                        refreshTours();
-                    });
-                }, "Are you sure you want to delete "+currentTour.Name+"?", "Delete");
-
-                root.append(confirmationBox);
-                $(confirmationBox).fadeIn(500);
-            };
-
-
-        }
-    }
-
-    function refreshTours(toselect) {
-        getTours(function (tours) {
-            console.log("EMPTY SETTINGS E");
-            $(middleSettings).empty();
-            var i = 0;
-            $.each(tours, function () {
-                createMiddleLabel(this + "", "Tours", "", "", tourObjects[i]);
-                i++;
-            });
-
-            if (tourObjects[0])
-                selectTourByGuid(tourObjects[0].Identifier);
-            if (toselect)
-                selectTourByGuid(toselect.Identifier);
-            $('.overlayOnRoot').fadeOut();
+            if (doOnChange)
+                doOnChange(replace);
         });
-    }
-
-
-    function insertNameOfSetting() {
-        var settingsLabelDiv = document.createElement('div');
-        $(settingsLabelDiv).css({ 'position': 'relative', 'width': '90%', 'height': '10%', 'top': '4%', 'margin-bottom': '4%' });
-
-        characterLimitLabel = document.createElement('label');
-        $(characterLimitLabel).text(' You have reached the limit of available characters');
-        $(characterLimitLabel).css({ 'position': 'relative', 'font-size': getFontSize(150), 'color': 'black', 'font-style': 'italic' });
-        $(characterLimitLabel).hide();
-
-        var settingsLabel = document.createElement('label');
-        $(settingsLabel).css({ 'position': 'relative', 'font-size': '130%', 'font-weight': 'bold'});
-        $(settingsLabel).text($(middlePrevSelectedSettingText).text());
-        $(settingsLabelDiv).append(settingsLabel);
-        $(settingsLabelDiv).append(characterLimitLabel);
-        $(rightSettings).append(settingsLabelDiv);
-        //The following div modifis the background image, it continas all the setting options. Including labels and "save" button
-
-        $(rightSettings).attr('id', 'settingDiv');
-    }
-
-
-    function createTopBar(topbarHeight) {
-        // style the topbar
-        topbar.css("background-color", "rgb(63,55,53)");
-        topbar.css("color", "rgb(175,200,178)");
-        topbar.css("width", '100%');
-        topbar.css('height', topbarHeight + '%');
-
-        // add the back button
-        var backButtonArea = $(document.createElement('div'));
-        backButtonArea.css({ "top": "20%", 'left': '1%', "width": "5%", "position": "relative", "float": "left" });
-
-        var backButton = document.createElement('img');
-        $(backButton).attr('src', 'images/icons/Back.svg');
-        //$(backButton).css({ 'left': '1%', 'top': '10%', 'position': 'relative', 'float': 'left' });
-        $(backButton).css({ 'width': '58%', 'height': '58%' });
-        $(backButtonArea).append(backButton);
-        $(topbar).append(backButtonArea);
-
-
-        backButton.onmousedown = function () {
-            LADS.Util.UI.cgBackColor("backButton", backButton, false);
-        }
-
-        backButton.onmouseleave = function () {
-            LADS.Util.UI.cgBackColor("backButton", backButton, true);
-        }
-
-        backButton.onclick = function () {
-            //$(".inkCanv").remove();
-            //$(".rinInkContainer").remove();
-            var startPage = new LADS.Layout.StartPage();
-            LADS.Util.UI.slidePageRight(startPage.getRoot());
-        };
-
-        changesSavedLabel = document.createElement('label');
-        $(changesSavedLabel).text('All Changes Saved');
-        $(changesSavedLabel).css({ 'left': '70%', 'top': '15%', 'position': 'relative', 'font-size': getFontSize(120), 'color': 'white', 'font-style': 'italic' });
-        $(topbar).append(changesSavedLabel);
-        $(changesSavedLabel).hide();
-
-        var titleLabel = document.createElement('label');
-        $(titleLabel).text('Authoring Mode');
-        $(titleLabel).css({
-            'right': '2%',
-            'top': '1.5%',
-            'position': 'absolute',
-            'font-size': getFontSize(260),
-            'color': 'white'
-        });
-        $(topbar).append(titleLabel);
-
-    }
-
-
-
-    function getFontSize(factor) {
-        return factor * (screen.width / 1920) + '%';
-    }
-
-
-    function getGeneralSettingsOptions() {
-        //var generalSettings = ["Splash Screen", "Artwork Mode", "Catalog Mode"];
-        var generalSettings = ["Splash Screen", "Password Settings"];
-        return generalSettings;
-    }
-
-    // returns the filtered list of exhbitions if the value of the filtered list is not null.
-    // else, it returns the entire list of exhibitions
-    function getExhibitions() {
-        if (exhibitionfilter)
-            return exhibitionfilter;
-        else
-            return exhibitionNames;
-    }
-
-
-
-
-    function getTours(callback) {
-        // call server to get current tours
-        //var tours = ["Tour 1", "Tour 2", "Tour 3"];
-        //LADS.Worktop.Database.createTour();
-        var tours = [];
-        LADS.Worktop.Database.getAllTours(function (localTourObjects) {
-            tourObjects = localTourObjects;
-            for (var i = 0; i < tourObjects.length; i++) {
-                tours.push(tourObjects[i].Name);
-            }
-            callback(tours);
-        });
-    }
-
-    /* This method is called to get the home page document in XML form */
-    function getMainDoq() {
-        var mainGuid = LADS.Worktop.Database.getMainGuid();
-        var xml = LADS.Worktop.Database.getXML(mainGuid);
-        var parser = new DOMParser();
-        mainDoq = parser.parseFromString(xml, 'text/xml');
-    }
-
-    /* 
-     * Gets all the values from the textfields/buttons, changes them in the local xml, 
-     * and finally pushes them to the server using the pushes them to the server using 
-     * pushXML(...) method in the LADS.Worktop.Database class
-     */
-    function pushMainChanges() {
-        //setMainBackgroundImage('http://www.kurzweilai.net/images/Google-logo.jpg');
-        setMuseumName(LADS.Util.encodeText(mainSettings["Museum Name"].textContent));
-        setMuseumLocation(LADS.Util.encodeText(mainSettings["Museum Location"].textContent));
-        setMuseumInfo(LADS.Util.encodeText(mainSettings["Museum Info"].textContent));
-        setOverlayColor('#' + mainSettings["Overlay Color"].value);
-        setOverlayTransparency(mainSettings["Overlay Transparency"].value / 100.0);
-        setIconColor('#' + mainSettings['Museum Logo Background color'].value);
-
-        //addMetadataToXML(mainDoq, "this is the key", "this is the value");
-
-        LADS.Worktop.Database.pushXML(mainDoq, LADS.Worktop.Database.getMainGuid());
-
-        $(changesSavedLabel).text('Main Changes Saved');
-        $(changesSavedLabel).show();
-
-        setTimeout(function () {
-            $(changesSavedLabel).hide();
-        }, 3000);
     }
 
     /* 
      * This method parses the Metadata fields and then checks whether the required metadata
      * field matches up with the one currently being looked at. Once it has found a match, it
      * returns the appropriate node corresponding to the field.
+     *
+     * From the old settings view, works there so should work here
+     * Made it so that it creates blank text node if there is none
      */
     function getFieldValueFromMetadata(xml, field) {
         var metadata = getMetaData(xml);
         for (var i = 0; i < metadata.length; i++) {
-            if (metadata[i].childNodes[0].textContent == field) {
+            if (metadata[i].childNodes[0].textContent === field) {
+                var out = metadata[i].childNodes[1].childNodes[0];
+                if (out) return out;
+
+                metadata[i].childNodes[1].appendChild(xml.createTextNode(''));
                 return metadata[i].childNodes[1].childNodes[0];
             }
         }
+        return null;
     }
 
-    // returns the GUID of a given XML
-    function getDoqIdentifier(xml) {
-        return xml.getElementsByTagName("Identifier")[0].childNodes[0].data;
+    function addFieldToMetadata(xml, field, value) {
+        // almost the same as getMetaData sans a final .childNodes, need a single element to append to!
+        var metadata = xml.getElementsByTagName("Metadata")[0].childNodes[0].childNodes[0].childNodes[1].childNodes[0];
+
+        var fieldcontainer = xml.createElement('d3p1:KeyValueOfstringanyType');
+        metadata.appendChild(fieldcontainer);
+
+        var fieldkey = xml.createElement('d3p1:Key');
+        fieldcontainer.appendChild(fieldkey);
+        fieldkey.appendChild(xml.createTextNode(field));
+
+        var fieldvalue = xml.createElement('d3p1:Value');
+        fieldvalue.setAttribute('i:type', 'd8p1:string');
+        fieldvalue.setAttribute('xmlns:d8p1', 'http://www.w3.org/2001/XMLSchema');
+        fieldcontainer.appendChild(fieldvalue);
+        fieldvalue.appendChild(xml.createTextNode(value));
     }
 
-    // this collection of methods sets the named field in the local xml
-    function setMainBackgroundImage(url) {
-        if (url)
-            getFieldValueFromMetadata(mainDoq, "BackgroundImage").data = url;
-    }
-
-
-
-
-    function setIcon(url) {
-        if (url)
-            getFieldValueFromMetadata(mainDoq, "Icon").data = url;
-    }
-
-    function setIconColor(color) {
-        if (color)
-            getFieldValueFromMetadata(mainDoq, "IconColor").data = color;
-    }
-
-    function setMuseumName(name) {
-        if (name && name.length > 0)
-            getFieldValueFromMetadata(mainDoq, "MuseumName").data = name;
-    }
-
-    function setMuseumLocation(loc) {
-        if (loc && loc.length > 0)
-            getFieldValueFromMetadata(mainDoq, "MuseumLoc").data = loc;
-    }
-
-    function setMuseumInfo(info) {
-        if (info && info.length > 0)
-            getFieldValueFromMetadata(mainDoq, "MuseumInfo").data = info;
-    }
-
-    function setOverlayColor(color) {
-        if (color && color.length > 0)
-            getFieldValueFromMetadata(mainDoq, "OverlayColor").data = color;
-    }
-
-    function setOverlayTransparency(a) {
-        getFieldValueFromMetadata(mainDoq, "OverlayTransparency").data = a;
-    }
-
+    // From the old settings view, works there so should work here
     function getMetaData(doq) {
         return doq.getElementsByTagName("Metadata")[0].childNodes[0].childNodes[0].childNodes[1].childNodes[0].childNodes;
     }
 
-    function addMetadataToXML(xml, key, value) {
-        var dictsNode = xml.childNodes[0].childNodes[3].childNodes[0].childNodes[0].childNodes[1].childNodes[0];
-        dictsNode.appendChild(xml.createElement("d3p1:KeyValueOfstringanyType"));
-        dictsNode.getElementsByTagName("d3p1:KeyValueOfstringanyType")[dictsNode.childElementCount - 1].appendChild(xml.createElement("d3p1:Key"));
-        dictsNode.getElementsByTagName("d3p1:KeyValueOfstringanyType")[dictsNode.childElementCount - 1].getElementsByTagName("d3p1:Key")[0].textContent = key;
-        dictsNode.getElementsByTagName("d3p1:KeyValueOfstringanyType")[dictsNode.childElementCount - 1].appendChild(xml.createElement("d3p1:Value"));
 
-        dictsNode.getElementsByTagName("d3p1:KeyValueOfstringanyType")[dictsNode.childElementCount - 1].getElementsByTagName("d3p1:Value")[0].textContent = value;
-        dictsNode.getElementsByTagName("d3p1:KeyValueOfstringanyType")[dictsNode.childElementCount - 1].getElementsByTagName("d3p1:Value")[0].setAttribute("xmlns:d8p1", "http://www.w3.org/2001/XMLSchema");
-        dictsNode.getElementsByTagName("d3p1:KeyValueOfstringanyType")[dictsNode.childElementCount - 1].getElementsByTagName("d3p1:Value")[0].setAttribute("i:type", "d8p1:string");
-
+    // from JavaScript: The Good Parts
+    function is_array(value) {
+        return Object.prototype.toString.apply(value) === '[object Array]';
     }
 
-    function pushTourSettings() {
-        //modify/update the tour
-        LADS.Worktop.Database.getDoqXML(currentTour.Identifier, function (xml) {
-            var parser = new DOMParser();
-            var tourXML = $(parser.parseFromString(xml, 'text/xml'));
+    // Uploads a file then calls the callback with the url and name of the file.
+    // See LADS.Authoring.FileUploader for 'type' values
+    function uploadFile(type, callback, multiple, filter) {
+        var names = [], locals = [], contentTypes = [], fileArray, i;
+        LADS.Authoring.FileUploader( // remember, this is a multi-file upload
+            root,
+            type,
+            // local callback - get filename
+            function (files, localURLs) {
+                fileArray = files;
+                for (i = 0; i < files.length; i++) {
+                    names.push(files[i].displayName);
+                    if (files[i].contentType.match(/image/)) {
+                        contentTypes.push('Image');
+                    } else if (files[i].contentType.match(/video/)) {
+                        contentTypes.push('Video');
+                    } else if (files[i].contentType.match(/audio/)) {
+                        contentTypes.push('Audio');
+                    }
+                }
+            },
+            // remote callback - save correct name
+            function (urls) {
+                if (!is_array(urls)) { // check to see whether a single file was returned
+                    urls = [urls];
+                    names = [names];
+                }
+                for (i = 0; i < urls.length; i++) {
+                    console.log("urls[" + i + "] = " + urls[i] + ", names[" + i + "] = " + names[i]);
+                }
+                callback(urls, names, contentTypes, fileArray);
+            },
+            filter || ['.jpg', '.png', '.gif', '.tif', '.tiff'],
+            false,
+            function () {
+                root.append(LADS.Util.UI.popUpMessage(null, "There was an error uploading the file.  Please try again later."));
+            },
+            !!multiple // batch upload disabled
+            );
+    }
 
-            var name = mainSettings["Tour Name"].textContent;
-            if (name.lastIndexOf(' ', 0) === 0 || name.lastIndexOf('\n', 0) === 0) {
-                mainSettings["Tour Name"].textContent = tourXML.find('Name').text();
-                $('.overlayOnRoot').hide();
-                var messageBox = LADS.Util.UI.popUpMessage(null, "Tour Name cannot start with a space or new line.", null);
-                $(messageBox).css('z-index', LADS.TourAuthoring.Constants.aboveRinZIndex + 7);
-                $(root).append(messageBox);
-                $(messageBox).fadeIn(500);
-                return;
+    // Creates the art picker for a given exhibition
+    function createArtPicker(exhibition) {
+        if (artPickerOpen)
+            return;
+        artPickerOpen = true;
+        // Overlay over the whole page
+        var overlay = $(document.createElement('div'));
+        overlay.css({
+            'position': 'fixed',
+            'width': '100%',
+            'height': '100%',
+            'top': '0',
+            'left': '0',
+            'background-color': 'rgba(0,0,0,0.5)',
+            'z-index': '1000',
+            'display': 'block'
+        });
+
+        // Container for the picker
+        var container = $(document.createElement('div'));
+        container.css({
+            'height': '70%',
+            'width': '50%',
+            'position': 'absolute',
+            'top': '15%',
+            'left': '25%',
+            'background-color': 'black',
+            'border': '3px double white',
+            'padding': '2%',
+        });
+
+        // Title for the picker
+        var label = $(document.createElement('div'));
+        label.css({
+            'font-size': '180%',
+            'color': 'white',
+            'margin-bottom': '2%',
+            'height': '10%',
+        });
+        label.text('Choose the artworks to link to this exhibition.');
+
+        var searchInput = $(document.createElement('input'));
+        searchInput.attr('type', 'text');
+        searchInput.css({
+        });
+        searchInput.keyup(function () {
+            searchData(searchInput.val(), '.artPickerButton');
+        });
+        searchInput.change(function () {
+            searchData(searchInput.val(), '.artPickerButton');
+        });
+        // Workaround for clear button (doesn't fire a change event...)
+        searchInput.mouseup(function () {
+            setTimeout(function () {
+                searchData(searchInput.val(), '.artPickerButton');
+            }, 1);
+        });
+        searchInput.attr('placeholder', PICKER_SEARCH_TEXT);
+
+        // Art section of the picker
+        var art = $(document.createElement('div'));
+        art.css({
+            'height': '72%',
+            'overflow': 'auto',
+            'margin-bottom': '2%',
+        });
+
+        // Container for the art inside the art section
+        var artContainer = $(document.createElement('div'));
+        artContainer.css({
+            'padding': '1%',
+        });
+
+        // Container for buttons/loading/saving indicator
+        var buttonContainer = $(document.createElement('div'));
+        buttonContainer.css({
+            'height': '8%',
+        });
+
+        // Loading/saving indicator
+        var loadingContainer = $(document.createElement('div'));
+        loadingContainer.css({
+            'width': '20%',
+            'display': 'inline-block',
+        });
+
+        // Loading/saving text
+        var loading = $(document.createElement('label'));
+        loading.css({
+            'color': 'white',
+            'font-size': '140%',
+        });
+        loading.text('Loading...');
+
+        var circle = $(document.createElement('img'));
+        circle.attr('src', 'images/icons/progress-circle.gif');
+        circle.css({
+            'height': $(document).height() * 0.03 + 'px',
+            'width': 'auto',
+            'float': 'right',
+        });
+
+        var save = $(document.createElement('button'));
+        save.attr('type', 'button');
+        save.text('Save');
+        save.css({
+            'float': 'right',
+            'margin': '2%',
+            'padding': '1%',
+        });
+
+        var cancel = $(document.createElement('button'));
+        cancel.attr('type', 'button');
+        cancel.text('Cancel');
+        cancel.css({
+            'float': 'right',
+            'margin': '2%',
+            'padding': '1%',
+        });
+
+        // Hide and remove the overlay when cancel is clicked
+        cancel.click(function () {
+            overlay.hide();
+            root[0].removeChild(overlay[0]);
+            artPickerOpen = false;
+        });
+
+        art.append(artContainer);
+
+        loadingContainer.append(loading);
+        loadingContainer.append(circle);
+
+        buttonContainer.append(loadingContainer);
+        buttonContainer.append(cancel);
+        buttonContainer.append(save);
+
+        container.append(label);
+        container.append(searchInput);
+        container.append(art);
+        container.append(buttonContainer);
+
+        overlay.append(container);
+
+        root.append(overlay);
+
+        var checkedIDs = [];
+        var uncheckedIDs = [];
+
+        function artworksInHelper(artworks) {
+            // Keep track of which artworks are in an exhibition
+            if (artworks) {
+                $.each(artworks, function (i, artwork) {
+                    if (artwork.Identifier)
+                        checkedIDs.push(artwork.Identifier);
+                });
             }
 
-            //change name
-            tourXML.find('Name').text(LADS.Util.encodeText(name));
-            //change content, the json object
-            tourXML.find("d3p1\\:Key:contains('Description') + d3p1\\:Value").text(LADS.Util.encodeText(mainSettings["Tour Description"].textContent));
-            LADS.Worktop.Database.pushXML(tourXML[0], currentTour.Identifier, "Tour", function () {
-                refreshTours(currentTour);
+            // Get all the artworks for the exhibition
+            LADS.Worktop.Database.getArtworks(allArtworksHelper, null, allArtworksHelper);
+
+        }
+
+        function allArtworksHelper(allArtworks) {
+            sortAZ(allArtworks);
+            // Add each artwork to the artwork container.
+            $.each(allArtworks, function (i, artwork) {
+                leftQueue.add(function () {
+                    var label;
+                    artContainer.append(label = createArtButton(artwork,
+                        // Oncheck/uncheck function
+                        // If it is checked adds the artwork to the checkedIDs and
+                        // removes it from the uncheckedIDs.  If unchecked it removes it
+                        // from the checkedIDs and adds it to the uncheckedIDs
+                        function (checked) {
+                            var index;
+                            if (checked) {
+                                if (checkedIDs.indexOf(artwork.Identifier) === -1) {
+                                    checkedIDs.push(artwork.Identifier);
+                                }
+                                index = uncheckedIDs.indexOf(artwork.Identifier);
+                                if (index !== -1) {
+                                    uncheckedIDs.splice(index, 1);
+                                }
+                            } else {
+                                index = checkedIDs.indexOf(artwork.Identifier);
+                                if (index !== -1) {
+                                    checkedIDs.splice(index, 1);
+                                }
+                                if (uncheckedIDs.indexOf(artwork.Identifier) === -1) {
+                                    uncheckedIDs.push(artwork.Identifier);
+                                }
+                            }
+                            // Set the initial checked/unchecked value
+                        }, $.inArray(artwork.Identifier, checkedIDs) !== -1));
+                    // Hide if it doesn't match search criteria
+                    searchData(searchInput.val(), label);
+                });
+            });
+            // Hide loading when we're done
+            leftQueue.add(function () {
+                loadingContainer.hide();
+            });
+        }
+
+        // Hide save/cancel buttons, clear the left queue, and change Loading to Saving...
+        save.click(function () {
+            loading.text('Saving...');
+            loadingContainer.show();
+            save.hide();
+            cancel.hide();
+            leftQueue.clear();
+
+            // Save the art
+            saveArtAssosciation(exhibition, checkedIDs, uncheckedIDs, function () {
+                overlay.hide();
+                root[0].removeChild(overlay[0]);
+                artPickerOpen = false;
+                loadExhibitionsView(exhibition.Identifier);
+            }, function () {
+                loading.text('Authentication Failed');
+                save.show();
+                cancel.show();
+            }, function () {
+                loading.text('Server Error');
+                save.show();
+                cancel.show();
             });
         });
+
+        // TODO: Error handler?
+        LADS.Worktop.Database.getArtworksIn(exhibition.Identifier, artworksInHelper, null, artworksInHelper);
     }
 
-    function pushExhibitionsSettings() {
-        setExhibitionName(LADS.Util.encodeText(mainSettings["Exhibition Name"].textContent));
-        setExhibitionSubheading1(LADS.Util.encodeText(mainSettings["Subheading 1"].textContent));
-        setExhibitionSubheading2(LADS.Util.encodeText(mainSettings["Subheading 2"].textContent));
-        setExhibitionDescription(LADS.Util.encodeText(mainSettings["Exhibition Description"].textContent));
-
-        // addMetadataToXML(currentExhibitionXML, "dasdasd", "dasdasdas");
-        $('.overlayOnRoot').show();
-        LADS.Worktop.Database.pushXML(currentExhibitionXML, exhibitionGuids[currentExhibitionNumber], "Exhibitions", function () {
-            reloadExhibitions(mainSettings["Exhibition Name"].textContent, function () {
-                $('.overlayOnRoot').hide();
-            });
+    // Saves art assosciated to an exhibit
+    //  exhibition: The exhibition to add art to
+    //  checkedIDs: The IDs of the artwork to add
+    //  uncheckedIDs: The IDs of the artwork to remove
+    //  callback: Called when done
+    //
+    // Note: Artworks keep track of the exhibitions they are in, so we
+    // need to go through every artwork and add the exhibition to it.
+    function saveArtAssosciation(exhibition, checkedIDs, uncheckedIDs, success, unauth, error) {
+        // Keep track of how many saves have finished
+        //var savesdone = 0;
+        if (checkedIDs.length + uncheckedIDs.length === 0) {
+            success();
+            return;
+        }
+        var addIDs = "";
+        var removeIDs = "";
+        $.each(checkedIDs, function (i, val) {
+            addIDs = addIDs + "," + val;
         });
+        if (addIDs) addIDs = addIDs.substr(1);
 
+        $.each(uncheckedIDs, function (i, val) {
+            removeIDs = removeIDs + "," + val;
+        });
+        if (removeIDs) removeIDs = removeIDs.substr(1);
 
-
-        $(changesSavedLabel).text('Exhibition Changes Saved');
-        $(changesSavedLabel).show();
-
-        setTimeout(function () {
-            $(changesSavedLabel).hide();
-        }, 3000);
-
+        LADS.Worktop.Database.changeExhibition(exhibition.Identifier, { AddIDs: addIDs, RemoveIDs: removeIDs }, success, unauth, error);
+        
     }
 
+    function fixArtMetadata(artworkXML) {
+        // Need to fix the xml
+        setArtworkName(artworkXML, LADS.Util.encodeXML(getArtworkName(artworkXML)));
+        setArtworkArtist(artworkXML, LADS.Util.encodeXML(getArtworkArtist(artworkXML)));
+        setArtworkYear(artworkXML, LADS.Util.encodeXML(getArtworkYear(artworkXML)));
+        setArtworkLocations(artworkXML, LADS.Util.encodeXML(getArtworkLocations(artworkXML)));
 
-    function setExhibitionName(name) {
+
+        var metadata = artworkXML.getElementsByTagName("Metadata")[0].childNodes[0].childNodes[0].childNodes[1].childNodes[0].childNodes;
+
+        for (var i = metadata.length - 1; i >= 0; i--) {
+            if (metadata[i].childNodes[0].textContent.indexOf('InfoField_') !== -1) {
+                metadata[i].childNodes[1].textContent = LADS.Util.encodeXML(metadata[i].childNodes[1].textContent);
+            }
+        }
+    }
+
+    function setArtworkName(artworkXML, name) {
         if (name && name.length > 0)
-            currentExhibitionXML.getElementsByTagName("Name")[0].childNodes[0].data = name;
+            artworkXML.getElementsByTagName("Name")[0].childNodes[0].data = name;
     }
 
-    function setExhibitionSubheading1(subheading) {
-        if (subheading && subheading.length > 0)
-            getFieldValueFromMetadata(currentExhibitionXML, "Subheading1").data = subheading;
+    function setArtworkArtist(artworkXML, artist) {
+        if (artist && artist.length > 0)
+            getFieldValueFromMetadata(artworkXML, "Artist").data = artist;
     }
 
-    function setExhibitionSubheading2(subheading) {
-        if (subheading && subheading.length > 0)
-            getFieldValueFromMetadata(currentExhibitionXML, "Subheading2").data = subheading;
-
+    function setArtworkYear(artworkXML, year) {
+        if (year && year.length > 0)
+            getFieldValueFromMetadata(artworkXML, "Year").data = year;
     }
 
-    function setExhibitionDescription(description) {
-        if (description && description.length > 0)
-            getFieldValueFromMetadata(currentExhibitionXML, "Description").data = description;
-
+    function setArtworkLocations(artworkXML, data) {
+        getFieldValueFromMetadata(artworkXML, "Location").data = data;
     }
 
-    function setExhibitionBackgroundImage(url) {
-        if (url && url.length > 0)
-            getFieldValueFromMetadata(currentExhibitionXML, "BackgroundImage").data = url;
-
+    function getArtworkName(artworkXML) {
+        return artworkXML.getElementsByTagName("Name")[0].childNodes[0].data;
     }
 
-    function getExhibitionMetaData(exhibition) {
-        return exhibition.getElementsByTagName("Metadata")[0].childNodes[0].childNodes[0].childNodes[1].childNodes[0].childNodes;
+    function getArtworkArtist(artworkXML) {
+        return getFieldValueFromMetadata(artworkXML, "Artist").data;
     }
 
-    function setExhibitionDescriptionImage1(url) {
-        if (url)
-            getFieldValueFromMetadata(currentExhibitionXML, "DescriptionImage1").data = url;
+    function getArtworkYear(artworkXML) {
+        return getFieldValueFromMetadata(artworkXML, "Year").data;
     }
 
-    function setExhibitionDescriptionImage2(url) {
-        if (url)
-            getFieldValueFromMetadata(currentExhibitionXML, "DescriptionImage2").data = url;
+    function getArtworkLocations(artworkXML) {
+        return getFieldValueFromMetadata(artworkXML, "Location").data;
     }
 
-    function reloadExhibitions(toSelect, callback) {
-        console.log("RELOAD EXHIBITIONS CALLED");
-        if (callback) {
-            LADS.Worktop.Database.getExhibitions(function (result) {
-                console.log(result.length);
-                exhibitions = result;
-                exhibitions.sort(function (a, b) {
-                    if (a.Name < b.Name) {
-                        return -1;
-                    } else if (a.Name > b.Name) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                });
-                console.log("EMPTY SETTINGS F");
-                $(middleSettings).empty();
-                exhibitionCount = 0;
-                exhibitionNames = [];
-                exhibitionGuids = [];
-
-                for (var i = 0; i < exhibitions.length; i++) {
-                    exhibitionByGuid[exhibitions[i].Identifier] = exhibitions[i];
-                    exhibitionNames.push(exhibitions[i].Name);
-                    exhibitionGuids.push(exhibitions[i].Identifier);
-                }
-
-                $.each(exhibitionNames, function () {
-                    createMiddleLabel(this + "", "exhibition");
-                });
-
-                if (toSelect) {
-                    selectItemByName(toSelect);
-                }
-                callback();
-            });
-        } else {
-            exhibitions = LADS.Worktop.Database.getExhibitions();
-            exhibitions.sort(function (a, b) {
-                if (a.Name < b.Name) {
-                    return -1;
-                } else if (a.Name > b.Name) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            });
-            console.log("EMPTY SETTINGS G");
-            $(middleSettings).empty();
-            exhibitionCount = 0;
-            exhibitionNames = [];
-            exhibitionGuids = [];
-
-            for (var i = 0; i < exhibitions.length; i++) {
-                exhibitionByGuid[exhibitions[i].Identifier] = exhibitions[i];
-                exhibitionNames.push(exhibitions[i].Name);
-                exhibitionGuids.push(exhibitions[i].Identifier);
-            }
-
-            $.each(exhibitionNames, function () {
-                createMiddleLabel(this + "", "exhibition");
-            });
-
-            if (toSelect) {
-                selectItemByName(toSelect);
-            }
-        }
-    }
-
-    function reloadArtworks(callback) {
-
-        LADS.Worktop.Database.getAllArtworks(function (artworks) {
-            artworksList = artworks;
-            if (artworksList[0]) {
-                artworksList.sort(function (a, b) {
-                    if (a.Name < b.Name) {
-                        return -1;
-                    } else if (a.Name > b.Name) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                });
-            }
-            console.log("EMPTY SETTINGS H");
-            $(middleSettings).empty();
-            var entries = [];
-            var type = [];
-            var icons = [];
-            var artworkGuids = [];
-            var isFirst = false;
-            for (var i = 0; i < artworksList.length; i++) {
-                // if (i == 0)
-                //    currentUploadedArtworkGuid = artworksList[i].Identifier;
-                //      isFirst = true;
-                //  else
-                //      isFirst = false;
-
-                entries.push(artworksList[i].Name);
-                icons.push(artworksList[i].Metadata.Thumbnail);
-                artworkGuids.push(artworksList[i].Identifier);
-            }
-
-            var i = 0;
-            $.each(entries, function () {
-                var label = createMiddleLabel(this + "", "Artworks", icons[i], artworkExhibition[artworkGuids[i]], artworksList[i], isFirst);
-                $(label).attr('id', 'artworks-' + artworkGuids[i]);
-                i++;
-            });
-            if (callback)
-                callback();
+    // Creates a check button for the artwork picker
+    function createArtButton(artwork, onclick, checked) {
+        var container = $(document.createElement('div'));
+        container.attr('class', 'artPickerButton');
+        container.css({
+            'height': '70px',
+            'margin-bottom': '3%',
+            'margin-right': '2.5%',
+            'overflow': 'hidden',
+            'position': 'relative',
         });
 
+        container.data({
+            name: artwork.Name,
+            artist: artwork.Metadata.Artist,
+            year: artwork.Metadata.Year,
+        });
 
+        container.mousedown(function () {
+            container.css({
+                'background': HIGHLIGHT,
+            });
+        });
+        container.mouseup(function () {
+            container.css({
+                'background': 'transparent',
+            });
+        });
+        container.mouseleave(function () {
+            container.css({
+                'background': 'transparent',
+            });
+        });
+
+        var checkbox = $(document.createElement('input'));
+        checkbox.attr('type', 'checkbox');
+        checkbox.prop('checked', checked);
+        checkbox.css({
+            'margin-right': '.5%',
+            'float': 'right',
+        });
+        checkbox.click(function (evt) {
+            evt.stopPropagation();
+        });
+
+        checkbox.change(function () {
+            onclick(checkbox.prop('checked'));
+        });
+
+        container.click(function () {
+            checkbox.prop("checked", !checkbox.prop("checked"));
+            checkbox.trigger('change');
+        });
+
+        var image = $(document.createElement('img'));
+        image.attr('src', LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail));
+        image.css({
+            'height': 'auto',
+            'width': '20%',
+            'margin-right': '5%',
+            'float': 'left',
+        });
+        container.append(image);
+
+        var progressCircCSS = {
+            'position': 'absolute',
+            'left': '5%',
+            'z-index': '50',
+            'height': 'auto',
+            'top': '18%',
+            'width': '10%',
+        };
+        var circle = LADS.Util.showProgressCircle(container, progressCircCSS, '0px', '0px', false);
+        image.load(function () {
+            LADS.Util.removeProgressCircle(circle);
+        });
+
+        var label = $(document.createElement('div'));
+        label.css({
+            'font-size': '160%',
+            //'display': 'inline-block',
+            'white-space': 'nowrap',
+            'width': '65%',
+            'overflow': 'hidden',
+            'text-overflow': 'ellipsis',
+            'vertical-align': 'top',
+            'color': 'white',
+        });
+        label.text(artwork.Name);
+
+        var sublabel = $(document.createElement('div'));
+        sublabel.css({
+            'font-size': '120%',
+            'font-style': 'italic',
+            'white-space': 'nowrap',
+            'width': '65%',
+            'overflow': 'hidden',
+            'text-overflow': 'ellipsis',
+            'vertical-align': 'top',
+            'color': 'white',
+        });
+        sublabel.text(artwork.Metadata.Artist + " (" + artwork.Metadata.Year + ")");
+
+        container.append(checkbox);
+
+        container.append(label);
+        container.append(sublabel);
+
+
+        return container;
     }
 
-
-    // RYAN - Moved into FileUploader, to use in settings view need to rewrite giant "if"-branch in terms of callbacks from individual sections!
-    function UploadOp() {
-        var upload = null;
-        var promise = null;
-
-        this.start = function (uriString, file) {
-            try {
-                uploadingOverlay.show();
-
-                var uri = new Windows.Foundation.Uri(uriString);
-                var uploader = new Windows.Networking.BackgroundTransfer.BackgroundUploader();
-
-                // Set a header, so the server can save the file (this is specific to the sample server).
-                uploader.setRequestHeader("Filename", file.name);
-                uploader.setRequestHeader("Content-Type", "multipart/form-data; boundary=----WebKitFormBoundaryqj1e7E6nvkEBR9N5");
-
-                // Create a new upload operation.
-                upload = uploader.createUpload(uri, file);
-
-                // Start the upload and persist the promise to be able to cancel the upload.
-                promise = upload.startAsync().then(complete, error, progress);
-            } catch (err) {
-                displayError(err);
+    function verticalSlider(input, min, max) {
+        var sliderdiv = $(document.createElement('div'));
+        sliderdiv.css({
+            'height': '200px',
+            'position': 'absolute',
+            'display': 'none',
+        });
+        sliderdiv.slider({
+            orientation: 'horizontal',
+            min: min,
+            max: max,
+            value: input.val(),
+            slide: function (event, ui) {
+                input.val(ui.value);
+                input.trigger('change');
+                input.focus();
             }
-        };
-        // On application activation, reassign callbacks for a upload
-        // operation persisted from previous application state.
-        this.load = function (loadedUpload) {
-            try {
-                upload = loadedUpload;
-                promise = upload.attachAsync().then(complete, error, progress(upload));
-            } catch (err) {
-                displayError(err);
-            }
-        };
+        });
+
+        settings.scroll(function () {
+            sliderdiv.css({
+                'left': input.offset().left - 17 + 'px',
+                'top': input.offset().top - 100 + 'px',
+            });
+        });
+
+        sliderdiv.mousedown(function () {
+            input.focus();
+        });
+        sliderdiv.children().focus(function () {
+            input.focus();
+        });
+
+        root.append(sliderdiv);
+        input.focus(function () {
+            sliderdiv.css({
+                'left': input.offset().left - 15 + 'px',
+                'top': input.offset().top - 75 + 'px',
+            });
+            sliderdiv.show();
+        });
+        input.blur(function () {
+            sliderdiv.hide();
+        });
+
+        input.keydown(function () {
+            sliderdiv.slider('value', input.val());
+        });
+        input.keyup(function () {
+            sliderdiv.slider('value', input.val());
+        });
+        input.change(function () {
+            sliderdiv.slider('value', input.val());
+        });
     }
 
-    function complete(uploadOperation) {
+    // Creates an overlay over the whole settings view with
+    // a spinning circle and centered text.  Text defaults
+    // to 'Loading...' if not specified.  This overlay is intended
+    // to be used only when the page is 'done'.  The overlay doesn't
+    // support being removed from the page, so only call this when
+    // the page will be changed!
+    function loadingOverlay(text) {
+        text = text || "Loading...";
+        var overlay = $(document.createElement('div'));
+        overlay.css({
+            'position': 'absolute',
+            'left': '0px',
+            'top': '0px',
+            'width': '100%',
+            'height': '100%',
+            'background-color': 'rgba(0,0,0,0.5)',
+            'z-index': '1000',
+        });
+        root.append(overlay);
 
-        var response = uploadOperation.getResponseInformation();
-        var iInputStream = uploadOperation.getResultStreamAt(0);
-        var dataReader = new Windows.Storage.Streams.DataReader(iInputStream);
-        var loadop = dataReader.loadAsync(10000000);
-        //var status = loadop.status;
-        loadop.operation.completed = function () {
-            $(innerProgressBar).width(100 + "%");
+        var circle = $(document.createElement('img'));
+        circle.attr('src', 'images/icons/progress-circle.gif');
+        circle.css({
+            'height': 'auto',
+            'width': '10%',
+            'position': 'absolute',
+            'left': '45%',
+            'top': ($(window).height() - $(window).width() * 0.1) / 2 + 'px',
+        });
+        overlay.append(circle);
 
-            var dataReaderLoad = dataReader.readString(dataReader.unconsumedBufferLength);
+        var widthFinder = $(document.createElement('div'));
+        widthFinder.css({
+            'position': 'absolute',
+            'visibility': 'hidden',
+            'height': 'auto',
+            'width': 'auto',
+            'font-size': '200%',
+        });
+        widthFinder.text(text);
+        root.append(widthFinder);
 
-            dataReaderLoad = $.trim(dataReaderLoad);
+        var label = $(document.createElement('label'));
+        label.css({
+            'position': 'absolute',
+            'left': ($(window).width() - widthFinder.width()) / 2 + 'px',
+            'top': ($(window).height() - $(window).width() * 0.1) / 2 + $(window).width() * 0.1 + 'px',
+            'font-size': '200%',
+            'color': 'white',
+        });
+        widthFinder.remove();
+        label.text(text);
+        overlay.append(label);
+    }
 
-            //who wrote this? it's never used and breaks!! (only works with Deepzoom response)
-            //var currentUploadedArtwork = new Worktop.Doq(dataReaderLoad);
-            //var currentUploadedArtworkGuid = currentUploadedArtwork.Identifier;
+    function authError() {
+        var popup = LADS.Util.UI.popUpMessage(function () {
+            LADS.Auth.clearToken();
+            rightQueue.clear();
+            leftQueue.clear();
+            LADS.Layout.StartPage(null, function (page) {
+                LADS.Util.UI.slidePageRight(page);
+            });
+        }, "Could not authenticate, returning to the splash page.", null, true);
+        root.append(popup);
+        $(popup).show();
+    }
 
-            //resetting the progress bar
-            if (currentUpload == "Background Image") {
-                setMainBackgroundImage(dataReaderLoad);
-            }
-            else if (currentUpload == "Museum Logo") {
-                setIcon(dataReaderLoad);
-            }
-            else if (currentUpload == "Exhibition Background Image") {
-                setExhibitionBackgroundImage(dataReaderLoad);
-            }
-            else if (currentUpload == "Artwork") {
-                LADS.Worktop.Database.setArtworkDirty();
-                $('.overlayOnRoot').show();
-                reloadArtworks(function () {
-                    $('.overlayOnRoot').hide();
-                });
-            }
-            else if (currentUpload == "Exhibition Preview Image") {
-                $('#img1').attr('src', dataReaderLoad);
-                setExhibitionDescriptionImage1(dataReaderLoad);
-            }
-            else if (currentUpload == "Exhibition Description Image 2") {
-                $('#img2').attr('src', dataReaderLoad);
-                setExhibitionDescriptionImage2(dataReaderLoad);
-            }
-            //else if (currentUpload
-            uploadingOverlay.hide();
-            $(innerProgressBar).width('0%');
+    function error(fn) {
+        return function () {
+            var popup = LADS.Util.UI.popUpMessage(null, "An unknown error occured.", null, true);
+            root.append(popup);
+            $(popup).show();
+            fn && fn();
         }
     }
-    function error() {
-        console.log('error in settingsview');
-        $(uploadingOverlay).hide();
-        var messageBox = LADS.Util.UI.popUpMessage(function () {
-            $('.overlayOnRoot').show();
-            reloadArtworks(function () {
-                $('.overlayOnRoot').hide();
-            });
-        }, "There was an error uploading the file.", null);
-        $(messageBox).css('z-index', LADS.TourAuthoring.Constants.aboveRinZIndex + 7);
-        $(root).append(messageBox);
-        $(messageBox).fadeIn(500);
+
+    function conflict(doq, text, fail) {
+        return function (jqXHR, ajaxCall) {
+            var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
+                ajaxCall.force();
+                // TODO: Text for change/delete
+            }, "Your version of " + doq.Name + " is not up to date.  Are you sure you want to change " + doq.Name + "?", text, true, fail);
+            root.append(confirmationBox);
+            $(confirmationBox).show();
+        }
     }
-    function progress(upload) {
-        var percentComplete = upload.progress.bytesSent / upload.progress.totalBytesToSend;
-        $(innerProgressBar).width(percentComplete * 90 + "%");
-    }
-    // RYAN - end of moved
-
-
-
-}
+};
