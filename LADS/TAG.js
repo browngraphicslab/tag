@@ -42119,6 +42119,19 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
     *initiate artmode with a root, artwork image and a sidebar on the left.
     */
     function init() {
+        // add elements to the header for displaying bing maps
+        var head = document.getElementsByTagName('head').item(0);
+        var script = document.createElement("script");
+        script.charset = "UTF-8";
+        script.type = "text/javascript";
+        script.src = "http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0";
+        head.appendChild(script);
+
+        var meta = document.createElement('meta');
+        meta.httpEquiv = "Content-Type";
+        meta.content = "text/html; charset=utf-8";
+        head.appendChild(meta);
+
         root = LADS.Util.getHtmlAjax('Artmode.html');
         root.data('split', options.split);
         //get the artwork
@@ -42151,7 +42164,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         //Sets entire sidebar to this...
         var sideBarWidth = window.innerWidth * 0.20; //innerWidth Define width in absolute terms to work with split screen
 		sideBar = root.find('#sideBar');
-        sideBar.css({"width": sideBarWidth});
 
 		toggler = root.find('#toggler');
 		togglerImage = root.find('#togglerImage');
@@ -42309,8 +42321,8 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         assetContainer.append(descriptionDrawer);
         
         //location history TODO
-        // var locationHistorysec = initlocationHistory();
-        // assetContainer.append(locationHistorysec);
+        var locationHistorysec = initlocationHistory();
+        assetContainer.append(locationHistorysec);
 
 
         var hotspotsDrawer = createDrawer('Hotspots', (hotspots.length === 0));
@@ -42454,13 +42466,10 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             return function () {
                 if (locationHistoryActive) {
                     locationHistoryActive = false;
-                    locationHistoryContainer.attr("id", "locationHistoryContainer");
-                    locationHistory.text('Location History');
                     locationHistory.css({
                         'color': locationList.length ? 'white' : "rgb(136, 136, 136)",
                         "font-size": "25px",
                     });
-                    locationHistoryContainer.append(locationHistory);
                     locationHistoryToggle.hide();
                     locationHistoryToggle.hide("slide", { direction: direction }, 500);
                     locationHistoryDiv.hide("slide", { direction: direction }, 500);
@@ -42768,11 +42777,9 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 					((root.data('split') === 'L') ?
 						$('#metascreen-L').width() - window.innerWidth * 0.22 :
 						$('#metascreen-R').width() - window.innerWidth * 0.22);
-        locationHistoryDiv.css({
-            'width': locwidth + 'px',
-        });
-
-        //root.append(locationHistoryDiv);
+        // locationHistoryDiv.css({
+        //     'width': locwidth + 'px',
+        // });
 
         //create the panel for location history.
 		var locationHistoryPanel = root.find('#locationHistoryPanel');
@@ -42785,7 +42792,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 left: locpaneloffset + 'px'
             });
         } else {
-            locationHistoryDiv.css({ left: offsetSide });
+            //locationHistoryDiv.css({ left: offsetSide });
         }
 
         var mapOverlay = $(LADS.Util.UI.blockInteractionOverlay());//overlay for when 'edit ink' component option is selected while playhead is not over the art track
@@ -42809,6 +42816,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         lpContents.append(lpTitle);
         //create a div for map
         var lpMapDiv = $(document.createElement('div'));
+        
         //set the id of map div according to the splitscreen position.
         if (root.data('split') === 'R') {
             lpMapDiv.attr('id', 'lpMapDivR');
@@ -42862,14 +42870,18 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
          * This is the click function LocationHistoryContainer. 
          */
         function histOnClick() {
+            console.log("clicking on location history");
 
             locationList = LADS.Util.UI.getLocationList(options.doq.Metadata); //Location List is LOADED HERE
+
+            console.log("location list length: " + locationList.length);
             if (locationList.length === 0) {
                 mapOverlay.show();
             }
             if (!mapMade || !map) {
+                console.log("in if");
                 var prepMap = function () {
-
+                    console.log("in prepMap");
                     //make location pushpins show up on map
                     locationList = LADS.Util.UI.getLocationList(options.doq.Metadata); //Location List is LOADED HERE
                     LADS.Util.UI.drawPushpins(locationList, map);
@@ -42949,10 +42961,14 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                         newDiv.fadeIn();
                     }
 
+                    console.log("here 1");
                     toggleLocationPanel();
                 };
+
+                console.log("here 2");
                 makeMap(prepMap);
             } else {
+                console.log("in else");
                 toggleLocationPanel();
             }
         }
@@ -42961,6 +42977,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         **@return: locationHistoryContainer
         */
         function toggleLocationPanel() {
+            console.log("toggle location panel");
             if (locationList.length === 0) return;
             if (LADS.Util.Splitscreen.on()) {
                 return;
@@ -43352,7 +43369,9 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
     **@para: callback function
     */
     function makeMap(callback) {
+        console.log("in make map");
         var initMap = function () {
+            console.log("making map");
             var mapOptions =
             {
                 credentials: "AkNHkEEn3eGC3msbfyjikl4yNwuy5Qt9oHKEnqh4BSqo5zGiMGOURNJALWUfhbmj",
@@ -43379,7 +43398,9 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             mapMade = true;
             callback();
         };
-        Microsoft.Maps.loadModule('Microsoft.Maps.Map', { callback: initMap });
+
+        initMap();
+        //Microsoft.Maps.loadModule('Microsoft.Maps.Map', { callback: initMap });
     }
 
 };

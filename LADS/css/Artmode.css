@@ -1,15 +1,6 @@
-#tagRoot a {
-  color: #26e;
-}
-#tagRoot img {
-  -moz-user-select: -moz-none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-}
-#tagRoot * {
-  font-family: 'source sans pro regular' sans-serif;
+@font-face {
+  font-family: sourceSans;
+  src: url("../fonts/source-sans-pro-light/source-sans-pro-light.eot?") format('eot'), url("../fonts/source-sans-pro-light/source-sans-pro-light.woff") format('woff'), url("../fonts/source-sans-pro-light/source-sans-pro-light.ttf") format('ttf');
 }
 #artmodeRoot {
   width: 100%;
@@ -22,7 +13,7 @@
   top: 0px;
   background-color: rgba(0,0,0,0.7);
   height: 100%;
-  width: 22%;
+  width: 22% !important;
   z-index: 100;
 }
 #artmodeRoot #toggler {
@@ -35,15 +26,15 @@
 }
 #artmodeRoot #togglerImage {
   position: absolute;
-  top: 35%;
-  left: 20%;
-  width: 20px;
-  height: 20px;
+  top: 30%;
+  left: 0%;
+  width: 72%;
+  height: 42%;
 }
 #artmodeRoot #backBttnContainer {
   width: 13%;
-  height: auto;
-  margin: 4%;
+  height: 5%;
+  margin: 4% 4% 1% 4%;
 }
 #artmodeRoot #backButton {
   width: 100%;
@@ -64,32 +55,32 @@
   font-size: 22px;
   color: #fff;
   width: 100%;
-  max-height: 20%;
-  overflow-y: scroll;
+  max-height: 4.5em;
+  overflow-y: visible;
   white-space: nowrap;
   padding-right: 7%;
 }
 #artmodeRoot #infoTitle {
-  font-size: 30px;
+  font-size: 160%;
   clear: both;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 #artmodeRoot #infoArtist {
-  font-size: 22px;
+  font-size: 110%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 #artmodeRoot #infoYear {
-  font-size: 22px;
+  font-size: 110%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 #artmodeRoot .infoCustom {
-  font-size: 22px;
+  font-size: 147%;
   margin-top: 5px;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -103,29 +94,40 @@
 #artmodeRoot .tourHolder {
   float: left;
   margin: 1%;
-  width: 40%;
+  width: 46%;
   position: relative;
-  text-align: center;
-  border: 1px solid #fff;
+  border: 1px solid rgba(255,255,255,0.4);
   color: #fff;
+}
+#artmodeRoot .holderContainer {
+  display: table;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+#artmodeRoot .holderInnerContainer {
+  display: table-cell;
+  max-height: 100%;
+  max-width: 100%;
+  vertical-align: middle;
+  text-align: center;
 }
 #artmodeRoot .assetHolder {
   float: left;
   margin: 1%;
-  width: 40%;
+  width: 46%;
   position: relative;
-  text-align: center;
-  border: 1px solid #fff;
+  border: 1px solid rgba(255,255,255,0.4);
   color: #fff;
 }
 #artmodeRoot .mediaHolderDiv {
   height: 70%;
+  position: relative;
   width: 92%;
   margin: 4% 4% 0 4%;
 }
 #artmodeRoot .mediaHolderImg {
   max-width: 100%;
-  max-height: 100%;
 }
 #artmodeRoot .assetHolderImage {
   max-width: 100%;
@@ -138,6 +140,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: center;
+  font-size: 75%;
 }
 #artmodeRoot #minimapContainer {
   width: 80%;
@@ -181,6 +185,7 @@
   top: 10%;
   height: 80%;
   z-index: 99;
+  left: 22%;
   position: absolute;
   overflow-x: hidden;
 }
@@ -214,7 +219,7 @@
   height: 95%;
 }
 #artmodeRoot .lpTitle {
-  font-size: 25px;
+  font-size: 100%;
   margin-bottom: 20px;
 }
 #artmodeRoot .lpMapDiv {
@@ -235,7 +240,7 @@
   width: 40%;
   float: left;
   overflow: auto;
-  font-size: 20px;
+  font-size: 100%;
 }
 #artmodeRoot .lpInfoDiv {
   float: left;
@@ -245,7 +250,7 @@
   height: 100%;
   width: 58%;
   overflow: auto;
-  font-size: 20px;
+  font-size: 85%;
 }
 #artmodeRoot #locationHistoryToggle {
   position: absolute;
@@ -259,14 +264,13 @@
   width: 96%;
   height: 12%;
   padding: 2% 2% 4% 2%;
-  font-size: 100%;
   color: #fff;
   overflow: hidden;
   background-color: rgba(0,0,0,0.01);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-#artmodeRoot .locationHistoryIcon {
+#artmodeRoot .locationHistoryToggleIcon {
   position: absolute;
   top: 35%;
   left: 20%;
@@ -280,24 +284,25 @@
   float: left;
 }
 #artmodeRoot .label {
-  font-size: 20px;
+  font-size: 133%;
   width: 50%;
   float: left;
   height: 30%;
 }
 #artmodeRoot .toggleContainer {
-  width: 45px;
+  width: 26%;
   position: relative;
   float: right;
+  padding-top: 2%;
 }
 #artmodeRoot .plusToggle {
-  width: 23px;
-  height: 23px;
+  width: 40%;
+  height: 40%;
 }
 #artmodeRoot .drawerContents {
   display: none;
   clear: both;
-  font-size: 14px;
+  font-size: 93%;
   width: 95%;
   color: #808080;
   padding-right: 20px;
@@ -365,9 +370,10 @@
   display: inline-block;
 }
 #artmodeRoot #feedbackContainer {
-  width: 100%;
+  display: none;
   position: absolute;
   text-align: center;
+  width: 100%;
 }
 #artmodeRoot #feedback-text {
   font-size: 20px;
