@@ -41348,7 +41348,25 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
                     //check if the hotspot is outside of the screen, and if so, set its velocity to 0
                     //where to put code for this?
-
+                    if(-parseFloat(w)>parseFloat(l) || parseFloat(l)>$("#tagContainer").width()|| -(parseFloat(h))>parseFloat(t)||parseFloat(t)>$("#tagContainer").height()){
+                        console.log("outsider");
+                        btn = $("#" + info.assetLinqID);
+                        if(!btn.data("ishotspot")){
+                            console.log("not hotspot");
+                            if (!btn.data("assetHidden")) {
+                                console.log("nothidden");
+                                    btn.css({
+                                    'color': 'white',
+                                    'background-color': '',
+                                });
+                                btn.data("assetHidden", true);
+                                newhotspot.toggle();
+                                $(currRoot).remove();
+                            }
+                        
+                        }
+                    }
+                    
                     //if the new width is in the right range, scale from the point of contact and translate properly; otherwise, just translate and clamp
                     var newClone;
                     if ((neww >= minConstraint) && (neww <= 800)) {
