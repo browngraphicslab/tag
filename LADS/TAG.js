@@ -41363,7 +41363,6 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                                 newhotspot.toggle();
                                 $(currRoot).remove();
                             }
-                        
                         }
                     }
                     
@@ -44636,7 +44635,7 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
 
 
     var root;
-    var mainPanel = $(document.createElement('div'));
+    var mainPanel;// =$(document.createElement('div'));
 
     var needPassword = false; //used to determine whether password input box appears
 
@@ -44646,13 +44645,16 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
         root = LADS.Util.getHtmlAjax('InternetFailurePage.html');
         root.css("width", $("#tagRoot").width());
         root.css("height", $("#tagRoot").height());
+	mainPanel=root.find("#mainPanel");
+	mainPanel.css("width", $("#tagRoot").width());
+        mainPanel.css("height", $("#tagRoot").height());
 
 
-        var sadface = $(document.createElement('label'));
+        //var sadface = $(document.createElement('label'));
         // Commented out sadface for now
         //$(sadface).text(':(');
         // sadface.css({ 'font-size': '1000%', 'color': 'white', 'position': 'absolute', 'top': '12%', 'left': '35%' });
-        sadface = root.find('#sadFace');
+        var sadface = root.find('#sadFace');
         var noticeBox = root.find('#noticeBox');
 
         var noticeLabel = root.find('#noticeLabel');//$(document.createElement('label'));
@@ -44676,9 +44678,21 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
         noticeBox.append(noticeLabel).append("<br>");
 
         var reconnectButton = root.find('#reconnectButton');//$(document.createElement('button'));
-        var changeServerButton = $(document.createElement('button'));
+        //var changeServerButton = $(document.createElement('button'));
+        
 
-        changeServerButton.on('click', LADS.Util.UI.ChangeServerDialog);
+var serverTagBuffer = root.find('#serverTagBuffer');
+        var serverSetUpContainer = root.find('#serverSetUpContainer');
+
+	serverSetUpContainer.on('click', function() {
+            LADS.Util.UI.ChangeServerDialog();
+        });
+        serverTagBuffer.on('click', function (evt) {
+            evt.stopPropagation();
+        });
+	serverTagBuffer.append(serverSetUpContainer);
+
+        //changeServerButton.on('click', LADS.Util.UI.ChangeServerDialog);
 
         if (errorType === "Data Limit") {
             reconnectButton.text('I Agree');
@@ -44708,11 +44722,11 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
             reconnectButton.text('Reconnect');
             reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '70%', 'top': '5%' });
 
-            changeServerButton.text('Change Server');
-            changeServerButton.attr('type', 'button');
-            changeServerButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '45%', 'top': '5%' });
+            //changeServerButton.text('Change Server');
+            //changeServerButton.attr('type', 'button');
+            //changeServerButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '45%', 'top': '5%' });
             reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '50%', 'top': '5%' });
-            noticeBox.append(changeServerButton);
+            //noticeBox.append(changeServerButton);
             ////////////////////////
 
         }
@@ -44727,7 +44741,7 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
 
                 noticeLabel.text("Reconnecting...");
                 reconnectButton.hide();
-                changeServerButton.hide();
+                //changeServerButton.hide();
                 sadface.hide();
 
                 setTimeout(function () { // this timeout is here because the label didn't have time to reset itself otherwise
@@ -44756,7 +44770,7 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
                                 success: function () {
                                     noticeLabel.text(getNoticeText("Server Down"));
                                     reconnectButton.show();
-                                    changeServerButton.show();
+                                    //changeServerButton.show();
                                     sadface.show();
                                     //if (!detach) {
                                     //    $("body").empty();
@@ -44769,7 +44783,7 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
                                 error: function (err) {
                                     noticeLabel.text(getNoticeText((errorType === "Internet Lost" ? "Internet Lost" : "No Internet")));
                                     reconnectButton.show();
-                                    changeServerButton.show();
+                                    //changeServerButton.show();
                                     sadface.show();
                                     //if (!detach) {
                                     //    $("body").empty();
@@ -44800,11 +44814,13 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
 
         mainPanel.append(sadface);
         mainPanel.append(noticeBox);
+ 	mainPanel.append(serverTagBuffer);
         root.append(mainPanel);
         LADS.Layout.InternetFailure.lastOverlay.root = root;
         LADS.Layout.InternetFailure.lastOverlay.type = errorType;
     }
 };
+
 ;
 LADS.Util.makeNamespace("LADS.Layout.MetroSplitscreenMessage");
 

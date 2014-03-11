@@ -209,11 +209,34 @@
 }
 #InternetFailureroot #mainPanel,
 #InternetFailureroot #sadFace {
-  font-size: 1000%;
+  font-size: 100%;
   color: #fff;
   position: absolute;
-  top: 12%;
-  left: 35%;
+}
+#InternetFailureroot #serverSetUpContainer {
+  background-color: rgba(0,0,0,0.85);
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  bottom: 0%;
+  height: 60%;
+  position: absolute;
+  right: 18.5%;
+  text-align: center;
+  width: 63%;
+}
+#InternetFailureroot #serverSetUpLabel {
+  color: #fff;
+  font-size: 85%;
+  position: relative;
+  text-align: center;
+  top: 8%;
+}
+#startPageRoot #serverTagBuffer {
+  bottom: 0%;
+  height: 8%;
+  position: absolute;
+  right: 0%;
+  width: 23.8%;
 }
 #InternetFailureroot #noticeBox {
   width: 50%;
@@ -225,7 +248,7 @@
 }
 #InternetFailureroot #noticeLabel {
   color: #fff;
-  font-size: 30px;
+  font-size: 200%;
   left-margin: 4%;
   width: 96%;
 }
