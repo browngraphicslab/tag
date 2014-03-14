@@ -931,7 +931,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 locationHistoryActive = false;
             }
             else {//show the panel if it is hidden when clicked
-                locationHistory.text('Close Location History');
+                locationHistory.text('Location History');
                 locationHistoryToggle.hide();
                 locationHistoryDiv.show("slide", { direction: direction }, 500, function () {
                     locationHistoryToggle.show();
