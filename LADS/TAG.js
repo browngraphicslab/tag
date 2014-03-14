@@ -44678,21 +44678,13 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
         noticeBox.append(noticeLabel).append("<br>");
 
         var reconnectButton = root.find('#reconnectButton');//$(document.createElement('button'));
-        //var changeServerButton = $(document.createElement('button'));
-        
+        var changeServerButton = root.find('#changeServerButton');
+	changeServerButton.text('Change Server');
+        changeServerButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '70%', 'top': '5%' });
 
-var serverTagBuffer = root.find('#serverTagBuffer');
-        var serverSetUpContainer = root.find('#serverSetUpContainer');
+	
 
-	serverSetUpContainer.on('click', function() {
-            LADS.Util.UI.ChangeServerDialog();
-        });
-        serverTagBuffer.on('click', function (evt) {
-            evt.stopPropagation();
-        });
-	serverTagBuffer.append(serverSetUpContainer);
-
-        //changeServerButton.on('click', LADS.Util.UI.ChangeServerDialog);
+        changeServerButton.on('click', LADS.Util.UI.ChangeServerDialog);
 
         if (errorType === "Data Limit") {
             reconnectButton.text('I Agree');
@@ -44810,11 +44802,12 @@ var serverTagBuffer = root.find('#serverTagBuffer');
         });
 
         noticeBox.append(reconnectButton);
+	noticeBox.append(changeServerButton);
         //$(noticeBox).append(quitButton);
 
         mainPanel.append(sadface);
         mainPanel.append(noticeBox);
- 	mainPanel.append(serverTagBuffer);
+ 	
         root.append(mainPanel);
         LADS.Layout.InternetFailure.lastOverlay.root = root;
         LADS.Layout.InternetFailure.lastOverlay.type = errorType;

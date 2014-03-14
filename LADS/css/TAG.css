@@ -213,31 +213,6 @@
   color: #fff;
   position: absolute;
 }
-#InternetFailureroot #serverSetUpContainer {
-  background-color: rgba(0,0,0,0.85);
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  bottom: 0%;
-  height: 60%;
-  position: absolute;
-  right: 18.5%;
-  text-align: center;
-  width: 63%;
-}
-#InternetFailureroot #serverSetUpLabel {
-  color: #fff;
-  font-size: 85%;
-  position: relative;
-  text-align: center;
-  top: 8%;
-}
-#startPageRoot #serverTagBuffer {
-  bottom: 0%;
-  height: 8%;
-  position: absolute;
-  right: 0%;
-  width: 23.8%;
-}
 #InternetFailureroot #noticeBox {
   width: 50%;
   height: 21%;
@@ -252,10 +227,16 @@
   left-margin: 4%;
   width: 96%;
 }
-#InternetFailureroot #reconnectButton,
-font-size: 150%,
-position: relative,
-left: 50% {
+#InternetFailureroot #reconnectButton {
+  font-size: 150%;
+  position: relative;
+  left: 50%;
+  top: 5%;
+}
+#InternetFailureroot #changeServerButton {
+  font-size: 150%;
+  position: relative;
+  left: 50%;
   top: 5%;
 }
 
