@@ -31585,7 +31585,7 @@ LADS.Util = (function () {
                 console.log(evt.detail);
                 var delta = -evt.detail;
                 
-                delta = delta * 1.1;
+                //delta = delta * 1.1;
                 /*
                 if (delta < 0) { 
                     console.log("here; " + delta);
@@ -31595,6 +31595,8 @@ LADS.Util = (function () {
                     delta = 1.1;
                 }
                 */
+				if (delta < 0) delta = 1.0 / 1.1;
+            	else delta = 1.1;
                 evt.cancelBubble = true;
                 if (typeof functions.onScroll === "function") { 
                     functions.onScroll(delta, pivot);
