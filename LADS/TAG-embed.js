@@ -130,23 +130,23 @@ var TAG_embed = function(tagInput) {
 
     $frameDiv = $(frameDiv);
 
-    // $frameDiv.on('mouseenter', function() {
-    //     $frameDiv.off('mouseleave');
-    //     console.log('in frame div');
-    //     // $('*').on('scroll.a mousewheel.a DOMMouseScroll.a MozMousePixelScroll.a', function(e) {
-    //     //     console.log('in body scroll');
-    //     //     e.stopPropagation();
-    //     //     e.cancelBubble = true;
-    //     //     return false;
-    //     // });
-    //     $('body').css('position', 'fixed');
+    $frameDiv.on('mouseenter', function() {
+        $frameDiv.off('mouseleave');
+        // console.log('in frame div');
+        // $('*').on('scroll.a mousewheel.a DOMMouseScroll.a MozMousePixelScroll.a', function(e) {
+        //     console.log('in body scroll');
+        //     e.stopPropagation();
+        //     e.cancelBubble = true;
+        //     return false;
+        // });
+        $('body').css('position', 'fixed');
 
-    //     $frameDiv.on('mouseleave', function() {
-    //         //console.log('leaving frame div');
-    //         //$('*').off('scroll.a mousewheel.a DOMMouseScroll.a MozMousePixelScroll.a');
-    //         $('body').css('position', 'static');
-    //     });
-    // });
+        $frameDiv.on('mouseleave', function() {
+            //console.log('leaving frame div');
+            //$('*').off('scroll.a mousewheel.a DOMMouseScroll.a MozMousePixelScroll.a');
+            $('body').css('position', 'static');
+        });
+    });
 
 
     // frameDiv.addEventListener('mousewheel', function (evt) {

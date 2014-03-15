@@ -953,7 +953,27 @@ LADS.Util = (function () {
                 };
             }
         }
-
+        function processScrollFirefox(evt) {
+                // console.log("capturing wheel events");
+                var pivot = { x: evt.clientX - $element.offset().left, y: evt.clientY - $element.offset().top };
+                console.log(evt.detail);
+                var delta = -evt.detail;
+                
+                delta = delta * 1.1;
+                /*
+                if (delta < 0) { 
+                    console.log("here; " + delta);
+                    delta = 1.0 / 1.1;
+                } else { 
+                    console.log("there; " + delta);
+                    delta = 1.1;
+                }
+                */
+                evt.cancelBubble = true;
+                if (typeof functions.onScroll === "function") { 
+                    functions.onScroll(delta, pivot);
+                }
+         }
         // scroll wheel
         function processScroll(evt) {
             var pivot = { x: evt.x - $element.offset().left, y: evt.y - $element.offset().top };
@@ -971,6 +991,7 @@ LADS.Util = (function () {
         hammer.on('pinch', processPinch);
         hammer.on('release', processUp);
         element.onmousewheel = processScroll;
+        element.addEventListener("DOMMouseScroll", processScrollFirefox);
 
         // double tap
         var doubleTappedHandler, event;
