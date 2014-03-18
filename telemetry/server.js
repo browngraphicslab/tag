@@ -1,16 +1,126 @@
-var http = require('http');
-var fs   = require('fs');
+/**
+ * A preliminary telemetry server
+ * Should probably be hooked up with a DB
+ */
 
-var port = 8080;
+// node modules
+var http = require('http'),
+    fs   = require('fs'),
+    qs   = require('querystring');
 
-http.createServer(function (req, res) {
-	console.log('request headers: '+req.headers.telemetryType);
-	res.writeHead(200, {
-		'Content-Type': 'text/plain',
-		'Access-Control-Allow-Origin': '*'
+// some constants
+var PORT = 9999,
+	NOT_AVAIL = "_",
+    MAX_BODY_LENGTH = Math.pow(10,6);
+
+// create server
+http.createServer(function (request, response) {
+	switch(request.method.toLowerCase()) {
+		case 'post':
+			handlePost(request, response);
+			break;
+		case 'get':
+			handleGet(request, response);
+			break;
+		default:
+			console.log('======= UNSUPPORTED REQUEST TYPE =======');
+			console.log('sent at: '+(new Date().toString()));
+	}
+}).listen(PORT, '127.0.0.1');
+
+function handlePost(request, response) {
+	var requestBody = '',
+		parsedBody,
+		date = new Date(),
+		tdata; // telemetry data
+
+	// read in data from request as it becomes available
+	request.on('data', function(dataChunk) {
+		requestBody += dataChunk;
+
+		// if too much data, could be malicious, cut it off. our data will be small anyway...
+		if(requestBody.length > MAX_BODY_LENGTH) {
+			request.connection.destroy();
+		}
 	});
-	console.log('response headers: '+res.headers);
-	res.end('Hello World\n');
-}).listen(port, '127.0.0.1');
 
-console.log('Server running at http://127.0.0.1:'+port+'/');
+	// when all data is read
+	request.on('end', function() {
+		parsedBody = qs.parse(requestBody); // parse body to js object
+
+		// telemetry data object
+		tdata = {
+			time_stamp: date.getTime(),                         // milliseconds since 1970
+			type: parsedBody.ttype || NOT_AVAIL,                // type of telemetry request
+			ip: request.connection.remoteAddress || NOT_AVAIL,  // ip of computer that generated request
+			tagserver: parsedBody.tagserver || NOT_AVAIL,       // TAG server to which computer is connected
+			browser: parsedBody.browser || NOT_AVAIL,           // browser
+			platform: parsedBody.platform || NOT_AVAIL,         // platform (e.g., Mac)
+			time_human: date.toString()                         // human-readable time
+		};
+
+		fs.writeFile('telemetry_log.txt', JSON.stringify(tdata)+',', {flag: 'a'}, function(err){
+			if(err) {
+				console.log('err: '+err);
+			} else {
+				console.log('interaction successfully written to log:');
+				console.log('       time: '+date.toString());
+				console.log('       type: '+parsedBody.ttype);
+				console.log('');
+			}
+		});
+
+		response.writeHead(200, {
+			'Content-Type': 'text/plain',
+			'Access-Control-Allow-Origin': '*'
+		});
+		response.end(); // done creating response, don't need to send back any data
+	});
+}
+
+function handleGet(request, response) {
+	var requestBody = '',
+		parsedBody,
+		date = new Date(),
+		tdata; // telemetry data
+
+	// read in data from request as it becomes available
+	request.on('data', function(dataChunk) {
+		requestBody += dataChunk;
+
+		// if too much data, could be malicious, cut it off. our data will be small anyway...
+		if(requestBody.length > MAX_BODY_LENGTH) {
+			request.connection.destroy();
+		}
+	});
+
+	// when all data is read
+	request.on('end', function() {
+		parsedBody = qs.parse(requestBody); // parse body to js object
+
+		fs.readFile('telemetry_log.txt', {encoding: 'utf8'}, function(err, data) {
+			var arr,
+				i;
+			if(err) {
+				console.log('GET request error: '+err);
+				console.log('       time: '+date.toString());
+			} else {
+				if(data.charAt(data.length-1) === ',') {
+					data = data.slice(0, data.length-1);
+				}
+				arr = JSON.parse('['+data+']'); // arr is an array of telemetry data objects
+				for(i=0;i<arr.length;i++) { // this isn't very efficient...should use db queries
+					;
+				}
+			}
+		});
+
+		response.writeHead(200, {
+			'Content-Type': 'text/plain',
+			'Access-Control-Allow-Origin': '*'
+		});
+		response.end(); // done creating response, don't need to send back any data
+	});
+}
+
+console.log('Telemetry server running at http://127.0.0.1:'+PORT+'/');

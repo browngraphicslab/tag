@@ -107,8 +107,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         if(!allowServerChange) {
             $('#serverTagBuffer').remove();
-        } else {
-            $('#serverTagBuffer').css('display', 'block');
         }
 
         // set image paths
@@ -239,7 +237,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         touchHint = root.find('#touchHint');
 
         handGif = root.find('#handGif');
-        //LADS.Util.fitText(touchHint, 2);
 
         handGif.onclick = switchPage;
 
