@@ -61,7 +61,7 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
         var reconnectButton = root.find('#reconnectButton');//$(document.createElement('button'));
         var changeServerButton = root.find('#changeServerButton');
 	changeServerButton.text('Change Server');
-        changeServerButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '70%', 'top': '5%' });
+        changeServerButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '30%', 'top': '5%' });
 
 	
 
@@ -93,19 +93,19 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
         }
         else if (errorType === "Server Down") {
             reconnectButton.text('Reconnect');
-            reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '70%', 'top': '5%' });
+            reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '30%', 'top': '5%' });
 
             //changeServerButton.text('Change Server');
             //changeServerButton.attr('type', 'button');
             //changeServerButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '45%', 'top': '5%' });
-            reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '50%', 'top': '5%' });
+            //reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '50%', 'top': '5%' });
             //noticeBox.append(changeServerButton);
             ////////////////////////
 
         }
         else {//shouldn't really happen?
             reconnectButton.text('Reconnect');
-            reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '70%', 'top': '5%' });
+            reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '30%', 'top': '5%' });
         }
 
 
@@ -181,9 +181,10 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
 
 
         });
-
-        noticeBox.append(reconnectButton);
+	
 	noticeBox.append(changeServerButton);
+        noticeBox.append(reconnectButton);
+	
         //$(noticeBox).append(quitButton);
 
         mainPanel.append(sadface);
