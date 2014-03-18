@@ -161,6 +161,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
     }
 
     function dzManip(pivot, translation, scale) {
+
         that.viewer.viewport.zoomBy(scale, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)), false);
         that.viewer.viewport.panBy(that.viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-translation.x, -translation.y)), false);
 
@@ -168,6 +169,8 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
     }
 
     function dzScroll(delta, pivot) {
+        // console.log("pivot.x "+ pivot.x+"  pivot.y :  "+pivot.y);
+        // console.log(delta);
         that.viewer.viewport.zoomBy(delta, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
         that.viewer.viewport.applyConstraints();
     }
@@ -194,6 +197,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         $(canvas).addClass('artworkCanvasTesting');
         LADS.Util.makeManipulatable(canvas, {
             onScroll: function (delta, pivot) {
+                console.log("scrolling");
                 dzScroll(delta, pivot);
             },
             onManipulate: function (res) {
