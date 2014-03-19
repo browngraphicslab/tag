@@ -21,7 +21,6 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
         return root;
     };
 
-
     var root,
         mainPanel,
         needPassword = false, // used to determine whether password input box appears
@@ -58,8 +57,9 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
 
         var reconnectButton = root.find('#reconnectButton');
         var changeServerButton = root.find('#changeServerButton');
+
 	    changeServerButton.text('Change Server');
-        changeServerButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '30%', 'top': '5%' });
+        changeServerButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '50%', 'top': '5%' });
 
         changeServerButton.on('click', LADS.Util.UI.ChangeServerDialog);
 
@@ -91,7 +91,7 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
             reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '30%', 'top': '5%' });
         } else {
             reconnectButton.text('Reconnect');
-            reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '30%', 'top': '5%' });
+            reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '53%', 'top': '5%' });
         }
 
 

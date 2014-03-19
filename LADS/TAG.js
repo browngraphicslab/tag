@@ -42107,17 +42107,21 @@ LADS.Layout.StartPage.default_options = {
 };
 
 ;
-/**
- * The artwork viewer, which contains a sidebar with tools
- * and thumbnails as well as a central area for the deepzoom image.
- * @class LADS.Layout.Artmode
- */
-
 LADS.Util.makeNamespace("LADS.Layout.Artmode");
 
 //Constructor. Takes in prevInfo object {prevPage: [string (currently "catalog" or "exhibitions")], prevScroll: [int value of scrollbar
 // on NewCatalog page, used for backbutton]}, {previousState, doq, split}, exhibition
 //TODO: Adjust this so the back button can go to any arbitrary layout, not just Timeline
+
+/**
+ * The artwork viewer, which contains a sidebar with tools
+ * and thumbnails as well as a central area for the deepzoom image.
+ * @class LADS.Layout.Artmode
+ * @constructor
+ * @param {Object} prevInfo      contains information about returning to the previous page
+ * @param {Object} options       information about current artwork and whether we're in splitscreen mode
+ * @param {Doq} exhibition       the exhibition we came from (if any)
+ */
 LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
     "use strict";
 
@@ -44700,8 +44704,9 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
 
         var reconnectButton = root.find('#reconnectButton');
         var changeServerButton = root.find('#changeServerButton');
+
 	    changeServerButton.text('Change Server');
-        changeServerButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '30%', 'top': '5%' });
+        changeServerButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '50%', 'top': '5%' });
 
         changeServerButton.on('click', LADS.Util.UI.ChangeServerDialog);
 
@@ -44733,7 +44738,7 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
             reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '30%', 'top': '5%' });
         } else {
             reconnectButton.text('Reconnect');
-            reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '30%', 'top': '5%' });
+            reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '53%', 'top': '5%' });
         }
 
 
@@ -44785,8 +44790,8 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
         /**
          * Returns a notice message given a certain connectivity error.
          * @method getNoticeText
-         * @param error       the error type (string)
-         * @return            an error message to be displayed
+         * @param {String} error       the error type
+         * @return {String}            an error message to be displayed
          */
         function getNoticeText(error) {
             if (error == SERVER_DOWN)
