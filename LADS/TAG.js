@@ -42107,14 +42107,13 @@ LADS.Layout.StartPage.default_options = {
 };
 
 ;
-LADS.Util.makeNamespace("LADS.Layout.Artmode");
+/**
+ * The artwork viewer, which contains a sidebar with tools
+ * and thumbnails as well as a central area for the deepzoom image.
+ * @class LADS.Layout.Artmode
+ */
 
-/*
-*   The layout definition for Artmode. Contains a sidebar with tools,
-*   and a central area for deepzoom.
-*   Author: Alex Hills
-*    
-*/
+LADS.Util.makeNamespace("LADS.Layout.Artmode");
 
 //Constructor. Takes in prevInfo object {prevPage: [string (currently "catalog" or "exhibitions")], prevScroll: [int value of scrollbar
 // on NewCatalog page, used for backbutton]}, {previousState, doq, split}, exhibition
@@ -44650,6 +44649,13 @@ LADS.Layout.InternetFailure.lastOverlay = {};
     BM - Using this for more than internet failure, should
     be renamed/refactored in the future.
 */
+
+/**
+ * Internet failure page, which appears when TAG detects a loss of internet.
+ * @class LADS.Layout.InternetFailurePage.js
+ * @constructor
+ * @param errorType   
+ */
 LADS.Layout.InternetFailurePage = function (errorType, detach) {
     "use strict";
 
@@ -44658,26 +44664,29 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
     };
 
 
-    var root;
-    var mainPanel;// =$(document.createElement('div'));
-
-    var needPassword = false; //used to determine whether password input box appears
+    var root,
+        mainPanel,
+        needPassword = false, // used to determine whether password input box appears
+        DATA_LIMIT = "Data Limit",
+        SERVER_DOWN = "Server Down",
+        NO_INTERNET = "No Internet",
+        INTERNET_LOST = "Internet Lost";
 
     init();
+
+    /**
+     * Sets up internet failure page (handlers, etc) using the input errorType
+     * @method init
+     */
 
     function init() {
         root = LADS.Util.getHtmlAjax('InternetFailurePage.html');
         root.css("width", $("#tagRoot").width());
         root.css("height", $("#tagRoot").height());
-	mainPanel=root.find("#mainPanel");
-	mainPanel.css("width", $("#tagRoot").width());
+	    mainPanel=root.find("#mainPanel");
+	    mainPanel.css("width", $("#tagRoot").width());
         mainPanel.css("height", $("#tagRoot").height());
 
-
-        //var sadface = $(document.createElement('label'));
-        // Commented out sadface for now
-        //$(sadface).text(':(');
-        // sadface.css({ 'font-size': '1000%', 'color': 'white', 'position': 'absolute', 'top': '12%', 'left': '35%' });
         var sadface = root.find('#sadFace');
         var noticeBox = root.find('#noticeBox');
 
@@ -44686,37 +44695,22 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
 
         var noticeText = getNoticeText(errorType);
 
-        function getNoticeText(error) {
-            if (error == "Server Down")
-                return "The server is currently unavailable. Please contact the museum administrator for further information.";
-            else if (error == "No Internet")
-                return 'No internet connection was detected. The TAG application requires internet connectivity. Please ensure that you are connected to the internet and try again.';
-            else if (error === "Internet Lost")
-                return 'Internet connection lost. The TAG application requires internet connectivity. Please ensure that you are connected to the internet and try again.';
-            else if (error === "Data Limit")
-                return 'We have detected that you are on a limited data connection. TAG downloads large images, audio, and videos that can significantly increase your data usage.  By clicking "I Agree" you agree to allow TAG to download images, audio, and videos.  Clicking "I Disagree" will exit TAG.';
-            return "";
-        }
-
         noticeLabel.text(noticeText);
         noticeBox.append(noticeLabel).append("<br>");
 
-        var reconnectButton = root.find('#reconnectButton');//$(document.createElement('button'));
+        var reconnectButton = root.find('#reconnectButton');
         var changeServerButton = root.find('#changeServerButton');
-	changeServerButton.text('Change Server');
+	    changeServerButton.text('Change Server');
         changeServerButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '30%', 'top': '5%' });
-
-	
 
         changeServerButton.on('click', LADS.Util.UI.ChangeServerDialog);
 
-        if (errorType === "Data Limit") {
+        if (errorType === DATA_LIMIT) {
             reconnectButton.text('I Agree');
 
             var disagreeButton = $(document.createElement('button'));
             disagreeButton.text('I Disagree');
             disagreeButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '45%', 'top': '5%' });
-            // reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '50%', 'top': '5%' });
             noticeBox.append(disagreeButton);
             disagreeButton.click(function () {
                 window.close();
@@ -44734,30 +44728,20 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
             });
 
         }
-        else if (errorType === "Server Down") {
+        else if (errorType === SERVER_DOWN) {
             reconnectButton.text('Reconnect');
             reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '30%', 'top': '5%' });
-
-            //changeServerButton.text('Change Server');
-            //changeServerButton.attr('type', 'button');
-            //changeServerButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '45%', 'top': '5%' });
-            //reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '50%', 'top': '5%' });
-            //noticeBox.append(changeServerButton);
-            ////////////////////////
-
-        }
-        else {//shouldn't really happen?
+        } else {
             reconnectButton.text('Reconnect');
             reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '30%', 'top': '5%' });
         }
 
 
-        if (errorType !== "Data Limit") {
+        if (errorType !== DATA_LIMIT) {
             reconnectButton.click(function () {
 
                 noticeLabel.text("Reconnecting...");
                 reconnectButton.hide();
-                //changeServerButton.hide();
                 sadface.hide();
 
                 setTimeout(function () { // this timeout is here because the label didn't have time to reset itself otherwise
@@ -44786,28 +44770,10 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
                                 success: function () {
                                     noticeLabel.text(getNoticeText("Server Down"));
                                     reconnectButton.show();
-                                    //changeServerButton.show();
-                                    sadface.show();
-                                    //if (!detach) {
-                                    //    $("body").empty();
-                                    //    $("body").append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
-                                    //} else {
-                                    //    root.detach();
-                                    //    $("body").append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
-                                    //}
                                 },
                                 error: function (err) {
                                     noticeLabel.text(getNoticeText((errorType === "Internet Lost" ? "Internet Lost" : "No Internet")));
                                     reconnectButton.show();
-                                    //changeServerButton.show();
-                                    sadface.show();
-                                    //if (!detach) {
-                                    //    $("body").empty();
-                                    //    $("body").append((new LADS.Layout.InternetFailurePage("No Internet")).getRoot());
-                                    //} else {
-                                    //    root.detach();
-                                    //    $("body").append((new LADS.Layout.InternetFailurePage("No Internet")).getRoot());
-                                    //}
                                 }
                             });
                         }
@@ -44816,24 +44782,39 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
             });
         }
 
+        /**
+         * Returns a notice message given a certain connectivity error.
+         * @method getNoticeText
+         * @param error       the error type (string)
+         * @return            an error message to be displayed
+         */
+        function getNoticeText(error) {
+            if (error == SERVER_DOWN)
+                return "The server is currently unavailable. Please contact the museum administrator for further information.";
+            else if (error == NO_INTERNET)
+                return 'No internet connection was detected. The TAG application requires internet connectivity. Please ensure that you are connected to the internet and try again.';
+            else if (error === INTERNET_LOST)
+                return 'Internet connection lost. The TAG application requires internet connectivity. Please ensure that you are connected to the internet and try again.';
+            else if (error === DATA_LIMIT)
+                return 'We have detected that you are on a limited data connection. TAG downloads large images, audio, and videos that can significantly increase your data usage.  By clicking "I Agree" you agree to allow TAG to download images, audio, and videos.  Clicking "I Disagree" will exit TAG.';
+            return "";
+        }
+
         var quitButton = $(document.createElement('button'));
         quitButton.text('Exit');
 
-
         quitButton.click(function () {
-
 
         });
 	
-	noticeBox.append(changeServerButton);
+	    noticeBox.append(changeServerButton);
         noticeBox.append(reconnectButton);
-	
-        //$(noticeBox).append(quitButton);
 
         mainPanel.append(sadface);
         mainPanel.append(noticeBox);
  	
         root.append(mainPanel);
+
         LADS.Layout.InternetFailure.lastOverlay.root = root;
         LADS.Layout.InternetFailure.lastOverlay.type = errorType;
     }
