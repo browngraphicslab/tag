@@ -32244,7 +32244,7 @@ LADS.Util.UI = (function () {
         serverDialog.append(serverButtonRow);
         var serverSaveButton = $(document.createElement('button'));
         serverSaveButton.css({
-            'padding': '1%', 'border': '1px solid white', 'width': '12%','height':'3%' ,'position': 'relative','margin-top': '1%', 'float': "left", 'margin-left':'7%' ,'font-size':'90%','bottom':'1%'
+            'padding': '1%', 'border': '1px solid white', 'width': '14%','height':'3%' ,'position': 'relative','margin-top': '1%', 'float': "left", 'margin-left':'7%' ,'font-size':'90%','bottom':'1%'
         });
         serverSaveButton.text('Save');
         var serverErrorMessage = $(document.createElement('div'));
@@ -32264,7 +32264,7 @@ LADS.Util.UI = (function () {
 
         var serverCancelButton = $(document.createElement('button'));
         serverCancelButton.css({
-            'padding': '1%', 'border': '1px solid white', 'width': '12%','height':'3%', 'position': 'relative', 'margin-top': '1%', 'float': "right", 'margin-right': '7%','font-size':'90%','bottom':'1%'
+            'padding': '1%', 'border': '1px solid white', 'width': '14%','height':'3%', 'position': 'relative', 'margin-top': '1%', 'float': "right", 'margin-right': '7%','font-size':'90%','bottom':'1%'
         });
         serverCancelButton.text('Cancel');
         serverCancelButton.attr('type', 'button');
