@@ -1,0 +1,2363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js - Touch Art Gallery web application</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../../LADS/images/WideLogo.scale-100.png" title="Touch Art Gallery web application"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 1.0.0</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
+            
+                <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+﻿LADS.Util.makeNamespace(&#x27;LADS.TourAuthoring.Timeline&#x27;);
+
+/**
+ * Manages user editing of tracks
+ * @param spec      timeManager, undoManager, viewer params
+ */
+LADS.TourAuthoring.Timeline = function (spec, my) {
+    &quot;use strict&quot;;
+
+    // Divs that need to be held onto
+    var that = {},
+        tourExited = false,
+        loaded = false, // boolean blocking timeline reloads until tour is fully initialized
+        tracks = [],
+        mainScrollHider,
+        editor,
+        trackTitleWrapper,
+        timeRuler,
+        timeline,
+        trackBody,
+        playhead, //div containing the playhead svg
+        playheadtop, // div containing the playhead handle svg
+        playheadSVG,
+        playHeadGroup,
+        playHeadTop,
+        playHead,
+        compCont,
+        onUpdateNumCalls = 0,
+        trackid = 0, // IDs for uniquely identifying tracks
+        // docfrag
+        docfrag,
+        // Handles time stuff
+        playbackControls = spec.playbackControls,
+        timeManager = spec.timeManager,
+        root = spec.root,
+        manipObjects = {},
+        // undo
+        undoManager = spec.undoManager,
+        viewer = spec.viewer,
+        verticalScroller,
+        sliderPane,
+        dataHolder = spec.dataHolder,
+
+        lastScale = timeManager.getDuration().scale,
+        audioCheck = false,
+        videoCheck = false,
+        artworkCheck = false,
+        imageCheck = false,
+        inkCheck = false,
+        isMenuOpen, editInkOn = false, modifyingInk = false,
+
+        selectedTrack = {current: null}; // this is an object so contents can be manipulated by track objects
+    that.isMenuOpen = false;
+    var editInkOverlay = $(LADS.Util.UI.blockInteractionOverlay());//overlay for when &#x27;edit ink&#x27; component option is selected while playhead is not over the art track
+    editInkOverlay.addClass(&#x27;editInkOverlay&#x27;);
+    var overlayLabel = $(document.createElement(&#x27;div&#x27;));
+    overlayLabel.text(&quot;Ink is being edited...&quot;);
+    var deleteConfirmationOverlay = $(document.createElement(&#x27;div&#x27;));
+    that.editInkOn = false;
+    that.clamped_displays = [];
+
+    // Set timeline in viewer
+    viewer.setTimeline(that);
+
+    var sendScrollLeft = true;
+    var sendScrollTop = true;
+
+    var multiSelection = false;
+    var multiSelectionArray = [];//Xiaoyi&amp;Libby
+
+    //!!!!!!
+    var editorWidth = $(window).width() * 0.995;
+    var editorHeight = $(window).height() * 0.4825;
+    //var editorHeight = $(window).height();
+    var trackTitleWidth = 0.127 * $(window).width();
+    var trackAreaHeight = editorHeight - 5 - LADS.TourAuthoring.Constants.timeRulerSize;
+    //var trackAreaHeight = editorHeight;
+
+    // HTML
+    (function _makeHTML() {
+        // container div that hides vertical scrollbar of top-level container
+        mainScrollHider = $(document.createElement(&#x27;div&#x27;));
+        mainScrollHider.attr(&#x27;class&#x27;, &#x27;mainScrollHider&#x27;);
+        mainScrollHider.css({
+            &quot;background-color&quot;: &quot;rgb(219,218,199)&quot;,
+            &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+            &#x27;height&#x27;: editorHeight + &#x27;px&#x27;,
+            &#x27;width&#x27;: editorWidth + &#x27;px&#x27;,
+            &#x27;margin-top&#x27;: &#x27;3%&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+        });
+
+        // Top-level container, vertical scrolling
+        editor = $(document.createElement(&#x27;div&#x27;));
+        editor.attr(&#x27;id&#x27;, &#x27;editor&#x27;);
+        editor.css({
+            &#x27;height&#x27;: &#x27;100%&#x27;,
+            &quot;width&quot;: &#x27;100%&#x27;, 
+            //&#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+        });
+
+
+        // veil for track title scrollbar
+        var trackScrollVeil = $(document.createElement(&#x27;div&#x27;));
+        trackScrollVeil.attr(&#x27;id&#x27;, &#x27;trackScrollVeil&#x27;);
+        trackScrollVeil.css({
+            &#x27;width&#x27;: trackTitleWidth + 20 + &#x27;px&#x27;,
+            &#x27;height&#x27;: trackAreaHeight + &#x27;px&#x27;,
+            &#x27;margin-left&#x27;: $(window).width() * 0.02 - 20 + &#x27;px&#x27;,
+            &#x27;overflow-x&#x27;: &#x27;hidden&#x27;,
+            &#x27;overflow-y&#x27;: &#x27;hidden&#x27;,
+            &#x27;float&#x27;: &#x27;left&#x27;,
+            &#x27;clear&#x27;: &#x27;left&#x27;,
+            &#x27;top&#x27;: &#x27;0px&#x27;,
+            &#x27;position&#x27;:&#x27;relative&#x27;
+        });
+        // div with track heads, no scrolling at all
+        trackTitleWrapper = $(document.createElement(&#x27;div&#x27;));
+        trackTitleWrapper.attr(&#x27;id&#x27;, &#x27;trackTitleWrapper&#x27;);
+        trackTitleWrapper.css({
+            &#x27;width&#x27;: trackTitleWidth + 20 + &quot;px&quot;,
+            &#x27;height&#x27;: &#x27;100%&#x27;,
+            &#x27;margin-left&#x27;: &#x27;1.5%&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;overflow-x&#x27;: &#x27;hidden&#x27;,
+            &#x27;overflow-y&#x27;: &#x27;hidden&#x27;,
+            &#x27;z-index&#x27;: &#x27;102&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgb(219, 218, 199)&#x27;,
+        });
+
+        // Track body container, xy scrolling
+        trackBody = $(document.createElement(&#x27;div&#x27;));
+        trackBody.attr(&#x27;id&#x27;, &#x27;trackBody&#x27;);
+        trackBody.css({
+            &#x27;height&#x27;: trackAreaHeight + &#x27;px&#x27;,
+            &#x27;margin-left&#x27;: &#x27;15%&#x27;,
+            &#x27;overflow-x&#x27;: &#x27;hidden&#x27;,
+            &#x27;overflow-y&#x27;: &#x27;hidden&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+        });
+
+        // Ruler for measuring time in the timeline
+        // Placed at the top of the timeline
+        timeRuler = $(document.createElement(&#x27;div&#x27;));
+        timeRuler.css({
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;height&#x27;: (LADS.TourAuthoring.Constants.timeRulerSize + 17) + &#x27;px&#x27;, // changed 12 %
+            &#x27;overflow-x&#x27;: &#x27;hidden&#x27;,
+            &#x27;overflow-y&#x27;: &#x27;hidden&#x27;,
+        });
+        timeRuler.attr(&#x27;id&#x27;, &#x27;timeRuler&#x27;);
+
+        // Track area div with time ruler and track body, horizontal scrolling
+        timeline = $(document.createElement(&#x27;div&#x27;));
+        timeline.attr(&#x27;id&#x27;, &#x27;timeline&#x27;);
+        timeline.css({
+            &#x27;height&#x27;: &#x27;200%&#x27;,
+            &#x27;width&#x27;: &#x27;97%&#x27;,
+            &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+        });
+
+        // Cover block to hide playhead outside of display area
+        var horizBlock = $(document.createElement(&#x27;div&#x27;));
+        horizBlock.attr(&#x27;id&#x27;, &#x27;horizBlock&#x27;);
+        horizBlock.css({
+            &#x27;height&#x27;: LADS.TourAuthoring.Constants.timeRulerSize + &#x27;px&#x27;,
+            &#x27;width&#x27;: &#x27;15.5%&#x27;,
+            &quot;background-color&quot;: &quot;rgb(219,218,199)&quot;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;z-index&#x27;: &#x27;102&#x27;,
+        });
+
+        var vertBlock = $(document.createElement(&#x27;div&#x27;));
+        vertBlock.attr(&#x27;id&#x27;, &#x27;vertBlock&#x27;);
+        vertBlock.css({
+            &#x27;height&#x27;: &#x27;100%&#x27;,
+            &#x27;width&#x27;: &#x27;1.5%&#x27;,
+            &quot;background-color&quot;: &quot;rgb(219,218,199)&quot;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;z-index&#x27;: &#x27;102&#x27;,
+        });
+
+        // ruler scrollbar veil
+        var rulerScrollVeil = $(document.createElement(&#x27;div&#x27;));
+        rulerScrollVeil.attr(&#x27;id&#x27;, &#x27;rulerScrollVeil&#x27;);
+        rulerScrollVeil.css({
+            &#x27;height&#x27;: LADS.TourAuthoring.Constants.timeRulerSize + &#x27;px&#x27;,
+            &#x27;width&#x27;: &#x27;85%&#x27;,
+            &#x27;margin-left&#x27;: &#x27;15.4%&#x27;,
+            &#x27;overflow-x&#x27;: &#x27;hidden&#x27;,
+            &#x27;overflow-y&#x27;: &#x27;hidden&#x27;,
+
+        });
+
+        // time ruler wrapper
+        var rulerWrapper = $(document.createElement(&#x27;div&#x27;));
+        rulerWrapper.attr(&#x27;id&#x27;, &#x27;rulerWrapper&#x27;);
+        rulerWrapper.css({
+            &#x27;width&#x27;: &#x27;85%&#x27;,
+            &#x27;height&#x27;: (LADS.TourAuthoring.Constants.timeRulerSize) + &#x27;px&#x27;,
+            &#x27;overflow-x&#x27;: &#x27;hidden&#x27;,
+            &#x27;overflow-y&#x27;: &#x27;hidden&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;z-index&#x27;: &#x27;100&#x27;,
+            &#x27;box-shadow&#x27; : &#x27;-7px 5px 10px #888&#x27;,
+        });
+
+        // this function will be called when change tour length to update fader position
+        function faderUpdate() {
+            timeManager.seek(timeManager.pxToTime(timeManager.getCurrentPx() + trackBody.scrollLeft()));
+        }
+        that.faderUpdate = faderUpdate;
+
+        manipObjects.ruler = (LADS.Util.makeManipulatable(rulerWrapper[0], {
+            onManipulate: function (res) {
+                rulerWrapper.scrollLeft(rulerWrapper.scrollLeft() - res.translation.x);
+                manipObjects.track.cancelAccel();
+            },
+            onScroll: function (delta) {
+                var close = getCloseMenu();
+                if (close) {
+                    close();
+                }
+
+                if (delta === 1.1) {
+                    rulerWrapper.scrollLeft(rulerWrapper.scrollLeft() - 30);
+                } else {
+                    rulerWrapper.scrollLeft(rulerWrapper.scrollLeft() + 30);
+                }
+
+                manipObjects.track.cancelAccel();
+            },
+            onTapped: function (evt) {
+                if (modifyingInk) {
+                    return false;
+                }
+                timeManager.seek(timeManager.pxToTime(evt.position.x + trackBody.scrollLeft()));
+            }
+        }));
+
+        var toMoveLR = 0;
+        var throttleLR;
+        var toMoveUD = 0;
+        var throttleUD;
+        manipObjects.track = (LADS.Util.makeManipulatable(trackBody[0], {
+            onManipulate: function (res) {
+                manipObjects.ruler.cancelAccel();
+                if (res.translation.x !== 0) {
+                    console.log(&#x27;trans = &#x27;+res.translation.x);
+                    console.log(&#x27;pivot = &#x27;+res.pivot.x);
+                    trackBody.scrollLeft(trackBody.scrollLeft() - res.translation.x);
+                }
+                if (res.translation.y !== 0) {
+                    if (calculateTotalTrackHeight() &gt; trackBody.height()) {
+                        var newY = trackBody.scrollTop() - res.translation.y;
+                        trackBody.scrollTop(newY);
+                        scrollWithBody(newY);
+                    }
+                }
+            }
+        }));
+
+        rulerWrapper.scroll(function (evt) {
+            if (sendScrollLeft) {
+                sendScrollLeft = false;
+                trackBody.scrollLeft(rulerWrapper.scrollLeft());
+            } else {
+                sendScrollLeft = true;
+            }
+        });
+
+        trackTitleWrapper.scroll(function (evt) {
+            if (sendScrollTop) {
+                sendScrollTop = false;
+                trackBody.scrollTop(trackTitleWrapper.scrollTop());
+                scrollWithBody(trackTitleWrapper.scrollTop());
+            } else {
+                sendScrollTop = true;
+            }
+        });
+
+        trackBody.scroll(function (evt) {
+            if (sendScrollLeft) {
+                sendScrollLeft = false;
+                rulerWrapper.scrollLeft(trackBody.scrollLeft());
+            } else {
+                sendScrollLeft = true;
+            }
+
+            // Would be nice to figure out a way to avoid calling this unnecessarily
+            // (ie. when the slider is moved)
+            if (updateSlider) updateSlider();
+            
+            _seekPlayhead();
+
+            if (sendScrollTop) {
+                sendScrollTop = false;
+                if (calculateTotalTrackHeight() &lt; trackBody.height()) {
+                    return;
+                }
+                trackTitleWrapper.scrollTop(trackBody.scrollTop());
+                updateVerticalScroller();
+                scrollWithBody(trackTitleWrapper.scrollTop());
+            } else {
+                sendScrollTop = true;
+            }
+        });
+
+        var updateSlider = null;
+        function registerUpdateSlider(realUpdate) {
+            updateSlider = realUpdate;
+        }
+        that.registerUpdateSlider = registerUpdateSlider;
+
+
+        var _timeRulerSize = function (ev) {
+            timeRuler.css(&#x27;width&#x27;, timeManager.timeToPx(ev.end) + &#x27;px&#x27;);
+        };
+        _timeRulerSize(timeManager.getDuration());
+        timeManager.onSizing(_timeRulerSize);
+
+        /*******************************Xiaoyi/Libby****************************************/
+        var multiSelButtonPanel = $(document.createElement(&#x27;div&#x27;));
+        multiSelButtonPanel.addClass(&quot;multiSelButtonPanel&quot;);
+        multiSelButtonPanel.css({
+            &#x27;top&#x27;: &#x27;12.5%&#x27;,
+            &#x27;left&#x27;: &#x27;25%&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &quot;width&quot;: &#x27;60%&#x27;,
+            &#x27;height&#x27;: &#x27;75%&#x27;,
+            &#x27;float&#x27;: &#x27;left&#x27;,
+            &#x27;z-index&#x27;: &#x27;5&#x27;,
+        });
+
+        var multiSelButton = $(document.createElement(&#x27;button&#x27;));
+        multiSelButton.attr(&#x27;type&#x27;, &#x27;button&#x27;);
+        multiSelButton.attr(&#x27;id&#x27;, &quot;multiSelButton&quot;);
+        multiSelButton.text(&quot;Multi-Select&quot;);
+        multiSelButton.attr(&#x27;type&#x27;, &#x27;button&#x27;);
+        multiSelButton.css({
+            &quot;color&quot;: &quot;black&quot;,
+            &quot;border-color&quot;: &quot;black&quot;,
+            &quot;left&quot;: &quot;5%&quot;,
+            &#x27;top&#x27;: &#x27;3%&#x27;,
+            &quot;position&quot;: &quot;absolute&quot;,
+            &quot;font-size&quot;: &#x27;120%&#x27;,
+            &#x27;float&#x27;: &#x27;left&#x27;,
+            &#x27;width&#x27;: &#x27;100%&#x27;
+        });
+        
+        $(multiSelButton).click(function () {
+            if (getEditInkOn() === true) {
+                //multiSelButton.css({
+                //    &#x27;color&#x27;: &#x27;gray&#x27;,
+                //});
+                return false;
+            }
+            if (multiSelection === true) {
+                multiSelection = false;
+                multiSelButton.css({
+                    &#x27;color&#x27;: &#x27;black&#x27;,
+                    &#x27;background-color&#x27;: &#x27;transparent&#x27;,
+                    &quot;border-color&quot;: &quot;black&quot;
+                });
+            }
+            else {
+                multiSelection = true;
+                multiSelButton.css({
+                    &#x27;color&#x27;: &#x27;white&#x27;,
+                    &#x27;background-color&#x27;: &#x27;darkgreen&#x27;,
+                    &quot;border-color&quot;: &quot;white&quot;,
+                });
+            }
+        });
+
+        editInkOverlay.css({
+            top: LADS.Util.Constants.timeRulerSize,
+            width: &#x27;100%&#x27;,
+            height: &#x27;100%&#x27;,
+            &#x27;margin-left&#x27;: &quot;2%&quot;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;z-index&#x27;: &#x27;10000&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(0, 0, 0, 0.5)&#x27;
+        });
+
+        overlayLabel.css({
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;left&#x27;: &#x27;33.5%&#x27;,
+            &#x27;top&#x27;: &#x27;35%&#x27;,
+            &#x27;font-size&#x27;: &#x27;22pt&#x27;,
+        });
+
+        editInkOverlay.hide();
+
+        // Container and background for Slider
+        sliderPane = $(document.createElement(&#x27;div&#x27;));
+        sliderPane.attr(&#x27;id&#x27;, &#x27;verticalSliderPane&#x27;);
+        sliderPane.css({
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;left&#x27;: &#x27;97.35%&#x27;,
+            &#x27;top&#x27;: 54 + &#x27;px&#x27;,
+            &#x27;display&#x27;: &#x27;inline-block&#x27;,
+            &#x27;width&#x27;: &#x27;1%&#x27;,
+            &#x27;height&#x27;: trackAreaHeight - 8 + &#x27;px&#x27;,
+        });
+        
+        var sliderParts = createVerticalScroller(sliderPane);
+        sliderPane.append(sliderParts[0]);
+        sliderPane.append(sliderParts[1]);
+
+        // appending elements to documentFragment, which is then appended in AddToDOM method
+        docfrag = document.createDocumentFragment();
+
+        docfrag.appendChild(mainScrollHider[0]);
+            mainScrollHider.append(editor); // editor =&gt; horiz scrolling hider
+                editor.append(timeline); // track body + ruler area =&gt; editor
+                        multiSelButtonPanel.append(multiSelButton);
+                        horizBlock.append(multiSelButtonPanel);
+                    timeline.append(horizBlock);
+                    timeline.append(vertBlock);
+                    timeline.append(rulerScrollVeil);
+                        rulerScrollVeil.append(rulerWrapper);
+                            rulerWrapper.append(timeRuler);
+                editor.append(sliderPane);
+                editor.append(editInkOverlay);
+                    editInkOverlay.append(overlayLabel);
+                    timeline.append(trackScrollVeil);
+                        trackScrollVeil.append(trackTitleWrapper); // track head panel =&gt; editor
+                    timeline.append(trackBody);
+
+               
+
+        var constrainedHeight = editorHeight - 5;
+        var constrainedWidth = editorWidth - 17;
+        mainScrollHider.css({
+            &#x27;height&#x27;: constrainedHeight + &quot;px&quot;,
+            &#x27;width&#x27;: constrainedWidth + &quot;px&quot;,
+        });
+        multiSelButton.fitText(0.8);
+
+        /***************************************************************************/
+        ///////////
+        // Playhead
+        //Creating the svg version of the playhead. -David Correa
+        playheadSVG = d3.select(timeline[0])
+                                    .append(&quot;svg&quot;)
+                                    .style(&#x27;position&#x27;, &#x27;absolute&#x27;)
+                                    .style(&#x27;left&#x27;, &#x27;0px&#x27;).style(&#x27;top&#x27;, &#x27;0px&#x27;)
+                                    .attr(&#x27;id&#x27;, &#x27;playhead&#x27;)
+                                    .attr(&quot;width&quot;, &#x27;0%&#x27;)
+                                    .style(&quot;z-index&quot;,&quot;101&quot;)
+                                    .attr(&quot;height&quot;, &#x27;100%&#x27;); // div to be transformed into an svg group
+        var rawSvgElem = playheadSVG[0][0];
+
+        playHeadGroup = playheadSVG.append(&quot;g&quot;).attr(&quot;transform&quot;, &quot;translate(5,0)&quot;);
+        var rawGElem = playHeadGroup[0][0];
+
+        playHeadTop = playHeadGroup.append(&quot;circle&quot;)
+                                   .attr(&#x27;cx&#x27;, &#x27;0&#x27;)
+                                   .attr(&#x27;cy&#x27;, &#x27;27px&#x27;)
+                                   .attr(&#x27;r&#x27;, &#x27;18px&#x27;)
+                                   .attr(&#x27;fill&#x27;, &#x27;black&#x27;)
+                                   .attr(&#x27;stroke&#x27;, &#x27;black&#x27;)
+                                   .attr(&#x27;stroke-width&#x27;, &#x27;7px&#x27;)
+                                   .attr(&#x27;fill-opacity&#x27;, &#x27;0&#x27;);
+        
+        playHead = playHeadGroup.append(&quot;line&quot;)
+                                         .attr(&#x27;x1&#x27;, &#x27;0&#x27;)
+                                         .attr(&#x27;y1&#x27;, &#x27;45px&#x27;) // 11.4%
+                                         .attr(&#x27;x2&#x27;, &#x27;0&#x27;)
+                                         .attr(&#x27;y2&#x27;, &#x27;100%&#x27;)
+                                        .attr(&#x27;pointer-events&#x27;, &#x27;none&#x27;)
+                                         .attr(&#x27;stroke&#x27;, &#x27;black&#x27;)
+                                         .attr(&#x27;stroke-width&#x27;, &#x27;1px&#x27;);
+
+        var $body = $(&#x27;body&#x27;);
+        playHeadGroup.on(&#x27;mousedown&#x27;, function () {
+            var start, startTime, time;
+
+            start = d3.mouse($body[0])[0];
+            startTime = timeManager.getCurrentPx();
+
+            $body.on(&#x27;mousemove.playhead&#x27;, function (ev) {
+                if (editInkOn === true) {      
+                    return false;
+                }
+                time = startTime + (ev.pageX - start);
+                // Don&#x27;t let the playhead be moved out of bounds
+                if (time &gt; $(&#x27;#timeRuler&#x27;).width()) {
+                    time = $(&#x27;#timeRuler&#x27;).width();
+                } else if (time &lt; 0) {
+                    time = 0;
+                } else {
+                    // Only update start if the mouse isn&#x27;t out of bounds so the mouse
+                    // correctly synchronizes with the playhead.
+                    start = ev.pageX;
+                }
+       
+                timeManager.seek(timeManager.pxToTime(time));
+                startTime = time;
+            });
+            $body.on(&#x27;mouseup.playhead&#x27;, function () {
+                $body.off(&#x27;mousemove.playhead&#x27;);
+                $body.off(&#x27;mouseup.playhead&#x27;);
+            });
+        });
+
+        var _seekPlayhead = function () {
+            var time = timeManager.getCurrentPx(); // fix editor.width() * 0.15 -- if we ever change the margin of trackBody, this will be really confusing!
+            playHeadGroup.attr(&quot;transform&quot;, &quot;translate(&quot; + (time + editor.width() * 0.15 - trackBody.scrollLeft()) + &quot;)&quot;);
+        };
+
+        timeManager.onSeek(_seekPlayhead);
+        timeManager.onSizing(_seekPlayhead);
+        timeManager.onPlay(_seekPlayhead);
+    })();
+
+    function showEditorOverlay() {
+        $(&#x27;#resizeButton&#x27;).attr(&#x27;src&#x27;, &#x27;images/icons/Ellipsis_gray.svg&#x27;);
+        setEditInkOn(true);
+        $(&#x27;#multiSelButton&#x27;).css({
+            &#x27;color&#x27;: &#x27;gray&#x27;,
+            &#x27;border-color&#x27;: &#x27;gray&#x27;
+        });
+           
+        playHeadTop.attr(&#x27;fill&#x27;, &#x27;gray&#x27;);
+        playHeadTop.attr(&#x27;stroke&#x27;, &#x27;gray&#x27;);
+
+        
+        var overlayLabelSpec = LADS.Util.constrainAndPosition(editInkOverlay.width(), editInkOverlay.height(),
+            {
+                center_h: true,
+                center_v: true,
+                width: 0.3,
+                height: 0.2,
+                max_width: 400,
+                max_height: 100, 
+            });
+
+        var labelFontSize = LADS.Util.getMaxFontSizeEM(&quot;Ink is being edited...&quot;, 0, overlayLabelSpec.width - 10, overlayLabelSpec.height, 0.01);
+
+        overlayLabel.css({
+            top: overlayLabelSpec.y + &#x27;px&#x27;,
+            left: overlayLabelSpec.x + &#x27;px&#x27;,
+            width: overlayLabelSpec.width + &#x27;px&#x27;,
+            height: overlayLabelSpec.height + &#x27;px&#x27;,
+            &#x27;font-size&#x27;: labelFontSize,
+            &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+        });
+        
+        editInkOverlay.show();
+    }
+    that.showEditorOverlay = showEditorOverlay;
+
+    function hideEditorOverlay() {
+        $(&#x27;#resizeButton&#x27;).attr(&#x27;src&#x27;, &#x27;images/icons/Ellipsis_brown.svg&#x27;);
+        setEditInkOn(false);
+        $(&#x27;#multiSelButton&#x27;).css({
+            &#x27;color&#x27;: &#x27;black&#x27;,
+            &#x27;border-color&#x27;:&#x27;black&#x27;
+        });
+        playHeadTop.attr(&#x27;fill&#x27;, &#x27;black&#x27;);
+        playHeadTop.attr(&#x27;stroke&#x27;, &#x27;black&#x27;);
+        editInkOverlay.hide();
+    }
+    that.hideEditorOverlay = hideEditorOverlay;
+
+    // Creating a vertical scroll visualizer widget
+    function createVerticalScroller(container) {
+        var elements = [];
+        var widget = $(document.createElement(&#x27;div&#x27;));
+        widget.css({
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgb(255,255,255)&#x27;,
+            &#x27;width&#x27;: &#x27;70%&#x27;,
+            &#x27;left&#x27;: &#x27;15%&#x27;,
+            &#x27;height&#x27;: &#x27;100%&#x27;,
+            &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+            &#x27;border&#x27;: &#x27;1px solid gray&#x27;,
+        });
+
+        verticalScroller = $(document.createElement(&#x27;div&#x27;));
+        verticalScroller.attr(&#x27;id&#x27;, &#x27;verticalSlider&#x27;);
+        verticalScroller.css({
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;height&#x27;: &#x27;100px&#x27;,
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;border&#x27;: &#x27;2px none black&#x27;,
+            &#x27;left&#x27;: &#x27;-1px&#x27;,
+        });
+
+        verticalScroller.draggable({
+            axis: &#x27;y&#x27;,
+            drag: function (evt, ui) {
+                evt.stopPropagation();
+                ui.position.top = Math.constrain(ui.position.top, 0, sliderPane.height() - verticalScroller.height() - 2);
+
+                var newRelativeScroll = ui.position.top / (sliderPane.height() - verticalScroller.height() - 4);
+                var newAbsoluteScroll = newRelativeScroll * (calculateTotalTrackHeight() - trackBody.height() + 8);                
+
+                trackBody.scrollTop(newAbsoluteScroll);
+                trackTitleWrapper.scrollTop(newAbsoluteScroll);
+                cancelAccel();
+            }
+        });
+        
+        elements.push(widget);
+        elements.push(verticalScroller);
+
+        verticalScroller.mousedown(function (evt) {
+            evt.stopPropagation();
+        });
+
+        //represents the green part of the timeline for artworks and the gray part for inks -- indicates the length
+        var greenBoxInSlider = $(document.createElement(&#x27;div&#x27;));
+        greenBoxInSlider.css({
+            &#x27;background-color&#x27;: &#x27;DarkGreen&#x27;,
+            &#x27;top&#x27;: &#x27;0%&#x27;,
+            &#x27;left&#x27;: &#x27;15%&#x27;,
+            &#x27;height&#x27;: &#x27;100%&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;width&#x27;: &#x27;70%&#x27;,
+            &#x27;border&#x27;: &#x27;2px solid black&#x27;,
+        });
+        verticalScroller.append(greenBoxInSlider);
+
+        return elements;
+    }
+
+    // used by vertical position viz to update its location when scrolling occurs on other vertically-scrollable elements.
+    function scrollWithBody(scrollPos) {
+        var totalTrackHeight = calculateTotalTrackHeight();
+        var newTop = scrollPos / totalTrackHeight * sliderPane.height();
+        if (newTop &lt; 0) {
+            newTop = 0;
+        } else if (newTop &gt; sliderPane.height() - verticalScroller.height() - 2) {
+            newTop = sliderPane.height() - verticalScroller.height() - 2;
+        }
+        verticalScroller.css({
+            &#x27;top&#x27;: newTop + &#x27;px&#x27;
+        });
+    }
+
+    function updateVerticalScroller() {
+        var oldVertHeight = verticalScroller.height();
+        var totalTrackHeight = calculateTotalTrackHeight();
+        var newTop = trackBody.scrollTop() / totalTrackHeight * sliderPane.height() - 4;
+        if (newTop &lt; 0) {
+            newTop = 0;
+        }
+
+        sliderPane.height(trackTitleWrapper.height() - 10);
+
+        if (verticalScroller.scrollTop() === newTop) {
+            return;
+        }
+
+        //sliderPane.height(trackTitleWrapper.height() - 10);
+
+        if (totalTrackHeight === 0) { // edge case for no tracks onscreen
+            sliderPane.height(trackBody.height() - 10);
+            verticalScroller.css({
+                &#x27;height&#x27;: sliderPane.height() + &#x27;px&#x27;,
+                &#x27;top&#x27;: &#x27;0px&#x27;,
+            });
+            enableDisableDrag();
+            return;
+        }
+
+        if (oldVertHeight !== (trackTitleWrapper.height() - 4) * sliderPane.height() / totalTrackHeight) {
+            if (totalTrackHeight &lt; trackTitleWrapper.height()) {
+                verticalScroller.css({
+                    &#x27;height&#x27;: &#x27;100%&#x27;,
+                });
+            } else {
+                verticalScroller.css({
+                    &#x27;height&#x27;: (trackTitleWrapper.height() - 4) * sliderPane.height() / totalTrackHeight + &#x27;px&#x27;,
+                });
+            }
+            verticalScroller.css({
+                &#x27;top&#x27;: newTop + &#x27;px&#x27;,
+            });
+        }
+    }
+    that.updateVerticalScroller = updateVerticalScroller;
+
+    function enableDisableDrag() {
+        if (calculateTotalTrackHeight() &lt; trackTitleWrapper.height() - 10) {
+            verticalScroller.draggable(&quot;disable&quot;);
+            verticalScroller.css({
+                &#x27;height&#x27;: &#x27;100%&#x27;,
+            });
+        } else {
+            verticalScroller.draggable(&quot;enable&quot;);
+            verticalScroller.css({
+                &#x27;height&#x27;: (trackTitleWrapper.height() - 4) * sliderPane.height() / calculateTotalTrackHeight() + &#x27;px&#x27;,
+            });
+        }
+    }
+    that.enableDisableDrag = enableDisableDrag;
+
+    function calculateTotalTrackHeight() {
+        var i, total = 0;
+        for (i = 0; i &lt; dataHolder._trackArray.length; i++) {
+            var ct = dataHolder._trackArray[i].track;
+            if (ct.getMinimizedState()) {
+                total = total + LADS.TourAuthoring.Constants.minimizedTrackHeight;
+            } else {
+                total = total + LADS.TourAuthoring.Constants.trackHeight;
+            }
+        }
+        return total + dataHolder._trackArray.length * 2; // 2px border per track
+    }
+
+    // Updates notches on time ruler when time duration changes (event handler)
+    var queue = LADS.Util.createQueue(),
+        newLabels = $();
+    function _updateTimeMarkers(ev) {
+        var i,
+            finalTime,
+            scale = ev.scale,
+            seconds = scale,
+            divChilds = timeRuler.children(&#x27;div&#x27;),
+            start = Date.now();
+
+        queue.clear();
+        newLabels = document.createDocumentFragment();
+        divChilds.text(&#x27;&#x27;);
+
+        sendScrollLeft = true;
+        trackBody.scrollLeft(trackBody.scrollLeft());
+
+        // what are these doing? seems like the second while will push seconds*scale back below 80. What are 80 and 100 here?
+        while (seconds * scale &lt; 80) {
+            seconds = seconds * 2;
+        }
+
+        while (seconds * scale &gt; 100) {
+            seconds = seconds / 2;
+        }
+
+        seconds = Math.ceil(seconds);
+        
+        var left = timeManager.pxToTime(trackBody.scrollLeft()),
+            leftmod = left - (left % seconds),
+            right = left + timeManager.pxToTime(trackBody.width());
+
+        // init w/ markers currently on screen
+        //queue.add(function () {
+        var j, initLoad = document.createDocumentFragment();
+        divChilds.remove();
+        for (j = leftmod; j &lt;= right; j += seconds) {
+            initLoad.appendChild(createTimeLabel(j)[0]);
+        }
+        timeRuler.append(initLoad);
+        //});
+
+        var perQueueOp = 20,
+            opLim = perQueueOp * seconds;
+
+        function newLabelHelper(i) {
+            queue.add(function () {
+                var j;
+                for (j = i; j &lt;= i + opLim; j = j + seconds) {
+                    newLabels.appendChild(createTimeLabel(j)[0]);
+                }
+                //if (i + seconds &lt; ev.end) {
+                //    newLabels.push(createTimeLabel(i + seconds));
+                //}
+            });
+        }
+        for (i = ev.start; i &lt;= ev.end; i = Math.min(i + opLim, ev.end)) {
+            newLabelHelper(i);
+            if (i === ev.end) break;
+        }
+
+        // clear and replace once finished
+        queue.add(function () {
+            var i;
+            divChilds.remove();
+            timeRuler.append(newLabels);
+            console.log(&#x27;time ruler update elapsed: &#x27; + (Date.now() - start));
+        });
+
+        // creates a time label and appends it to the time ruler
+        // returns time label
+        function createTimeLabel(i) {
+            var time = Math.min(i, ev.end),
+                timeString = timeManager.formatTime(i),
+                fontsize = LADS.Util.getFontSize(140),
+                markLoc = timeManager.timeToPx(i),
+                timeLabel = $(document.createElement(&#x27;div&#x27;))
+                            .addClass(&#x27;time-label&#x27;)
+                            .text(timeString)
+                            .css({
+                                &#x27;border-width&#x27;: &#x27;0px 0px 0px 1px&#x27;,
+                                &#x27;border-color&#x27;: &#x27;black&#x27;,
+                                &#x27;border-style&#x27;: &#x27;solid&#x27;,
+                                &#x27;position&#x27;: &#x27;absolute&#x27;,
+                                &#x27;left&#x27;: markLoc + &#x27;px&#x27;,
+                                &#x27;padding-left&#x27;: &#x27;5px&#x27;,
+                                &#x27;font-size&#x27;: fontsize,
+                                //&#x27;font-weight&#x27;: &#x27;200&#x27;,
+                                &#x27;color&#x27;: &#x27;black&#x27;,
+                                &#x27;height&#x27;: &#x27;100%&#x27;,
+                            });
+            return timeLabel;
+        }
+    }
+    _updateTimeMarkers(timeManager.getDuration()); // Initialization
+    timeManager.onSizing(function (ev) {
+        timeRuler.children(&#x27;div&#x27;).text(&#x27;&#x27;);
+        setTimeout(function () {
+            _updateTimeMarkers(ev);
+        }, 2);
+    });
+
+    // PUBLIC FUNCTIONS
+
+    // Add Timeline HTML
+
+    function getEditInkOn() {
+        return editInkOn;
+    }
+    that.getEditInkOn = getEditInkOn;
+    
+    function setEditInkOn(status) {
+        editInkOn = status;
+    }
+    that.setEditInkOn = setEditInkOn;
+
+    function addToDOM (container) {
+        container.appendChild(docfrag);
+    }
+    that.addToDOM = addToDOM;
+
+    that.selectedTrack = selectedTrack;
+
+    function setCompControl(comp) {
+        compCont = comp;
+    }
+    that.setCompControl = setCompControl;
+
+    function showEditDraw(track,datastring) {
+        compCont.showEditDraw(track, datastring);
+        modifyingInk = true;
+    }
+    that.showEditDraw = showEditDraw;
+
+    function showEditText(track,datastring, dims) {
+        compCont.showEditText(track, datastring, dims);
+        modifyingInk = true;
+    }
+    that.showEditText = showEditText;
+
+    function showEditTransparency(track, datastring,trans_type) {
+        compCont.showEditTransparency(track, datastring, trans_type);
+        modifyingInk = true;
+    }
+    that.showEditTransparency = showEditTransparency;
+
+    function setModifyingInk(state) {
+        modifyingInk = state;
+    }
+    that.setModifyingInk = setModifyingInk;
+
+    function removeInkSession() {
+        compCont.removeInkCanv();
+        compCont.hideInkControls();
+    }
+    that.removeInkSession = removeInkSession;
+
+    /**Xiaoyi Libby
+    *get the limiting distance for multi select
+    *@return bound: the array of the smallest distances
+    **/
+    function getMSBounds(currentDisplay) {
+        //var bounds = [];
+        //bounds[0] = Number.MAX_VALUE;
+        //bounds[1] = Number.MAX_VALUE;
+        //bounds[2] = Number.MAX_VALUE;
+        //bounds[3] = Number.MAX_VALUE;
+        ////hacky way to solve mutli selection not working when dragging a display with 0 fadeout.
+        //var hasZeroFadeout = false;
+        //if (currentDisplay) { 
+        //    if (currentDisplay.getFadeOut() === 0){
+        //        hasZeroFadeout = true;
+        //    }
+        //}
+        ////loop through the four bounds for each selected display and find the smallest distance (in seconds) that 
+        ////the displays as a whole will be bounded by
+        //for (var i = 0; i &lt; multiSelectionArray.length; i++) {
+        //    var currBounds = multiSelectionArray[i].getTrack().boundHelper(multiSelectionArray[i],hasZeroFadeout);
+        //    //get the bounds for the each selected display
+        //    if (currBounds[0] &lt; bounds[0]) {
+        //        bounds[0] = currBounds[0];
+        //    }
+        //    if (currBounds[1] &lt; bounds[1]) {
+        //        bounds[1] = currBounds[1];
+        //    }
+        //    if (currBounds[2] &lt; bounds[2]) {
+        //        bounds[2] = currBounds[2];
+        //    }
+        //    if (currBounds[3] &lt; bounds[3]) {
+        //        bounds[3] = currBounds[3];
+        //    }
+        //}
+        //return bounds;
+
+        /***rewritten using binheaps***/
+        /****THIS FUNCTION IS GREATLY REDUCED****/
+        //just have each display that is selected push its bounds into the heaps
+        //hacky way to solve mutli selection not working when dragging a display with 0 fadeout.
+        var hasZeroFadeout = false;
+        if (currentDisplay) { 
+            if (currentDisplay.getFadeOut() === 0){
+                hasZeroFadeout = true;
+            }
+        }
+        //instantiate new binheaps every time the selected displays are dragged
+        //so that old bounds do not erroneously conflict with new ones
+        dataHolder.reInitHeaps();
+
+        for (var i = 0; i &lt; multiSelectionArray.length; i++) {
+            multiSelectionArray[i].getTrack().boundHelper(multiSelectionArray[i], hasZeroFadeout);
+        }
+    }
+    that.getMSBounds = getMSBounds;
+
+    /**Xiaoyi &amp; Libby
+    *turn of the button for multi select 
+    */
+    function turnOffMS() {
+        multiSelection = false;
+        $(&#x27;#multiSelButton&#x27;).css({
+            &#x27;color&#x27;: &#x27;black&#x27;,
+            &#x27;background-color&#x27;: &#x27;transparent&#x27;,
+            &quot;border-color&quot;: &quot;black&quot;
+        });
+    }
+    that.turnOffMS = turnOffMS;
+
+
+    var data = [],
+        olddata=[];//data stores the current positions for undo, and olddata stores previous positions for redo
+
+
+    /**Xiaoyi &amp; Libby
+    *update the olddata for each selected displays when the mouse goes up
+    *this is used in undo/redo to store the previous positions of all of the selected displays
+    */
+    function updateOldData() {
+        /**REWRITTEN WITH BINHEAPS*/
+        var selectDisplays = getMultiSelectionArray();
+        var selectDisplaysLength = selectDisplays.length;
+        if (selectDisplays.length === 0) {
+            return;
+        }
+        olddata = new Array(selectDisplaysLength);
+        
+        //update bounds
+        getMSBounds();
+        var leftDist = dataHolder._leftExternal.peek(), //boundArray[0],
+            rightDist = dataHolder._rightExternal.peek(); //boundArray[1];
+        if (leftDist) { //null checking
+            leftDist = leftDist.bound;
+        }
+        if (rightDist) { //null checking
+            rightDist = rightDist.bound;
+        }
+        for (var i = 0; i &lt; selectDisplaysLength; i++) {
+            olddata[i] = new Array(5);
+            var leftbound = selectDisplays[i].getStart() - leftDist;
+            var rightbound = selectDisplays[i].getEnd() + rightDist;
+            olddata[i][0] = selectDisplays[i].getStart();
+            olddata[i][1] = selectDisplays[i].getMainStart();
+            olddata[i][2] = selectDisplays[i].getOutStart();
+            olddata[i][3] = leftbound;
+            olddata[i][4] = rightbound;
+        }
+    }
+    that.updateOldData = updateOldData;
+    function newDataArray() {
+        data = [];
+    }
+    that.newDataArray = newDataArray;
+    function getOldData() {
+        return olddata;
+    }
+    that.getOldData = getOldData;
+
+    /**Xiaoyi &amp; Libby
+    *move the selected displays when user drags one of them
+    *@param: res: mouse input
+    *@param: currentDisplay: the one user is dragging. 
+    */
+    function moveSelect(res, currentDisplay) {
+        //turn off multi-select once any kind of edit is made to the selection
+        turnOffMS();
+        //move all selected tracks
+        /**THIS IS BEING HANDLED DIFFERENTLY WITH BINHEAPS**/
+        //var boundArray = getMSBounds(currentDisplay),
+        getMSBounds(currentDisplay);
+        var leftDist = dataHolder._leftExternal.peek().bound, //boundArray[0],
+            rightDist = dataHolder._rightExternal.peek().bound, //boundArray[1],
+            fadeInRightDist = dataHolder._leftInternal.peek().bound, //boundArray[2],
+            fadeOutLeftDist = dataHolder._rightInternal.peek().bound, //boundArray[3],
+            loc = currentDisplay.getLoc(),
+            selectDisplays = getMultiSelectionArray(),
+            currentDisplayleft = currentDisplay.getStart() - leftDist,
+            currentDisplayright = currentDisplay.getEnd() + rightDist,
+            translation = currentDisplay.getTranslation(res, currentDisplayleft, currentDisplayright, fadeInRightDist, fadeOutLeftDist),//get the distance the display has been dragged
+            leftbound,
+            rightbound,
+            fadeinrightbound,
+            fadeoutleftbound;
+        var offset = currentDisplay.getOffset();//distance from the main to fadein that user clicks on
+        if (data[0] === null || data[0] === undefined) {//update the data for undo at the moment mouse is down, no need to update if user keeps the mouse down and drag multi times.
+            data = new Array(getMultiSelectionArray().length);
+            for (var i = 0; i &lt; selectDisplays.length; i++) {
+                leftbound = selectDisplays[i].getStart() - leftDist;
+                rightbound = selectDisplays[i].getEnd() + rightDist;
+                fadeinrightbound = selectDisplays[i].getStart() + fadeInRightDist;
+                fadeoutleftbound = selectDisplays[i].getEnd() - fadeOutLeftDist;
+                if (data[i] === null || data[i] === undefined) {
+                    data[i] = new Array(10);
+                    data[i][0] = selectDisplays[i].getStart();
+                    data[i][1] = selectDisplays[i].getMainStart();
+                    data[i][2] = selectDisplays[i].getOutStart();
+                    data[i][3] = leftbound;
+                    data[i][4] = rightbound;
+                    data[i][5] = translation;
+                    data[i][6] = loc;
+                    data[i][7] = offset;
+                    data[i][8] = fadeinrightbound;
+                    data[i][9] = fadeoutleftbound;
+                }        
+            }
+        }
+        currentDisplay.msMove(selectDisplays, translation);//move all selectedDisplays
+    }
+    that.moveSelect = moveSelect;
+
+
+    function getDisplayData() {
+        return data;
+    }
+    that.getDisplayData = getDisplayData;
+
+    
+    /**Xiaoyi &amp; Libby
+    *deselect all displays when the user clicks white space in track or right clicks on the menu
+    */
+    function allDeselected() {
+        turnOffMS();//turn off the button
+        var selectedarray = getMultiSelectionArray();
+        var selectednumber = getMultiSelectionArray().length;
+        if (selectedarray.length &gt; 0) {
+            for (var i = 0; i &lt; selectednumber; i++) {
+                selectedarray[0].getTrack().setDisplayDeselected(selectedarray[0], false);
+            }
+        }
+        olddata = [];
+        data = [];
+        multiSelectionArray = [];
+    }
+    that.allDeselected = allDeselected;
+
+    /////////
+    // TRACKS
+
+    /**
+     * Public API for adding tracks (called from ComponentControls)
+     * @param media     URL of added resource (for audio, video, artwork)
+     * @param track     Associated track (for ink)
+     */
+
+    //Xiaoyi Libby
+    function getMultiSelection() {
+        return multiSelection;
+    }
+    that.getMultiSelection = getMultiSelection;
+
+    function getMultiSelectionArray() {
+        return multiSelectionArray;
+    }
+    that.getMultiSelectionArray = getMultiSelectionArray;
+
+    function getTrackslength() {
+        return tracks.length;
+    }
+    that.getTrackslength = getTrackslength;
+
+    function getTracks() {
+        return tracks;
+    }
+    that.getTracks = getTracks;
+    
+    function getTimelineArea() {
+        return trackBody[0];
+    }
+    that.getTimelineArea = getTimelineArea;
+
+    function getTimeRuler() {
+        return timeRuler;
+    }
+    that.getTimeRuler = getTimeRuler;
+
+    function getisMenuOpen() {
+        return isMenuOpen;
+    }
+    that.getisMenuOpen = getisMenuOpen;
+
+    function setisMenuOpen(menustate) {
+        isMenuOpen = menustate;
+    }
+    that.setisMenuOpen = setisMenuOpen;
+
+    var closeMenuHolder;
+    function setCloseMenu(closeFunction) {
+        closeMenuHolder = closeFunction;
+    }
+    that.setCloseMenu = setCloseMenu;
+    function getCloseMenu() {
+        return closeMenuHolder;
+    }
+    that.getCloseMenu = getCloseMenu;
+
+    var closeableFunction;
+    function setCloseableFunction(func) {
+        closeableFunction = func;
+    }
+    that.setCloseableFunction = setCloseableFunction;
+
+    function getCloseableFunction(state) {
+        if (closeableFunction) { setTimeout(closeableFunction(state), 0); }
+    }
+    that.getCloseableFunction = getCloseableFunction;
+
+    /**
+     * Utility to get track object from title
+     * Used to load ink
+     */
+    function findTrackByTitle(title) {
+        //moved to dataholder
+        //var i;
+        //for (i = 0; i &lt; tracks.length; i++) {
+        //    if (tracks[i].getTitle() === title) {
+        //        return tracks[i];
+        //    }
+        //}
+        //return null;
+        return dataHolder.findTrackByTitle(title);
+    }
+
+    /**
+    * searches through all displays and compares end times of each
+    * @returns allDisplaysEnd, the highest end time of all displays
+    */
+    function getLastDisplayTime() {
+        //var i, j, displays, allDisplaysEnd = 0, currDisplayEnd;
+        //for (i = 0; i &lt; tracks.length; i++) {
+        //    displays = tracks[i].getDisplays();
+        //    for (j = 0; j &lt; displays.length; j++) {
+        //        currDisplayEnd = displays[j].getFadeOut() + displays[j].getOutStart();
+        //        if (currDisplayEnd &gt; allDisplaysEnd){
+        //            allDisplaysEnd = currDisplayEnd;
+        //        }
+        //    }
+        //}
+        //return allDisplaysEnd;
+        var i, 
+            allDisplaysEnd = 0, 
+            tracks = dataHolder.getTracks();
+        for (i = 0; i &lt; tracks.length; i++) {
+            var endDisplay = dataHolder.maxDisplay(tracks[i].track.getPos());
+            var endDisplayTime = endDisplay.display.getFadeOut() + endDisplay.display.getOutStart();
+            if (endDisplayTime &gt; allDisplaysEnd) {
+                allDisplaysEnd = endDisplayTime;
+            }
+        }
+        return allDisplaysEnd;
+    }
+    that.getLastDisplayTime = getLastDisplayTime;
+
+    /**
+     * Searches list of tracks for track w/ duplicate name
+     * If duplicate exists, changes name to prevent duplication
+     * @param title     the new title
+     * @param id        id of the track whose title is being changed
+     */
+    function fixTrackTitle(title, id) {
+        var i, currTitle, result, j, ct,
+            titleExp, //= new RegExp(title + &#x27;(?:-([0-9]+))?&#x27;),
+            extraNums = [],
+            finalNum = -1;
+        id = id || -1;
+        var pattern = new RegExp(&quot;[&#x60;~!@#$^&amp;*()=|{}&#x27;:;&#x27;,\\[\\].&lt;&gt;/?~！@#￥……&amp;*（）——|{}【】‘；：”“&#x27;。，、？]&quot;);
+        var rs = &quot;&quot;;
+        for (i = 0; i &lt; title.length; i++) {//removes any irregular characters from title
+            rs = rs + title.substr(i, 1).replace(pattern, &#x27;&#x27;);
+        }
+        titleExp = new RegExp(rs + &#x27;(?:-([0-9]+))?&#x27;); //checks if there are any numbers added onto the title we have
+
+        //for (i = 0; i &lt; this._trackArray.length; i++) {//for each track
+        //    currTitle = this._trackArray[i].getTitle();
+        //    ct = &quot;&quot;;
+        //    for (j = 0; j &lt; currTitle.length; j++) {//remove special characters
+        //        ct = ct + currTitle.substr(j, 1).replace(pattern, &#x27;&#x27;);
+        //    }
+        //    result = titleExp.exec(ct);//check if any numbers added to original
+
+        //    if (result &amp;&amp; result[0] === ct &amp;&amp; id !== this._trackArray[i].getID()) {
+        //        // match
+        //        // if there is a trailing number
+        //        if (result[1]) {
+        //            extraNums.push(parseInt(result[1], 10));
+        //        }
+        //            // if there is no trailing number, pretend substr is -1
+        //        else {
+        //            extraNums.push(-1);
+        //        }
+        //    }
+        //}
+        dataHolder.mapTracks(function (i) {
+            currTitle = i.track.getTitle();
+            ct = &quot;&quot;;
+            for (j = 0; j &lt; currTitle.length; j++) {//remove special characters
+                ct = ct + currTitle.substr(j, 1).replace(pattern, &#x27;&#x27;);
+            }
+            result = titleExp.exec(ct);//check if any numbers added to original
+
+            if (result &amp;&amp; result[0] === ct &amp;&amp; id !== i.track.getID()) {
+                // match
+                // if there is a trailing number
+                if (result[1]) {
+                    extraNums.push(parseInt(result[1], 10));
+                }
+                    // if there is no trailing number, pretend substr is -1
+                else {
+                    extraNums.push(-1);
+                }
+            }
+        });
+
+        if (extraNums.length &gt; 0) {
+            extraNums.sort(function (a, b) { return a - b; });
+            for (i = 0; i &lt; extraNums.length; i++) {
+                if (extraNums[i] + 1 !== i) {
+                    finalNum = i - 1;
+                    break;
+                }
+                finalNum++;
+            }
+            if (finalNum !== -1) {
+                return title + &#x27;-&#x27; + finalNum;
+            } else { // track w/ no appended number does not already exist
+                return title;
+            }
+        } else {
+            return title;
+        }
+    }
+    that.fixTrackTitle = fixTrackTitle;
+
+    function addAudioTrack(media, name, pos, mediaLength) {
+        // Add some stuff to spec
+        pos = pos || (dataHolder.getSelectedTrack() ? dataHolder.getSelectedTrack().getPos() : 0);
+        var spec = {
+            dataHolder: dataHolder,
+            media: media,
+            mediaLength: mediaLength,
+            root: root,
+            id: pos,
+            title: fixTrackTitle(name),
+            timeManager: timeManager,
+            undoManager: undoManager,
+            update: onUpdate,
+            timeline: that,
+            trackarray: tracks,
+            selectedTrack: selectedTrack
+        },
+
+        oldPos,
+
+        // Create the track, wrap command
+        newTrack = LADS.TourAuthoring.AudioTrack(spec),
+        command = LADS.TourAuthoring.Command({
+            execute: function () {
+                _addTrack(newTrack);
+                dataHolder.insertTrack(newTrack, oldPos);
+                newTrack.setTitle(newTrack.getTitle());
+            },
+            unexecute: function () {
+                oldPos = newTrack.getPos();
+                _removeTrack(newTrack);
+            }
+        });
+        //command.execute();
+
+        _addTrack(newTrack);
+        dataHolder.insertTrack(newTrack, pos);
+        oldPos = newTrack.getPos();
+
+        if (name) {
+            newTrack.setTitle(name);
+        }
+
+        undoManager.logCommand(command);
+
+        return newTrack;
+    }
+    that.addAudioTrack = addAudioTrack;
+
+    function addVideoTrack (media, name, pos, mediaLength) {
+        // Add some stuff to spec
+        pos = pos || (dataHolder.getSelectedTrack() ? dataHolder.getSelectedTrack().getPos() : 0);
+        var spec = {
+            dataHolder: dataHolder,
+            media: media,
+            mediaLength: mediaLength,
+            root: root,
+            id: pos,
+            title: fixTrackTitle(name),
+            timeManager: timeManager,
+            undoManager: undoManager,
+            update: onUpdate,
+            timeline: that,
+            trackarray: tracks,
+            selectedTrack: selectedTrack
+        },
+        
+        oldPos,
+
+        // Create the track, wrap command
+        newTrack = LADS.TourAuthoring.VideoTrack(spec),
+        command = LADS.TourAuthoring.Command({
+            execute: function () {
+                _addTrack(newTrack);
+                dataHolder.insertTrack(newTrack, oldPos);
+                newTrack.setTitle(newTrack.getTitle());
+            },
+            unexecute: function () {
+                oldPos = newTrack.getPos();
+                _removeTrack(newTrack);
+            }
+        });
+
+        //command.execute();
+
+        _addTrack(newTrack);
+        dataHolder.insertTrack(newTrack, pos);
+        oldPos = newTrack.getPos();
+
+        if (name) {
+            newTrack.setTitle(name);
+        }
+
+        undoManager.logCommand(command);
+
+        return newTrack;
+    }
+    that.addVideoTrack = addVideoTrack;
+
+    function addArtworkTrack (media, name, guid, pos) {
+        // Add some stuff to spec
+        pos = pos || (dataHolder.getSelectedTrack() ? dataHolder.getSelectedTrack().getPos() : 0);
+        var spec = {
+            dataHolder: dataHolder,
+            media: media,
+            root: root,
+            id: pos,
+            guid: guid,
+            title: fixTrackTitle(name),
+            timeManager: timeManager,
+            undoManager: undoManager,
+            update: onUpdate,
+            timeline: that,
+            trackarray: tracks,
+            selectedTrack: selectedTrack
+        },
+
+        oldPos, // for saving position
+        // Create the track, wrap command
+        newTrack = LADS.TourAuthoring.ArtworkTrack(spec),
+        command = LADS.TourAuthoring.Command({
+            execute: function () {
+                _addTrack(newTrack);
+                dataHolder.insertTrack(newTrack, oldPos);
+            },
+            unexecute: function () {
+                oldPos = newTrack.getPos();
+                _removeTrack(newTrack);
+            }
+        });
+        //command.execute();
+
+        _addTrack(newTrack);
+        dataHolder.insertTrack(newTrack, pos);
+        oldPos = newTrack.getPos();
+        
+        undoManager.logCommand(command);
+        return newTrack; // Return statement for testing purposes only!!! comment out in final build
+    }
+    that.addArtworkTrack = addArtworkTrack;
+
+    function addImageTrack(media, name, pos) {
+        // Add some stuff to spec
+        pos = pos || (dataHolder.getSelectedTrack() ? dataHolder.getSelectedTrack().getPos() : 0);
+        var spec = {
+            dataHolder: dataHolder,
+            media: media,
+            root: root,
+            id: pos,
+            title: fixTrackTitle(name),
+            timeManager: timeManager,
+            undoManager: undoManager,
+            update: onUpdate,
+            timeline: that,
+            trackarray: tracks,
+            selectedTrack: selectedTrack
+        },
+
+        oldPos,
+
+        // Create the track, wrap command
+        newTrack = LADS.TourAuthoring.ImageTrack(spec),
+        command = LADS.TourAuthoring.Command({
+            execute: function () {
+                _addTrack(newTrack);
+                dataHolder.insertTrack(newTrack, oldPos);
+                newTrack.setTitle(newTrack.getTitle());
+            },
+            unexecute: function () {
+                oldPos = newTrack.getPos();
+                _removeTrack(newTrack);
+            }
+        });
+        //command.execute();
+
+        _addTrack(newTrack);
+        dataHolder.insertTrack(newTrack, pos);
+        oldPos = newTrack.getPos();
+
+        if (name) {
+            newTrack.setTitle(name);
+        }
+
+        undoManager.logCommand(command);
+
+
+        return newTrack; // Return statement for testing purposes only!!! comment out in final build
+    }
+    that.addImageTrack = addImageTrack;
+
+    // Additional param in spec: associated-track (either pass by id or direct reference?)
+    function addInkTrack(track, name, inkType, inkSpec, pos) {
+        var selected = dataHolder.getSelectedTrack();
+        if (!pos) {
+            if (selected) {
+                pos = selected.getPos();
+            } else if (track) {
+                pos = track.getPos();
+            } else {
+                pos = 0;
+            }
+        } 
+        var spec = {
+            dataHolder: dataHolder,
+            media: inkType,
+            root: root,
+            inkSpec: inkSpec,
+            id: pos,
+            title: fixTrackTitle(name),
+            timeManager: timeManager,
+            undoManager: undoManager,
+            update: onUpdate,
+            timeline: that,
+            trackarray: tracks,
+            selectedTrack: selectedTrack,
+            //experienceId: selectedTrack
+        },
+
+        oldPos,
+
+        // Create the track, wrap command
+        newTrack = LADS.TourAuthoring.InkTrack(spec),
+        command = LADS.TourAuthoring.Command({
+            execute: function () {
+                _addTrack(newTrack);
+                dataHolder.insertTrack(newTrack, oldPos);
+                newTrack.setTitle(newTrack.getTitle());
+            },
+            unexecute: function () {
+                oldPos = newTrack.getPos();
+                _removeTrack(newTrack);
+            }
+        });
+        //command.execute();
+
+        _addTrack(newTrack);
+        dataHolder.insertTrack(newTrack, pos);
+        oldPos = newTrack.getPos();
+
+        if (name) {
+            newTrack.setTitle(name);
+        }
+
+        undoManager.logCommand(command);
+
+        return newTrack;
+    }
+    that.addInkTrack = addInkTrack;
+
+    var trackNum = 0;
+
+    /* Fixed by reinitializing the menu whenever it is swapped -Jake
+    */
+
+    function _addTrack(track) {
+        var i;
+
+        track.addTitleToDOM(trackTitleWrapper);
+        track.addEditorToDOM(trackBody);
+        //track.detach();
+        //track.reloadTrack();
+        //trackNum += 1;
+    }
+
+    function _removeTrack(track) {
+        var i;
+        //track.updatePos(tracks.indexOf(track));
+        dataHolder.removeTrack(track);
+        track.updatePos(track.getPos());
+        if (track.getType() === LADS.TourAuthoring.TrackType.ink &amp;&amp; track.getInkEnabled()) {
+            track.getInkLink().removeAttachedInkTrack(track);
+        }
+        track.detach();
+        //tracks.map(function (track, i) {
+        //    track.updatePos(i);
+        //});
+        dataHolder.mapTracks(function (track, i) {
+            track.track.updatePos(i);
+        });
+        onUpdate();
+    }
+    that.removeTrack = _removeTrack;
+
+
+    //allows track to prepend itself to DOM.
+    function prependAddToDom(track, trackTitle) {
+        trackTitleWrapper.prepend(trackTitle);
+        trackBody.prepend(track);
+    }
+    that.prependAddToDom = prependAddToDom;
+
+    function getNumTracks() {
+        //return tracks.length;
+        return dataHolder.numTracks();
+    }
+    that.getNumTracks = getNumTracks;
+
+    /**
+     * List of related artworks to be registered in database
+     * @returns     GUIDs of all artworks loaded into tracks
+     */
+    function getRelatedArtworks() {
+        var track, i, related = [];
+        //for (i = 0; i &lt; tracks.length; i++) {
+        //    track = tracks[i];
+        //    if (track.getType() === LADS.TourAuthoring.TrackType.artwork) {
+        //        related.push(track.getGUID());
+        //    }
+        //}
+        dataHolder.mapTracks(function (i) {
+            track = i;
+            if (track.track.getType() === LADS.TourAuthoring.TrackType.artwork) {
+                related.push(track.track.getGUID());
+            }
+        });
+        return related;
+    }
+    that.getRelatedArtworks = getRelatedArtworks;
+
+    function getTrackBody() {
+        return trackBody;
+    }
+    that.getTrackBody = getTrackBody;
+
+    function getPlayhead() {
+        return playheadSVG;
+    }
+    that.getPlayhead = getPlayhead;
+
+    /**
+    * Checks if there are any artworks or images in the timeline
+    * Used in ComponentControls to check if ink can be added
+    * @returns      true if there are artworks loaded
+    */
+    function checkForArtworks(numArtworks) {
+        //var track, i;
+        //for (i = 0; i &lt; tracks.length; i++) {
+        //    track = tracks[i];
+        //    if (track.getType() === LADS.TourAuthoring.TrackType.artwork || track.getType() === LADS.TourAuthoring.TrackType.image) {
+        //        return true;
+        //    }
+        //}
+        //dataHolder.mapTracks(function (i) {
+        //    track = i;
+        //    if (dataHolder.getType(track.track) === LADS.TourAuthoring.TrackType.artwork || dataHolder.getType(track.track) === LADS.TourAuthoring.TrackType.image) {
+        //        return true;
+        //    }
+        //});]
+        for (var i = 0; i &lt; dataHolder._trackArray.length; i++) {
+                var track = dataHolder._trackArray[i].track;
+                if (track.getType() === LADS.TourAuthoring.TrackType.artwork || track.getType() === LADS.TourAuthoring.TrackType.image) {
+                    return true;
+                }
+        }
+        return false;
+    }
+    that.checkForArtworks = checkForArtworks;
+
+    //this calls component controls from tracks, telling ink to be disabled
+    function disableInk() {
+        compCont.disableInk();
+    }
+    that.disableInk = disableInk;
+
+    //used by Track to tell componentcontrols if component options has been clicked
+    var fadeHidden = true;
+    function setFadeHidden(fade) {
+        fadeHidden = fade;
+    }
+    that.setFadeHidden = setFadeHidden;
+
+    //used in componentcontrols to check if component options has been clicked
+    function isFadeHidden() {
+        return fadeHidden;
+    }
+    that.isFadeHidden = isFadeHidden;
+
+    /**
+     * Call when tour has been fully initialized
+     * RIN reloads fired by edits are blocked until this is called!
+     */
+    function setLoaded() {
+        loaded = true;
+        undoManager.setInitialized(true);
+    }
+    that.setLoaded = setLoaded;
+
+    /**
+     * Updates selected keyframe (or new keyframe) w/ keyframe data from RIN
+     * @param trackName     name of the track whose media is being manipulated
+     * @param capture       keyframe data in RIN format (needs to be parsed)
+     * @param select        whether receiving keyframe should be selected
+     */
+    function receiveKeyframe(trackName, capture, select) {
+        //for (i = 0; i &lt; tracks.length; i++) {
+        //    track = tracks[i];
+        //    // If this is the track pass on the keyframe data
+        //    if (track.getTitle() === trackName) {
+        //        track.receiveKeyframe(capture, select);
+        //        return;
+        //    }
+        //}
+        for (var i = 0; i &lt; dataHolder._trackArray.length; i++) {
+            var currentTrack = dataHolder._trackArray[i].track;
+            // If this is the track pass on the keyframe data
+            if (currentTrack.getTitle() === trackName) {
+                currentTrack.receiveKeyframe(capture, select);
+                break;
+            }
+        }
+    }
+    that.receiveKeyframe = receiveKeyframe;
+
+    /**
+     * Deselects selected keyframes on all tracks
+     */
+    function capturingOff() {
+        var i;
+        //for (i = 0; i &lt; tracks.length; i++) {
+        //    tracks[i].deselectKeyframe();
+        //}
+        dataHolder.mapTracks(function (i) {
+            i.track.deselectKeyframe();
+        });
+    }
+    that.capturingOff = capturingOff;
+
+    /**
+     * Grabs current keyframe state from viewer
+     * @returns     Keyframe data in xml
+     */
+    function captureKeyframe(artname) {
+        return viewer.captureKeyframe(artname);
+    }
+    that.captureKeyframe = captureKeyframe;
+
+    function getViewer() {
+        return viewer;
+    }
+    that.getViewer = getViewer;
+
+    function getDataHolder() {
+        return dataHolder;
+    }
+    that.getDataHolder = getDataHolder;
+
+    ///////////
+    // RIN Code
+
+    /**
+     * @returns     JSON object representing current state of timeline in RIN format
+     */
+    function toRIN() {
+        var rin = {}, title = &quot;TAGAuthoringPreview&quot;;
+
+        // v2 code
+        rin.version = &#x27;1.0&#x27;;
+        rin.defaultScreenplayId = &quot;SCP1&quot;;
+        rin.screenplayProviderId = &#x27;screenplayProvider&#x27;;
+        rin.data = {
+            narrativeData: {
+                guid: &quot;e3ced195-0c8b-48f6-b42c-f989e52b4f03&quot;,
+                timestamp: new Date().toISOString(),
+                title: title,
+                author: &quot;TAG Authoring Tool&quot;,
+                aspectRatio: &quot;WideScreen&quot;,
+                estimatedDuration: timeManager.getDuration().end,
+                description: &quot;TAG Tour&quot;,
+                branding: &quot;TAG&quot;
+            }
+        };
+        rin.providers = {
+            ZMES: {
+                name: &quot;MicrosoftResearch.Rin.ZoomableMediaExperienceStream&quot;,
+                version: &quot;1.0&quot;
+            },
+            AES: {
+                name: &#x27;MicrosoftResearch.Rin.AudioExperienceStream&#x27;,
+                version: &quot;1.0&quot;
+            },
+            screenplayProvider: {
+                name: &quot;MicrosoftResearch.Rin.DefaultScreenplayProvider&quot;,
+                version: &quot;1.0&quot;
+            },
+            FadeInOutTransitionService: {
+                name: &quot;MicrosoftResearch.Rin.FadeInOutTransitionService&quot;,
+                version: &quot;1.0&quot;
+            },
+            InkES: {
+                name: &quot;MicrosoftResearch.Rin.InkExperienceStream&quot;,
+                version: &quot;0.0&quot;
+            },
+            VideoES: {
+                &quot;name&quot;: &quot;MicrosoftResearch.Rin.VideoExperienceStream&quot;,
+                &quot;version&quot;: 0.0
+            },
+            ImageES: {
+                name: &quot;MicrosoftResearch.Rin.ImageExperienceStream&quot;,
+                version: &quot;1.0&quot;
+            },
+        };
+
+        rin.resources = _getResourceTable();
+
+        rin.experiences = _getExperienceStreams();
+
+        rin.screenplays = {
+            SCP1: {
+                data: {
+                    experienceStreamReferences: _getScreenPlay()
+                }
+            }
+        };
+
+        
+        return rin;
+    }
+    that.toRIN = toRIN; // public for testing purposes only?
+
+    /**
+     * Helper function to collect track resource entries
+     * @returns     JSON object table of resources
+     */
+    function _getResourceTable() {
+        var i,
+            table = {};
+        //for (i = 0; i &lt; tracks.length; i++) {
+        //    tracks[i].addResource(table);
+        //}
+        dataHolder.mapTracks(function (i) {
+            i.track.addResource(table);
+        });
+        return table;
+        
+    }
+
+    /**
+     * Helper function to collect track experience streams
+     * @returns     JSON object table of ESs
+     */
+    function _getExperienceStreams() {
+        var i,
+            es = {};
+        //for (i = 0; i &lt; tracks.length; i++) {
+        //    tracks[i].addES(es);
+        //}
+        dataHolder.mapTracks(function (i) {
+            i.track.addES(es);
+        });
+        return es;
+    }
+
+    /**
+     * Helper function for constructing screenplay xml string from tracks
+     * @returns     XML screenplay string
+     */
+    function _getScreenPlay() {
+        var i,
+            screenplayStorage = [];
+        //for (i = 0; i &lt; tracks.length; i++) {
+        //    tracks[i].addScreenPlayEntries(screenplayStorage);
+        //}
+        dataHolder.mapTracks(function (i) {
+            i.track.addScreenPlayEntries(screenplayStorage);
+        });
+        screenplayStorage.sort(function (a, b) { return a.begin - b.begin; }); // Screenplay must be sorted
+        return screenplayStorage;
+    }
+
+    function setTourExited(val) {
+        tourExited = val;
+    }
+    that.setTourExited = setTourExited;
+
+    /**
+     * Function passed into tracks to be called on track changes to update RIN data
+     */
+    // debounce will prevent the function from being called
+    // until the debounce function hasn&#x27;t been called for
+    // the specified number of milliseconds
+    var debounce = $.debounce(200, coreUpdate);
+    function coreUpdate() {
+        onUpdateNumCalls = onUpdateNumCalls + 1;
+
+        timeManager.stop();
+
+        var rin;
+        if (loaded) {
+            viewer.setIsReloading(true);
+            timeManager.stop();
+
+            viewer.capturingOff();
+            capturingOff();
+
+            rin = toRIN();
+            viewer.reloadTour(rin);
+        }
+
+        updateVerticalScroller();
+        enableDisableDrag();
+    }
+
+    function onUpdate(noDebounce) {
+        if (!noDebounce) {
+            debounce();
+        } else {
+            coreUpdate();
+        }
+    }
+    that.onUpdate = onUpdate;
+
+    /**
+     * Loads tour file and initializes timeline UI accordingly
+     */
+    function loadRIN(rin, callback) {
+        var parser = LADS.Util.createQueue(),
+            r, e, es, i, j, y, eobj,
+            experienceArray, screenplayEntries,
+            trackname, exp, expstr, expstrname, currScp,
+            defaultseq,
+            mediaLength,
+            begin, fadeIn, fadeOut,
+            track, display,
+            type, length, zIndex,
+            experienceStreams,
+            keyframes, currKey, key, keyloc, keylocy,
+            linkTrack,
+            inks = [], // need to do some ink init after everything else has been loaded, save it here
+            narrativeData = rin.data.narrativeData,
+            resources = rin.resources,
+            experiences = rin.experiences,
+            screenplay = rin.screenplays.SCP1.data.experienceStreamReferences;
+        // parse narrative data
+        timeManager.setEnd(narrativeData.estimatedDuration);
+
+        // ignore providers
+
+        // parse resources and experiences simultaneously
+        // first, get experiences and sort by zIndex in decending order
+        screenplayEntries = rin.screenplays.SCP1.data.experienceStreamReferences;
+        experienceArray = [];
+        for (e in experiences) {
+            if (experiences.hasOwnProperty(e)) {
+                experienceArray.push({ name: e + &#x27;&#x27;, exp: experiences[e] });
+            }
+        }
+        function compareExps(a, b) {
+            var az = a.exp.data.zIndex,
+                bz = b.exp.data.zIndex,
+                astr, bstr, expstr, i, currscp,
+                astreams = a.exp.experienceStreams,
+                bstreams = b.exp.experienceStreams;
+            
+            if (!az) {
+                for (expstr in astreams) {
+                    if (astreams.hasOwnProperty(expstr)) {
+                        astr = astreams[expstr];
+                        if (astr) {
+                            az = astr.data.zIndex;
+                        }
+                        break;
+                    }
+                }
+            }
+            if (!bz) {
+                for (expstr in bstreams) {
+                    if (bstreams.hasOwnProperty(expstr)) {
+                        bstr = bstreams[expstr];
+                        if (bstr) {
+                            bz = bstr.data.zIndex;
+                        }
+                        break;
+                    }
+                }
+            }
+            if (az) {
+                if (bz) {
+                    return bz - az;
+                } else {
+                    // b does not exist
+                    return -1;
+                }
+            } else {
+                if (bz) {
+                    // a does not exist
+                    return 1;
+                } else {
+                    // a and b do not exist
+                    return 0;
+                }
+            }
+        }
+
+        experienceArray.sort(compareExps);
+
+        // now parse
+        function parseHelper(eobj, e) {
+            parser.add(function () {
+                parseTrack(eobj, e);
+            });
+        }
+        for (e = 0; e &lt; experienceArray.length; e++) {
+            //parseTrack(experienceArray[e], e);
+            parseHelper(experienceArray[e], e);
+        }
+
+
+        // finally, ink init
+        parser.add(function () {
+            var parentDisp, parentDisplays;
+            for (i = 0; i &lt; inks.length; i++) {
+                linkTrack = findTrackByTitle(inks[i].link);
+                inks[i].track.setInkLink(linkTrack);
+                if (inks[i].track.getInkEnabled()) {//if is attached ink, set parent displays for each display inside
+                    dataHolder.mapDisplays(inks[i].track.getStorageContainer(), function (currentDisplay) {
+                        parentDisplays = linkTrack.getStorageContainer().displays.nearestNeighbors(currentDisplay.display.getStart(), 1);//array of nearest neighbor&#x27;s in parent track&#x27;s display 
+                        parentDisp = parentDisplays[0].display;
+                        currentDisplay.display.setParentDisplay(parentDisp);
+                        parentDisp.addChildDisplay(currentDisplay.display);
+                    });
+                }
+                if (linkTrack) {
+                    linkTrack.addAttachedInkTrack(inks[i].track);
+                }
+            }
+        });
+
+        dataHolder.mapTracks(function (container, i) {
+            container.track.updatePos(i);
+        });
+
+        //var parentDisp, parentDisplays;
+        //for (i = 0; i &lt; inks.length; i++) {
+        //    linkTrack = findTrackByTitle(inks[i].link);
+        //    inks[i].track.setInkLink(linkTrack);
+        //    if (inks[i].track.getInkEnabled()) {//if is attached ink, set parent displays for each display inside
+        //        dataHolder.mapDisplays(inks[i].track.getStorageContainer(), function (currentDisplay) {
+        //            parentDisplays = linkTrack.getStorageContainer().displays.nearestNeighbors(currentDisplay.display.getStart(), 1);//array of nearest neighbor&#x27;s in parent track&#x27;s display 
+        //            parentDisp = parentDisplays[0].display;
+        //            currentDisplay.display.setParentDisplay(parentDisp);
+        //        });
+        //    }
+        //}
+
+        
+
+        parser.add(function () {
+            setLoaded();
+        });
+        parser.add(function () {
+            /* do async viewer resize to make sure resize runs
+             * after callback adds tour authoring to DOM
+             */
+            setTimeout(viewer.resize, 1);
+
+            if (typeof callback === &#x27;function&#x27;) {
+                callback();
+            }
+
+        });
+
+        function confirmDeleteDisableInk(name, display, myy) {
+            // create dialog
+            root.append(deleteConfirmationOverlay);
+            deleteConfirmationOverlay.attr(&#x27;id&#x27;, &#x27;deleteConfirmationOverlay&#x27;);
+            deleteConfirmationOverlay.css({
+                display: &#x27;none&#x27;,
+                position: &#x27;absolute&#x27;,
+                top: 0,
+                left: 0,
+                width: &#x27;100%&#x27;,
+                height: &#x27;100%&#x27;,
+                &#x27;background-color&#x27;: &#x27;rgba(0,0,0,0.6)&#x27;,
+                &#x27;z-index&#x27;: LADS.TourAuthoring.Constants.aboveRinZIndex,
+            });
+
+            // Actual dialog container
+            var deleteConfirmation = $(document.createElement(&#x27;div&#x27;));
+            deleteConfirmation.attr(&#x27;id&#x27;, &#x27;deleteConfirmation&#x27;);
+            deleteConfirmation.css({
+                position: &#x27;absolute&#x27;,
+                left: &#x27;32.5%&#x27;,
+                &#x27;width&#x27;: &#x27;35%&#x27;,
+                &#x27;top&#x27;: &#x27;30%&#x27;,
+                border: &#x27;3px double white&#x27;,
+                &#x27;background-color&#x27;: &#x27;black&#x27;,
+                &#x27;padding&#x27;: &#x27;2.5% 2.5%&#x27;,
+            });
+            deleteConfirmationOverlay.append(deleteConfirmation);
+
+            var dialogTitle = $(document.createElement(&#x27;div&#x27;));
+            dialogTitle.attr(&#x27;id&#x27;, &#x27;dialogTitle&#x27;);
+            dialogTitle.css({
+                color: &#x27;white&#x27;,
+                &#x27;font-size&#x27;: &#x27;1.25em&#x27;,
+                &#x27;margin-bottom&#x27;: &#x27;10px&#x27;,
+                &#x27;word-wrap&#x27;: &#x27;normal&#x27;,
+            });
+            deleteConfirmation.append(dialogTitle);
+            deleteConfirmation.append(document.createElement(&#x27;br&#x27;));
+
+            // Container for &quot;continue / cancel&quot; buttons
+            var buttonRow = $(document.createElement(&#x27;div&#x27;));
+            buttonRow.css({
+                &#x27;margin-top&#x27;: &#x27;10px&#x27;,
+                &#x27;text-align&#x27;: &#x27;center&#x27;,
+            });
+            deleteConfirmation.append(buttonRow);
+
+            var submitButton = $(document.createElement(&#x27;button&#x27;));
+            submitButton.css({
+                width: &#x27;auto&#x27;,
+                border: &#x27;1px solid white&#x27;,
+                padding: &#x27;1%&#x27;,
+                &#x27;margin-right&#x27;: &#x27;3%&#x27;,
+            });
+            submitButton.text(&#x27;Continue&#x27;);
+            $(submitButton).click(function () {
+                var len = display.removeAttachedInkDisplays();
+                display.removeDisplay(true);
+                if (len &gt; 0) {
+                    undoManager.combineLast(len + 1);
+                }
+                // disabling this for now
+                //deleteAttachedInkDisplays(myy);
+                deleteConfirmationOverlay.fadeOut(500);
+            });
+
+            buttonRow.append(submitButton);
+
+            var cancelButton = $(document.createElement(&#x27;button&#x27;));
+            cancelButton.css({
+                width: &#x27;auto&#x27;,
+                border: &#x27;1px solid white&#x27;,
+                padding: &#x27;1%&#x27;
+            });
+            cancelButton.text(&#x27;Cancel&#x27;); 
+            cancelButton.click(function () {
+                deleteConfirmationOverlay.fadeOut(500);
+            });
+            buttonRow.append(cancelButton);
+
+            // fade in the overlay
+            deleteConfirmationOverlay.fadeIn(500);
+            dialogTitle.text(&#x27;Deleting the last display in track &quot;&#x27; + name + &#x27;&quot; will disable all attached ink tracks. Any existing ink displays will not function until a new artwork display has been created at an overlapping time.&#x27;);
+
+            // deletes all ink displays - not activating this for now, only giving them a warning
+            /***
+            function deleteAttachedInkDisplays(data) {
+                var i;
+                for (i = 0; i &lt; data.attachedInks.length; i++) {
+                    data.attachedInks[i].clearDisplays();
+                }
+            }
+            ***/
+        }
+        that.confirmDeleteDisableInk = confirmDeleteDisableInk;
+        
+
+        /**
+         * Parses an individual track
+         * Note that this is scoped into loadRIN function! (needs access to inks variable)
+         * @param eobj      two params, name is track name, exp is rin format experience object
+         * @param e         track position of eobj
+         */
+        function parseTrack(eobj, e) {
+            // initialization of track
+            trackname = eobj.name; // track name is simply key / property name
+            exp = eobj.exp; // actual experience entry
+            type = exp.providerId; // ZMES or AES or ...
+            zIndex = exp.data.zIndex;
+            if (exp.resourceReferences.length !== 0) {
+                r = exp.resourceReferences[0].resourceId; // id used to get media url out of resources
+            }
+            track = null;
+            if (type === &#x27;ZMES&#x27;) {
+                track = addArtworkTrack(resources[r].uriReference, trackname, exp.data.guid, e);
+            } else if (type === &#x27;ImageES&#x27;) {
+                track = addImageTrack(resources[r].uriReference, trackname, e);
+            } else if (type === &#x27;VideoES&#x27;) {
+                mediaLength = exp.data.mediaLength;
+                track = addVideoTrack(resources[r].uriReference, trackname, e, mediaLength);
+            } else if (type === &#x27;AES&#x27;) {
+                mediaLength = exp.data.mediaLength;
+                track = addAudioTrack(resources[r].uriReference, trackname, e, mediaLength);
+            } else if (type === &#x27;InkES&#x27;) {
+                track = addInkTrack(null, trackname, 1, null, e);
+                track.setInkPath(exp.data.linkToExperience.embedding.element.datastring.str);
+                track.setInkEnabled(exp.data.linkToExperience.embedding.enabled);
+                track.setInkInitKeyframe(exp.data.linkToExperience.embedding.initKeyframe);
+                track.setInkRelativeArtPos(exp.data.linkToExperience.embedding.initproxy);
+                track.link = exp.data.linkToExperience.embedding.experienceId;
+                track.addInkTypeToTitle(exp.data.linkToExperience.embedding.element.datastring.str.split(&#x27;::&#x27;)[0].toLowerCase());
+
+
+
+                inks.push({ &#x27;track&#x27;: track, &#x27;link&#x27;: exp.data.linkToExperience.embedding.experienceId }); // do link init later
+                //create ink canvas and load datastring
+            } else {
+                console.log(&#x27;Experience not yet implemented&#x27;);
+            }
+
+            // check track ordering is correct
+            if (track.getPos() !== experienceArray.length - zIndex) {
+                console.log(&#x27;zIndex and track array position are not the same for: &#x27; + trackname);
+            }
+
+            // add displays from experience streams
+            if (track) {
+                experienceStreams = exp.experienceStreams;
+                for (var es in experienceStreams) {
+                    if (experienceStreams.hasOwnProperty(es)) {
+                        expstrname = es + &#x27;&#x27;;
+                        expstr = experienceStreams[es]; // actual experience stream
+                        length = expstr.duration;
+
+                        // to find start + end of displays, need to scan screenplay
+                        for (i = 0; i &lt; screenplay.length; i++) {
+                            currScp = screenplay[i];
+                            if (currScp.experienceStreamId === expstrname) { // found a match
+                                // note: scp length is fadeIn + main, expstr length is just main
+                                // easy shortcut for reading fades
+                                begin = currScp.begin;
+                                if (expstr.data.transition &amp;&amp; expstr.data.transition.providerId) {
+                                    fadeIn = expstr.data.transition.inDuration;
+                                    fadeOut = expstr.data.transition.outDuration;
+                                } else {
+                                    fadeIn = 0;
+                                    fadeOut = 0;
+                                }
+                                display = track.addDisplay(timeManager.timeToPx(begin));
+                                display.setMain(length);
+                                display.setIn(fadeIn);
+                                display.setOut(fadeOut);
+
+                                // add keyframes
+                                if (exp.providerId !== &#x27;InkES&#x27; &amp;&amp; exp.providerId !== &#x27;VideoES&#x27;) {
+                                    defaultseq = expstr.header.defaultKeyframeSequence;
+                                    keyframes = expstr.keyframes;
+                                    for (j = 0; j &lt; keyframes.length; j++) {
+                                        currKey = keyframes[j];
+
+                                        // ignore initialization keyframe
+                                        if (currKey.init) {
+                                            continue;
+                                        }
+
+                                        keyloc = timeManager.timeToPx(currKey.offset + display.getStart());
+                                        if (type === &#x27;ZMES&#x27; || type === &#x27;ImageES&#x27;) {
+                                            key = display.addKeyframe(keyloc, LADS.TourAuthoring.Constants.trackHeight/2);
+                                            if (key) key.loadRIN(currKey);
+                                        } else if (type === &#x27;AES&#x27;) {
+                                            // get audio to set y location
+                                            y = currKey.state.sound.volume;
+                                            y = Math.constrain(LADS.TourAuthoring.Constants.trackHeight - LADS.TourAuthoring.Constants.trackHeight * y, 0, LADS.TourAuthoring.Constants.trackHeight);
+                                            key = display.addKeyframe(keyloc, y);
+                                            if (key) track.addKeyframeToLines(key);
+                                        } else if (type === &#x27;VideoES&#x27;) { //not used b/c of if check above
+                                            // get video to set y location
+                                            //y = 0;
+                                            //key = display.addKeyframe(keyloc, y);
+                                        } else {
+                                            console.log(&#x27;Experience not yet implemented&#x27;);
+                                        }
+                                    }
+                                }
+
+                                // done with this display
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    that.loadRIN = loadRIN;    
+
+    function cancelAccel() {
+        manipObjects.ruler.cancelAccel();
+        manipObjects.track.cancelAccel();
+    }
+    that.cancelAccel = cancelAccel;
+
+    return that;
+   
+};
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>LADS/js/utils/CryptoJS/components/sha3.js - Touch Art Gallery web application</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../../LADS/images/WideLogo.scale-100.png" title="Touch Art Gallery web application"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 1.0.0</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
+            
+                <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: LADS/js/utils/CryptoJS/components/sha3.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+/*
+CryptoJS v3.1.2
+code.google.com/p/crypto-js
+(c) 2009-2013 by Jeff Mott. All rights reserved.
+code.google.com/p/crypto-js/wiki/License
+*/
+(function (Math) {
+    // Shortcuts
+    var C = CryptoJS;
+    var C_lib = C.lib;
+    var WordArray = C_lib.WordArray;
+    var Hasher = C_lib.Hasher;
+    var C_x64 = C.x64;
+    var X64Word = C_x64.Word;
+    var C_algo = C.algo;
+
+    // Constants tables
+    var RHO_OFFSETS = [];
+    var PI_INDEXES  = [];
+    var ROUND_CONSTANTS = [];
+
+    // Compute Constants
+    (function () {
+        // Compute rho offset constants
+        var x = 1, y = 0;
+        for (var t = 0; t &lt; 24; t++) {
+            RHO_OFFSETS[x + 5 * y] = ((t + 1) * (t + 2) / 2) % 64;
+
+            var newX = y % 5;
+            var newY = (2 * x + 3 * y) % 5;
+            x = newX;
+            y = newY;
+        }
+
+        // Compute pi index constants
+        for (var x = 0; x &lt; 5; x++) {
+            for (var y = 0; y &lt; 5; y++) {
+                PI_INDEXES[x + 5 * y] = y + ((2 * x + 3 * y) % 5) * 5;
+            }
+        }
+
+        // Compute round constants
+        var LFSR = 0x01;
+        for (var i = 0; i &lt; 24; i++) {
+            var roundConstantMsw = 0;
+            var roundConstantLsw = 0;
+
+            for (var j = 0; j &lt; 7; j++) {
+                if (LFSR &amp; 0x01) {
+                    var bitPosition = (1 &lt;&lt; j) - 1;
+                    if (bitPosition &lt; 32) {
+                        roundConstantLsw ^= 1 &lt;&lt; bitPosition;
+                    } else /* if (bitPosition &gt;= 32) */ {
+                        roundConstantMsw ^= 1 &lt;&lt; (bitPosition - 32);
+                    }
+                }
+
+                // Compute next LFSR
+                if (LFSR &amp; 0x80) {
+                    // Primitive polynomial over GF(2): x^8 + x^6 + x^5 + x^4 + 1
+                    LFSR = (LFSR &lt;&lt; 1) ^ 0x71;
+                } else {
+                    LFSR &lt;&lt;= 1;
+                }
+            }
+
+            ROUND_CONSTANTS[i] = X64Word.create(roundConstantMsw, roundConstantLsw);
+        }
+    }());
+
+    // Reusable objects for temporary values
+    var T = [];
+    (function () {
+        for (var i = 0; i &lt; 25; i++) {
+            T[i] = X64Word.create();
+        }
+    }());
+
+    /**
+     * SHA-3 hash algorithm.
+     */
+    var SHA3 = C_algo.SHA3 = Hasher.extend({
+        /**
+         * Configuration options.
+         *
+         * @property {number} outputLength
+         *   The desired number of bits in the output hash.
+         *   Only values permitted are: 224, 256, 384, 512.
+         *   Default: 512
+         */
+        cfg: Hasher.cfg.extend({
+            outputLength: 512
+        }),
+
+        _doReset: function () {
+            var state = this._state = []
+            for (var i = 0; i &lt; 25; i++) {
+                state[i] = new X64Word.init();
+            }
+
+            this.blockSize = (1600 - 2 * this.cfg.outputLength) / 32;
+        },
+
+        _doProcessBlock: function (M, offset) {
+            // Shortcuts
+            var state = this._state;
+            var nBlockSizeLanes = this.blockSize / 2;
+
+            // Absorb
+            for (var i = 0; i &lt; nBlockSizeLanes; i++) {
+                // Shortcuts
+                var M2i  = M[offset + 2 * i];
+                var M2i1 = M[offset + 2 * i + 1];
+
+                // Swap endian
+                M2i = (
+                    (((M2i &lt;&lt; 8)  | (M2i &gt;&gt;&gt; 24)) &amp; 0x00ff00ff) |
+                    (((M2i &lt;&lt; 24) | (M2i &gt;&gt;&gt; 8))  &amp; 0xff00ff00)
+                );
+                M2i1 = (
+                    (((M2i1 &lt;&lt; 8)  | (M2i1 &gt;&gt;&gt; 24)) &amp; 0x00ff00ff) |
+                    (((M2i1 &lt;&lt; 24) | (M2i1 &gt;&gt;&gt; 8))  &amp; 0xff00ff00)
+                );
+
+                // Absorb message into state
+                var lane = state[i];
+                lane.high ^= M2i1;
+                lane.low  ^= M2i;
+            }
+
+            // Rounds
+            for (var round = 0; round &lt; 24; round++) {
+                // Theta
+                for (var x = 0; x &lt; 5; x++) {
+                    // Mix column lanes
+                    var tMsw = 0, tLsw = 0;
+                    for (var y = 0; y &lt; 5; y++) {
+                        var lane = state[x + 5 * y];
+                        tMsw ^= lane.high;
+                        tLsw ^= lane.low;
+                    }
+
+                    // Temporary values
+                    var Tx = T[x];
+                    Tx.high = tMsw;
+                    Tx.low  = tLsw;
+                }
+                for (var x = 0; x &lt; 5; x++) {
+                    // Shortcuts
+                    var Tx4 = T[(x + 4) % 5];
+                    var Tx1 = T[(x + 1) % 5];
+                    var Tx1Msw = Tx1.high;
+                    var Tx1Lsw = Tx1.low;
+
+                    // Mix surrounding columns
+                    var tMsw = Tx4.high ^ ((Tx1Msw &lt;&lt; 1) | (Tx1Lsw &gt;&gt;&gt; 31));
+                    var tLsw = Tx4.low  ^ ((Tx1Lsw &lt;&lt; 1) | (Tx1Msw &gt;&gt;&gt; 31));
+                    for (var y = 0; y &lt; 5; y++) {
+                        var lane = state[x + 5 * y];
+                        lane.high ^= tMsw;
+                        lane.low  ^= tLsw;
+                    }
+                }
+
+                // Rho Pi
+                for (var laneIndex = 1; laneIndex &lt; 25; laneIndex++) {
+                    // Shortcuts
+                    var lane = state[laneIndex];
+                    var laneMsw = lane.high;
+                    var laneLsw = lane.low;
+                    var rhoOffset = RHO_OFFSETS[laneIndex];
+
+                    // Rotate lanes
+                    if (rhoOffset &lt; 32) {
+                        var tMsw = (laneMsw &lt;&lt; rhoOffset) | (laneLsw &gt;&gt;&gt; (32 - rhoOffset));
+                        var tLsw = (laneLsw &lt;&lt; rhoOffset) | (laneMsw &gt;&gt;&gt; (32 - rhoOffset));
+                    } else /* if (rhoOffset &gt;= 32) */ {
+                        var tMsw = (laneLsw &lt;&lt; (rhoOffset - 32)) | (laneMsw &gt;&gt;&gt; (64 - rhoOffset));
+                        var tLsw = (laneMsw &lt;&lt; (rhoOffset - 32)) | (laneLsw &gt;&gt;&gt; (64 - rhoOffset));
+                    }
+
+                    // Transpose lanes
+                    var TPiLane = T[PI_INDEXES[laneIndex]];
+                    TPiLane.high = tMsw;
+                    TPiLane.low  = tLsw;
+                }
+
+                // Rho pi at x = y = 0
+                var T0 = T[0];
+                var state0 = state[0];
+                T0.high = state0.high;
+                T0.low  = state0.low;
+
+                // Chi
+                for (var x = 0; x &lt; 5; x++) {
+                    for (var y = 0; y &lt; 5; y++) {
+                        // Shortcuts
+                        var laneIndex = x + 5 * y;
+                        var lane = state[laneIndex];
+                        var TLane = T[laneIndex];
+                        var Tx1Lane = T[((x + 1) % 5) + 5 * y];
+                        var Tx2Lane = T[((x + 2) % 5) + 5 * y];
+
+                        // Mix rows
+                        lane.high = TLane.high ^ (~Tx1Lane.high &amp; Tx2Lane.high);
+                        lane.low  = TLane.low  ^ (~Tx1Lane.low  &amp; Tx2Lane.low);
+                    }
+                }
+
+                // Iota
+                var lane = state[0];
+                var roundConstant = ROUND_CONSTANTS[round];
+                lane.high ^= roundConstant.high;
+                lane.low  ^= roundConstant.low;;
+            }
+        },
+
+        _doFinalize: function () {
+            // Shortcuts
+            var data = this._data;
+            var dataWords = data.words;
+            var nBitsTotal = this._nDataBytes * 8;
+            var nBitsLeft = data.sigBytes * 8;
+            var blockSizeBits = this.blockSize * 32;
+
+            // Add padding
+            dataWords[nBitsLeft &gt;&gt;&gt; 5] |= 0x1 &lt;&lt; (24 - nBitsLeft % 32);
+            dataWords[((Math.ceil((nBitsLeft + 1) / blockSizeBits) * blockSizeBits) &gt;&gt;&gt; 5) - 1] |= 0x80;
+            data.sigBytes = dataWords.length * 4;
+
+            // Hash final blocks
+            this._process();
+
+            // Shortcuts
+            var state = this._state;
+            var outputLengthBytes = this.cfg.outputLength / 8;
+            var outputLengthLanes = outputLengthBytes / 8;
+
+            // Squeeze
+            var hashWords = [];
+            for (var i = 0; i &lt; outputLengthLanes; i++) {
+                // Shortcuts
+                var lane = state[i];
+                var laneMsw = lane.high;
+                var laneLsw = lane.low;
+
+                // Swap endian
+                laneMsw = (
+                    (((laneMsw &lt;&lt; 8)  | (laneMsw &gt;&gt;&gt; 24)) &amp; 0x00ff00ff) |
+                    (((laneMsw &lt;&lt; 24) | (laneMsw &gt;&gt;&gt; 8))  &amp; 0xff00ff00)
+                );
+                laneLsw = (
+                    (((laneLsw &lt;&lt; 8)  | (laneLsw &gt;&gt;&gt; 24)) &amp; 0x00ff00ff) |
+                    (((laneLsw &lt;&lt; 24) | (laneLsw &gt;&gt;&gt; 8))  &amp; 0xff00ff00)
+                );
+
+                // Squeeze state to retrieve hash
+                hashWords.push(laneLsw);
+                hashWords.push(laneMsw);
+            }
+
+            // Return final computed hash
+            return new WordArray.init(hashWords, outputLengthBytes);
+        },
+
+        clone: function () {
+            var clone = Hasher.clone.call(this);
+
+            var state = clone._state = this._state.slice(0);
+            for (var i = 0; i &lt; 25; i++) {
+                state[i] = state[i].clone();
+            }
+
+            return clone;
+        }
+    });
+
+    /**
+     * Shortcut function to the hasher&#x27;s object interface.
+     *
+     * @param {WordArray|string} message The message to hash.
+     *
+     * @return {WordArray} The hash.
+     *
+     * @static
+     *
+     * @example
+     *
+     *     var hash = CryptoJS.SHA3(&#x27;message&#x27;);
+     *     var hash = CryptoJS.SHA3(wordArray);
+     */
+    C.SHA3 = Hasher._createHelper(SHA3);
+
+    /**
+     * Shortcut function to the HMAC&#x27;s object interface.
+     *
+     * @param {WordArray|string} message The message to hash.
+     * @param {WordArray|string} key The secret key.
+     *
+     * @return {WordArray} The HMAC.
+     *
+     * @static
+     *
+     * @example
+     *
+     *     var hmac = CryptoJS.HmacSHA3(message, key);
+     */
+    C.HmacSHA3 = Hasher._createHmacHelper(SHA3);
+}(Math));
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

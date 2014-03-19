@@ -1,0 +1,4486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>LADS/js/LADS/authoring/LADS.Authoring.NewSettingsView.js - Touch Art Gallery web application</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../../LADS/images/WideLogo.scale-100.png" title="Touch Art Gallery web application"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 1.0.0</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
+            
+                <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: LADS/js/LADS/authoring/LADS.Authoring.NewSettingsView.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+﻿LADS.Util.makeNamespace(&quot;LADS.Authoring.NewSettingsView&quot;);
+
+/*  Creates a SettingsView.  
+        startView argument sets the starting setting.  
+        This arguent can be &quot;Exhibitions&quot;, &quot;Artworks&quot;, &quot;Tours&quot;,
+        or &quot;General Settings&quot;.  Undefined/null, etc. goes to General Settings.
+        TODO: Use constants instead of strings
+
+        callback is called after the UI is done being created.
+        The callback function is passed the setttings view object
+
+        backPage is a function to create the page to go back to (null/undefined goes
+        back to the main page).  This function, when called with no arguments,
+        should return a dom element that can be provided as an argument to 
+        slidePageRight.
+        
+        startLabelID selects a left label automatically if it matches that id.
+        The label will be scrolled to if it is off screen.
+
+    Terminology:
+        left label, left container, etc... (anything with left) really refers to the
+        middle panel.  It is left ignoring the nav panel.  Anything with right refers
+        to the right panel which includes the viewer.
+
+    Notes:
+        Use helper functions to avoid massive functions and avoid string comparisons
+        for navigating the UI.  
+        
+        Buttons/anything with click handlers should be created
+        in a function that takes a function as an argument to define the click behavior.
+        Button creator functions shouldn&#x27;t try to figure out a button&#x27;s functionality
+        from its name!
+
+        Try to define constants at the top of the function in capitals when possible
+        for ease of editing.
+
+        If adding a new nav section create a function to load it that is similar to loadGeneralView(),
+        loadTourView(), etc... and name it load____View.  If this section has labels that should be selectable
+        on load then it should take some identifier that can be used to select a label.  If you add a label
+        and it matches that identifier use the selectLabel() function to visually select (ie. give it a white
+        background) and then call load____() to load the right side.
+
+        For any operations that can take long a queue should be used.  These operations
+        include adding objects to the DOM as this can take a while sometimes.  
+        The queue objects leftQueue and rightQueue represent two separete queues that can
+        act independently.  These queues will process events in order, but asynchronously so
+        they can be completed in the &#x27;background&#x27; (unfortunately JS is still single threaded).
+        leftQueue is generally used to add things to the left label container, while rightQueue
+        is used to add things to the right panel, but they can be used elsewhere (such as the
+        artwork picker in the exhibition view).  Calling .add(fn) adds a function to the queue
+        while .clear() clears the queue.  Note that an in progress function will not be canceled
+        by .clear().  Additionally, use asynchronous DB calls (supply the callback function) 
+        whenever possible.  Combining queues and asynchronous DB calls will result in a much
+        smoother experience for the user without UI lockups.  Also note that spinning circles
+        should be used when possible to show loading status.
+*/
+LADS.Authoring.NewSettingsView = function (startView, callback, backPage, startLabelID) {
+    &quot;use strict&quot;;
+    // Constants
+    // Stuff that&#x27;s commented here is used to put the nav bar on top
+    // under the top bar instead of putting it on the left.
+    var ROOT_BGCOLOR = &#x27;rgb(219,217,204)&#x27;,
+        ROOT_COLOR = &#x27;black&#x27;,
+        TEXT_COLOR = &#x27;black&#x27;,
+        TOPBAR_HEIGHT = &#x27;8&#x27;,
+        TOPBAR_BGCOLOR = &#x27;rgb(63,55,53)&#x27;,
+        //NAVBAR_HEIGHT = &#x27;6%&#x27;,
+        NAVBAR_HEIGHT = &#x27;92%&#x27;,
+        //NAVBAR_HEIGHT = &#x27;76px&#x27;,
+        //NAVBAR_FONTSIZE = &#x27;200%&#x27;,
+        NAVBAR_FONTSIZE = &#x27;215%&#x27;,
+        NAVBAR_SUBFONTSIZE = &#x27;120%&#x27;,
+        HIGHLIGHT = &#x27;white&#x27;,
+        //CONTENT_HEIGHT = &#x27;89&#x27;,
+        CONTENT_HEIGHT = &#x27;92&#x27;,
+        //LEFT_WIDTH = &#x27;25&#x27;,
+        LEFT_WIDTH = &#x27;22&#x27;,
+        LEFT_FONTSIZE = &#x27;160%&#x27;,
+        LEFT_LABEL_HEIGHT = &#x27;40&#x27;,
+        BUTTON_HEIGHT = &#x27;40&#x27;,
+        //RIGHT_WIDTH = &#x27;75&#x27;,
+        RIGHT_WIDTH = &#x27;54&#x27;,
+        NAV_WIDTH = &#x27;23&#x27;,
+        SETTING_FONTSIZE = &#x27;150%&#x27;,
+        INPUT_FONTSIZE = &#x27;120%&#x27;,
+        SETTING_HEIGHT = &#x27;40&#x27;,
+        INPUT_BORDER = &#x27;rgb(167, 180, 174)&#x27;,
+        // Use the apps&#x27;s aspect ratio for the viewer
+        VIEWER_ASPECTRATIO = $(window).width() / $(window).height(),
+        DEFAULT_SEARCH_TEXT = &#x27;Search...&#x27;,
+        PICKER_SEARCH_TEXT = &#x27;Search by Name, Artist, or Year...&#x27;;
+
+
+    // Text for Navagation labels
+    var NAV_TEXT = {
+        general: {
+            text: &#x27;General Settings&#x27;,
+            subtext: &#x27;Customize TAG experience&#x27;
+        },
+        exhib: {
+            text: &#x27;Collections&#x27;,
+            subtext: &#x27;Create and edit collections&#x27;
+        },
+        art: {
+            text: &#x27;Artworks&#x27;,
+            subtext: &#x27;Import and manage artworks&#x27;
+        },
+        media: {
+            text: &#x27;Associated Media&#x27;,
+            subtext: &#x27;Manage associated media&#x27;
+        },
+        tour: {
+            text: &#x27;Tours&#x27;,
+            subtext: &#x27;Build interactive tours&#x27;
+        },
+        feedback: {
+            text: &#x27;Feedback&#x27;,
+            subtext: &#x27;View comments and reports&#x27;
+        },
+    };
+
+    var that = {
+        getRoot: getRoot,
+    },
+        root,
+        leftLabelContainer,
+        leftLoading,
+        leftbar,
+        rightbar,
+        prevSelectedSetting,
+        prevSelectedLeftLabel,
+        viewer,
+        searchbar,
+        settingsContainer,
+        settings,
+        searchContainer,
+        buttonContainer,
+        newButton,
+        secondaryButton,
+        // These are &#x27;asynchronous&#x27; queues to perform tasks
+        leftQueue = LADS.Util.createQueue(),
+        rightQueue = LADS.Util.createQueue(),
+        cancelLastSetting,
+        artPickerOpen = false,
+        nav = [],
+        artworks = [],
+        assetUploader,
+        mediaMetadata = [],
+        numFiles = 0,
+        isUploading = false,
+        isCreatingMedia = false,
+        artworkAssociations = [], // entry i contains the artwork info for the ith associated media
+        artworkList = [], // save artworks retrieved from the database
+        mediaCheckedIDs = [], // artworks checked in associated media uploading
+        mediaUncheckedIDs = [], // artworks unchecked in associated media uploading
+        editArt; // enter artwork editor button
+
+    // Sets up the UI
+    function init() {
+        root = $(document.createElement(&#x27;div&#x27;));
+        root.css({
+            &#x27;background-color&#x27;: ROOT_BGCOLOR,
+            &#x27;color&#x27;: TEXT_COLOR,
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;height&#x27;: &#x27;100%&#x27;,
+        });
+
+        // Sets up the structure of settings view and assigns
+        // necessary variables
+        // dz - modified as necessary to work with documentFragment
+        var rootDocfrag = document.createDocumentFragment();
+
+        // creating elements for instance vars
+        searchContainer = createSearch();
+        leftbar = createLeftBar();
+        leftLabelContainer = createLeftLabelContainer();
+        leftLoading = createLeftLoading();
+        rightbar = createRightBar();
+        viewer = createViewer();
+        buttonContainer = createButtonContainer();
+        settings = createSettings();
+        settingsContainer = createSettingsContainer();
+
+        // one-use var for docfrag
+        var leftBarContainer = createLeftBarContainer();
+
+        // Add the top bar (back button and &#x27;Authoring Mode&#x27; label) - needs html element (i.e. not the jQuery object) for docfrag, thus the [0]
+        rootDocfrag.appendChild(createTopBar()[0]);
+        // Add the nav bar (General Settings, Exhibitions, etc...) - needs html element (i.e. not the jQuery object) for docfrag, thus the [0]
+        rootDocfrag.appendChild(createNavBar()[0]);
+        // Create a container for the &#x27;left&#x27; bar - needs html element (i.e. not the jQuery object) for docfrag, thus the [0]
+        rootDocfrag.appendChild(leftBarContainer[0]);
+        // Add the search bar/button to the left container
+        leftBarContainer.append(searchContainer);
+        // The left bar holds the label container  so it can scroll.
+        leftBarContainer.append(leftbar);
+        // Add the label container to the left bar.
+        // The label container holds all of the labels
+        leftbar.append(leftLabelContainer);
+        // Add the loading (Loading... with spinning circle) label.
+        leftLabelContainer.append(leftLoading);
+        // Add the right bar to the root - needs html element (i.e. not the jQuery object) for docfrag, thus the [0]
+        rootDocfrag.appendChild(rightbar[0]);
+        // Add the viewer to the right bar
+        rightbar.append(viewer);
+        // Add the button container to the right bar (for save, delete, etc)
+        rightbar.append(buttonContainer);
+        // Add the settings bar
+        rightbar.append(settings);
+        // Add the container that holds all of the settings to the settings bar
+        settings.append(settingsContainer);
+
+        // finally, append the docfrag to root
+        root.append(rootDocfrag);
+        switchView(startView, startLabelID);
+        if (callback)
+            callback(that);
+    }
+
+    // Programatically switch view
+    function switchView(view, id) {
+        resetLabels(&#x27;.navContainer&#x27;);
+        switch (view) {
+            case &quot;Exhibitions&quot;:
+                selectLabel(nav[NAV_TEXT.exhib.text]);
+                prevSelectedSetting = nav[NAV_TEXT.exhib.text];
+                loadExhibitionsView(id);
+                break;
+            case &quot;Artworks&quot;:
+                selectLabel(nav[NAV_TEXT.art.text]);
+                prevSelectedSetting = nav[NAV_TEXT.art.text];
+                loadArtView(id);
+                break;
+            case &quot;Associated Media&quot;: 
+                selectLabel(nav[NAV_TEXT.media.text]);
+                prevSelectedSetting = nav[NAV_TEXT.media.text];
+                loadAssocMediaView(id);
+                break;
+            case &quot;Tours&quot;:
+                selectLabel(nav[NAV_TEXT.tour.text]);
+                prevSelectedSetting = nav[NAV_TEXT.tour.text];
+                loadTourView(id);
+                break;
+            case &quot;Feedback&quot;:
+                selectLabel(nav[NAV_TEXT.feedback.text]);
+                prevSelectedSetting = nav[NAV_TEXT.feedback.text];
+                loadFeedbackView(id);
+                break;
+            case &quot;General Settings&quot;:
+            default:
+                selectLabel(nav[NAV_TEXT.general.text]);
+                prevSelectedSetting = nav[NAV_TEXT.general.text];
+                loadGeneralView();
+                break;
+        }
+    }
+
+    init();
+    return that;
+
+    // Functions that can be called from external sources
+
+    function getRoot() {
+        return root;
+    }
+
+    // Functions to change layout
+
+    // General Settings Functions
+
+    // Loads the General Settings view
+    function loadGeneralView() {
+        prepareNextView(false);
+
+        // Add this to our queue so the UI doesn&#x27;t lock up
+        leftQueue.add(function () {
+            var label;
+            // Add the Splash Screen label and set it as previously selected because its our default
+            leftLoading.before(label = selectLabel(createLeftLabel(&#x27;Splash Screen&#x27;, null, loadSplashScreen), true));
+            prevSelectedLeftLabel = label;
+            // Default to loading the splash screen
+            loadSplashScreen();
+            // Add the Password Settings label
+            // As of now this is disabled
+            leftLoading.before(createLeftLabel(&#x27;Password Settings&#x27;, null, loadPasswordScreen).attr(&#x27;id&#x27;, &#x27;password&#x27;));
+            leftLoading.hide();
+        });
+        cancelLastSetting = null;
+    }
+
+    // Sets up the right side of the UI for the splash screen
+    // including the viewer, buttons, and settings container.
+    function loadSplashScreen() {
+        prepareViewer(true);
+        clearRight();
+
+        // Load the start page, the callback will add it to the viewer when its done
+        var startPage = new LADS.Layout.StartPage(null, function (startPage) {
+            if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.general.text]) {
+                return;
+            }
+            viewer.append(startPage);
+            // Don&#x27;t allow the viewer to be clicked
+            preventClickthrough(viewer);
+        }, true);
+
+        // Get DB Values
+        var alpha = LADS.Worktop.Database.getMuseumOverlayTransparency();
+        var overlayColor = LADS.Worktop.Database.getMuseumOverlayColor();
+        var name = LADS.Worktop.Database.getMuseumName();
+        var loc = LADS.Worktop.Database.getMuseumLoc();
+        var info = LADS.Worktop.Database.getMuseumInfo();
+        if (name === undefined) {
+            name = &quot;&quot;;
+        }
+        if (loc === undefined) {
+            loc = &quot;&quot;;
+        }
+        if (info === undefined) {
+            info = &quot;&quot;;
+        }
+        var logoColor = LADS.Worktop.Database.getLogoBackgroundColor();
+
+        // Create inputs
+        var alphaInput = createTextInput(Math.floor(alpha * 100), true);
+        // Touch keyboard breaks everything...
+        //verticalSlider(alphaInput, 0, 100);
+        var bgImgInput = createButton(&#x27;Change Image&#x27;, function () {
+            uploadFile(LADS.Authoring.FileUploadTypes.Standard, function (urls) {
+                var url = urls[0];
+                bgImgInput.val(url);
+                $(&#x27;#background&#x27;).css({
+                    &#x27;background-image&#x27;: &#x27;url(&quot;&#x27; + LADS.Worktop.Database.fixPath(url) + &#x27;&quot;)&#x27;,
+                    &#x27;background-size&#x27;: &#x27;cover&#x27;,
+                });
+            });
+        });
+        var logoInput = createButton(&#x27;Change Logo&#x27;, function () {
+            uploadFile(LADS.Authoring.FileUploadTypes.Standard, function (urls) {
+                var url = urls[0];
+                logoInput.val(url);
+                $(&#x27;#logo&#x27;)[0].src = LADS.Worktop.Database.fixPath(url);
+            });
+        });
+        var overlayColorInput = createBGColorInput(overlayColor, &#x27;.infoDiv&#x27;, function () { return alphaInput.val(); });
+        var nameInput = createTextInput(LADS.Util.htmlEntityDecode(name), true, 40);
+        var locInput = createTextInput(LADS.Util.htmlEntityDecode(loc), true, 45);
+        var infoInput = createTextAreaInput(LADS.Util.htmlEntityDecode(info), true);
+        var logoColorInput = createBGColorInput(logoColor, &#x27;.logoContainer&#x27;, function () { return 100; });
+
+        // Handle changes
+        onChangeUpdateNum(alphaInput, 0, 100, function (num) {
+            updateBGColor(&#x27;.infoDiv&#x27;, overlayColorInput.val(), num);
+        });
+        onChangeUpdateText(nameInput, &#x27;#museumName&#x27;, 40);
+        nameInput.keyup(function () {
+            startPage.fixText();
+        });
+        nameInput.keydown(function () {
+            startPage.fixText();
+        });
+        nameInput.change(function () {
+            startPage.fixText();
+        });
+        onChangeUpdateText(locInput, &#x27;#subheading&#x27;, 33);
+        onChangeUpdateText(infoInput, &#x27;#museumInfo&#x27;, 300);
+
+        var bgImage = createSetting(&#x27;Background Image&#x27;, bgImgInput);
+        var overlayAlpha = createSetting(&#x27;Overlay Transparency (0-100)&#x27;, alphaInput);
+        var overlayColorSetting = createSetting(&#x27;Overlay Color&#x27;, overlayColorInput);
+        var museumName = createSetting(&#x27;Museum Name&#x27;, nameInput);
+        var museumLoc = createSetting(&#x27;Museum Location&#x27;, locInput);
+        var museumInfo = createSetting(&#x27;Museum Info&#x27;, infoInput);
+        var museumLogo = createSetting(&#x27;Museum Logo&#x27;, logoInput);
+        var logoColorSetting = createSetting(&#x27;Museum Logo Background Color&#x27;, logoColorInput);
+
+        settingsContainer.append(bgImage);
+        settingsContainer.append(overlayColorSetting);
+        settingsContainer.append(overlayAlpha);
+        settingsContainer.append(museumName);
+        settingsContainer.append(museumLoc);
+        settingsContainer.append(museumInfo);
+        settingsContainer.append(museumLogo);
+        settingsContainer.append(logoColorSetting);
+
+        // Save button
+        var saveButton = createButton(&#x27;Save Changes&#x27;, function () {
+            if (locInput === undefined) {
+                locInput = &quot;&quot;;
+            }
+            if (infoInput === undefined) {
+                infoInput = &quot;&quot;;
+            }
+            saveSplashScreen({
+                alphaInput: alphaInput,
+                overlayColorInput: overlayColorInput,
+                nameInput: nameInput,
+                locInput: locInput,
+                infoInput: infoInput,
+                logoColorInput: logoColorInput,
+                bgImgInput: bgImgInput,
+                logoInput: logoInput,
+            });
+        }, {
+            &#x27;margin-right&#x27;: &#x27;3%&#x27;,
+            &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;1%&#x27;,
+            &#x27;margin-left&#x27;: &#x27;.5%&#x27;,
+            &#x27;float&#x27;: &#x27;right&#x27;
+        });
+
+        buttonContainer.append(saveButton);
+    }
+
+    // Saves the splash screen settings.  inputs should be the 
+    // inputs where the settings are held with the following keys:
+    //      alphaInput:         Overlay Transparency
+    //      overlayColorInput:  Overlay Color
+    //      nameInput:          Museum Name
+    //      locInput:           Museum Location
+    //      infoInput:          Museum Info
+    //      logoColorInput:     Logo background color
+    //      bgImgInput:         Background image
+    //      logoInput:          Logo image
+    function saveSplashScreen(inputs) {
+        prepareNextView(false, null, null, &quot;Saving...&quot;);
+        clearRight();
+        prepareViewer(true);
+
+        var alpha = inputs.alphaInput.val()/100;
+        var overlayColor = inputs.overlayColorInput.val();
+        var name = inputs.nameInput.val();
+        var loc = inputs.locInput.val();
+        var info = inputs.infoInput.val().replace(&#x27;/\n\r?/g&#x27;, &#x27;&lt;br /&gt;&#x27;);
+        var logoColor = inputs.logoColorInput.val();
+        var bgImg = inputs.bgImgInput.val();
+        var logo = inputs.logoInput.val();
+      
+        var options = {
+            Name: name,
+            OverlayColor: overlayColor,
+            OverlayTrans: alpha,
+            Location: loc,
+            Info: info,
+            IconColor: logoColor,
+        };
+        if (bgImg) options.Background = bgImg;
+        if (logo) options.Icon = logo;
+
+        LADS.Worktop.Database.changeMain(options, function () {
+            LADS.Worktop.Database.getMain(loadGeneralView, error(loadGeneralView), null);
+            ;
+        }, authError, conflict({ Name: &#x27;Main&#x27; }, &#x27;Update&#x27;, loadGeneralView), error(loadGeneralView));
+    }
+
+    // Set up the right side of the UI for the  password changer
+    function loadPasswordScreen() {
+        prepareViewer(false);
+        clearRight();
+
+        var loading = createLabel(&#x27;Loading...&#x27;);
+        var loadingSetting = createSetting(&#x27;&#x27;, loading);
+        settingsContainer.append(loadingSetting);
+
+        LADS.Worktop.Database.checkSetting(&#x27;AllowChangePassword&#x27;, function (val) {
+            loadingSetting.remove();
+            if (val.toLowerCase() === &#x27;true&#x27;) {
+                var oldInput = createTextInput(&#x27;&#x27;, false);
+                var newInput1 = createTextInput(&#x27;&#x27;, false);
+                var newInput2 = createTextInput(&#x27;&#x27;, false);
+                var msgLabel = createLabel(&#x27;&#x27;);
+
+                oldInput.attr(&#x27;type&#x27;, &#x27;password&#x27;);
+                newInput1.attr(&#x27;type&#x27;, &#x27;password&#x27;);
+                newInput2.attr(&#x27;type&#x27;, &#x27;password&#x27;);
+
+                var old = createSetting(&#x27;Current Password&#x27;, oldInput);
+                var new1 = createSetting(&#x27;New Password&#x27;, newInput1);
+                var new2 = createSetting(&#x27;Confirm New Password&#x27;, newInput2);
+                var msg = createSetting(&#x27;&#x27;, msgLabel);
+
+                settingsContainer.append(old);
+                settingsContainer.append(new1);
+                settingsContainer.append(new2);
+                settingsContainer.append(msg);
+
+                var saveButton = createButton(&#x27;Update Password&#x27;, function () {
+                    savePassword({
+                        old: oldInput,
+                        new1: newInput1,
+                        new2: newInput2,
+                        msg: msgLabel,
+                    });
+                });
+                // Make the save button respond to enter
+                saveButton.removeAttr(&#x27;type&#x27;);
+
+                var save = createSetting(&#x27;&#x27;, saveButton);
+                settingsContainer.append(save);
+            } else {
+                passwordChangeNotSupported();
+            }
+        });
+    }
+
+    function passwordChangeNotSupported() {
+        var label = createLabel(&#x27;&#x27;);
+        var setting = createSetting(&#x27;Changing the password has been disabled by the server.  Contact the server administrator for more information&#x27;, label);
+        settingsContainer.append(setting);
+    }
+
+    // Updates the new password.  Inputs has the following keys:
+    //  old: Old password
+    //  new1: New password
+    //  new2: New password confirmation
+    //  msg:  Message area
+    function savePassword(inputs) {
+        inputs.msg.text(&#x27;Processing...&#x27;);
+        if (inputs.new1.val() !== inputs.new2.val()) {
+            inputs.msg.text(&#x27;New passwords do not match.&#x27;);
+        } else {
+            LADS.Auth.changePassword(inputs.old.val(), inputs.new1.val(),
+                function () {
+                    inputs.msg.text(&#x27;Password Saved.&#x27;);
+                    inputs.old.val(&#x27;&#x27;);
+                    inputs.new1.val(&#x27;&#x27;);
+                    inputs.new2.val(&#x27;&#x27;);
+                },
+                function (msg) {
+                    if (msg) {
+                        inputs.msg.html(msg);
+                    } else {
+                        inputs.msg.text(&#x27;Incorrect Password.&#x27;);
+                    }
+                },
+                function () {
+                    inputs.msg.text(&#x27;There was an error contacting the server.&#x27;);
+                });
+        }
+    }
+
+    // Exhibition Functions
+
+    // Loads the exhibitions view
+    function loadExhibitionsView(id) {
+        var cancel = false;
+        // Set the new button text to &quot;New&quot;
+        prepareNextView(true, &quot;New&quot;, createExhibition);
+        clearRight();
+        prepareViewer(true);
+
+        // Make an async call to get the list of exhibitions
+        LADS.Worktop.Database.getExhibitions(function (result) {
+            if (cancel) return;
+            sortAZ(result);
+            $.each(result, function (i, val) {
+                if (cancel) return;
+                // Add each label as a separate function in the queue
+                // So they don&#x27;t lock up the UI
+                leftQueue.add(function () {
+                    if (cancel) return;
+                    if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
+                        return;
+                    }
+                    var label;
+                    if (!prevSelectedLeftLabel &amp;&amp;
+                        ((id &amp;&amp; val.Identifier === id) || (!id &amp;&amp; i === 0))) {
+                        // Select the first one or the specifeid id
+                        leftLoading.before(selectLabel(label = createLeftLabel(val.Name, null, function () {
+                            loadExhibition(val);
+                        }, val.Identifier), true));
+
+                        // Scroll to the selected label if the user hasn&#x27;t already scrolled somewhere
+                        if (leftbar.scrollTop() === 0 &amp;&amp; label.offset().top - leftbar.height() &gt; 0) {
+                            leftbar.animate({
+                                scrollTop: (label.offset().top - leftbar.height())
+                            }, 1000);
+                        }
+
+                        prevSelectedLeftLabel = label;
+                        loadExhibition(val);
+                    } else {
+                        leftLoading.before(label = createLeftLabel(val.Name, null, function () {
+                            loadExhibition(val);
+                        }, val.Identifier));
+                    }
+                    // Hide the label if it doesn&#x27;t match the current search criteria
+                    if (!LADS.Util.searchString(val.Name, searchbar.val())) {
+                        label.hide();
+                    }
+                });
+            });
+            // Hide the loading label when we&#x27;re done
+            leftQueue.add(function () {
+                leftLoading.hide();
+            });
+        });
+        cancelLastSetting = function () { cancel = true; };
+    }
+
+    // Set up the right side for an exhibition
+    function loadExhibition(exhibition) {
+        prepareViewer(true);
+        clearRight();
+
+        // Set the viewer to exhibition view (see function below)
+        exhibitionView(exhibition);
+
+        // inputs
+        var privateState;
+        if (exhibition.Metadata.Private) {
+            privateState = (/^true$/i).test(exhibition.Metadata.Private);
+        } else {
+            privateState = false;
+        }
+        var privateInput = createButton(&#x27;Unpublish&#x27;, function () {
+            privateState = true;
+            privateInput.css(&#x27;background-color&#x27;, &#x27;white&#x27;);
+            publicInput.css(&#x27;background-color&#x27;, &#x27;&#x27;);
+        }, {
+            &#x27;min-height&#x27;: &#x27;0px&#x27;,
+            &#x27;margin-right&#x27;: &#x27;4%&#x27;,
+            &#x27;width&#x27;: &#x27;48%&#x27;,
+        });
+        var publicInput = createButton(&#x27;Publish&#x27;, function () {
+            privateState = false;
+            publicInput.css(&#x27;background-color&#x27;, &#x27;white&#x27;);
+            privateInput.css(&#x27;background-color&#x27;, &#x27;&#x27;);
+        }, {
+            &#x27;min-height&#x27;: &#x27;0px&#x27;,
+            &#x27;width&#x27;: &#x27;48%&#x27;,
+        });
+        if (privateState) {
+            privateInput.css(&#x27;background-color&#x27;, &#x27;white&#x27;);
+        } else {
+            publicInput.css(&#x27;background-color&#x27;, &#x27;white&#x27;);
+        }
+        var pubPrivDiv = $(document.createElement(&#x27;div&#x27;));
+        pubPrivDiv.append(privateInput).append(publicInput);
+
+        var nameInput = createTextInput(LADS.Util.htmlEntityDecode(exhibition.Name), &#x27;Collection name&#x27;, 40);
+        //var sub1Input = createTextInput(LADS.Util.htmlEntityDecode(exhibition.Metadata.Subheading1), &#x27;Subheading 1&#x27;, 60);
+        //var sub2Input = createTextInput(LADS.Util.htmlEntityDecode(exhibition.Metadata.Subheading2), &#x27;Subheading 2&#x27;, 80);
+        var descInput = createTextAreaInput(LADS.Util.htmlEntityDecode(exhibition.Metadata.Description), false);
+        var bgInput = createButton(&#x27;Change Background Image&#x27;, function () {
+            uploadFile(LADS.Authoring.FileUploadTypes.Standard, function (urls) {
+                var url = urls[0];
+                bgInput.val(url);
+                $(&#x27;#bgimage&#x27;).css({
+                    &#x27;background-image&#x27;: &#x27;url(&quot;&#x27; + LADS.Worktop.Database.fixPath(url) + &#x27;&quot;)&#x27;,
+                    &#x27;background-size&#x27;: &#x27;cover&#x27;,
+                });
+            });
+        });
+        var previewInput = createButton(&#x27;Change Image&#x27;, function () {
+            uploadFile(LADS.Authoring.FileUploadTypes.Standard, function (urls) {
+                var url = urls[0];
+                previewInput.val(url);
+                $(&#x27;#img1&#x27;)[0].src = LADS.Worktop.Database.fixPath(url);
+            });
+        });
+
+        nameInput.focus(function () {
+            if (nameInput.val() === &#x27;Collection&#x27;)
+                nameInput.select();
+        });
+        //sub1Input.focus(function () {
+        //    if (sub1Input.val() === &#x27;First Subheading&#x27;)
+        //        sub1Input.select();
+        //});
+        //sub2Input.focus(function () {
+        //    if (sub2Input.val() === &#x27;Second Subheading&#x27;)
+        //        sub2Input.select();
+        //});
+        descInput.focus(function () {
+            if (descInput.val() === &#x27;Description&#x27;)
+                descInput.select();
+        });
+
+        // Handle Changes
+        onChangeUpdateText(nameInput, &#x27;#exhibition-title&#x27;, 40);
+        //onChangeUpdateText(sub1Input, &#x27;#exhibition-subtitle-1&#x27;, 53);
+        //onChangeUpdateText(sub2Input, &#x27;#exhibition-subtitle-2&#x27;, 70);
+        onChangeUpdateText(descInput, &#x27;#description-text&#x27;, 1790);
+
+        var privateSetting = createSetting(&#x27;Change Publish Setting&#x27;, pubPrivDiv);
+        var name = createSetting(&#x27;Collection Name&#x27;, nameInput);
+        //var sub1 = createSetting(&#x27;Subheading 1&#x27;, sub1Input);
+        //var sub2 = createSetting(&#x27;Subheading 2&#x27;, sub2Input);
+        var desc = createSetting(&#x27;Collection Description&#x27;, descInput);
+        var bg = createSetting(&#x27;Collection Background Image&#x27;, bgInput);
+        var preview = createSetting(&#x27;Collection Preview Image&#x27;, previewInput);
+
+        settingsContainer.append(privateSetting);
+        settingsContainer.append(name);
+        //settingsContainer.append(sub1);
+        //settingsContainer.append(sub2);
+        settingsContainer.append(desc);
+        settingsContainer.append(bg);
+        settingsContainer.append(preview);
+
+        // Buttons
+        var saveButton = createButton(&#x27;Save Changes&#x27;, function () {
+            if (nameInput.val() === undefined || nameInput.val() === &quot;&quot;) {
+                nameInput.val(&quot;Untitled Collection&quot;);
+            }
+            saveExhibition(exhibition, {
+                privateInput: privateState,
+                nameInput: nameInput,
+                //sub1Input: sub1Input,
+                //sub2Input: sub2Input,
+                descInput: descInput,
+                bgInput: bgInput,
+                previewInput: previewInput,
+            });
+        }, {
+            &#x27;margin-right&#x27;: &#x27;3%&#x27;,
+            &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;1%&#x27;,
+            &#x27;margin-left&#x27;: &#x27;.5%&#x27;,
+            &#x27;float&#x27;: &#x27;right&#x27;,
+        });
+
+        var deleteButton = createButton(&#x27;Delete Collection&#x27;, function () {
+            deleteExhibition(exhibition);
+        }, {
+            &#x27;margin-left&#x27;: &#x27;2%&#x27;,
+            &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+            &#x27;margin-right&#x27;: &#x27;0&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+        });
+
+
+        var catalogNext = true;
+        // Creates the button to toggle between views
+        var switchViewButton = createButton(&#x27;Preview Catalog&#x27;, function () {
+            viewer.empty();
+            if (catalogNext) {
+                // If there is no art the program crashes when entering catalog mode
+                // Show a message and return if thats the case (would prefer not having
+                // to request all the artwork)
+                LADS.Worktop.Database.getArtworksIn(exhibition.Identifier, function (artworks) {
+                    if (!artworks || !artworks[0]) {
+                        var messageBox = LADS.Util.UI.popUpMessage(null, &quot;Cannot view in catalog mode because there is no artwork in this exhibit.&quot;, null, true);
+                        root.append(messageBox);
+                        $(messageBox).show();
+                        exhibitionView();
+                    } else {
+                        switchViewButton.text(&#x27;Preview Collection&#x27;);
+                        catalogView();
+                        catalogNext = !catalogNext;
+                    }
+                });
+
+                return;
+            } else {
+                switchViewButton.text(&#x27;Preview Catalog&#x27;);
+                exhibitionView();
+            }
+            catalogNext = !catalogNext;
+        }, {
+            &#x27;margin-left&#x27;: &#x27;2%&#x27;,
+            &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+            &#x27;margin-right&#x27;: &#x27;0%&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+        });
+
+        var artPickerButton = createButton(&#x27;Manage Collection&#x27;, function () {
+            LADS.Util.UI.createAssociationPicker(root, &quot;Add and Remove Artworks in this Collection&quot;,
+                { comp: exhibition, type: &#x27;exhib&#x27; },
+                &#x27;exhib&#x27;, [{
+                    name: &#x27;All Artworks&#x27;,
+                    getObjs: LADS.Worktop.Database.getArtworksAndTours,
+                }, {
+                    name: &#x27;Artworks in this Collection&#x27;,
+                    getObjs: LADS.Worktop.Database.getArtworksIn,
+                    args: [exhibition.Identifier]
+                }], {
+                    getObjs: LADS.Worktop.Database.getArtworksIn,
+                    args: [exhibition.Identifier]
+                }, function () {
+                    prepareNextView(true, &quot;New&quot;, createExhibition);
+                    clearRight();
+                    prepareViewer(true);
+                    loadExhibitionsView(exhibition.Identifier);
+                });
+
+        }, {
+            &#x27;margin-left&#x27;: &#x27;2%&#x27;,
+            &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+            &#x27;margin-right&#x27;: &#x27;0%&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+        });
+
+        // Sets the viewer to catalog view
+        function catalogView() {
+            rightQueue.add(function () {
+                var catalog;
+                if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
+                    return;
+                }
+                LADS.Layout.Catalog(exhibition, null, function (catalog) {
+                    viewer.append(catalog.getRoot());
+                    catalog.loadInteraction();
+                    preventClickthrough(viewer);
+                    
+                });
+            });
+        }
+        // Sets the viewer to exhibition view
+        function exhibitionView(exhibition) {
+            rightQueue.add(function () {
+                var exhibView = new LADS.Layout.NewCatalog(null, exhibition, viewer);
+                var exroot = exhibView.getRoot();
+                $(exroot).css(&#x27;z-index&#x27;,&#x27;-1&#x27;); // otherwise, you can use the search box and sorting tabs!
+                viewer.append(exroot);
+                preventClickthrough(viewer);
+                //var exhibView = new LADS.Layout.Exhibitions(null, function (exhib) {
+                //    if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
+                //        return;
+                //    }
+                //    viewer.append(exhib.getRoot());
+                //    var exhibButton = $(&#x27;#exhib-&#x27; + exhibition.Identifier);
+                //    if (exhibButton.length)
+                //        clickWhenReady(exhibButton);
+                //    else {
+                //        exhibView.loadExhibit(exhibition, true);
+                //    }
+                //    preventClickthrough(viewer);
+                //});
+            });
+        }
+
+        buttonContainer.append(artPickerButton).append(deleteButton).append(saveButton);
+    }
+
+    // Create an exhibition
+    function createExhibition() {
+        prepareNextView(false);
+        clearRight();
+        prepareViewer(true);
+
+        LADS.Worktop.Database.createExhibition(null, function (newDoq) {
+            if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
+                return;
+            }
+            if (!newDoq) { // Shouldn&#x27;t happen!
+                // TODO: Error Message
+                loadExhibitionsView();
+                return;
+            }
+            loadExhibitionsView(newDoq.Identifier);
+        }, authError, error(loadExhibitionsView), true);
+    }
+
+    // Save an exhibition where inputs holds
+    // the inputs that contain the values with the following keys:
+    //      nameInput:      Exhibition Name
+    //      sub1Input:      Exhibition subheading 1
+    //      sub2Input:      Exhibition subheading 2
+    //      descInput:      Exhibition description
+    //      bgInput:        Exhibition background image
+    //      previewInput:   Exhibition preview image
+    //      privateInput
+    function saveExhibition(exhibition, inputs) {
+        prepareNextView(false, null, null, &quot;Saving...&quot;);
+        clearRight();
+        prepareViewer(true);
+
+        var name = inputs.nameInput.val();
+        //var sub1 = inputs.sub1Input.val();
+        //var sub2 = inputs.sub2Input.val();
+        var desc = inputs.descInput.val();
+        var bg = inputs.bgInput.val();
+        var preview = inputs.previewInput.val();
+        var priv = inputs.privateInput;
+
+        var options = {
+            Name: name,
+            //Sub1: sub1,
+            //Sub2: sub2,
+            Private: priv,
+            Description: desc,
+        }
+
+        if (bg)
+            options.Background = bg;
+        if (preview)
+            options.Img1 = preview;
+
+        LADS.Worktop.Database.changeExhibition(exhibition.Identifier, options, function () {
+            if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
+                return;
+            }
+            loadExhibitionsView(exhibition.Identifier);
+        }, authError, conflict(exhibition, &quot;Update&quot;, loadExhibitionsView), error(loadExhibitionsView));
+    }
+
+    // Delete an exhibition
+    function deleteExhibition(exhibition) {
+        var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
+            prepareNextView(false);
+            clearRight();
+            prepareViewer(true);
+
+            // actually delete the exhibition
+            LADS.Worktop.Database.deleteDoq(exhibition.Identifier, function () {
+                if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
+                    return;
+                }
+                loadExhibitionsView();
+            }, authError, conflict(exhibition, &quot;Delete&quot;, loadExhibitionsView), error(loadExhibitionsView));
+        }, &quot;Are you sure you want to delete &quot; + exhibition.Name + &quot;?&quot;, &quot;Delete&quot;, true, function() { $(confirmationBox).hide(); });
+        root.append(confirmationBox);
+        $(confirmationBox).show();
+    }
+
+
+    // Tour Functions
+
+    // Load the tour view
+    function loadTourView(id) {
+        prepareNextView(true, &quot;New&quot;, createTour);
+        clearRight();
+        prepareViewer(true);
+        var cancel = false;
+        // Make an async call to get tours
+        LADS.Worktop.Database.getTours(function (result) {
+            if (cancel) return;
+            sortAZ(result);
+
+            $.each(result, function (i, val) {
+                if (cancel) return false;
+                // Add each label as a separate function to the queue
+                // so the UI doesn&#x27;t lock up
+                leftQueue.add(function () {
+                    if (cancel) return;
+                    if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+                        return;
+                    }
+                    var label;
+                    if (!prevSelectedLeftLabel &amp;&amp;
+                        ((id &amp;&amp; val.Identifier === id) || (!id &amp;&amp; i === 0))) {
+                        // Select the first one
+                        leftLoading.before(selectLabel(label = createLeftLabel(val.Name, null, function () {
+                            loadTour(val);
+                        }, val.Identifier, false, function () {
+                            editTour(val);
+                        }), true));
+
+                        // Scroll to the selected label if the user hasn&#x27;t already scrolled somewhere
+                        if (leftbar.scrollTop() === 0 &amp;&amp; label.offset().top - leftbar.height() &gt; 0) {
+                            leftbar.animate({
+                                scrollTop: (label.offset().top - leftbar.height())
+                            }, 1000);
+                        }
+
+                        prevSelectedLeftLabel = label;
+                        loadTour(val);
+                    } else {
+                        leftLoading.before(label = createLeftLabel(val.Name, null, function () {
+                            loadTour(val);
+                        }, val.Identifier, false, function () {
+                            editTour(val);
+                        }));
+                    }
+                    // Hide if it doesn&#x27;t match search criteria
+                    if (!LADS.Util.searchString(val.Name, searchbar.val())) {
+                        label.hide();
+                    }
+                });
+            });
+            // Hide the loading label when we&#x27;re done
+            leftQueue.add(function () {
+                leftLoading.hide();
+            });
+        });
+        cancelLastSetting = function () { cancel = true; };
+    }
+
+    // Load a tour to the right side
+    function loadTour(tour) {
+        prepareViewer(true);
+        clearRight();
+
+        // Create an img element just to load the image
+        var img = $(document.createElement(&#x27;img&#x27;));
+        img.attr(&#x27;src&#x27;, LADS.Worktop.Database.fixPath(tour.Metadata.Thumbnail));
+
+        // Create a progress circle
+        var progressCircCSS = {
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;left&#x27;: &#x27;30%&#x27;,
+            &#x27;top&#x27;: &#x27;22%&#x27;,
+            &#x27;z-index&#x27;: &#x27;50&#x27;,
+            &#x27;height&#x27;: viewer.height() / 2 + &#x27;px&#x27;,
+            &#x27;width&#x27;: &#x27;auto&#x27;
+        };
+        var circle = LADS.Util.showProgressCircle(viewer, progressCircCSS, &#x27;0px&#x27;, &#x27;0px&#x27;, false);
+        var selectedLabel = prevSelectedLeftLabel;
+        img.load(function () {
+            // If the selection has changed since we started loading return
+            if (prevSelectedLeftLabel &amp;&amp; prevSelectedLeftLabel.text() !== tour.Name) {
+                LADS.Util.removeProgressCircle(circle);
+                return;
+            }
+            LADS.Util.removeProgressCircle(circle);
+            // Set the image as a background image, centered and contained
+            viewer.css(&#x27;background&#x27;, &#x27;black url(&#x27; + LADS.Worktop.Database.fixPath(tour.Metadata.Thumbnail) + &#x27;) no-repeat center / contain&#x27;);
+        });
+
+        // Create inputs
+        // inputs
+        var privateState;
+        if (tour.Metadata.Private) {
+            privateState = (/^true$/i).test(tour.Metadata.Private);
+        } else {
+            privateState = false;
+        }
+        var privateInput = createButton(&#x27;Unpublish&#x27;, function () {
+            privateState = true;
+            privateInput.css(&#x27;background-color&#x27;, &#x27;white&#x27;);
+            publicInput.css(&#x27;background-color&#x27;, &#x27;&#x27;);
+        }, {
+            &#x27;min-height&#x27;: &#x27;0px&#x27;,
+            &#x27;margin-right&#x27;: &#x27;4%&#x27;,
+            &#x27;width&#x27;: &#x27;48%&#x27;,
+        });
+        var publicInput = createButton(&#x27;Publish&#x27;, function () {
+            privateState = false;
+            publicInput.css(&#x27;background-color&#x27;, &#x27;white&#x27;);
+            privateInput.css(&#x27;background-color&#x27;, &#x27;&#x27;);
+        }, {
+            &#x27;min-height&#x27;: &#x27;0px&#x27;,
+            &#x27;width&#x27;: &#x27;48%&#x27;,
+        });
+        if (privateState) {
+            privateInput.css(&#x27;background-color&#x27;, &#x27;white&#x27;);
+        } else {
+            publicInput.css(&#x27;background-color&#x27;, &#x27;white&#x27;);
+        }
+        var pubPrivDiv = $(document.createElement(&#x27;div&#x27;));
+        pubPrivDiv.append(privateInput).append(publicInput);
+
+        var nameInput = createTextInput(LADS.Util.htmlEntityDecode(tour.Name), true, 120);
+        var descInput = createTextAreaInput(LADS.Util.htmlEntityDecode(tour.Metadata.Description).replace(/\n/g,&#x27;&lt;br /&gt;&#x27;) || &quot;&quot;, false);
+
+        nameInput.focus(function () {
+            if (nameInput.val() === &#x27;Untitled Tour&#x27;)
+                nameInput.select();
+        });
+        descInput.focus(function () {
+            if (descInput.val() === &#x27;Tour Description&#x27;)
+                descInput.select();
+        });
+
+        // on change behavior
+        onChangeUpdateText(descInput, null, 1500); // What should max length be?
+
+        var privateSetting = createSetting(&#x27;Change Publish Setting&#x27;, pubPrivDiv);
+        var name = createSetting(&#x27;Tour Name&#x27;, nameInput);
+        var desc = createSetting(&#x27;Tour Description&#x27;, descInput);
+
+        settingsContainer.append(privateSetting);
+        settingsContainer.append(name);
+        settingsContainer.append(desc);
+
+
+        // Create buttons
+        var editButton = createButton(&#x27;Edit Tour&#x27;,
+            function () { editTour(tour); },
+            {
+                &#x27;margin-left&#x27;: &#x27;2%&#x27;,
+                &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-right&#x27;: &#x27;0%&#x27;,
+                &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+            });
+        var deleteButton = createButton(&#x27;Delete Tour&#x27;,
+            function () { deleteTour(tour); },
+            {
+                &#x27;margin-left&#x27;: &#x27;2%&#x27;,
+                &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-right&#x27;: &#x27;0%&#x27;,
+                &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+            });
+        var duplicateButton = createButton(&#x27;Duplicate Tour&#x27;,
+            function () {
+                duplicateTour(tour, {
+                    privateInput: privateState,
+                    nameInput: nameInput,
+                    descInput: descInput,
+                });
+            },
+            {
+                &#x27;margin-left&#x27;: &#x27;2%&#x27;,
+                &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-right&#x27;: &#x27;0%&#x27;,
+                &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+            });
+        var saveButton = createButton(&#x27;Save Changes&#x27;,
+            function () {
+                if (nameInput.val() === undefined || nameInput.val() === &quot;&quot;) {
+                    nameInput.val() = &quot;Untitled Tour&quot;;
+                }
+                saveTour(tour, {
+                    privateInput: privateState,
+                    nameInput: nameInput,
+                    descInput: descInput,
+                });
+            }, {
+                &#x27;margin-right&#x27;: &#x27;3%&#x27;,
+                &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-bottom&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-left&#x27;: &#x27;.5%&#x27;,
+                &#x27;float&#x27;: &#x27;right&#x27;
+            });
+
+        buttonContainer.append(editButton).append(duplicateButton).append(deleteButton).append(saveButton);
+    }
+
+    // Creates a tour
+    function createTour() {
+        prepareNextView(false);
+        clearRight();
+        prepareViewer(true);
+
+        LADS.Worktop.Database.createTour(null, function (newDoq) {
+            if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+                return;
+            }
+            if (!newDoq) {
+                // TODO: ERROR
+                loadTourView();
+                return;
+            }
+            loadTourView(newDoq.Identifier);
+        }, authError, error(loadTourView), true);
+    }
+
+    // Edit a tour
+    function editTour(tour) {
+        // Overlay doesn&#x27;t spin... not sure how to fix without redoing tour authoring to be more async
+        loadingOverlay(&#x27;Loading Tour...&#x27;);
+        leftQueue.clear();
+        rightQueue.clear();
+        setTimeout(function () {
+            var toureditor = new LADS.Layout.TourAuthoringNew(tour, function () {
+                LADS.Util.UI.slidePageLeft(toureditor.getRoot());
+            });
+        }, 1);
+    }
+
+    // Delete a tour
+    function deleteTour(tour) {
+        var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
+            prepareNextView(false);
+            clearRight();
+            prepareViewer(true);
+
+            // actually delete the exhibition
+            LADS.Worktop.Database.deleteDoq(tour.Identifier, function () {
+                if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+                    return;
+                }
+                loadTourView();
+            }, authError, conflict(tour, &quot;Delete&quot;, loadTourView), error(loadTourView));
+        }, &quot;Are you sure you want to delete &quot; + tour.Name + &quot;?&quot;, &quot;Delete&quot;, true, function () { $(confirmationBox).hide(); });
+        root.append(confirmationBox);
+        $(confirmationBox).show();
+    }
+
+    // Duplicate a tour
+    function duplicateTour(tour, inputs) {
+        prepareNextView(false);
+        clearRight();
+        prepareViewer(true);
+        var options = {
+            Name: &quot;Copy: &quot; + tour.Name,
+            Description: tour.Metadata.Description,
+            Content: tour.Metadata.Content,
+            Thumbnail: tour.Metadata.Thumbnail,
+            Private: &quot;true&quot;, // always want to create duplicates as unpublished
+        };
+
+        LADS.Worktop.Database.createTour(options, function (tewer) {
+            console.log(&quot;success&quot;);
+            if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+                return;
+            }
+            loadTourView(tewer.Identifier);
+        }, function () {
+            console.log(&quot;error&quot;);
+        }, function () {
+            console.log(&quot;cacheError&quot;);
+        });
+
+        //// first, create a new tour (code lifted from createTour)
+        //LADS.Worktop.Database.createTour(function (newDoq) {
+        //    if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+        //        return;
+        //    }
+        //    if (!newDoq) {
+        //        // TODO: ERROR
+        //        loadTourView();
+        //        return;
+        //    }
+
+        //    // grab the data to be copied from the tour we&#x27;re duplicating
+        //    // not just copying everything because we want the new tour to have a unique identifier, etc...
+        //    var name = &quot;Copy: &quot; + tour.Name;
+        //    var desc = tour.Metadata.Description;
+        //    var content = tour.Metadata.Content;
+        //    var relatedArtworks = tour.Metadata.RelatedArtworks;
+        //    var thumbnailMeta = tour.Metadata.Thumbnail;
+        //    var privateMeta = &quot;true&quot;; // always want to create duplicates as unpublished
+        //    var keywords = tour._Keywords;
+        //    var thumbnail = tour.Thumbnail;
+        //    var type = tour.Type;
+
+        //    // set the XML of the new tour to account for the data above (code lifted from editTour)
+        //    LADS.Worktop.Database.getDoqXML(newDoq.Identifier, function (xml) {
+        //        var parser = new DOMParser();
+        //        var currentXML = $(parser.parseFromString(xml, &#x27;text/xml&#x27;));
+
+        //        name = LADS.Util.encodeXML(name);
+        //        var desc = inputs.descInput.val().replace(/\n\r?/g, &#x27;&lt;br /&gt;&#x27;);
+
+        //        // set the name, etc...
+        //        // not sure what keywords, thumbnai, and type do, but set them here for good measure
+        //        currentXML.find(&#x27;Name&#x27;).text(name);
+        //        currentXML.find(&#x27;_Keywords&#x27;).text(keywords);
+        //        currentXML.find(&#x27;Thumbnail&#x27;).text(thumbnail);
+        //        currentXML.find(&#x27;Type&#x27;).text(type);
+
+        //        // set metadata, most importantly the content of the tour
+        //        //getFieldValueFromMetadata(currentXML[0], &quot;Description&quot;).data = LADS.Util.encodeXML(desc);
+        //        //getFieldValueFromMetadata(currentXML[0], &quot;Content&quot;).data = LADS.Util.encodeXML(content);
+        //        //getFieldValueFromMetadata(currentXML[0], &quot;RelatedArtworks&quot;).data = LADS.Util.encodeXML(relatedArtworks);
+        //        //getFieldValueFromMetadata(currentXML[0], &quot;Thumbnail&quot;).data = LADS.Util.encodeXML(thumbnailMeta);
+        //        //getFieldValueFromMetadata(currentXML[0], &quot;Private&quot;).data = LADS.Util.encodeXML(privateMeta);
+
+        //        // Fix escape characters
+        //        currentXML.find(&quot;d3p1\\:Key:contains(&#x27;Content&#x27;) + d3p1\\:Value&quot;).text(LADS.Util.encodeXML(currentXML.find(&quot;d3p1\\:Key:contains(&#x27;Content&#x27;) + d3p1\\:Value&quot;).text()));
+
+        //        var privateField = getFieldValueFromMetadata(currentXML[0], &quot;Private&quot;);
+        //        if (!privateField) {
+        //            privateField = addFieldToMetadata(currentXML[0], &quot;Private&quot;, LADS.Util.encodeXML(privateMeta));
+        //        } else {
+        //            privateField.data = LADS.Util.encodeXML(privateMeta);
+        //        }
+
+        //        var descriptionField = getFieldValueFromMetadata(currentXML[0], &quot;Description&quot;);
+        //        if (!descriptionField) {
+        //            descriptionField = addFieldToMetadata(currentXML[0], &quot;Description&quot;, desc);
+        //        } else {
+        //            descriptionField.data = LADS.Util.encodeXML(desc);
+        //        }
+
+        //        var contentField = getFieldValueFromMetadata(currentXML[0], &quot;Content&quot;);
+        //        if (!contentField) {
+        //            contentField = addFieldToMetadata(currentXML[0], &quot;Content&quot;, content);
+        //        } else {
+        //            contentField.data = LADS.Util.encodeXML(content);
+        //        }
+
+        //        var relatedField = getFieldValueFromMetadata(currentXML[0], &quot;RelatedArtworks&quot;);
+        //        if (!relatedField) {
+        //            relatedField = addFieldToMetadata(currentXML[0], &quot;RelatedArtworks&quot;, relatedArtworks);
+        //        } else {
+        //            relatedField.data = LADS.Util.encodeXML(relatedArtworks);
+        //        }
+
+        //        var thumbnailField = getFieldValueFromMetadata(currentXML[0], &quot;Thumbnail&quot;);
+        //        if (!thumbnailField) {
+        //            thumbnailField = addFieldToMetadata(currentXML[0], &quot;Thumbnail&quot;, thumbnailMeta);
+        //        } else {
+        //            thumbnailField.data = LADS.Util.encodeXML(thumbnailMeta);
+        //        }
+
+        //        LADS.Worktop.Database.pushXML(currentXML[0], newDoq.Identifier, &quot;Tour&quot;, function () {
+        //            if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+        //                return;
+        //            }
+        //            loadTourView(newDoq.Identifier);
+        //        }, authError, authError);
+        //    });
+        //}, authError, authError);
+
+    }
+
+    // Save a tour where inputs contains the inputs with the values
+    // expected keys are:
+    //      nameInput: Name of the tour
+    //      descInput: Description of the tour
+    //      privateInput
+    function saveTour(tour, inputs) {
+        var name = inputs.nameInput.val();
+        var desc = inputs.descInput.val();
+
+        if (name.indexOf(&#x27; &#x27;) === 0) {
+            var messageBox = LADS.Util.UI.popUpMessage(null, &quot;Tour Name cannot start with a space.&quot;, null, true);
+            $(root).append(messageBox);
+            $(messageBox).show();
+            return;
+        }
+
+        prepareNextView(false, null, null, &quot;Saving...&quot;);
+        clearRight();
+        prepareViewer(true);
+
+        LADS.Worktop.Database.changeTour(tour.Identifier, {
+            Name: name,
+            Description: desc,
+            Private: inputs.privateInput,
+        }, function () {
+            if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+                return;
+            }
+            loadTourView(tour.Identifier);
+        }, authError, conflict(tour, &quot;Update&quot;, loadTourView), error(loadTourView));
+    }
+
+    // Associated Media functions
+
+    // Save an associated media with input data. The inputs parameter has:
+    //      titleInput:     media title
+    //      descInput:    media description
+    function saveAssocMedia(media, inputs) {
+        var name = inputs.titleInput.val();
+        var desc = inputs.descInput.val();
+        //desc = desc === &quot;Description&quot; ? &quot;&quot; : desc; // TODO do this using placeholders instead of this hacky thing
+
+        prepareNextView(false, null, null, &quot;Saving...&quot;);
+        clearRight();
+        prepareViewer(true);
+
+        LADS.Worktop.Database.changeHotspot(media, {
+            Name: name,
+            Description: desc,
+        }, function () {
+            if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.media.text]) {
+                return;
+            }
+            loadAssocMediaView(media.Identifier);
+        }, authError, conflict(media, &quot;Update&quot;, loadAssocMediaView), error(loadAssocMediaView));
+    }
+
+    // Brings up an artwork chooser -- check the boxes of the art
+    function assocToArtworks(media) {
+        artworkAssociations = [[]];
+        numFiles = 1;
+        // chooseAssociatedArtworks(media);
+        LADS.Util.UI.createAssociationPicker(root, &quot;Choose artworks&quot;, { comp: media, type: &#x27;media&#x27; }, &quot;artwork&quot;, [{
+            name: &quot;All Artworks&quot;,
+            getObjs: LADS.Worktop.Database.getArtworks
+        }], {
+            getObjs: LADS.Worktop.Database.getArtworksAssocTo,
+            args: [media.Identifier]
+        }, function () { });
+    }
+
+    function loadAssocMediaView(id) {
+        prepareNextView(true, &quot;Import&quot;, createAsset);
+        prepareViewer(true);
+        clearRight();
+        var cancel = false;
+
+        // Make an async call to get artworks
+        LADS.Worktop.Database.getAssocMedia(function (result) {
+            if (cancel) return;
+            sortAZ(result);
+            console.log(&#x27;media in hand&#x27;);
+            if (result[0] &amp;&amp; result[0].Metadata) {
+                $.each(result, function (i, val) {
+                    if (cancel) return;
+                    // Add each label in a separate function in the queue
+                    // so the UI doesn&#x27;t lock up
+                    leftQueue.add(function () {
+                        if (cancel) return;
+                        if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.media.text]) {
+                            return;
+                        }
+                        var label;
+                        var imagesrc;
+                        switch (val.Metadata.ContentType.toLowerCase()) {
+                            case &#x27;video&#x27;:
+                                imagesrc = (val.Metadata.Thumbnail &amp;&amp; !val.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(val.Metadata.Thumbnail) : &#x27;images/video_icon.svg&#x27;;
+                                break;
+                            case &#x27;audio&#x27;:
+                                imagesrc = &#x27;images/audio_icon.svg&#x27;;
+                                break;
+                            case &#x27;image&#x27;:
+                                imagesrc = val.Metadata.Thumbnail ? LADS.Worktop.Database.fixPath(val.Metadata.Thumbnail) : &#x27;images/image_icon.svg&#x27;;
+                                break;
+                            default:
+                                imagesrc = null;
+                                break;
+                        }
+                        if (!prevSelectedLeftLabel &amp;&amp;
+                            ((id &amp;&amp; val.Identifier === id) || (!id &amp;&amp; i === 0))) {
+                            // Select the first one
+                            leftLoading.before(selectLabel(label = createLeftLabel(val.Name, imagesrc, function () {
+                                loadAssocMedia(val);
+                            }, val.Identifier, false), true));
+
+                            // Scroll to the selected label if the user hasn&#x27;t already scrolled somewhere
+                            if (leftbar.scrollTop() === 0 &amp;&amp; label.offset().top - leftbar.height() &gt; 0) {
+                                leftbar.animate({
+                                    scrollTop: (label.offset().top - leftbar.height())
+                                }, 1000);
+                            }
+
+                            prevSelectedLeftLabel = label;
+                            loadAssocMedia(val);
+                        } else {
+                            leftLoading.before(label = createLeftLabel(val.Name, imagesrc, function () {
+                                loadAssocMedia(val);
+                            }, val.Identifier, false));
+                        }
+                        // Hide if it doesn&#x27;t match search criteria
+                        if (!LADS.Util.searchString(val.Name, searchbar.val())) {
+                            label.hide();
+                        }
+                    });
+                });
+                // Hide the loading label when we&#x27;re done
+                leftQueue.add(function () {
+                    leftLoading.hide();
+                });
+            } else {
+                leftLoading.hide();
+            }
+        });
+        cancelLastSetting = function () { cancel = true; };
+    }
+
+    // Loads an artwork to the right side
+    function loadAssocMedia(media) {
+        prepareViewer(true);
+        clearRight();
+
+        // Create an img element to load the image
+        var type = media.Metadata.ContentType.toLowerCase();
+        var holder;
+        var source = LADS.Worktop.Database.fixPath(media.Metadata.Source);
+        switch (type) {
+            case &quot;image&quot;:
+                holder = $(document.createElement(&#x27;img&#x27;));
+                break;
+            case &quot;video&quot;:
+                holder = $(document.createElement(&#x27;video&#x27;));
+                holder.attr(&#x27;id&#x27;, &#x27;videoInPreview&#x27;);
+                holder.attr(&#x27;poster&#x27;, (media.Metadata.Thumbnail &amp;&amp; !media.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(media.Metadata.Thumbnail) : &#x27;&#x27;);
+                holder.attr(&#x27;identifier&#x27;, media.Identifier);
+                holder.attr(&quot;preload&quot;, &quot;none&quot;);
+                holder.attr(&quot;controls&quot;, &quot;&quot;);
+                holder.css({ &quot;width&quot;: &quot;100%&quot;, &quot;max-width&quot;: &quot;100%&quot;, &quot;max-height&quot;: &quot;100%&quot; });
+                holder[0].onerror = LADS.Util.videoErrorHandler(holder, viewer);
+                break;
+            case &quot;audio&quot;:
+                holder = $(document.createElement(&#x27;audio&#x27;));
+                holder.attr(&quot;preload&quot;, &quot;none&quot;);
+                holder.attr(&quot;controls&quot;, &quot;&quot;);
+                holder.css({ &#x27;width&#x27;: &#x27;80%&#x27; });
+                break;
+            case &quot;text&quot;:
+            default:
+                holder = $(document.createElement(&#x27;div&#x27;));
+                holder.css({
+                    &quot;font-size&quot;: &quot;24px&quot;,
+                    &quot;top&quot;: &quot;20%&quot;,
+                    &quot;width&quot;: &quot;80%&quot;,
+                    //&quot;margin-left&quot;: &quot;10%&quot;,
+                    &quot;text-align&quot;: &quot;center&quot;,
+                    &quot;color&quot;: &quot;white&quot;
+                });
+                holder.html(media.Name + &quot;&lt;br /&gt;&lt;br /&gt;&quot; + media.Metadata.Description);
+                break;
+        }
+        (source &amp;&amp; type !== &#x27;text&#x27;) &amp;&amp; holder.attr(&#x27;src&#x27;, source);
+
+        // Create a progress circle
+        var progressCircCSS = {
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;left&#x27;: &#x27;40%&#x27;,
+            &#x27;top&#x27;: &#x27;40%&#x27;,
+            &#x27;z-index&#x27;: &#x27;50&#x27;,
+            &#x27;height&#x27;: &#x27;auto&#x27;,
+            &#x27;width&#x27;: &#x27;20%&#x27;
+        };
+        var circle = LADS.Util.showProgressCircle(viewer, progressCircCSS, &#x27;0px&#x27;, &#x27;0px&#x27;, false);
+        var selectedLabel = prevSelectedLeftLabel;
+
+        switch (type) {
+            case &quot;image&quot;:
+                holder.load(function () {
+                    // If the selection has changed since we started loading then return
+                    if (prevSelectedLeftLabel &amp;&amp; prevSelectedLeftLabel.text() !== media.Name) {
+                        LADS.Util.removeProgressCircle(circle);
+                        return;
+                    }
+                    LADS.Util.removeProgressCircle(circle);
+                    // Set the image as a background image
+                    viewer.css(&#x27;background&#x27;, &#x27;black url(&#x27; + source + &#x27;) no-repeat center / contain&#x27;);
+                });
+                break;
+            case &quot;video&quot;:
+                LADS.Util.removeProgressCircle(circle);
+                viewer.css(&#x27;background&#x27;, &#x27;black&#x27;);
+                viewer.append(holder);
+                break;
+            case &quot;audio&quot;:
+                LADS.Util.removeProgressCircle(circle);
+                viewer.css(&#x27;background&#x27;, &#x27;black&#x27;);
+                //center the the audio element in the viewer
+                viewer.append(holder);
+                var left = viewer.width() / 2 - holder.width() / 2 + &quot;px&quot;;
+                var top = viewer.height() /2 - holder.height() /2 + &quot;px&quot;;
+                holder.css({ &quot;position&quot;: &quot;absolute&quot;, &quot;left&quot;: left, &quot;top&quot; : top });
+                break;
+            case &quot;text&quot;:
+                LADS.Util.removeProgressCircle(circle);
+                viewer.css({ &#x27;background&#x27;: &#x27;black&#x27;});
+                viewer.append(holder);
+                var left = viewer.width() / 2 - holder.width() / 2 + &quot;px&quot;;
+                var top = viewer.height() / 2 - holder.height() / 2 + &quot;px&quot;;
+                holder.css({ &quot;position&quot;: &quot;absolute&quot;, &quot;left&quot;: left, &quot;top&quot;: top });
+                break;
+            default:
+                LADS.Util.removeProgressCircle(circle);
+                viewer.css(&#x27;background&#x27;, &#x27;black&#x27;);
+                break;
+        }
+
+        // Create labels
+        var titleInput = createTextInput(LADS.Util.htmlEntityDecode(media.Name) || &quot;&quot;, true, 55);
+        var descInput = createTextAreaInput(LADS.Util.htmlEntityDecode(media.Metadata.Description).replace(/\n/g,&#x27;&lt;br /&gt;&#x27;) || &quot;&quot;, true);
+
+        titleInput.focus(function () {
+            if (titleInput.val() === &#x27;Title&#x27;)
+                titleInput.select();
+        });
+        descInput.focus(function () {
+            if (descInput.val() === &#x27;Description&#x27;)
+                descInput.select();
+        });
+
+        var title = createSetting(&#x27;Title&#x27;, titleInput);
+        var desc = createSetting(&#x27;Description&#x27;, descInput);
+
+        settingsContainer.append(title);
+        settingsContainer.append(desc);
+
+        // Create buttons
+        var assocButton = createButton(&#x27;Associate to Artworks&#x27;,
+            function () { assocToArtworks(media); },
+            {
+                &#x27;float&#x27;: &#x27;left&#x27;,
+                &#x27;margin-left&#x27;: &#x27;2%&#x27;,
+                &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-right&#x27;: &#x27;0%&#x27;,
+                &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+            });
+        var deleteButton = createButton(&#x27;Delete&#x27;,
+            function () {
+                var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
+                    prepareNextView(false);
+                    clearRight();
+                    prepareViewer(true);
+
+                    // stupid way to force associated artworks to increment their linq counts and refresh their lists of media
+                    LADS.Worktop.Database.changeHotspot(media.Identifier, { Name: media.Name }, function () {
+                        // success handler
+                        LADS.Worktop.Database.deleteDoq(media.Identifier, function () {
+                            console.log(&quot;deleted&quot;);
+                            loadAssocMediaView();
+                        }, function () {
+                            console.log(&quot;noauth error&quot;);
+                        }, function () {
+                            console.log(&quot;conflict error&quot;);
+                        }, function () {
+                            console.log(&quot;general error&quot;);
+                        });
+                    }, function () {
+                        // unauth handler
+                    }, function () {
+                        // conflict handler
+                    }, function () {
+                        // error handler
+                    });
+                }, &quot;Are you sure you want to delete &quot; + media.Name + &quot;?&quot;, &quot;Delete&quot;, true, function () { $(confirmationBox).hide(); });
+                root.append(confirmationBox);
+                $(confirmationBox).show();
+                 },
+            {
+                &#x27;margin-left&#x27;: &#x27;2%&#x27;,
+                &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-right&#x27;: &#x27;0%&#x27;,
+                &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+                &#x27;float&#x27;: &#x27;left&#x27;,
+            });
+
+        var generateAssocMediaThumbnailButton = createButton(&#x27;Generate Thumbnail&#x27;,
+            function () {
+                generateAssocMediaThumbnail(media);
+            }, {
+                &#x27;margin-right&#x27;: &#x27;0%&#x27;,
+                &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-bottom&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-left&#x27;: &#x27;2%&#x27;,
+                &#x27;float&#x27;: &#x27;left&#x27;
+            });
+
+        var saveButton = createButton(&#x27;Save Changes&#x27;,
+            function () {
+                if (titleInput.val() === undefined || titleInput.val() === &quot;&quot;) {
+                    titleInput.val(&quot;Untitled Asset&quot;);
+                }
+                saveAssocMedia(media, {
+                    titleInput: titleInput,
+                    descInput: descInput
+                });
+            }, {
+                &#x27;margin-right&#x27;: &#x27;3%&#x27;,
+                &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-bottom&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-left&#x27;: &#x27;.5%&#x27;,
+                &#x27;float&#x27;: &#x27;right&#x27;
+            });
+
+        var thumbnailButton = createButton(&#x27;Capture Thumbnail&#x27;,
+            function () {
+                saveThumbnail(media, false);
+            }, {
+                &#x27;margin-right&#x27;: &#x27;0%&#x27;,
+                &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+                &#x27;margin-left&#x27;: &#x27;2%&#x27;,
+                &#x27;float&#x27;: &#x27;left&#x27;
+            });
+
+        buttonContainer.append(assocButton);
+        if (media.Metadata.ContentType.toLowerCase() === &#x27;video&#x27;) {
+            buttonContainer.append(thumbnailButton);
+        } else if (media.Metadata.ContentType.toLowerCase() === &#x27;image&#x27; &amp;&amp; !media.Metadata.Thumbnail &amp;&amp; media.Metadata.Source[0] === &#x27;/&#x27; &amp;&amp; !source.match(/.mp3/)) {
+            // hacky way to see if asset was imported recently enough to support thumbnailing (these are /Images/_____.__
+            // rather than http:// _______/Images/_______.__
+            buttonContainer.append(generateAssocMediaThumbnailButton);
+        }
+        buttonContainer.append(deleteButton).append(saveButton);
+    }
+
+    function generateAssocMediaThumbnail(media) {
+        prepareNextView(false, null, null, &quot;Saving...&quot;);
+        clearRight();
+        prepareViewer(true);
+        LADS.Worktop.Database.changeHotspot(media.Identifier, { Thumbnail: &#x27;generate&#x27; }, function () {
+            //$(&quot;#&quot; + media.Identifier).find(&#x27;img&#x27;)[0].src = LADS.Worktop.Database.fixPath(media.Metadata.Source);
+            console.log(&#x27;success?&#x27;);
+            loadAssocMediaView(media.Identifier);
+        }, unauth, conflict, error);
+    }
+
+    function loadAssociatedMedia_OLD() {
+        secondaryButton.css(&quot;display&quot;,&quot;none&quot;);
+        prepareNextView(true, &quot;Batch Upload Media&quot;, createMedia);
+        leftQueue.add(function () {
+            leftLoading.hide();
+        });
+    }
+
+    //
+    function createAsset() {
+        uploadFile(LADS.Authoring.FileUploadTypes.AssociatedMedia, function (urls, names, contentTypes, files) {
+            var check, i, url, name, done = 0, total = urls.length, durations = [];
+            prepareNextView(false);
+            clearRight();
+            prepareViewer(true);
+
+            if(files.length &gt; 0) {
+                durationHelper(0);
+            }
+
+            function durationHelper(j) {
+                if (contentTypes[j] === &#x27;Video&#x27;) {
+                    files[j].properties.getVideoPropertiesAsync().done(function (VideoProperties) {
+                        durations.push(VideoProperties.duration / 1000); // duration in seconds
+                        updateDoq(j);
+                    }, function (err) {
+                        console.log(err);
+                    });
+                } else if (contentTypes[j] === &#x27;Audio&#x27;) {
+                    files[j].properties.getMusicPropertiesAsync().done(function (MusicProperties) {
+                        durations.push(MusicProperties.duration / 1000); // duration in seconds
+                        updateDoq(j);
+                    }, function (error) {
+                        console.log(error);
+                    });
+                } else {
+                    durations.push(null);
+                    updateDoq(j);
+                }
+            }
+
+            function incrDone() {
+                done++;
+                if (done &gt;= total) {
+                    loadAssocMediaView();
+                } else {
+                    durationHelper(done);
+                }
+            }
+
+            function updateDoq(j) {
+                var newDoq;
+                try {
+                    newDoq = new Worktop.Doq(urls[j]);
+                    var options = {Name: names[j]};
+                    if (durations[j]) {
+                        options.Duration = durations[j];
+                    }
+                    LADS.Worktop.Database.changeHotspot(newDoq.Identifier, options, incrDone, LADS.Util.multiFnHandler(authError, incrDone), LADS.Util.multiFnHandler(conflict(newDoq, &quot;Update&quot;, incrDone)), error(incrDone));
+                } catch (error) {
+                    done++;
+                    console.log(&quot;error in uploading: &quot; + error.message);
+                    return;
+                }
+                
+
+
+                //var newDoq;
+                //try {
+                //    var options = {
+                //        Name: names[j],
+                //        ContentType: contentTypes[j],
+                //        Source: urls[j]
+                //    };
+                //    if (durations[j]) {
+                //        options.Duration = durations[j];
+                //    }
+                //    LADS.Worktop.Database.createHotspot(options, incrDone, function () { console.log(&quot;error1&quot;) }, function () { console.log(&quot;error2&quot;) }, newDoq);
+                //} catch (error) {
+                //    done++;
+                //    console.log(&quot;error in uploading: &quot; + error.message);
+                //    return;
+                //}
+                //LADS.Worktop.Database.changeArtwork(newDoq.Identifier, { Name: names[j] }, incrDone, function () { console.log(&quot;error1&quot;) }, function () { console.log(&quot;error2&quot;) }, function () { console.log(&quot;error3&quot;) });
+            }
+
+            //for (i = 0; i &lt; urls.length; i++) {
+            //    updateDoq(i);
+            //}
+        }, true, [&#x27;.jpg&#x27;, &#x27;.png&#x27;, &#x27;.gif&#x27;, &#x27;.tif&#x27;, &#x27;.tiff&#x27;, &#x27;.mp4&#x27;, &#x27;.mp3&#x27;]);
+    }
+
+    // Create an associated media (import) --- possibly more than one
+    function createMedia() {
+        batchAssMedia();
+    }
+
+    function batchAssMedia() {
+        var uniqueUrls = []; // Used to make sure we don&#x27;t override data for the wrong media (not actually airtight but w/e)
+        mediaMetadata = [];
+        artworkAssociations = [];
+        numFiles = 0;
+        isUploading = true;
+        assetUploader = LADS.Authoring.FileUploader( // multi-file upload now
+            root,
+            LADS.Authoring.FileUploadTypes.AssociatedMedia,
+            function (files, localURLs) { // localCallback
+                var file, localURL, i;
+                var img, video, audio;
+                var contentType;
+                numFiles = files.length;
+                for (i = 0; i &lt; files.length; i++) {
+                    artworkAssociations.push([]);
+                    file = files[i];
+                    localURL = localURLs[i];
+                    if (file.contentType.match(/image/)) {
+                        contentType = &#x27;Image&#x27;;
+                    } else if (file.contentType.match(/video/)) {
+                        contentType = &#x27;Video&#x27;;
+                    } else if (file.contentType.match(/audio/)) {
+                        contentType = &#x27;Audio&#x27;;
+                    }
+                    uniqueUrls.push(localURL);
+                    mediaMetadata.push({
+                        &#x27;title&#x27;: file.displayName,
+                        &#x27;contentType&#x27;: contentType,
+                        &#x27;localUrl&#x27;: localURL,
+                        &#x27;assetType&#x27;: &#x27;Asset&#x27;,
+                        &#x27;assetLinqID&#x27;: undefined,
+                        &#x27;assetDoqID&#x27;: undefined
+                    });
+                }
+            },
+            function (dataReaderLoads) { // finished callback: set proper contentUrls, if not first, save it
+                var i, dataReaderLoad;
+                for (i = 0; i &lt; dataReaderLoads.length; i++) {
+                    dataReaderLoad = dataReaderLoads[i];
+                    mediaMetadata[i].contentUrl = dataReaderLoad;
+                }
+
+                // chooseAssociatedArtworks(); // need to send in media objects here TODO
+            },
+            [&#x27;.jpg&#x27;, &#x27;.png&#x27;, &#x27;.gif&#x27;, &#x27;.tif&#x27;, &#x27;.tiff&#x27;, &#x27;.mp4&#x27;, &#x27;.mp3&#x27;], // filters
+            false, // useThumbnail
+            null, // errorCallback
+            true // multiple file upload enabled?
+        );
+    }
+
+    // Creates the art picker for a given media
+    function chooseAssociatedArtworks(media) {
+        var i;
+
+        // Overlay over the whole page
+        var overlay = $(document.createElement(&#x27;div&#x27;));
+        overlay.css({
+            &#x27;position&#x27;: &#x27;fixed&#x27;,
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;height&#x27;: &#x27;100%&#x27;,
+            &#x27;top&#x27;: &#x27;0&#x27;,
+            &#x27;left&#x27;: &#x27;0&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(0,0,0,0.5)&#x27;,
+            &#x27;z-index&#x27;: &#x27;1000&#x27;,
+            &#x27;display&#x27;: &#x27;block&#x27;
+        });
+
+        // Container for the picker
+        var container = $(document.createElement(&#x27;div&#x27;));
+        container.css({
+            &#x27;height&#x27;: &#x27;70%&#x27;,
+            &#x27;width&#x27;: &#x27;50%&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;top&#x27;: &#x27;15%&#x27;,
+            &#x27;left&#x27;: &#x27;25%&#x27;,
+            &#x27;background-color&#x27;: &#x27;black&#x27;,
+            &#x27;border&#x27;: &#x27;3px double white&#x27;,
+            &#x27;padding&#x27;: &#x27;2%&#x27;,
+        });
+
+        // Title for the picker
+        var label = $(document.createElement(&#x27;div&#x27;));
+        label.css({
+            &#x27;font-size&#x27;: &#x27;180%&#x27;,
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;2%&#x27;,
+            &#x27;height&#x27;: &#x27;10%&#x27;,
+        });
+        label.text(&#x27;Choose artworks to associate to.&#x27;);
+
+        var searchInput = $(document.createElement(&#x27;input&#x27;));
+        searchInput.attr(&#x27;type&#x27;, &#x27;text&#x27;);
+        searchInput.css({
+        });
+        searchInput.keyup(function () {
+            searchData(searchInput.val(), &#x27;.artPickerButton&#x27;);
+        });
+        searchInput.change(function () {
+            searchData(searchInput.val(), &#x27;.artPickerButton&#x27;);
+        });
+        // Workaround for clear button (doesn&#x27;t fire a change event...)
+        searchInput.mouseup(function () {
+            setTimeout(function () {
+                searchData(searchInput.val(), &#x27;.artPickerButton&#x27;);
+            }, 1);
+        });
+        searchInput.attr(&#x27;placeholder&#x27;, PICKER_SEARCH_TEXT);
+
+        // Art section of the picker
+        var art = $(document.createElement(&#x27;div&#x27;));
+        art.css({
+            &#x27;height&#x27;: &#x27;72%&#x27;,
+            &#x27;overflow&#x27;: &#x27;auto&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;2%&#x27;,
+        });
+
+        // Container for the art inside the art section
+        var artContainer = $(document.createElement(&#x27;div&#x27;));
+        artContainer.css({
+            &#x27;padding&#x27;: &#x27;1%&#x27;,
+        });
+
+        // Container for buttons/loading/saving indicator
+        var buttonContainer = $(document.createElement(&#x27;div&#x27;));
+        buttonContainer.css({
+            &#x27;height&#x27;: &#x27;8%&#x27;,
+        });
+
+        // Loading/saving indicator
+        var loadingContainer = $(document.createElement(&#x27;div&#x27;));
+        loadingContainer.css({
+            &#x27;width&#x27;: &#x27;20%&#x27;,
+            &#x27;display&#x27;: &#x27;inline-block&#x27;,
+        });
+
+        // Loading/saving text
+        var loading = $(document.createElement(&#x27;label&#x27;));
+        loading.css({
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;font-size&#x27;: &#x27;140%&#x27;,
+        });
+        loading.text(&#x27;Loading...&#x27;);
+
+        var circle = $(document.createElement(&#x27;img&#x27;));
+        circle.attr(&#x27;src&#x27;, &#x27;images/icons/progress-circle.gif&#x27;);
+        circle.css({
+            &#x27;height&#x27;: $(document).height() * 0.03 + &#x27;px&#x27;,
+            &#x27;width&#x27;: &#x27;auto&#x27;,
+            &#x27;float&#x27;: &#x27;right&#x27;,
+        });
+
+        var save = $(document.createElement(&#x27;button&#x27;));
+        save.attr(&#x27;type&#x27;, &#x27;button&#x27;);
+        save.text(&#x27;Save&#x27;);
+        save.css({
+            &#x27;float&#x27;: &#x27;right&#x27;,
+            &#x27;margin&#x27;: &#x27;2%&#x27;,
+            &#x27;padding&#x27;: &#x27;1%&#x27;,
+        });
+
+        var cancel = $(document.createElement(&#x27;button&#x27;));
+        cancel.attr(&#x27;type&#x27;, &#x27;button&#x27;);
+        cancel.text(&#x27;Cancel&#x27;);
+        cancel.css({
+            &#x27;float&#x27;: &#x27;right&#x27;,
+            &#x27;margin&#x27;: &#x27;2%&#x27;,
+            &#x27;padding&#x27;: &#x27;1%&#x27;,
+        });
+
+        // Hide and remove the overlay when cancel is clicked
+        cancel.click(function () {
+            overlay.hide();
+            root[0].removeChild(overlay[0]);
+            artPickerOpen = false;
+        });
+
+        art.append(artContainer);
+
+        loadingContainer.append(loading);
+        loadingContainer.append(circle);
+
+        buttonContainer.append(loadingContainer);
+        buttonContainer.append(cancel);
+        buttonContainer.append(save);
+
+        container.append(label);
+        container.append(searchInput);
+        container.append(art);
+        container.append(buttonContainer);
+
+        overlay.append(container);
+
+        root.append(overlay);
+
+        var origMediaCheckedIDs;
+        mediaCheckedIDs = [];
+        mediaUncheckedIDs = [];
+        artworkList = [];
+        callAll();
+        //LADS.Worktop.Database.getAssocMediaTo(media.Identifier, function (artworks) {
+        //    console.log(&quot;artworks.length = &quot; + artworks.length);
+        //    $.each(artworks, function (i, artwork) { console.log(artwork.Name) });
+        //    callAll();
+        //}, function () {
+        //    console.log(&quot;error&quot;);
+        //}, function() {
+        //    console.log(&quot;cache error&quot;);
+        //});
+        
+
+        // Get all artworks
+        function callAll() {
+            LADS.Worktop.Database.getArtworks(setUpButtons, null, null);
+        }
+
+        // set up buttons and checkboxes in picker, populate mediaCheckedIDs
+        function setUpButtons(allArtworks) {
+            sortAZ(allArtworks);
+            artworkList = allArtworks;
+            // Add each artwork to the artwork container.
+            $.each(allArtworks, function (i, artwork) {
+                leftQueue.add(function () {
+                    var label, index;
+                    // check if media is associated to this artwork
+
+                    artContainer.append(label = createArtButton(artwork,
+                        // Oncheck/uncheck function
+                        // If it is checked adds the artwork to the checkedIDs and
+                        // removes it from the uncheckedIDs.  If unchecked it removes it
+                        // from the checkedIDs and adds it to the uncheckedIDs
+                        function (checked) {
+                            if (checked) {
+                                if (mediaCheckedIDs.indexOf(i) === -1) {
+                                    mediaCheckedIDs.push(i);
+                                }
+                                index = mediaUncheckedIDs.indexOf(i);
+                                if (index !== -1) {
+                                    mediaUncheckedIDs.splice(index, 1);
+                                }
+                            } else {
+                                index = mediaCheckedIDs.indexOf(i);
+                                if (index !== -1) {
+                                    mediaCheckedIDs.splice(index, 1);
+                                }
+                                if (mediaUncheckedIDs.indexOf(i) === -1) {
+                                    mediaUncheckedIDs.push(i);
+                                }
+                            }
+                            // Set the initial checked/unchecked value
+                        }, $.inArray(i, mediaCheckedIDs) !== -1));
+                    // Hide if it doesn&#x27;t match search criteria
+                    searchData(searchInput.val(), label);
+                });
+            });
+            // Hide loading when we&#x27;re done
+            leftQueue.add(function () {
+                loadingContainer.hide();
+            });
+
+        }
+
+        // Hide save/cancel buttons, clear the left queue, and change Loading to Saving...
+        save.click(function () {
+            var j;
+            loading.text(&#x27;Saving...&#x27;);
+            loadingContainer.show();
+            save.hide();
+            cancel.hide();
+            leftQueue.clear();
+            var len = media ? 1 : numFiles;
+            // Save the art
+            for (i = 0; i &lt; len; i++) {
+                for (j = 0; j &lt; mediaCheckedIDs.length; j++) {
+                    artworkAssociations[i].push(artworkList[mediaCheckedIDs[j]]);
+                }
+            }
+
+            createAssociations(media, artworkAssociations[0], 0, overlay); // for now, don&#x27;t worry about multiple media
+
+            //saveAssMedia(0);
+            //overlay.hide();
+            //root[0].removeChild(overlay[0]);
+        });
+    }
+
+    // adds media as an associated media of each artwork in artworks
+    function createAssociations(media, artworks, index, overlay) {
+        LADS.Worktop.Database.changeArtwork(artworks[index].Identifier, {
+            AddIDs: media.Identifier
+        }, function () {
+            if (index &lt; artworks.length - 1) {
+                createAssociations(media, artworks, index + 1, overlay)
+            } else {
+                overlay.hide();
+                root[0].removeChild(overlay[0]);
+            }
+        }, authError, conflict(media, &quot;Update&quot;, loadAssocMediaView), error(loadAssocMediaView));
+    }
+
+    function saveAssMedia(i) {
+        var len = artworkAssociations[i].length;
+        uploadHotspotHelper(i, 0, len);
+    }
+
+    /**
+     * Uploads hotspot i to artwork j in its list of artworks to associate to.
+     * @param i    the index of the asset we&#x27;re uploading
+     * @param j    each asset has a list of artworks it&#x27;ll be associated with; j is the index in this list
+     * @param len  the length of the list above
+     */
+    function uploadHotspotHelper(i, j, len) {
+        // uploads hotspot hotspot i to artwork j in its list
+        var activeMM = mediaMetadata[i];
+        uploadHotspot(artworkAssociations[i][j], { // this info isn&#x27;t changing, so maybe we can do this more easily in uploadHotspot
+            title: LADS.Util.encodeXML(activeMM.title || &#x27;Untitled media&#x27;),
+            desc: LADS.Util.encodeXML(&#x27;&#x27;),
+            pos: null, // bogus entry for now -- should set it to {x: 0, y: 0} in uploadHotspot
+            contentType: activeMM.contentType,
+            contentUrl: activeMM.contentUrl,
+            assetType: activeMM.assetType,
+            metadata: {
+                assetLinqID: activeMM.assetLinqID,
+                assetDoqID: activeMM.assetDoqID
+            }
+        },
+        i, j, len);
+    }
+
+    function uploadHotspot(artwork, info, i, j, len) {
+        var title = info.title,
+            desc = info.desc,
+            pixel = info.pos,
+            contentType = info.contentType,
+            contentUrl = info.contentUrl,
+            assetType = info.assetType,
+            worktopInfo = info.metadata || {},
+            dzPos = pixel ? zoomimage.viewer.viewport.pointFromPixel(pixel) : { x: 0, y: 0 },
+            rightbarLoadingSave;
+
+        var options = {
+            Name: title,
+            ContentType: contentType,
+            Duration: duration,
+            Source: contentUrl,
+            LinqTo: artwork.Identifier,
+            X: dzPos.x,
+            Y: dzPos.y,
+            LinqType: assetType,
+            Description: desc
+        };
+
+        LADS.Worktop.Database.createHotspot(artwork.CreatorID, artwork.Identifier, createHotspotHelper);
+
+        function createHotspotHelper(isNewAsset, xmlHotspot) { // currently for creating both hotspots and assoc media
+            var $xmlHotspot,
+                hotspotId,
+                hotspotContentId,
+                hotspotContentDoq,
+                $hotspotContentDoq,
+                titleField,
+                metadata,
+                descField,
+                contentTypeField,
+                sourceField,
+                position;
+            $xmlHotspot = $(xmlHotspot);
+            hotspotId = $xmlHotspot.find(&quot;Identifier&quot;).text();
+            hotspotContentId = $xmlHotspot.find(&quot;BubbleContentID:last&quot;).text();
+            hotspotContentDoq = $.parseXML(LADS.Worktop.Database.getDoqXML(hotspotContentId));
+            $hotspotContentDoq = $(hotspotContentDoq);
+            // update doq info and send back to server
+            titleField = $hotspotContentDoq.find(&#x27;Name&#x27;).text(title);
+            metadata = $hotspotContentDoq.find(&#x27;Metadata&#x27;);
+            descField = metadata.find(&quot;d3p1\\:Key:contains(&#x27;Description&#x27;) + d3p1\\:Value&quot;).text(desc);
+            contentTypeField = metadata.find(&quot;d3p1\\:Key:contains(&#x27;ContentType&#x27;) + d3p1\\:Value&quot;).text(contentType);
+            sourceField = metadata.find(&quot;d3p1\\:Key:contains(&#x27;Source&#x27;) + d3p1\\:Value&quot;).text(contentUrl);
+            position = $xmlHotspot.find(&#x27;Offset &gt; d2p1\\:_x&#x27;).text(dzPos.x); // why is position getting reset?
+            position = $xmlHotspot.find(&#x27;Offset &gt; d2p1\\:_y&#x27;).text(dzPos.y);
+            //add linq type : Hotspot vs. Asset
+            $xmlHotspot.find(&quot;d3p1\\:Key:contains(&#x27;Type&#x27;) + d3p1\\:Value&quot;).text(assetType);
+            LADS.Worktop.Database.pushLinq(xmlHotspot, hotspotId);
+            LADS.Worktop.Database.pushXML(hotspotContentDoq, hotspotContentId);
+            if (j &lt; len - 1) {
+                uploadHotspotHelper(i, j + 1, len);
+            }
+            else if (j === len - 1 &amp;&amp; i &lt; numFiles - 1) {
+                saveAssMedia(i + 1);
+            }
+            else {
+                isUploading = false;
+                isCreatingMedia = false;
+                //$topProgressDiv.css(&quot;visibility&quot;, &quot;hidden&quot;);
+            }
+        }
+    }
+
+    // Art Functions
+
+    // Loads art labels
+    function loadArtView(id) {
+        prepareNextView(true, &quot;Import&quot;, createArtwork);
+        //secondaryButton.css(&quot;display&quot;, &quot;block&quot;);
+        //secondaryButton.off(&#x27;click&#x27;);
+        //secondaryButton.on(&#x27;click&#x27;, function () {
+        //    uploadFile(LADS.Authoring.FileUploadTypes.VideoArtwork, function (urls, names) {
+        //        var check, i, url, name, done = 0, total = urls.length;
+        //        prepareNextView(false);
+        //        clearRight();
+        //        prepareViewer(true);
+
+        //        function incrDone() {
+        //            done++;
+        //            if (done &gt;= total) {
+        //                loadArtView();
+        //            }
+        //        }
+
+        //        function updateDoq(j) {
+        //            var newDoq;
+        //            try {
+        //                newDoq = new Worktop.Doq(urls[j]);
+        //            } catch (error) {
+        //                done++;
+        //                console.log(&quot;error in uploading: &quot; + error.message);
+        //                return;
+        //            }
+        //            LADS.Worktop.Database.changeArtwork(newDoq.Identifier, { Name: names[j] }, incrDone, LADS.Util.multiFnHandler(authError, incrDone), LADS.Util.multiFnHandler(conflict(newDoq, &quot;Update&quot;, incrDone)), error(incrDone));
+        //        }
+
+        //        for (i = 0; i &lt; urls.length; i++) {
+        //            updateDoq(i);
+        //        }
+        //    }, true,[&#x27;.mp4&#x27;]);
+        //});
+        prepareViewer(true);
+        clearRight();
+        var cancel = false;
+
+        // Make an async call to get artworks
+        LADS.Worktop.Database.getArtworks(function (result) {
+            if (cancel) return;
+            sortAZ(result);
+            if (result[0] &amp;&amp; result[0].Metadata) {
+                $.each(result, function (i, val) {
+                    if (cancel) return;
+                    // Add each label in a separate function in the queue
+                    // so the UI doesn&#x27;t lock up
+                    val.Name = LADS.Util.htmlEntityDecode(val.Name);
+                    leftQueue.add(function () {
+                        if (cancel) return;
+                        if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.art.text]) {
+                            return;
+                        }
+                        var label;
+                        var imagesrc;
+                        switch (val.Metadata.Type) {
+                            case &#x27;Artwork&#x27;:
+                                imagesrc = LADS.Worktop.Database.fixPath(val.Metadata.Thumbnail);
+                                break;
+                            case &#x27;VideoArtwork&#x27;:
+                                imagesrc = val.Metadata.Thumbnail ? LADS.Worktop.Database.fixPath(val.Metadata.Thumbnail) : &quot;images/video_icon.svg&quot;;
+                                break
+                            default:
+                                imagesrc = null;
+                        }
+                        if (!prevSelectedLeftLabel &amp;&amp;
+                            ((id &amp;&amp; val.Identifier === id) || (!id &amp;&amp; i === 0))) {
+                            // Select the first one
+                            leftLoading.before(selectLabel(label = createLeftLabel(val.Name, imagesrc, function () {
+                                loadArtwork(val);
+                            }, val.Identifier, false, function () {
+                                editArtwork(val);
+                            }, true, val.Extension), true));
+
+                            // Scroll to the selected label if the user hasn&#x27;t already scrolled somewhere
+                            if (leftbar.scrollTop() === 0 &amp;&amp; label.offset().top - leftbar.height() &gt; 0) {
+                                leftbar.animate({
+                                    scrollTop: (label.offset().top - leftbar.height())
+                                }, 1000);
+                            }
+
+                            prevSelectedLeftLabel = label;
+                            loadArtwork(val);
+                        } else {
+                            leftLoading.before(label = createLeftLabel(val.Name, imagesrc, function () {
+                                loadArtwork(val);
+                            }, val.Identifier, false, function () {
+                                editArtwork(val);
+                            }, true, val.Extension));
+                        }
+                        // Hide if it doesn&#x27;t match search criteria
+                        if (!LADS.Util.searchString(val.Name, searchbar.val())) {
+                            label.hide();
+                        }
+                    });
+                });
+                // Hide the loading label when we&#x27;re done
+                leftQueue.add(function () {
+                    leftLoading.hide();
+                });
+            } else {
+                leftLoading.hide();
+            }
+        });
+
+        cancelLastSetting = function () { cancel = true; };
+    }
+
+    // Loads an artwork to the right side
+    function loadArtwork(artwork) {
+        prepareViewer(true);
+        clearRight();
+
+        // Create an img element to load the image
+        var mediaElement;
+        if (artwork.Metadata.Type !== &#x27;VideoArtwork&#x27;) {
+            mediaElement = $(document.createElement(&#x27;img&#x27;));
+            mediaElement.attr(&#x27;src&#x27;, LADS.Worktop.Database.fixPath(artwork.URL));
+        } else {
+            mediaElement = $(document.createElement(&#x27;video&#x27;));
+            mediaElement.attr(&#x27;id&#x27;, &#x27;videoInPreview&#x27;);
+            mediaElement.attr(&#x27;poster&#x27;, (artwork.Metadata.Thumbnail &amp;&amp; !artwork.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail) : &#x27;&#x27;);
+            mediaElement.attr(&#x27;identifier&#x27;, artwork.Identifier);
+            mediaElement.attr(&quot;preload&quot;, &quot;none&quot;);
+            mediaElement.attr(&quot;controls&quot;, &quot;&quot;);
+            mediaElement.css({ &quot;width&quot;: &quot;100%&quot;, &quot;max-width&quot;: &quot;100%&quot;, &quot;max-height&quot;: &quot;100%&quot; });
+            mediaElement.attr(&#x27;src&#x27;, LADS.Worktop.Database.fixPath(artwork.Metadata.Source));
+            mediaElement[0].onerror = LADS.Util.videoErrorHandler(mediaElement, viewer);
+        }
+
+        // Create a progress circle
+        var progressCircCSS = {
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;left&#x27;: &#x27;40%&#x27;,
+            &#x27;top&#x27;: &#x27;40%&#x27;,
+            &#x27;z-index&#x27;: &#x27;50&#x27;,
+            &#x27;height&#x27;: &#x27;auto&#x27;,
+            &#x27;width&#x27;: &#x27;20%&#x27;
+        };
+        var circle;
+        if (artwork.Metadata.Type !== &#x27;VideoArtwork&#x27;) {
+            circle = LADS.Util.showProgressCircle(viewer, progressCircCSS, &#x27;0px&#x27;, &#x27;0px&#x27;, false);
+        }
+        var selectedLabel = prevSelectedLeftLabel;
+
+        if (artwork.Metadata.Type !== &#x27;VideoArtwork&#x27;) {
+            mediaElement.load(function () {
+                // If the selection has changed since we started loading then return
+                if (prevSelectedLeftLabel &amp;&amp; prevSelectedLeftLabel.text() !== artwork.Name) {
+                    LADS.Util.removeProgressCircle(circle);
+                    return;
+                }
+                LADS.Util.removeProgressCircle(circle);
+                // Set the image as a background image
+                viewer.css(&#x27;background&#x27;, &#x27;black url(&#x27; + LADS.Worktop.Database.fixPath(artwork.URL) + &#x27;) no-repeat center / contain&#x27;);
+            });
+        } else {
+            viewer.append(mediaElement);
+        }
+
+        // Create labels
+        // BM - Whoever wrote this... sigh
+        //function checkForLongName(d) {
+        //    if (d.length &gt; 55)
+        //        return d.substr(0, 55) + &quot;...&quot;;
+        //    return d;
+        //}
+        var titleInput = createTextInput(LADS.Util.htmlEntityDecode(artwork.Name), true, 55);
+        var artistInput = createTextInput(LADS.Util.htmlEntityDecode(artwork.Metadata.Artist), true, 55);
+        var yearInput = createTextInput(LADS.Util.htmlEntityDecode(artwork.Metadata.Year), true, 20);
+        var descInput = createTextAreaInput(LADS.Util.htmlEntityDecode(artwork.Metadata.Description).replace(/\n/g, &#x27;&lt;br /&gt;&#x27;) || &quot;&quot;, &quot;&quot;, false);
+        var customInputs = {};
+        var customSettings = {};
+
+        if (artwork.Metadata.InfoFields) {
+            $.each(artwork.Metadata.InfoFields, function (key, val) {
+                customInputs[key] = createTextInput(LADS.Util.htmlEntityDecode(val), true);
+                customSettings[key] = createSetting(key, customInputs[key]);
+            });
+        }
+
+        titleInput.focus(function () {
+            if (titleInput.val() === &#x27;Title&#x27;)
+                titleInput.select();
+        });
+        artistInput.focus(function () {
+            if (artistInput.val() === &#x27;Artist&#x27;)
+                artistInput.select();
+        });
+        yearInput.focus(function () {
+            if (yearInput.val() === &#x27;Year&#x27;)
+                yearInput.select();
+        });
+        descInput.focus(function () {
+            if (descInput.val() === &#x27;Description&#x27;)
+                descInput.select();
+        });
+
+        var title = createSetting(&#x27;Title&#x27;, titleInput);
+        var artist = createSetting(&#x27;Artist&#x27;, artistInput);
+        var year = createSetting(&#x27;Year&#x27;, yearInput);
+        var desc = createSetting(&#x27;Description&#x27;, descInput);
+
+        settingsContainer.append(title);
+        settingsContainer.append(artist);
+        settingsContainer.append(year);
+        settingsContainer.append(desc);
+
+        $.each(customSettings, function (key, val) {
+            settingsContainer.append(val);
+        });
+
+        // Create buttons
+        editArt = createButton(&#x27;Enter Artwork Editor&#x27;,
+            function () { editArtwork(artwork); },
+            {
+                &#x27;margin-left&#x27;: &#x27;2%&#x27;,
+                &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-right&#x27;: &#x27;0%&#x27;,
+                &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+            });
+        editArt.attr(&quot;id&quot;, &quot;artworkEditorButton&quot;);
+        var deleteArt = createButton(&#x27;Delete Artwork&#x27;,
+            function () { deleteArtwork(artwork); },
+            {
+                &#x27;margin-left&#x27;: &#x27;2%&#x27;,
+                &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-right&#x27;: &#x27;0%&#x27;,
+                &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+            });
+        var saveButton = createButton(&#x27;Save Changes&#x27;,
+            function () {
+                if (titleInput.val() === undefined || titleInput.val() === &quot;&quot;) {
+                    titleInput.val(&quot;Untitled Artwork&quot;);
+                }
+                saveArtwork(artwork, {
+                    artistInput: artistInput,
+                    nameInput: titleInput,
+                    yearInput: yearInput,
+                    descInput: descInput,
+                    customInputs: customInputs,
+                });
+            }, {
+                &#x27;margin-right&#x27;: &#x27;3%&#x27;,
+                &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-bottom&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-left&#x27;: &#x27;.5%&#x27;,
+                &#x27;float&#x27;: &#x27;right&#x27;
+            });
+
+        var thumbnailButton = createButton(&#x27;Capture Thumbnail&#x27;,
+            function () {
+                saveThumbnail(artwork, true);
+            }, {
+                &#x27;margin-right&#x27;: &#x27;0%&#x27;,
+                &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-bottom&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-left&#x27;: &#x27;2%&#x27;,
+                &#x27;float&#x27;: &#x27;left&#x27;
+            });
+        if (artwork.Metadata.Type !== &#x27;VideoArtwork&#x27;) {
+            buttonContainer.append(editArt).append(deleteArt).append(saveButton);
+        } else {
+            buttonContainer.append(thumbnailButton).append(deleteArt).append(saveButton);
+        }
+    }
+
+    function saveThumbnail(component, isArtwork) {
+        var id = $(&#x27;#videoInPreview&#x27;).attr(&#x27;identifier&#x27;);
+        var pop = Popcorn(&#x27;#videoInPreview&#x27;);
+        var time = $(&#x27;#videoInPreview&#x27;)[0].currentTime;
+        var dataurl = pop.capture({ type: &#x27;jpg&#x27; }); // modified popcorn.capture a bit to
+        prepareNextView(false, null, null, &quot;Saving...&quot;);
+        clearRight();
+        prepareViewer(true);
+        LADS.Worktop.Database.uploadImage(dataurl, function (imageURL) {
+            if (isArtwork) {
+                LADS.Worktop.Database.changeArtwork(id, { Thumbnail: imageURL }, function () {
+                    console.log(&quot;success?&quot;);
+                    loadArtView(component.Identifier);
+                }, unauth, conflict, error);
+            
+            } else { // here, it must be a video assoc media
+                LADS.Worktop.Database.changeHotspot(id, { Thumbnail: imageURL }, function () {
+                    console.log(&quot;success?&quot;);
+                    loadAssocMediaView(component.Identifier);
+                }, unauth, conflict, error);
+            }
+        }, unauth, error);
+    }
+
+    function unauth() {
+        dialogOverlay.hide();
+        var popup = LADS.Util.UI.popUpMessage(null, &quot;Thumbnail not saved.  You must log in to save changes.&quot;);
+        $(&#x27;body&#x27;).append(popup);
+        $(popup).show();
+    }
+
+    function conflict(jqXHR, ajaxCall) {
+        ajaxCall.force();
+    }
+
+    function error() {
+        dialogOverlay.hide();
+        var popup = LADS.Util.UI.popUpMessage(null, &quot;Thumbnail not saved.  There was an error contacting the server.&quot;);
+        $(&#x27;body&#x27;).append(popup);
+        $(popup).show();
+    }
+
+    // Create an artwork (import) --- possibly more than one artwork
+    function createArtwork() {
+        uploadFile(LADS.Authoring.FileUploadTypes.DeepZoom, function (urls, names, contentTypes, files) {
+            var check, i, url, name, done=0, total=urls.length, durations=[];
+            prepareNextView(false);
+            clearRight();
+            prepareViewer(true);
+
+            function incrDone() {
+                done++;
+                if (done &gt;= total) {
+                    loadArtView();
+                } else {
+                    durationHelper(done);
+                }
+            }
+
+            //////////
+            if (files.length &gt; 0) {
+                durationHelper(0);
+            }
+
+            function durationHelper(j) {
+                if (contentTypes[j] === &#x27;Video&#x27;) {
+                    files[j].properties.getVideoPropertiesAsync().done(function (VideoProperties) {
+                        durations.push(VideoProperties.duration / 1000); // duration in seconds
+                        updateDoq(j);
+                    }, function (err) {
+                        console.log(err);
+                    });
+                } else {
+                    durations.push(null);
+                    updateDoq(j);
+                }
+            }
+            ///////////
+
+            function updateDoq(j) {
+                var newDoq;
+                try {
+                    newDoq = new Worktop.Doq(urls[j]);
+                } catch (error) {
+                    done++;
+                    console.log(&quot;error in uploading: &quot; + error.message);
+                    return;
+                }
+                var ops = { Name: names[j] };
+                if (durations[j]) {
+                    ops.Duration = durations[j];
+                }
+                LADS.Worktop.Database.changeArtwork(newDoq.Identifier, ops, incrDone, LADS.Util.multiFnHandler(authError, incrDone), LADS.Util.multiFnHandler(conflict(newDoq, &quot;Update&quot;, incrDone)), error(incrDone));
+            }
+
+            //for (i = 0; i &lt; urls.length; i++) {
+            //    updateDoq(i);
+            //}
+        }, true, [&#x27;.jpg&#x27;, &#x27;.png&#x27;, &#x27;.gif&#x27;, &#x27;.tif&#x27;, &#x27;.tiff&#x27;, &#x27;.mp4&#x27;]);
+    }
+
+    // Edits an artwork
+    function editArtwork(artwork) {
+        // Overlay doesn&#x27;t spin... not sure how to fix without redoing tour authoring to be more async
+        loadingOverlay(&#x27;Loading Artwork...&#x27;);
+        leftQueue.clear();
+        rightQueue.clear();
+        setTimeout(function () {
+            LADS.Util.UI.slidePageLeft((new LADS.Layout.ArtworkEditor(artwork)).getRoot());
+        }, 1);
+    }
+
+    // Deletes an artwork
+    function deleteArtwork(artwork) {
+        var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
+            prepareNextView(false);
+            clearRight();
+            prepareViewer(true);
+
+            // actually delete the artwork
+            LADS.Worktop.Database.deleteDoq(artwork.Identifier, function () {
+                if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.art.text]) {
+                    return;
+                }
+                loadArtView();
+            }, authError, authError);
+        }, &quot;Are you sure you want to delete &quot; + artwork.Name + &quot;?&quot;, &quot;Delete&quot;, true, function () { $(confirmationBox).hide() });
+        root.append(confirmationBox);
+        $(confirmationBox).show();
+    }
+
+    // Save an artwork with input data. The inputs parameter has:
+    //      titleInput:     artwork title
+    //      artistInput:    artwork artist
+    //      yearInput:      artwork year
+    //      customInputs:   artwork custom info fields
+    function saveArtwork(artwork, inputs) {
+        var name = inputs.nameInput.val();
+        var artist = inputs.artistInput.val();
+        var year = inputs.yearInput.val();
+        var description = inputs.descInput.val();
+        //description = (description === &#x27;Description&#x27;) ? &quot;&quot; : description;
+
+        var infoFields = {};
+        $.each(inputs.customInputs, function (key, val) {
+            infoFields[key] = val.val();
+        });
+
+        prepareNextView(false, null, null, &quot;Saving...&quot;);
+        clearRight();
+        prepareViewer(true);
+        
+        LADS.Worktop.Database.changeArtwork(artwork, {
+            Name: name,
+            Artist: artist,
+            Year: year,
+            Description: description,
+            InfoFields: JSON.stringify(infoFields),
+        }, function () {
+            if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.art.text]) {
+                return;
+            }
+            loadArtView(artwork.Identifier);
+        }, authError, conflict(artwork, &quot;Update&quot;, loadArtView), error(loadArtView)); 
+    }
+
+    // Feedback Functions
+    function loadFeedbackView(id) {
+        prepareNextView(true, &quot;&quot;);
+        prepareViewer(false);
+        clearRight();
+
+        var cancel = false;
+        // Make an async call to get feedback
+        LADS.Worktop.Database.getFeedback(function (result) {
+            if (cancel) return;
+            sortDate(result);
+
+            $.each(result, function (i, val) {
+                if (cancel) return false;
+                // Add each label as a separate function to the queue
+                // so the UI doesn&#x27;t lock up
+                leftQueue.add(function () {
+                    if (cancel) return;
+                    if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.feedback.text]) {
+                        return;
+                    }
+                    var label;
+                    var text = $.datepicker.formatDate(&#x27;(m/dd/yy) &#x27;, new Date(val.Metadata.Date * 1000)) + val.Metadata.Feedback;
+                    if (!prevSelectedLeftLabel &amp;&amp;
+                        ((id &amp;&amp; val.Identifier === id) || (!id &amp;&amp; i === 0))) {
+                        // Select the first one
+                        leftLoading.before(selectLabel(label = createLeftLabel(text, null, function () {
+                            loadFeedback(val);
+                        }, val.Identifier, true)));
+
+                        // Scroll to the selected label if the user hasn&#x27;t already scrolled somewhere
+                        if (leftbar.scrollTop() === 0 &amp;&amp; label.offset().top - leftbar.height() &gt; 0) {
+                            leftbar.animate({
+                                scrollTop: (label.offset().top - leftbar.height())
+                            }, 1000);
+                        }
+
+                        prevSelectedLeftLabel = label;
+                        loadFeedback(val);
+                    } else {
+                        leftLoading.before(label = createLeftLabel(text, null, function () {
+                            loadFeedback(val);
+                        }, val.Identifier, true));
+                    }
+                    // Hide if it doesn&#x27;t match search criteria
+                    if (!LADS.Util.searchString(text, searchbar.val())) {
+                        label.hide();
+                    }
+                });
+            });
+            // Hide the loading label when we&#x27;re done
+            leftQueue.add(function () {
+                leftLoading.hide();
+            });
+        });
+        cancelLastSetting = function () { cancel = true; };
+    }
+
+    function loadFeedback(feedback) {
+        clearRight();
+        prepareViewer(true, feedback.Metadata.Feedback);
+
+        var sourceLabel = createLabel(&#x27;Loading...&#x27;);
+        var dateLabel = createLabel($.datepicker.formatDate(&#x27;DD, MM d, yy &#x27;, new Date(feedback.Metadata.Date * 1000)));
+        //if (feedback.Metadata.SourceID) {
+        //    var sourceButton = createButton(&#x27;Go To Source&#x27;, function () {
+        //        followSource(feedback);
+        //    });
+        //}
+
+        var source = createSetting(&#x27;Submitted From&#x27;, sourceLabel);
+        //if (feedback.Metadata.SourceID) {
+        //    var sourceButtonSetting = createSetting(&#x27;&#x27;, sourceButton);
+        //}
+        var dateSetting = createSetting(&#x27;Date&#x27;, dateLabel);
+
+        settingsContainer.append(source);
+        var sourceType = feedback.Metadata.SourceType === &quot;Exhibition&quot; ? &quot;Collection&quot; : feedback.Metadata.SourceType;
+        if (feedback.Metadata.SourceID) {
+            getSourceName(feedback, function (sourceName) {
+                sourceLabel.text(sourceName + &#x27; (&#x27; + sourceType + &#x27;)&#x27;);
+                var sourceButton = createButton(sourceName + &#x27; (&#x27; + sourceType + &#x27;)&#x27;, function () {
+                    followSource(feedback);
+                });
+                var sourceSetting = createSetting(&#x27;Submitted From&#x27;, sourceButton);
+                source.remove();
+                dateSetting.prepend(sourceSetting);
+            }, function (sourceName) {
+                sourceLabel.text(sourceName + &#x27; (&#x27; + sourceType + &#x27;, Deleted)&#x27;);
+            }, function () {
+                sourceLabel.text(&#x27;Deleted&#x27;);
+            });
+        } else {
+            sourceLabel.text(sourceType + &quot; Page (No &quot; + sourceType + &quot; Selected)&quot;);
+        }
+        settingsContainer.append(dateSetting);
+
+        var deleteButton = createButton(&#x27;Delete Feedback&#x27;, function () {
+            deleteFeedback(feedback);
+        },
+        {
+            &#x27;margin-left&#x27;: &#x27;2%&#x27;,
+            &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+            &#x27;margin-right&#x27;: &#x27;0%&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+        });
+
+        buttonContainer.append(deleteButton);
+    }
+
+    function getSourceName(feedback, onSuccess, onDeleted, onError) {
+        LADS.Worktop.Database.getDoq(feedback.Metadata.SourceID,
+            function (doq) {
+                if (doq.Metadata.Deleted) {
+                    onDeleted(doq.Name);
+                } else {
+                    onSuccess(doq.Name);
+                }
+            }, function () {
+                onError();
+            });
+    }
+
+    function followSource(feedback) {
+        switch (feedback.Metadata.SourceType) {
+            case &quot;Exhibition&quot;:
+            case &quot;Exhibitions&quot;:
+                switchView(&quot;Exhibitions&quot;, feedback.Metadata.SourceID);
+                break;
+            case &quot;Tour&quot;:
+            case &quot;Tours&quot;:
+                switchView(&quot;Tours&quot;, feedback.Metadata.SourceID);
+                break;
+            case &quot;Art&quot;:
+            case &quot;Artwork&quot;:
+            case &quot;Artworks&quot;:
+                switchView(&quot;Artworks&quot;, feedback.Metadata.SourceID);
+                break;
+        }
+    }
+
+    function deleteFeedback(feedback) {
+        prepareNextView(false);
+        clearRight();
+
+        // actually delete the exhibition
+        LADS.Worktop.Database.deleteDoq(feedback.Identifier, function () {
+            if (prevSelectedSetting &amp;&amp; prevSelectedSetting !== nav[NAV_TEXT.feedback.text]) {
+                return;
+            }
+            loadFeedbackView();
+        }, authError, conflict(feedback), error(loadFeedbackView));
+    }
+
+    // Sets up the left side for the next view
+    //  showSearch: if true show the search bar, otherwise hide it
+    //  newText: Text for the new button
+    //  newBehavior: onclick function for the new button
+    function prepareNextView(showSearch, newText, newBehavior, loadingText) {
+        leftQueue.clear();
+        leftLabelContainer.empty();
+        leftLabelContainer.append(leftLoading);
+        leftLoading.show();
+        secondaryButton.css(&quot;display&quot;, &quot;none&quot;);
+        newButton.text(newText);
+        newButton.unbind(&#x27;click&#x27;).click(newBehavior);
+        if (!newText) newButton.hide();
+        else newButton.show();
+        prevSelectedLeftLabel = null;
+        if (cancelLastSetting) cancelLastSetting();
+
+        if (loadingText) {
+            leftLoading.children(&#x27;label&#x27;).text(loadingText);
+        } else {
+            leftLoading.children(&#x27;label&#x27;).text(&#x27;Loading...&#x27;);
+        }
+
+        if (showSearch) {
+            searchContainer.show();
+            searchContainer.css(&#x27;display&#x27;, &#x27;inline-block&#x27;);
+            searchbar.val(&quot;&quot;);
+        } else {
+            searchContainer.hide();
+        }
+    }
+
+    // Clears the right side
+    function clearRight() {
+        settingsContainer.empty();
+        buttonContainer.empty();
+        rightQueue.clear();
+    }
+
+    // Clears the viewer
+    function prepareViewer(showViewer, text) {
+        viewer.empty();
+        viewer.css(&#x27;background&#x27;, &#x27;black&#x27;);
+        if (showViewer) {
+            viewer.show();
+            buttonContainer.css({
+                &#x27;top&#x27;: $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + &#x27;px&#x27;,
+                &#x27;margin-top&#x27;: &#x27;0.35%&#x27;,
+            });
+            settings.css({
+                &#x27;height&#x27;: getSettingsHeight() + &#x27;px&#x27;,
+            });
+            if (text) {
+                var textbox = $(document.createElement(&#x27;textarea&#x27;));
+                if (typeof text == &#x27;string&#x27;)
+                    text = text.replace(/&lt;br \/&gt;/g, &#x27;\n&#x27;).replace(/&lt;br&gt;/g, &#x27;\n&#x27;).replace(/&lt;br\/&gt;/g, &#x27;\n&#x27;);
+                textbox.val(text);
+                textbox.css({
+                    &#x27;color&#x27;: TEXT_COLOR,
+                    &#x27;border-color&#x27;: INPUT_BORDER,
+                    &#x27;padding&#x27;: &#x27;.5%&#x27;,
+                    &#x27;width&#x27;: &#x27;100%&#x27;,
+                    &#x27;height&#x27;: &#x27;100%&#x27;,
+                    &#x27;box-sizing&#x27;: &#x27;border-box&#x27;,
+                    &#x27;margin&#x27;: &#x27;0px&#x27;,
+                });
+                textbox.attr(&#x27;readonly&#x27;, &#x27;true&#x27;);
+                viewer.append(textbox);
+                viewer.css(&#x27;background&#x27;, &#x27;transparent&#x27;);
+            } else {
+                viewer.css(&#x27;background&#x27;, &#x27;black&#x27;);
+            }
+        } else {
+            viewer.hide();
+            buttonContainer.css({
+                &#x27;top&#x27;: leftbar.width() * 0.05 + &#x27;px&#x27;,
+                &#x27;margin-top&#x27;: &#x27;0&#x27;,
+            });
+            settings.css({
+                &#x27;height&#x27;: ($(window).height() * CONTENT_HEIGHT / 100) -
+                    (BUTTON_HEIGHT * 1) + &#x27;px&#x27;,
+            });
+        }
+    }
+
+    // Clicks an element determined by a jquery selector when it is
+    // added to the page
+    function clickWhenReady(selector, maxtries, tries) {
+        doWhenReady(selector, function (elem) { elem.click(); }, maxtries, tries);
+    }
+
+    // Calls fn with selector when the element determined by the selector
+    // is added to the page
+    function doWhenReady(selector, fn, maxtries, tries) {
+        maxtries = maxtries || 100;
+        tries = tries || 0;
+        if (tries &gt; maxtries) return;
+        if ($.contains(document.documentElement, $(selector)[0])) {
+            fn($(selector));
+        } else {
+            rightQueue.add(function () {
+                doWhenReady(selector, fn, maxtries, tries + 1);
+            });
+        }
+    }
+
+    // Resets mouse interaction for labels
+    function resetLabels(selector) {
+        $(selector).css(&#x27;background&#x27;, &#x27;transparent&#x27;);
+        $.each($(selector), function (i, current) {
+            if ($(current).attr(&#x27;disabled&#x27;) === &#x27;disabled&#x27;)
+                return;
+            $(current).mousedown(function () {
+                $(current).css({
+                    &#x27;background&#x27;: HIGHLIGHT
+                });
+            });
+            $(current).mouseup(function () {
+                $(current).css({
+                    &#x27;background&#x27;: &#x27;transparent&#x27;
+                });
+            });
+            $(current).mouseleave(function () {
+                $(current).css({
+                    &#x27;background&#x27;: &#x27;transparent&#x27;
+                });
+            });
+        });
+    }
+
+    // Selects a label unbinding mouse events
+    function selectLabel(label, expand) {
+        label.css(&#x27;background&#x27;, HIGHLIGHT);
+        label.unbind(&#x27;mousedown&#x27;).unbind(&#x27;mouseleave&#x27;).unbind(&#x27;mouseup&#x27;);
+
+        if (expand) {
+            label.css(&#x27;height&#x27;, &#x27;&#x27;);
+            label.children(&#x27;div&#x27;).css(&#x27;white-space&#x27;, &#x27;&#x27;);
+
+            if (prevSelectedLeftLabel) {
+                prevSelectedLeftLabel.css(&#x27;height&#x27;, LEFT_LABEL_HEIGHT + &#x27;px&#x27;);
+                prevSelectedLeftLabel.children(&#x27;div&#x27;).css(&#x27;white-space&#x27;, &#x27;nowrap&#x27;);
+            }
+        }
+        return label;
+    }
+
+    // Disables a label, unbinding mouse events
+    function disableLabel(label) {
+        label.css({
+            &#x27;color&#x27;: &#x27;gray&#x27;,
+        });
+        label.unbind(&#x27;mousedown&#x27;).unbind(&#x27;mouseleave&#x27;).unbind(&#x27;mouseup&#x27;).unbind(&#x27;click&#x27;).attr(&#x27;disabled&#x27;, true);
+        return label;
+    }
+
+
+    // Helper functions for creating and managing the UI
+
+    // Creates the top bar where the back button and &#x27;Authoring Mode&#x27; label are
+    function createTopBar() {
+        var topBar = $(document.createElement(&#x27;div&#x27;));
+        topBar.css({
+            &#x27;background-color&#x27;: TOPBAR_BGCOLOR,
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;height&#x27;: TOPBAR_HEIGHT + &#x27;%&#x27;,
+        });
+
+        var backButton = $(document.createElement(&#x27;img&#x27;));
+        backButton.attr(&#x27;src&#x27;, &#x27;images/icons/Back.svg&#x27;);
+        backButton.css({
+            &#x27;height&#x27;: &#x27;63%&#x27;,
+            &#x27;margin-left&#x27;: &#x27;1.2%&#x27;,
+            &#x27;width&#x27;: &#x27;auto&#x27;,
+            &#x27;top&#x27;: &#x27;18.5%&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+        });
+
+        backButton.mousedown(function () {
+            LADS.Util.UI.cgBackColor(&quot;backButton&quot;, backButton, false);
+        });
+
+        backButton.mouseleave(function () {
+            LADS.Util.UI.cgBackColor(&quot;backButton&quot;, backButton, true);
+        });
+
+        backButton.click(function () {
+            LADS.Auth.clearToken();
+            rightQueue.clear();
+            leftQueue.clear();
+            backButton.off(&#x27;click&#x27;);
+            if (backPage) {
+                var bpage = backPage();
+                LADS.Util.UI.slidePageRight(bpage);
+            } else {
+                LADS.Layout.StartPage(null, function (page) {
+                    LADS.Util.UI.slidePageRight(page);
+                });
+            }
+        });
+
+        var topBarLabel = $(document.createElement(&#x27;div&#x27;));
+        var topBarLabelSpecs = LADS.Util.constrainAndPosition($(window).width(), $(window).height() * 0.08,
+        {
+            width: 0.4,
+            height: 0.9,
+        });
+        topBarLabel.css({
+            &#x27;margin-right&#x27;: &#x27;2%&#x27;,
+            &#x27;margin-top&#x27;: 8 * 0.045 + &#x27;%&#x27;,
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;text-align&#x27;: &#x27;right&#x27;,
+            &#x27;right&#x27;: &#x27;0px&#x27;,
+            &#x27;top&#x27;: &#x27;0px&#x27;,
+            &#x27;height&#x27;: topBarLabelSpecs.height + &#x27;px&#x27;,
+            &#x27;width&#x27;: topBarLabelSpecs.width + &#x27;px&#x27;,
+        });
+
+        var fontsize = LADS.Util.getMaxFontSizeEM(&#x27;Tour Authoring&#x27;, 0.5, topBarLabelSpecs.width, topBarLabelSpecs.height * 0.8, 0.1);
+        topBarLabel.css({ &#x27;font-size&#x27;: fontsize });
+
+        topBarLabel.text(&#x27;Authoring Mode&#x27;);
+
+        topBar.append(backButton);
+        topBar.append(topBarLabel);
+
+        return topBar;
+    }
+
+    // Creates the nav bar
+    function createNavBar() {
+        var navBar = $(document.createElement(&#x27;div&#x27;));
+        navBar.css({
+            &#x27;height&#x27;: NAVBAR_HEIGHT,
+            &#x27;float&#x27;: &#x27;left&#x27;,
+            &#x27;width&#x27;: NAV_WIDTH + &#x27;%&#x27;,
+        });
+
+        // Assing the nav labels to a nav object with their name as the key
+        navBar.append(nav[NAV_TEXT.general.text] = createNavLabel(NAV_TEXT.general, loadGeneralView));
+        navBar.append(nav[NAV_TEXT.exhib.text] = createNavLabel(NAV_TEXT.exhib, loadExhibitionsView));
+        navBar.append(nav[NAV_TEXT.art.text] = createNavLabel(NAV_TEXT.art, loadArtView));
+        navBar.append(nav[NAV_TEXT.media.text] = createNavLabel(NAV_TEXT.media, loadAssocMediaView)); // COMMENT!!!!!!!!
+        navBar.append(nav[NAV_TEXT.tour.text] = createNavLabel(NAV_TEXT.tour, loadTourView));
+        navBar.append(nav[NAV_TEXT.feedback.text] = createNavLabel(NAV_TEXT.feedback, loadFeedbackView));
+
+        return navBar;
+    }
+
+    // Creates a single nav label.  text is an object
+    // with keys &#x27;text&#x27; and &#x27;subtext&#x27; and onclick is called
+    // when the label is clicked
+    function createNavLabel(text, onclick) {
+        var container = $(document.createElement(&#x27;div&#x27;));
+        container.attr(&#x27;class&#x27;, &#x27;navContainer&#x27;);
+        container.attr(&#x27;id&#x27;, &#x27;nav-&#x27; + text.text);
+        container.css({
+            //&#x27;width&#x27;: 100/Object.keys(NAV_TEXT).length + &#x27;%&#x27;,
+            //&#x27;height&#x27;: &#x27;100%&#x27;,
+            &#x27;height&#x27;: &#x27;80px&#x27;,
+            //&#x27;display&#x27;: &#x27;inline-block&#x27;,
+            &#x27;background&#x27;: &#x27;transparent&#x27;,
+            &#x27;color&#x27;: TEXT_COLOR,
+            &#x27;margin-top&#x27;: &#x27;2%&#x27;,
+            //&#x27;margin-bottom&#x27;: &#x27;5%&#x27;,
+            &#x27;padding-top&#x27;: &#x27;4%&#x27;,
+            &#x27;padding-bottom&#x27;: &#x27;4%&#x27;,
+        });
+        container.mousedown(function () {
+            container.css({
+                &#x27;background&#x27;: HIGHLIGHT
+            });
+        });
+        container.mouseup(function () {
+            container.css({
+                &#x27;background&#x27;: &#x27;transparent&#x27;
+            });
+        });
+        container.mouseleave(function () {
+            container.css({
+                &#x27;background&#x27;: &#x27;transparent&#x27;
+            });
+        });
+        container.click(function () {
+            // If a label is clicked return if its already selected.
+            if (prevSelectedSetting === container)
+                return;
+            // Reset all labels and then select this one
+            resetLabels(&#x27;.navContainer&#x27;);
+            selectLabel(container);
+            // Do the onclick function
+            if (onclick)
+                onclick();
+            prevSelectedSetting = container;
+        });
+
+        var navtext = $(document.createElement(&#x27;label&#x27;));
+        navtext.css({
+            &#x27;font-size&#x27;: NAVBAR_FONTSIZE,
+            &#x27;display&#x27;: &#x27;block&#x27;,
+            &#x27;margin-left&#x27;: &#x27;6.95%&#x27;,
+            &#x27;margin-top&#x27;: &#x27;0.372%&#x27;,
+        });
+        navtext.text(text.text);
+
+        var navsubtext = $(document.createElement(&#x27;label&#x27;));
+        navsubtext.css({
+            &#x27;font-size&#x27;: NAVBAR_SUBFONTSIZE,
+            &#x27;display&#x27;: &#x27;block&#x27;,
+            &#x27;margin-left&#x27;: &#x27;7.65%&#x27;,
+            &#x27;margin-top&#x27;: &#x27;0.372%&#x27;,
+        });
+        navsubtext.text(text.subtext);
+
+        container.append(navtext);
+        container.append(navsubtext);
+        return container;
+    }
+
+    // Create the left bar container where the search bar and left bar are placed
+    function createLeftBarContainer() {
+        var container = $(document.createElement(&#x27;div&#x27;));
+        container.css({
+            &#x27;width&#x27;: LEFT_WIDTH + &#x27;%&#x27;,
+            &#x27;float&#x27;: &#x27;left&#x27;,
+        });
+        return container;
+    }
+
+    // Holds the left bar for scrolling
+    function createLeftBar() {
+        var container = $(document.createElement(&#x27;div&#x27;));
+        container.css({
+            // Set the height to CONTENT_HEIGHT percent of the window height, but subtract
+            // LEFT_LABEL_HEIGHT for the search bar which goes above it and the margin for the
+            // search bar
+            &#x27;height&#x27;: ($(window).height() * CONTENT_HEIGHT / 100 - (LEFT_LABEL_HEIGHT * 1 + $(window).width() * 0.22 * 0.05)) + &#x27;px&#x27;,
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;overflow&#x27;: &#x27;auto&#x27;,
+        });
+
+        return container;
+    }
+
+    // Create the label container where labels are added
+    function createLeftLabelContainer() {
+        var container = $(document.createElement(&#x27;div&#x27;));
+        container.css({
+            &#x27;padding-left&#x27;: &#x27;3.5%&#x27;,
+            // So it doesn&#x27;t go under scroll bar
+            &#x27;padding-right&#x27;: &#x27;20px&#x27;,
+            &#x27;padding-bottom&#x27;: &#x27;5%&#x27;,
+            &#x27;padding-top&#x27;: &#x27;2%&#x27;,
+        });
+        return container;
+    }
+
+    // Create the search bar with the new button
+    function createSearch() {
+        var container = $(document.createElement(&#x27;div&#x27;));
+        container.css({
+            &#x27;height&#x27;: LEFT_LABEL_HEIGHT + &#x27;px&#x27;,
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;margin-top&#x27;: &#x27;2.5%&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;2.5%&#x27;,
+        });
+
+        searchbar = $(document.createElement(&#x27;input&#x27;));
+        searchbar.attr(&#x27;type&#x27;, &#x27;text&#x27;);
+        searchbar.attr(&#x27;id&#x27;, &#x27;searchbar&#x27;);
+        searchbar.css({
+            //&#x27;float&#x27;: &#x27;left&#x27;,
+            &#x27;width&#x27;: &#x27;55%&#x27;,
+            &#x27;border-color&#x27;: INPUT_BORDER,
+            &#x27;margin-top&#x27;: &#x27;2%&#x27;,
+            &#x27;margin-left&#x27;: &#x27;3.5%&#x27;,
+        });
+        searchbar.keyup(function () {
+            search(searchbar.val(), &#x27;.leftLabel&#x27;, &#x27;div&#x27;);
+        });
+        searchbar.change(function () {
+            search(searchbar.val(), &#x27;.leftLabel&#x27;, &#x27;div&#x27;);
+        });
+        // Workaround for clear button (doesn&#x27;t fire a change event...)
+        searchbar.mouseup(function () {
+            setTimeout(function () {
+                search(searchbar.val(), &#x27;.leftLabel&#x27;, &#x27;div&#x27;);
+            }, 1);
+        });
+        searchbar.attr(&#x27;placeholder&#x27;, DEFAULT_SEARCH_TEXT);
+
+        newButton = $(document.createElement(&#x27;button&#x27;));
+        newButton.attr(&#x27;type&#x27;, &#x27;button&#x27;);
+        newButton.css({
+            &#x27;float&#x27;: &#x27;right&#x27;,
+            &#x27;height&#x27;: &#x27;100%&#x27;,
+            &#x27;color&#x27;: TEXT_COLOR,
+            &#x27;border-color&#x27;: TEXT_COLOR,
+            &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+            &#x27;padding-bottom&#x27;: &#x27;1%&#x27;,
+        });
+        newButton.text(&#x27;New&#x27;);
+
+        secondaryButton = $(document.createElement(&#x27;button&#x27;));
+        secondaryButton.attr(&#x27;type&#x27;, &#x27;button&#x27;);
+        secondaryButton.css({
+            &#x27;float&#x27;: &#x27;right&#x27;,
+            &#x27;height&#x27;: &#x27;100%&#x27;,
+            &#x27;color&#x27;: TEXT_COLOR,
+            &#x27;border-color&#x27;: TEXT_COLOR,
+            &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+            &#x27;padding-bottom&#x27;: &#x27;1%&#x27;,
+            &#x27;margin-right&#x27;: &#x27;15px&#x27;,
+            &#x27;display&#x27;: &#x27;none&#x27;
+        });
+        secondaryButton.text(&#x27;Video&#x27;);
+
+        container.append(searchbar);
+        container.append(newButton);
+        container.append(secondaryButton);
+
+        return container;
+    }
+
+    // Create the left loading label which has a spinning circle
+    // Ideally this should always be at the bottom, so use jquery
+    // .before to add elements before it
+    function createLeftLoading() {
+        var container = $(document.createElement(&#x27;div&#x27;));
+        container.attr(&#x27;id&#x27;, &#x27;leftLoading&#x27;);
+        container.css({
+            &#x27;padding&#x27;: &#x27;2%&#x27;,
+            &#x27;height&#x27;: LEFT_LABEL_HEIGHT + &#x27;px&#x27;,
+            &#x27;margin-right&#x27;: &#x27;3%&#x27;,
+        });
+
+        var label = $(document.createElement(&#x27;label&#x27;));
+        label.css({
+            &#x27;font-size&#x27;: LEFT_FONTSIZE,
+        });
+        label.text(&#x27;Loading...&#x27;);
+
+        var circle = $(document.createElement(&#x27;img&#x27;));
+        circle.attr(&#x27;src&#x27;, &#x27;images/icons/progress-circle.gif&#x27;);
+        circle.css({
+            &#x27;height&#x27;: LEFT_LABEL_HEIGHT * 0.96 + &#x27;px&#x27;,
+            &#x27;width&#x27;: &#x27;auto&#x27;,
+            &#x27;float&#x27;: &#x27;right&#x27;,
+        });
+
+        container.append(label);
+        container.append(circle);
+
+        return container;
+    }
+
+    // Creates a left label with
+    //      text:       the text of the label
+    //      imagesrc:   src for the image.  If not specified then no image is added
+    //      onclick:    function to do on click
+    //      id:         id to set if specified
+    function createLeftLabel(text, imagesrc, onclick, id, noexpand, onDoubleClick, inArtMode, extension) {
+        var container = $(document.createElement(&#x27;div&#x27;));
+        text = LADS.Util.htmlEntityDecode(text);
+        container.attr(&#x27;class&#x27;, &#x27;leftLabel&#x27;);
+        if (id) {
+            container.attr(&#x27;id&#x27;, id);
+        }
+        container.css({
+            &#x27;height&#x27;: LEFT_LABEL_HEIGHT + &#x27;px&#x27;,
+            &#x27;min-height&#x27;: LEFT_LABEL_HEIGHT + &#x27;px&#x27;,
+            &#x27;padding-left&#x27;: &#x27;2%&#x27;,
+            &#x27;padding-top&#x27;: &#x27;2%&#x27;,
+            &#x27;padding-bottom&#x27;: &#x27;2%&#x27;,
+            // &#x27;margin-right&#x27;: &#x27;3.2%&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+            &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+        });
+
+        if (inArtMode) {
+            if(extension.match(/mp4/)) {
+                container.data(&#x27;isVideoArtwork&#x27;, true);
+            } else {
+                container.data(&#x27;isStaticArtwork&#x27;, true);
+            }
+        }
+
+        container.mousedown(function () {
+            container.css({
+                &#x27;background&#x27;: HIGHLIGHT
+            });
+        });
+        container.mouseup(function () {
+            container.css({
+                &#x27;background&#x27;: &#x27;transparent&#x27;
+            });
+        });
+        container.mouseleave(function () {
+            container.css({
+                &#x27;background&#x27;: &#x27;transparent&#x27;
+            });
+        });
+        container.click(function () {
+            if (prevSelectedLeftLabel == container)
+                return;
+            resetLabels(&#x27;.leftLabel&#x27;);
+            selectLabel(container, !noexpand);
+            if (onclick)
+                onclick();
+            prevSelectedLeftLabel = container;
+        });
+        if (onDoubleClick) {
+            container.dblclick(onDoubleClick);
+        }
+        var width;
+        if (imagesrc) {
+            var image = $(document.createElement(&#x27;img&#x27;));
+            image.attr(&#x27;src&#x27;, imagesrc);
+            image.css({
+                &#x27;height&#x27;: &#x27;auto&#x27;,
+                &#x27;width&#x27;: &#x27;20%&#x27;,
+                &#x27;margin-right&#x27;: &#x27;5%&#x27;,
+            });
+            container.append(image);
+            
+
+            var progressCircCSS = {
+                &#x27;position&#x27;: &#x27;absolute&#x27;,
+                &#x27;left&#x27;: &#x27;5%&#x27;,
+                &#x27;z-index&#x27;: &#x27;50&#x27;,
+                &#x27;height&#x27;: &#x27;auto&#x27;,
+                &#x27;width&#x27;: &#x27;10%&#x27;,
+                &#x27;top&#x27;: &#x27;20%&#x27;,
+            };
+            var circle = LADS.Util.showProgressCircle(container, progressCircCSS, &#x27;0px&#x27;, &#x27;0px&#x27;, false);
+            image.load(function () {
+                LADS.Util.removeProgressCircle(circle);
+            });
+            width = &#x27;75%&#x27;;
+        } else {
+            width = &#x27;95%&#x27;;
+        }
+
+        var label = $(document.createElement(&#x27;div&#x27;));
+        label.attr(&#x27;class&#x27;, &#x27;labelText&#x27;);
+        label.css({
+            &#x27;font-size&#x27;: LEFT_FONTSIZE,
+            &#x27;display&#x27;: &#x27;inline-block&#x27;,
+            &#x27;white-space&#x27;: &#x27;nowrap&#x27;,
+            &#x27;width&#x27;: width,
+            &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+            &#x27;text-overflow&#x27;: &#x27;ellipsis&#x27;,
+            &#x27;vertical-align&#x27;: &#x27;top&#x27;,
+            //&#x27;word-wrap&#x27;: &#x27;break-word&#x27;,
+        });
+
+        if (!imagesrc) {
+            label.css({
+                &#x27;padding-top&#x27;: &#x27;0.4%&#x27;,
+                &#x27;padding-left&#x27;: &#x27;1.3%&#x27;,
+            });
+        }
+        label.text(text);
+
+        container.append(label);
+
+        return container;
+    }
+
+    // Creates the right bar which holds the viewer
+    // button container and settings container
+    function createRightBar() {
+        var container = $(document.createElement(&#x27;div&#x27;));
+        container.css({
+            &#x27;height&#x27;: CONTENT_HEIGHT + &#x27;%&#x27;,
+            &#x27;width&#x27;: RIGHT_WIDTH + &#x27;%&#x27;,
+            &#x27;float&#x27;: &#x27;right&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+        });
+
+        return container;
+    }
+
+    // Creates the viewer
+    function createViewer() {
+        var container = $(document.createElement(&#x27;div&#x27;));
+        container.attr(&#x27;id&#x27;, &#x27;previewContainer&#x27;);
+        container.css({
+            &#x27;width&#x27;: $(window).width() * RIGHT_WIDTH / 100 + &#x27;px&#x27;, // 100% should work, need to figure out height though
+            &#x27;height&#x27;: $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + &#x27;px&#x27;,
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;font-size&#x27;: &#x27;6pt&#x27;,
+            &#x27;background&#x27;: &#x27;black&#x27;,
+            &#x27;top&#x27;: &#x27;0%&#x27;,
+            &#x27;right&#x27;: &#x27;0px&#x27;,
+            &#x27;z-index&#x27;: &#x27;5&#x27;,
+            &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+        });
+        return container;
+    }
+
+    // Creates the button container
+    function createButtonContainer() {
+        var container = $(document.createElement(&#x27;div&#x27;));
+        container.css({
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;top&#x27;: $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + &#x27;px&#x27;,
+            &#x27;height&#x27;: BUTTON_HEIGHT + &#x27;px&#x27;,
+            &#x27;z-index&#x27;: &#x27;5&#x27;,
+            &#x27;background&#x27;: ROOT_BGCOLOR,
+            &#x27;margin-top&#x27;: &#x27;0.35%&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;2.5%&#x27;,
+        });
+        return container;
+    }
+
+    // Creates the settings bar which holds the settings container
+    function createSettings() {
+        var container = $(document.createElement(&#x27;div&#x27;));
+        container.css({
+            // Be careful with this height
+            &#x27;height&#x27;: getSettingsHeight() + &#x27;px&#x27;,
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;bottom&#x27;: &#x27;0px&#x27;,
+            &#x27;overflow&#x27;: &#x27;auto&#x27;,
+        });
+        return container;
+    }
+
+    // Gets the height of the settings section
+    // Since the viewer has to be positioned absolutely,
+    // the entire right bar needs to be position absolutely.
+    // Settings has bottom: 0, so the height needs to be correct
+    // to not have this be under the buttons container.  If any
+    // of the heights of the right components changes it should be
+    // updated here.
+    function getSettingsHeight() {
+        var height =
+        // Start with the entire height of the right side
+        ($(window).height() * CONTENT_HEIGHT / 100) -
+        // Subtract:
+        (
+            // Height of the viewer
+            $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO +
+            // Height of the button container
+            BUTTON_HEIGHT * 1 +
+            // Height of the padding of the button container
+            $(window).width() * RIGHT_WIDTH / 100 * 0.0285
+        );
+        return height;
+    }
+
+    // Creates a setting to be inserted into the settings container
+    //  text:       text for the setting
+    //  input:      the input for the setting
+    //  width: if not-falsey then assumed to be a number (ex. 75) representing the pecent, must be less than 95
+    function createSetting(text, input, width) {
+        var container = $(document.createElement(&#x27;div&#x27;));
+        container.css({
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;4%&#x27;,
+        });
+
+        var label = $(document.createElement(&#x27;div&#x27;));
+        label.css({
+            &#x27;font-size&#x27;: SETTING_FONTSIZE,
+            &#x27;width&#x27;: width ? 45 - (width - 50) + &#x27;%&#x27; : &#x27;45%&#x27;,
+            &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+            &#x27;text-overflow&#x27;: &#x27;ellipsis&#x27;,
+            &#x27;font-style&#x27;: &#x27;italic&#x27;,
+            &#x27;display&#x27;: &#x27;inline-block&#x27;,
+        });
+        label.text(text);
+
+        if (width) {
+            width = width + &#x27;%&#x27;;
+        } else {
+            width = &#x27;50%&#x27;;
+        }
+        input.css({
+            &#x27;width&#x27;: width,
+            &#x27;font-size&#x27;: INPUT_FONTSIZE,
+            &#x27;float&#x27;: &#x27;right&#x27;,
+            &#x27;margin-right&#x27;: &#x27;3%&#x27;,
+            &#x27;box-sizing&#x27;: &#x27;border-box&#x27;,
+        });
+
+        var clear = $(document.createElement(&#x27;div&#x27;));
+        clear.css(&#x27;clear&#x27;, &#x27;both&#x27;);
+
+        container.append(label);
+        container.append(input);
+        container.append(clear);
+
+        return container;
+    }
+
+    // Creates the settings container where settings are inserted
+    function createSettingsContainer() {
+        var container = $(document.createElement(&#x27;div&#x27;));
+        container.css({
+            &#x27;margin-left&#x27;: &#x27;2%&#x27;,
+            &#x27;margin-top&#x27;: &#x27;3%&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+            &#x27;margin-right&#x27;: &#x27;0%&#x27;,
+        });
+        return container;
+    }
+
+    // Creates a button with text set to &#x27;text&#x27;, on click
+    // function set to onclick, and additional css applied if specified
+    function createButton(text, onclick, css) {
+        var button = $(document.createElement(&#x27;button&#x27;)).text(text);
+        button.attr(&#x27;type&#x27;, &#x27;button&#x27;);
+        button.css({
+            &#x27;color&#x27;: TEXT_COLOR,
+            &#x27;border-color&#x27;: TEXT_COLOR,
+        });
+        if (css) {
+            button.css(css);
+        }
+        button.click(onclick);
+        return button;
+    }
+
+    function createLabel(text) {
+        var label = $(document.createElement(&#x27;label&#x27;)).text(text || &quot;&quot;);
+        return label;
+    }
+
+    // Creates a text input
+    //  text:       the default text for the input
+    //  defaultval: if true then the input will reset to the default text if its empty and loses focus
+    //  maxlength:  max length of the input in characters
+    function createTextInput(text, defaultval, maxlength, hideOnClick) {
+        var input = $(document.createElement(&#x27;input&#x27;)).val(text);
+        //if (defaultval) {
+        //    defaultVal(text, input, !!hideOnClick);
+        //}
+        input.css({
+            &#x27;color&#x27;: TEXT_COLOR,
+            &#x27;border-color&#x27;: INPUT_BORDER,
+            &#x27;padding&#x27;: &#x27;.5%&#x27;,
+        });
+        input.attr({
+            &#x27;type&#x27;: &#x27;text&#x27;,
+            &#x27;maxlength&#x27;: maxlength
+        });
+        return input;
+    }
+
+    // Create a text area input with text/defaultval the same as createTextInput()
+    function createTextAreaInput(text, defaultval, hideOnClick) {
+        if (typeof text === &#x27;string&#x27;)
+            text = text.replace(/&lt;br \/&gt;/g, &#x27;\n&#x27;).replace(/&lt;br&gt;/g, &#x27;\n&#x27;).replace(/&lt;br\/&gt;/g, &#x27;\n&#x27;);
+        var input = $(document.createElement(&#x27;textarea&#x27;)).val(text);
+        //if (defaultval) {
+        //    defaultVal(text, input, !!hideOnClick);
+        //}
+        input.css({
+            &#x27;color&#x27;: TEXT_COLOR,
+            &#x27;border-color&#x27;: INPUT_BORDER,
+            &#x27;padding&#x27;: &#x27;.5%&#x27;
+        });
+        //input.attr(&#x27;placeholder&#x27;, text);
+        input.autoSize();
+        doWhenReady(input, function (elem) {
+            var realHeight = input[0].scrollHeight;
+            $(input).css(&#x27;height&#x27;, realHeight + &#x27;px&#x27;);
+        });
+        return input;
+    }
+
+    // Creates a color input which modifies the background color
+    // of all elements matching the jquery selector &#x27;selector&#x27;.
+    // getTransValue should return a valid transparency value
+    function createBGColorInput(color, selector, getTransValue) {
+        if (color.indexOf(&#x27;#&#x27;) !== -1) {
+            color = color.substring(1, color.length);
+        }
+        var container = $(document.createElement(&#x27;input&#x27;));
+        container.attr(&#x27;type&#x27;, &#x27;text&#x27;);
+        container.css({
+            &#x27;border-color&#x27;: INPUT_BORDER,
+        });
+        var picker = new jscolor.color(container[0], {});
+        var hex = LADS.Util.UI.colorToHex(color);
+        container.val(color);
+        picker.fromString(color);
+        picker.onImmediateChange = function () {
+            updateBGColor(selector, container.val(), getTransValue());
+        };
+        return container;
+    }
+
+    // Sets the bg color of elements maching jquery selector &#x27;selector&#x27;
+    // given a hex value and a transparency value
+    function updateBGColor(selector, hex, trans) {
+        $(selector).css(&#x27;background-color&#x27;, LADS.Util.UI.hexToRGB(hex) + trans / 100.0 + &#x27;)&#x27;);
+
+    }
+
+    // Prevents a container from being clicked on by added a div on top of it
+    function preventClickthrough(container) {
+        var cover = document.createElement(&#x27;div&#x27;);
+        $(cover).css({
+            &#x27;height&#x27;: &#x27;100%&#x27;,
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;float&#x27;: &#x27;left&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;background-color&#x27;: &#x27;white&#x27;,
+            &#x27;opacity&#x27;: &#x27;0&#x27;,
+            &#x27;top&#x27;: &#x27;0px&#x27;,
+            &#x27;right&#x27;: &#x27;0px&#x27;,
+            &#x27;z-index&#x27;: &#x27;499&#x27;,
+        });
+        $(cover).bind(&#x27;click&#x27;, function () { return false; });
+        $(container).append(cover);
+    }
+
+    // Sorts a list with propery Name alphabetically
+    // case insensitive
+    function sortAZ(list) {
+        if (list.sort) {
+            list.sort(function (a, b) {
+                var aLower = a.Name.toLowerCase();
+                var bLower = b.Name.toLowerCase();
+                return (aLower &lt; bLower) ? -1 : 1;
+            });
+        }
+    }
+
+    // Sorts a list with date metadata by date with most recent date first
+    function sortDate(list) {
+        if (list.sort) {
+            list.sort(function (a, b) {
+                var aint = parseInt(a.Metadata.Date, 10);
+                var bint = parseInt(b.Metadata.Date, 10);
+                if (aint &lt; bint) {
+                    return 1;
+                } else if (aint &gt; bint) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            });
+        }
+    }
+
+    // Sets the default value of an input to val
+    // If the input loses focus when its empty it will revert
+    // to val.  Additionally, if hideOnClick is true then
+    // if the value is val and the input gains focus it will be
+    // set to the empty string
+    function defaultVal(val, input, hideOnClick) {
+        input.val(val);
+        if (hideOnClick) {
+            input.focus(function () {
+                if (input.val() === val)
+                    input.val(&#x27;&#x27;).change();
+            });
+        }
+        input.blur(function () {
+            if (input.val() === &#x27;&#x27;) {
+                input.val(val).change();
+                search(&#x27;&#x27;, &#x27;.leftLabel&#x27;, &#x27;div&#x27;);
+            }
+        });
+    }
+
+    // Performs a search 
+    function search(val, selector, childType) {
+        $.each($(selector), function (i, child) {
+            if ($(child).attr(&#x27;id&#x27;) === &#x27;leftLoading&#x27;)
+                return;
+            if (LADS.Util.searchString($(child).children(childType).text(), val)) {
+                $(child).show();
+            } else {
+                $(child).hide();
+            }
+        });
+    }
+
+    function searchData(val, selector) {
+        $.each($(selector), function (i, element) {
+            var data = $(element).data();
+            var show = false;
+            $.each(data, function (k, v) {
+                if (LADS.Util.searchString(v, val)) {
+                    show = true;
+                }
+            });
+            if (show) {
+                $(element).show();
+            } else {
+                $(element).hide();
+            }
+        });
+    }
+
+    // When a text input is changed keeps its length no greater than
+    // maxlength
+    function onChangeUpdateText(input, selector, maxlength) {
+        input.keyup(function () {
+            if (input.val().length &gt; maxlength) {
+                input.val(input.val().substring(0, maxlength));
+            }
+            $(selector).html(input.val().replace(/\n\r?/g, &#x27;&lt;br /&gt;&#x27;));
+        });
+        input.keydown(function () {
+            if (input.val().length &gt; maxlength) {
+                input.val(input.val().substring(0, maxlength));
+            }
+            $(selector).html(input.val().replace(/\n\r?/g, &#x27;&lt;br /&gt;&#x27;));
+        });
+        input.change(function () {
+            if (input.val().length &gt; maxlength) {
+                input.val(input.val().substring(0, maxlength));
+            }
+            $(selector).html(input.val().replace(/\n\r?/g, &#x27;&lt;br /&gt;&#x27;));
+        });
+        return input;
+    }
+
+    // When a text input is changed makes sure its a number and is within
+    // min and max.  Performs doOnChange when it changes
+    function onChangeUpdateNum(input, min, max, doOnChange) {
+        input.keyup(function () {
+            var replace = input.val().replace(/[^0-9]/g, &#x27;&#x27;);
+            replace = Math.constrain(parseInt(replace, 10), min, max);
+            if (isNaN(replace)) replace = 0;
+            if (input.val() !== replace + &#x27;&#x27;) {
+                input.val(replace);
+            }
+            if (doOnChange)
+                doOnChange(replace);
+        });
+        input.keydown(function () {
+            var replace = input.val().replace(/[^0-9]/g, &#x27;&#x27;);
+            replace = Math.constrain(parseInt(replace, 10), min, max);
+            if (isNaN(replace)) replace = 0;
+            if (input.val() !== replace + &#x27;&#x27;) {
+                input.val(replace);
+            }
+            if (doOnChange)
+                doOnChange(replace);
+        });
+        input.change(function () {
+            var replace = input.val().replace(/[^0-9]/g, &#x27;&#x27;);
+            replace = Math.constrain(parseInt(replace, 10), min, max);
+            if (isNaN(replace)) replace = 0;
+            if (input.val() !== replace + &#x27;&#x27;) {
+                input.val(replace);
+            }
+            if (doOnChange)
+                doOnChange(replace);
+        });
+    }
+
+    /* 
+     * This method parses the Metadata fields and then checks whether the required metadata
+     * field matches up with the one currently being looked at. Once it has found a match, it
+     * returns the appropriate node corresponding to the field.
+     *
+     * From the old settings view, works there so should work here
+     * Made it so that it creates blank text node if there is none
+     */
+    function getFieldValueFromMetadata(xml, field) {
+        var metadata = getMetaData(xml);
+        for (var i = 0; i &lt; metadata.length; i++) {
+            if (metadata[i].childNodes[0].textContent === field) {
+                var out = metadata[i].childNodes[1].childNodes[0];
+                if (out) return out;
+
+                metadata[i].childNodes[1].appendChild(xml.createTextNode(&#x27;&#x27;));
+                return metadata[i].childNodes[1].childNodes[0];
+            }
+        }
+        return null;
+    }
+
+    function addFieldToMetadata(xml, field, value) {
+        // almost the same as getMetaData sans a final .childNodes, need a single element to append to!
+        var metadata = xml.getElementsByTagName(&quot;Metadata&quot;)[0].childNodes[0].childNodes[0].childNodes[1].childNodes[0];
+
+        var fieldcontainer = xml.createElement(&#x27;d3p1:KeyValueOfstringanyType&#x27;);
+        metadata.appendChild(fieldcontainer);
+
+        var fieldkey = xml.createElement(&#x27;d3p1:Key&#x27;);
+        fieldcontainer.appendChild(fieldkey);
+        fieldkey.appendChild(xml.createTextNode(field));
+
+        var fieldvalue = xml.createElement(&#x27;d3p1:Value&#x27;);
+        fieldvalue.setAttribute(&#x27;i:type&#x27;, &#x27;d8p1:string&#x27;);
+        fieldvalue.setAttribute(&#x27;xmlns:d8p1&#x27;, &#x27;http://www.w3.org/2001/XMLSchema&#x27;);
+        fieldcontainer.appendChild(fieldvalue);
+        fieldvalue.appendChild(xml.createTextNode(value));
+    }
+
+    // From the old settings view, works there so should work here
+    function getMetaData(doq) {
+        return doq.getElementsByTagName(&quot;Metadata&quot;)[0].childNodes[0].childNodes[0].childNodes[1].childNodes[0].childNodes;
+    }
+
+
+    // from JavaScript: The Good Parts
+    function is_array(value) {
+        return Object.prototype.toString.apply(value) === &#x27;[object Array]&#x27;;
+    }
+
+    // Uploads a file then calls the callback with the url and name of the file.
+    // See LADS.Authoring.FileUploader for &#x27;type&#x27; values
+    function uploadFile(type, callback, multiple, filter) {
+        var names = [], locals = [], contentTypes = [], fileArray, i;
+        LADS.Authoring.FileUploader( // remember, this is a multi-file upload
+            root,
+            type,
+            // local callback - get filename
+            function (files, localURLs) {
+                fileArray = files;
+                for (i = 0; i &lt; files.length; i++) {
+                    names.push(files[i].displayName);
+                    if (files[i].contentType.match(/image/)) {
+                        contentTypes.push(&#x27;Image&#x27;);
+                    } else if (files[i].contentType.match(/video/)) {
+                        contentTypes.push(&#x27;Video&#x27;);
+                    } else if (files[i].contentType.match(/audio/)) {
+                        contentTypes.push(&#x27;Audio&#x27;);
+                    }
+                }
+            },
+            // remote callback - save correct name
+            function (urls) {
+                if (!is_array(urls)) { // check to see whether a single file was returned
+                    urls = [urls];
+                    names = [names];
+                }
+                for (i = 0; i &lt; urls.length; i++) {
+                    console.log(&quot;urls[&quot; + i + &quot;] = &quot; + urls[i] + &quot;, names[&quot; + i + &quot;] = &quot; + names[i]);
+                }
+                callback(urls, names, contentTypes, fileArray);
+            },
+            filter || [&#x27;.jpg&#x27;, &#x27;.png&#x27;, &#x27;.gif&#x27;, &#x27;.tif&#x27;, &#x27;.tiff&#x27;],
+            false,
+            function () {
+                root.append(LADS.Util.UI.popUpMessage(null, &quot;There was an error uploading the file.  Please try again later.&quot;));
+            },
+            !!multiple // batch upload disabled
+            );
+    }
+
+    // Creates the art picker for a given exhibition
+    function createArtPicker(exhibition) {
+        if (artPickerOpen)
+            return;
+        artPickerOpen = true;
+        // Overlay over the whole page
+        var overlay = $(document.createElement(&#x27;div&#x27;));
+        overlay.css({
+            &#x27;position&#x27;: &#x27;fixed&#x27;,
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;height&#x27;: &#x27;100%&#x27;,
+            &#x27;top&#x27;: &#x27;0&#x27;,
+            &#x27;left&#x27;: &#x27;0&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(0,0,0,0.5)&#x27;,
+            &#x27;z-index&#x27;: &#x27;1000&#x27;,
+            &#x27;display&#x27;: &#x27;block&#x27;
+        });
+
+        // Container for the picker
+        var container = $(document.createElement(&#x27;div&#x27;));
+        container.css({
+            &#x27;height&#x27;: &#x27;70%&#x27;,
+            &#x27;width&#x27;: &#x27;50%&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;top&#x27;: &#x27;15%&#x27;,
+            &#x27;left&#x27;: &#x27;25%&#x27;,
+            &#x27;background-color&#x27;: &#x27;black&#x27;,
+            &#x27;border&#x27;: &#x27;3px double white&#x27;,
+            &#x27;padding&#x27;: &#x27;2%&#x27;,
+        });
+
+        // Title for the picker
+        var label = $(document.createElement(&#x27;div&#x27;));
+        label.css({
+            &#x27;font-size&#x27;: &#x27;180%&#x27;,
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;2%&#x27;,
+            &#x27;height&#x27;: &#x27;10%&#x27;,
+        });
+        label.text(&#x27;Choose the artworks to link to this exhibition.&#x27;);
+
+        var searchInput = $(document.createElement(&#x27;input&#x27;));
+        searchInput.attr(&#x27;type&#x27;, &#x27;text&#x27;);
+        searchInput.css({
+        });
+        searchInput.keyup(function () {
+            searchData(searchInput.val(), &#x27;.artPickerButton&#x27;);
+        });
+        searchInput.change(function () {
+            searchData(searchInput.val(), &#x27;.artPickerButton&#x27;);
+        });
+        // Workaround for clear button (doesn&#x27;t fire a change event...)
+        searchInput.mouseup(function () {
+            setTimeout(function () {
+                searchData(searchInput.val(), &#x27;.artPickerButton&#x27;);
+            }, 1);
+        });
+        searchInput.attr(&#x27;placeholder&#x27;, PICKER_SEARCH_TEXT);
+
+        // Art section of the picker
+        var art = $(document.createElement(&#x27;div&#x27;));
+        art.css({
+            &#x27;height&#x27;: &#x27;72%&#x27;,
+            &#x27;overflow&#x27;: &#x27;auto&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;2%&#x27;,
+        });
+
+        // Container for the art inside the art section
+        var artContainer = $(document.createElement(&#x27;div&#x27;));
+        artContainer.css({
+            &#x27;padding&#x27;: &#x27;1%&#x27;,
+        });
+
+        // Container for buttons/loading/saving indicator
+        var buttonContainer = $(document.createElement(&#x27;div&#x27;));
+        buttonContainer.css({
+            &#x27;height&#x27;: &#x27;8%&#x27;,
+        });
+
+        // Loading/saving indicator
+        var loadingContainer = $(document.createElement(&#x27;div&#x27;));
+        loadingContainer.css({
+            &#x27;width&#x27;: &#x27;20%&#x27;,
+            &#x27;display&#x27;: &#x27;inline-block&#x27;,
+        });
+
+        // Loading/saving text
+        var loading = $(document.createElement(&#x27;label&#x27;));
+        loading.css({
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;font-size&#x27;: &#x27;140%&#x27;,
+        });
+        loading.text(&#x27;Loading...&#x27;);
+
+        var circle = $(document.createElement(&#x27;img&#x27;));
+        circle.attr(&#x27;src&#x27;, &#x27;images/icons/progress-circle.gif&#x27;);
+        circle.css({
+            &#x27;height&#x27;: $(document).height() * 0.03 + &#x27;px&#x27;,
+            &#x27;width&#x27;: &#x27;auto&#x27;,
+            &#x27;float&#x27;: &#x27;right&#x27;,
+        });
+
+        var save = $(document.createElement(&#x27;button&#x27;));
+        save.attr(&#x27;type&#x27;, &#x27;button&#x27;);
+        save.text(&#x27;Save&#x27;);
+        save.css({
+            &#x27;float&#x27;: &#x27;right&#x27;,
+            &#x27;margin&#x27;: &#x27;2%&#x27;,
+            &#x27;padding&#x27;: &#x27;1%&#x27;,
+        });
+
+        var cancel = $(document.createElement(&#x27;button&#x27;));
+        cancel.attr(&#x27;type&#x27;, &#x27;button&#x27;);
+        cancel.text(&#x27;Cancel&#x27;);
+        cancel.css({
+            &#x27;float&#x27;: &#x27;right&#x27;,
+            &#x27;margin&#x27;: &#x27;2%&#x27;,
+            &#x27;padding&#x27;: &#x27;1%&#x27;,
+        });
+
+        // Hide and remove the overlay when cancel is clicked
+        cancel.click(function () {
+            overlay.hide();
+            root[0].removeChild(overlay[0]);
+            artPickerOpen = false;
+        });
+
+        art.append(artContainer);
+
+        loadingContainer.append(loading);
+        loadingContainer.append(circle);
+
+        buttonContainer.append(loadingContainer);
+        buttonContainer.append(cancel);
+        buttonContainer.append(save);
+
+        container.append(label);
+        container.append(searchInput);
+        container.append(art);
+        container.append(buttonContainer);
+
+        overlay.append(container);
+
+        root.append(overlay);
+
+        var checkedIDs = [];
+        var uncheckedIDs = [];
+
+        function artworksInHelper(artworks) {
+            // Keep track of which artworks are in an exhibition
+            if (artworks) {
+                $.each(artworks, function (i, artwork) {
+                    if (artwork.Identifier)
+                        checkedIDs.push(artwork.Identifier);
+                });
+            }
+
+            // Get all the artworks for the exhibition
+            LADS.Worktop.Database.getArtworks(allArtworksHelper, null, allArtworksHelper);
+
+        }
+
+        function allArtworksHelper(allArtworks) {
+            sortAZ(allArtworks);
+            // Add each artwork to the artwork container.
+            $.each(allArtworks, function (i, artwork) {
+                leftQueue.add(function () {
+                    var label;
+                    artContainer.append(label = createArtButton(artwork,
+                        // Oncheck/uncheck function
+                        // If it is checked adds the artwork to the checkedIDs and
+                        // removes it from the uncheckedIDs.  If unchecked it removes it
+                        // from the checkedIDs and adds it to the uncheckedIDs
+                        function (checked) {
+                            var index;
+                            if (checked) {
+                                if (checkedIDs.indexOf(artwork.Identifier) === -1) {
+                                    checkedIDs.push(artwork.Identifier);
+                                }
+                                index = uncheckedIDs.indexOf(artwork.Identifier);
+                                if (index !== -1) {
+                                    uncheckedIDs.splice(index, 1);
+                                }
+                            } else {
+                                index = checkedIDs.indexOf(artwork.Identifier);
+                                if (index !== -1) {
+                                    checkedIDs.splice(index, 1);
+                                }
+                                if (uncheckedIDs.indexOf(artwork.Identifier) === -1) {
+                                    uncheckedIDs.push(artwork.Identifier);
+                                }
+                            }
+                            // Set the initial checked/unchecked value
+                        }, $.inArray(artwork.Identifier, checkedIDs) !== -1));
+                    // Hide if it doesn&#x27;t match search criteria
+                    searchData(searchInput.val(), label);
+                });
+            });
+            // Hide loading when we&#x27;re done
+            leftQueue.add(function () {
+                loadingContainer.hide();
+            });
+        }
+
+        // Hide save/cancel buttons, clear the left queue, and change Loading to Saving...
+        save.click(function () {
+            loading.text(&#x27;Saving...&#x27;);
+            loadingContainer.show();
+            save.hide();
+            cancel.hide();
+            leftQueue.clear();
+
+            // Save the art
+            saveArtAssosciation(exhibition, checkedIDs, uncheckedIDs, function () {
+                overlay.hide();
+                root[0].removeChild(overlay[0]);
+                artPickerOpen = false;
+                loadExhibitionsView(exhibition.Identifier);
+            }, function () {
+                loading.text(&#x27;Authentication Failed&#x27;);
+                save.show();
+                cancel.show();
+            }, function () {
+                loading.text(&#x27;Server Error&#x27;);
+                save.show();
+                cancel.show();
+            });
+        });
+
+        // TODO: Error handler?
+        LADS.Worktop.Database.getArtworksIn(exhibition.Identifier, artworksInHelper, null, artworksInHelper);
+    }
+
+    // Saves art assosciated to an exhibit
+    //  exhibition: The exhibition to add art to
+    //  checkedIDs: The IDs of the artwork to add
+    //  uncheckedIDs: The IDs of the artwork to remove
+    //  callback: Called when done
+    //
+    // Note: Artworks keep track of the exhibitions they are in, so we
+    // need to go through every artwork and add the exhibition to it.
+    function saveArtAssosciation(exhibition, checkedIDs, uncheckedIDs, success, unauth, error) {
+        // Keep track of how many saves have finished
+        //var savesdone = 0;
+        if (checkedIDs.length + uncheckedIDs.length === 0) {
+            success();
+            return;
+        }
+        var addIDs = &quot;&quot;;
+        var removeIDs = &quot;&quot;;
+        $.each(checkedIDs, function (i, val) {
+            addIDs = addIDs + &quot;,&quot; + val;
+        });
+        if (addIDs) addIDs = addIDs.substr(1);
+
+        $.each(uncheckedIDs, function (i, val) {
+            removeIDs = removeIDs + &quot;,&quot; + val;
+        });
+        if (removeIDs) removeIDs = removeIDs.substr(1);
+
+        LADS.Worktop.Database.changeExhibition(exhibition.Identifier, { AddIDs: addIDs, RemoveIDs: removeIDs }, success, unauth, error);
+        
+    }
+
+    function fixArtMetadata(artworkXML) {
+        // Need to fix the xml
+        setArtworkName(artworkXML, LADS.Util.encodeXML(getArtworkName(artworkXML)));
+        setArtworkArtist(artworkXML, LADS.Util.encodeXML(getArtworkArtist(artworkXML)));
+        setArtworkYear(artworkXML, LADS.Util.encodeXML(getArtworkYear(artworkXML)));
+        setArtworkLocations(artworkXML, LADS.Util.encodeXML(getArtworkLocations(artworkXML)));
+
+
+        var metadata = artworkXML.getElementsByTagName(&quot;Metadata&quot;)[0].childNodes[0].childNodes[0].childNodes[1].childNodes[0].childNodes;
+
+        for (var i = metadata.length - 1; i &gt;= 0; i--) {
+            if (metadata[i].childNodes[0].textContent.indexOf(&#x27;InfoField_&#x27;) !== -1) {
+                metadata[i].childNodes[1].textContent = LADS.Util.encodeXML(metadata[i].childNodes[1].textContent);
+            }
+        }
+    }
+
+    function setArtworkName(artworkXML, name) {
+        if (name &amp;&amp; name.length &gt; 0)
+            artworkXML.getElementsByTagName(&quot;Name&quot;)[0].childNodes[0].data = name;
+    }
+
+    function setArtworkArtist(artworkXML, artist) {
+        if (artist &amp;&amp; artist.length &gt; 0)
+            getFieldValueFromMetadata(artworkXML, &quot;Artist&quot;).data = artist;
+    }
+
+    function setArtworkYear(artworkXML, year) {
+        if (year &amp;&amp; year.length &gt; 0)
+            getFieldValueFromMetadata(artworkXML, &quot;Year&quot;).data = year;
+    }
+
+    function setArtworkLocations(artworkXML, data) {
+        getFieldValueFromMetadata(artworkXML, &quot;Location&quot;).data = data;
+    }
+
+    function getArtworkName(artworkXML) {
+        return artworkXML.getElementsByTagName(&quot;Name&quot;)[0].childNodes[0].data;
+    }
+
+    function getArtworkArtist(artworkXML) {
+        return getFieldValueFromMetadata(artworkXML, &quot;Artist&quot;).data;
+    }
+
+    function getArtworkYear(artworkXML) {
+        return getFieldValueFromMetadata(artworkXML, &quot;Year&quot;).data;
+    }
+
+    function getArtworkLocations(artworkXML) {
+        return getFieldValueFromMetadata(artworkXML, &quot;Location&quot;).data;
+    }
+
+    // Creates a check button for the artwork picker
+    function createArtButton(artwork, onclick, checked) {
+        var container = $(document.createElement(&#x27;div&#x27;));
+        container.attr(&#x27;class&#x27;, &#x27;artPickerButton&#x27;);
+        container.css({
+            &#x27;height&#x27;: &#x27;70px&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+            &#x27;margin-right&#x27;: &#x27;2.5%&#x27;,
+            &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+        });
+
+        container.data({
+            name: artwork.Name,
+            artist: artwork.Metadata.Artist,
+            year: artwork.Metadata.Year,
+        });
+
+        container.mousedown(function () {
+            container.css({
+                &#x27;background&#x27;: HIGHLIGHT,
+            });
+        });
+        container.mouseup(function () {
+            container.css({
+                &#x27;background&#x27;: &#x27;transparent&#x27;,
+            });
+        });
+        container.mouseleave(function () {
+            container.css({
+                &#x27;background&#x27;: &#x27;transparent&#x27;,
+            });
+        });
+
+        var checkbox = $(document.createElement(&#x27;input&#x27;));
+        checkbox.attr(&#x27;type&#x27;, &#x27;checkbox&#x27;);
+        checkbox.prop(&#x27;checked&#x27;, checked);
+        checkbox.css({
+            &#x27;margin-right&#x27;: &#x27;.5%&#x27;,
+            &#x27;float&#x27;: &#x27;right&#x27;,
+        });
+        checkbox.click(function (evt) {
+            evt.stopPropagation();
+        });
+
+        checkbox.change(function () {
+            onclick(checkbox.prop(&#x27;checked&#x27;));
+        });
+
+        container.click(function () {
+            checkbox.prop(&quot;checked&quot;, !checkbox.prop(&quot;checked&quot;));
+            checkbox.trigger(&#x27;change&#x27;);
+        });
+
+        var image = $(document.createElement(&#x27;img&#x27;));
+        image.attr(&#x27;src&#x27;, LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail));
+        image.css({
+            &#x27;height&#x27;: &#x27;auto&#x27;,
+            &#x27;width&#x27;: &#x27;20%&#x27;,
+            &#x27;margin-right&#x27;: &#x27;5%&#x27;,
+            &#x27;float&#x27;: &#x27;left&#x27;,
+        });
+        container.append(image);
+
+        var progressCircCSS = {
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;left&#x27;: &#x27;5%&#x27;,
+            &#x27;z-index&#x27;: &#x27;50&#x27;,
+            &#x27;height&#x27;: &#x27;auto&#x27;,
+            &#x27;top&#x27;: &#x27;18%&#x27;,
+            &#x27;width&#x27;: &#x27;10%&#x27;,
+        };
+        var circle = LADS.Util.showProgressCircle(container, progressCircCSS, &#x27;0px&#x27;, &#x27;0px&#x27;, false);
+        image.load(function () {
+            LADS.Util.removeProgressCircle(circle);
+        });
+
+        var label = $(document.createElement(&#x27;div&#x27;));
+        label.css({
+            &#x27;font-size&#x27;: &#x27;160%&#x27;,
+            //&#x27;display&#x27;: &#x27;inline-block&#x27;,
+            &#x27;white-space&#x27;: &#x27;nowrap&#x27;,
+            &#x27;width&#x27;: &#x27;65%&#x27;,
+            &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+            &#x27;text-overflow&#x27;: &#x27;ellipsis&#x27;,
+            &#x27;vertical-align&#x27;: &#x27;top&#x27;,
+            &#x27;color&#x27;: &#x27;white&#x27;,
+        });
+        label.text(artwork.Name);
+
+        var sublabel = $(document.createElement(&#x27;div&#x27;));
+        sublabel.css({
+            &#x27;font-size&#x27;: &#x27;120%&#x27;,
+            &#x27;font-style&#x27;: &#x27;italic&#x27;,
+            &#x27;white-space&#x27;: &#x27;nowrap&#x27;,
+            &#x27;width&#x27;: &#x27;65%&#x27;,
+            &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+            &#x27;text-overflow&#x27;: &#x27;ellipsis&#x27;,
+            &#x27;vertical-align&#x27;: &#x27;top&#x27;,
+            &#x27;color&#x27;: &#x27;white&#x27;,
+        });
+        sublabel.text(artwork.Metadata.Artist + &quot; (&quot; + artwork.Metadata.Year + &quot;)&quot;);
+
+        container.append(checkbox);
+
+        container.append(label);
+        container.append(sublabel);
+
+
+        return container;
+    }
+
+    function verticalSlider(input, min, max) {
+        var sliderdiv = $(document.createElement(&#x27;div&#x27;));
+        sliderdiv.css({
+            &#x27;height&#x27;: &#x27;200px&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;display&#x27;: &#x27;none&#x27;,
+        });
+        sliderdiv.slider({
+            orientation: &#x27;horizontal&#x27;,
+            min: min,
+            max: max,
+            value: input.val(),
+            slide: function (event, ui) {
+                input.val(ui.value);
+                input.trigger(&#x27;change&#x27;);
+                input.focus();
+            }
+        });
+
+        settings.scroll(function () {
+            sliderdiv.css({
+                &#x27;left&#x27;: input.offset().left - 17 + &#x27;px&#x27;,
+                &#x27;top&#x27;: input.offset().top - 100 + &#x27;px&#x27;,
+            });
+        });
+
+        sliderdiv.mousedown(function () {
+            input.focus();
+        });
+        sliderdiv.children().focus(function () {
+            input.focus();
+        });
+
+        root.append(sliderdiv);
+        input.focus(function () {
+            sliderdiv.css({
+                &#x27;left&#x27;: input.offset().left - 15 + &#x27;px&#x27;,
+                &#x27;top&#x27;: input.offset().top - 75 + &#x27;px&#x27;,
+            });
+            sliderdiv.show();
+        });
+        input.blur(function () {
+            sliderdiv.hide();
+        });
+
+        input.keydown(function () {
+            sliderdiv.slider(&#x27;value&#x27;, input.val());
+        });
+        input.keyup(function () {
+            sliderdiv.slider(&#x27;value&#x27;, input.val());
+        });
+        input.change(function () {
+            sliderdiv.slider(&#x27;value&#x27;, input.val());
+        });
+    }
+
+    // Creates an overlay over the whole settings view with
+    // a spinning circle and centered text.  Text defaults
+    // to &#x27;Loading...&#x27; if not specified.  This overlay is intended
+    // to be used only when the page is &#x27;done&#x27;.  The overlay doesn&#x27;t
+    // support being removed from the page, so only call this when
+    // the page will be changed!
+    function loadingOverlay(text) {
+        text = text || &quot;Loading...&quot;;
+        var overlay = $(document.createElement(&#x27;div&#x27;));
+        overlay.css({
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;left&#x27;: &#x27;0px&#x27;,
+            &#x27;top&#x27;: &#x27;0px&#x27;,
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;height&#x27;: &#x27;100%&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(0,0,0,0.5)&#x27;,
+            &#x27;z-index&#x27;: &#x27;1000&#x27;,
+        });
+        root.append(overlay);
+
+        var circle = $(document.createElement(&#x27;img&#x27;));
+        circle.attr(&#x27;src&#x27;, &#x27;images/icons/progress-circle.gif&#x27;);
+        circle.css({
+            &#x27;height&#x27;: &#x27;auto&#x27;,
+            &#x27;width&#x27;: &#x27;10%&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;left&#x27;: &#x27;45%&#x27;,
+            &#x27;top&#x27;: ($(window).height() - $(window).width() * 0.1) / 2 + &#x27;px&#x27;,
+        });
+        overlay.append(circle);
+
+        var widthFinder = $(document.createElement(&#x27;div&#x27;));
+        widthFinder.css({
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;visibility&#x27;: &#x27;hidden&#x27;,
+            &#x27;height&#x27;: &#x27;auto&#x27;,
+            &#x27;width&#x27;: &#x27;auto&#x27;,
+            &#x27;font-size&#x27;: &#x27;200%&#x27;,
+        });
+        widthFinder.text(text);
+        root.append(widthFinder);
+
+        var label = $(document.createElement(&#x27;label&#x27;));
+        label.css({
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;left&#x27;: ($(window).width() - widthFinder.width()) / 2 + &#x27;px&#x27;,
+            &#x27;top&#x27;: ($(window).height() - $(window).width() * 0.1) / 2 + $(window).width() * 0.1 + &#x27;px&#x27;,
+            &#x27;font-size&#x27;: &#x27;200%&#x27;,
+            &#x27;color&#x27;: &#x27;white&#x27;,
+        });
+        widthFinder.remove();
+        label.text(text);
+        overlay.append(label);
+    }
+
+    function authError() {
+        var popup = LADS.Util.UI.popUpMessage(function () {
+            LADS.Auth.clearToken();
+            rightQueue.clear();
+            leftQueue.clear();
+            LADS.Layout.StartPage(null, function (page) {
+                LADS.Util.UI.slidePageRight(page);
+            });
+        }, &quot;Could not authenticate, returning to the splash page.&quot;, null, true);
+        root.append(popup);
+        $(popup).show();
+    }
+
+    function error(fn) {
+        return function () {
+            var popup = LADS.Util.UI.popUpMessage(null, &quot;An unknown error occured.&quot;, null, true);
+            root.append(popup);
+            $(popup).show();
+            fn &amp;&amp; fn();
+        }
+    }
+
+    function conflict(doq, text, fail) {
+        return function (jqXHR, ajaxCall) {
+            var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
+                ajaxCall.force();
+                // TODO: Text for change/delete
+            }, &quot;Your version of &quot; + doq.Name + &quot; is not up to date.  Are you sure you want to change &quot; + doq.Name + &quot;?&quot;, text, true, fail);
+            root.append(confirmationBox);
+            $(confirmationBox).show();
+        }
+    }
+};
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

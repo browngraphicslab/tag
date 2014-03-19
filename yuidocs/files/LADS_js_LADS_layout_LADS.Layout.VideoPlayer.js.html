@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js - Touch Art Gallery web application</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../../LADS/images/WideLogo.scale-100.png" title="Touch Art Gallery web application"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 1.0.0</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
+            
+                <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+LADS.Util.makeNamespace(&quot;LADS.Layout.VideoPlayer&quot;);
+
+/**
+ * Player for RIN tours
+ * @param tour      RIN tour in Javascript object (pre-parsed from JSON)
+ *@param exhibition: 
+ *@param prevInfo   object containing previous page info 
+ *    artworkPrev      value is &#x27;artmode&#x27; when we arrive here from the art viewer
+ *    prevScroll       value of scrollbar from new catalog page
+ *@param artwork:the artworks in this tour
+ */
+LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
+    &quot;use strict&quot;;
+
+    /* nowditch _editted 2/13/2014 : added prevScroll */
+    var artworkPrev;
+    var prevScroll = 0;
+	var prevExhib = exhibition;
+    if (prevInfo) {
+        artworkPrev = prevInfo.artworkPrev,
+        prevScroll = prevInfo.prevScroll || 0;
+    }
+    /* end nbowditch edit */
+
+    var that = {};
+
+    var root = LADS.Util.getHtmlAjax(&#x27;VideoPlayer.html&#x27;),
+        video = root.find(&#x27;#video&#x27;),
+        sourceMP4,
+        sourceWEBM,
+        sourceOGG,
+        videoElt = video[0],
+        DURATION = parseFloat(videoSrc.Metadata.Duration),
+        play = root.find(&#x27;#playPauseButton&#x27;),
+        vol = root.find(&#x27;#videoControlsButton&#x27;),
+        //sliderControl = root.find(&#x27;#sliderControl&#x27;),
+        sliderContainer = root.find(&#x27;#sliderContainer&#x27;),
+        dragBar = false,
+        hoverString,
+        setHoverValue,
+        currTime;
+
+    video.attr({
+        poster: (videoSrc.Metadata.Thumbnail &amp;&amp; !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : &#x27;&#x27;,
+        controls: false,
+        preload: &#x27;metadata&#x27;
+    });
+
+    //Adding sources for the video file
+    var source = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source);
+    //var source = &#x27;http://techslides.com/demos/sample-videos/small.webm&#x27;; //Video file to test code without server conversion
+    var sourceSansExtension = source.substring(0, source.lastIndexOf(&#x27;.&#x27;)) || input;
+    sourceMP4 = sourceSansExtension + &quot;.mp4&quot;;
+    sourceWEBM = sourceSansExtension + &quot;.webm&quot;;
+    sourceOGG = sourceSansExtension + &quot;.ogg&quot;;
+    
+    //video[0] converts the jQuery object &#x27;video&#x27; into an HTML object, allowing us to use innerHTML on it
+    video[0].innerHTML = &#x27;&lt;source src=&quot;&#x27; + sourceMP4 + &#x27;&quot; type=&quot;video/mp4; codecs=&quot;avc1.42E01E, mp4a.40.2&quot;&quot;&gt;&#x27;;
+    video[0].innerHTML += &#x27;&lt;source src=&quot;&#x27; + sourceWEBM + &#x27;&quot; type=&quot;video/webm; codecs=&quot;vorbis, vp8&quot;&quot;&gt;&#x27;;
+    video[0].innerHTML += &#x27;&lt;source src=&quot;&#x27; + sourceOGG + &#x27;&quot; type=&quot;video/ogg; codecs=&quot;theora, vorbis&quot;&quot;&gt;&#x27;;
+
+    timeToZero();
+    initVideoPlayHandlers();
+
+    function timeToZero() {
+        if (videoElt.currentTime !== 0) {
+            videoElt.currentTime = 0;
+        }
+        play.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/PlayWhite.svg&#x27;);
+    }
+
+    function initVideoPlayHandlers() {
+        play.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/PlayWhite.svg&#x27;);
+        play.on(&#x27;click&#x27;, function () {
+            console.log(&quot;playbutton down&quot;);
+            if (videoElt.paused) {
+                videoElt.play();
+                console.log(&quot;time to play&quot;);
+                play.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/PauseWhite.svg&#x27;);
+            } else {
+                videoElt.pause();
+                play.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/PlayWhite.svg&#x27;);
+            }
+        });
+
+        $(vol).on(&#x27;click&#x27;, function () {
+            if (videoElt.muted) {
+                videoElt.muted = false;
+                vol.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/VolumeUpWhite.svg&#x27;);
+            } else {
+                videoElt.muted = true;
+                vol.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/VolumeDownWhite.svg&#x27;);
+            }
+        });
+
+        video.on(&#x27;ended&#x27;, function () {
+        videoElt.pause();
+        timeToZero();
+        // initVideoPlayHandlers(); // is this necessary here TODO
+        });
+    }
+    
+
+
+
+    setHoverValue = function (percent) {
+        var totalDuration = orchestrator.getNarrativeInfo().totalDuration, // ???
+            hoverTime = narrativeDuration * percent,
+            minutes = Math.floor(hoverTime / 60),
+            seconds = Math.floor(hoverTime % 60);
+        hoverString(minutes + &quot;:&quot; + (seconds &lt; 10 ? &quot;0&quot; : &quot;&quot;) + seconds);
+    };
+
+    // handlers for seek bar
+    video.on(&#x27;loadedmetadata&#x27;, initSeekHandlers);
+
+    function initSeekHandlers() {
+        sliderContainer.on(&#x27;mousedown&#x27;, function(evt) {
+            console.log(&quot;seeker mousedown detected!1&quot;);
+            var time = $(video).get(0).duration * (evt.offsetX / $(&#x27;#sliderContainer&#x27;).width());    
+            if (!isNaN(time)) {
+                $(video).get(0).currentTime = time;
+            }
+        });
+
+        sliderContainer.on(&#x27;mousedown&#x27;, function(e) {
+            e.stopPropagation();
+            console.log(&quot;seeker mousedown detected!2&quot;);
+            var origPoint = e.pageX,
+                origTime = videoElt.currentTime,
+                timePxRatio = DURATION / sliderContainer.width(); // sec/px
+                console.log(&#x27;ratio = &#x27;+timePxRatio);
+                currTime = Math.max(0, Math.min(DURATION, origTime));
+                var currPx = currTime / timePxRatio;
+                var minutes = Math.floor(currTime / 60);
+                if((&quot;&quot;+minutes).length &lt; 2) {
+                    minutes = &quot;0&quot; + minutes;
+                }
+                var seconds = Math.floor(currTime % 60);
+
+                //console.log(&quot;currTime1 &quot;+origTime);
+
+                // Update the video time and slider values
+            
+
+            $(&#x27;body&#x27;).on(&#x27;mousemove.seek&#x27;, function(evt) {
+                var currPoint = evt.pageX,
+                    timeDiff = (currPoint - origPoint) * timePxRatio;
+                    //currPx,
+                    //minutes,
+                    //seconds;
+                currTime = Math.max(0, Math.min(DURATION, origTime + timeDiff));
+                currPx = currTime / timePxRatio;
+                minutes = Math.floor(currTime / 60);
+                if((&quot;&quot;+minutes).length &lt; 2) {
+                    minutes = &quot;0&quot; + minutes;
+                }
+                seconds = Math.floor(currTime % 60);
+
+                console.log(&quot;currTime &quot;+currTime);
+
+                // Update the video time and slider values
+                if (!isNaN(currTime)) {
+                    // debugger;
+                    $(&#x27;#currentTimeDisplay&#x27;).text(minutes + &quot;:&quot; + (seconds &lt; 10 ? &quot;0&quot; : &quot;&quot;) + seconds);
+                    videoElt.currentTime = currTime;
+                    
+                    //$(&#x27;#sliderContainer&#x27;).css(&#x27;left&#x27;, currPx);
+                    $(&#x27;#sliderPoint&#x27;).css(&#x27;width&#x27;, currPx);
+                }
+
+            });
+
+            $(&#x27;body&#x27;).on(&#x27;mouseup.seek&#x27;, function() {
+                // when the mouse is released, remove the mousemove handler
+                // debugger;
+                $(&#x27;body&#x27;).off(&#x27;mousemove.seek&#x27;);
+                $(&#x27;body&#x27;).off(&#x27;mouseup.seek&#x27;);
+		$(&#x27;#currentTimeDisplay&#x27;).text(minutes + &quot;:&quot; + (seconds &lt; 10 ? &quot;0&quot; : &quot;&quot;) + seconds);
+                videoElt.currentTime = currTime;
+		$(&#x27;#sliderPoint&#x27;).css(&#x27;width&#x27;, currPx);
+            });
+        });
+    }
+    
+    var currentTimeDisplay = root.find(&#x27;#currentTimeDisplay&#x27;);
+    $(currentTimeDisplay).text(&quot;00:00&quot;);
+    var backButton = root.find(&#x27;#backButton&#x27;);
+    $(backButton).attr(&#x27;src&#x27;,tagPath+&#x27;images/icons/Back.svg&#x27;);
+    backButton.mousedown(function () {
+        LADS.Util.UI.cgBackColor(&quot;backButton&quot;, backButton, false);
+    });
+    backButton.mouseleave(function () {
+        LADS.Util.UI.cgBackColor(&quot;backButton&quot;, backButton, true);
+    });
+
+    backButton.on(&#x27;click&#x27;, function () {
+        videoElt.pause();
+        // delete(video[0]);
+        $(videoElt).attr(&#x27;src&#x27;, &quot;&quot;);
+
+        /* nbowditch _editted 2/13/2014 : added backInfo */
+        var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
+        var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
+        /* end nbowditch edit */
+		catalog.getRoot().css({ &#x27;overflow-x&#x27;: &#x27;hidden&#x27; });
+        LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
+				artworkPrev = &quot;catalog&quot;;
+				var selectedExhib = $(&#x27;#&#x27; + &#x27;exhib-&#x27; + prevExhib.Identifier);
+				selectedExhib.attr(&#x27;flagClicked&#x27;, &#x27;true&#x27;);
+				selectedExhib.css({ &#x27;background-color&#x27;: &#x27;white&#x27;, &#x27;color&#x27;: &#x27;black&#x27; });
+				$(selectedExhib[0].firstChild).css({&#x27;color&#x27;: &#x27;black&#x27;});
+			});
+    });
+
+
+
+    // Update the seek bar as the video plays
+    video.on(&quot;timeupdate&quot;, function () {
+        var value,
+            minutes,
+            seconds,
+            adjMin;
+
+        // Calculate the slider value and update the slider value
+
+        value = ($(&#x27;#sliderContainer&#x27;).width() / videoElt.duration) * videoElt.currentTime;
+      // $(&#x27;#sliderControl&#x27;).css(&#x27;left&#x27;,value);
+       $(&#x27;#sliderPoint&#x27;).css(&#x27;width&#x27;,value);
+
+        minutes = Math.floor(videoElt.currentTime / 60);
+        seconds = Math.floor(videoElt.currentTime % 60);
+        if (String(minutes).length &lt; 2) {
+            adjMin = &#x27;0&#x27; + minutes;
+        } else {
+            adjMin = minutes;
+        }
+        currentTimeDisplay.text(adjMin + &quot;:&quot; + (seconds &lt; 10 ? &quot;0&quot; : &quot;&quot;) + seconds);
+    });
+
+    function getRoot() {
+        return root;
+    }
+    that.getRoot = getRoot;
+
+    return that;
+};
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

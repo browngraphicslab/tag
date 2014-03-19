@@ -1,0 +1,3059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js - Touch Art Gallery web application</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../../LADS/images/WideLogo.scale-100.png" title="Touch Art Gallery web application"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 1.0.0</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
+            
+                <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+﻿LADS.Util.makeNamespace(&#x27;LADS.TourAuthoring.Track&#x27;);
+LADS.Util.makeNamespace(&#x27;LADS.TourAuthoring.TrackType&#x27;);
+
+
+// Enum defining track types
+LADS.TourAuthoring.TrackType = {
+    audio: 1,
+    video: 2,
+    artwork: 3,
+    ink: 4,
+    image: 5,
+};
+
+/**
+ * Represents all the displays and keyframes of a piece of media over the duration of a tour
+ * Maps to Experience Stream in RIN
+ * @param spec.type         one of LADS.TourAuthoring.TrackType
+ * @param spec.media        URI of resource
+ * @param spec.title        Name to display
+ * @param spec.id           Unique id (number)
+ * @param spec.guid         Worktop GUID, artworks only
+ * @param spec.timeManager  Reference to time object storing current length and scale of timeline
+ * @param my                Object that will hold keyframes and displays (for accessing by subclasses w/o making public)
+ *                          Will be returned w/ &#x27;displays&#x27;, &#x27;resource&#x27;, &#x27;type&#x27;, &#x27;timeManager&#x27;, &#x27;undoManager&#x27;, &#x27;track&#x27;, &#x27;svg&#x27; parameters
+ *                          Also used to track currentDisplay, currentKeyframe on mousedown, selectedKeyframe for keyframe capture (set in displays and keyframes)
+ */
+LADS.TourAuthoring.Track = function (spec, my) {
+    &quot;use strict&quot;;
+
+    var that = {},
+        media = spec.media,
+        storageContainer,
+        dataHolder = spec.dataHolder,
+        id = (&#x27;Track-&#x27; + spec.id),
+        arrayPos = spec.id,//stores the position of the selected track in the &#x27;trackarray&#x27; array
+        guid = spec.guid,
+        playbackControls = spec.playbackControls,
+        titlediv, // for track minimization
+        titleDivManip = false,//variable used to determine when a track has been selected for vertical movement/swapping with another track 
+        prevTrack = {},
+        trackBody,
+        prevTitleDiv = {},
+        renameOverlay = $(LADS.Util.UI.blockInteractionOverlay()), //overlay for when &#x27;rename&#x27; component option is selected
+        deleteOverlay = $(LADS.Util.UI.blockInteractionOverlay()),
+        editInkOverlay = $(LADS.Util.UI.blockInteractionOverlay()), //overlay for when &#x27;edit ink&#x27; component option is selected while playhead is not over the art track
+        beforeTitle = null,
+        spaceBefore = false,
+        fadeHidden = true,
+        lastScale,
+        isMinimized = false,
+        released = true,
+        //attachedInks = [],
+        mygroup; // group that contains svg lines for audio tracks only - used by track minimization
+
+
+    my = my || {};
+    my.title = decodeURI(spec.title);
+    my.resource = &#x27;R-&#x27; + arrayPos;
+    my.root = spec.root;
+    my.type = spec.type || LADS.TourAuthoring.TrackType.artwork;
+    my.timeManager = spec.timeManager;
+    my.undoManager = spec.undoManager;
+    my.update = spec.update; // Call this function every time a change affecting RIN data is made
+    my.timeline = spec.timeline;
+    my.dirtyKeyframe = false;//keeps track of when a new keyframe has been added to a track
+    my.that = that;
+    my.selectedTrack = spec.selectedTrack;
+    my.mediaLength = spec.mediaLength;
+    my.isVisible = true;
+    my.attachedInks = [];
+    
+    lastScale = my.timeManager.getDuration().scale;
+
+    // private variables
+    my.displays = [];
+    // A variable to store all the keyframes for the audio track : Hak
+    my.allKeyframes = [];
+
+    // HTML creation
+    
+    // Title for header
+    var titledivPlaceholder,
+        titleText,
+        movingIndicator,//variable to keep track of when the white bar indicating if a track can be swapped with a selected track should appear on the titledivs
+        compOpsOpen = false,//keeps track of when the &#x27;component options&#x27; menu which appears on right clicking on  track is open or not
+        eventsPaused = false;
+    that.compOpsOpen = compOpsOpen;
+
+    (function _initTitle() {
+        titlediv = $(document.createElement(&#x27;div&#x27;));
+        titlediv.attr(&#x27;id&#x27;, id + &#x27;-title&#x27;);
+        titlediv.addClass(&#x27;titlediv&#x27;);
+        titlediv.css({
+            &quot;height&quot;: LADS.TourAuthoring.Constants.trackHeight+&#x27;px&#x27;,
+            &quot;width&quot;: 0.127 * $(window).width() + &#x27;px&#x27;,
+            &#x27;margin-left&#x27;: &#x27;20px&#x27;,
+            &#x27;left&#x27;: &#x27;0%&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &quot;background-color&quot;: &quot;rgb(105,89,89)&quot;, 
+            &#x27;border-bottom-style&#x27;: &#x27;solid&#x27;,
+            &#x27;border&#x27;: &#x27;1px solid #888&#x27;,
+            &#x27;top&#x27;: &#x27;0px&#x27;,
+            &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+            &#x27;z-index&#x27;: 0,
+        });
+
+        titleText = $(document.createElement(&#x27;div&#x27;));
+        titleText.addClass(&#x27;track-title&#x27;);
+        titleText.text(my.title);
+        titleText.css({
+            &#x27;font-size&#x27;: &#x27;1.25em&#x27;,
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;top&#x27;: &#x27;11%&#x27;, &#x27;left&#x27;: &#x27;3%&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+            &#x27;text-overflow&#x27;: &#x27;ellipsis&#x27;,
+            &#x27;white-space&#x27;: &#x27;nowrap&#x27;,
+            &#x27;display&#x27;: &#x27;block&#x27;,
+            &#x27;width&#x27;: 0.115*$(window).width() + &#x27;px&#x27;,
+        });
+        titlediv.append(titleText);
+    })();
+    
+    function initVisuals() {
+        // Track container
+        my.track = $(document.createElement(&#x27;div&#x27;));
+        my.track.attr(&#x27;id&#x27;, id);
+        my.track.addClass(&#x27;track&#x27;);
+        my.track.css({
+            &quot;height&quot;: LADS.TourAuthoring.Constants.trackHeight + &#x27;px&#x27;, // changed 25%
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;top&#x27;: &#x27;0%&#x27;,
+            &#x27;left&#x27;: &#x27;0%&#x27;,
+            &quot;background-color&quot;: &quot;rgb(255, 255, 255)&quot;,
+            &#x27;border&#x27;: &#x27;1px solid #888&#x27;,
+            &quot;box-shadow&quot;: &quot;5px 0px 10px -2px #888 inset&quot;,
+            &quot;overflow&quot;:&quot;hidden&quot;
+        });
+
+        // SVG
+        my.svg = d3.select(my.track[0])
+            .append(&quot;svg&quot;)
+            .attr(&#x27;width&#x27;, &#x27;100%&#x27;)
+            .attr(&#x27;height&#x27;, &#x27;100%&#x27;)
+            .attr(&#x27;overflow&#x27;, &#x27;hidden&#x27;)
+            .attr(&#x27;style&#x27;, &#x27;position: absolute&#x27;);
+
+        // HK: Where the lines will be drawn
+        my.svgLines = my.svg.append(&quot;svg:g&quot;)
+            .classed(&quot;connectionLines&quot;, true);
+
+        // HK: Draws the initial line for the audio track to distinguish it as an audio track
+        if (my.type == LADS.TourAuthoring.TrackType.audio) {
+            mygroup = my.svgLines.append(&quot;svg:g&quot;)
+                .attr(&quot;id&quot;, &quot;keyframeLines&quot;);
+            var myLine = mygroup.append(&quot;svg:line&quot;)
+                .attr(&quot;x1&quot;, 0)
+                .attr(&quot;y1&quot;, (100 - LADS.TourAuthoring.Constants.defaultVolume * 100) + &quot;%&quot;)
+                .attr(&quot;x2&quot;, &#x27;100%&#x27;)
+                .attr(&quot;y2&quot;, (100 - LADS.TourAuthoring.Constants.defaultVolume * 100) + &quot;%&quot;)
+                .style(&#x27;pointer-events&#x27;, &#x27;none&#x27;)
+                .style(&quot;stroke&quot;, &quot;green&quot;)
+                .style(&quot;stroke-width&quot;, 4);
+        }
+
+        var _trackSizing = function (ev) {
+            var displays = (dataHolder.getDisplays(arrayPos) &amp;&amp; dataHolder.getDisplays(arrayPos).getContents()) || [];
+            var i, j, keyframes;
+            my.track.css(&#x27;width&#x27;, my.timeManager.timeToPx(ev.end) + &#x27;px&#x27;);
+            for (i = 0; i &lt; displays.length; i++) {
+                displays[i].display.resetVisuals();
+                keyframes = dataHolder.getKeyframes(displays[i]).getContents();
+                for (j = 0; j &lt; keyframes.length; j++) {
+                    keyframes[j].resetVisuals();
+                }
+            }
+            
+        };
+        _trackSizing(my.timeManager.getDuration());
+        my.timeManager.onSizing(_trackSizing);
+    }
+    initVisuals();
+
+    function _initTrack() {
+        // Track container
+        my.track = $(document.createElement(&#x27;div&#x27;));
+        my.track.attr(&#x27;id&#x27;, id);
+        my.track.addClass(&#x27;track&#x27;);
+        my.track.css({
+            &quot;height&quot;: LADS.TourAuthoring.Constants.trackHeight + &#x27;px&#x27;, // changed 25%
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;top&#x27;: &#x27;0%&#x27;,
+            &#x27;left&#x27;: &#x27;0%&#x27;,
+            &quot;background-color&quot;: &quot;rgb(255, 255, 255)&quot;,
+            &#x27;border&#x27;: &#x27;1px solid #888&#x27;,
+            &quot;box-shadow&quot;: &quot;5px 0px 10px -2px #888 inset&quot;
+        });
+
+        var _trackSizing = function (ev) {
+            my.track.css(&#x27;width&#x27;, my.timeManager.timeToPx(ev.end) + &#x27;px&#x27;);
+        };
+        _trackSizing(my.timeManager.getDuration());
+        my.timeManager.onSizing(_trackSizing);
+
+        // SVG
+        my.svg = d3.select(my.track[0])
+            .append(&quot;svg&quot;)
+            .attr(&#x27;width&#x27;, &#x27;100%&#x27;)
+            .attr(&#x27;height&#x27;, &#x27;100%&#x27;)
+            .attr(&#x27;overflow&#x27;, &#x27;hidden&#x27;)
+            .attr(&#x27;style&#x27;, &#x27;position: absolute&#x27;);
+
+        // Gradient definitions
+        var defs = my.svg.append(&#x27;defs&#x27;);
+        defs.append(&#x27;linearGradient&#x27;)
+            .attr(&#x27;id&#x27;, &#x27;fade-in&#x27;)
+            .attr(&#x27;x1&#x27;, &#x27;0%&#x27;).attr(&#x27;y1&#x27;, &#x27;0%&#x27;).attr(&#x27;x2&#x27;, &#x27;100%&#x27;).attr(&#x27;y2&#x27;, &#x27;0%&#x27;)
+            .call(
+                function (gradient) {
+                    gradient.append(&#x27;stop&#x27;).attr(&#x27;offset&#x27;, &#x27;0%&#x27;).attr(&#x27;stop-color&#x27;, &#x27;rgb(256,256,256)&#x27;).attr(&#x27;stop-opacity&#x27;, &#x27;0.75&#x27;);
+                    gradient.append(&#x27;stop&#x27;).attr(&#x27;offset&#x27;, &#x27;85%&#x27;).attr(&#x27;stop-color&#x27;, LADS.TourAuthoring.Constants.displayColor).attr(&#x27;stop-opacity&#x27;, &#x27;0.75&#x27;);
+                });
+        defs.append(&#x27;linearGradient&#x27;)
+            .attr(&#x27;id&#x27;, &#x27;fade-out&#x27;)
+            .attr(&#x27;x1&#x27;, &#x27;0%&#x27;).attr(&#x27;y1&#x27;, &#x27;0%&#x27;).attr(&#x27;x2&#x27;, &#x27;100%&#x27;).attr(&#x27;y2&#x27;, &#x27;0%&#x27;)
+            .call(
+                function (gradient) {
+                    gradient.append(&#x27;stop&#x27;).attr(&#x27;offset&#x27;, &#x27;15%&#x27;).attr(&#x27;stop-color&#x27;, LADS.TourAuthoring.Constants.displayColor).attr(&#x27;stop-opacity&#x27;, &#x27;0.75&#x27;);
+                    gradient.append(&#x27;stop&#x27;).attr(&#x27;offset&#x27;, &#x27;100%&#x27;).attr(&#x27;stop-color&#x27;, &#x27;rgb(256,256,256)&#x27;).attr(&#x27;stop-opacity&#x27;, &#x27;0.75&#x27;);
+                });
+        defs.append(&#x27;linearGradient&#x27;)
+            .attr(&#x27;id&#x27;, &#x27;fade-in-ink&#x27;)
+            .attr(&#x27;x1&#x27;, &#x27;0%&#x27;).attr(&#x27;y1&#x27;, &#x27;0%&#x27;).attr(&#x27;x2&#x27;, &#x27;100%&#x27;).attr(&#x27;y2&#x27;, &#x27;0%&#x27;)
+            .call(
+                function (gradient) {
+                    gradient.append(&#x27;stop&#x27;).attr(&#x27;offset&#x27;, &#x27;0%&#x27;).attr(&#x27;stop-color&#x27;, &#x27;rgb(256,256,256)&#x27;).attr(&#x27;stop-opacity&#x27;, &#x27;0.75&#x27;);
+                    gradient.append(&#x27;stop&#x27;).attr(&#x27;offset&#x27;, &#x27;85%&#x27;).attr(&#x27;stop-color&#x27;, LADS.TourAuthoring.Constants.inkDisplayColor).attr(&#x27;stop-opacity&#x27;, &#x27;0.75&#x27;);
+                });
+        defs.append(&#x27;linearGradient&#x27;)
+            .attr(&#x27;id&#x27;, &#x27;fade-out-ink&#x27;)
+            .attr(&#x27;x1&#x27;, &#x27;0%&#x27;).attr(&#x27;y1&#x27;, &#x27;0%&#x27;).attr(&#x27;x2&#x27;, &#x27;100%&#x27;).attr(&#x27;y2&#x27;, &#x27;0%&#x27;)
+            .call(
+                function (gradient) {
+                    gradient.append(&#x27;stop&#x27;).attr(&#x27;offset&#x27;, &#x27;15%&#x27;).attr(&#x27;stop-color&#x27;, LADS.TourAuthoring.Constants.inkDisplayColor).attr(&#x27;stop-opacity&#x27;, &#x27;0.75&#x27;);
+                    gradient.append(&#x27;stop&#x27;).attr(&#x27;offset&#x27;, &#x27;100%&#x27;).attr(&#x27;stop-color&#x27;, &#x27;rgb(256,256,256)&#x27;).attr(&#x27;stop-opacity&#x27;, &#x27;0.75&#x27;);
+                });
+
+
+        // HK: Where the displays will be drawn
+        my.svgDisplays = my.svg.append(&quot;svg:g&quot;)
+            .classed(&quot;displayDrawing&quot;, true);
+
+        // HK: Where the lines will be drawn
+        my.svgLines = my.svg.append(&quot;svg:g&quot;)
+            .classed(&quot;connectionLines&quot;, true);
+
+        // HK: Draws the initial line for the audio track to distinguish it as an audio track
+        if (my.type == LADS.TourAuthoring.TrackType.audio) {
+            mygroup = my.svgLines.append(&quot;svg:g&quot;)
+                .attr(&quot;id&quot;, &quot;keyframeLines&quot;);
+            var myLine = mygroup.append(&quot;svg:line&quot;)
+                .attr(&quot;x1&quot;, 0)
+                .attr(&quot;y1&quot;, (100 - LADS.TourAuthoring.Constants.defaultVolume * 100) + &quot;%&quot;)
+                .attr(&quot;x2&quot;, &#x27;100%&#x27;)
+                .attr(&quot;y2&quot;, (100 - LADS.TourAuthoring.Constants.defaultVolume * 100) + &quot;%&quot;)
+                .style(&#x27;pointer-events&#x27;, &#x27;none&#x27;)
+                .style(&quot;stroke&quot;, &quot;green&quot;)
+                .style(&quot;stroke-width&quot;, 4);
+        }
+    }
+
+    var menu = LADS.TourAuthoring.EditorMenu({
+        type: LADS.TourAuthoring.MenuType.track,
+        parent: that
+    }, my);
+    (function _initMenu() {
+        menu.addTitle(&#x27;Track Options&#x27;);
+        menu.addButton(&#x27;Rename&#x27;, &#x27;left&#x27;, componentOptionRename);
+        if (my.type === LADS.TourAuthoring.TrackType.ink) {
+            menu.addButton(&#x27;Edit Ink&#x27;, &#x27;left&#x27;, componentOptionEditInk);
+        }
+        menu.addButton(&#x27;Duplicate&#x27;, &#x27;left&#x27;, componentOptionDuplicate);
+        menu.addButton(&#x27;Delete&#x27;, &#x27;left&#x27;, componentOptionDelete);
+        menu.addButton(&#x27;Cancel&#x27;, &#x27;left&#x27;, componentOptionCancel);
+    })();
+
+    function close() {
+        menu.forceClose();
+    }
+
+    function displayError(displayString) {
+        close();
+        var messageBox = LADS.Util.UI.popUpMessage(null, displayString, null);
+        $(messageBox).css(&#x27;z-index&#x27;, LADS.TourAuthoring.Constants.aboveRinZIndex + 1000);
+        $(&#x27;body&#x27;).append(messageBox);
+        $(messageBox).fadeIn(500);
+
+        var currSelection = dataHolder.getSelectedTrack();
+        if (currSelection) {
+            currSelection.setDeselected();
+        }
+    }
+    
+    //method for manipulating ink canvas
+    function componentOptionEditInk(evt) {
+        var i;
+        var displays = that.getStorageContainer().displays.getContents();
+        if ($(&quot;#inkDrawControls&quot;).css(&quot;display&quot;) == &quot;block&quot; || $(&quot;#inkTransparencyControls&quot;).css(&quot;display&quot;) == &quot;block&quot; || $(&quot;#inkTextControls&quot;).css(&quot;display&quot;) == &quot;block&quot; || $(&quot;#inkEditDraw&quot;).css(&quot;display&quot;) == &quot;block&quot; || $(&quot;#inkEditTransparency&quot;).css(&quot;display&quot;) == &quot;block&quot; || $(&quot;#inkEditText&quot;).css(&quot;display&quot;) == &quot;block&quot;) {
+            displayError(&quot;An ink is already being edited.&quot;);
+            return;
+        }
+
+        if (!displays.length) {
+            displayError(&quot;The ink must be visible in the preview window in order to edit it.&quot;);
+            return;
+        }
+
+        var inArtDisplay = true; //keeps track of if playhead is in art display
+        var currTime = my.timeManager.getCurrentTime();
+
+        if (getInkEnabled()) {
+            var currTrack = getInkLink(),
+                trackdisplays = currTrack.getDisplays();
+            for (i = 0; i &lt; trackdisplays.length; i++) {
+                if ((trackdisplays[i].getStart() &lt;= currTime) &amp;&amp; (currTime &lt;= trackdisplays[i].getOutStart() + trackdisplays[i].getFadeOut())) {
+                    inArtDisplay = true;
+                    break;
+                }
+                inArtDisplay = false;
+            }
+        }
+
+        var inInkDisplay = false;//keeps track of if playhead is in ink display
+        var closestTime = -1000000;
+
+        // ******************************************************************
+        // TODO: convert array to a tree for easy search between time ranges
+        // ******************************************************************
+
+        for (i = 0; i &lt; displays.length; i++) {
+            if (displays[i].display.getStart() &lt;= currTime &amp;&amp; currTime &lt;= displays[i].display.getOutStart() + displays[i].display.getFadeOut()) {
+                //inside the end of the fade-out and the start of the fade-in
+                inInkDisplay = true;
+                break;
+            }
+        }
+
+        //ensures warning message appears if user tries to edit an ink without the playhead being inside artwork and ink, ink or artwork
+        if ((!inInkDisplay) || (!inArtDisplay)) {
+            displayError(&quot;The ink must be visible in the preview window in order to edit it.&quot;);
+            return;
+        }
+
+        my.timeManager.stop();
+        var old_datastring = that.getInkPath();
+        var inkType = old_datastring.split(&quot;::&quot;)[0].toLowerCase();
+        close();
+
+        if (!old_datastring || !inkType) {
+            displayError(&quot;This ink track has become corrupted, please remove and create a new ink.&quot;);
+            return;
+        }
+
+
+        var ES = $(&quot;[ES_ID=&#x27;&quot; + my.title + &quot;&#x27;]&quot;);
+        if (!ES[0]) {
+            displayError(&quot;The ink must be visible in the preview window in order to edit it.&quot;);
+            return;
+        }
+
+        //that.setInkPath(&quot;&quot;);
+        my.isVisible = false;
+
+        if (inkType === &quot;path&quot; || inkType == &quot;bezier&quot;) { //edit draw ink
+            my.timeline.showEditDraw(that, old_datastring);
+        }
+        else if (inkType === &quot;trans&quot;) { //edit transparency
+            var transType = old_datastring.split(&quot;[mode]&quot;)[1].split(&quot;[&quot;)[0];
+            my.timeline.showEditTransparency(that, old_datastring, transType);
+        }
+        else if (inkType === &quot;text&quot;) { //edit text
+            var text_elt = ES.find(&#x27;text&#x27;);
+            var viewBox = text_elt[0] ? ES.find(&#x27;svg&#x27;)[0].getAttribute(&#x27;viewBox&#x27;) : null;
+            if (!text_elt[0] || (getInkEnabled() &amp;&amp; !viewBox)) {
+                my.isVisible = true;
+                displayError(&quot;The ink must be loaded and on screen in order to edit it.&quot;);
+                return;
+            }
+            var rinplayer = $(&#x27;#rinplayer&#x27;);
+            var dims = {
+                x: text_elt.offset().left - rinplayer.offset().left,
+                y: text_elt.offset().top - rinplayer.offset().top,
+                w: text_elt[0].getBBox().width,
+                h: text_elt[0].getBBox().height,
+                fontsize: getInkEnabled() ? parseFloat(text_elt.attr(&quot;font-size&quot;)) * (rinplayer.height() / parseFloat(viewBox.split(&quot; &quot;)[3])) : null
+            };
+            my.timeline.showEditText(that, old_datastring, dims);
+        } else {
+            my.isVisible = true;
+            displayError(&quot;This ink track is in a deprecated format, please remove and create a new ink.&quot;);
+            return;
+        }
+
+        var currSelection = dataHolder.getSelectedTrack();
+        if (currSelection) {
+            currSelection.setDeselected();
+        }
+        
+        //show overlay to make all tracks non-clickable when edit ink
+        if (my.isVisible === true)
+            return;
+        my.timeline.showEditorOverlay();
+    }
+    
+    //method for handling rename
+    function componentOptionRename(evt) {
+        menu.close();
+        var renameDialog = $(document.createElement(&quot;div&quot;));
+        renameDialog.attr(&quot;id&quot;, &quot;renameDialog&quot;);
+
+
+        ///new css
+        var renameDialogSpecs = LADS.Util.constrainAndPosition($(window).width(), $(window).height(),
+           {
+               center_h: true,
+               center_v: true,
+               width: 0.5,
+               height: 0.35,
+               max_width: 560,
+               max_height: 200,
+           });
+        renameDialog.css({
+            position: &#x27;absolute&#x27;,
+            left: renameDialogSpecs.x + &#x27;px&#x27;,
+            top: renameDialogSpecs.y + &#x27;px&#x27;,
+            width: renameDialogSpecs.width + &#x27;px&#x27;,
+            height: renameDialogSpecs.height + &#x27;px&#x27;,
+            border: &#x27;3px double white&#x27;,
+            &#x27;background-color&#x27;: &#x27;black&#x27;,
+        });
+
+        renameOverlay.append(renameDialog);
+        var renameDialogTitle = $(document.createElement(&#x27;div&#x27;));
+        renameDialogTitle.attr(&#x27;id&#x27;, &#x27;renameDialogTitle&#x27;);
+        renameDialogTitle.css({
+            color: &#x27;white&#x27;,
+            &#x27;width&#x27;: &#x27;80%&#x27;,
+            &#x27;height&#x27;: &#x27;15%&#x27;,
+            &#x27;left&#x27;: &#x27;10%&#x27;,
+            &#x27;top&#x27;: &#x27;12.5%&#x27;,
+            &#x27;font-size&#x27;: &#x27;1.25em&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;text-align&#x27;: &#x27;center&#x27;,
+            &#x27;word-wrap&#x27;: &#x27;break-word&#x27;,
+        });
+
+
+        //renameDialog.css({
+        //    &#x27;height&#x27;: &#x27;30%&#x27;,
+        //    &#x27;width&#x27;: &#x27;45%&#x27;,
+        //    &#x27;position&#x27;: &#x27;fixed&#x27;,
+        //    &#x27;top&#x27;: &#x27;50%&#x27;,
+        //    &#x27;left&#x27;: &#x27;50%&#x27;,
+        //    &#x27;margin-top&#x27;: &#x27;-15%&#x27;,
+        //    &#x27;margin-left&#x27;: &#x27;-22.5%&#x27;,
+        //    &#x27;background-color&#x27;: &#x27;black&#x27;,
+        //    &#x27;z-index&#x27;: LADS.TourAuthoring.aboveRinZIndex+5,
+        //    &#x27;border&#x27;: &#x27;3px double white&#x27;,
+        //});
+         
+        //renameOverlay.append(renameDialog);
+        $(&quot;body&quot;).append(renameOverlay);
+        my.timeManager.stop();
+        renameOverlay.fadeIn(500);
+        var form = $(document.createElement(&quot;form&quot;));
+        var newName = $(document.createElement(&quot;input&quot;));
+        form.css(&quot;text-align&quot;, &#x27;left&#x27;);
+        newName.attr(&quot;type&quot;, &quot;text&quot;);
+        newName.css(&quot;margin&quot;, &#x27;4% 4%&#x27;);
+        newName.css(&quot;width&quot;, &#x27;100%&#x27;); 
+        newName.attr(&quot;id&quot;,&quot;newNameInput&quot;); 
+        newName.val(my.title); // default text is existing title
+        var text = $(document.createElement(&quot;div&quot;));
+        //newName.attr(&#x27;maxlength&#x27;, &#x27;18&#x27;);
+        text.text(&quot;Rename track to: &quot;);
+        text.css({
+            //&#x27;top&#x27;: &#x27;5%&#x27;,
+            //&#x27;height&#x27;: &#x27;20%&#x27;,
+            //&#x27;width&#x27;: &#x27;90%&#x27;,
+            //&#x27;color&#x27;: &#x27;white&#x27;,
+            //&#x27;margin&#x27;: &#x27;5%&#x27;,
+            //&#x27;font-size&#x27;: &#x27;200%&#x27;
+
+            color: &#x27;white&#x27;,
+            &#x27;width&#x27;: &#x27;80%&#x27;,
+            //&#x27;height&#x27;: &#x27;15%&#x27;,
+            &#x27;left&#x27;: &#x27;10%&#x27;,
+            //&#x27;top&#x27;: &#x27;12.5%&#x27;,
+            &#x27;font-size&#x27;: &#x27;1.25em&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;text-align&#x27;: &#x27;center&#x27;,
+            //&#x27;overflow&#x27;: &#x27;hidden&#x27;,
+            &#x27;margin-top&#x27;: &#x27;3%&#x27;,
+        });
+        form.append(text);
+
+        form.append(newName);
+        renameDialog.append(form);
+        newName.css({
+            &#x27;width&#x27;: &#x27;80%&#x27;,
+            &#x27;margin-left&#x27;: &#x27;10%&#x27;,
+            &#x27;margin-right&#x27;: &#x27;10%&#x27;,
+            &#x27;margin-top&#x27;:&#x27;10%&#x27;,//&#x27;10%&#x27;,
+            &#x27;box-sizing&#x27;: &#x27;border-box&#x27;,
+            &#x27;position&#x27;:&#x27;relative&#x27;,
+            //width: 92%; margin-left: 4%; box-sizing: border-box;
+
+        });
+        var buttonDiv = $(document.createElement(&quot;div&quot;));
+        buttonDiv.css(&#x27;text-align&#x27;, &#x27;right&#x27;);
+        var emptyDiv = $(document.createElement(&quot;div&quot;));
+        emptyDiv.css(&#x27;clear&#x27;, &#x27;both&#x27;);
+        var buttonRow = $(document.createElement(&#x27;div&#x27;));
+        buttonRow.css({
+            //&#x27;margin-top&#x27;: &#x27;10px&#x27;,
+            //&#x27;text-align&#x27;: &#x27;center&#x27;,
+
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;display&#x27;: &#x27;block&#x27;,
+            &#x27;width&#x27;: &#x27;80%&#x27;,
+            &#x27;left&#x27;: &#x27;10%&#x27;,
+
+
+        });
+        buttonDiv.append(buttonRow);
+        var ok = $(document.createElement(&quot;button&quot;));
+        ok.text(&quot;Apply&quot;);
+        ok.css({
+            //&#x27;left&#x27;: &#x27;4%&#x27;,
+            //&#x27;bottom&#x27;: &#x27;10%&#x27;,
+            //&#x27;font-size&#x27;: &#x27;140%&#x27;,
+            //&#x27;position&#x27;: &#x27;absolute&#x27;,
+            //&#x27;box-sizing&#x27;: &#x27;border-box&#x27;,
+
+            &#x27;padding&#x27;: &#x27;1%&#x27;,
+            &#x27;border&#x27;: &#x27;1px solid white&#x27;,
+            &#x27;width&#x27;: &#x27;auto&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            //&#x27;margin-top&#x27;: &#x27;1%&#x27;,
+            &#x27;float&#x27;: &quot;right&quot;,
+            &#x27;margin-right&#x27;: &#x27;7%&#x27;,
+            &#x27;margin-top&#x27;: &#x27;5%&#x27;,
+                        
+
+        });
+        buttonRow.append(ok);
+        var cancel = $(document.createElement(&#x27;button&#x27;));
+        cancel.attr(&#x27;type&#x27;, &#x27;button&#x27;);
+        cancel.text(&quot;Cancel&quot;);
+        cancel.css({
+         
+
+            //&#x27;right&#x27;: &#x27;4%&#x27;,
+            //&#x27;bottom&#x27;: &#x27;10%&#x27;,
+            //&#x27;font-size&#x27;: &#x27;140%&#x27;,
+            //&#x27;position&#x27;: &#x27;absolute&#x27;,
+            //&#x27;box-sizing&#x27;: &#x27;border-box&#x27;,
+
+            &#x27;padding&#x27;: &#x27;1%&#x27;,
+            &#x27;border&#x27;: &#x27;1px solid white&#x27;,
+            &#x27;width&#x27;: &#x27;auto&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            //&#x27;margin-top&#x27;: &#x27;1%&#x27;,
+            &#x27;margin-left&#x27;: &#x27;7%&#x27;,
+            &#x27;float&#x27;: &quot;left&quot;,
+            &#x27;margin-top&#x27;: &#x27;5%&#x27;,
+        });
+        //buttonDiv.append(cancel);
+        //buttonDiv.append(ok);
+        buttonDiv.append(emptyDiv);
+        buttonRow.append(cancel);
+        //renameDialog.append(buttonDiv);
+        renameDialog.append(buttonRow);
+        renameDialog.show();
+        close();
+
+        ok.click(okTap);
+        cancel.click(function () {
+            renameOverlay.fadeOut(500);
+            $(renameOverlay).remove();
+        });
+        
+        $(document).keypress(function (e) {
+            if (e.which == 13) {
+                okTap(e);
+            }
+        });
+
+        function okTap(evt) {
+            $(renameOverlay).fadeOut(500);
+            var tmpTitle = that.getTitle();
+            that.setTitle(newName.val().replace(/\&#x27;/g, &#x27;&#x27;).replace(/\&quot;/g, &#x27;&#x27;));
+            //renameDialog.remove();
+            $(renameOverlay).remove();
+            //bleveque: if we change the title of an artwork or image  track, update the links of any attached inks
+            if (my.type == LADS.TourAuthoring.TrackType.artwork || my.type == LADS.TourAuthoring.TrackType.image) {
+                dataHolder.mapTracks(function (currentTrack) {
+                    if (currentTrack.track.getType() == LADS.TourAuthoring.TrackType.ink &amp;&amp; currentTrack.track.getInkEnabled() &amp;&amp; currentTrack.track.getInkLink().getTitle() == that.getTitle()) {
+                        currentTrack.setInkLink(that);
+                    }
+                });
+            }
+            
+        }
+        var currSelection = dataHolder.getSelectedTrack();
+        if (currSelection) {
+            currSelection.setDeselected();
+        }
+    }
+
+    function componentOptionDuplicate(evt) { // creates a duplicate track underneath
+        menu.close();
+        var currTrack = that;
+        var undoStackSize = my.undoManager.undoStackSize();
+        //var displays = currTrack.getDisplays(); // each has access to its keyframes
+        var media = currTrack.getMedia();
+        var pos = currTrack.getPos();
+        
+        var name = currTrack.getTitle();
+        var keyframes, e, inFade, outFade, key; // e is the new track
+        switch (currTrack.getType()) {
+            case LADS.TourAuthoring.TrackType.audio:
+                e = my.timeline.addAudioTrack(media, name, null, my.mediaLength);
+                addTracksDisplays(e);
+                currTrack.insert(e);
+                break;
+
+            case LADS.TourAuthoring.TrackType.video:
+                e = my.timeline.addVideoTrack(media, name, null, my.mediaLength);
+                addTracksDisplays(e);
+                currTrack.insert(e);
+                break;
+
+            case LADS.TourAuthoring.TrackType.image:
+                e = my.timeline.addImageTrack(media, name, null);
+                addTracksDisplays(e);
+                currTrack.insert(e);
+                break;
+
+            case LADS.TourAuthoring.TrackType.ink:
+                var expID = currTrack.getInkLink();
+                e = my.timeline.addInkTrack(expID, name, currTrack.getMedia(), currTrack.getInkSpec(), null);
+                if (expID) {//if it is an attached ink
+                    expID.addAttachedInkTrack(e);
+                    e.setInkLink(expID);
+                }
+                addTracksDisplays(e);
+                currTrack.insert(e);
+                e.setInkEnabled(currTrack.getInkEnabled());
+                e.setInkPath(currTrack.getInkPath());
+                e.setInkProps({}); // not used
+                e.setInkInitKeyframe(currTrack.getInkInitKeyframe());
+                e.setInkRelativeArtPos(currTrack.getInkRelativeArtPos());
+                
+
+
+                e.addInkTypeToTitle(currTrack.getInkPath().split(&#x27;::&#x27;)[0].toLowerCase());
+                break;
+
+            case LADS.TourAuthoring.TrackType.artwork:
+                e = my.timeline.addArtworkTrack(media, name, currTrack.getGUID(), null);
+                addTracksDisplays(e);
+                currTrack.insert(e);
+                break;
+        }
+
+        function addTracksDisplays(e) {
+            var trackNum = e.getPos();
+            var displayContent = that.getStorageContainer().displays.getContents();
+            for (var i = 0; i &lt; displayContent.length; i++) {
+                addEachTrackDisplay(i);
+            }
+
+            function addEachTrackDisplay(i) {
+                var dispLength, dispStart, currDisp = displayContent[i].display;
+                if (currTrack.getType() !== LADS.TourAuthoring.TrackType.audio) {
+                    dispLength = currDisp.getMain() + 2 * LADS.TourAuthoring.Constants.defaultFade;
+                    dispStart = currDisp.getMainStart() - LADS.TourAuthoring.Constants.defaultFade;
+                }
+                else {
+                    dispLength = currDisp.getMain();
+                    dispStart = currDisp.getMainStart();
+                }
+
+                var sourceDisp = displayContent[i];
+                var newDisp = e.addDisplay(my.timeManager.timeToPx(dispStart), dispLength);
+
+                var parentDisp = sourceDisp.display.getParentDisplay();
+
+                if (parentDisp) {
+                    parentDisp.addChildDisplay(newDisp);
+                    newDisp.setParentDisplay(parentDisp);
+                }
+
+                newDisp.setFadeInFromMenu(currDisp.getFadeIn());
+                newDisp.setFadeOutFromMenu(currDisp.getFadeOut());
+
+                var sourcekf = currDisp.getStorageContainer().keyframes.getContents();//reset for current display
+                for (var j = 0; j &lt; sourcekf.length; j++) {
+                    var currkf = sourcekf[j];
+                    if (currTrack.getType() === LADS.TourAuthoring.TrackType.audio) {//need y value for volume keyframes
+                        var newkf = newDisp.addKeyframe(my.timeManager.timeToPx(currkf.getTime()), currkf.getVolumePx());//adds keyframe and stores it
+                        e.addKeyframeToLines(newkf);//adds it to audio lines
+                        newkf.restoreHandlers();
+                    }
+                    else {
+                        var newkf = newDisp.addKeyframe(my.timeManager.timeToPx(currkf.getTime()));
+                        newkf.loadRIN(currkf.getCaptureData());
+                        my.dirtyKeyframe = true;
+                        newkf.restoreHandlers();
+                    }
+                }
+            }
+
+            console.log(&quot;combining &quot; + (my.undoManager.undoStackSize() - undoStackSize));
+            my.undoManager.combineLast(my.undoManager.undoStackSize() - undoStackSize);
+        }
+
+    }
+
+   
+
+
+    //event handling for delete button
+    function componentOptionDelete(evt) {
+
+        menu.close();
+        //
+
+        var deleteDialog = $(document.createElement(&quot;div&quot;));
+        deleteDialog.attr(&quot;id&quot;, &quot;deleteDialog&quot;);
+
+
+        ///new css
+        var deleteDialogSpecs = LADS.Util.constrainAndPosition($(window).width(), $(window).height(),
+           {
+               center_h: true,
+               center_v: true,
+               width: 0.5,
+               height: 0.35,
+               max_width: 560,
+               max_height: 200,
+           });
+        deleteDialog.css({
+            position: &#x27;absolute&#x27;,
+            left: deleteDialogSpecs.x + &#x27;px&#x27;,
+            top: deleteDialogSpecs.y + &#x27;px&#x27;,
+            width: deleteDialogSpecs.width + &#x27;px&#x27;,
+            height: deleteDialogSpecs.height + &#x27;px&#x27;,
+            border: &#x27;3px double white&#x27;,
+            &#x27;background-color&#x27;: &#x27;black&#x27;,
+        });
+     
+        //deleteOverlay.append(deleteDialog);
+        var deleteDialogTitle = $(document.createElement(&#x27;div&#x27;));
+        deleteDialogTitle.attr(&#x27;id&#x27;, &#x27;deleteDialogTitle&#x27;);
+        deleteDialogTitle.css({
+            color: &#x27;white&#x27;,
+            &#x27;width&#x27;: &#x27;80%&#x27;,
+            &#x27;height&#x27;: &#x27;15%&#x27;,
+            &#x27;left&#x27;: &#x27;10%&#x27;,
+            &#x27;top&#x27;: &#x27;12.5%&#x27;,
+            &#x27;font-size&#x27;: &#x27;1.25em&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;text-align&#x27;: &#x27;center&#x27;,
+            // &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+            &#x27;word-wrap&#x27;: &#x27;break-word&#x27;,
+        });
+
+        $(&quot;body&quot;).append(deleteOverlay);
+        deleteOverlay.append(deleteDialog);
+
+        my.timeManager.stop();
+        deleteOverlay.fadeIn(500);
+        close();
+
+        var mssge = $(document.createElement(&#x27;div&#x27;));
+        mssge.attr(&#x27;id&#x27;, &#x27;mssge&#x27;);
+        var text = &quot;Are you sure you want to delete &quot; + my.title;
+         mssge.text(text);
+        mssge.css({
+            color: &#x27;white&#x27;,
+            &#x27;width&#x27;: &#x27;80%&#x27;,
+            &#x27;height&#x27;: &#x27;15%&#x27;,
+            &#x27;left&#x27;: &#x27;10%&#x27;,
+            &#x27;top&#x27;: &#x27;12.5%&#x27;,
+            &#x27;font-size&#x27;: &#x27;1.25em&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;text-align&#x27;: &#x27;center&#x27;,
+            //&#x27;overflow&#x27;: &#x27;hidden&#x27;,
+            &#x27;word-wrap&#x27;: &#x27;break-word&#x27;,
+        });
+       
+        deleteDialog.append(mssge);
+
+        //var mssge = &quot;Are you sure you want to delete &quot; + my.title;
+        var hasAttachedInks = false;
+        var trackArray = dataHolder.getTracks();
+        //for (var jj = 0; jj &lt; trackArray.length; jj++) {
+        //    if (trackArray[jj].getType() === LADS.TourAuthoring.TrackType.ink &amp;&amp; trackArray[jj].getInkEnabled() &amp;&amp; trackArray[jj].getInkLink().getTitle() === that.getTitle()) {
+        //        hasAttachedInks = true;
+        //        break;
+        //    }
+        //}
+        dataHolder.mapTracks(function (i) {
+            if (i.track.getType() === LADS.TourAuthoring.TrackType.ink &amp;&amp; i.track.getInkEnabled() &amp;&amp; i.track.getInkLink().getTitle() === that.getTitle()) {
+                hasAttachedInks = true;
+                return;
+            }
+        });
+
+        text += ((hasAttachedInks &amp;&amp; (my.type === LADS.TourAuthoring.TrackType.artwork || my.type === LADS.TourAuthoring.TrackType.image)) ? &quot; and any attached ink tracks?&quot; : &quot;?&quot;);
+        mssge.text(text);
+
+        //var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
+        //    yesTap();
+        //}, mssge, &quot;Delete&quot;);
+        //$(confirmationBox).css(&#x27;z-index&#x27;, LADS.TourAuthoring.Constants.aboveRinZIndex + 7);
+        //$(&#x27;body&#x27;).append(confirmationBox);
+        //my.timeManager.stop();
+
+        //$(confirmationBox).fadeIn(500);
+        //close();
+
+
+        var buttonRow = $(document.createElement(&#x27;div&#x27;));
+        buttonRow.css({
+            //&#x27;margin-top&#x27;: &#x27;10px&#x27;,
+            //&#x27;text-align&#x27;: &#x27;center&#x27;,
+
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;display&#x27;: &#x27;block&#x27;,
+            &#x27;width&#x27;: &#x27;80%&#x27;,
+            &#x27;left&#x27;: &#x27;10%&#x27;,
+            &#x27;top&#x27;: &#x27;50%&#x27;
+
+
+        });
+        deleteDialog.append(buttonRow);
+
+        // TODO: Hook in save-to-server functionality here!
+        var deleteButton = $(document.createElement(&#x27;button&#x27;));
+        deleteButton.css({
+            &#x27;padding&#x27;: &#x27;1%&#x27;,
+            &#x27;border&#x27;: &#x27;1px solid white&#x27;,
+            &#x27;width&#x27;: &#x27;auto&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+        });
+        deleteButton.text(&#x27;Delete&#x27;);
+        $(deleteButton).click(function () {
+            yesTap();
+            deleteOverlay.fadeOut(500);
+            $(deleteOverlay).remove();
+        });
+
+        buttonRow.append(deleteButton);
+
+        var cancelButton = $(document.createElement(&#x27;button&#x27;));
+        cancelButton.css({
+
+            &#x27;padding&#x27;: &#x27;1%&#x27;,
+            &#x27;border&#x27;: &#x27;1px solid white&#x27;,
+            &#x27;width&#x27;: &#x27;auto&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+
+            &#x27;float&#x27;: &#x27;right&#x27;
+        });
+        cancelButton.text(&#x27;Cancel&#x27;);
+        cancelButton.click(function () { deleteOverlay.fadeOut(500); });
+        buttonRow.append(cancelButton);
+
+
+        function yesTap() {
+            close();
+            var displayData = that.getStorageContainer().displays;
+            var command = LADS.TourAuthoring.Command({
+                execute: function () {
+                    remove();
+
+                    //if artwork is removed, also check if ink functionality should be removed
+                    if (!my.timeline.checkForArtworks(0)) {
+                        my.timeline.disableInk();
+                    }
+
+                    //code to snap down track list such that the track list is always full if it can be
+                    if (dataHolder.numTracks() &gt; 0) {
+                        var last = $(&#x27;#Track-&#x27; + (dataHolder.numTracks() - 1) + &#x27;-title&#x27;);
+                        var trackBottom = ($(document.getElementById(&#x27;playback-controls&#x27;)).offset().top);
+                        var lastDivBottom = ($(last).offset().top + LADS.TourAuthoring.Constants.trackHeight);
+
+                        //need to check if the first div is on the screen -- then no need to scroll
+                        var first = dataHolder._trackArray[0].track.getTitleDiv();
+                        var firstTop = first.offset().top;
+                        var trackTop = $(timeline).offset().top;
+                        if (firstTop &lt; trackTop) {
+                            if ((lastDivBottom + LADS.TourAuthoring.Constants.trackHeight) &lt; trackBottom) {
+                                //var t = $(&#x27;.track&#x27;).css(&#x27;top&#x27;);
+                                //$(&#x27;.track&#x27;).css({
+                                //   //&#x27;top&#x27;: parseInt(t, 10) + LADS.TourAuthoring.Constants.trackHeight + &quot;px&quot;
+                                //});
+                                //$(&#x27;.titlediv&#x27;).css({
+                                //    //&#x27;top&#x27;: parseInt(t, 10) + LADS.TourAuthoring.Constants.trackHeight + &quot;px&quot;
+                                //});
+                            }
+                        }
+                    }
+                    my.update();
+                },
+                unexecute: function () {
+                    var replaceTrack = dataHolder.insertTrack(that, that.getPos());
+                    replaceTrack.displays = displayData;
+                    reloadTrack();
+                }
+            });
+            my.undoManager.logCommand(command);
+            command.execute();
+
+            my.timeline.removeInkSession();
+            var counter = 1;//one track removed so far
+            //this block of code handles the case when an art piece with attached inks is deleted
+            for (var k = my.attachedInks.length-1; k &gt;= 0; k--) {
+                deleteAttachedInks(k);
+            }
+
+            function deleteAttachedInks(j) {
+                var track = my.attachedInks[j];
+                var inkDisplayData = track.getStorageContainer().displays;
+                counter++;
+                var command = LADS.TourAuthoring.Command({
+                    execute: function () {
+                        removeAttachedInkTrack(track);
+                        track.remove();
+                        //my.update();
+                    },
+                    unexecute: function () {
+                        var replaceTrack = dataHolder.insertTrack(track, track.getPos());
+                        replaceTrack.displays = inkDisplayData;
+                        track.reloadTrack();
+                    }
+                });
+                my.undoManager.logCommand(command);
+                command.execute();
+            }
+
+            if (counter &gt; 1) {
+                my.undoManager.combineLast(counter);
+            }
+
+            updateTrackArray();
+
+            my.update();
+        }
+
+
+
+        //
+        //var mssge = &quot;Are you sure you want to delete &quot; + my.title;
+        //var hasAttachedInks = false;
+        //for (var jj = 0; jj &lt; trackarray.length; jj++) {
+        //    if (trackarray[jj].getType() === LADS.TourAuthoring.TrackType.ink &amp;&amp; trackarray[jj].getInkEnabled() &amp;&amp; trackarray[jj].getInkLink().getTitle() === that.getTitle()) {
+        //        hasAttachedInks = true;
+        //        break;
+        //    }
+        //}
+        //mssge += ((hasAttachedInks &amp;&amp; (my.type === LADS.TourAuthoring.TrackType.artwork || my.type === LADS.TourAuthoring.TrackType.image)) ? &quot; and any attached ink tracks?&quot; : &quot;?&quot;);
+        //var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
+        //    yesTap();
+        //}, mssge, &quot;Delete&quot;);
+        //$(confirmationBox).css(&#x27;z-index&#x27;, LADS.TourAuthoring.Constants.aboveRinZIndex + 7);
+        //$(&#x27;body&#x27;).append(confirmationBox);
+        //my.timeManager.stop();
+
+        //$(confirmationBox).fadeIn(500);
+        //close();
+        //function yesTap() {
+        //    close();
+        //    var command = LADS.TourAuthoring.Command({
+        //        execute: function () {
+        //            my.timeline.removeTrack(that);
+
+        //            //if artwork is removed, also check if ink functionality should be removed
+        //            if (!my.timeline.checkForArtworks(0)) {
+        //                my.timeline.disableInk();
+        //            }
+
+        //            //code to snap down track list such that the track list is always full if it can be
+        //            if (trackarray.length&gt;0) {
+        //                var last = $(&#x27;#Track-&#x27; + (trackarray.length - 1) + &#x27;-title&#x27;);
+        //                var trackBottom = ($(document.getElementById(&#x27;playback-controls&#x27;)).offset().top);
+        //                var lastDivBottom = ($(last).offset().top + LADS.TourAuthoring.Constants.trackHeight);
+
+        //                //need to check if the first div is on the screen -- then no need to scroll
+        //                var first = $(&#x27;#Track-&#x27; + 0 + &#x27;-title&#x27;);
+        //                var firstTop = $(first).offset().top;
+        //                var trackTop = $(timeline).offset().top;
+        //                if (firstTop &lt; trackTop) {
+        //                    if ((lastDivBottom + LADS.TourAuthoring.Constants.trackHeight) &lt; trackBottom) {
+        //                        //var t = $(&#x27;.track&#x27;).css(&#x27;top&#x27;);
+        //                        //$(&#x27;.track&#x27;).css({
+        //                        //   //&#x27;top&#x27;: parseInt(t, 10) + LADS.TourAuthoring.Constants.trackHeight + &quot;px&quot;
+        //                        //});
+        //                        //$(&#x27;.titlediv&#x27;).css({
+        //                        //    //&#x27;top&#x27;: parseInt(t, 10) + LADS.TourAuthoring.Constants.trackHeight + &quot;px&quot;
+        //                        //});
+        //                    }
+        //                }
+        //            }
+
+        //        },
+        //        unexecute: function () {
+        //            reloadTrack();
+        //        }
+        //    });
+        //    my.undoManager.logCommand(command);
+        //    command.execute();
+
+        //    my.timeline.removeInkSession();
+        //    var counter = 1;//one track removed so far
+        //    //this block of code handles the case when an art piece with attached inks is deleted
+        //    for (var ii = 0; ii &lt; trackarray.length; ii++) {
+        //        if (trackarray[ii].getType() === LADS.TourAuthoring.TrackType.ink &amp;&amp; trackarray[ii].getInkEnabled() &amp;&amp; trackarray[ii].getInkLink().getTitle() === that.getTitle()) {
+        //            (function (j) {
+        //                var track = trackarray[j];
+
+        //                counter++;
+        //                var command = LADS.TourAuthoring.Command({
+        //                    execute: function () {
+        //                        my.timeline.removeTrack(track);
+        //                    },
+        //                    unexecute: function () {
+        //                        track.reloadTrack();
+        //                    }
+        //                });
+        //                my.undoManager.logCommand(command);
+        //                command.execute();
+                        
+        //            })(ii);
+        //            ii--;
+        //        }
+        //    }
+        //    my.undoManager.combineLast(counter);
+        //}    
+    }
+    //event handling for cancel button
+    function componentOptionCancel(evt) {
+        var currSelection = dataHolder.getSelectedTrack();
+        if (currSelection) {
+            currSelection.setDeselected();
+        }
+        close();
+    }
+    
+    //function to pause events
+    function updateTracksEventsPaused(fb) {
+        dataHolder.mapTracks(function (i) {
+            i.track.setEventsPaused(fb);
+        });
+        //$.each(trackarray, function () {
+        //    this.setEventsPaused(fb);
+        //});
+    }
+    that.updateTracksEventsPaused = updateTracksEventsPaused;
+
+    /**Xiaoyi &amp; Libby
+    *set a display selected when in multi select mode
+    */
+    function setSelected() {
+        dataHolder.selectTrack(that);
+        titlediv.css({
+            &quot;background-color&quot;: &quot;#000&quot;
+        });
+    }
+    that.setSelected = setSelected;
+
+    /**Xiaoyi &amp; Libby
+    *set a display deselected in multi select mode
+    */
+    function setDeselected() {
+        dataHolder.selectTrack(null);
+        titlediv.css({
+            &quot;background-color&quot;: &quot;rgb(105,89,89)&quot;
+        });
+    }
+    that.setDeselected = setDeselected;
+
+    // PUBLIC METHODS -- Getters and setters for type and media
+    function getType () {
+        return my.type;
+    }
+    that.getType = getType;
+
+    function getMedia () {
+        return media;
+    }
+    that.getMedia = getMedia;
+
+    function getPos() {
+        return arrayPos;
+    }
+    that.getPos = getPos;
+
+    function getTitle () {
+        return my.title;
+    }
+    that.getTitle = getTitle;
+
+    function setTitle(newTitle) {
+        newTitle = my.timeline.fixTrackTitle(newTitle, getID());
+        my.title = newTitle;
+        titleText.text(my.title);
+    }
+    that.setTitle = setTitle;
+
+    function getSharedMy() {
+        return my;
+    }
+    that.getSharedMy = getSharedMy;
+
+    function getEventsPaused() {
+        return eventsPaused;
+    }
+    that.getEventsPaused = getEventsPaused;
+
+    function setEventsPaused(fB) {
+        eventsPaused = fB;
+    }
+    that.setEventsPaused = setEventsPaused;
+
+    function getCurrentDisplay() {
+        return my.currentDisplay;
+    }
+    that.getCurrentDisplay = getCurrentDisplay;
+    
+    function setCurrentDisplay(currDisplay) {
+        my.currentDisplay = currDisplay;
+    }
+    that.setCurrentDisplay = setCurrentDisplay;
+
+    function setIsVisible(visibility) {
+        my.isVisible = visibility;
+    }
+    that.setIsVisible = setIsVisible;
+
+    function getCurrentKeyframe() {
+        return my.currentKeyframe;
+    }
+    that.getCurrentKeyframe = getCurrentKeyframe;
+
+    function getGUID() {
+        return guid;
+    }
+    that.getGUID = getGUID;
+
+    function setStorageContainer(storeContain) {
+        storageContainer = storeContain;
+    }
+    that.setStorageContainer = setStorageContainer;
+
+    function getStorageContainer() {
+        return storageContainer;
+    }
+    that.getStorageContainer = getStorageContainer;
+
+    /**
+     * Functions for track ID
+     * Corresponds to ordering of tracks in timeline array
+     * Maps to z-layering in RIN
+     * Each track ID should be unique, but might change on track switch
+     * Use updatePos to update id
+     */
+
+    function getID() {
+        return id.split(&#x27;-&#x27;)[1];
+    }
+    that.getID = getID;
+
+    //function to update tracks in array to their current positions.
+    function updateTrackArray() {
+        dataHolder.mapTracks(function (container, i) {
+            container.track.updatePos(i);
+        });
+    }
+
+    //handles update of location in track array
+    function updatePos(pos) {
+        arrayPos = pos;
+        id = (&#x27;Track-&#x27; + pos);
+        titlediv.attr(&#x27;id&#x27;, id + &#x27;-title&#x27;);       
+        my.track.attr(&#x27;id&#x27;, id);
+        my.resource = &#x27;R-&#x27; + arrayPos;
+        //prevTrack = my.track.prev(&quot;.track&quot;);
+        //prevTitleDiv = titlediv.prev(&quot;.titlediv&quot;);
+        //console.log(&quot;new position assigned: &quot; + pos);
+    }
+    that.updatePos = updatePos;
+
+    /*function checks that given value is within range of top and bottom of titlediv
+    * @ param switchOffSet keeps track of the the height of each div
+    */
+    function checkWithinTitleDiv(switchOffset) {
+        var t = titlediv.offset().top;     
+        if (that.getPos() == 0 &amp;&amp; spaceBefore)
+            t -= LADS.TourAuthoring.Constants.trackHeight;       
+        var h = parseInt(titlediv.css(&quot;height&quot;),10);
+
+        if (switchOffset &gt;= t &amp;&amp; switchOffset &lt;= t + h) {
+            return true;
+        }
+        else
+            return false;
+    }
+    that.checkWithinTitleDiv = checkWithinTitleDiv;
+
+    function getTitleDiv() {
+        return titlediv;
+    }
+    that.getTitleDiv = getTitleDiv;
+
+    /* 
+    * function to move a current track to the location next to this track
+    * if the track to be inserted is below this track, then it is inserted before this track
+    * otherwise, it is inserted after
+    */
+    function insert(track) {
+        if (track == that) {
+            return;
+        }
+        var samePosition=false;
+        if (arrayPos &lt; track.getPos()) {
+            samePosition = track.insertHelper(arrayPos);
+        } else {
+            samePosition = track.insertHelper(arrayPos);
+        }
+        updateTrackArray();
+        my.update();
+        // for resetting the tracks graphically when this is called
+        //var t = $(&#x27;.track&#x27;).css(&#x27;top&#x27;);
+        //$(&#x27;.titlediv&#x27;).css(&#x27;top&#x27;, parseFloat(t) + &#x27;px&#x27;);
+    }
+    that.insert = insert;
+
+    /*function called when this track is moved and inserted next to another track
+    * @ param prTrack is previous track within calling class
+    * @ param prTitle is previous title within calling class 
+    * @ param pos is array position within calling class
+    */
+    function insertHelper(pos) {
+        var scrollTop = $(&#x27;#trackTitleWrapper&#x27;).scrollTop();
+        that.detach();
+        var trackToMove = that.getStorageContainer();
+        //dataHolder.removeTrack(that);
+        dataHolder._trackArray.splice(that.getPos(), 1);
+        dataHolder._trackArray.splice(pos, 0, that.getStorageContainer());
+        updateTrackArray();
+        //prevTrack = prTrack;
+        //prevTitleDiv = prTitle;
+        my.track.detach();
+        reloadTrack();
+        titlediv.css(&#x27;top&#x27;, &#x27;0px&#x27;);
+        my.track.css(&#x27;display&#x27;, &#x27;&#x27;);
+        $(&#x27;#trackTitleWrapper&#x27;).scrollTop(scrollTop);
+        offset = 0;
+        return false;
+    }
+    that.insertHelper = insertHelper;
+
+    function debugTrackArray() {
+        for (var i = 0; i &lt; dataHolder._trackArray.length; i++) {
+            console.log(i + &quot; - &quot; + dataHolder._trackArray[i].track.getTitle());
+        }
+    }
+
+    function getTrackDomElement() {
+        return my.track;
+    }
+    that.getTrackDomElement = getTrackDomElement;
+
+    //restores track and title to original position after moving title
+    function restoreMovedTrack() {
+        titlediv.css(&quot;top&quot;, &quot;0px&quot;);
+        titlediv.css(&quot;left&quot;, &quot;0px&quot;);
+    }
+
+    //reloads track after deletion for undo redo. Assumes track was removed first.
+    //Also gets called every time a track is added??
+    function reloadTrack() {
+        //var t = $(&#x27;.track&#x27;).css(&#x27;top&#x27;);
+        //titlediv.css(&#x27;top&#x27;, parseFloat(t) + &#x27;px&#x27;);
+        //my.track.css(&#x27;top&#x27;, parseFloat(t) + &#x27;px&#x27;);
+        if (arrayPos === 0) {
+            my.timeline.prependAddToDom(my.track, titlediv);
+        }
+        else {
+            var previousTrack = dataHolder._trackArray[arrayPos - 1].track;
+            previousTrack.getTitleDiv().after(titlediv);
+            previousTrack.getTrackDomElement().after(my.track);
+            
+            //prevTitleDiv.after(titlediv);
+            //prevTrack.after(my.track);
+        }
+        //dataHolder._trackArray.splice(arrayPos, 0, that.getStorageContainer());
+        //updateTrackArray();
+        
+        my.update();
+        restoreHandlers();
+        if (my.that.getType() === LADS.TourAuthoring.TrackType.ink &amp;&amp; my.that.getInkEnabled(my.that)) {
+            my.that.getInkLink(my.that).addAttachedInkTrack(my.that);
+        }
+    }
+    that.reloadTrack = reloadTrack;
+
+    function restoreHandlers() {
+        var disps = dataHolder.getDisplays(arrayPos)
+        if (disps &amp;&amp; disps._root) {
+            disps._root.traverse(function (disp) {
+                disp._value.display.restoreHandlers();
+                var keyfs = dataHolder.getKeyframes(disp._value);
+                if (keyfs &amp;&amp; keyfs._root) {
+                    keyfs._root.traverse(function (keyf) {
+                        keyf._value.restoreHandlers();
+                    });
+                }
+            });
+        }
+    }
+
+    that.restoreHandlers = restoreHandlers;
+
+    // Interaction code
+
+    // Track title manipulations
+    LADS.Util.makeManipulatable(titlediv[0], {
+        onManipulate: onManipTrackTitleWrapper,
+        onTapped: tappedTitle,
+        onTappedRight: tapRightTitle,
+        onRelease: trackTitleReleased,
+        onScroll: scrollTitleWrapper,
+        onDoubleTapped: toggleMinimized,
+    }, false, true);
+
+    // handles long press on the title
+    my.inRightTap = false;
+    function tapRightTitle(evt) {
+        my.inRightTap = true;
+        menu.open(evt);
+    }
+    this.tapRightTitle = tapRightTitle;
+
+    //handles events when track title is tapped
+    function tappedTitle(evt) {
+        if (eventsPaused || my.inRightTap)
+            return;
+
+        var currSelection = dataHolder.getSelectedTrack();
+        if (currSelection === that) {
+            setDeselected();
+        }
+        else {
+            if (currSelection) {
+                currSelection.setDeselected();
+            }
+            setSelected();
+        }
+    }
+    that.tappedTitle = tappedTitle;
+
+    //inits track title to be dragged
+    var prevZIndex = 0;
+    // handles the case when the track title wrapper is dragged, if titledivmanip is true, instead allows for div to be dragged
+    var firstEvent = true;
+
+    //variables used by the onManipTrackTitleWrapper class to keep track of the top, bottom and total movement along the y axis of the tracks
+    var moveTop = 0;
+    var moveBottom = 0;   
+    var totalYMoved = 0;
+    var offset = 0;
+    var dir = 0;
+    function scrollTitleWrapper(delta) {
+        var close = my.timeline.getCloseMenu();
+        if (close) {
+            close();
+        }
+        
+        if (delta === 1.1) {
+            $(&#x27;#trackTitleWrapper&#x27;).scrollTop($(&#x27;#trackTitleWrapper&#x27;).scrollTop() - 30);
+        } else {
+            $(&#x27;#trackTitleWrapper&#x27;).scrollTop($(&#x27;#trackTitleWrapper&#x27;).scrollTop() + 30);
+        }
+    }
+
+    var vertLock = false, sideLock = false, xMoved = 0, yMoved = 0, dragEvents = 0;
+    function trackTitleReleased(evt) {
+        my.inRightTap = false;
+        // stops double-triggering of release
+        if (released) {
+            released = false;
+            return;
+        }
+
+        released = true;
+        titleDivMouseUp();
+    }
+
+    function onManipTrackTitleWrapper(res, evt) {
+        evt.stopPropagation();
+
+        if (eventsPaused || my.inRightTap)
+            return;
+
+        released = false;
+
+        var currSelection = dataHolder.getSelectedTrack();
+        if (currSelection) {
+            currSelection.setDeselected();
+        }
+        setSelected();
+
+        //checks if a track has been selected for manipulation/movement
+        if (titleDivManip) {
+            titleDivTranslateY(res);
+        }
+        else {// if (res.translation.x &lt; 0) {// &lt; 0 &amp;&amp; Math.abs(res.translation.y) &lt;= 1) {
+            if (firstEvent) {
+                //titlediv.mouseup(function () {
+                //    titleDivMouseUp();
+                //    totalYMoved = 0;
+                //});
+                firstEvent = false;
+            }
+            //these two &#x27;if&#x27; conditions determine how much a track needs to be pulled along the x axis for it to become maniputable 
+            if (totalYMoved &lt; 30 &amp;&amp; Math.abs(res.translation.y) &lt; Math.abs(res.translation.x) * 2) {
+                titleDivTranslateX(res.translation.x);
+            } else {
+                titleDivTranslateX(200);
+            }
+            if (Math.abs(res.translation.y) &gt; Math.abs(res.translation.x))
+                totalYMoved = totalYMoved + Math.abs(res.translation.y);
+            if (parseInt(titlediv.css(&#x27;left&#x27;),10) &lt; -20) { //used to be -10
+                titleDivManip = true;
+                offset = 0;
+                titledivPlaceholder = $(document.createElement(&#x27;div&#x27;));
+                titledivPlaceholder.css({
+                    &quot;width&quot;: 0.127 * $(window).width() + &#x27;px&#x27;,
+                    &#x27;margin-left&#x27;: &#x27;20px&#x27;,
+                    height: titlediv.height() + &#x27;px&#x27;,
+                    float: &#x27;left&#x27;,
+                    border: &#x27;1px solid black&#x27;,
+                    &#x27;box-shadow&#x27;: &#x27;inset 4px -4px 8px #888&#x27;,
+                    position: &#x27;absolute&#x27;,
+                    &#x27;z-index&#x27;: 0,
+                    background: &#x27;rgb(219, 218, 199)&#x27;,
+                    top: titlediv.position().top + $(&#x27;#trackTitleWrapper&#x27;).scrollTop() + &#x27;px&#x27;,
+                });
+                //$(&#x27;#trackTitleWrapper&#x27;).css(&#x27;max-height&#x27;, $(&#x27;#trackTitleWrapper&#x27;).height() + &#x27;px&#x27;);
+                titlediv.before(titledivPlaceholder);
+                prevZIndex = titlediv.css(&#x27;z-index&#x27;);
+                titlediv.css(&#x27;z-index&#x27;, LADS.TourAuthoring.Constants.aboveRinZIndex);
+                titlediv.css(&#x27;left&#x27;, &#x27;-20px&#x27;);
+                moveTop = titlediv.offset().top;
+                moveBottom = moveTop + LADS.TourAuthoring.Constants.trackHeight;
+            }
+            upAndDown(res);
+        }
+        //else {
+            //totalYMoved = totalYMoved + Math.abs(res.translation.y);
+            //if (parseInt(totalYMoved) &gt; 100) {
+                //upAndDown(res);
+            //}
+        //}
+    }
+
+    var firstBlock = true;
+
+    //global variable to hold the track which the selected track will be swapped with
+    var trackToReplace = null;
+
+    //moves title div in the vertical direction with cursor
+    function titleDivTranslateY(res) {
+        var t = parseFloat(titlediv.css(&#x27;top&#x27;));
+        var topp = res.translation.y;
+        console.log(&quot;t  &quot; + t + &quot; topp  &quot; + topp + &quot;trans-y: &quot; + res.translation.y);
+        var tr = null; //keeps track of the div/track that needs to be moved when moving a selected track
+        var index = 0;
+        if (topp &gt; t) { // Moving up
+            moveUp();
+        } else if (topp &lt; t) { // Moving down
+            moveDown();
+        } else {
+            var oldScroll;
+            if (titlediv.position().top &lt; 15) {
+                oldScroll = $(&#x27;#trackTitleWrapper&#x27;).scrollTop();
+                $(&#x27;#trackTitleWrapper&#x27;).scrollTop(oldScroll - 10);
+                topp = topp - Math.min(10, oldScroll);
+                moveUp();
+            }
+            if (titlediv.position().top + 2 +titlediv.height() &gt; $(&#x27;#trackScrollVeil&#x27;).height() - 15) {
+                oldScroll = $(&#x27;#trackTitleWrapper&#x27;).scrollTop();
+                var scroll = oldScroll + 10;
+                var trackArrayHeight = 0;
+                var i;
+                for (i = 0; i &lt; dataHolder._trackArray.length; i++) {
+                    trackArrayHeight = trackArrayHeight + dataHolder._trackArray[i].track.getTitleDiv().height() + 2;
+                }
+                if (scroll &gt; trackArrayHeight - $(&#x27;#trackTitleWrapper&#x27;).height()) scroll = trackArrayHeight - $(&#x27;#trackTitleWrapper&#x27;).height();
+                $(&#x27;#trackTitleWrapper&#x27;).scrollTop(scroll);
+                topp = topp + scroll - oldScroll;
+                moveDown();
+            }
+        }
+        titlediv.css(&#x27;top&#x27;, topp + t);
+
+        function moveUp() {
+            var i = arrayPos + offset - 1;
+            if (i &gt;= arrayPos) i++;
+            console.log(&quot;i = &quot; + i);
+            if (i &gt;= 0) {
+                var nextTrack = dataHolder._trackArray[i].track;
+                var nextTitleDiv = nextTrack.getTitleDiv();
+                console.log(&#x27;next: &#x27; + nextTitleDiv.position().top + &quot;, current: &quot; + titlediv.position().top);
+                if (nextTitleDiv.position().top &gt; titlediv.position().top) {
+                    //nextTitleDiv.animate({ &#x27;top&#x27;: parseFloat(nextTitleDiv.css(&#x27;top&#x27;)) + 98 + &#x27;px&#x27; }, 100);
+                    nextTitleDiv.css(&#x27;top&#x27;, parseFloat(nextTitleDiv.css(&#x27;top&#x27;)) + 2 + titlediv.height() + &#x27;px&#x27;);
+                    titledivPlaceholder.css(&#x27;top&#x27;, parseFloat(titledivPlaceholder.css(&#x27;top&#x27;)) - 2 - nextTitleDiv.height() + &#x27;px&#x27;);
+                    offset--;
+                }
+            }
+        }
+
+        function moveDown() {
+            var i = arrayPos + offset + 1;
+            if (i &lt;= arrayPos) i--;
+            if (i &lt; dataHolder._trackArray.length) {
+                // check this
+                var nextTrack = dataHolder._trackArray[i].track;
+                var nextTitleDiv = nextTrack.getTitleDiv();
+                if (nextTitleDiv.position().top &lt; titlediv.position().top) {
+                    titledivPlaceholder.css(&#x27;top&#x27;, parseFloat(titledivPlaceholder.css(&#x27;top&#x27;)) + 2 + nextTitleDiv.height() + &#x27;px&#x27;);
+                    nextTitleDiv.css(&#x27;top&#x27;, parseFloat(nextTitleDiv.css(&#x27;top&#x27;)) - 2 - titledivPlaceholder.height() + &#x27;px&#x27;);
+                    //nextTitleDiv.animate({&#x27;top&#x27;: parseFloat(nextTitleDiv.css(&#x27;top&#x27;)) - 98 + &#x27;px&#x27;}, 100);
+                    offset++;
+                }
+            }
+        }
+    }
+
+    //moves title div in the horizontal direction
+    function titleDivTranslateX(x) {
+        var l = parseInt(titlediv.css(&#x27;left&#x27;),10);
+        var left = Math.min(l + x, 0);
+        titlediv.css(&#x27;left&#x27;, left);
+    }
+
+    //handles events when a selected track is released
+    function titleDivMouseUp() {
+        totalYMoved = 0;
+        dir = 0;
+        $(&#x27;.titlediv&#x27;).css(&#x27;top&#x27;, &#x27;0px&#x27;);
+        $(&#x27;.titlediv&#x27;).css(&#x27;left&#x27;, &#x27;0px&#x27;);
+        if (titledivPlaceholder)
+            titledivPlaceholder.detach();
+
+        var tr = dataHolder._trackArray[arrayPos + offset].track;
+        if (offset !== 0 &amp;&amp; titleDivManip &amp;&amp; tr) {
+            var prev;
+            if (that.getPos() &gt; tr.getPos()) { // that is below tr
+                prev = dataHolder._trackArray[that.getPos() - 1].track;
+            } else if (that.getPos() &lt; tr.getPos()) { // that is above tr
+                prev = dataHolder._trackArray[that.getPos() + 1].track;
+            } else {
+                prev = dataHolder._trackArray[that.getPos()].track;
+            }
+            var command = LADS.TourAuthoring.Command({
+                execute: function () { tr.insert(that); },
+                unexecute: function () {
+                    prev.insert(that);
+                }
+            });
+            command.execute();
+            my.undoManager.logCommand(command);
+        }
+
+        titlediv.css(&#x27;z-index&#x27;, prevZIndex);
+        firstBlock = true;
+        titleDivManip = false;
+        firstEvent = true;
+    }
+
+    //// makes the track manipulatable
+    var grTrack = LADS.Util.makeManipulatable(my.track[0], {
+        onManipulate: onManipTrack,
+        onTappedRight: tapRight,
+        onScroll: scrollTitle,
+        onTapped: trackTapped,
+        onDoubleTapped: doubleTapped,
+        onRelease: function () {
+            my.inRightTap = false;
+            vertLock = false;
+            sideLock = false;
+            xMoved = 0;
+            yMoved = 0;
+            dragEvents = 0;
+        }
+    });
+
+    function released(evt) {
+        if (eventsPaused || isMinimized) {
+            return;
+        }
+
+        my.inRightTap = false;
+
+        if (that.getCurrentKeyframe() !== null) {
+            that.getCurrentKeyframe().released(evt);
+        } else if (that.getCurrentDisplay() !== null) {
+            that.getCurrentDisplay().released(evt);
+        } else {
+            console.log(&quot;skipping release&quot;);
+
+
+
+        }
+    }
+
+    function tapRight(evt) {
+        if (eventsPaused || isMinimized) {
+            return;
+        }
+
+        my.inRightTap = true;
+
+        if (that.getCurrentKeyframe()) {
+            that.getCurrentKeyframe().rightTapped(evt);
+        }
+        else if (that.getCurrentDisplay()) {
+            that.getCurrentDisplay().rightTapped(evt);
+        }
+    }
+    that.tapRight = tapRight;
+    
+    function doubleTapped(evt) {
+        if (isMinimized) {
+            return;
+        }
+        if (my.currentDisplay) {
+            var loc = my.currentDisplay.getLoc();
+            if (loc === LADS.TourAuthoring.DisplayParts[&#x27;fade-out&#x27;] || loc === LADS.TourAuthoring.DisplayParts[&#x27;fade-in&#x27;]) {
+                return;
+            }
+        }
+        addKeyorDisplay(evt);
+    }
+
+    //track tapped
+    var multiSelection;
+    function trackTapped(evt) {
+        // cancel tap event on right click or if track is minimized
+        if (evt.button === 2 || evt.gesture.srcEvent.buttons === 2) {
+            return;
+        }
+        vertLock = false;
+        sideLock = false;
+        xMoved = 0;
+        yMoved = 0;
+        dragEvents = 0;
+        multiSelection = my.timeline.getMultiSelection();
+        //if not in the multi selection mode and the selection array is not empty, clear the array by deselecting them
+        if (!multiSelection) {
+            var selectednumber = my.timeline.getMultiSelectionArray().length;
+            if (!that.getCurrentDisplay() &amp;&amp; selectednumber &gt; 0) {
+                for (var i = 0;  i&lt;selectednumber;i++){
+                    my.timeline.allDeselected();
+                }
+            }
+            else if (that.getCurrentKeyframe()) {
+                if (isMinimized) {
+                    return;
+                }
+                that.getCurrentKeyframe().tapped(evt);
+            }
+        }
+        else if (that.getCurrentDisplay()) {//if in the multi selection mode, and user clicks on a display
+            if (my.timeline.getMultiSelectionArray().indexOf(that.getCurrentDisplay()) &lt; 0) {//if it is not selected, have it selected
+                setDisplaySelected(that.getCurrentDisplay());
+            }
+            else {//if it is selected, have it deselected
+                setDisplayDeselected(that.getCurrentDisplay(), false);
+            }
+        }
+        else if (my.currentKeyframe) {//if the user clicks on a keyframe, select/deselect the display that contains current keyframe
+            if (isMinimized) {
+                return;
+            }
+            if (my.timeline.getMultiSelectionArray().indexOf(my.currentKeyframe.getContainingDisplay())&lt; 0) {
+                setDisplaySelected(my.currentKeyframe.getContainingDisplay());
+            }
+            else {
+                setDisplayDeselected(my.currentKeyframe.getContainingDisplay(),false);
+            }
+        }
+    }
+
+    /**Xiaoyi &amp; Libby
+    *set current display deselected when user clicks it again
+    */
+    function setDisplaySelected(currentDisplay) {
+        //add selected display to the array, and change the filling color
+        my.timeline.getMultiSelectionArray().push(currentDisplay);
+        //change it to the selected colors according to their types
+        //the grey color (selectedInkDisplayColor) is used on videos and inks
+        if (currentDisplay.getType() === 4 || currentDisplay.getType() === 2) {
+            currentDisplay.getMainD().css(&#x27;background-color&#x27;, LADS.TourAuthoring.Constants.selectedInkDisplayColor);
+        } else {
+            currentDisplay.getMainD().css(&#x27;background-color&#x27;, LADS.TourAuthoring.Constants.selectedDisplayColor);
+        }
+    }
+    that.setDisplaySelected = setDisplaySelected;
+
+    /**Xiaoyi &amp; Libby
+    *set the current display deselected
+    *@param: currentDisplay: the display is been clicking on
+    *@keepDisplays:if we want to keep the displays
+    */
+    function setDisplayDeselected(currentDisplay, keepDisplays) {
+        //remove the display from the array
+        if (!keepDisplays) {
+            my.timeline.getMultiSelectionArray().splice(my.timeline.getMultiSelectionArray().indexOf(currentDisplay), 1);
+        }
+
+        var valuation = function (a) {
+            return a.source;
+        }
+        //remove this display&#x27;s boundaries from the binheaps
+        dataHolder._leftExternal.remove(
+            dataHolder._leftExternal.findValue(currentDisplay, valuation));
+        dataHolder._leftInternal.remove(
+           dataHolder._leftInternal.findValue(currentDisplay, valuation));
+        dataHolder._rightExternal.remove(
+           dataHolder._rightExternal.findValue(currentDisplay, valuation));
+        dataHolder._rightInternal.remove(
+           dataHolder._rightInternal.findValue(currentDisplay, valuation));
+
+        //ink/video displays change back to gray, others to green
+        if (currentDisplay.getType() === 4 || currentDisplay.getType() === 2) {
+            currentDisplay.getMainD().css(&#x27;background-color&#x27;, LADS.TourAuthoring.Constants.inkDisplayColor);
+        } else if (currentDisplay.getType() === 1) {
+            currentDisplay.getMainD().css(&#x27;background-color&#x27;, &#x27;rgba(129, 173, 98, 0.8)&#x27;);
+        } else {
+            currentDisplay.getMainD().css(&#x27;background-color&#x27;, LADS.TourAuthoring.Constants.displayColor);
+        }
+    }
+    that.setDisplayDeselected = setDisplayDeselected;
+
+    /**
+     * Handles drag on track
+     * Pan timeline view
+     * If a display or keyframe is selected, move that
+     */
+    function onManipTrack(res, evt) {
+        var i, leftbound, rightbound, keydisplay, allKeys;
+        if (eventsPaused || my.inRightTap) {
+            evt.stopImmediatePropagation();
+            return;
+        }
+        // move display
+        if (my.currentDisplay) {
+            // hacky fix to keep handles minimized
+            my.currentDisplay.suppressHandles();
+            if (evt)
+                evt.stopPropagation();
+            if (vertLock || (!sideLock &amp;&amp;
+                dragEvents &gt; 3 &amp;&amp; 
+                Math.abs(yMoved) &gt; Math.abs(xMoved))) {
+                vertLock = true;
+                upAndDown(res);
+                return;
+            } else if (dragEvents &gt; 3) {
+                sideLock = true;
+            } else {
+                xMoved += res.translation.x;
+                yMoved += res.translation.y;
+                dragEvents++;
+                return;
+            }
+            // update bounds if no multi-select
+            if (my.timeline.getMultiSelectionArray().length === 0) {
+                leftbound = my.timeManager.getDuration().start;
+                rightbound = my.timeManager.getDuration().end;
+                var displays = that.getStorageContainer().displays.getContents();
+                for (i = 0; i &lt; displays.length; i++) {
+                    // update bounds once current display is located in array
+                    if (displays[i].display === my.currentDisplay) {
+                        if ((i - 1) &gt;= 0) {
+                            leftbound = displays[i - 1].display.getEnd() + LADS.TourAuthoring.Constants.esOffset;
+                        }
+                        if ((i + 1) &lt; displays.length) {
+                            rightbound = displays[i + 1].display.getStart() - LADS.TourAuthoring.Constants.esOffset;
+                        }
+                    }
+                } 
+                my.currentDisplay.move(res, leftbound, rightbound);
+            }
+            else {//Xiaoyi/Libby
+                //move all selected tracks
+                if (my.timeline.getMultiSelectionArray().indexOf(my.currentDisplay) &gt;= 0) {
+                    my.timeline.moveSelect(res, my.currentDisplay);
+                }
+            }
+        }
+    
+        // move keyframe
+        else if (my.currentKeyframe) {
+            if (isMinimized) {
+                return;
+            }
+            if (evt)
+                evt.stopPropagation();
+
+            // Note that the bounds for the keyframe are just the beginning and end of the containing display
+            keydisplay = my.currentKeyframe.getContainingDisplay();
+            //allKeys = keydisplay.getStorageContainer().keyframes;
+            // get bounds
+            leftbound = keydisplay.getStart();
+            rightbound = keydisplay.getEnd();
+            //for (i = 0; i &lt; allKeys.length; i++) {
+            //    // update bounds once current keyframe is located in array
+            //    if (allKeys[i] === my.currentKeyframe) {
+            //        if ((i - 1) &gt;= 0) {
+            //            //if (allKeys[i - 1].getTime() + my.timeManager.pxToTime(LADS.TourAuthoring.Constants.keyframeSize) &gt; allKeys[i].getTime() - my.timeManager.pxToTime(LADS.TourAuthoring.Constants.keyframeSize)) {
+            //            //    leftbound = allKeys[i].getTime();
+            //            //}
+            //            //else {
+            //                leftbound = allKeys[i - 1].getTime() + LADS.TourAuthoring.Constants.esOffset;
+            //            //}
+            //        }
+            //        if ((i + 1) &lt; allKeys.length) {
+            //            //if (allKeys[i + 1].getTime() - my.timeManager.pxToTime(LADS.TourAuthoring.Constants.keyframeSize) &lt; allKeys[i].getTime() + my.timeManager.pxToTime(LADS.TourAuthoring.Constants.keyframeSize)) {
+            //            //    rightbound = allKeys[i].getTime();
+            //            //}
+            //            //else {
+            //                rightbound = allKeys[i + 1].getTime() - LADS.TourAuthoring.Constants.esOffset;
+            //            //}
+            //        }
+            //    }
+            //}
+            var prevKF = dataHolder.findPrevKeyframe(keydisplay, my.currentKeyframe),
+                nextKF = dataHolder.findNextKeyframe(keydisplay, my.currentKeyframe);
+            if (prevKF) {
+                leftbound = prevKF.getTime() + LADS.TourAuthoring.Constants.esOffset;
+            }
+            if (nextKF) {
+                rightbound = nextKF.getTime() - LADS.TourAuthoring.Constants.esOffset;
+            }
+
+            if (!my.timeline.getMultiSelection()) {
+                my.currentKeyframe.move(res, leftbound, rightbound);
+            }
+        }
+    }
+    that.onManipTrack = onManipTrack;
+
+    /*Xiaoyi &amp; Libby
+    *helper function returning the left/right bounds of the track during multi-select
+    * @param currDisplay: display that the bounds are being found for
+    * @returns the bound for each display separately that are multi-selected
+    */
+    function boundHelper(currDisplay, hasZeroFadeout) { // deal with fixing bounds for ink dragging here
+        /**REWRITTEN TO HANDLE MINHEAPS**/
+        var leftbound = my.timeManager.getDuration().start,
+            rightbound = my.timeManager.getDuration().end,
+            currkeyframes = currDisplay.getStorageContainer().keyframes, //now handles minheap
+            //this is the internal right bound for the fade in
+            //it is calculated by taking the smallest time when comparing the time at which the fadeout begins and the start time of the first keyframe (if any)
+            fadeInRight = Math.min(currDisplay.getOutStart() - currDisplay.getFadeIn(),
+                                        ((!currkeyframes.isEmpty() &amp;&amp; (currkeyframes.min().getTime() - my.timeManager.pxToTime(LADS.TourAuthoring.Constants.keyframeSize + LADS.TourAuthoring.Constants.keyframeStrokeW + LADS.TourAuthoring.Constants.fadeBtnSize))) || Infinity)),
+            //this is the internal left bound for the fade out
+            //it is calculated by taking the largest time when comparing the time at which the fadein ends and the start time of the last keyframe (if any)
+            fadeOutLeft = Math.max(currDisplay.getStart() + currDisplay.getFadeIn(),
+                             ((!currkeyframes.isEmpty() &amp;&amp; (currkeyframes.max().getTime() - currDisplay.getFadeOut() + my.timeManager.pxToTime(LADS.TourAuthoring.Constants.keyframeSize + LADS.TourAuthoring.Constants.keyframeStrokeW + LADS.TourAuthoring.Constants.fadeBtnSize))) || -Infinity)),
+            currLeft = currDisplay.getStart(),
+            loc = currDisplay.getLoc();
+        var currRight = currDisplay.getEnd();
+        
+        //if the display the user is dragging has zero fadeout, update the currRight (for some reason, currDisplay.getEnd() doesn&#x27;t work)
+        if (hasZeroFadeout) {
+            currRight = currDisplay.getOutStart();
+        }
+
+        //in the case where both the fadein and fadeout are both (such as with audio tracks), then the fadeinright and the fadeoutleft need to be calculated using either the first/last keyframe 
+        //position or the edge of the fadein/fadeout handle, which prevents the display from being compressed so far that it is just a handle with no display at all
+        if (currDisplay.getFadeIn() === 0 || currDisplay.getFadeOut() === 0) {
+            fadeInRight = Math.min(my.timeManager.pxToTime(currDisplay.getFioHandle().attr(&#x27;cx&#x27;) - 2 * LADS.TourAuthoring.Constants.fadeBtnSize),
+                                            ((!currkeyframes.isEmpty() &amp;&amp; (currkeyframes.min().getTime() - my.timeManager.pxToTime(LADS.TourAuthoring.Constants.keyframeSize + LADS.TourAuthoring.Constants.keyframeStrokeW + LADS.TourAuthoring.Constants.fadeBtnSize))) || Infinity));
+            fadeOutLeft = Math.max(my.timeManager.pxToTime(currDisplay.getFinHandle().attr(&#x27;cx&#x27;)) + my.timeManager.pxToTime(2 * LADS.TourAuthoring.Constants.fadeBtnSize),
+                ((!currkeyframes.isEmpty() &amp;&amp; (currkeyframes.max().getTime() - currDisplay.getFadeOut() + my.timeManager.pxToTime(LADS.TourAuthoring.Constants.keyframeSize + LADS.TourAuthoring.Constants.keyframeStrokeW + LADS.TourAuthoring.Constants.fadeBtnSize))) || -Infinity));
+        }
+        var boundArray = [];
+        if (fadeInRight &lt; currDisplay.getStart()) {
+            fadeInRight = currDisplay.getStart();
+        }
+        if (fadeOutLeft &gt; currDisplay.getOutStart()) {
+            fadeOutLeft = currDisplay.getOutStart();
+        }
+
+        //use data holder to acquire this, reduces for loops being needed
+        var prevDisp = dataHolder.findPreviousDisplay(arrayPos, currDisplay);
+        var nextDisp = dataHolder.findNextDisplay(arrayPos, currDisplay);
+
+        //if dragging the main section of the display
+        var parentArtDisplay;
+        if (loc === LADS.TourAuthoring.DisplayParts.main) {
+            //for (var i = 0; i &lt; my.displays.length; i++) {
+            //    // update bounds once current display is located in array
+            //    if (my.displays[i] === currDisplay) {
+            //        if ((i - 1) &gt;= 0 &amp;&amp; my.timeline.getMultiSelectionArray().indexOf(my.displays[i - 1]) &lt; 0) {
+            //            leftbound = my.displays[i - 1].getEnd() + LADS.TourAuthoring.Constants.esOffset;
+            //        }
+            //        if ((i + 1) &lt; my.displays.length &amp;&amp; my.timeline.getMultiSelectionArray().indexOf(my.displays[i + 1]) &lt; 0) {
+            //            rightbound = my.displays[i + 1].getStart() - LADS.TourAuthoring.Constants.esOffset;//my.displays[i + 1] === dataHolder.findNextDisplay(arrayPos, currDisplay)
+            //        }
+            //        if (my.type === LADS.TourAuthoring.TrackType.ink &amp;&amp; my.
+            //) {
+            //            parentArtDisplay = getParentArtDisplay(my.displays[i]);
+            //            if (my.timeline.getMultiSelectionArray().indexOf(parentArtDisplay) === -1) {
+            //                leftbound = Math.max(leftbound, parentArtDisplay.getStart());
+            //                rightbound = Math.min(rightbound, parentArtDisplay.getEnd());
+            //            }
+            //        }
+            //    }
+            //}
+
+            //instead of looping through the array we can use the dataholder to find the previous/next displays
+            if (prevDisp &amp;&amp; my.timeline.getMultiSelectionArray().indexOf(prevDisp.display) &lt; 0) {
+                leftbound = prevDisp.display.getEnd() + LADS.TourAuthoring.Constants.esOffset;
+            }
+            if (nextDisp &amp;&amp; my.timeline.getMultiSelectionArray().indexOf(nextDisp.display) &lt; 0) {
+                rightbound = nextDisp.display.getStart() - LADS.TourAuthoring.Constants.esOffset;
+            }
+            if (my.type === LADS.TourAuthoring.TrackType.ink &amp;&amp; my.inkEnabled) {
+                parentArtDisplay = currDisplay.getParentDisplay();
+                if (my.timeline.getMultiSelectionArray().indexOf(parentArtDisplay) === -1) {
+                    leftbound = Math.max(leftbound, parentArtDisplay.getStart());
+                    rightbound = Math.min(rightbound, parentArtDisplay.getEnd());
+                }
+            }
+
+        } //if dragging the fadein/fadeout sections of the display
+        else if (loc === LADS.TourAuthoring.DisplayParts[&#x27;fade-out&#x27;] || loc === LADS.TourAuthoring.DisplayParts[&#x27;fade-in&#x27;]) {
+            //for (var j = 0; j &lt; my.displays.length; j++) {
+            //    // update bounds once current display is located in array
+            //    if (my.displays[j] === currDisplay) {
+            //        if ((j - 1) &gt;= 0) {
+            //            leftbound = my.displays[j - 1].getEnd() + LADS.TourAuthoring.Constants.esOffset;
+            //        }
+            //        if ((j + 1) &lt; my.displays.length) {
+            //            rightbound = my.displays[j + 1].getStart() - LADS.TourAuthoring.Constants.esOffset;
+            //        }
+            //        if (my.type === LADS.TourAuthoring.TrackType.ink &amp;&amp; my.inkEnabled) {
+            //            parentArtDisplay = getParentArtDisplay(my.displays[j]);
+            //            if (my.timeline.getMultiSelectionArray().indexOf(parentArtDisplay) === -1) {
+            //                leftbound = Math.max(leftbound, parentArtDisplay.getStart());
+            //                rightbound = Math.min(rightbound, parentArtDisplay.getEnd());
+            //            }
+            //        }
+            //        else if (my.type === LADS.TourAuthoring.TrackType.artwork || my.type === LADS.TourAuthoring.TrackType.image || !my.inkEnabled) {
+            //            var attachedDisplays = my.displays[j].getChildDisplays();
+            //            var totalDispLength = my.displays[j].getLongestSubgroup(attachedDisplays);
+            //            fadeOutLeft = Math.max(fadeOutLeft, my.displays[j].getStart() + totalDispLength);
+            //            fadeInRight = Math.min(fadeInRight, my.displays[j].getEnd() - totalDispLength);
+            //        }
+            //        if (my.type === LADS.TourAuthoring.TrackType.video || my.type === LADS.TourAuthoring.TrackType.audio) {
+            //            if (my.displays[j].getMediaLength()) {
+            //                var maxlength = parseFloat(currDisplay.getMediaLength());
+            //                leftbound = Math.max(leftbound, currDisplay.getEnd() - maxlength);
+            //                rightbound = Math.min(rightbound, currDisplay.getStart() + maxlength);
+            //            }
+            //        }
+            //    }
+            //}
+
+            //instead of looping through the array we can use the dataholder to find the previous/next displays
+            if (prevDisp) {
+                leftbound = prevDisp.display.getEnd() + LADS.TourAuthoring.Constants.esOffset;
+            }
+            if (nextDisp) {
+                rightbound = nextDisp.display.getStart() - LADS.TourAuthoring.Constants.esOffset;
+            }
+            if (my.type === LADS.TourAuthoring.TrackType.ink &amp;&amp; my.inkEnabled) {
+                parentArtDisplay = getParentArtDisplay(currDisplay);
+                if (my.timeline.getMultiSelectionArray().indexOf(parentArtDisplay) === -1) {
+                    leftbound = Math.max(leftbound, parentArtDisplay.getStart());
+                    rightbound = Math.min(rightbound, parentArtDisplay.getEnd());
+                }
+            }
+            else if (my.type === LADS.TourAuthoring.TrackType.artwork || my.type === LADS.TourAuthoring.TrackType.image || !my.inkEnabled) {
+                var attachedDisplays = currDisplay.getChildDisplays();
+                var totalDispLength = currDisplay.getLongestSubgroup(attachedDisplays);
+                fadeOutLeft = Math.max(fadeOutLeft, currDisplay.getStart() + totalDispLength);
+                fadeInRight = Math.min(fadeInRight, currDisplay.getEnd() - totalDispLength);
+            }
+            if (my.type === LADS.TourAuthoring.TrackType.video || my.type === LADS.TourAuthoring.TrackType.audio) {
+                if (currDisplay.getMediaLength()) {
+                    var maxlength = parseFloat(currDisplay.getMediaLength());
+                    leftbound = Math.max(leftbound, currDisplay.getEnd() - maxlength);
+                    rightbound = Math.min(rightbound, currDisplay.getStart() + maxlength);
+                }
+            }
+        }
+       
+        //boundArray[0] = currLeft - leftbound;//fadeinleft distance (in seconds)
+        //boundArray[1] = rightbound - currRight;//fadeoutright distance (in seconds)
+        //boundArray[2] = fadeInRight - currLeft;//fadeinright distance (in seconds)
+        //boundArray[3] = currRight - currDisplay.getFadeOut() - fadeOutLeft;//fadeoutleft distance (in seconds)
+        //return boundArray;
+        
+        //don&#x27;t need boundArray anymore, using binheaps
+        var leftExtBound = {
+            bound: currLeft - leftbound, //distance in seconds
+            source: currDisplay,
+        }
+        var leftIntBound = {
+            bound: fadeInRight - currLeft, //distance in seconds
+            source: currDisplay,
+        }
+        var rightExtBound = {
+            bound: rightbound - currRight, //distance in seconds
+            source: currDisplay,
+        }
+        var rightIntBound = {
+            bound: currRight - currDisplay.getFadeOut() - fadeOutLeft, //distance in seconds
+            source: currDisplay,
+        }
+        //push all bounds to respective heaps
+        dataHolder._leftExternal.push(leftExtBound);
+        dataHolder._leftInternal.push(leftIntBound);
+        dataHolder._rightExternal.push(rightExtBound);
+        dataHolder._rightInternal.push(rightIntBound);
+
+    }
+    that.boundHelper = boundHelper;
+
+
+    /**
+     * Gets the art display enclosing an attached ink track display.
+     */
+    function getParentArtDisplay(disp) {
+        //var parentArtTrack = my.experienceId,
+        //    parentDisplays = parentArtTrack.getDisplays(),
+        //    parentArtDisplay = null;
+        //for (var i = 0; i &lt; parentDisplays.length; i++) {
+        //    var currDisp = parentDisplays[i];
+        //    if ((currDisp.getStart() &lt;= disp.getOutStart()) &amp;&amp; (disp.getOutStart() &lt;= currDisp.getOutStart() + currDisp.getFadeOut())) { // use outStart to test if display is in the art display
+        //        parentArtDisplay = currDisp;
+        //        break;
+        //    }
+        //}
+        //return parentArtDisplay;
+        return disp.getParentDisplay();
+    }
+    function scale() {
+        var displays = that.getStorageContainer().displays.getContents(); //array of displays, from tree of displays
+        var i;
+        for (i = 0; i &lt; displays.length; i++) {
+            displays[i].display.scale();
+        }
+    }
+    that.scale = scale;
+    my.timeManager.onSizing(scale);
+
+    /**
+     * helper function that loops through the array of displays 
+     * returns the start of a display if there&#x27;s a display nearby
+     * returns 1 fadein, 0 fadeout and -1 otherwise
+     * @ param  currentDisplayPosition is the position of the current display
+     * @ param displays is an array of displays
+     */
+    function findDisplay(currentDisplayPosition, displays) {
+        var i = 0;
+        while (i &lt; displays.length) {
+            if (Math.abs(displays[i].getEnd() - currentDisplayPosition) &lt;= 0.5 &amp;&amp; displays[i].getEnd() !== currentDisplayPosition) {
+                return displays[i].getEnd();
+            }
+            if (Math.abs(displays[i].getStart() - currentDisplayPosition) &lt;= 0.5 &amp;&amp; displays[i].getStart() !== currentDisplayPosition) {
+                return displays[i].getStart();
+            }
+            i++;
+        }
+        return -1;
+    }
+
+    /**
+     * helper function for finding a certain track using it&#x27;s id
+     * param trackNum - the track&#x27;s id
+     * returns the track
+     */
+    function getTrackByID(trackNum) {
+        var tracks = my.timeline.getTracks();
+        var i;
+        for (i = 0; i &lt; tracks.length; i++) {
+            if (trackNum === parseInt(tracks[i].getID(),10)) {
+                return tracks[i];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * moves the track and the left and right
+     */
+    function leftAndRight(res, isRuler) {
+        if (!trackBody)
+            trackBody = my.timeline.getTrackBody();
+        trackBody.scrollLeft(trackBody.scrollLeft() - res.translation.x);
+    }
+    that.leftAndRight = leftAndRight;
+
+    /**
+     * moves the track up and down
+     */
+
+    function upAndDown(res) {
+        if (!trackBody)
+            trackBody = $(&#x27;#trackBody&#x27;);
+        trackBody.scrollTop(trackBody.scrollTop() - res.translation.y);
+    }
+    that.upAndDown = upAndDown;
+
+    //scrolling function similar to upanddown
+    //hacky fix, needs to be reworked like the entire class
+
+    function scrollTitle(evt) {
+        var close = my.timeline.getCloseMenu();
+        if (close) {
+            close();
+        }
+
+        if (!trackBody)
+            trackBody = my.timeline.getTrackBody();
+        var t = trackBody.scrollTop();
+        //check if scrolling up or down
+        var topp;
+        if (evt === 1.1) { //scrolling up
+            topp = t - 30;
+        }
+        else { //scrolling down
+            topp = t + 30;
+        }
+        trackBody.scrollTop(topp);
+    }
+
+
+     //adds a key frame or display    
+    function addKeyorDisplay(evt) {
+        var positionX = evt.position.x,
+            newTime = my.timeManager.pxToTime(positionX),
+            positionY = evt.position.y,
+            enoughSpace = true,
+            displayLength = 5, // assumes display length to be 5 seconds
+            i, keyframe, newDisplay,
+            currDisplay, artDisplay,
+            fromEnd;
+
+        // double-click snap toggle bypass code goes here
+
+
+        if (my.type === LADS.TourAuthoring.TrackType.ink &amp;&amp; my.inkEnabled) {
+            var artDisplays = getInkLink().getStorageContainer().displays.getContents();
+            var indisp = false;
+            //for (i = 0; i &lt; artDisplays.length; i++) {
+            //    if (newTime &lt;= artDisplays[i].display.getEnd() &amp;&amp; newTime &gt;= artDisplays[i].display.getStart()) {
+            //        indisp = true;
+            //        artDisplay = artDisplays[i].display;
+
+            //        break;
+            //    }
+            //}
+            var artDisplays = getInkLink().getStorageContainer().displays.nearestNeighbors(newTime);
+            for (i = 0; i &lt; artDisplays.length; i++) { //will only be up to 2 elements in artDisplays -- the 2 closest ones
+                if (artDisplays[i] &amp;&amp; newTime &lt;= artDisplays[i].display.getEnd() &amp;&amp; newTime &gt;= artDisplays[i].display.getStart()){//check to make sure display is not null
+                    indisp = true;
+                    artDisplay = artDisplays[i].display;
+                    break;
+                }
+            }
+        }
+        if (indisp === false) {
+            // TO-DO put in a warning here that the user should create the track over an artwork/image display
+            return;
+        }
+        // Add display - MODIFY TO CHECK DATAHOLDER
+        if (!my.currentDisplay) {
+            // check if current display is going to conflict with other displays
+            var minSpace = Infinity;
+            var displays = that.getStorageContainer().displays.getContents();
+            for (i = 0; i &lt; displays.length; i++) {
+                currDisplay = displays[i].display;
+
+                // if newtime is after display we don&#x27;t care
+                if (newTime &lt;= currDisplay.getEnd()) {
+                    // check if tap location is on display
+                    
+                    if (newTime &gt;= currDisplay.getStart()) {
+                        enoughSpace = false;
+                        break; // short circuit
+                    }
+                    // check if newTime is w/i displayLength seconds of start of current display
+                    else if (newTime + displayLength &gt;= currDisplay.getStart()) {
+                        displayLength = currDisplay.getStart() - newTime - LADS.TourAuthoring.Constants.esOffset;
+                    }
+                    minSpace = Math.min(minSpace, currDisplay.getStart() - newTime);
+                }
+            }
+            var fromEnd = my.timeManager.getDuration().end - newTime;
+            if (enoughSpace) {
+                my.timeline.allDeselected();
+                //if (artDisplay.getEnd() - newTime &gt;= 0.5) {
+                    if (my.type === LADS.TourAuthoring.TrackType.ink &amp;&amp; my.inkEnabled) {
+                        newDisplay = addDisplay(positionX, Math.min(displayLength, artDisplay.getEnd() - newTime));
+                        newDisplay.setParentDisplay(artDisplay);
+                        artDisplay.addChildDisplay(newDisplay);
+                        if (artDisplay.getEnd() - newTime &lt; 1.5 || minSpace &lt; 1.5) { // if less than 1.5 seconds available...
+                            var smallestSpace = Math.min(minSpace, artDisplay.getEnd() - newTime);
+                            newDisplay.setIn(0);
+                            newDisplay.setOut(0);
+                            newDisplay.setMain(smallestSpace);
+                        }
+                    }
+                    else {
+                        var smallestSpace = Math.min(displayLength, fromEnd);
+                        newDisplay = addDisplay(positionX, smallestSpace);
+                        if (fromEnd &lt; 1.5) {
+                            newDisplay.setIn(0);
+                            newDisplay.setOut(0);
+                            newDisplay.setMain(smallestSpace);
+                        }
+                    }
+                //}
+            }
+        }
+
+        // Add keyframe
+        else if (my.type === LADS.TourAuthoring.TrackType.artwork || my.type === LADS.TourAuthoring.TrackType.audio || my.type === LADS.TourAuthoring.TrackType.image) {
+
+            // enabled and disabled via custom event framework - see Viewer&#x27;s event listener for playerReady event
+            if (my.timeline.getViewer().isKeyframingDisabled()) {
+                return;
+            }
+
+            // check to make sure we are adding keyframe to valid position
+            if (newTime &gt;= my.currentDisplay.getStart() &amp;&amp; newTime &lt;= my.currentDisplay.getEnd()) {
+                // seek before creating new keyframe to unload and update with currently selected keyframe
+                if (my.type !== LADS.TourAuthoring.TrackType.audio) {
+                    my.timeManager.seek(newTime);
+                }
+
+                keyframe = my.currentDisplay.addKeyframe(positionX, positionY, true);
+                
+                if (keyframe) {
+                    my.timeline.allDeselected();
+                    if (my.type == LADS.TourAuthoring.TrackType.audio) {
+                        my.allKeyframes.push(keyframe);
+                        that.drawLines();
+                        //my.update();
+                    }
+                    else { // initialize keyframe and select it for further movements
+                        keyframe.loadRIN(my.timeline.captureKeyframe(my.title)); // send in my.title to specify which keyframe should be captured (works for images and artworks)
+                        keyframe.setSelected(true); // delay logging of edits
+                        my.dirtyKeyframe = true; // dirty b/c it&#x27;s new
+                        //LADS.Util.makeManipulatable
+                    }
+                    my.update();
+                }
+            }
+        } 
+    }
+
+    //Deselects any active keyframes
+    function deselectKeyframe() {
+        if (my.selectedKeyframe) my.selectedKeyframe.setDeselected();
+        my.dirtyKeyframe = false;
+    }
+    that.deselectKeyframe = deselectKeyframe;
+
+    /**
+    * Because loadRIN calls display.addKeyframe directly,
+    * we need to pass it back into the track&#x27;s list of allKeyframes manually for lines to draw
+    */
+    function addKeyframeToLines(keyframe) {
+        my.allKeyframes.push(keyframe);
+        that.drawLines();
+    }
+    that.addKeyframeToLines = addKeyframeToLines;
+
+    //Draw volume line for audio tracks
+    function drawLines() {
+        if (isMinimized) {
+            return;
+        }
+        if (my.type === LADS.TourAuthoring.TrackType.audio) {
+            var keyframes = my.allKeyframes, end = keyframes.length-1;
+            keyframes.sort(function (a, b) {
+                if (a.isRemoved())
+                    return 1;
+                else if (b.isRemoved())
+                    return -1;
+                else
+                    return a.getTime() - b.getTime();
+            });
+
+            while (end &gt; 0 &amp;&amp; keyframes[end].isRemoved()) {
+                end--;
+            }
+
+            var lines = my.svgLines.selectAll(&#x27;#keyframeLines&#x27;);
+            lines.remove();
+
+            mygroup = my.svgLines.append(&quot;svg:g&quot;)
+                .attr(&quot;id&quot;, &quot;keyframeLines&quot;);
+
+            var color = &quot;green&quot;;
+            var myLine;
+            if (keyframes.length &gt; 0) {
+                myLine = mygroup.append(&quot;svg:line&quot;)
+                    .attr(&quot;x1&quot;, 0)
+                    .attr(&quot;y1&quot;, keyframes[0].getVolumePx())
+                    .attr(&quot;x2&quot;, my.timeManager.timeToPx(keyframes[0].getTime()))
+                    .attr(&quot;y2&quot;, keyframes[0].getVolumePx())
+                    .style(&#x27;pointer-events&#x27;, &#x27;none&#x27;)
+                    .style(&quot;stroke&quot;, color)
+                    .style(&quot;stroke-width&quot;, 4);
+
+                for (var counter = 0; counter &lt; end; counter++) {
+                    myLine = mygroup.append(&quot;svg:line&quot;)
+                    .attr(&quot;x1&quot;, my.timeManager.timeToPx(keyframes[counter].getTime()))
+                    .attr(&quot;y1&quot;, keyframes[counter].getVolumePx())
+                    .attr(&quot;x2&quot;, my.timeManager.timeToPx(keyframes[counter + 1].getTime()))
+                    .attr(&quot;y2&quot;, keyframes[counter + 1].getVolumePx())
+                    .style(&#x27;pointer-events&#x27;, &#x27;none&#x27;)
+                    .style(&quot;stroke&quot;, color)
+                    .style(&quot;stroke-width&quot;, 4);
+                }
+
+                myLine = mygroup.append(&quot;svg:line&quot;)
+                    .attr(&quot;x1&quot;, my.timeManager.timeToPx(keyframes[end].getTime()))
+                    .attr(&quot;y1&quot;, keyframes[end].getVolumePx())
+                    .attr(&quot;x2&quot;, &#x27;100%&#x27;)
+                    .attr(&quot;y2&quot;, keyframes[end].getVolumePx())
+                    .style(&#x27;pointer-events&#x27;, &#x27;none&#x27;)
+                    .style(&quot;stroke&quot;, color)
+                    .style(&quot;stroke-width&quot;, 4);
+            }
+            else {
+                myLine = mygroup.append(&quot;svg:line&quot;)
+                    .attr(&quot;x1&quot;, 0)
+                    .attr(&quot;y1&quot;, (100 - LADS.TourAuthoring.Constants.defaultVolume * 100) + &quot;%&quot;)
+                    .attr(&quot;x2&quot;, &#x27;100%&#x27;)
+                    .attr(&quot;y2&quot;, (100 - LADS.TourAuthoring.Constants.defaultVolume * 100) + &quot;%&quot;)
+                    .style(&#x27;pointer-events&#x27;, &#x27;none&#x27;)
+                    .style(&quot;stroke&quot;, color)
+                    .style(&quot;stroke-width&quot;, 4);
+            }
+        }
+    }
+    that.drawLines = drawLines;
+
+    // Methods to add outline and track HTML to DOM
+    // Expects to be passed containers as JQuery object
+
+    /**
+     * @param domElems  Object w/ two properties: &#x27;title&#x27;, the title container, and &#x27;track&#x27;, the track container
+     */
+    function addAllToDOM (domElems) {
+        domElems.title.append(titlediv);
+        domElems.track.append(my.track);
+    }
+    that.addAllToDOM = addAllToDOM;
+
+    function prependAllToDOM(domElems) {
+        domElems.title.prepend(titlediv);
+        domElems.track.prepend(my.track);
+    }
+    that.prependAllToDOM = prependAllToDOM;
+
+
+    function addInkTypeToTitle(type) {
+
+        var inkType = $(document.createElement(&#x27;div&#x27;));
+        inkType.attr(&#x27;id&#x27;, &#x27;inkType&#x27;);
+        inkType.css({
+            &quot;top&quot;: &quot;48px&quot;, &quot;position&quot;: &quot;absolute&quot;, &quot;left&quot; : &quot;5px&quot;,
+            &quot;font-size&quot;: &quot;1em&quot;, &quot;color&quot;: &quot;white&quot;, &quot;width&quot;:&quot;80%&quot;, &quot;height&quot; : &#x27;20px&#x27;,
+        });
+        //parse
+
+        if (type === &quot;trans&quot;) {
+
+            //old_datastring.split(&quot;[mode]&quot;)[1].split(&quot;[&quot;)[0];
+            var transType =  that.getInkPath().split(&quot;[mode]&quot;)[1].split(&quot;[&quot;)[0];
+
+            if (transType === &quot;block&quot;) {
+                inkType.text(&quot;Block&quot;);
+            }
+            else {
+                inkType.text(&quot;Isolate&quot;);
+            }
+        }
+        else if (type == &quot;text&quot;) {
+            inkType.text(&quot;Text&quot;);
+        }
+        else if (type == &quot;path&quot; || type==&quot;bezier&quot;) {
+            inkType.text(&quot;Draw&quot;);
+        }
+        //inkType.text(type);
+        
+
+
+        titlediv.append(inkType);
+    }
+    that.addInkTypeToTitle = addInkTypeToTitle;
+
+    // Add only title
+    function addTitleToDOM(container) {
+        if (arrayPos &gt; 0) {
+            container.children().eq(arrayPos - 1).after(titlediv);
+        } else {
+            container.prepend(titlediv);
+        }
+        prevTitleDiv = titlediv.prev(&quot;.titlediv&quot;);
+    }
+    that.addTitleToDOM = addTitleToDOM;
+
+    // Add only track
+    function addEditorToDOM(container) {
+        if (arrayPos &gt; 0) {
+            container.children().eq(arrayPos - 1).after(my.track);
+        } else {
+            container.prepend(my.track);
+        }
+        //prevTrack = my.track.prev(&quot;.track&quot;);
+    }
+    that.addEditorToDOM = addEditorToDOM;
+
+    function remove() {
+        dataHolder.removeTrack(that);
+        titlediv.remove();
+        my.track.remove();
+    }
+    that.remove = remove;
+
+    function detach() {
+        //dataHolder.removeTrack(that);
+        titlediv.detach();
+        my.track.detach();
+    }
+    that.detach = detach;
+
+    // DISPLAY WORK
+   
+    var displayCount = 0; // used for ids
+    my.currentDisplay = null; // Manipulation handling
+    my.currentKeyframe = null;
+
+    /**
+     * Public fn for adding visibility to track
+     * @param x         x value (px) for display
+     * @param length    length of display in seconds (set to 5 if not given) (only used in testing)
+     * @returns     command for adding/undoing addition
+     */
+    function addDisplay(x, length) {
+        //x = (my.timeManager.pxToTime(x) &lt; 0.5) ? 0 : x - my.timeManager.timeToPx(0.5); //should use a constant for fade-in length rather than .5
+        var index, i, parentDisplays, parentDisp,
+            newDisplay = LADS.TourAuthoring.Display({
+                start: my.timeManager.pxToTime(x),
+                length: length,
+                dataHolder: dataHolder,
+                canKeyframe: (my.type !== LADS.TourAuthoring.TrackType.ink &amp;&amp; my.type !== LADS.TourAuthoring.TrackType.video),
+                canFade: (my.type !== LADS.TourAuthoring.TrackType.audio)
+            }, my),
+
+            command = LADS.TourAuthoring.Command({
+                execute: function () {
+                    //dataHolder.addDisplay(arrayPos, newDisplay);
+                    newDisplay.reloadDisplay();
+                    newDisplay.restoreHandlers();
+                    my.update();
+                },
+                unexecute: function () {
+                    newDisplay.removeDisplay(false);
+                    my.update();
+                }
+            });
+        dataHolder.addDisplay(arrayPos, newDisplay);
+        //displayCount++;
+        
+        // update rest of displays
+        //for (i = index+1; i &lt; my.displays.length; i++) {
+        //    my.displays[i].setID(i);
+        //}
+        my.update();
+        my.undoManager.logCommand(command);
+        return newDisplay; // for testing
+    }
+    that.addDisplay = addDisplay;
+
+    //Function to remove display passed in as an argument.
+
+    /**
+     * Helper function for inserting display into array
+     * Keeps displays sorted by start
+     */
+    function _displaycomp(a, b) {
+        return a.getStart() &gt; b.getStart();
+    }
+    that.displayComp = _displaycomp;
+
+    /**
+     * For testing purposes only!!!
+     */
+    function getDisplays() {
+        return my.displays;
+    }
+    that.getDisplays = getDisplays;
+
+    function clearDisplays() {
+        //my.displays = [];
+        that.getStorageContainer().displays.clear();
+    }
+
+    /**
+     * Updates track w/ new keyframe data at current location
+     * @param capture   keyframe data in RIN format
+     * @param select    whether the keyframe receiving data should be selected
+     */
+    function receiveKeyframe(capture, select) {
+        var i, display, keyframe, current = my.timeManager.getCurrentTime();
+        var activeDisplay;// = that.getStorageContainer().displays.nearestNeighbors(current, 1)[0];
+        if (my.selectedKeyframe || (activeDisplay = that.getStorageContainer().displays.nearestNeighbors(current, 1)[0])) {
+            var activeKeyframe;
+            if (my.selectedKeyframe) {
+                activeKeyframe = my.selectedKeyframe;
+            } else {
+                activeKeyframe = activeDisplay.keyframes.nearestNeighbors(current, 1)[0];
+            }
+            if (activeKeyframe &amp;&amp; ((Math.twoDecPlaces(activeKeyframe.getTime()) &lt;= Math.twoDecPlaces(current + 0.05)) &amp;&amp; (Math.twoDecPlaces(activeKeyframe.getTime()) &gt;= Math.twoDecPlaces(current - 0.05))) &amp;&amp; !activeKeyframe.removed) { // the current check fixes a bug
+                activeKeyframe.loadRIN(capture);
+                my.dirtyKeyframe = true;
+                if (select &amp;&amp; my.selectedKeyframe !== activeKeyframe) {
+                    activeKeyframe.setSelected();
+                }
+            }
+            else { // find active display and add keyframe to it
+                if (!activeDisplay) {
+                    activeDisplay = that.getStorageContainer().displays.nearestNeighbors(current, 1)[0];
+                }
+                if (activeDisplay) {
+                    if (current &gt;= activeDisplay.display.getStart() &amp;&amp; current &lt;= activeDisplay.display.getEnd()) {
+                        keyframe = activeDisplay.display.addKeyframe(my.timeManager.timeToPx(current));
+                        if (keyframe) {
+                            keyframe.loadRIN(capture);
+                            my.dirtyKeyframe = true;
+                            keyframe.setSelected(false, true);
+                        }
+                    }
+                }
+                //var displays = that.getStorageContainer().displays.getContents();
+                //for (i = 0; i &lt; displays.length; i++) {
+                //    display = displays[i].display;
+                //    if (display.getStart() &lt; current &amp;&amp; current &lt; display.getEnd()) {
+                //        keyframe = display.addKeyframe(my.timeManager.timeToPx(current));
+                //        if (keyframe) {
+                //            keyframe.loadRIN(capture);
+                //            my.dirtyKeyframe = true;
+                //            if (select) keyframe.setSelected();
+                //        }
+                //        return;
+                //    }
+                //}
+            }
+        }
+    }
+    that.receiveKeyframe = receiveKeyframe;
+
+    function _unselectKeyframe() {
+        if (my.selectedKeyframe) {
+            my.selectedKeyframe.setDeselected();
+        }
+        my.currentKeyframe = null;
+        my.dirtyKeyframe = false;
+    }
+    my.timeManager.onMove(function () {
+        if (my.dirtyKeyframe) {
+            my.update(true);
+        }
+        _unselectKeyframe();
+    });
+
+    // Ink params
+    my.inkSpec = {};
+    my.inkPath = &quot;&quot;;
+    my.currentInkPath = &quot;&quot;;
+    my.inkProps = {};
+    my.inkEnabled = null; //(bleveque) unattached ink tracks by default
+    my.inkInitKeyframe = {};
+    my.inkRelativeArtPos = {};
+  
+    // add initialization
+    //color, font, opacity, size, mode
+    // param getters
+    function getInkSpec() {
+        return my.inkSpec;
+    }
+    function getInkColor() {
+        return my.inkSpec.penColor;
+    }
+    function getInkFont() {
+        return my.inkSpec.font;
+    }
+    function getInkOpacity() {
+        return my.inkSpec.opacity;
+    }
+    function getInkSize() {
+        return my.inkSpec.size;
+    }
+    function getInkMode() {
+        return my.inkSpec.mode;
+    }
+    function getInkPath() {
+        return my.inkPath;
+    }
+    function getInkLink() {//returns parent/associated artwork track
+        return my.experienceId;
+    }
+    function getInkProps() {
+        return my.inkProps;
+    }
+    function getInkEnabled() {
+        return my.inkEnabled;
+    }
+    function getInkInitKeyframe() {
+        return my.inkInitKeyframe;
+    }
+    function getInkRelativeArtPos() {
+        return my.inkRelativeArtPos;
+    }
+    function getInkType() {
+        return my.inkType;
+    }
+    that.getInkType = getInkType;
+
+    that.getInkSpec = getInkSpec;
+    that.getInkColor = getInkColor;
+    that.getInkFont = getInkFont;
+    that.getInkOpacity = getInkOpacity;
+    that.getInkSize = getInkSize;
+    that.getInkMode = getInkMode;
+    that.getInkPath = getInkPath;
+    that.getInkLink = getInkLink;
+    that.getInkProps = getInkProps;
+    that.getInkEnabled = getInkEnabled;
+    that.getInkInitKeyframe = getInkInitKeyframe;
+    that.getInkRelativeArtPos = getInkRelativeArtPos;
+
+    // param setters
+    function setInkType() {
+        return my.inkType;
+    }
+
+    function setInkSpec(spec) {
+        my.inkSpec = spec;
+    }
+    function setInkColor(color) {
+        my.inkSpec.color = color;
+    }
+    function setInkFont(font) {
+        my.inkSpec.font = font;
+    }
+    function setInkOpacity(opacity) {
+        my.inkSpec.opacity = opacity;
+    }
+    function setInkSize(size) {
+        my.inkSpec.size = size;
+    }
+    function setInkMode(mode) {
+        my.inkSpec.mode = mode;
+    }
+    function setInkPath(path) {
+        my.inkPath = path;
+    }
+    function setInkLink(id) {
+        my.experienceId = id;
+    }
+    function setInkProps(props) {
+        my.inkProps = props;
+    }
+    function setInkEnabled(enabled) {
+        my.inkEnabled = enabled;
+    }
+    function setInkInitKeyframe(kf) {
+        my.inkInitKeyframe = kf;
+    }
+    function setInkRelativeArtPos(ar) {
+        my.inkRelativeArtPos = ar;
+    }
+    function addAttachedInkTrack(tr) {
+        if (my.attachedInks.indexOf(tr) &lt; 0) {
+            my.attachedInks.push(tr);
+        } else {
+            console.log(&quot;duplicate added&quot;);
+        }
+    }
+    function removeAttachedInkTrack(tr) {
+        my.attachedInks.splice(my.attachedInks.indexOf(tr), 1);
+    }
+    that.setInkSpec = setInkSpec;
+    that.setInkType = setInkType;
+    that.setInkColor = setInkColor;
+    that.setInkFont = setInkFont;
+    that.setInkOpacity = setInkOpacity;
+    that.setInkSize = setInkSize;
+    that.setInkMode = setInkMode;
+    that.setInkPath = setInkPath;
+    that.setInkLink = setInkLink;
+    that.setInkProps = setInkProps;
+    that.setInkEnabled = setInkEnabled;
+    that.setInkInitKeyframe = setInkInitKeyframe;
+    that.setInkRelativeArtPos = setInkRelativeArtPos;
+    that.addAttachedInkTrack = addAttachedInkTrack;
+    that.removeAttachedInkTrack = removeAttachedInkTrack;
+
+    // RIN conversions
+
+    /**
+     * Add track resource to RIN resource table
+     * @param table     RIN resource table object to add entry to
+     */
+    function addResource(table) {
+        table[my.resource] = {
+            uriReference: media
+        };
+    }
+    that.addResource = addResource;
+
+    /**
+     * Generates RIN data for Experience Stream from track
+     * @param data      &quot;ExperienceStreams&quot; object to add named track ES object to
+     */
+    function addES(data) {
+        var i, passthrough, inkLink = null,
+            param = my.title,
+            count = 0,
+            exp = {},
+            prevState = null;
+
+        exp.data = {
+            zIndex: dataHolder.numTracks() - that.getPos(),
+        };
+
+        // type
+        switch (my.type) {
+            case LADS.TourAuthoring.TrackType.artwork:
+                exp.providerId = &#x27;ZMES&#x27;;
+                exp.data.guid = guid;
+                break;
+
+            case LADS.TourAuthoring.TrackType.image:
+                exp.providerId = &#x27;ImageES&#x27;;
+                break;
+
+            case LADS.TourAuthoring.TrackType.audio:
+                exp.providerId = &#x27;AES&#x27;;
+                exp.data.mediaLength = my.mediaLength;
+                break;
+
+            case LADS.TourAuthoring.TrackType.video:
+                exp.providerId = &#x27;VideoES&#x27;;
+                exp.data.mediaLength = my.mediaLength;
+                break;
+
+            case LADS.TourAuthoring.TrackType.ink:
+                exp.providerId = &#x27;InkES&#x27;;
+                exp.data.linkToExperience = {};
+                inkLink = (my.experienceId) ? my.experienceId.getTitle() : &#x27;&#x27;;
+                exp.data.linkToExperience.embedding = {
+                    element: {
+                        datastring: {
+                            type: &quot;datastring&quot;,
+                            str: my.inkPath,
+                        },
+                        props: my.inkProps,
+                    },
+                    enabled: my.inkEnabled,
+                    //inkType: my.inkType,
+                    initKeyframe: my.inkInitKeyframe,
+                    experienceId: inkLink,
+                    initproxy: my.inkRelativeArtPos,
+                };
+                //hard coded for now
+                exp.data.markers = {
+                    beginAt: 0,
+                    endAt: 5,
+                };
+                exp.data.transition = {
+                    inDuration: 0.000001, //was 0.5 (bleveque)
+                    outDuration: 0.000001, //was 0.5 (bleveque)
+                    providerId: &quot;FadeInOutTransitionService&quot;,
+                };
+                exp.experienceStreams = { &quot;defaultStream&quot;: { &quot;duration&quot;: 16.891999999999999 } };
+                exp.resourceReferences = [];
+                break;
+            default:
+                console.log(&#x27;Track type not yet implemented in RIN&#x27;);
+        }
+
+        // don&#x27;t pass through if track is currently selected or there is no selection
+        if (!dataHolder.getSelectedTrack() || dataHolder.getSelectedTrack() === that) {
+            passthrough = false;
+        } else {
+            passthrough = true;
+        }
+        
+        if (my.type !== LADS.TourAuthoring.TrackType.ink) {
+            exp.resourceReferences = [
+                {
+                    resourceId: my.resource,
+                    required: &#x27;true&#x27;
+                }
+            ];
+        } else {
+            exp.resourceReferences = [];
+        }
+        exp.experienceStreams = {};
+
+        var trackDisplays = that.getStorageContainer().displays.getContents();
+        for (var idx = 0; idx &lt; trackDisplays.length; idx++) {
+            trackDisplays[idx].display.toES(exp, passthrough, prevState, idx);
+            prevState = dataHolder.lastKeyframe(trackDisplays[idx].display);
+        }
+
+        //dataHolder.mapDisplays(that.getStorageContainer(), function (currentDisplay) {
+        //    currentDisplay.display.toES(exp, passthrough, prevState);
+        //    prevState = dataHolder.lastKeyframe(currentDisplay.display);
+        //});
+
+        //for (i = 0; i &lt; my.displays.length; i++) {
+        //    my.displays[i].toES(exp, passthrough, prevState);
+        //    prevState = my.displays[i].getLastKeyframe();
+        //}
+
+        while (data.hasOwnProperty(param)) {
+            param = param + &#x27;-0&#x27;;
+        }
+        data[param] = exp;
+    }
+    that.addES = addES;
+
+    /**
+     * --- DEPRECATED --- 
+     * Helper function for generating Experience Streams
+     * Gathers Keyframe Sequence data from displays
+     * @returns     &quot;keyframeSequences&quot; object
+     */
+    function _getKeyframeSequences() {
+        var i, sequences = {};
+        for (i = 0; i &lt; my.displays.length; i++) {
+            my.displays[i].toKeyframeSequence(sequences);
+        }
+        return sequences;
+    }
+
+    /**
+     * Gathers screenplay entries from displays
+     * Don&#x27;t forget to sort these things afterwards
+     * @param screenplay        Array to add screenplay entries to
+     * @param needFull          If true, output screenplay entries regardless of internal settings
+     */
+    function addScreenPlayEntries(screenplay, needFull) {
+        if (needFull || my.isVisible) {
+            var trackDisplays = dataHolder.getDisplays(that.getPos()).getContents();
+            for (var i = 0; i &lt; trackDisplays.length; i++) {
+                var currentDisplay = trackDisplays[i];
+                screenplay.push(currentDisplay.display.toScreenPlayEntry(i));
+            };
+            //for (i = 0; i &lt; my.displays.length; i++) {
+            //    screenplay.push(my.displays[i].toScreenPlayEntry());
+            //}
+        }
+    }
+    that.addScreenPlayEntries = addScreenPlayEntries;
+    
+    // updates the position of the zoom box
+    function zoomBoxUpdate() {
+        var zoomfader = $(document.getElementById(&#x27;zoomPoint&#x27;));
+        var currScale = my.timeManager.getDuration().scale;
+
+        var minScale = $(timeline).width() / my.timeManager.getDuration().end;
+        var percent = (currScale - minScale) / (LADS.TourAuthoring.Constants.maxZoom - minScale);
+        var newLeft = ((zoomfader.offsetParent().width() - zoomfader.width()) * percent);
+        zoomfader.css(&#x27;left&#x27;, newLeft);
+    }
+
+    // set minimized boolean flag to specified value
+    function setMinimizedState(state) {
+        isMinimized = state;
+    }
+    that.setMinimizedState = setMinimizedState;
+
+    // return value of boolean flag representing minimized state
+    function  getMinimizedState() {
+        return isMinimized;
+    }
+    that.getMinimizedState = getMinimizedState;
+
+    // toggle track minimization
+    function toggleMinimized() {
+        isMinimized = !isMinimized;
+        if (Math.ceil(titlediv.height()) === LADS.TourAuthoring.Constants.trackHeight) {
+            titlediv.height(LADS.TourAuthoring.Constants.minimizedTrackHeight);
+            my.track.height(LADS.TourAuthoring.Constants.minimizedTrackHeight);
+            if (mygroup) {
+                mygroup.style(&#x27;display&#x27;, &#x27;none&#x27;);
+            }
+        } else {
+            titlediv.height(LADS.TourAuthoring.Constants.trackHeight);
+            my.track.height(LADS.TourAuthoring.Constants.trackHeight);
+            if (mygroup) {
+                mygroup.style(&#x27;display&#x27;, null);
+            }
+        }
+        dataHolder.mapDisplays(that.getStorageContainer(), function (display) {
+            display.display.toggleCircles();
+        });
+
+        drawLines();
+        my.timeline.updateVerticalScroller();
+        my.timeline.enableDisableDrag();
+    }
+
+    return that;
+};
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

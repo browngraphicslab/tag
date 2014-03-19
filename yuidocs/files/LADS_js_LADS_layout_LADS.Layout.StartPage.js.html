@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>LADS/js/LADS/layout/LADS.Layout.StartPage.js - Touch Art Gallery web application</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../../LADS/images/WideLogo.scale-100.png" title="Touch Art Gallery web application"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 1.0.0</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
+            
+                <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: LADS/js/LADS/layout/LADS.Layout.StartPage.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+﻿LADS.Util.makeNamespace(&quot;LADS.Layout.StartPage&quot;);
+
+LADS.Layout.StartPage = function (options, startPageCallback) {
+    &quot;use strict&quot;;
+
+    options = LADS.Util.setToDefaults(options, LADS.Layout.StartPage.default_options);
+    
+    options.tagContainer = $(&quot;#tagRoot&quot;); // TODO more general
+
+    var root = LADS.Util.getHtmlAjax(&#x27;StartPage.html&#x27;), // use AJAX to load html from .html file
+        overlay = root.find(&#x27;#overlay&#x27;),
+        serverTagBuffer = root.find(&#x27;#serverTagBuffer&#x27;),
+        serverSetUpContainer = root.find(&#x27;#serverSetUpContainer&#x27;),
+        // repository = options.repository,
+        serverURL,
+        tagContainer;
+
+    if (localStorage.ip &amp;&amp; localStorage.ip.indexOf(&#x27;:&#x27;) !== -1) {
+        localStorage.ip = localStorage.ip.split(&#x27;:&#x27;)[0];
+    }
+    
+    serverURL = &#x27;http://&#x27; + (localStorage.ip ? localStorage.ip + &#x27;:8080&#x27; : &quot;browntagserver.com:8080&quot;);
+    tagContainer = options.tagContainer || $(&#x27;body&#x27;);
+
+    testConnection();
+
+    /**
+     * Test internet and server connections
+     * @param options             Object
+     *            internetURL     url of alternate site against which we&#x27;ll test connectivity
+     */
+    function testConnection(options) {
+        var internetURL = (options &amp;&amp; options.internetURL) || &quot;http://www.google.com/&quot;;
+        console.log(&quot;checking server url: &quot; + serverURL);
+        $.ajax({
+            url: serverURL,
+            dataType: &quot;text&quot;,
+            async: true,
+            cache: false,
+            success: function () {
+                successConnecting();
+            },
+            error: function (err) {
+                $.ajax({  // TODO: not a solid way to do this
+                    url: internetURL,
+                    dataType: &quot;text&quot;,
+                    async: false,
+                    cache: false,
+                    success: function () {
+                        tagContainer.empty();
+                        tagContainer.append((new LADS.Layout.InternetFailurePage(&quot;Server Down&quot;)).getRoot());
+                    },
+                    error: function (err) {
+                        tagContainer.empty();
+                        tagContainer.append((new LADS.Layout.InternetFailurePage(&quot;No Internet&quot;)).getRoot());
+                    }
+                });
+            }
+        });
+    }
+
+    function successConnecting() {
+        LADS.Worktop.Database.getMain(loadHelper, function () {
+            tagContainer.empty();
+            tagContainer.append((new LADS.Layout.InternetFailurePage(&quot;Server Down&quot;)).getRoot());
+        });
+        if (startPageCallback) {
+            startPageCallback(root);
+        }
+    }
+
+    var that = {};
+
+    //sets up the entire visual layout and images of the splash screen
+    function loadHelper(main) {
+        var fullScreen,
+            overlayColor,
+            overlayTransparency,
+            backgroundColor,
+            imageBgColor,
+            logoContainer,
+            logo,
+            brownInfoBox,
+            expandInfoButton,
+            expandImage,
+            tagName,
+            fullTag,
+            infoExpanded,
+            brownPeople,
+            sponsoredText,
+            microsoftLogo,
+            museumName,
+            museumNameSpan,
+            tempName,
+            museumLoc,
+            museumLocSpan,
+            tempLoc,
+            museumInfoDiv,
+            museumInfoSpan,
+            tempInfo,
+            infoTextHolder,
+            infoDiv,
+            touchHint,
+            handGif;
+
+        LADS.Util.Constants.set(&quot;START_PAGE_SPLASH&quot;, tagPath+&quot;images/birdtextile.jpg&quot;);
+
+        if(!allowServerChange) {
+            $(&#x27;#serverTagBuffer&#x27;).remove();
+        }
+
+        // set image paths
+        root.find(&#x27;#expandImage&#x27;).attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/Left.png&#x27;);
+        root.find(&#x27;#handGif&#x27;).attr(&#x27;src&#x27;, tagPath+&#x27;images/RippleNewSmall.gif&#x27;);
+
+        fullScreen = root.find(&#x27;#background&#x27;);
+        fullScreen.css(&#x27;background-image&#x27;, &quot;url(&quot; + LADS.Worktop.Database.fixPath(main.Metadata[&quot;BackgroundImage&quot;]) + &quot;)&quot;);
+
+        overlayColor = main.Metadata[&quot;OverlayColor&quot;];
+        overlayTransparency = main.Metadata[&quot;OverlayTransparency&quot;];
+
+        backgroundColor = LADS.Util.UI.hexToRGB(overlayColor) + overlayTransparency + &#x27;)&#x27;;
+
+        imageBgColor = &#x27;#&#x27; + main.Metadata[&quot;IconColor&quot;];
+        logoContainer = root.find(&#x27;#logoContainer&#x27;);
+        logoContainer.css({ &#x27;background-color&#x27;: imageBgColor });
+
+        logo = root.find(&#x27;#logo&#x27;);
+        logo.attr(&#x27;src&#x27;, LADS.Worktop.Database.fixPath(main.Metadata[&quot;Icon&quot;]));
+
+        logoContainer.on(&#x27;click&#x27;, function (evt) {
+            evt.stopPropagation();
+        });
+
+        overlay.on(&#x27;click&#x27;, switchPage);
+
+        brownInfoBox = root.find(&#x27;#brownInfoBox&#x27;);
+        brownInfoBox.on(&#x27;click&#x27;, expandInfo);
+
+        expandInfoButton = root.find(&#x27;#expandInfoButton&#x27;);
+        expandImage = root.find(&#x27;#expandImage&#x27;);
+        tagName = root.find(&#x27;#tagName&#x27;);
+        fullTag = root.find(&#x27;#fullTag&#x27;);
+
+        infoExpanded = false; //used to expand/collapse info
+        brownPeople = $(document.createElement(&#x27;div&#x27;));
+        brownPeople.attr(&#x27;id&#x27;, &#x27;brownPeople&#x27;);
+        brownPeople.text(&#x27;Brown University \nAndy van Dam, Alex Hills, Yudi Fu, Karishma Bhatia, Gregory Chatzinoff, John Connuck, David Correa, Mohsan Elahi, Aisha Ferrazares, Jessica Fu, Kaijan Gao, Jessica Herron, Ardra Hren, Hak Rim Kim, Inna Komarovsky, Ryan Lester, Benjamin LeVeque, Josh Lewis, Jinqing Li, Jeffery Lu, Xiaoyi Mao, Ria Mirchandani, Julie Mond, Ben Most, Jonathan Poon, Dhruv Rawat, Jacob Rosenfeld, Anqi Wen, Dan Zhang, Libby Zorn&#x27;);
+
+        sponsoredText = $(document.createElement(&#x27;label&#x27;));
+        sponsoredText.attr(&#x27;id&#x27;, &#x27;sponsoredText&#x27;);
+        sponsoredText.text(&#x27;Sponsored by&#x27;);
+
+        microsoftLogo = $(document.createElement(&#x27;img&#x27;));
+        microsoftLogo.attr(&#x27;id&#x27;, &#x27;microsoftLogo&#x27;);
+        microsoftLogo.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/MicrosoftLogo.png&#x27;);
+
+        museumName = root.find(&#x27;#museumName&#x27;);
+        museumNameSpan = root.find(&#x27;#museumNameSpan&#x27;);
+
+        tempName = main.Metadata[&quot;MuseumName&quot;];
+        if (tempName === undefined) {
+            tempName = &quot;&quot;;
+        }
+        museumNameSpan.text(tempName);
+
+        museumLoc = root.find(&#x27;#museumLoc&#x27;);
+        museumLocSpan = root.find(&#x27;#museumLocSpan&#x27;);
+
+        tempLoc = main.Metadata[&quot;MuseumLoc&quot;];
+        if (tempLoc === undefined) {
+            tempLoc = &quot;&quot;;
+        }
+        museumLocSpan.text(tempLoc);
+
+        var loadedInterval2 = setInterval(function () { // TODO is this interval necessary?
+            fixText();
+            clearInterval(loadedInterval2);
+        });
+
+        function fixText() { // TODO fix this up, make it cleaner
+            var nameDivSize,
+                nameSpanSize,
+                fontSizeSpan,
+                subheadingFont;
+            if (LADS.Util.elementInDocument(museumName)) {
+                subheadingFont = parseInt(museumLoc.css(&#x27;font-size&#x27;), 10);
+                //here we are going to construct the function
+                nameDivSize = museumName.height();
+                fontSizeSpan = museumName.height();
+		/*                
+		museumNameSpan.css(&#x27;font-size&#x27;, nameDivSize + &#x27;px&#x27;);
+                nameSpanSize = museumNameSpan.height();
+                while (nameDivSize &lt; nameSpanSize) {
+                    fontSizeSpan--;
+                    museumNameSpan.css(&#x27;font-size&#x27;, fontSizeSpan + &#x27;px&#x27;);
+                    nameSpanSize = museumNameSpan.height();
+                }*/
+                museumNameSpan.css(&#x27;height&#x27;, nameSpanSize);
+            }
+        }
+        that.fixText = fixText;
+
+        museumInfoDiv = root.find(&#x27;#museumInfoDiv&#x27;);
+
+        museumInfoSpan = root.find(&#x27;#museumInfoSpan&#x27;);
+
+        tempInfo = main.Metadata[&quot;MuseumInfo&quot;];
+        if (!tempInfo) {
+            tempInfo = &quot;&quot;;
+        }
+        museumInfoSpan.text(tempInfo);
+	
+	/*
+        var loadedInterval = setInterval(function () { // TODO must be a better way...
+            if (LADS.Util.elementInDocument(museumInfoDiv)) {
+                var subheadingFont = parseInt(museumLoc.css(&#x27;font-size&#x27;), 10);
+                LADS.Util.UI.fitTextInDiv(museumInfoSpan, Math.round(subheadingFont * 2 / 3), Math.round(subheadingFont * 1 / 3));
+                clearInterval(loadedInterval);
+            }
+        });*/
+
+        infoTextHolder = root.find(&#x27;#infoTextHolder&#x27;);
+
+        infoDiv = root.find(&#x27;#infoDiv&#x27;);
+        infoDiv.css({
+            &#x27;background-color&#x27;: backgroundColor
+        });
+
+        serverSetUpContainer.on(&#x27;click&#x27;, function() {
+            LADS.Util.UI.ChangeServerDialog();
+        });
+        serverTagBuffer.on(&#x27;click&#x27;, function (evt) {
+            evt.stopPropagation();
+        });
+
+        touchHint = root.find(&#x27;#touchHint&#x27;);
+
+        handGif = root.find(&#x27;#handGif&#x27;);
+
+        handGif.onclick = switchPage;
+
+        //this handes the animation for opening/closing the div that holds the information about the project
+        function expandInfo(event) {
+            event.stopPropagation();
+            if (infoExpanded) {
+                infoExpanded = false;
+                expandImage.css({ &#x27;transform&#x27;: &#x27;scaleX(1)&#x27; });
+                expandInfoButton.animate({ width: &#x27;15%&#x27;, &#x27;border-top-left-radius&#x27;: &#x27;0px&#x27; }, 700);
+                brownInfoBox.animate({ width: &#x27;20%&#x27;, height: &#x27;10%&#x27;, right: &quot;0%&quot;, &#x27;border-top-left-radius&#x27;: &#x27;0px&#x27; }, 700);
+                sponsoredText.remove();
+                microsoftLogo.remove();
+                fullTag.animate({ left: &#x27;20%&#x27;, top: &#x27;60%&#x27;, &#x27;font-size&#x27;: &#x27;90%&#x27; }, 700);
+                tagName.animate({ left: &#x27;20%&#x27;, top: &#x27;10%&#x27;, &#x27;font-size&#x27;: &#x27;200%&#x27; }, 700);
+                brownPeople.animate({ &quot;left&quot;: &quot;75%&quot;, &quot;top&quot;: &quot;75%&quot;, &#x27;font-size&#x27;: &#x27;0%&#x27; }, 500);
+            }
+            else {
+                infoExpanded = true;
+                expandInfoButton.animate({ width: &#x27;8%&#x27;, &#x27;border-top-left-radius&#x27;: &#x27;20px&#x27; }, 700);
+                brownInfoBox.animate({ width: &#x27;60%&#x27;, height: &#x27;25%&#x27;, right: &quot;0%&quot;, &#x27;border-top-left-radius&#x27;: &#x27;20px&#x27; }, 700);
+                brownInfoBox.append(brownPeople);
+                brownInfoBox.append(sponsoredText);
+                brownInfoBox.append(microsoftLogo);
+                expandImage.css({ &#x27;transform&#x27;: &#x27;scaleX(-1)&#x27; });
+                brownPeople.css({ &quot;right&quot;: &quot;0%&quot;, &quot;bottom&quot;: &quot;0%&quot;, &quot;position&quot;: &quot;absolute&quot;, &quot;font-size&quot;: &quot;0%&quot; });
+                brownPeople.animate({ &quot;left&quot;: &quot;12%&quot;, &quot;top&quot;: &quot;51%&quot;, &quot;position&quot;: &quot;absolute&quot;, &quot;font-size&quot;: &quot;81%&quot; }, 700, &#x27;swing&#x27;, function () { $(brownPeople).fitText(5); });
+                tagName.animate({ left: &#x27;12%&#x27;, top: &#x27;3%&#x27;, &#x27;font-size&#x27;: &#x27;300%&#x27; }, 700);
+                fullTag.animate({ left: &#x27;12%&#x27;, top: &#x27;35%&#x27;, &#x27;font-size&#x27;: &#x27;130%&#x27; }, 700);
+            }
+        }
+
+        //opens the exhibitions page on touch/click
+        function switchPage() {
+            var newCatalog = new LADS.Layout.NewCatalog();
+            overlay.on(&#x27;click&#x27;, function(){});
+            LADS.Util.UI.slidePageLeft(newCatalog.getRoot());
+        }
+    }
+
+    function getRoot() {
+        return root;
+    }
+    that.getRoot = getRoot;
+
+    return that;
+};
+
+
+
+LADS.Layout.StartPage.default_options = {
+    repository: &quot;http://cs.brown.edu/research/lads/LADS2.0Data/repository.xml&quot;,
+};
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>
