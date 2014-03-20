@@ -1308,7 +1308,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.InternetFailurePage.js",
-            "line": 35,
+            "line": 34,
             "description": "Sets up internet failure page (handlers, etc) using the input errorType",
             "itemtype": "method",
             "name": "init",
