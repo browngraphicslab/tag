@@ -33094,7 +33094,7 @@ LADS.Util.UI = (function () {
             }
             var pushpinOptions = {
                 text: String(i + 1),
-                icon: tagPath+'/images/icons/locationPin.png',
+                icon: tagPath+'images/icons/locationPin.png',
                 width: 20,
                 height: 30
             };
