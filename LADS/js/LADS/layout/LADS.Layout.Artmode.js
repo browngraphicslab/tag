@@ -16,59 +16,65 @@
 LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
     "use strict";
 
-    /* nbowditch _editted 2/13/2014 : added prevInfo */
-    var prevPage;
-    var prevScroll = 0;
-	var prevExhib = exhibition;
-    if (prevInfo) {
-        prevPage = prevInfo.prevPage,
-        prevScroll = prevInfo.prevScroll;
-    }
-    /* end nbowditch edit */
-
-    var locationList = LADS.Util.UI.getLocationList(options.doq.Metadata);
-    var initialized = false;
-    var root, doq, map, splitscreen, locsize, backButton,
+    var prevPage,
+        prevScroll,
+        prevExhib = exhibition,
+        locationList = LADS.Util.UI.getLocationList(options.doq.Metadata),
+        initialized = false,
+        root, doq, map, splitscreen, locsize, backButton,
         sideBar, toggler, togglerImage, locationHistoryDiv, info, //Need to be instance vars for splitscreen
         zoomimage = null,
         locationHistoryToggle,
         locationHistoryContainer,
         locationHistory,
         direction, //direction for location history panel
-        mapMade = false;
-    var locationHistoryActive = false;//have the location history panel hidden as default.
-    var drawers = [];
-    var hotspotsHolderArray = [];
-    var hotspotsArray = [];
-    var assets, hotspots;
-    var loadQueue = LADS.Util.createQueue();
-    var switching = false;
-    var confirmationBox;
-    var tagContainer = $('#tagRoot') || $('body');
-    var NUM_DRAWERS = 4;
+        mapMade = false,
+        locationHistoryActive = false,//have the location history panel hidden as default.
+        drawers = [],
+        hotspotsHolderArray = [],
+        hotspotsArray = [],
+        assets, hotspots,
+        loadQueue = LADS.Util.createQueue(),
+        switching = false,
+        confirmationBox,
+        tagContainer = $('#tagRoot') || $('body'),
+        NUM_DRAWERS = 4;
+
+    if (prevInfo) {
+        prevPage = prevInfo.prevPage,
+        prevScroll = prevInfo.prevScroll || 0;
+    }
+        
     options = LADS.Util.setToDefaults(options, LADS.Layout.Artmode.default_options);
     doq = options.doq;
 
     init();
+
     /**
-    *initiate artmode with a root, artwork image and a sidebar on the left.
-    */
+     * Initiate artmode with a root, artwork image and a sidebar on the left.
+     * @method init
+     */
     function init() {
         // add elements to the header for displaying bing maps
-        var head = document.getElementsByTagName('head').item(0);
-        var script = document.createElement("script");
+        var head,
+            script,
+            meta;
+
+        head = document.getElementsByTagName('head').item(0);
+        script = document.createElement("script");
         script.charset = "UTF-8";
         script.type = "text/javascript";
         script.src = "http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0";
         head.appendChild(script);
 
-        var meta = document.createElement('meta');
+        meta = document.createElement('meta');
         meta.httpEquiv = "Content-Type";
         meta.content = "text/html; charset=utf-8";
         head.appendChild(meta);
 
         root = LADS.Util.getHtmlAjax('Artmode.html');
         root.data('split', options.split);
+
         //get the artwork
         if (doq) {
             zoomimage = new LADS.AnnotatedImage(root, doq, options.split, function () {
@@ -79,7 +85,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 try { // TODO figure out why loadDoq sometimes causes a NetworkError (still happening?)
                     zoomimage.loadDoq(doq);
                 } catch(err) {
-                    console.log(err); // TODO if we hit a network error, show an error message on screen
+                    console.log(err); // TODO if we hit a network error, show an error message
                 }
                 LADS.Util.Splitscreen.setViewers(root, zoomimage); // TODO should we get rid of all splitscreen stuff?
                 makeSidebar();
@@ -90,8 +96,9 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
     }
 
     /**
-    *When called, makes the sidebar. TODO: Factor most of this out to constants
-    */
+     * Makes the artwork viewer sidebar
+     * @method makeSidebar
+     */
     function makeSidebar() {
         var i;
         var button;
@@ -128,37 +135,19 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         var isBarOpen = true;
         //click toggler to hide/show sidebar
         toggler.click(function () {
-            var opts;
+            var opts = {};
 	    
             //when the bar is open, set the sidebar position according to splitscreen states.
             if (root.data('split') === 'R') {
-                opts = {
-                    right: '-22%' //-(sideBarWidth)
-                };
+                opts.right = isBarOpen ? '-22%' : '0%';
+            } else {
+                opts.left = isBarOpen ? '-22%' : '0%';
             }
-            else {
-                opts = {
-                    left: '-22%' //-(sideBarWidth)
-                };
-            }
-            //if the bar is not open
-            if (!isBarOpen) {
-                if (root.data('split') === 'R') {
-                    opts.right = "0%";
-                } else {
-                    opts.left = "0%";
-                }
-                isBarOpen = true;
-                //togglerImage.attr("src", tagPath+'images/icons/Open.svg');
-            }
-            else {
-                isBarOpen = false;
-                //togglerImage.attr("src", tagPath+'images/icons/Close.svg');
-            }
+            isBarOpen = !isBarOpen;
+
             //when click the toggler, the arrow will rotate 180 degree to change direction.
             $(sideBar).animate(opts, 1000, function () {
-                // $(togglerImage[0]).rotate("180deg");
-                togglerImage.attr('src', tagPath + 'images/icons/' + (!isBarOpen ? 'Open.svg' : 'Close.svg'));
+                togglerImage.attr('src', tagPath + 'images/icons/' + (isBarOpen ? 'Close.svg' : 'Open.svg'));
             });
         });
 
@@ -168,13 +157,13 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 		backButton = root.find('#backButton');
         $(backButton).attr('src',tagPath+'images/icons/Back.svg');
 
-        //change the backColor to show the button is being clicked. 
+        //change the backColor to show the button is being clicked
         //mouseleave for lifting the finger from the back button
-        backButton.mouseleave(function () {
+        backButton.on('mouseleave mouseup', function () {
             LADS.Util.UI.cgBackColor("backButton", backButton, true);
         });
         //mousedown for pressing the back button
-        backButton.mousedown(function () {
+        backButton.on('mousedown', function () {
             LADS.Util.UI.cgBackColor("backButton", backButton, false);
         });
 
@@ -184,11 +173,8 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 		backButton.on('click', function () {
 			backButton.off('click'); // prevent user from clicking twice
 			zoomimage && zoomimage.unload();
-		    /* nbowditch _editted 2/13/2014 : added backInfo */
 			var backInfo = { backArtwork: doq, backScroll: prevScroll };
 			var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
-            /* end nbowditch edit */
-			//catalog.showExhibiton(exhibition);
 			catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO this line shouldn't be necessary -- do in styl file
 			LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
                 if(prevExhib && prevExhib.Identifier) {
@@ -1296,12 +1282,19 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         return splitscreenContainer;
     }
 
+    /**
+     * Return art viewer root element
+     * @method
+     * @return {Object}    root jquery object
+     */
     this.getRoot = function () {
         return root;
     };
-    /*
-    **make the Map for location History.
-    **@para: callback function
+
+    /**
+     * Make the map for location History.
+     * @method
+     * @param {Function} callback     function to be called when map making is complete
     */
     function makeMap(callback) {
         console.log("in make map");
@@ -1335,7 +1328,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         };
 
         initMap();
-        //Microsoft.Maps.loadModule('Microsoft.Maps.Map', { callback: initMap });
     }
 
 };

@@ -935,28 +935,32 @@
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
             "line": 53,
-            "description": "initiate artmode with a root, artwork image and a sidebar on the left.",
+            "description": "Initiate artmode with a root, artwork image and a sidebar on the left.",
+            "itemtype": "method",
+            "name": "init",
             "class": "LADS.Layout.Artmode"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 92,
-            "description": "When called, makes the sidebar. TODO: Factor most of this out to constants",
+            "line": 98,
+            "description": "Makes the artwork viewer sidebar",
+            "itemtype": "method",
+            "name": "makeSidebar",
             "class": "LADS.Layout.Artmode"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 587,
+            "line": 573,
             "class": "LADS.Layout.Artmode"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 600,
+            "line": 586,
             "class": "LADS.Layout.Artmode"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 683,
+            "line": 669,
             "description": "Create a drawer with a disclosure button used to display\nhotspots, assets, tours. The returned jQuery object has\na property called \"contents\" which should be used to add\nbuttons or messages to the contents of the drawer.",
             "params": [
                 {
@@ -969,8 +973,35 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 804,
+            "line": 790,
             "description": "This is the click function LocationHistoryContainer.",
+            "class": "LADS.Layout.Artmode"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
+            "line": 1285,
+            "description": "Return art viewer root element",
+            "itemtype": "method",
+            "name": "",
+            "return": {
+                "description": "root jquery object",
+                "type": "Object"
+            },
+            "class": "LADS.Layout.Artmode"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
+            "line": 1294,
+            "description": "Make the map for location History.",
+            "itemtype": "method",
+            "name": "",
+            "params": [
+                {
+                    "name": "callback",
+                    "description": "function to be called when map making is complete",
+                    "type": "Function"
+                }
+            ],
             "class": "LADS.Layout.Artmode"
         },
         {
@@ -1308,7 +1339,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.InternetFailurePage.js",
-            "line": 35,
+            "line": 34,
             "description": "Sets up internet failure page (handlers, etc) using the input errorType",
             "itemtype": "method",
             "name": "init",
@@ -4583,6 +4614,8 @@
             "file": "LADS/js/LADS/util/LADS.Util.js",
             "line": 1310,
             "description": "Used by web app code to slide in pages given their html files",
+            "itemtype": "method",
+            "name": "",
             "params": [
                 {
                     "name": "path",
@@ -4593,7 +4626,7 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 1333,
+            "line": 1334,
             "params": [
                 {
                     "name": "collectionId",
@@ -4609,36 +4642,36 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 1361,
+            "line": 1362,
             "description": "Utils for Animation, splitscreen, colors and the like",
             "class": ""
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 1822,
+            "line": 1823,
             "class": ""
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 2160,
+            "line": 2161,
             "description": "Following functions transition between pages while in splitscreen mode",
             "class": ""
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 2163,
+            "line": 2164,
             "description": "Use _Split fn's for transitions that need to preserve splitscreen\nNote: pages passed in to this function should have a top-level root node\n(true of exhibition, catalog and artmode)",
             "class": ""
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 2269,
+            "line": 2270,
             "description": "Use for any page transition that does not need to preserve splitscreen",
             "class": ""
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 2584,
+            "line": 2585,
             "description": "Creates a picker (e.g. click add/remove media in the artwork editor) to manage\n  associations between different TAG components (exhib, artworks, assoc media)",
             "params": [
                 {
@@ -4674,7 +4707,7 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 2910,
+            "line": 2911,
             "description": "Creates the media panel",
             "params": [
                 {
@@ -4690,13 +4723,13 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 3308,
+            "line": 3309,
             "description": "Built-in object extensions",
             "class": ""
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 3331,
+            "line": 3332,
             "description": "If specified object is in the array, remove it",
             "params": [
                 {
@@ -4708,7 +4741,7 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 3345,
+            "line": 3346,
             "description": "Insert object into array based on comparator fn given\nAssumes array is already sorted!",
             "params": [
                 {
@@ -4727,7 +4760,7 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 3364,
+            "line": 3365,
             "description": "Constrain a number to given range",
             "params": [
                 {
@@ -10864,7 +10897,7 @@
         },
         {
             "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3345"
+            "line": " LADS/js/LADS/util/LADS.Util.js:3346"
         },
         {
             "message": "replacing incorrect tag: returns with return",
@@ -11323,28 +11356,20 @@
             "line": " LADS/js/LADS/authoring/LADS.Authoring.SettingsView.js:629"
         },
         {
-            "message": "Missing item type\ninitiate artmode with a root, artwork image and a sidebar on the left.",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:53"
-        },
-        {
-            "message": "Missing item type\nWhen called, makes the sidebar. TODO: Factor most of this out to constants",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:92"
+            "message": "Missing item type",
+            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:573"
         },
         {
             "message": "Missing item type",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:587"
-        },
-        {
-            "message": "Missing item type",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:600"
+            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:586"
         },
         {
             "message": "Missing item type\nCreate a drawer with a disclosure button used to display\nhotspots, assets, tours. The returned jQuery object has\na property called \"contents\" which should be used to add\nbuttons or messages to the contents of the drawer.",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:683"
+            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:669"
         },
         {
             "message": "Missing item type\nThis is the click function LocationHistoryContainer.",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:804"
+            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:790"
         },
         {
             "message": "Missing item type\nCreate a new right panel for editing Associated Media and append it to the dom (just offscreen)",
@@ -12771,56 +12796,52 @@
             "line": " LADS/js/LADS/util/LADS.Util.Splitscreen.js:392"
         },
         {
-            "message": "Missing item type\nUsed by web app code to slide in pages given their html files",
-            "line": " LADS/js/LADS/util/LADS.Util.js:1310"
-        },
-        {
             "message": "Missing item type",
-            "line": " LADS/js/LADS/util/LADS.Util.js:1333"
+            "line": " LADS/js/LADS/util/LADS.Util.js:1334"
         },
         {
             "message": "Missing item type\nUtils for Animation, splitscreen, colors and the like",
-            "line": " LADS/js/LADS/util/LADS.Util.js:1361"
+            "line": " LADS/js/LADS/util/LADS.Util.js:1362"
         },
         {
             "message": "Missing item type",
-            "line": " LADS/js/LADS/util/LADS.Util.js:1822"
+            "line": " LADS/js/LADS/util/LADS.Util.js:1823"
         },
         {
             "message": "Missing item type\nFollowing functions transition between pages while in splitscreen mode",
-            "line": " LADS/js/LADS/util/LADS.Util.js:2160"
+            "line": " LADS/js/LADS/util/LADS.Util.js:2161"
         },
         {
             "message": "Missing item type\nUse _Split fn's for transitions that need to preserve splitscreen\nNote: pages passed in to this function should have a top-level root node\n(true of exhibition, catalog and artmode)",
-            "line": " LADS/js/LADS/util/LADS.Util.js:2163"
+            "line": " LADS/js/LADS/util/LADS.Util.js:2164"
         },
         {
             "message": "Missing item type\nUse for any page transition that does not need to preserve splitscreen",
-            "line": " LADS/js/LADS/util/LADS.Util.js:2269"
+            "line": " LADS/js/LADS/util/LADS.Util.js:2270"
         },
         {
             "message": "Missing item type\nCreates a picker (e.g. click add/remove media in the artwork editor) to manage\n  associations between different TAG components (exhib, artworks, assoc media)",
-            "line": " LADS/js/LADS/util/LADS.Util.js:2584"
+            "line": " LADS/js/LADS/util/LADS.Util.js:2585"
         },
         {
             "message": "Missing item type\nCreates the media panel",
-            "line": " LADS/js/LADS/util/LADS.Util.js:2910"
+            "line": " LADS/js/LADS/util/LADS.Util.js:2911"
         },
         {
             "message": "Missing item type\nBuilt-in object extensions",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3308"
+            "line": " LADS/js/LADS/util/LADS.Util.js:3309"
         },
         {
             "message": "Missing item type\nIf specified object is in the array, remove it",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3331"
+            "line": " LADS/js/LADS/util/LADS.Util.js:3332"
         },
         {
             "message": "Missing item type\nInsert object into array based on comparator fn given\nAssumes array is already sorted!",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3345"
+            "line": " LADS/js/LADS/util/LADS.Util.js:3346"
         },
         {
             "message": "Missing item type\nConstrain a number to given range",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3364"
+            "line": " LADS/js/LADS/util/LADS.Util.js:3365"
         },
         {
             "message": "Missing item type\nSoft delete a hotspot by deleting both the hotspot linq and doq files",

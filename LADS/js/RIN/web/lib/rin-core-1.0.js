@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-02-26 */
+/*! RIN | http://research.microsoft.com/rin | 2014-03-24 */
 /*!
 * RIN Core JavaScript Library v1.0
 * http://research.microsoft.com/rin
@@ -5258,6 +5258,8 @@ window.rin = window.rin || {};
             if (this.esItemsManager) this.esItemsManager.unload();
             this._esLoadedInfo = {};
             this._rinData = null;
+            console.log("setting player state to STOPPED (bleveque)");
+            this.setPlayerState(rin.contracts.playerState.stopped); // bleveque: prevent further buffering messages
         },
 
         // Get all ES items currently on stage.

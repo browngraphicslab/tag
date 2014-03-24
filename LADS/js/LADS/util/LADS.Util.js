@@ -1309,12 +1309,13 @@ LADS.Util = (function () {
 
     /**
      * Used by web app code to slide in pages given their html files
+     * @method
      * @param path     the path to the html file within the html directory
      */
     function getHtmlAjax(path) {
         var ret;
         $.ajax({
-            async: false,
+            async: false, // need html structure before we can continue in layout files
             cache: false,
             url: tagPath+"html/"+path,
             success: function (data) {

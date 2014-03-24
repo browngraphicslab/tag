@@ -1399,12 +1399,13 @@ LADS.Util = (function () {
 
     /**
      * Used by web app code to slide in pages given their html files
+     * @method
      * @param path     the path to the html file within the html directory
      */
     function getHtmlAjax(path) {
         var ret;
         $.ajax({
-            async: false,
+            async: false, // need html structure before we can continue in layout files
             cache: false,
             url: tagPath+&quot;html/&quot;+path,
             success: function (data) {
@@ -1708,7 +1709,7 @@ LADS.Util.UI = (function () {
         serverDialog.append(serverButtonRow);
         var serverSaveButton = $(document.createElement(&#x27;button&#x27;));
         serverSaveButton.css({
-            &#x27;padding&#x27;: &#x27;1%&#x27;, &#x27;border&#x27;: &#x27;1px solid white&#x27;, &#x27;width&#x27;: &#x27;12%&#x27;,&#x27;height&#x27;:&#x27;3%&#x27; ,&#x27;position&#x27;: &#x27;relative&#x27;,&#x27;margin-top&#x27;: &#x27;1%&#x27;, &#x27;float&#x27;: &quot;left&quot;, &#x27;margin-left&#x27;:&#x27;7%&#x27; ,&#x27;font-size&#x27;:&#x27;90%&#x27;,&#x27;bottom&#x27;:&#x27;1%&#x27;
+            &#x27;padding&#x27;: &#x27;1%&#x27;, &#x27;border&#x27;: &#x27;1px solid white&#x27;, &#x27;width&#x27;: &#x27;14%&#x27;,&#x27;height&#x27;:&#x27;3%&#x27; ,&#x27;position&#x27;: &#x27;relative&#x27;,&#x27;margin-top&#x27;: &#x27;1%&#x27;, &#x27;float&#x27;: &quot;left&quot;, &#x27;margin-left&#x27;:&#x27;7%&#x27; ,&#x27;font-size&#x27;:&#x27;90%&#x27;,&#x27;bottom&#x27;:&#x27;1%&#x27;
         });
         serverSaveButton.text(&#x27;Save&#x27;);
         var serverErrorMessage = $(document.createElement(&#x27;div&#x27;));
@@ -1728,7 +1729,7 @@ LADS.Util.UI = (function () {
 
         var serverCancelButton = $(document.createElement(&#x27;button&#x27;));
         serverCancelButton.css({
-            &#x27;padding&#x27;: &#x27;1%&#x27;, &#x27;border&#x27;: &#x27;1px solid white&#x27;, &#x27;width&#x27;: &#x27;12%&#x27;,&#x27;height&#x27;:&#x27;3%&#x27;, &#x27;position&#x27;: &#x27;relative&#x27;, &#x27;margin-top&#x27;: &#x27;1%&#x27;, &#x27;float&#x27;: &quot;right&quot;, &#x27;margin-right&#x27;: &#x27;7%&#x27;,&#x27;font-size&#x27;:&#x27;90%&#x27;,&#x27;bottom&#x27;:&#x27;1%&#x27;
+            &#x27;padding&#x27;: &#x27;1%&#x27;, &#x27;border&#x27;: &#x27;1px solid white&#x27;, &#x27;width&#x27;: &#x27;14%&#x27;,&#x27;height&#x27;:&#x27;3%&#x27;, &#x27;position&#x27;: &#x27;relative&#x27;, &#x27;margin-top&#x27;: &#x27;1%&#x27;, &#x27;float&#x27;: &quot;right&quot;, &#x27;margin-right&#x27;: &#x27;7%&#x27;,&#x27;font-size&#x27;:&#x27;90%&#x27;,&#x27;bottom&#x27;:&#x27;1%&#x27;
         });
         serverCancelButton.text(&#x27;Cancel&#x27;);
         serverCancelButton.attr(&#x27;type&#x27;, &#x27;button&#x27;);
@@ -2558,7 +2559,7 @@ LADS.Util.UI = (function () {
             }
             var pushpinOptions = {
                 text: String(i + 1),
-                icon: tagPath+&#x27;/images/icons/locationPin.png&#x27;,
+                icon: tagPath+&#x27;images/icons/locationPin.png&#x27;,
                 width: 20,
                 height: 30
             };
