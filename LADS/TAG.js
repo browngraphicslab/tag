@@ -41965,6 +41965,8 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         sponsoredText = $(document.createElement('label'));
         sponsoredText.attr('id', 'sponsoredText');
+        sponsoredText.css('overflow', 'hidden');
+        sponsoredText.css('white-space', 'pre');
         sponsoredText.text('Sponsored by');
 
         microsoftLogo = $(document.createElement('img'));
@@ -42079,7 +42081,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
                 brownInfoBox.append(microsoftLogo);
                 expandImage.css({ 'transform': 'scaleX(-1)' });
                 brownPeople.css({ "right": "0%", "bottom": "0%", "position": "absolute", "font-size": "0%" });
-                brownPeople.animate({ "left": "12%", "top": "51%", "position": "absolute", "font-size": "81%" }, 700, 'swing', function () { $(brownPeople).fitText(5); });
+                brownPeople.animate({ "left": "12%", "top": "51%", "position": "absolute", "font-size": "61%" }, 700, 'swing', function () { $(brownPeople).fitText(5); });
                 tagName.animate({ left: '12%', top: '3%', 'font-size': '300%' }, 700);
                 fullTag.animate({ left: '12%', top: '35%', 'font-size': '130%' }, 700);
             }
@@ -44961,7 +44963,7 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
         },
         startPlayback: function () { // need to call this to ensure the tour will play when you exit and re-enter a tour, since sliding functionality and audio playback don't cooperate
             rin.processAll(null, tagPath+'js/RIN/web').then(function () {
-                var options = 'systemRootUrl='+tagPath+'js/RIN/web/&autoplay=true';
+                var options = 'systemRootUrl='+tagPath+'js/RIN/web/&autoplay=true&loop=false';
                 // create player
                 player = rin.createPlayerControl(rinPlayer[0], options);
                 for (var key in tour.resources) {

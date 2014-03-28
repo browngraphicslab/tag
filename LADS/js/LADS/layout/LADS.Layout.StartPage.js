@@ -149,6 +149,8 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         sponsoredText = $(document.createElement('label'));
         sponsoredText.attr('id', 'sponsoredText');
+        sponsoredText.css('overflow', 'hidden');
+        sponsoredText.css('white-space', 'pre');
         sponsoredText.text('Sponsored by');
 
         microsoftLogo = $(document.createElement('img'));
@@ -263,7 +265,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
                 brownInfoBox.append(microsoftLogo);
                 expandImage.css({ 'transform': 'scaleX(-1)' });
                 brownPeople.css({ "right": "0%", "bottom": "0%", "position": "absolute", "font-size": "0%" });
-                brownPeople.animate({ "left": "12%", "top": "51%", "position": "absolute", "font-size": "81%" }, 700, 'swing', function () { $(brownPeople).fitText(5); });
+                brownPeople.animate({ "left": "12%", "top": "51%", "position": "absolute", "font-size": "61%" }, 700, 'swing', function () { $(brownPeople).fitText(5); });
                 tagName.animate({ left: '12%', top: '3%', 'font-size': '300%' }, 700);
                 fullTag.animate({ left: '12%', top: '35%', 'font-size': '130%' }, 700);
             }
