@@ -84,7 +84,9 @@
         "LADS/js/LADS/layout/LADS.Layout.StartPage.js": {
             "name": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
             "modules": {},
-            "classes": {},
+            "classes": {
+                "LADS.Layout.StartPage": 1
+            },
             "fors": {},
             "namespaces": {}
         },
@@ -682,41 +684,6 @@
             "classes": {},
             "fors": {},
             "namespaces": {}
-        },
-        "LADS/TAG-embed.js": {
-            "name": "LADS/TAG-embed.js",
-            "modules": {},
-            "classes": {},
-            "fors": {},
-            "namespaces": {}
-        },
-        "LADS/hammer.js": {
-            "name": "LADS/hammer.js",
-            "modules": {},
-            "classes": {},
-            "fors": {},
-            "namespaces": {}
-        },
-        "LADS/tests.js": {
-            "name": "LADS/tests.js",
-            "modules": {},
-            "classes": {},
-            "fors": {},
-            "namespaces": {}
-        },
-        "telemetry/server.js": {
-            "name": "telemetry/server.js",
-            "modules": {},
-            "classes": {},
-            "fors": {},
-            "namespaces": {}
-        },
-        "telemetry/telemetryTest.js": {
-            "name": "telemetry/telemetryTest.js",
-            "modules": {},
-            "classes": {},
-            "fors": {},
-            "namespaces": {}
         }
     },
     "modules": {},
@@ -769,6 +736,35 @@
                     "description": ""
                 }
             ]
+        },
+        "LADS.Layout.StartPage": {
+            "name": "LADS.Layout.StartPage",
+            "shortname": "LADS.Layout.StartPage",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
+            "line": 4,
+            "description": "The start page for TAG, which contains mueseum info, server preferences and credits.",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "options",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "startPageCallback",
+                    "description": "",
+                    "type": "Boolean"
+                }
+            ],
+            "return": {
+                "description": "that       collection of public methods and properties",
+                "type": "Object"
+            }
         }
     },
     "classitems": [
@@ -1368,12 +1364,12 @@
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
             "line": 86,
             "description": "initiates UI stuff",
-            "class": ""
+            "class": "LADS.Layout.StartPage"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
             "line": 222,
-            "class": ""
+            "class": "LADS.Layout.StartPage"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
@@ -1385,7 +1381,7 @@
                     "description": "exhibition to add\nCreates button in sidebar"
                 }
             ],
-            "class": ""
+            "class": "LADS.Layout.StartPage"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
@@ -1397,11 +1393,11 @@
                     "description": "selected exhibition"
                 }
             ],
-            "class": ""
+            "class": "LADS.Layout.StartPage"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 27,
+            "line": 37,
             "description": "Test internet and server connections",
             "params": [
                 {
@@ -1409,7 +1405,116 @@
                     "description": "Object\n           internetURL     url of alternate site against which we'll test connectivity"
                 }
             ],
-            "class": ""
+            "class": "LADS.Layout.StartPage"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
+            "line": 88,
+            "description": "sets up the entire visual layout and images of the splash screen",
+            "itemtype": "method",
+            "name": "loadHelper",
+            "params": [
+                {
+                    "name": "main",
+                    "description": "contains all image paths and museum info",
+                    "type": "Object"
+                }
+            ],
+            "class": "LADS.Layout.StartPage"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
+            "line": 123,
+            "description": "adjusts the text to fit the screen size",
+            "itemtype": "method",
+            "name": "fixText",
+            "class": "LADS.Layout.StartPage"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
+            "line": 141,
+            "description": "initializes the handlers for various 'click' functions including setting up a server",
+            "itemtype": "method",
+            "name": "initializeHandlers",
+            "class": "LADS.Layout.StartPage"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
+            "line": 160,
+            "description": "gets the paths for all the images displayed on the splash screen",
+            "itemtype": "method",
+            "name": "setImagePaths",
+            "params": [
+                {
+                    "name": "main",
+                    "description": "contains all the image links",
+                    "type": "Object"
+                }
+            ],
+            "class": "LADS.Layout.StartPage"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
+            "line": 192,
+            "description": "Sets up the credits box with its content including text and images. Also includes function for animation of credits.",
+            "itemtype": "method",
+            "name": "setUpCredits",
+            "class": "LADS.Layout.StartPage"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
+            "line": 230,
+            "description": "animation of credits when user clicks",
+            "itemtype": "method",
+            "name": "expandInfo",
+            "params": [
+                {
+                    "name": "event",
+                    "description": "the trigger event for animation, in this case a click",
+                    "type": "Object"
+                }
+            ],
+            "class": "LADS.Layout.StartPage"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
+            "line": 265,
+            "description": "sets up the info div which contains all the museum information",
+            "itemtype": "method",
+            "name": "setUpInfo",
+            "params": [
+                {
+                    "name": "main",
+                    "description": "contains all the museum information",
+                    "type": "Object"
+                }
+            ],
+            "class": "LADS.Layout.StartPage"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
+            "line": 288,
+            "description": "Fills in all museum info including name and location",
+            "itemtype": "method",
+            "name": "setUpMuseumInfo",
+            "params": [
+                {
+                    "name": "main",
+                    "description": "contains all the museum information",
+                    "type": "Object"
+                }
+            ],
+            "class": "LADS.Layout.StartPage"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
+            "line": 334,
+            "itemtype": "method",
+            "name": "getRoot",
+            "return": {
+                "description": ""
+            },
+            "class": "LADS.Layout.StartPage"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.TourAuthoringNew.js",
@@ -9834,956 +9939,6 @@
                 }
             ],
             "class": ""
-        },
-        {
-            "file": "LADS/TAG-embed.js",
-            "line": 2,
-            "description": "Embed TAG as an iframe in your site, using the demo.html file as the source.\nThe tagPath argument is ignored here, but it is included for consistency\nwith the TAG function.",
-            "params": [
-                {
-                    "name": "tagInput",
-                    "description": "object with the following properties:\n                      path          relative path from your html file to the TAG directory\n                                       (e.g., './a/b/TAG')\n                      containerId   the id of the div in which you want to embed TAG\n                      serverIp      the ip adress of the server to which you want to connect\n                      width         the desired width of TAG\n                      height        the desired height of TAG\n                      allowServerChange   should a button be shown on the splash screen that allows server change?\n                      hiddenCollections   a list of collection IDs for published collections to be hidden"
-                }
-            ],
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 10,
-            "description": "Hammer\nuse this to create instances",
-            "params": [
-                {
-                    "name": "element",
-                    "description": "",
-                    "type": "HTMLElement"
-                },
-                {
-                    "name": "options",
-                    "description": "",
-                    "type": "Object"
-                }
-            ],
-            "return": {
-                "description": "",
-                "type": "Hammer.Instance"
-            },
-            "is_constructor": 1,
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 83,
-            "description": "setup events to detect gestures on the document",
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 108,
-            "description": "extend method,\nalso used for cloning when dest is an empty object",
-            "params": [
-                {
-                    "name": "dest",
-                    "description": "",
-                    "type": "Object"
-                },
-                {
-                    "name": "src",
-                    "description": "",
-                    "type": "Object"
-                },
-                {
-                    "name": "merge",
-                    "description": "do a merge",
-                    "type": "Boolean"
-                }
-            ],
-            "return": {
-                "description": "dest",
-                "type": "Object"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 127,
-            "description": "for each",
-            "params": [
-                {
-                    "name": "obj",
-                    "description": ""
-                },
-                {
-                    "name": "iterator",
-                    "description": ""
-                }
-            ],
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 156,
-            "description": "find if a node is in the given parent\nused for event delegation tricks",
-            "params": [
-                {
-                    "name": "node",
-                    "description": "",
-                    "type": "HTMLElement"
-                },
-                {
-                    "name": "parent",
-                    "description": "",
-                    "type": "HTMLElement"
-                }
-            ],
-            "return": {
-                "description": "has_parent",
-                "type": "Boolean"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 174,
-            "description": "get the center of all the touches",
-            "params": [
-                {
-                    "name": "touches",
-                    "description": "",
-                    "type": "Array"
-                }
-            ],
-            "return": {
-                "description": "center",
-                "type": "Object"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 195,
-            "description": "calculate the velocity between two points",
-            "params": [
-                {
-                    "name": "delta_time",
-                    "description": "",
-                    "type": "Number"
-                },
-                {
-                    "name": "delta_x",
-                    "description": "",
-                    "type": "Number"
-                },
-                {
-                    "name": "delta_y",
-                    "description": "",
-                    "type": "Number"
-                }
-            ],
-            "return": {
-                "description": "velocity",
-                "type": "Object"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 210,
-            "description": "calculate the angle between two coordinates",
-            "params": [
-                {
-                    "name": "touch1",
-                    "description": "",
-                    "type": "Touch"
-                },
-                {
-                    "name": "touch2",
-                    "description": "",
-                    "type": "Touch"
-                }
-            ],
-            "return": {
-                "description": "angle",
-                "type": "Number"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 223,
-            "description": "angle to direction define",
-            "params": [
-                {
-                    "name": "touch1",
-                    "description": "",
-                    "type": "Touch"
-                },
-                {
-                    "name": "touch2",
-                    "description": "",
-                    "type": "Touch"
-                }
-            ],
-            "return": {
-                "description": "direction constant, like Hammer.DIRECTION_LEFT",
-                "type": "String"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 242,
-            "description": "calculate the distance between two touches",
-            "params": [
-                {
-                    "name": "touch1",
-                    "description": "",
-                    "type": "Touch"
-                },
-                {
-                    "name": "touch2",
-                    "description": "",
-                    "type": "Touch"
-                }
-            ],
-            "return": {
-                "description": "distance",
-                "type": "Number"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 255,
-            "description": "calculate the scale factor between two touchLists (fingers)\nno scale is 1, and goes down to 0 when pinched together, and bigger when pinched out",
-            "params": [
-                {
-                    "name": "start",
-                    "description": "",
-                    "type": "Array"
-                },
-                {
-                    "name": "end",
-                    "description": "",
-                    "type": "Array"
-                }
-            ],
-            "return": {
-                "description": "scale",
-                "type": "Number"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 272,
-            "description": "calculate the rotation degrees between two touchLists (fingers)",
-            "params": [
-                {
-                    "name": "start",
-                    "description": "",
-                    "type": "Array"
-                },
-                {
-                    "name": "end",
-                    "description": "",
-                    "type": "Array"
-                }
-            ],
-            "return": {
-                "description": "rotation",
-                "type": "Number"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 288,
-            "description": "boolean if the direction is vertical",
-            "params": [
-                {
-                    "name": "direction",
-                    "description": "",
-                    "type": "String"
-                }
-            ],
-            "return": {
-                "description": "is_vertical",
-                "type": "Boolean"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 298,
-            "description": "stop browser default behavior with css props",
-            "params": [
-                {
-                    "name": "element",
-                    "description": "",
-                    "type": "HtmlElement"
-                },
-                {
-                    "name": "css_props",
-                    "description": "",
-                    "type": "Object"
-                }
-            ],
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 339,
-            "description": "create new hammer instance\nall methods should return the instance itself, so it is chainable.",
-            "params": [
-                {
-                    "name": "element",
-                    "description": "",
-                    "type": "HTMLElement"
-                },
-                {
-                    "name": "options",
-                    "description": "",
-                    "type": "Object",
-                    "optional": true,
-                    "optdefault": "{}"
-                }
-            ],
-            "return": {
-                "description": "",
-                "type": "Hammer.Instance"
-            },
-            "is_constructor": 1,
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 382,
-            "description": "bind events to the instance",
-            "params": [
-                {
-                    "name": "gesture",
-                    "description": "",
-                    "type": "String"
-                },
-                {
-                    "name": "handler",
-                    "description": "",
-                    "type": "Function"
-                }
-            ],
-            "return": {
-                "description": "",
-                "type": "Hammer.Instance"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 397,
-            "description": "unbind events to the instance",
-            "params": [
-                {
-                    "name": "gesture",
-                    "description": "",
-                    "type": "String"
-                },
-                {
-                    "name": "handler",
-                    "description": "",
-                    "type": "Function"
-                }
-            ],
-            "return": {
-                "description": "",
-                "type": "Hammer.Instance"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 412,
-            "description": "trigger gesture event",
-            "params": [
-                {
-                    "name": "gesture",
-                    "description": "",
-                    "type": "String"
-                },
-                {
-                    "name": "eventData",
-                    "description": "",
-                    "type": "Object",
-                    "optional": true
-                }
-            ],
-            "return": {
-                "description": "",
-                "type": "Hammer.Instance"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 441,
-            "description": "enable of disable hammer.js detection",
-            "params": [
-                {
-                    "name": "state",
-                    "description": "",
-                    "type": "Boolean"
-                }
-            ],
-            "return": {
-                "description": "",
-                "type": "Hammer.Instance"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 453,
-            "description": "this holds the last move event,\nused to fix empty touchend issue\nsee the onTouch event for an explanation",
-            "type": "{Object}",
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 462,
-            "description": "when the mouse is hold down, this is true",
-            "type": "{Boolean}",
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 469,
-            "description": "when touch events have been fired, this is true",
-            "type": "{Boolean}",
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 477,
-            "description": "simple addEventListener",
-            "params": [
-                {
-                    "name": "element",
-                    "description": "",
-                    "type": "HTMLElement"
-                },
-                {
-                    "name": "type",
-                    "description": "",
-                    "type": "String"
-                },
-                {
-                    "name": "handler",
-                    "description": "",
-                    "type": "Function"
-                }
-            ],
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 491,
-            "description": "touch events with mouse fallback",
-            "params": [
-                {
-                    "name": "element",
-                    "description": "",
-                    "type": "HTMLElement"
-                },
-                {
-                    "name": "eventType",
-                    "description": "like Hammer.EVENT_MOVE",
-                    "type": "String"
-                },
-                {
-                    "name": "handler",
-                    "description": "",
-                    "type": "Function"
-                }
-            ],
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 583,
-            "description": "we have different events for each device/browser\ndetermine what we need and set them in the Hammer.EVENT_TYPES constant",
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 617,
-            "description": "create touchlist depending on the event",
-            "params": [
-                {
-                    "name": "ev",
-                    "description": "",
-                    "type": "Object"
-                },
-                {
-                    "name": "eventType",
-                    "description": "used by the fakemultitouch plugin",
-                    "type": "String"
-                }
-            ],
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 639,
-            "description": "collect event data for Hammer js",
-            "params": [
-                {
-                    "name": "element",
-                    "description": "",
-                    "type": "HTMLElement"
-                },
-                {
-                    "name": "eventType",
-                    "description": "like Hammer.EVENT_MOVE",
-                    "type": "String"
-                },
-                {
-                    "name": "eventData",
-                    "description": "",
-                    "type": "Object"
-                }
-            ],
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 661,
-            "description": "prevent the browser default actions\nmostly used to disable scrolling of the browser",
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 675,
-            "description": "stop bubbling the event up to its parents",
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 682,
-            "description": "immediately stop gesture detection\nmight be useful after a swipe was detected",
-            "return": {
-                "description": "",
-                "type": "*"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 695,
-            "description": "holds all pointers",
-            "type": "{Object}",
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 701,
-            "description": "get a list of pointers",
-            "return": {
-                "description": "touchlist",
-                "type": "Array"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 717,
-            "description": "update the position of a pointer",
-            "params": [
-                {
-                    "name": "type",
-                    "description": "Hammer.EVENT_END",
-                    "type": "String"
-                },
-                {
-                    "name": "pointerEvent",
-                    "description": "",
-                    "type": "Object"
-                }
-            ],
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 734,
-            "description": "check if ev matches pointertype",
-            "params": [
-                {
-                    "name": "pointerType",
-                    "description": "Hammer.POINTER_MOUSE",
-                    "type": "String"
-                },
-                {
-                    "name": "ev",
-                    "description": "",
-                    "type": "PointerEvent"
-                }
-            ],
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 753,
-            "description": "get events",
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 764,
-            "description": "reset the list",
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 788,
-            "description": "start Hammer.gesture detection",
-            "params": [
-                {
-                    "name": "inst",
-                    "description": "",
-                    "type": "Hammer.Instance"
-                },
-                {
-                    "name": "eventData",
-                    "description": "",
-                    "type": "Object"
-                }
-            ],
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 812,
-            "description": "Hammer.gesture detection",
-            "params": [
-                {
-                    "name": "eventData",
-                    "description": "",
-                    "type": "Object"
-                }
-            ],
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 853,
-            "description": "clear the Hammer.gesture vars\nthis is called on endDetect, but can also be used when a final Hammer.gesture has been detected\nto stop other Hammer.gestures from being fired",
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 871,
-            "description": "extend eventData for Hammer.gestures",
-            "params": [
-                {
-                    "name": "ev",
-                    "description": "",
-                    "type": "Object"
-                }
-            ],
-            "return": {
-                "description": "ev",
-                "type": "Object"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 938,
-            "description": "register new gesture",
-            "params": [
-                {
-                    "name": "gesture",
-                    "description": "object, see gestures.js for documentation",
-                    "type": "Object"
-                }
-            ],
-            "return": {
-                "description": "gestures",
-                "type": "Array"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 971,
-            "description": "Drag\nMove with x fingers (default 1) around on the page. Blocking the scrolling when\nmoving left and right is a good practice. When all the drag events are blocking\nyou disable scrolling on that area.",
-            "events": "drag, drapleft, dragright, dragup, dragdown",
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 1099,
-            "description": "Hold\nTouch stays at the same place for x time",
-            "events": "hold",
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 1144,
-            "description": "Release\nCalled as last, tells the user has released the screen",
-            "events": "release",
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 1159,
-            "description": "Swipe\ntriggers swipe events when the end velocity is above the threshold",
-            "events": "swipe, swipeleft, swiperight, swipeup, swipedown",
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 1194,
-            "description": "Tap/DoubleTap\nQuick touch at a place or double at the same place",
-            "events": "tap, doubletap",
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 1239,
-            "description": "Touch\nCalled as first, tells the user has touched the screen",
-            "events": "touch",
-            "class": ""
-        },
-        {
-            "file": "LADS/hammer.js",
-            "line": 1274,
-            "description": "Transform\nUser want to scale or rotate with 2 fingers",
-            "events": "transform, pinch, pinchin, pinchout, rotate",
-            "class": ""
-        },
-        {
-            "file": "LADS/tests.js",
-            "line": 3,
-            "description": "TAG testing framework\n\nThe TEST SCRIPTS section below has a few test routines. These\nroutines are made public at the bottom of this file. They call\nrunTests on a collection of TEST SCRIPT ACTIONs, which are defined\nin the second section. These are 'atomic' actions that can\nbe combined to make more complex routines. There are a few\nTEST SUPPORT FUNCTIONs defined in the last section below.",
-            "class": ""
-        },
-        {
-            "file": "LADS/tests.js",
-            "line": 32,
-            "description": "|**** TEST SCRIPTS ****|",
-            "class": ""
-        },
-        {
-            "file": "LADS/tests.js",
-            "line": 71,
-            "description": "|**** TEST SCRIPT ACTIONS ****|",
-            "class": ""
-        },
-        {
-            "file": "LADS/tests.js",
-            "line": 249,
-            "description": "|**** TESTING SUPPORT FUNCTIONS ****|",
-            "class": ""
-        },
-        {
-            "file": "LADS/tests.js",
-            "line": 253,
-            "description": "Run a series of tests",
-            "params": [
-                {
-                    "name": "testObj.tests",
-                    "description": "an array of tests to run"
-                },
-                {
-                    "name": "testObj.intervals",
-                    "description": "array of time intervals (ms) between these tests"
-                }
-            ],
-            "return": {
-                "description": "-1 if an error was thrown during testing"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/tests.js",
-            "line": 272,
-            "description": "Called by runTests, calls a single test, then calls runTest with incremented index",
-            "class": ""
-        },
-        {
-            "file": "LADS/tests.js",
-            "line": 293,
-            "description": "Helper function to concatenate different testing objects",
-            "params": [
-                {
-                    "name": "testObjs",
-                    "description": "array of test objects (or functions that will generate test objects) to combine"
-                }
-            ],
-            "return": {
-                "description": "combined test objects"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/tests.js",
-            "line": 321,
-            "description": "Create click event on the input element",
-            "class": ""
-        },
-        {
-            "file": "LADS/tests.js",
-            "line": 330,
-            "description": "Simulate a pinch zoom event",
-            "class": ""
-        },
-        {
-            "file": "LADS/tests.js",
-            "line": 337,
-            "description": "Create mousemove event -- be careful to leave enough interval time to call this",
-            "params": [
-                {
-                    "name": "target",
-                    "description": "target element for event"
-                },
-                {
-                    "name": "eventData",
-                    "description": "object with the following properties:\n           startX     starting x coordinate relative to #tagRoot\n           startY     ...\n           endX       ...\n           endY"
-                }
-            ],
-            "class": ""
-        },
-        {
-            "file": "LADS/tests.js",
-            "line": 394,
-            "description": "Recursive call to execute mousemove events",
-            "params": [
-                {
-                    "name": "ctr",
-                    "description": "the number of move events we've called"
-                },
-                {
-                    "name": "numMoves",
-                    "description": "the number of move events we will call"
-                },
-                {
-                    "name": "data",
-                    "description": "event data with properties:\n          startClientX        starting x position in context of browser window\n          startClientY        ...\n          endClientX          ...\n          endClientY          ...\n          target              target element"
-                },
-                {
-                    "name": "callback",
-                    "description": "function to be called when all moves have executed"
-                }
-            ],
-            "class": ""
-        },
-        {
-            "file": "LADS/tests.js",
-            "line": 432,
-            "description": "Linearly interpolate between start and stop by t in [0,1]",
-            "class": ""
-        },
-        {
-            "file": "LADS/tests.js",
-            "line": 440,
-            "description": "Highlight the target of a testing event (visualize events)",
-            "params": [
-                {
-                    "name": "target",
-                    "description": "the element to highlight"
-                },
-                {
-                    "name": "left",
-                    "description": "(optional) the left offset of the event within the target"
-                },
-                {
-                    "name": "top",
-                    "description": "(optional) ...."
-                },
-                {
-                    "name": "animateRadius",
-                    "description": "(optional) if true, highlights get smaller as they disappear"
-                },
-                {
-                    "name": "highlightWidth",
-                    "description": "(optional) width of the highlight circle"
-                }
-            ],
-            "class": ""
-        },
-        {
-            "file": "LADS/tests.js",
-            "line": 504,
-            "params": [
-                {
-                    "name": "arr",
-                    "description": "array for which we want a random index"
-                }
-            ],
-            "return": {
-                "description": "random index into array, -1 if arr is empty"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/tests.js",
-            "line": 516,
-            "description": "returns random element from input array",
-            "params": [
-                {
-                    "name": "arr",
-                    "description": "input array"
-                }
-            ],
-            "return": {
-                "description": "random element, null if arr=[]"
-            },
-            "class": ""
-        },
-        {
-            "file": "LADS/tests.js",
-            "line": 533,
-            "description": "Returns a basic error callback function (long-term, should define\ncase-specific error funcs that actually do some error handling).",
-            "params": [
-                {
-                    "name": "calling",
-                    "description": "string: calling function's name"
-                }
-            ],
-            "class": ""
-        },
-        {
-            "file": "LADS/tests.js",
-            "line": 546,
-            "description": "Show an overlay explaining that the first step in the test is to\nnavigate to the correct starting page.",
-            "class": ""
-        },
-        {
-            "file": "LADS/tests.js",
-            "line": 592,
-            "description": "Cancels the currently-running test",
-            "class": ""
-        },
-        {
-            "file": "telemetry/server.js",
-            "line": 1,
-            "description": "A preliminary telemetry server\nShould probably be hooked up with a DB",
-            "class": ""
-        },
-        {
-            "file": "telemetry/telemetryTest.js",
-            "line": 29,
-            "description": "Make a request to the telemetry server",
-            "params": [
-                {
-                    "name": "type",
-                    "description": "'POST' for updating data or 'GET' for getting it"
-                },
-                {
-                    "name": "data",
-                    "description": "object; data to be sent in body of request"
-                }
-            ],
-            "class": ""
         }
     ],
     "warnings": [
@@ -11188,114 +10343,6 @@
             "line": " LADS/js/utils/jquery.hammer.js:1486"
         },
         {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:10"
-        },
-        {
-            "message": "replacing incorrect tag: parm with param",
-            "line": " LADS/hammer.js:108"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:108"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:156"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:174"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:195"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:210"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:223"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:242"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:255"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:272"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:288"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:339"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:382"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:397"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:412"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:441"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:701"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:871"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/hammer.js:938"
-        },
-        {
-            "message": "unknown tag: events",
-            "line": " LADS/hammer.js:971"
-        },
-        {
-            "message": "unknown tag: events",
-            "line": " LADS/hammer.js:1099"
-        },
-        {
-            "message": "unknown tag: events",
-            "line": " LADS/hammer.js:1144"
-        },
-        {
-            "message": "unknown tag: events",
-            "line": " LADS/hammer.js:1159"
-        },
-        {
-            "message": "unknown tag: events",
-            "line": " LADS/hammer.js:1194"
-        },
-        {
-            "message": "unknown tag: events",
-            "line": " LADS/hammer.js:1239"
-        },
-        {
-            "message": "unknown tag: events",
-            "line": " LADS/hammer.js:1274"
-        },
-        {
             "message": "Missing item type\njscolor, JavaScript Color Picker",
             "line": " LADS/js/LADS/authoring/jscolor/jscolor.js:1"
         },
@@ -11525,7 +10572,7 @@
         },
         {
             "message": "Missing item type\nTest internet and server connections",
-            "line": " LADS/js/LADS/layout/LADS.Layout.StartPage.js:27"
+            "line": " LADS/js/LADS/layout/LADS.Layout.StartPage.js:37"
         },
         {
             "message": "Missing item type\nFinal layout for Tour Authoring\nAll parts of layout are container in separate files/classes\nLayout file also contains testing instructions / notes / functions",
@@ -14250,282 +13297,6 @@
         {
             "message": "Missing item type\nWhen we load in a path datastring, update ml, xy, and pa to reflect the new data.",
             "line": " LADS/js/tagInk.js:698"
-        },
-        {
-            "message": "Missing item type\nEmbed TAG as an iframe in your site, using the demo.html file as the source.\nThe tagPath argument is ignored here, but it is included for consistency\nwith the TAG function.",
-            "line": " LADS/TAG-embed.js:2"
-        },
-        {
-            "message": "Missing item type\nHammer\nuse this to create instances",
-            "line": " LADS/hammer.js:10"
-        },
-        {
-            "message": "Missing item type\nsetup events to detect gestures on the document",
-            "line": " LADS/hammer.js:83"
-        },
-        {
-            "message": "Missing item type\nextend method,\nalso used for cloning when dest is an empty object",
-            "line": " LADS/hammer.js:108"
-        },
-        {
-            "message": "Missing item type\nfor each",
-            "line": " LADS/hammer.js:127"
-        },
-        {
-            "message": "Missing item type\nfind if a node is in the given parent\nused for event delegation tricks",
-            "line": " LADS/hammer.js:156"
-        },
-        {
-            "message": "Missing item type\nget the center of all the touches",
-            "line": " LADS/hammer.js:174"
-        },
-        {
-            "message": "Missing item type\ncalculate the velocity between two points",
-            "line": " LADS/hammer.js:195"
-        },
-        {
-            "message": "Missing item type\ncalculate the angle between two coordinates",
-            "line": " LADS/hammer.js:210"
-        },
-        {
-            "message": "Missing item type\nangle to direction define",
-            "line": " LADS/hammer.js:223"
-        },
-        {
-            "message": "Missing item type\ncalculate the distance between two touches",
-            "line": " LADS/hammer.js:242"
-        },
-        {
-            "message": "Missing item type\ncalculate the scale factor between two touchLists (fingers)\nno scale is 1, and goes down to 0 when pinched together, and bigger when pinched out",
-            "line": " LADS/hammer.js:255"
-        },
-        {
-            "message": "Missing item type\ncalculate the rotation degrees between two touchLists (fingers)",
-            "line": " LADS/hammer.js:272"
-        },
-        {
-            "message": "Missing item type\nboolean if the direction is vertical",
-            "line": " LADS/hammer.js:288"
-        },
-        {
-            "message": "Missing item type\nstop browser default behavior with css props",
-            "line": " LADS/hammer.js:298"
-        },
-        {
-            "message": "Missing item type\ncreate new hammer instance\nall methods should return the instance itself, so it is chainable.",
-            "line": " LADS/hammer.js:339"
-        },
-        {
-            "message": "Missing item type\nbind events to the instance",
-            "line": " LADS/hammer.js:382"
-        },
-        {
-            "message": "Missing item type\nunbind events to the instance",
-            "line": " LADS/hammer.js:397"
-        },
-        {
-            "message": "Missing item type\ntrigger gesture event",
-            "line": " LADS/hammer.js:412"
-        },
-        {
-            "message": "Missing item type\nenable of disable hammer.js detection",
-            "line": " LADS/hammer.js:441"
-        },
-        {
-            "message": "Missing item type\nthis holds the last move event,\nused to fix empty touchend issue\nsee the onTouch event for an explanation",
-            "line": " LADS/hammer.js:453"
-        },
-        {
-            "message": "Missing item type\nwhen the mouse is hold down, this is true",
-            "line": " LADS/hammer.js:462"
-        },
-        {
-            "message": "Missing item type\nwhen touch events have been fired, this is true",
-            "line": " LADS/hammer.js:469"
-        },
-        {
-            "message": "Missing item type\nsimple addEventListener",
-            "line": " LADS/hammer.js:477"
-        },
-        {
-            "message": "Missing item type\ntouch events with mouse fallback",
-            "line": " LADS/hammer.js:491"
-        },
-        {
-            "message": "Missing item type\nwe have different events for each device/browser\ndetermine what we need and set them in the Hammer.EVENT_TYPES constant",
-            "line": " LADS/hammer.js:583"
-        },
-        {
-            "message": "Missing item type\ncreate touchlist depending on the event",
-            "line": " LADS/hammer.js:617"
-        },
-        {
-            "message": "Missing item type\ncollect event data for Hammer js",
-            "line": " LADS/hammer.js:639"
-        },
-        {
-            "message": "Missing item type\nprevent the browser default actions\nmostly used to disable scrolling of the browser",
-            "line": " LADS/hammer.js:661"
-        },
-        {
-            "message": "Missing item type\nstop bubbling the event up to its parents",
-            "line": " LADS/hammer.js:675"
-        },
-        {
-            "message": "Missing item type\nimmediately stop gesture detection\nmight be useful after a swipe was detected",
-            "line": " LADS/hammer.js:682"
-        },
-        {
-            "message": "Missing item type\nholds all pointers",
-            "line": " LADS/hammer.js:695"
-        },
-        {
-            "message": "Missing item type\nget a list of pointers",
-            "line": " LADS/hammer.js:701"
-        },
-        {
-            "message": "Missing item type\nupdate the position of a pointer",
-            "line": " LADS/hammer.js:717"
-        },
-        {
-            "message": "Missing item type\ncheck if ev matches pointertype",
-            "line": " LADS/hammer.js:734"
-        },
-        {
-            "message": "Missing item type\nget events",
-            "line": " LADS/hammer.js:753"
-        },
-        {
-            "message": "Missing item type\nreset the list",
-            "line": " LADS/hammer.js:764"
-        },
-        {
-            "message": "Missing item type\nstart Hammer.gesture detection",
-            "line": " LADS/hammer.js:788"
-        },
-        {
-            "message": "Missing item type\nHammer.gesture detection",
-            "line": " LADS/hammer.js:812"
-        },
-        {
-            "message": "Missing item type\nclear the Hammer.gesture vars\nthis is called on endDetect, but can also be used when a final Hammer.gesture has been detected\nto stop other Hammer.gestures from being fired",
-            "line": " LADS/hammer.js:853"
-        },
-        {
-            "message": "Missing item type\nextend eventData for Hammer.gestures",
-            "line": " LADS/hammer.js:871"
-        },
-        {
-            "message": "Missing item type\nregister new gesture",
-            "line": " LADS/hammer.js:938"
-        },
-        {
-            "message": "Missing item type\nDrag\nMove with x fingers (default 1) around on the page. Blocking the scrolling when\nmoving left and right is a good practice. When all the drag events are blocking\nyou disable scrolling on that area.",
-            "line": " LADS/hammer.js:971"
-        },
-        {
-            "message": "Missing item type\nHold\nTouch stays at the same place for x time",
-            "line": " LADS/hammer.js:1099"
-        },
-        {
-            "message": "Missing item type\nRelease\nCalled as last, tells the user has released the screen",
-            "line": " LADS/hammer.js:1144"
-        },
-        {
-            "message": "Missing item type\nSwipe\ntriggers swipe events when the end velocity is above the threshold",
-            "line": " LADS/hammer.js:1159"
-        },
-        {
-            "message": "Missing item type\nTap/DoubleTap\nQuick touch at a place or double at the same place",
-            "line": " LADS/hammer.js:1194"
-        },
-        {
-            "message": "Missing item type\nTouch\nCalled as first, tells the user has touched the screen",
-            "line": " LADS/hammer.js:1239"
-        },
-        {
-            "message": "Missing item type\nTransform\nUser want to scale or rotate with 2 fingers",
-            "line": " LADS/hammer.js:1274"
-        },
-        {
-            "message": "Missing item type\nTAG testing framework\n\nThe TEST SCRIPTS section below has a few test routines. These\nroutines are made public at the bottom of this file. They call\nrunTests on a collection of TEST SCRIPT ACTIONs, which are defined\nin the second section. These are 'atomic' actions that can\nbe combined to make more complex routines. There are a few\nTEST SUPPORT FUNCTIONs defined in the last section below.",
-            "line": " LADS/tests.js:3"
-        },
-        {
-            "message": "Missing item type\n|**** TEST SCRIPTS ****|",
-            "line": " LADS/tests.js:32"
-        },
-        {
-            "message": "Missing item type\n|**** TEST SCRIPT ACTIONS ****|",
-            "line": " LADS/tests.js:71"
-        },
-        {
-            "message": "Missing item type\n|**** TESTING SUPPORT FUNCTIONS ****|",
-            "line": " LADS/tests.js:249"
-        },
-        {
-            "message": "Missing item type\nRun a series of tests",
-            "line": " LADS/tests.js:253"
-        },
-        {
-            "message": "Missing item type\nCalled by runTests, calls a single test, then calls runTest with incremented index",
-            "line": " LADS/tests.js:272"
-        },
-        {
-            "message": "Missing item type\nHelper function to concatenate different testing objects",
-            "line": " LADS/tests.js:293"
-        },
-        {
-            "message": "Missing item type\nCreate click event on the input element",
-            "line": " LADS/tests.js:321"
-        },
-        {
-            "message": "Missing item type\nSimulate a pinch zoom event",
-            "line": " LADS/tests.js:330"
-        },
-        {
-            "message": "Missing item type\nCreate mousemove event -- be careful to leave enough interval time to call this",
-            "line": " LADS/tests.js:337"
-        },
-        {
-            "message": "Missing item type\nRecursive call to execute mousemove events",
-            "line": " LADS/tests.js:394"
-        },
-        {
-            "message": "Missing item type\nLinearly interpolate between start and stop by t in [0,1]",
-            "line": " LADS/tests.js:432"
-        },
-        {
-            "message": "Missing item type\nHighlight the target of a testing event (visualize events)",
-            "line": " LADS/tests.js:440"
-        },
-        {
-            "message": "Missing item type",
-            "line": " LADS/tests.js:504"
-        },
-        {
-            "message": "Missing item type\nreturns random element from input array",
-            "line": " LADS/tests.js:516"
-        },
-        {
-            "message": "Missing item type\nReturns a basic error callback function (long-term, should define\ncase-specific error funcs that actually do some error handling).",
-            "line": " LADS/tests.js:533"
-        },
-        {
-            "message": "Missing item type\nShow an overlay explaining that the first step in the test is to\nnavigate to the correct starting page.",
-            "line": " LADS/tests.js:546"
-        },
-        {
-            "message": "Missing item type\nCancels the currently-running test",
-            "line": " LADS/tests.js:592"
-        },
-        {
-            "message": "Missing item type\nA preliminary telemetry server\nShould probably be hooked up with a DB",
-            "line": " telemetry/server.js:1"
-        },
-        {
-            "message": "Missing item type\nMake a request to the telemetry server",
-            "line": " telemetry/telemetryTest.js:29"
         }
     ]
 }
