@@ -38,7 +38,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         switching = false,
         confirmationBox,
         tagContainer = $('#tagRoot') || $('body'),
-        NUM_DRAWERS = 4;
+        NUM_DRAWERS = 0;
 
     if (prevInfo) {
         prevPage = prevInfo.prevPage,
@@ -232,21 +232,28 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
         //Descriptions, Hotspots, Assets and Tours drawers
         var existsDescription = !!doq.Metadata.Description;
-        var descriptionDrawer = createDrawer("Description", !existsDescription);
-        if (doq.Metadata.Description) {
-            var descrip = doq.Metadata.Description.replace(/\n/g, "<br />");
-            descriptionDrawer.contents.html(descrip);
-
-        }
-        var test = doq;
-        assetContainer.append(descriptionDrawer);
         
-        //location history TODO
-        var locationHistorysec = initlocationHistory();
-        assetContainer.append(locationHistorysec);
+        if (existsDescription) {
+            NUM_DRAWERS++;
+            var descriptionDrawer = createDrawer("Description", !existsDescription);
+            if (doq.Metadata.Description) {
+                var descrip = doq.Metadata.Description.replace(/\n/g, "<br />");
+                descriptionDrawer.contents.html(descrip);
 
+            }
+            var test = doq;
+            assetContainer.append(descriptionDrawer);
+        }
 
-        var hotspotsDrawer = createDrawer('Hotspots', (hotspots.length === 0));
+        //location history
+        locationList = LADS.Util.UI.getLocationList(options.doq.Metadata); 
+        if (locationList.length != 0) {
+            NUM_DRAWERS++;
+            var locationHistorysec = initlocationHistory();
+            assetContainer.append(locationHistorysec);
+        }
+
+        
 
         ///////////////////////////////////////
         function downhelper(elt) {
@@ -371,17 +378,23 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         ///////////////////////////////////////
         
         //get the hotspots for the artwork
-        for (var k = 0; k < hotspots.length; k++) {
-            loadQueue.add(createMediaHolder(hotspotsDrawer.contents, hotspots[k], true));
+        if (hotspots.length != 0) {
+            NUM_DRAWERS++;
+            var hotspotsDrawer = createDrawer('Hotspots', (hotspots.length === 0));
+            for (var k = 0; k < hotspots.length; k++) {
+                loadQueue.add(createMediaHolder(hotspotsDrawer.contents, hotspots[k], true));
+            }
+            assetContainer.append(hotspotsDrawer);
         }
-        assetContainer.append(hotspotsDrawer);
 
-
-        var assetsDrawer = createDrawer('Assets', (assets.length===0));
-        for (var j = 0; j< assets.length; j++) {
-            loadQueue.add(createMediaHolder(assetsDrawer.contents, assets[j], false));
+        if (assets.length != 0) {
+            NUM_DRAWERS++;
+            var assetsDrawer = createDrawer('Assets', (assets.length===0));
+            for (var j = 0; j< assets.length; j++) {
+                loadQueue.add(createMediaHolder(assetsDrawer.contents, assets[j], false));
+            }
+            assetContainer.append(assetsDrawer);
         }
-        assetContainer.append(assetsDrawer);
 
         function hotspotAssetClick(hotspotsAsset, btn) {//check if the location history is open before you click the button, if so, close it
             return function () {
@@ -446,15 +459,28 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 var relatedArtworks = JSON.parse(tour.Metadata.RelatedArtworks);
                 return relatedArtworks instanceof Array && relatedArtworks.indexOf(doq.Identifier) > -1;
             });
-            toursDrawer = createDrawer('Tours', relatedTours.length === 0);
-            assetContainer.append(toursDrawer);
-            if (relatedTours.length > 0) {
-                toursDrawer.contents.text('');
-                $.each(relatedTours, function (index, tour) {
-                    loadQueue.add(createTourHolder(toursDrawer.contents, tour));
-                });
+
+            if (relatedTours.length != 0) {
+                NUM_DRAWERS++;
+                toursDrawer = createDrawer('Tours', relatedTours.length === 0);
+                assetContainer.append(toursDrawer);
+                if (relatedTours.length > 0) {
+                    toursDrawer.contents.text('');
+                    $.each(relatedTours, function (index, tour) {
+                        loadQueue.add(createTourHolder(toursDrawer.contents, tour));
+                    });
+                }
             }
+
+            var maxHeight= $("#assetContainer").height() - $('.drawerHeader').height() * NUM_DRAWERS - 10;
+            if (maxHeight<=0)
+                maxHeight=1;
+            root.find(".drawerContents").css({
+                "max-height": maxHeight +"px",
+            });
         });
+
+        
 
         function tourClicked(tour) {
             return function () {
@@ -698,9 +724,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 					((root.data('split') === 'L') ?
 						$('#metascreen-L').width() - window.innerWidth * 0.22 :
 						$('#metascreen-R').width() - window.innerWidth * 0.22);
-        // locationHistoryDiv.css({
-        //     'width': locwidth + 'px',
-        // });
 
         //create the panel for location history.
 		var locationHistoryPanel = root.find('#locationHistoryPanel');
@@ -795,7 +818,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
             locationList = LADS.Util.UI.getLocationList(options.doq.Metadata); //Location List is LOADED HERE
 
-            console.log("location list length: " + locationList.length);
             if (locationList.length === 0) {
                 mapOverlay.show();
             }
@@ -975,12 +997,12 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             drawer.isslided = false;
             var drawerContents = $(document.createElement('div'));
             drawerContents.addClass("drawerContents");
-            var maxHeight= $("#assetContainer").height() - $('.drawerHeader').height() * NUM_DRAWERS - 10; // 165;
-            if (maxHeight<=0)
-                maxHeight=1;
-            drawerContents.css({
-                "max-height": maxHeight +"px",
-            });
+            // var maxHeight= $("#assetContainer").height() - $('.drawerHeader').height() * NUM_DRAWERS - 15; // 165;
+            // if (maxHeight<=0)
+            //     maxHeight=1;
+            // drawerContents.css({
+            //     "max-height": maxHeight +"px",
+            // });
             drawerContents.appendTo(drawer);
 
             //have the toggler icon minus when is is expanded, plus otherwise.
