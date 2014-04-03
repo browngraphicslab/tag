@@ -45,6 +45,8 @@
             
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
             
+                <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
+            
             </ul>
 
             <ul id="api-modules" class="apis modules">
@@ -90,6 +92,16 @@
     <pre class="code prettyprint linenums">
 ﻿LADS.Util.makeNamespace(&quot;LADS.Layout.StartPage&quot;);
 
+
+/**
+* The start page for TAG, which contains mueseum info, server preferences and credits.
+* @class LADS.Layout.StartPage
+* @constructor
+*
+* @param {Object} options
+* @param {boolean} startPageCallback
+* @return {Object} that       collection of public methods and properties
+*/
 LADS.Layout.StartPage = function (options, startPageCallback) {
     &quot;use strict&quot;;
 
@@ -159,46 +171,95 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         }
     }
 
-    var that = {};
+    var that = {};    
+    var backgroundColor,
+        logoContainer,
+        touchHint,
+        handGif;    
 
-    //sets up the entire visual layout and images of the splash screen
+    /**
+    * sets up the entire visual layout and images of the splash screen
+    * @method loadHelper
+    * @param {Object} main     contains all image paths and museum info
+    */
     function loadHelper(main) {
-        var fullScreen,
-            overlayColor,
-            overlayTransparency,
-            backgroundColor,
-            imageBgColor,
-            logoContainer,
-            logo,
-            brownInfoBox,
-            expandInfoButton,
-            expandImage,
-            tagName,
-            fullTag,
-            infoExpanded,
-            brownPeople,
-            sponsoredText,
-            microsoftLogo,
-            museumName,
-            museumNameSpan,
-            tempName,
-            museumLoc,
-            museumLocSpan,
-            tempLoc,
-            museumInfoDiv,
-            museumInfoSpan,
-            tempInfo,
-            infoTextHolder,
-            infoDiv,
-            touchHint,
-            handGif;
-
         LADS.Util.Constants.set(&quot;START_PAGE_SPLASH&quot;, tagPath+&quot;images/birdtextile.jpg&quot;);
-
         if(!allowServerChange) {
             $(&#x27;#serverTagBuffer&#x27;).remove();
         }
+    
+        overlay.on(&#x27;click&#x27;, switchPage);
+        
+        setImagePaths(main);
+        setUpCredits();
+        setUpInfo(main);
+        initializeHandlers();
 
+        /*
+        var loadedInterval2 = setInterval(function () { // TODO is this interval necessary?
+            fixText();
+            clearInterval(loadedInterval2);
+        });
+        */
+        
+        handGif.onclick = switchPage;
+        //opens the exhibitions page on touch/click
+        function switchPage() {
+            var newCatalog = new LADS.Layout.NewCatalog();
+            overlay.on(&#x27;click&#x27;, function(){});
+            LADS.Util.UI.slidePageLeft(newCatalog.getRoot());
+        }
+    }
+
+    
+    /**
+    * adjusts the text to fit the screen size
+    * @method fixText
+    */
+    function fixText() { // TODO fix this up, make it cleaner
+            var nameDivSize,
+                nameSpanSize,
+                fontSizeSpan,
+                subheadingFont;
+            if (LADS.Util.elementInDocument(museumName)) {
+                subheadingFont = parseInt(museumLoc.css(&#x27;font-size&#x27;), 10);
+                nameDivSize = museumName.height();
+                fontSizeSpan = museumName.height();
+    
+                museumNameSpan.css(&#x27;height&#x27;, nameSpanSize);
+            }
+        }
+
+    /**
+    * initializes the handlers for various &#x27;click&#x27; functions including setting up a server
+    * @method initializeHandlers
+    */
+    function initializeHandlers(){
+        logoContainer.on(&#x27;click&#x27;, function (evt) {
+            evt.stopPropagation();
+        });
+
+        serverSetUpContainer.on(&#x27;click&#x27;, function() {
+            LADS.Util.UI.ChangeServerDialog();
+        });
+
+        serverTagBuffer.on(&#x27;click&#x27;, function (evt) {
+            evt.stopPropagation();
+        });
+    }
+
+
+    /**
+    * gets the paths for all the images displayed on the splash screen
+    * @method setImagePaths
+    * @param {Object} main    contains all the image links
+    */
+    function setImagePaths(main){
+        var fullScreen,
+            overlayColor,
+            overlayTransparency,
+            imageBgColor,
+            logo;
         // set image paths
         root.find(&#x27;#expandImage&#x27;).attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/Left.png&#x27;);
         root.find(&#x27;#handGif&#x27;).attr(&#x27;src&#x27;, tagPath+&#x27;images/RippleNewSmall.gif&#x27;);
@@ -217,12 +278,23 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         logo = root.find(&#x27;#logo&#x27;);
         logo.attr(&#x27;src&#x27;, LADS.Worktop.Database.fixPath(main.Metadata[&quot;Icon&quot;]));
+    }
 
-        logoContainer.on(&#x27;click&#x27;, function (evt) {
-            evt.stopPropagation();
-        });
-
-        overlay.on(&#x27;click&#x27;, switchPage);
+    
+    /**
+    * Sets up the credits box with its content including text and images. Also includes function for animation of credits.
+    * @method setUpCredits
+    */
+    function setUpCredits(){
+        var brownInfoBox,
+            expandInfoButton,
+            expandImage,
+            tagName,
+            fullTag,
+            infoExpanded,
+            brownPeople,
+            sponsoredText,
+            microsoftLogo;
 
         brownInfoBox = root.find(&#x27;#brownInfoBox&#x27;);
         brownInfoBox.on(&#x27;click&#x27;, expandInfo);
@@ -239,98 +311,19 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         sponsoredText = $(document.createElement(&#x27;label&#x27;));
         sponsoredText.attr(&#x27;id&#x27;, &#x27;sponsoredText&#x27;);
+        sponsoredText.css(&#x27;overflow&#x27;, &#x27;hidden&#x27;);
+        sponsoredText.css(&#x27;white-space&#x27;, &#x27;pre&#x27;);
         sponsoredText.text(&#x27;Sponsored by&#x27;);
 
         microsoftLogo = $(document.createElement(&#x27;img&#x27;));
         microsoftLogo.attr(&#x27;id&#x27;, &#x27;microsoftLogo&#x27;);
         microsoftLogo.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/MicrosoftLogo.png&#x27;);
 
-        museumName = root.find(&#x27;#museumName&#x27;);
-        museumNameSpan = root.find(&#x27;#museumNameSpan&#x27;);
-
-        tempName = main.Metadata[&quot;MuseumName&quot;];
-        if (tempName === undefined) {
-            tempName = &quot;&quot;;
-        }
-        museumNameSpan.text(tempName);
-
-        museumLoc = root.find(&#x27;#museumLoc&#x27;);
-        museumLocSpan = root.find(&#x27;#museumLocSpan&#x27;);
-
-        tempLoc = main.Metadata[&quot;MuseumLoc&quot;];
-        if (tempLoc === undefined) {
-            tempLoc = &quot;&quot;;
-        }
-        museumLocSpan.text(tempLoc);
-
-        var loadedInterval2 = setInterval(function () { // TODO is this interval necessary?
-            fixText();
-            clearInterval(loadedInterval2);
-        });
-
-        function fixText() { // TODO fix this up, make it cleaner
-            var nameDivSize,
-                nameSpanSize,
-                fontSizeSpan,
-                subheadingFont;
-            if (LADS.Util.elementInDocument(museumName)) {
-                subheadingFont = parseInt(museumLoc.css(&#x27;font-size&#x27;), 10);
-                //here we are going to construct the function
-                nameDivSize = museumName.height();
-                fontSizeSpan = museumName.height();
-		/*                
-		museumNameSpan.css(&#x27;font-size&#x27;, nameDivSize + &#x27;px&#x27;);
-                nameSpanSize = museumNameSpan.height();
-                while (nameDivSize &lt; nameSpanSize) {
-                    fontSizeSpan--;
-                    museumNameSpan.css(&#x27;font-size&#x27;, fontSizeSpan + &#x27;px&#x27;);
-                    nameSpanSize = museumNameSpan.height();
-                }*/
-                museumNameSpan.css(&#x27;height&#x27;, nameSpanSize);
-            }
-        }
-        that.fixText = fixText;
-
-        museumInfoDiv = root.find(&#x27;#museumInfoDiv&#x27;);
-
-        museumInfoSpan = root.find(&#x27;#museumInfoSpan&#x27;);
-
-        tempInfo = main.Metadata[&quot;MuseumInfo&quot;];
-        if (!tempInfo) {
-            tempInfo = &quot;&quot;;
-        }
-        museumInfoSpan.text(tempInfo);
-	
-	/*
-        var loadedInterval = setInterval(function () { // TODO must be a better way...
-            if (LADS.Util.elementInDocument(museumInfoDiv)) {
-                var subheadingFont = parseInt(museumLoc.css(&#x27;font-size&#x27;), 10);
-                LADS.Util.UI.fitTextInDiv(museumInfoSpan, Math.round(subheadingFont * 2 / 3), Math.round(subheadingFont * 1 / 3));
-                clearInterval(loadedInterval);
-            }
-        });*/
-
-        infoTextHolder = root.find(&#x27;#infoTextHolder&#x27;);
-
-        infoDiv = root.find(&#x27;#infoDiv&#x27;);
-        infoDiv.css({
-            &#x27;background-color&#x27;: backgroundColor
-        });
-
-        serverSetUpContainer.on(&#x27;click&#x27;, function() {
-            LADS.Util.UI.ChangeServerDialog();
-        });
-        serverTagBuffer.on(&#x27;click&#x27;, function (evt) {
-            evt.stopPropagation();
-        });
-
-        touchHint = root.find(&#x27;#touchHint&#x27;);
-
-        handGif = root.find(&#x27;#handGif&#x27;);
-
-        handGif.onclick = switchPage;
-
-        //this handes the animation for opening/closing the div that holds the information about the project
+        /**
+        * animation of credits when user clicks 
+        * @method expandInfo
+        * @param {Object} event     the trigger event for animation, in this case a click
+        */
         function expandInfo(event) {
             event.stopPropagation();
             if (infoExpanded) {
@@ -353,20 +346,87 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
                 brownInfoBox.append(microsoftLogo);
                 expandImage.css({ &#x27;transform&#x27;: &#x27;scaleX(-1)&#x27; });
                 brownPeople.css({ &quot;right&quot;: &quot;0%&quot;, &quot;bottom&quot;: &quot;0%&quot;, &quot;position&quot;: &quot;absolute&quot;, &quot;font-size&quot;: &quot;0%&quot; });
-                brownPeople.animate({ &quot;left&quot;: &quot;12%&quot;, &quot;top&quot;: &quot;51%&quot;, &quot;position&quot;: &quot;absolute&quot;, &quot;font-size&quot;: &quot;81%&quot; }, 700, &#x27;swing&#x27;, function () { $(brownPeople).fitText(5); });
+                brownPeople.animate({ &quot;left&quot;: &quot;12%&quot;, &quot;top&quot;: &quot;51%&quot;, &quot;position&quot;: &quot;absolute&quot;, &quot;font-size&quot;: &quot;61%&quot; }, 700, &#x27;swing&#x27;, function () { $(brownPeople).fitText(5); });
                 tagName.animate({ left: &#x27;12%&#x27;, top: &#x27;3%&#x27;, &#x27;font-size&#x27;: &#x27;300%&#x27; }, 700);
                 fullTag.animate({ left: &#x27;12%&#x27;, top: &#x27;35%&#x27;, &#x27;font-size&#x27;: &#x27;130%&#x27; }, 700);
             }
         }
-
-        //opens the exhibitions page on touch/click
-        function switchPage() {
-            var newCatalog = new LADS.Layout.NewCatalog();
-            overlay.on(&#x27;click&#x27;, function(){});
-            LADS.Util.UI.slidePageLeft(newCatalog.getRoot());
-        }
     }
 
+    
+    /**
+    * sets up the info div which contains all the museum information
+    * @method setUpInfo
+    * @param {Object} main    contains all the museum information
+    */
+    function setUpInfo(main){
+        var infoTextHolder,
+            infoDiv;
+        
+        infoTextHolder = root.find(&#x27;#infoTextHolder&#x27;);
+        infoDiv = root.find(&#x27;#infoDiv&#x27;);
+        infoDiv.css({
+            &#x27;background-color&#x27;: backgroundColor
+        });
+
+        touchHint = root.find(&#x27;#touchHint&#x27;);
+        handGif = root.find(&#x27;#handGif&#x27;);
+
+        setUpMuseumInfo(main);
+
+    }
+
+    
+    /**
+    * Fills in all museum info including name and location
+    * @method setUpMuseumInfo
+    * @param {Object} main     contains all the museum information
+    */
+    function setUpMuseumInfo(main){
+        var museumName,
+            museumNameSpan,
+            tempName,
+            museumLoc,
+            museumLocSpan,
+            tempLoc,
+            museumInfoDiv,
+            museumInfoSpan,
+            tempInfo;
+            
+        museumName = root.find(&#x27;#museumName&#x27;);
+        museumNameSpan = root.find(&#x27;#museumNameSpan&#x27;);
+        tempName = main.Metadata[&quot;MuseumName&quot;];
+        if (tempName === undefined) {
+            tempName = &quot;&quot;;
+        }
+        museumNameSpan.text(tempName);
+
+        museumLoc = root.find(&#x27;#museumLoc&#x27;);
+        museumLocSpan = root.find(&#x27;#museumLocSpan&#x27;);
+        tempLoc = main.Metadata[&quot;MuseumLoc&quot;];
+        if (tempLoc === undefined) {
+            tempLoc = &quot;&quot;;
+        }
+
+        museumLocSpan.text(tempLoc);
+
+        that.fixText = fixText;
+
+        museumInfoDiv = root.find(&#x27;#museumInfoDiv&#x27;);
+
+        museumInfoSpan = root.find(&#x27;#museumInfoSpan&#x27;);
+        tempInfo = main.Metadata[&quot;MuseumInfo&quot;];
+        if (!tempInfo) {
+            tempInfo = &quot;&quot;;
+        }
+        museumInfoSpan.text(tempInfo);
+    }
+    
+
+    /**
+    * @method getRoot
+    * @return 
+    */
     function getRoot() {
         return root;
     }

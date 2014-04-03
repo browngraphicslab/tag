@@ -398,6 +398,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
         function hotspotAssetClick(hotspotsAsset, btn) {//check if the location history is open before you click the button, if so, close it
             return function () {
+                hotspotsAsset.mediaload();
                 if (locationHistoryActive) {
                     locationHistoryActive = false;
                     locationHistory.css({
