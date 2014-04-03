@@ -41816,6 +41816,16 @@ LADS.Auth = (function () {
 ;
 LADS.Util.makeNamespace("LADS.Layout.StartPage");
 
+
+/**
+* The start page for TAG, which contains mueseum info, server preferences and credits.
+* @class LADS.Layout.StartPage
+* @constructor
+*
+* @param {Object} options
+* @param {boolean} startPageCallback
+* @return {Object} that       collection of public methods and properties
+*/
 LADS.Layout.StartPage = function (options, startPageCallback) {
     "use strict";
 
@@ -41885,46 +41895,95 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         }
     }
 
-    var that = {};
+    var that = {};    
+    var backgroundColor,
+        logoContainer,
+        touchHint,
+        handGif;    
 
-    //sets up the entire visual layout and images of the splash screen
+    /**
+    * sets up the entire visual layout and images of the splash screen
+    * @method loadHelper
+    * @param {Object} main     contains all image paths and museum info
+    */
     function loadHelper(main) {
-        var fullScreen,
-            overlayColor,
-            overlayTransparency,
-            backgroundColor,
-            imageBgColor,
-            logoContainer,
-            logo,
-            brownInfoBox,
-            expandInfoButton,
-            expandImage,
-            tagName,
-            fullTag,
-            infoExpanded,
-            brownPeople,
-            sponsoredText,
-            microsoftLogo,
-            museumName,
-            museumNameSpan,
-            tempName,
-            museumLoc,
-            museumLocSpan,
-            tempLoc,
-            museumInfoDiv,
-            museumInfoSpan,
-            tempInfo,
-            infoTextHolder,
-            infoDiv,
-            touchHint,
-            handGif;
-
         LADS.Util.Constants.set("START_PAGE_SPLASH", tagPath+"images/birdtextile.jpg");
-
         if(!allowServerChange) {
             $('#serverTagBuffer').remove();
         }
+    
+        overlay.on('click', switchPage);
+        
+        setImagePaths(main);
+        setUpCredits();
+        setUpInfo(main);
+        initializeHandlers();
 
+        /*
+        var loadedInterval2 = setInterval(function () { // TODO is this interval necessary?
+            fixText();
+            clearInterval(loadedInterval2);
+        });
+        */
+        
+        handGif.onclick = switchPage;
+        //opens the exhibitions page on touch/click
+        function switchPage() {
+            var newCatalog = new LADS.Layout.NewCatalog();
+            overlay.on('click', function(){});
+            LADS.Util.UI.slidePageLeft(newCatalog.getRoot());
+        }
+    }
+
+    
+    /**
+    * adjusts the text to fit the screen size
+    * @method fixText
+    */
+    function fixText() { // TODO fix this up, make it cleaner
+            var nameDivSize,
+                nameSpanSize,
+                fontSizeSpan,
+                subheadingFont;
+            if (LADS.Util.elementInDocument(museumName)) {
+                subheadingFont = parseInt(museumLoc.css('font-size'), 10);
+                nameDivSize = museumName.height();
+                fontSizeSpan = museumName.height();
+    
+                museumNameSpan.css('height', nameSpanSize);
+            }
+        }
+
+    /**
+    * initializes the handlers for various 'click' functions including setting up a server
+    * @method initializeHandlers
+    */
+    function initializeHandlers(){
+        logoContainer.on('click', function (evt) {
+            evt.stopPropagation();
+        });
+
+        serverSetUpContainer.on('click', function() {
+            LADS.Util.UI.ChangeServerDialog();
+        });
+
+        serverTagBuffer.on('click', function (evt) {
+            evt.stopPropagation();
+        });
+    }
+
+
+    /**
+    * gets the paths for all the images displayed on the splash screen
+    * @method setImagePaths
+    * @param {Object} main    contains all the image links
+    */
+    function setImagePaths(main){
+        var fullScreen,
+            overlayColor,
+            overlayTransparency,
+            imageBgColor,
+            logo;
         // set image paths
         root.find('#expandImage').attr('src', tagPath+'images/icons/Left.png');
         root.find('#handGif').attr('src', tagPath+'images/RippleNewSmall.gif');
@@ -41943,12 +42002,23 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         logo = root.find('#logo');
         logo.attr('src', LADS.Worktop.Database.fixPath(main.Metadata["Icon"]));
+    }
 
-        logoContainer.on('click', function (evt) {
-            evt.stopPropagation();
-        });
-
-        overlay.on('click', switchPage);
+    
+    /**
+    * Sets up the credits box with its content including text and images. Also includes function for animation of credits.
+    * @method setUpCredits
+    */
+    function setUpCredits(){
+        var brownInfoBox,
+            expandInfoButton,
+            expandImage,
+            tagName,
+            fullTag,
+            infoExpanded,
+            brownPeople,
+            sponsoredText,
+            microsoftLogo;
 
         brownInfoBox = root.find('#brownInfoBox');
         brownInfoBox.on('click', expandInfo);
@@ -41973,92 +42043,11 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         microsoftLogo.attr('id', 'microsoftLogo');
         microsoftLogo.attr('src', tagPath+'images/icons/MicrosoftLogo.png');
 
-        museumName = root.find('#museumName');
-        museumNameSpan = root.find('#museumNameSpan');
-
-        tempName = main.Metadata["MuseumName"];
-        if (tempName === undefined) {
-            tempName = "";
-        }
-        museumNameSpan.text(tempName);
-
-        museumLoc = root.find('#museumLoc');
-        museumLocSpan = root.find('#museumLocSpan');
-
-        tempLoc = main.Metadata["MuseumLoc"];
-        if (tempLoc === undefined) {
-            tempLoc = "";
-        }
-        museumLocSpan.text(tempLoc);
-
-        var loadedInterval2 = setInterval(function () { // TODO is this interval necessary?
-            fixText();
-            clearInterval(loadedInterval2);
-        });
-
-        function fixText() { // TODO fix this up, make it cleaner
-            var nameDivSize,
-                nameSpanSize,
-                fontSizeSpan,
-                subheadingFont;
-            if (LADS.Util.elementInDocument(museumName)) {
-                subheadingFont = parseInt(museumLoc.css('font-size'), 10);
-                //here we are going to construct the function
-                nameDivSize = museumName.height();
-                fontSizeSpan = museumName.height();
-		/*                
-		museumNameSpan.css('font-size', nameDivSize + 'px');
-                nameSpanSize = museumNameSpan.height();
-                while (nameDivSize < nameSpanSize) {
-                    fontSizeSpan--;
-                    museumNameSpan.css('font-size', fontSizeSpan + 'px');
-                    nameSpanSize = museumNameSpan.height();
-                }*/
-                museumNameSpan.css('height', nameSpanSize);
-            }
-        }
-        that.fixText = fixText;
-
-        museumInfoDiv = root.find('#museumInfoDiv');
-
-        museumInfoSpan = root.find('#museumInfoSpan');
-
-        tempInfo = main.Metadata["MuseumInfo"];
-        if (!tempInfo) {
-            tempInfo = "";
-        }
-        museumInfoSpan.text(tempInfo);
-	
-	/*
-        var loadedInterval = setInterval(function () { // TODO must be a better way...
-            if (LADS.Util.elementInDocument(museumInfoDiv)) {
-                var subheadingFont = parseInt(museumLoc.css('font-size'), 10);
-                LADS.Util.UI.fitTextInDiv(museumInfoSpan, Math.round(subheadingFont * 2 / 3), Math.round(subheadingFont * 1 / 3));
-                clearInterval(loadedInterval);
-            }
-        });*/
-
-        infoTextHolder = root.find('#infoTextHolder');
-
-        infoDiv = root.find('#infoDiv');
-        infoDiv.css({
-            'background-color': backgroundColor
-        });
-
-        serverSetUpContainer.on('click', function() {
-            LADS.Util.UI.ChangeServerDialog();
-        });
-        serverTagBuffer.on('click', function (evt) {
-            evt.stopPropagation();
-        });
-
-        touchHint = root.find('#touchHint');
-
-        handGif = root.find('#handGif');
-
-        handGif.onclick = switchPage;
-
-        //this handes the animation for opening/closing the div that holds the information about the project
+        /**
+        * animation of credits when user clicks 
+        * @method expandInfo
+        * @param {Object} event     the trigger event for animation, in this case a click
+        */
         function expandInfo(event) {
             event.stopPropagation();
             if (infoExpanded) {
@@ -42086,15 +42075,82 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
                 fullTag.animate({ left: '12%', top: '35%', 'font-size': '130%' }, 700);
             }
         }
-
-        //opens the exhibitions page on touch/click
-        function switchPage() {
-            var newCatalog = new LADS.Layout.NewCatalog();
-            overlay.on('click', function(){});
-            LADS.Util.UI.slidePageLeft(newCatalog.getRoot());
-        }
     }
 
+    
+    /**
+    * sets up the info div which contains all the museum information
+    * @method setUpInfo
+    * @param {Object} main    contains all the museum information
+    */
+    function setUpInfo(main){
+        var infoTextHolder,
+            infoDiv;
+        
+        infoTextHolder = root.find('#infoTextHolder');
+        infoDiv = root.find('#infoDiv');
+        infoDiv.css({
+            'background-color': backgroundColor
+        });
+
+        touchHint = root.find('#touchHint');
+        handGif = root.find('#handGif');
+
+        setUpMuseumInfo(main);
+
+    }
+
+    
+    /**
+    * Fills in all museum info including name and location
+    * @method setUpMuseumInfo
+    * @param {Object} main     contains all the museum information
+    */
+    function setUpMuseumInfo(main){
+        var museumName,
+            museumNameSpan,
+            tempName,
+            museumLoc,
+            museumLocSpan,
+            tempLoc,
+            museumInfoDiv,
+            museumInfoSpan,
+            tempInfo;
+            
+        museumName = root.find('#museumName');
+        museumNameSpan = root.find('#museumNameSpan');
+        tempName = main.Metadata["MuseumName"];
+        if (tempName === undefined) {
+            tempName = "";
+        }
+        museumNameSpan.text(tempName);
+
+        museumLoc = root.find('#museumLoc');
+        museumLocSpan = root.find('#museumLocSpan');
+        tempLoc = main.Metadata["MuseumLoc"];
+        if (tempLoc === undefined) {
+            tempLoc = "";
+        }
+
+        museumLocSpan.text(tempLoc);
+
+        that.fixText = fixText;
+
+        museumInfoDiv = root.find('#museumInfoDiv');
+
+        museumInfoSpan = root.find('#museumInfoSpan');
+        tempInfo = main.Metadata["MuseumInfo"];
+        if (!tempInfo) {
+            tempInfo = "";
+        }
+        museumInfoSpan.text(tempInfo);
+    }
+    
+
+    /**
+    * @method getRoot
+    * @return 
+    */
     function getRoot() {
         return root;
     }
