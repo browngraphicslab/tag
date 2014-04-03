@@ -45,6 +45,8 @@
             
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
             
+                <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
+            
             </ul>
 
             <ul id="api-modules" class="apis modules">
@@ -182,9 +184,8 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
             return root;
         },
         startPlayback: function () { // need to call this to ensure the tour will play when you exit and re-enter a tour, since sliding functionality and audio playback don&#x27;t cooperate
-            debugger;
             rin.processAll(null, tagPath+&#x27;js/RIN/web&#x27;).then(function () {
-                var options = &#x27;systemRootUrl=&#x27;+tagPath+&#x27;js/RIN/web/&amp;autoplay=true&#x27;;
+                var options = &#x27;systemRootUrl=&#x27;+tagPath+&#x27;js/RIN/web/&amp;autoplay=true&amp;loop=false&#x27;;
                 // create player
                 player = rin.createPlayerControl(rinPlayer[0], options);
                 for (var key in tour.resources) {
