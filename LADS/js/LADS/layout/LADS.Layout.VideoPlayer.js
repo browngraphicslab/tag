@@ -49,10 +49,10 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
     //Adding sources for the video file
     var source = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source);
     //var source = 'http://techslides.com/demos/sample-videos/small.webm'; //Video file to test code without server conversion
-    var sourceSansExtension = source.substring(0, source.lastIndexOf('.')) || input;
-    sourceMP4 = sourceSansExtension + ".mp4";
-    sourceWEBM = sourceSansExtension + ".webm";
-    sourceOGG = sourceSansExtension + ".ogg";
+    var sourceWithoutExtension = source.substring(0, source.lastIndexOf('.')) || input;
+    sourceMP4 = sourceWithoutExtension + ".mp4";
+    sourceWEBM = sourceWithoutExtension + ".webm";
+    sourceOGG = sourceWithoutExtension + ".ogg";
     
     //video[0] converts the jQuery object 'video' into an HTML object, allowing us to use innerHTML on it
     video[0].innerHTML = '<source src="' + sourceMP4 + '" type="video/mp4; codecs="avc1.42E01E, mp4a.40.2"">';
