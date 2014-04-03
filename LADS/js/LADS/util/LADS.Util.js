@@ -969,8 +969,10 @@ LADS.Util = (function () {
                     delta = 1.1;
                 }
                 */
-				if (delta < 0) delta = 1.0 / 1.1;
-            	else delta = 1.1;
+//				if (delta < 0) delta = 1.0 / 1.1;
+//            	else delta = 1.1;
+				if (delta < 0) delta = 1.0 / 3;
+            	else delta = 3;
                 evt.cancelBubble = true;
                 if (typeof functions.onScroll === "function") { 
                     functions.onScroll(delta, pivot);
@@ -993,8 +995,9 @@ LADS.Util = (function () {
         hammer.on('pinch', processPinch);
         hammer.on('release', processUp);
         element.onmousewheel = processScroll;
-        element.addEventListener("DOMMouseScroll", processScrollFirefox);
-
+        //element.addEventListener("DOMMouseScroll", processScrollFirefox);
+		element.addEventListener("MozMousePixelScroll",processScrollFirefox);
+		
         // double tap
         var doubleTappedHandler, event;
         if (typeof functions.onDoubleTapped === "function") {
