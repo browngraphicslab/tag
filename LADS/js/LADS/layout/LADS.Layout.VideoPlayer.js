@@ -49,7 +49,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
     //Adding sources for the video file
     var source = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source);
     //var source = 'http://techslides.com/demos/sample-videos/small.webm'; //Video file to test code without server conversion
-    var sourceWithoutExtension = source.substring(0, source.lastIndexOf('.')) || input;
+    var sourceWithoutExtension = source.substring(0, source.lastIndexOf('.'));
     sourceMP4 = sourceWithoutExtension + ".mp4";
     sourceWEBM = sourceWithoutExtension + ".webm";
     sourceOGG = sourceWithoutExtension + ".ogg";
