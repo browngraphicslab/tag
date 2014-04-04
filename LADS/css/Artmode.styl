@@ -2,95 +2,23 @@
 
 sideBarWidth = 22%
 
-#artmodeRoot
-	wh 100%
-	position absolute
-	
-#artmodeRoot #sideBar
-	position absolute
-	display block
-	top 0px
-	background-color rgba(0,0,0,0.7)
-	height 100%
-	width sideBarWidth !important
-	z-index 100
-
-#artmodeRoot #toggler
-	position absolute
-	top 45%
-	wh 12%
-	background-color rgba(0,0,0,0.7)
-	z-index 100
-	
-#artmodeRoot #togglerImage
-	position absolute
-	top 30%
-	left 0%
-	width 72%
-	height 42%
-	
-#artmodeRoot #backBttnContainer
-	width 13%
-	height 5%
-	margin 4% 4% 1% 4%
-	
-#artmodeRoot #backButton
-	wh 100%
-
-
-#artmodeRoot #sideBarSections
-	width 89%
-	height 83%
-	left 5%
-	position relative
-
-#artmodeRoot #sideBarInfo
-	width 100%
-	height 73%
-	margin-bottom 2%
-
-#artmodeRoot #info
-	font-size 22px
-	color white
-	width 100%
-	max-height 4.5em
-	overflow-y visible
-	white-space nowrap
-	padding-right 7%	
-
-#artmodeRoot #infoTitle
-	font-size 160%
-	clear both
-	overflow hidden
-	text-overflow ellipsis
-	white-space nowrap
-
 //function
 headerTitle(size)
 	font-size size
 	overflow hidden
 	white-space nowrap
 	text-overflow ellipsis
-	
-#artmodeRoot #infoArtist
-	headerTitle(110%);
 
-#artmodeRoot #infoYear
-	headerTitle(110%);
-
-#artmodeRoot .infoCustom
-	font-size 147%
-	margin-top 5px
-	text-overflow ellipsis
-	overflow hidden
-	white-space nowrap
+#artmodeRoot
+	wh 100%
+	position absolute
 
 #artmodeRoot #assetContainer
 	overflow visible
 	margin-top 5%
 	height 78%
 
-#artmodeRoot .tourHolder
+#artmodeRoot .assetHolder
 	float left
 	margin 1%
 	width 46%
@@ -98,11 +26,21 @@ headerTitle(size)
 	border 1px solid rgba(255,255,255,0.4)
 	color white
 
+#artmodeRoot .assetHolderImage
+	max-width 100%
+	max-height 100%
+
+#artmodeRoot #backBttnContainer
+	width 13%
+	height 5%
+	margin 4% 4% 1% 4%
+
+#artmodeRoot #backButton
+	wh 100%
+
 #artmodeRoot .holderContainer
 	display table
 	position relative
-	// max-width 100%
-	// max-height 100%
 	wh 100%
 
 #artmodeRoot .holderInnerContainer
@@ -112,74 +50,46 @@ headerTitle(size)
 	vertical-align middle
 	text-align center
 
-#artmodeRoot .assetHolder
-	float left
-	margin 1%
-	width 46%
-	position relative
-	border 1px solid rgba(255,255,255,0.4)
+#artmodeRoot #info
+	font-size 22px
 	color white
-	
-#artmodeRoot .mediaHolderDiv
-	height 70%
-	position relative
-	width 92%
-	margin 4% 4% 0 4%
-
-#artmodeRoot .mediaHolderImg
-	max-width 100%
-	// max-height 100%
-
-#artmodeRoot .assetHolderImage
-	max-width 100%
-	max-height 100%
-	
-#artmodeRoot .mediaHolderTitle
-	margin 1% 2% 0% 2%
-	top 80%
-	height 20%
+	width 100%
+	max-height 4.5em
+	overflow-y visible
 	white-space nowrap
+	padding-right 7%
+
+#artmodeRoot #infoArtist
+	headerTitle(110%);
+
+#artmodeRoot .infoCustom
+	font-size 147%
+	margin-top 5px
+	text-overflow ellipsis
+	overflow hidden
+	white-space nowrap
+
+#artmodeRoot #infoTitle
+	font-size 160%
+	clear both
 	overflow hidden
 	text-overflow ellipsis
-	text-align center
-	font-size 75%
-
-#artmodeRoot #minimapContainer
-	width 80%
-	height 20%
-	background-color rgba(0,0,0,.9)
-	bottom 0%
-	left 10%
-	position absolute
-	vertical-align middle
-	border 1px solid white
-
-#artmodeRoot #minimaprect
-	position absolute
-	border solid white 1px
-	width 100%
-	z-index 50
-
-#artmodeRoot #minimap
-	position absolute
-	top 0%
-	left 0
-	right 0
-	margin auto
-	bottom 0%
-	z-index 10
+	white-space nowrap
 	
-#artmodeRoot #locationHistoryContainer
-	position relative
-	width 100%
-	margin-bottom 0.5%
-	float left
-	
+#artmodeRoot #infoYear
+	headerTitle(110%);
+
 #artmodeRoot #locationHistory
 	font-size 133%
 	position relative
 	display inline
 	vertical-align middle
+
+#artmodeRoot #locationHistoryContainer
+	position relative
+	width 100%
+	margin-bottom 0.5%
+	float left
 	
 #artmodeRoot #locationHistoryDiv
 	display none
@@ -213,6 +123,123 @@ headerTitle(size)
 	top 35%
 	font-size 22pt
 
+#artmodeRoot .mediaHolderDiv
+	height 70%
+	position relative
+	width 92%
+	margin 4% 4% 0 4%
+
+#artmodeRoot .mediaHolderImg
+	max-width 100%
+
+#artmodeRoot .mediaHolderTitle
+	margin 1% 2% 0% 2%
+	top 80%
+	height 20%
+	white-space nowrap
+	overflow hidden
+	text-overflow ellipsis
+	text-align center
+	font-size 75%
+
+#artmodeRoot #minimap
+	position absolute
+	top 0%
+	left 0
+	right 0
+	margin auto
+	bottom 0%
+	z-index 10
+
+#artmodeRoot #minimapContainer
+	width 80%
+	height 20%
+	background-color rgba(0,0,0,.9)
+	bottom 0%
+	left 10%
+	position absolute
+	vertical-align middle
+	border 1px solid white
+
+#artmodeRoot #minimaprect
+	position absolute
+	border solid white 1px
+	width 100%
+	z-index 50
+
+#artmodeRoot .seadragonManipButton
+	background-color rgba(0,0,0,0.9)
+	border 1px solid rgba(255,255,255,0.6)
+	cursor pointer
+	height 25px
+	padding-top 15px
+	position absolute
+	text-align center
+	width 40px
+
+#artmodeRoot #seadragonManipContainer
+	height 120px
+	position absolute
+	top 0px
+	width 120px
+	z-index 10000000
+
+#artmodeRoot #sideBar
+	position absolute
+	display block
+	top 0px
+	background-color rgba(0,0,0,0.7)
+	height 100%
+	width sideBarWidth !important
+	z-index 100
+
+#artmodeRoot #sideBarInfo
+	width 100%
+	height 73%
+	margin-bottom 2%
+
+#artmodeRoot #sideBarSections
+	width 89%
+	height 83%
+	left 5%
+	position relative
+
+#artmodeRoot #toggler
+	position absolute
+	top 45%
+	wh 12%
+	background-color rgba(0,0,0,0.7)
+	z-index 100
+	
+#artmodeRoot #togglerImage
+	position absolute
+	top 30%
+	left 0%
+	width 72%
+	height 42%
+
+#artmodeRoot .tourHolder
+	float left
+	margin 1%
+	width 46%
+	position relative
+	border 1px solid rgba(255,255,255,0.4)
+	color white
+
+
+// finish alphabetizing....
+
+
+
+
+
+	
+
+	
+
+	
+
+
 #artmodeRoot .lpContents
 	position relative
 	left 2.5%
@@ -220,9 +247,13 @@ headerTitle(size)
 	width 95%
 	height 95%
 
-#artmodeRoot .lpTitle
-	font-size 110%
-	margin-bottom 20px
+#artmodeRoot .lpInfoDiv
+	float left
+	padding-left 2%
+	height 100%
+	width 58%
+	overflow auto
+	font-size 100%
 
 #artmodeRoot .lpMapDiv
 	position relative
@@ -232,11 +263,6 @@ headerTitle(size)
 	background-color rgb(94,94,94)
 	margin-bottom 20px
 
-#artmodeRoot .lpTextInfoDiv
-	height 40%
-	width 100%
-	float left
-
 #artmodeRoot .lpTextDiv
 	height 100%
 	width 40%
@@ -244,13 +270,14 @@ headerTitle(size)
 	overflow auto
 	font-size 100%
 
-#artmodeRoot .lpInfoDiv
+#artmodeRoot .lpTextInfoDiv
+	height 40%
+	width 100%
 	float left
-	padding-left 2%
-	height 100%
-	width 58%
-	overflow auto
-	font-size 100%
+
+#artmodeRoot .lpTitle
+	font-size 110%
+	margin-bottom 20px
 
 #artmodeRoot #locationHistoryToggle
 	position absolute

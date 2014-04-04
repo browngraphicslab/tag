@@ -167,13 +167,16 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
         that.viewer.viewport.applyConstraints();
     }
+    this.dzManip = dzManip;
 
     function dzScroll(delta, pivot) {
-        // console.log("pivot.x "+ pivot.x+"  pivot.y :  "+pivot.y);
-        // console.log(delta);
+        console.log("pivot.x "+ pivot.x+"  pivot.y :  "+pivot.y);
+        console.log(delta);
         that.viewer.viewport.zoomBy(delta, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
         that.viewer.viewport.applyConstraints();
     }
+
+    this.dzScroll = dzScroll;
 
     function init() {
         if(Seadragon.Config) {

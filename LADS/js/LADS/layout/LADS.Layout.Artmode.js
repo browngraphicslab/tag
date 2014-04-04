@@ -89,10 +89,90 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 }
                 LADS.Util.Splitscreen.setViewers(root, zoomimage); // TODO should we get rid of all splitscreen stuff?
                 makeSidebar();
+                createSeadragonControls();
                 initialized = true;
             });
             
         }
+    }
+
+    /**
+     * Add controls for manual Seadragon manipulation
+     * This was written for testing purposes and was not carefully written
+     * DO NOT KEEP THIS AS IS!!!!!!
+     * @method createSeadragonControls
+     */
+    function createSeadragonControls() {
+        var container = $(document.createElement('div'));
+        container.attr('id', 'seadragonManipContainer');
+        container.css({
+            'left': ($('#tagRoot').width()-120) + "px"
+        });
+        root.append(container);
+
+        container.append(createButton('leftControl', '<', 0, 40));
+        container.append(createButton('upControl', '^', 40, 0));
+        container.append(createButton('rightControl', '>', 80, 40));
+        container.append(createButton('downControl', 'v', 40, 80));
+        container.append(createButton('zinControl', '+', 80, 0));
+        container.append(createButton('zoutControl', '-', 0, 0));
+
+        function createButton(id, text, left, top) {
+            var button = $(document.createElement('div'));
+            button.attr('id', id);
+            button.css({
+                left: left,
+                top: top
+            });
+            button.addClass('seadragonManipButton');
+            button.text(text);
+            return button;
+        }
+
+        var delt = 40,
+            scrollDelt = 0.1;
+
+        var interval;
+
+        $('#leftControl').on('mousedown', function() {
+            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
+            }, 100);
+        });
+        $('#upControl').on('mousedown', function() {
+            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
+            }, 100);
+        });
+        $('#rightControl').on('mousedown', function() {
+            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
+            }, 100);
+        });
+        $('#downControl').on('mousedown', function() {
+            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
+            }, 100);
+        });
+        $('#zinControl').on('mousedown', function() {
+            zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+            interval = setInterval(function() {
+                zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+            }, 100);
+        });
+        $('#zoutControl').on('mousedown', function() {
+            zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+            interval = setInterval(function() {
+                zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+            }, 100);
+        });
+        $('.seadragonManipButton').on('mouseup', function() {
+            clearInterval(interval);
+        });
     }
 
     /**
@@ -985,8 +1065,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             drawerContents.appendTo(drawer);
 
             //have the toggler icon minus when is is expanded, plus otherwise.
-            drawerHeader.on('click', function () {
-
+            drawerHeader.on('click', function (evt) {
                 if (drawer.isslided === false) {
                     root.find(".plusToggle").attr('src', tagPath+'images/icons/plus.svg');//ensure only one shows.
                     root.find(".drawerContents").slideUp();

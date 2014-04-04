@@ -7,8 +7,8 @@
 * @constructor
 *
 * @param {Object} options
-* @param {boolean} startPageCallback
-* @return {Object} that       collection of public methods and properties
+* @param {Function} startPageCallback
+* @return {Object} that                 collection of public methods and properties
 */
 LADS.Layout.StartPage = function (options, startPageCallback) {
     "use strict";
