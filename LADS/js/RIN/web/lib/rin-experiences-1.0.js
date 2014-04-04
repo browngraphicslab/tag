@@ -611,6 +611,7 @@
 				console.log("capturing wheel events");
 				var pivot = { x: evt.x - $element.offset().left, y: evt.y - $element.offset().top };
 				var delta = -evt.detail;
+				console.log("delta captured " + delta);
 				/*
 				if (delta < 0) { 
 					console.log("here; " + delta);
@@ -620,6 +621,9 @@
 					delta = 1.1;
 				}
 				*/
+				if (delta < 0) delta = 1.0 / 3;
+            	else delta = 3;
+				console.log("delta scrolled " + delta);
 				evt.cancelBubble = true;
 				if (typeof functions.onScroll === "function") { 
 					functions.onScroll(delta, pivot);
@@ -633,7 +637,9 @@
 			hammer.on('pinch', processPinch);
 			hammer.on('release', processUp);
 			element.onmousewheel = processScroll;
-			element.addEventListener("DOMMouseScroll", processScrollFirefox);
+			//element.addEventListener("DOMMouseScroll", processScrollFirefox);
+			element.addEventListener("MozMousePixelScroll", processScrollFirefox);
+			
 			// double tap
 			var doubleTappedHandler, event;
 			if (typeof functions.onDoubleTapped === "function") {
@@ -1746,6 +1752,29 @@ window.rin = window.rin || {};
 				evt.cancelBubble = true;
 				if (typeof functions.onScroll === "function") functions.onScroll(delta, pivot);
 			}
+			
+			function processScrollFirefox(evt) {
+				//console.log("capturing wheel events");
+				var pivot = { x: evt.x - $element.offset().left, y: evt.y - $element.offset().top };
+				var delta = -evt.detail;
+				//console.log("delta captured " + delta);
+				/*
+				if (delta < 0) { 
+					console.log("here; " + delta);
+					delta = 1.0 / 1.1;
+				} else { 
+					console.log("there; " + delta);
+					delta = 1.1;
+				}
+				*/
+				if (delta < 0) delta = 1.0 / 3;
+            	else delta = 3;
+				evt.cancelBubble = true;
+				if (typeof functions.onScroll === "function") { 
+					functions.onScroll(delta, pivot);
+				}
+			}
+
 
 			hammer.on('touch', processDown);
 			hammer.on('drag', function(evt){
@@ -1754,6 +1783,7 @@ window.rin = window.rin || {};
 			hammer.on('pinch', processPinch);
 			hammer.on('release', processUp);
 			element.onmousewheel = processScroll;
+			element.addEventListener("MozMousePixelScroll", processScrollFirefox);
             // $(element).on('mousemove', function(evt) {
             //     processMove(evt);
             // });
