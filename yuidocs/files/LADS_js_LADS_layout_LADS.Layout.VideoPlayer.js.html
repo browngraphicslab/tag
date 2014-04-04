@@ -41,11 +41,15 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
+                <li><a href="../classes/CryptoJS.html">CryptoJS</a></li>
+            
                 <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
             
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
             
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
+            
+                <li><a href="../classes/Telemetry.html">Telemetry</a></li>
             
             </ul>
 
@@ -141,10 +145,10 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
     //Adding sources for the video file
     var source = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source);
     //var source = &#x27;http://techslides.com/demos/sample-videos/small.webm&#x27;; //Video file to test code without server conversion
-    var sourceSansExtension = source.substring(0, source.lastIndexOf(&#x27;.&#x27;)) || input;
-    sourceMP4 = sourceSansExtension + &quot;.mp4&quot;;
-    sourceWEBM = sourceSansExtension + &quot;.webm&quot;;
-    sourceOGG = sourceSansExtension + &quot;.ogg&quot;;
+    var sourceWithoutExtension = source.substring(0, source.lastIndexOf(&#x27;.&#x27;));
+    sourceMP4 = sourceWithoutExtension + &quot;.mp4&quot;;
+    sourceWEBM = sourceWithoutExtension + &quot;.webm&quot;;
+    sourceOGG = sourceWithoutExtension + &quot;.ogg&quot;;
     
     //video[0] converts the jQuery object &#x27;video&#x27; into an HTML object, allowing us to use innerHTML on it
     video[0].innerHTML = &#x27;&lt;source src=&quot;&#x27; + sourceMP4 + &#x27;&quot; type=&quot;video/mp4; codecs=&quot;avc1.42E01E, mp4a.40.2&quot;&quot;&gt;&#x27;;

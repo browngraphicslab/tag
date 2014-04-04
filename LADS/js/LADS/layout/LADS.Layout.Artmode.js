@@ -327,7 +327,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
         //location history
         locationList = LADS.Util.UI.getLocationList(options.doq.Metadata); 
-        if (locationList.length != 0) {
+        if (locationList.length !== 0) {
             NUM_DRAWERS++;
             var locationHistorysec = initlocationHistory();
             assetContainer.append(locationHistorysec);
@@ -1131,7 +1131,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
     // exhibition picker
     function createExhibitionPicker(artworkObj) {
-        debugger; // this shouldn't be called in the web app...
+        // debugger; // this shouldn't be called in the web app...
         var exhibitionPicker = $(document.createElement('div'));
         exhibitionPicker.addClass("exhibitionPicker");
 
