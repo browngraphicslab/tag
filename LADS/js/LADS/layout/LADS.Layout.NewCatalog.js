@@ -514,8 +514,14 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             'width': '55%', 
             'font-size': 0.2 * LADS.Util.getMaxFontSizeEM(exhibition.Metadata.Description, 1.5, 0.55 * $(contentdiv).width(), 0.915 * $(contentdiv).height(), 0.1), // h1*0.055 + 'px',
         });
-           
-        descriptiontext.html(str);
+        
+        if (typeof Windows != "undefined") {
+            // running in Win8 app
+            descriptiontext.html(str);
+        } else {  
+            // running in browser
+            descriptiontext.html(Autolinker.link(str, {email: false, twitter: false}));
+        }
         contentdiv.append(descriptiontext);
         var circle = LADS.Util.showProgressCircle(descriptiontext, progressCircCSS, '0px', '0px', false);
         img1.load(function () {
