@@ -318,8 +318,14 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             var descriptionDrawer = createDrawer("Description", !existsDescription);
             if (doq.Metadata.Description) {
                 var descrip = doq.Metadata.Description.replace(/\n/g, "<br />");
-                descriptionDrawer.contents.html(descrip);
-
+                
+                if (typeof Windows != "undefined") {
+                    // running in Win8 app
+                    descriptionDrawer.contents.html(descrip);
+                } else {  
+                    // running in browser
+                    descriptionDrawer.contents.html(Autolinker.link(descrip, {email: false, twitter: false}));
+                }
             }
             var test = doq;
             assetContainer.append(descriptionDrawer);

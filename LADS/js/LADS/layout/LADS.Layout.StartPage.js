@@ -1,4 +1,4 @@
-﻿LADS.Util.makeNamespace("LADS.Layout.StartPage");
+LADS.Util.makeNamespace("LADS.Layout.StartPage");
 
 
 /**

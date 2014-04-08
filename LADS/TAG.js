@@ -31595,10 +31595,9 @@ LADS.Util = (function () {
                     delta = 1.1;
                 }
                 */
-//				if (delta < 0) delta = 1.0 / 1.1;
-//            	else delta = 1.1;
-				if (delta < 0) delta = 1.0 / 3;
-            	else delta = 3;
+				if (delta < 0) delta = 1.0 / 1.1;
+            	else delta = 1.1;
+				console.log("delta processed " + delta);
                 evt.cancelBubble = true;
                 if (typeof functions.onScroll === "function") { 
                     functions.onScroll(delta, pivot);
@@ -31621,9 +31620,8 @@ LADS.Util = (function () {
         hammer.on('pinch', processPinch);
         hammer.on('release', processUp);
         element.onmousewheel = processScroll;
-        //element.addEventListener("DOMMouseScroll", processScrollFirefox);
-		element.addEventListener("MozMousePixelScroll",processScrollFirefox);
-		
+        element.addEventListener("DOMMouseScroll", processScrollFirefox);
+
         // double tap
         var doubleTappedHandler, event;
         if (typeof functions.onDoubleTapped === "function") {
@@ -31938,13 +31936,12 @@ LADS.Util = (function () {
 
     /**
      * Used by web app code to slide in pages given their html files
-     * @method
      * @param path     the path to the html file within the html directory
      */
     function getHtmlAjax(path) {
         var ret;
         $.ajax({
-            async: false, // need html structure before we can continue in layout files
+            async: false,
             cache: false,
             url: tagPath+"html/"+path,
             success: function (data) {
@@ -42504,8 +42501,14 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             var descriptionDrawer = createDrawer("Description", !existsDescription);
             if (doq.Metadata.Description) {
                 var descrip = doq.Metadata.Description.replace(/\n/g, "<br />");
-                descriptionDrawer.contents.html(descrip);
-
+                
+                if (typeof Windows != "undefined") {
+                    // running in Win8 app
+                    descriptionDrawer.contents.html(descrip);
+                } else {  
+                    // running in browser
+                    descriptionDrawer.contents.html(Autolinker.link(descrip, {email: false, twitter: false}));
+                }
             }
             var test = doq;
             assetContainer.append(descriptionDrawer);
@@ -44143,8 +44146,14 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             'width': '55%', 
             'font-size': 0.2 * LADS.Util.getMaxFontSizeEM(exhibition.Metadata.Description, 1.5, 0.55 * $(contentdiv).width(), 0.915 * $(contentdiv).height(), 0.1), // h1*0.055 + 'px',
         });
-           
-        descriptiontext.html(str);
+        
+        if (typeof Windows != "undefined") {
+            // running in Win8 app
+            descriptiontext.html(str);
+        } else {  
+            // running in browser
+            descriptiontext.html(Autolinker.link(str, {email: false, twitter: false}));
+        }
         contentdiv.append(descriptiontext);
         var circle = LADS.Util.showProgressCircle(descriptiontext, progressCircCSS, '0px', '0px', false);
         img1.load(function () {
@@ -45079,7 +45088,6 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
         overlayOnRoot = root.find('#overlayOnRoot');
 
     backButton.attr('src', tagPath+'images/icons/Back.svg');
-
     //clicked effect for back button
     backButton.on('mousedown', function(){
         LADS.Util.UI.cgBackColor("backButton", backButton, false);
@@ -46162,7 +46170,8 @@ LADS.TESTS = (function () {
         var TAGSCRIPTS = [
                 'js/raphael.js',
                 'js/tagInk.js',
-                'js/RIN/web/lib/rin-core-1.0.js'
+                'js/RIN/web/lib/rin-core-1.0.js',
+                'Autolinker.js-master/dist/Autolinker.js'
             ],
             i,
             oHead,
