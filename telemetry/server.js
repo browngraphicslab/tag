@@ -30,6 +30,13 @@
 		}
 	}).listen(PORT, '127.0.0.1');
 
+	/**
+	 * Handles a post request to the server. Generally, writes data to log file.
+	 * In the future, this should probably log data in a database.
+	 * @method handlePost
+	 * @param {Object} request      the http request sent to the server
+	 * @param {Object} response     a response object we'll write to and return
+	 */
 	function handlePost(request, response) {
 		var requestBody = '',
 			parsedBody,
@@ -80,6 +87,13 @@
 		});
 	}
 
+	/**
+	 * Handles a get request to the server. SHOULD get data from server, return it to client
+	 * for data viz or analysis.
+	 * @method handleGet
+	 * @param {Object} request          the http request to the server
+	 * @param {Object} response         the response we'll send back to the client
+	 */
 	function handleGet(request, response) {
 		var requestBody = '',
 			parsedBody,

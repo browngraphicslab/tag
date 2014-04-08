@@ -10744,6 +10744,46 @@
             "class": "Telemetry"
         },
         {
+            "file": "telemetry/server.js",
+            "line": 33,
+            "description": "Handles a post request to the server. Generally, writes data to log file.\nIn the future, this should probably log data in a database.",
+            "itemtype": "method",
+            "name": "handlePost",
+            "params": [
+                {
+                    "name": "request",
+                    "description": "the http request sent to the server",
+                    "type": "Object"
+                },
+                {
+                    "name": "response",
+                    "description": "a response object we'll write to and return",
+                    "type": "Object"
+                }
+            ],
+            "class": "Telemetry"
+        },
+        {
+            "file": "telemetry/server.js",
+            "line": 90,
+            "description": "Handles a get request to the server. SHOULD get data from server, return it to client\nfor data viz or analysis.",
+            "itemtype": "method",
+            "name": "handleGet",
+            "params": [
+                {
+                    "name": "request",
+                    "description": "the http request to the server",
+                    "type": "Object"
+                },
+                {
+                    "name": "response",
+                    "description": "the response we'll send back to the client",
+                    "type": "Object"
+                }
+            ],
+            "class": "Telemetry"
+        },
+        {
             "file": "telemetry/telemetryTest.js",
             "line": 29,
             "description": "Make a request to the telemetry server",
