@@ -971,6 +971,7 @@ LADS.Util = (function () {
                 */
 				if (delta < 0) delta = 1.0 / 1.1;
             	else delta = 1.1;
+				console.log("delta processed " + delta);
                 evt.cancelBubble = true;
                 if (typeof functions.onScroll === "function") { 
                     functions.onScroll(delta, pivot);
