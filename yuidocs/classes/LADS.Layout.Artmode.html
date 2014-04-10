@@ -41,6 +41,8 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
+                <li><a href="../classes/Autolinker.html">Autolinker</a></li>
+            
                 <li><a href="../classes/CryptoJS.html">CryptoJS</a></li>
             
                 <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
@@ -48,6 +50,8 @@
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
             
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
+            
+                <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
                 <li><a href="../classes/Telemetry.html">Telemetry</a></li>
             
@@ -260,6 +264,8 @@ and thumbnails as well as a central area for the deepzoom image.</p>
             <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
         
         
+            <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
+        
         
         
     </ul>
@@ -313,6 +319,21 @@ and thumbnails as well as a central area for the deepzoom image.</p>
                 </div>
             
 
+            
+                <div class="index-section properties">
+                    <h3>Properties</h3>
+
+                    <ul class="index-list properties">
+                        
+                            <li class="index-item property private">
+                                <a href="#property_matcherRegex!~YUIDOC_LINE~!!~YUIDOC_LINE~!The regular expression that matches URLs, email addresses, and Twitter handles.!~YUIDOC_LINE~!!~YUIDOC_LINE~!Capturing groups:!~YUIDOC_LINE~!!~YUIDOC_LINE~!1. Group that is used to determine if there is a Twitter handle match (i.e. @someTwitterUser). Simply check for its existence!~YUIDOC_LINE~!   to determine if there is a Twitter handle match. The next couple of capturing groups give information about the Twitter !~YUIDOC_LINE~!   handle match.!~YUIDOC_LINE~!2. The whitespace character before the @sign in a Twitter handle. This is needed because there are no lookbehinds in JS regular!~YUIDOC_LINE~!   expressions, and can be used to reconstruct the original string in a replace().!~YUIDOC_LINE~!3. The Twitter handle itself in a Twitter match. If the match is &#x27;@someTwitterUser&#x27;, the handle is &#x27;someTwitterUser&#x27;.!~YUIDOC_LINE~!4. Group that matches an email address. Used to determine if the match is an email address, as well as holding the full address.!~YUIDOC_LINE~!   Ex: &#x27;me@my.com&#x27;!~YUIDOC_LINE~!5. Group that matches a URL in the input text. Ex: &#x27;http://google.com&#x27;, &#x27;www.google.com&#x27;, or just &#x27;google.com&#x27;.!~YUIDOC_LINE~!   This also includes a path, url parameters, or hash anchors. Ex: google.com/path/to/file?q1=1&amp;q2=2#myAnchor">matcherRegex!~YUIDOC_LINE~!!~YUIDOC_LINE~!The regular expression that matches URLs, email addresses, and Twitter handles.!~YUIDOC_LINE~!!~YUIDOC_LINE~!Capturing groups:!~YUIDOC_LINE~!!~YUIDOC_LINE~!1. Group that is used to determine if there is a Twitter handle match (i.e. @someTwitterUser). Simply check for its existence!~YUIDOC_LINE~!   to determine if there is a Twitter handle match. The next couple of capturing groups give information about the Twitter !~YUIDOC_LINE~!   handle match.!~YUIDOC_LINE~!2. The whitespace character before the @sign in a Twitter handle. This is needed because there are no lookbehinds in JS regular!~YUIDOC_LINE~!   expressions, and can be used to reconstruct the original string in a replace().!~YUIDOC_LINE~!3. The Twitter handle itself in a Twitter match. If the match is &#x27;@someTwitterUser&#x27;, the handle is &#x27;someTwitterUser&#x27;.!~YUIDOC_LINE~!4. Group that matches an email address. Used to determine if the match is an email address, as well as holding the full address.!~YUIDOC_LINE~!   Ex: &#x27;me@my.com&#x27;!~YUIDOC_LINE~!5. Group that matches a URL in the input text. Ex: &#x27;http://google.com&#x27;, &#x27;www.google.com&#x27;, or just &#x27;google.com&#x27;.!~YUIDOC_LINE~!   This also includes a path, url parameters, or hash anchors. Ex: google.com/path/to/file?q1=1&amp;q2=2#myAnchor</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
             
 
             
@@ -528,7 +549,7 @@ DO NOT KEEP THIS AS IS!!!!!!</p>
             
         
         
-        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l1387"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:1387</code></a>
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l1393"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:1393</code></a>
         
         </p>
 
@@ -607,7 +628,7 @@ DO NOT KEEP THIS AS IS!!!!!!</p>
             
         
         
-        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l1396"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:1396</code></a>
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l1402"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:1402</code></a>
         
         </p>
 
@@ -657,6 +678,58 @@ DO NOT KEEP THIS AS IS!!!!!!</p>
             </div>
         
 
+        
+            <div id="properties" class="api-class-tabpanel">
+                <h2 class="off-left">Properties</h2>
+
+                
+                    <div id="property_matcherRegex!~YUIDOC_LINE~!!~YUIDOC_LINE~!The regular expression that matches URLs, email addresses, and Twitter handles.!~YUIDOC_LINE~!!~YUIDOC_LINE~!Capturing groups:!~YUIDOC_LINE~!!~YUIDOC_LINE~!1. Group that is used to determine if there is a Twitter handle match (i.e. @someTwitterUser). Simply check for its existence!~YUIDOC_LINE~!   to determine if there is a Twitter handle match. The next couple of capturing groups give information about the Twitter !~YUIDOC_LINE~!   handle match.!~YUIDOC_LINE~!2. The whitespace character before the @sign in a Twitter handle. This is needed because there are no lookbehinds in JS regular!~YUIDOC_LINE~!   expressions, and can be used to reconstruct the original string in a replace().!~YUIDOC_LINE~!3. The Twitter handle itself in a Twitter match. If the match is &#x27;@someTwitterUser&#x27;, the handle is &#x27;someTwitterUser&#x27;.!~YUIDOC_LINE~!4. Group that matches an email address. Used to determine if the match is an email address, as well as holding the full address.!~YUIDOC_LINE~!   Ex: &#x27;me@my.com&#x27;!~YUIDOC_LINE~!5. Group that matches a URL in the input text. Ex: &#x27;http://google.com&#x27;, &#x27;www.google.com&#x27;, or just &#x27;google.com&#x27;.!~YUIDOC_LINE~!   This also includes a path, url parameters, or hash anchors. Ex: google.com/path/to/file?q1=1&amp;q2=2#myAnchor" class="property item private">
+    <h3 class="name"><code>matcherRegex!~YUIDOC_LINE~!!~YUIDOC_LINE~!The regular expression that matches URLs, email addresses, and Twitter handles.!~YUIDOC_LINE~!!~YUIDOC_LINE~!Capturing groups:!~YUIDOC_LINE~!!~YUIDOC_LINE~!1. Group that is used to determine if there is a Twitter handle match (i.e. @someTwitterUser). Simply check for its existence!~YUIDOC_LINE~!   to determine if there is a Twitter handle match. The next couple of capturing groups give information about the Twitter !~YUIDOC_LINE~!   handle match.!~YUIDOC_LINE~!2. The whitespace character before the @sign in a Twitter handle. This is needed because there are no lookbehinds in JS regular!~YUIDOC_LINE~!   expressions, and can be used to reconstruct the original string in a replace().!~YUIDOC_LINE~!3. The Twitter handle itself in a Twitter match. If the match is &#x27;@someTwitterUser&#x27;, the handle is &#x27;someTwitterUser&#x27;.!~YUIDOC_LINE~!4. Group that matches an email address. Used to determine if the match is an email address, as well as holding the full address.!~YUIDOC_LINE~!   Ex: &#x27;me@my.com&#x27;!~YUIDOC_LINE~!5. Group that matches a URL in the input text. Ex: &#x27;http://google.com&#x27;, &#x27;www.google.com&#x27;, or just &#x27;google.com&#x27;.!~YUIDOC_LINE~!   This also includes a path, url parameters, or hash anchors. Ex: google.com/path/to/file?q1=1&amp;q2=2#myAnchor</code></h3>
+    <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/RegExp" class="crosslink external" target="_blank">RegExp</a></span>
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/LADS_js_Autolinker.js-master_src_matcherRegexSource.js.html#l1"><code>LADS&#x2F;js&#x2F;Autolinker.js-master&#x2F;src&#x2F;matcherRegexSource.js:1</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+            </div>
         
 
         

@@ -41,6 +41,8 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
+                <li><a href="../classes/Autolinker.html">Autolinker</a></li>
+            
                 <li><a href="../classes/CryptoJS.html">CryptoJS</a></li>
             
                 <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
@@ -48,6 +50,8 @@
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
             
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
+            
+                <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
                 <li><a href="../classes/Telemetry.html">Telemetry</a></li>
             
@@ -414,8 +418,14 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             var descriptionDrawer = createDrawer(&quot;Description&quot;, !existsDescription);
             if (doq.Metadata.Description) {
                 var descrip = doq.Metadata.Description.replace(/\n/g, &quot;&lt;br /&gt;&quot;);
-                descriptionDrawer.contents.html(descrip);
-
+                
+                if (typeof Windows != &quot;undefined&quot;) {
+                    // running in Win8 app
+                    descriptionDrawer.contents.html(descrip);
+                } else {  
+                    // running in browser
+                    descriptionDrawer.contents.html(Autolinker.link(descrip, {email: false, twitter: false}));
+                }
             }
             var test = doq;
             assetContainer.append(descriptionDrawer);
@@ -584,7 +594,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     locationHistoryToggle.hide();
                     locationHistoryToggle.hide(&quot;slide&quot;, { direction: direction }, 500);
                     locationHistoryDiv.hide(&quot;slide&quot;, { direction: direction }, 500);
-                    toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
+                    setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 }
                 var circle = hotspotsAsset.toggle();
 
@@ -1115,7 +1125,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 locationHistoryToggle.hide();
                 locationHistoryToggle.hide(&quot;slide&quot;, { direction: direction }, 500);
                 locationHistoryDiv.hide(&quot;slide&quot;, { direction: direction }, 500);
-                toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
+                setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 locationHistoryActive = false;
             }
             else {//show the panel if it is hidden when clicked
@@ -1424,7 +1434,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 locationHistoryToggle.hide();
                 locationHistoryToggle.hide(&quot;slide&quot;, { direction: direction }, 500);
                 locationHistoryDiv.hide(&quot;slide&quot;, { direction: direction }, 500);
-                toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
+                setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 locationHistoryActive = false;
             }
             if (prevPage === &quot;catalog&quot; &amp;&amp; initialized === true) {

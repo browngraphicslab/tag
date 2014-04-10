@@ -41,6 +41,8 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
+                <li><a href="../classes/Autolinker.html">Autolinker</a></li>
+            
                 <li><a href="../classes/CryptoJS.html">CryptoJS</a></li>
             
                 <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
@@ -48,6 +50,8 @@
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
             
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
+            
+                <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
                 <li><a href="../classes/Telemetry.html">Telemetry</a></li>
             
@@ -94,22 +98,24 @@
 
 <div class="file">
     <pre class="code prettyprint linenums">
-var TAG_embed = function(tagInput) {
-    /**
-     * Embed TAG as an iframe in your site, using the demo.html file as the source.
-     * The tagPath argument is ignored here, but it is included for consistency
-     * with the TAG function.
-     * @param tagInput     object with the following properties:
-     *                       path          relative path from your html file to the TAG directory
-     *                                        (e.g., &#x27;./a/b/TAG&#x27;)
-     *                       containerId   the id of the div in which you want to embed TAG
-     *                       serverIp      the ip adress of the server to which you want to connect
-     *                       width         the desired width of TAG
-     *                       height        the desired height of TAG
-     *                       allowServerChange   should a button be shown on the splash screen that allows server change?
-     *                       hiddenCollections   a list of collection IDs for published collections to be hidden
-     */
+/**
+ * The end user should include this file in their website. Calling TAG_embed
+ * with the appropriate inputs will create the TAG embedding in an iframe, using
+ * the demo.html file as the iframe source.
+ * @class TAG_embed
+ * @constructor
+ * @param {Object} tagInput              the following property inputs are the properties of tagInput
+ * @param {property} path                relative path from your html file to the TAG directory (e.g., &#x27;./a/b/TAG&#x27;)
+ * @param {property} containerId         the id of the div in which you want to embed TAG
+ * @param {property} serverIp            the ip adress of the server to which you want to connect
+ * @param {property} width               the desired width of TAG
+ * @param {property} height              the desired height of TAG
+ * @param {property} allowServerChange   should a button be shown on the splash screen that allows server change?
+ * @param {property} hiddenCollections   a list of collection IDs for published collections to be hidden
+ * 
+ */
 
+var TAG_embed = function(tagInput) {
     // embed iframe in $(&#x27;#&#x27;+tagContainerId)
     var tagPath = tagInput.path,
         tagContainerId = tagInput.containerId,
@@ -169,13 +175,6 @@ var TAG_embed = function(tagInput) {
 	frame.style.position = &#x27;relative&#x27;;
 	frame.style.border = &#x27;0px&#x27;;
 	frameInnerContainer.appendChild(frame);
-
-    // tempImage = document.createElement(&#x27;img&#x27;);
-    // tempImage.src = tagPath+&#x27;images/splash.jpg&#x27;;
-    // tempImage.style.width = &#x27;100%&#x27;;
-    // tempImage.style.height= &#x27;100%&#x27;;
-    // tempImage.style.position = &#x27;absolute&#x27;;
-    // frameInnerContainer.appendChild(tempImage);
     
     // write out html of iframe document
     // ideally, we could just put demo.html as the src of the iframe, but
@@ -215,53 +214,50 @@ var TAG_embed = function(tagInput) {
     frameDoc.open();
     frameDoc.write(htmlStr);
     frameDoc.close();
-
-    /* nbowditch _editted 2/23/2014 : stopped scrolling when over tag*/
-    /* NOTE: had to do this in 2 places for cross-browser support.
-       for FF and IE, propogation had to be stopped inside the iframe.
-       For chrome, it had to be stopped outside iframe.
-    */
+    
 
     var frameDiv = document.getElementById(&#x27;frameInnerContainer&#x27;);
 
     $frameDiv = $(frameDiv);
 
-    $frameDiv.on(&#x27;mouseenter&#x27;, function() {
-        $frameDiv.off(&#x27;mouseleave&#x27;);
-        // console.log(&#x27;in frame div&#x27;);
-        // $(&#x27;*&#x27;).on(&#x27;scroll.a mousewheel.a DOMMouseScroll.a MozMousePixelScroll.a&#x27;, function(e) {
-        //     console.log(&#x27;in body scroll&#x27;);
-        //     e.stopPropagation();
-        //     e.cancelBubble = true;
-        //     return false;
-        // });
-        $(&#x27;body&#x27;).css(&#x27;position&#x27;, &#x27;fixed&#x27;);
+    var scrollTop = 0,
+        bodyLeft = 0;
 
-        $frameDiv.on(&#x27;mouseleave&#x27;, function() {
-            //console.log(&#x27;leaving frame div&#x27;);
-            //$(&#x27;*&#x27;).off(&#x27;scroll.a mousewheel.a DOMMouseScroll.a MozMousePixelScroll.a&#x27;);
-            $(&#x27;body&#x27;).css(&#x27;position&#x27;, &#x27;static&#x27;);
+    $frameDiv.on(&#x27;mouseenter&#x27;, function(evt) {
+        var origLeft, newLeft, tbodyLeft;
+
+        scrollTop = $(document).scrollTop();
+        console.log(&#x27;scrollTop = &#x27;+scrollTop);
+
+        bodyLeft = parseFloat($(&#x27;body&#x27;).css(&#x27;margin-left&#x27;));
+
+        origLeft = $(container).offset().left;
+
+        $(&#x27;body&#x27;).css({
+            &#x27;position&#x27;: &#x27;fixed&#x27;,
+            &#x27;margin-top&#x27;: (-scrollTop)+&#x27;px&#x27;,
+            //&#x27;margin-left&#x27;: &#x27;0px&#x27;
         });
+
+        newLeft = $(container).offset().left;
+        tbodyLeft = parseFloat($(&#x27;body&#x27;).css(&#x27;margin-left&#x27;));
+
+        $(&#x27;body&#x27;).css({
+            &#x27;margin-left&#x27;: (bodyLeft + origLeft - newLeft)+&#x27;px&#x27;
+        });        
+
+        
     });
 
+    $frameDiv.on(&#x27;mouseleave&#x27;, function() {
+        $(&#x27;body&#x27;).css({
+            &#x27;position&#x27;: &#x27;static&#x27;,
+            &#x27;margin-top&#x27;: &#x27;0px&#x27;,
+            &#x27;margin-left&#x27;: bodyLeft+&#x27;px&#x27;
+        });
 
-    // frameDiv.addEventListener(&#x27;mousewheel&#x27;, function (evt) {
-    //     evt.stopPropagation();
-    //     evt.preventDefault();
-    //     return false;
-    // });
-    // frameDiv.addEventListener(&#x27;DOMMouseScroll&#x27;, function (evt) {
-    //     evt.stopPropagation();
-    //     evt.preventDefault();
-    //     return false;
-    // });
-    // frameDiv.addEventListener(&#x27;MozMousePixelScroll&#x27;, function (evt) {
-    //     evt.stopPropagation();
-    //     evt.preventDefault();
-    //     return false;
-    // });
-
-    /* end nbowditch edit */
+        $(document).scrollTop(scrollTop);
+    });
 };
     </pre>
 </div>

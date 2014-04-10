@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Telemetry - Touch Art Gallery web application</title>
+    <title>TAG_embed - Touch Art Gallery web application</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -94,7 +94,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>Telemetry Class</h1>
+                        <h1>TAG_embed Class</h1>
 <div class="box meta">
     
 
@@ -102,7 +102,7 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/telemetry_server.js.html#l1"><code>telemetry&#x2F;server.js:1</code></a>
+            Defined in: <a href="../files/LADS_TAG-embed.js.html#l1"><code>LADS&#x2F;TAG-embed.js:1</code></a>
         </div>
     
 
@@ -114,18 +114,72 @@
 
 
 <div class="box intro">
-    <p>A basic telemetry server. Should probably be hooked up with a DB.</p>
+    <p>The end user should include this file in their website. Calling TAG_embed
+with the appropriate inputs will create the TAG embedding in an iframe, using
+the demo.html file as the iframe source.</p>
 
 </div>
 
 
     <div class="constructor">
         <h2>Constructor</h2>
-        <div id="method_Telemetry" class="method item">
-    <h3 class="name"><code>Telemetry</code></h3>
+        <div id="method_TAG_embed" class="method item">
+    <h3 class="name"><code>TAG_embed</code></h3>
 
     
-        <span class="paren">()</span>
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>tagInput</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>path</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>containerId</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>serverIp</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>width</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>height</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>allowServerChange</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>hiddenCollections</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
     
 
     
@@ -153,7 +207,7 @@
             
         
         
-        <a href="../files/telemetry_server.js.html#l1"><code>telemetry&#x2F;server.js:1</code></a>
+        <a href="../files/LADS_TAG-embed.js.html#l1"><code>LADS&#x2F;TAG-embed.js:1</code></a>
         
         </p>
 
@@ -167,6 +221,142 @@
         
     </div>
 
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">tagInput</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the following property inputs are the properties of tagInput</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">path</code>
+                        <span class="type">Property</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>relative path from your html file to the TAG directory (e.g., &#39;./a/b/TAG&#39;)</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">containerId</code>
+                        <span class="type">Property</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the id of the div in which you want to embed TAG</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">serverIp</code>
+                        <span class="type">Property</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the ip adress of the server to which you want to connect</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">width</code>
+                        <span class="type">Property</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the desired width of TAG</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">height</code>
+                        <span class="type">Property</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the desired height of TAG</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">allowServerChange</code>
+                        <span class="type">Property</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>should a button be shown on the splash screen that allows server change?</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">hiddenCollections</code>
+                        <span class="type">Property</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>a list of collection IDs for published collections to be hidden</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
     
 
     
@@ -182,8 +372,6 @@
         <li class="api-class-tab index"><a href="#index">Index</a></li>
 
         
-            <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
-        
         
         
         
@@ -194,28 +382,6 @@
             <h2 class="off-left">Item Index</h2>
 
             
-                <div class="index-section methods">
-                    <h3>Methods</h3>
-
-                    <ul class="index-list methods">
-                        
-                            <li class="index-item method">
-                                <a href="#method_handleGet">handleGet</a>
-
-                                
-                                
-                            </li>
-                        
-                            <li class="index-item method">
-                                <a href="#method_handlePost">handlePost</a>
-
-                                
-                                
-                            </li>
-                        
-                    </ul>
-                </div>
-            
 
             
 
@@ -224,236 +390,6 @@
             
         </div>
 
-        
-            <div id="methods" class="api-class-tabpanel">
-                <h2 class="off-left">Methods</h2>
-
-                
-                    <div id="method_handleGet" class="method item">
-    <h3 class="name"><code>handleGet</code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>request</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>response</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/telemetry_server.js.html#l90"><code>telemetry&#x2F;server.js:90</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Handles a get request to the server. SHOULD get data from server, return it to client
-for data viz or analysis.</p>
-
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">request</code>
-                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the http request to the server</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">response</code>
-                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the response we&#39;ll send back to the client</p>
-
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
-    
-
-    
-</div>
-
-                
-                    <div id="method_handlePost" class="method item">
-    <h3 class="name"><code>handlePost</code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>request</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>response</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/telemetry_server.js.html#l33"><code>telemetry&#x2F;server.js:33</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Handles a post request to the server. Generally, writes data to log file.
-In the future, this should probably log data in a database.</p>
-
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">request</code>
-                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the http request sent to the server</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">response</code>
-                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>a response object we&#39;ll write to and return</p>
-
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
-    
-
-    
-</div>
-
-                
-            </div>
         
 
         
