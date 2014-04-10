@@ -431,7 +431,7 @@
 				lastPos.y = evt.gesture.center.pageY;
 				getDir(evt, true);
 				if (scale !== lastScale && typeof functions.onScroll === "function") {
-					functions.onScroll(1 + scale, pivot);
+					functions.onScroll(1 + scale, 1 + scale, pivot);
 				}
 				
 				if (typeof functions.onManipulate === "function") {

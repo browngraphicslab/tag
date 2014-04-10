@@ -40927,7 +40927,6 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 $(p2).html(LADS.Util.htmlEntityDecode(this.description));
             } else {  
                 // running in browser
-                this.description += " google.com";
                 $(p2).html(Autolinker.link(LADS.Util.htmlEntityDecode(this.description), {email: false, twitter: false}));
             }
             
