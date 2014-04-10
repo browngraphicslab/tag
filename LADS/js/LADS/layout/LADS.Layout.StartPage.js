@@ -117,8 +117,143 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             overlay.on('click', function(){});
             LADS.Util.UI.slidePageLeft(newCatalog.getRoot());
         }
+
+        // Test for browser compatibility
+        if(!isBrowserCompatible()) {
+            var browserDialogOverlay = $(document.createElement('div'));
+            var tagContainer = $('#tagRoot');
+            browserDialogOverlay.attr('id', 'browserDialogOverlay');
+            // debugger;
+            browserDialogOverlay.css({
+                display: 'block',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                'background-color': 'rgba(0,0,0,0.6)',
+                'z-index': 1000000000 + 5
+            });
+
+            // dialog box for browser update
+            var browserDialog = $(document.createElement('div'));
+            browserDialog.attr('id', 'browserDialog');
+
+            //
+
+            var browserDialogSpecs = LADS.Util.constrainAndPosition($(tagContainer).width(), $(tagContainer).height(),
+            {
+                center_h: true,
+                center_v: true,
+                width: 0.5,
+                height: 0.35,
+                max_width: 560,
+                max_height: 230
+            });
+            browserDialog.css({
+                position: 'absolute',
+                left: '30%',
+                top: '30%',
+                width: '40%',
+                height: '40%',
+                border: '3px double white',
+                'text-align': 'center',
+                'background-color': 'black'
+            });
+
+            var browserDialogTitle = $(document.createElement('div'));
+            browserDialogTitle.attr('id', 'dialogTitle');
+            browserDialogTitle.css({
+                'color': 'white',
+                'width': '80%',
+                'height': '15%',
+                'left': '10%',
+                'top': '25%',
+                'font-size': '1em',
+                'position': 'relative',
+                'text-align': 'center'
+            });
+            browserDialogTitle.text("Touch Art Gallery is not supported in your browser. Please download or update to a newer browser.");
+            browserDialog.append(browserDialogTitle);
+
+            var updateBrowserLink = $(document.createElement('a'));
+            updateBrowserLink.attr('id', 'updateBrowser');
+            updateBrowserLink.attr('href', 'http://browsehappy.com');
+            updateBrowserLink.css({
+                'display': 'block',
+                'margin': 'auto',
+                'margin-bottom': '1%',
+                'width': '60%',
+                'height':'10%',
+                'position':'relative',
+                'top':'40%',
+                'font-size':'100%',
+                'text-decoration': 'underline',
+                'color': 'white'
+            });
+            updateBrowserLink.text("Update Browser");
+            browserDialog.append(updateBrowserLink);
+
+            browserDialogOverlay.append(browserDialog);
+            tagContainer.append(browserDialogOverlay);
+        }
     }
 
+    /**
+    * isBrowserCompatible
+    *
+    * Returns true if the browser is compatible with TAG,
+    * false if it isn't
+    */
+    function isBrowserCompatible() {
+        var userAgent = navigator.userAgent.toLowerCase();
+        if(userAgent.indexOf('android') >= 0 || userAgent.indexOf('iphone') >= 0 || userAgent.indexOf('ipad') >= 0) {
+            return false;
+        } else {
+            var browser = getBrowserVersion();
+            console.log("Browser Version: " + browser);
+
+            browser = browser.toLowerCase();
+            var version = 0;
+
+            if(browser.indexOf('chrome') >= 0) {
+                version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
+                return(version >= 31);
+            } else if(browser.indexOf('safari') >= 0) {
+                version = browser.substring(browser.indexOf(' ', browser.indexOf(' ') + 1), browser.indexOf("."));
+                return(version >= 7);
+            } else if(browser.indexOf('firefox') >= 0) {
+                version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
+                return(version >= 26);
+            } else if(browser.indexOf('msie') >= 0) {
+                version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
+                return(version >= 10);
+            } else {
+                return false;
+            }
+        }
+    }
+
+    /** 
+    * getBrowserVersion
+    *
+    * Return's browser name followed by version
+    * e.g. "Chrome 34.0.1847.116"
+    */
+    function getBrowserVersion() {
+        var ua= navigator.userAgent, tem, 
+        M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*([\d\.]+)/i) || [];
+
+        if(/trident/i.test(M[1])){
+            tem=  /\brv[ :]+(\d+(\.\d+)?)/g.exec(ua) || [];
+            return 'IE '+(tem[1] || '');
+        }
+
+        M= M[2]? [M[1], M[2]]:[navigator.appName, navigator.appVersion, '-?'];
+        if((tem= ua.match(/version\/([\.\d]+)/i))!= null) M[2]= tem[1];
+
+        return M.join(' ');
+    }
     
     /**
     * adjusts the text to fit the screen size
@@ -342,8 +477,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
     return that;
 };
-
-
 
 LADS.Layout.StartPage.default_options = {
     repository: "http://cs.brown.edu/research/lads/LADS2.0Data/repository.xml",
