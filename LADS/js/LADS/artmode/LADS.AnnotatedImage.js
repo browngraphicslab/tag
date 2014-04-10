@@ -642,7 +642,16 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             var p2 = document.createElement('div');
             if (this.title === '2222')
                 console.log("jho");
-            $(p2).html(LADS.Util.htmlEntityDecode(this.description));
+
+            if (typeof Windows != "undefined") {
+                    // running in Win8 app
+                    $(p2).html(LADS.Util.htmlEntityDecode(this.description));
+                } else {  
+                    // running in browser
+                    $(p2).html(LADS.Util.htmlEntityDecode(Autolinker.link(this.description, {email: false, twitter: false})));
+                }
+            
+            
             $(p2).css({
                 'position': 'relative',
                 'left': '5%',
