@@ -131,31 +131,31 @@ var TAG_embed = function(tagInput) {
 
     $frameDiv = $(frameDiv);
 
-    var scrollTop = 0;
+    var scrollTop = 0,
+        bodyLeft = 0;
 
     $frameDiv.on('mouseenter', function(evt) {
-        var offsetTop = $(container).offset().top;
-        //$frameDiv.off('mouseleave');
-        // console.log('in frame div');
-        // $('*').on('scroll.a mousewheel.a DOMMouseScroll.a MozMousePixelScroll.a', function(e) {
-        //     console.log('in body scroll');
-        //     e.stopPropagation();
-        //     e.cancelBubble = true;
-        //     return false;
-        // });
-        // debugger;
-        // $(container).css({
-        //     'position': 'fixed',
-        //     'margin-top': offsetTop
-        // });
+        var origLeft, newLeft, tbodyLeft;
 
         scrollTop = $(document).scrollTop();
         console.log('scrollTop = '+scrollTop);
 
+        bodyLeft = parseFloat($('body').css('margin-left'));
+
+        origLeft = $(container).offset().left;
+
         $('body').css({
             'position': 'fixed',
-            'margin-top': (-scrollTop)+'px'
+            'margin-top': (-scrollTop)+'px',
+            //'margin-left': '0px'
         });
+
+        newLeft = $(container).offset().left;
+        tbodyLeft = parseFloat($('body').css('margin-left'));
+
+        $('body').css({
+            'margin-left': (bodyLeft + origLeft - newLeft)+'px'
+        });        
 
         
     });
@@ -167,7 +167,8 @@ var TAG_embed = function(tagInput) {
         // });
         $('body').css({
             'position': 'static',
-            'margin-top': '0px'
+            'margin-top': '0px',
+            'margin-left': bodyLeft+'px'
         });
 
         $(document).scrollTop(scrollTop);
