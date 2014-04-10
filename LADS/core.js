@@ -141,7 +141,7 @@
                 'js/raphael.js',
                 'js/tagInk.js',
                 'js/RIN/web/lib/rin-core-1.0.js',
-                'Autolinker.js-master/dist/Autolinker.js'
+                'js/Autolinker.js-master/dist/Autolinker.js'
             ],
             i,
             oHead,
