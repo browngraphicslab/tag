@@ -266,6 +266,8 @@
 						self._orchestrator.onESEvent(rin.contracts.esEventIds.interactionActivatedEventId, null);
 						//var scale = (event.wheelDelta > 0 ? ZOOMINSTEP - 1 : ZOOMOUTSTEP - 1) * Math.abs(event.wheelDelta / 120) + 1;
 						var scale = (delta > 1 ? ZOOMINSTEP - 1 : ZOOMOUTSTEP - 1) * Math.abs(delta ) + 1;
+						//Jing: changed the math so that zooming in and out works in firefox and it 
+						//looks smoother now.
 						self._scaleImage(scale, pivot.x, pivot.y);
 						console.log("scale " + scale);
 					}

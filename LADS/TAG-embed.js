@@ -130,8 +130,11 @@ var TAG_embed = function(tagInput) {
 
     $frameDiv = $(frameDiv);
 
-    $frameDiv.on('mouseenter', function() {
-        $frameDiv.off('mouseleave');
+    var scrollTop = 0;
+
+    $frameDiv.on('mouseenter', function(evt) {
+        var offsetTop = $(container).offset().top;
+        //$frameDiv.off('mouseleave');
         // console.log('in frame div');
         // $('*').on('scroll.a mousewheel.a DOMMouseScroll.a MozMousePixelScroll.a', function(e) {
         //     console.log('in body scroll');
@@ -139,13 +142,37 @@ var TAG_embed = function(tagInput) {
         //     e.cancelBubble = true;
         //     return false;
         // });
-        $('body').css('position', 'fixed');
+        // debugger;
+        // $(container).css({
+        //     'position': 'fixed',
+        //     'margin-top': offsetTop
+        // });
 
-        $frameDiv.on('mouseleave', function() {
+        scrollTop = $(document).scrollTop();
+        console.log('scrollTop = '+scrollTop);
+
+        $('body').css({
+            'position': 'fixed',
+            'margin-top': (-scrollTop)+'px'
+        });
+
+        
+    });
+
+    $frameDiv.on('mouseleave', function() {
+        // $(container).css({
+        //     'position': 'static',
+        //     'margin-top': 100
+        // });
+        $('body').css({
+            'position': 'static',
+            'margin-top': '0px'
+        });
+
+        $(document).scrollTop(scrollTop);
             //console.log('leaving frame div');
             //$('*').off('scroll.a mousewheel.a DOMMouseScroll.a MozMousePixelScroll.a');
-            $('body').css('position', 'static');
-        });
+            // $(container).css('position', 'static');
     });
 
 

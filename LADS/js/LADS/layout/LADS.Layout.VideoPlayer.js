@@ -83,6 +83,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
             }
         });
 
+        vol.attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
         $(vol).on('click', function () {
             if (videoElt.muted) {
                 videoElt.muted = false;
