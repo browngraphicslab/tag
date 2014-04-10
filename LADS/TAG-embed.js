@@ -125,7 +125,7 @@ var TAG_embed = function(tagInput) {
        for FF and IE, propogation had to be stopped inside the iframe.
        For chrome, it had to be stopped outside iframe.
     */
-
+    /*
     var frameDiv = document.getElementById('frameInnerContainer');
 
     $frameDiv = $(frameDiv);
