@@ -173,9 +173,6 @@
 
 
         $("body").css("-ms-touch-action","none");
-    
-
-
 
        // if (checkInternetConnectivity())
         //     checkServerConnectivity();
