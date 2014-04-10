@@ -40923,12 +40923,13 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 console.log("jho");
 
             if (typeof Windows != "undefined") {
-                    // running in Win8 app
-                    $(p2).html(LADS.Util.htmlEntityDecode(this.description));
-                } else {  
-                    // running in browser
-                    $(p2).html(LADS.Util.htmlEntityDecode(Autolinker.link(this.description, {email: false, twitter: false})));
-                }
+                // running in Win8 app
+                $(p2).html(LADS.Util.htmlEntityDecode(this.description));
+            } else {  
+                // running in browser
+                this.description += " google.com";
+                $(p2).html(Autolinker.link(LADS.Util.htmlEntityDecode(this.description), {email: false, twitter: false}));
+            }
             
             
             $(p2).css({
