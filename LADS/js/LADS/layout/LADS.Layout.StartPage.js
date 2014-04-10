@@ -119,7 +119,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         }
 
         // Test for browser compatibility
-        if(!isBrowserCompatible()) {
+        if(false && !isBrowserCompatible()) { /* bleveque: doesn't allow IE 11, so removing for now */
             var browserDialogOverlay = $(document.createElement('div'));
             var tagContainer = $('#tagRoot');
             browserDialogOverlay.attr('id', 'browserDialogOverlay');
