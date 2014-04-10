@@ -40510,6 +40510,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
     //new hotspot function
     function hotspot(info) {
+        var imgadded = false;
         this.title = info.title;
         this.contentType = info.contentType;
         this.source = info.source;
@@ -40578,7 +40579,11 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                     width: '100%',
                     height: 'auto'
                 });
-                innerContainer.appendChild(img);
+                console.log("appending new image");
+                if (!imgadded) {
+                    innerContainer.appendChild(img);
+                    imgadded = true;
+                }
             }
 
              
@@ -40927,7 +40932,6 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 $(p2).html(LADS.Util.htmlEntityDecode(this.description));
             } else {  
                 // running in browser
-                this.description += " google.com";
                 $(p2).html(Autolinker.link(LADS.Util.htmlEntityDecode(this.description), {email: false, twitter: false}));
             }
             
