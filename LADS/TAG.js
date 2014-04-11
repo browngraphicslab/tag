@@ -42077,7 +42077,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             } else if(browser.indexOf('firefox') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
                 console.log("Detected Firefox Version: " + version);
-                return(version >= 27);
+                return(version >= 28);
             } else if(browser.indexOf('msie') >= 0 || browser.indexOf('ie') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
                 console.log("Detected IE Version: " + version);
@@ -45351,6 +45351,9 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
             artmode = new LADS.Layout.Artmode(prevInfo, artwork, exhibition);
             /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, artmode.getRoot());
+
+            var selectedExhib = $('#exhib-' + prevExhib.Identifier);
+            selectedExhib.attr('flagClicked', 'true');
         } else {
             /* nbowditch _editted 2/13/2014 : added backInfo */
             var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
@@ -45361,7 +45364,7 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
 				var selectedExhib = $('#exhib-' + prevExhib.Identifier);
 				selectedExhib.attr('flagClicked', 'true');
 				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
-                if(selectedExhib[0] && selectedExhib[0].firstChild) {
+                if(selectedExhib[0].firstChild) {
     				$(selectedExhib[0].firstChild).css({'color': 'black'});
                 }
 			});           
