@@ -41956,7 +41956,9 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         }
 
         // Test for browser compatibility
-        if(!isBrowserCompatible()) { /* bleveque: doesn't allow IE 11, so removing for now */
+        if(!isBrowserCompatible()) {
+            console.log("Unsupported browser.");
+            
             var browserDialogOverlay = $(document.createElement('div'));
             var tagContainer = $('#tagRoot');
             browserDialogOverlay.attr('id', 'browserDialogOverlay');
@@ -42080,7 +42082,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
                 console.log("Detected IE Version: " + version);
                 return(version >= 10);
             } else {
-                console.log("Unsupported browser.");
                 return false;
             }
         }
