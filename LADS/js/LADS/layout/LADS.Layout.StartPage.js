@@ -112,12 +112,11 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         }
 
         // Test for browser compatibility
-        debugger;
         if(!isBrowserCompatible()) { /* bleveque: doesn't allow IE 11, so removing for now */
             var browserDialogOverlay = $(document.createElement('div'));
             var tagContainer = $('#tagRoot');
             browserDialogOverlay.attr('id', 'browserDialogOverlay');
-            debugger;
+
             browserDialogOverlay.css({
                 display: 'block',
                 position: 'absolute',
@@ -129,11 +128,9 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
                 'z-index': 1000000000 + 5
             });
 
-            // dialog box for browser update
+            // Dialog box for browser update
             var browserDialog = $(document.createElement('div'));
             browserDialog.attr('id', 'browserDialog');
-
-            //
 
             var browserDialogSpecs = LADS.Util.constrainAndPosition($(tagContainer).width(), $(tagContainer).height(),
             {
@@ -193,11 +190,10 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         }
     }
 
-   /**
-    * isBrowserCompatible
+    /**
+    * @method isBrowserCompatible
     *
-    * Returns true if the browser is compatible with TAG,
-    * false if it isn't
+    * @return true if the browser is compatible with TAG, false if it isn't
     */
     function isBrowserCompatible() {
         var userAgent = navigator.userAgent.toLowerCase();
@@ -236,10 +232,9 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     }
 
     /** 
-    * getBrowserVersion
+    * @method getBrowserVersion
     *
-    * Return's browser name followed by version
-    * e.g. "Chrome 34.0.1847.116"
+    * @return Browser name followed by version e.g. "Chrome 34.0.1847.116"
     */
     function getBrowserVersion() {
         var ua= navigator.userAgent, tem, 
