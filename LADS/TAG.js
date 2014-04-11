@@ -42042,6 +42042,9 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     function isBrowserCompatible() {
         var userAgent = navigator.userAgent.toLowerCase();
         if(userAgent.indexOf('android') >= 0 || userAgent.indexOf('iphone') >= 0 || userAgent.indexOf('ipad') >= 0) {
+            if(userAgent.indexOf('android')) console.log("Detected Android Device. Unsupported browser.");
+            else if (userAgent.indexOf('iphone') >= 0) console.log("Detected iPhone. Unsupported browser.");
+            else if (userAgent.indexOf('ipad') >= 0) console.log("Detected iPad. Unsupported browser.");
             return false;
         } else {
             var browser = getBrowserVersion();
@@ -42051,7 +42054,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             var version = 0;
 
             if(browser.indexOf('opera') >= 0) {
-                console.log("Detected Opera. Incompatible.");
+                console.log("Detected Opera. Unsupported browser.");
                 return false;
             } else if(browser.indexOf('chrome') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
@@ -42070,6 +42073,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
                 console.log("Detected IE Version: " + version);
                 return(version >= 10);
             } else {
+                console.log("Unsupported browser.");
                 return false;
             }
         }
