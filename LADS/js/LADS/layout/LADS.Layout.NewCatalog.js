@@ -825,7 +825,15 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             
             var descSpan = $(document.createElement('div'))
                             .attr('id', 'descSpan')
-                            .html(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '');
+
+            if (typeof Windows != "undefined") {
+                // running in Win8 app
+                descSpan.html(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '');
+            } else {  
+                // running in browser
+                descSpan.html(Autolinker.link(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '', {email: false, twitter: false}));
+            }
+                            
 
             descriptiontext.empty();
             descriptiontext.append(titleSpan).append(descSpan);            

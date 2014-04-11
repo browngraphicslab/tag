@@ -42063,7 +42063,10 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             browser = browser.toLowerCase();
             var version = 0;
 
-            if(browser.indexOf('chrome') >= 0) {
+            if(browser.indexOf('opera') >= 0) {
+                console.log("Detected Opera. Incompatible.");
+                return false;
+            } else if(browser.indexOf('chrome') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
                 console.log("Detected Chrome Version: " + version);
                 return(version >= 31);
@@ -44610,7 +44613,15 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             
             var descSpan = $(document.createElement('div'))
                             .attr('id', 'descSpan')
-                            .html(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '');
+
+            if (typeof Windows != "undefined") {
+                // running in Win8 app
+                descSpan.html(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '');
+            } else {  
+                // running in browser
+                descSpan.html(Autolinker.link(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '', {email: false, twitter: false}));
+            }
+                            
 
             descriptiontext.empty();
             descriptiontext.append(titleSpan).append(descSpan);            
