@@ -140,7 +140,8 @@
         var TAGSCRIPTS = [
                 'js/raphael.js',
                 'js/tagInk.js',
-                'js/RIN/web/lib/rin-core-1.0.js'
+                'js/RIN/web/lib/rin-core-1.0.js',
+                'js/Autolinker.js-master/dist/Autolinker.js'
             ],
             i,
             oHead,
@@ -172,9 +173,6 @@
 
 
         $("body").css("-ms-touch-action","none");
-    
-
-
 
        // if (checkInternetConnectivity())
         //     checkServerConnectivity();

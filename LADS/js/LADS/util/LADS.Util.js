@@ -971,6 +971,7 @@ LADS.Util = (function () {
                 */
 				if (delta < 0) delta = 1.0 / 1.1;
             	else delta = 1.1;
+				console.log("delta processed " + delta);
                 evt.cancelBubble = true;
                 if (typeof functions.onScroll === "function") { 
                     functions.onScroll(delta, pivot);
@@ -1309,13 +1310,12 @@ LADS.Util = (function () {
 
     /**
      * Used by web app code to slide in pages given their html files
-     * @method
      * @param path     the path to the html file within the html directory
      */
     function getHtmlAjax(path) {
         var ret;
         $.ajax({
-            async: false, // need html structure before we can continue in layout files
+            async: false,
             cache: false,
             url: tagPath+"html/"+path,
             success: function (data) {

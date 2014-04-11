@@ -167,13 +167,16 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
         that.viewer.viewport.applyConstraints();
     }
+    this.dzManip = dzManip;
 
     function dzScroll(delta, pivot) {
-        // console.log("pivot.x "+ pivot.x+"  pivot.y :  "+pivot.y);
-        // console.log(delta);
+        console.log("pivot.x "+ pivot.x+"  pivot.y :  "+pivot.y);
+        console.log(delta);
         that.viewer.viewport.zoomBy(delta, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
         that.viewer.viewport.applyConstraints();
     }
+
+    this.dzScroll = dzScroll;
 
     function init() {
         if(Seadragon.Config) {
@@ -228,6 +231,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
     //new hotspot function
     function hotspot(info) {
+        var imgadded = false;
         this.title = info.title;
         this.contentType = info.contentType;
         this.source = info.source;
@@ -296,7 +300,11 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                     width: '100%',
                     height: 'auto'
                 });
-                innerContainer.appendChild(img);
+                console.log("appending new image");
+                if (!imgadded) {
+                    innerContainer.appendChild(img);
+                    imgadded = true;
+                }
             }
 
              
@@ -639,7 +647,16 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             var p2 = document.createElement('div');
             if (this.title === '2222')
                 console.log("jho");
-            $(p2).html(LADS.Util.htmlEntityDecode(this.description));
+
+            if (typeof Windows != "undefined") {
+                // running in Win8 app
+                $(p2).html(LADS.Util.htmlEntityDecode(this.description));
+            } else {  
+                // running in browser
+                $(p2).html(Autolinker.link(LADS.Util.htmlEntityDecode(this.description), {email: false, twitter: false}));
+            }
+            
+            
             $(p2).css({
                 'position': 'relative',
                 'left': '5%',

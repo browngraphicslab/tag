@@ -33,7 +33,6 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
         overlayOnRoot = root.find('#overlayOnRoot');
 
     backButton.attr('src', tagPath+'images/icons/Back.svg');
-
     //clicked effect for back button
     backButton.on('mousedown', function(){
         LADS.Util.UI.cgBackColor("backButton", backButton, false);

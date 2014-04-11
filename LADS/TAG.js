@@ -31597,6 +31597,7 @@ LADS.Util = (function () {
                 */
 				if (delta < 0) delta = 1.0 / 1.1;
             	else delta = 1.1;
+				console.log("delta processed " + delta);
                 evt.cancelBubble = true;
                 if (typeof functions.onScroll === "function") { 
                     functions.onScroll(delta, pivot);
@@ -31935,13 +31936,12 @@ LADS.Util = (function () {
 
     /**
      * Used by web app code to slide in pages given their html files
-     * @method
      * @param path     the path to the html file within the html directory
      */
     function getHtmlAjax(path) {
         var ret;
         $.ajax({
-            async: false, // need html structure before we can continue in layout files
+            async: false,
             cache: false,
             url: tagPath+"html/"+path,
             success: function (data) {
@@ -40446,13 +40446,16 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
         that.viewer.viewport.applyConstraints();
     }
+    this.dzManip = dzManip;
 
     function dzScroll(delta, pivot) {
-        // console.log("pivot.x "+ pivot.x+"  pivot.y :  "+pivot.y);
-        // console.log(delta);
+        console.log("pivot.x "+ pivot.x+"  pivot.y :  "+pivot.y);
+        console.log(delta);
         that.viewer.viewport.zoomBy(delta, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
         that.viewer.viewport.applyConstraints();
     }
+
+    this.dzScroll = dzScroll;
 
     function init() {
         if(Seadragon.Config) {
@@ -40507,6 +40510,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
     //new hotspot function
     function hotspot(info) {
+        var imgadded = false;
         this.title = info.title;
         this.contentType = info.contentType;
         this.source = info.source;
@@ -40575,7 +40579,11 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                     width: '100%',
                     height: 'auto'
                 });
-                innerContainer.appendChild(img);
+                console.log("appending new image");
+                if (!imgadded) {
+                    innerContainer.appendChild(img);
+                    imgadded = true;
+                }
             }
 
              
@@ -40918,7 +40926,16 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             var p2 = document.createElement('div');
             if (this.title === '2222')
                 console.log("jho");
-            $(p2).html(LADS.Util.htmlEntityDecode(this.description));
+
+            if (typeof Windows != "undefined") {
+                // running in Win8 app
+                $(p2).html(LADS.Util.htmlEntityDecode(this.description));
+            } else {  
+                // running in browser
+                $(p2).html(Autolinker.link(LADS.Util.htmlEntityDecode(this.description), {email: false, twitter: false}));
+            }
+            
+            
             $(p2).css({
                 'position': 'relative',
                 'left': '5%',
@@ -41835,21 +41852,20 @@ LADS.Util.makeNamespace("LADS.Layout.StartPage");
 * @constructor
 *
 * @param {Object} options
-* @param {boolean} startPageCallback
-* @return {Object} that       collection of public methods and properties
+* @param {Function} startPageCallback
+* @return {Object} that                 collection of public methods and properties
 */
 LADS.Layout.StartPage = function (options, startPageCallback) {
     "use strict";
 
     options = LADS.Util.setToDefaults(options, LADS.Layout.StartPage.default_options);
     
-    options.tagContainer = $("#tagRoot"); // TODO more general
+    options.tagContainer = $("#tagRoot");
 
     var root = LADS.Util.getHtmlAjax('StartPage.html'), // use AJAX to load html from .html file
         overlay = root.find('#overlay'),
         serverTagBuffer = root.find('#serverTagBuffer'),
         serverSetUpContainer = root.find('#serverSetUpContainer'),
-        // repository = options.repository,
         serverURL,
         tagContainer;
 
@@ -41930,13 +41946,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         setUpCredits();
         setUpInfo(main);
         initializeHandlers();
-
-        /*
-        var loadedInterval2 = setInterval(function () { // TODO is this interval necessary?
-            fixText();
-            clearInterval(loadedInterval2);
-        });
-        */
         
         handGif.onclick = switchPage;
         //opens the exhibitions page on touch/click
@@ -41945,8 +41954,158 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             overlay.on('click', function(){});
             LADS.Util.UI.slidePageLeft(newCatalog.getRoot());
         }
+
+        // Test for browser compatibility
+        if(!isBrowserCompatible()) {
+            console.log("Unsupported browser.");
+            
+            var browserDialogOverlay = $(document.createElement('div'));
+            var tagContainer = $('#tagRoot');
+            browserDialogOverlay.attr('id', 'browserDialogOverlay');
+
+            browserDialogOverlay.css({
+                display: 'block',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                'background-color': 'rgba(0,0,0,0.6)',
+                'z-index': 1000000000 + 5
+            });
+
+            // Dialog box for browser update
+            var browserDialog = $(document.createElement('div'));
+            browserDialog.attr('id', 'browserDialog');
+
+            var browserDialogSpecs = LADS.Util.constrainAndPosition($(tagContainer).width(), $(tagContainer).height(),
+            {
+                center_h: true,
+                center_v: true,
+                width: 0.5,
+                height: 0.35,
+                max_width: 560,
+                max_height: 230
+            });
+            browserDialog.css({
+                position: 'absolute',
+                left: '30%',
+                top: '30%',
+                width: '40%',
+                height: '40%',
+                border: '3px double white',
+                'text-align': 'center',
+                'background-color': 'black'
+            });
+
+            var browserDialogTitle = $(document.createElement('div'));
+            browserDialogTitle.attr('id', 'dialogTitle');
+            browserDialogTitle.css({
+                'color': 'white',
+                'width': '80%',
+                'height': '15%',
+                'left': '10%',
+                'top': '25%',
+                'font-size': '1em',
+                'position': 'relative',
+                'text-align': 'center'
+            });
+            browserDialogTitle.text("Touch Art Gallery is not supported in your browser. Please download or update to a newer browser.");
+            browserDialog.append(browserDialogTitle);
+
+            var updateBrowserLink = $(document.createElement('a'));
+            updateBrowserLink.attr('id', 'updateBrowser');
+            updateBrowserLink.attr('href', 'http://browsehappy.com');
+            updateBrowserLink.css({
+                'display': 'block',
+                'margin': 'auto',
+                'margin-bottom': '1%',
+                'width': '60%',
+                'height':'10%',
+                'position':'relative',
+                'top':'40%',
+                'font-size':'100%',
+                'text-decoration': 'underline',
+                'color': 'white'
+            });
+            updateBrowserLink.text("Update Browser");
+            browserDialog.append(updateBrowserLink);
+
+            browserDialogOverlay.append(browserDialog);
+            tagContainer.append(browserDialogOverlay);
+        }
     }
 
+    /**
+    * @method isBrowserCompatible
+    *
+    * @return true if the browser is compatible with TAG, false if it isn't
+    */
+    function isBrowserCompatible() {
+        var userAgent = navigator.userAgent.toLowerCase();
+        console.log("userAgent: " + navigator.userAgent);
+
+        if(userAgent.indexOf('android') >= 0 || userAgent.indexOf('iphone') >= 0 || userAgent.indexOf('ipad') >= 0) {
+            if(userAgent.indexOf('android') >= 0) {
+                console.log("Detected Android Device. Unsupported browser.");
+            } else if (userAgent.indexOf('iphone') >= 0) {
+                console.log("Detected iPhone. Unsupported browser.");
+            } else if (userAgent.indexOf('ipad') >= 0) {
+                console.log("Detected iPad. Unsupported browser.");
+            }
+            return false;
+        } else {
+            var browser = getBrowserVersion();
+            console.log("Browser Version: " + browser);
+
+            browser = browser.toLowerCase();
+            var version = 0;
+
+            if(browser.indexOf('opera') >= 0) {
+                console.log("Detected Opera. Unsupported browser.");
+                return false;
+            } else if(browser.indexOf('chrome') >= 0) {
+                version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
+                console.log("Detected Chrome Version: " + version);
+                return(version >= 31);
+            } else if(browser.indexOf('safari') >= 0) {
+                var detailedVersion = browser.substring(browser.indexOf(' ', browser.indexOf(' ') + 1) + 1);
+                version = detailedVersion.substring(0, detailedVersion.indexOf("."));
+                console.log("Detected Safari Version: " + version);
+                return(version >= 7);
+            } else if(browser.indexOf('firefox') >= 0) {
+                version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
+                console.log("Detected Firefox Version: " + version);
+                return(version >= 27);
+            } else if(browser.indexOf('msie') >= 0 || browser.indexOf('ie') >= 0) {
+                version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
+                console.log("Detected IE Version: " + version);
+                return(version >= 10);
+            } else {
+                return false;
+            }
+        }
+    }
+
+    /** 
+    * @method getBrowserVersion
+    *
+    * @return Browser name followed by version e.g. "Chrome 34.0.1847.116"
+    */
+    function getBrowserVersion() {
+        var ua= navigator.userAgent, tem, 
+        M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*([\d\.]+)/i) || [];
+
+        if(/trident/i.test(M[1])){
+            tem=  /\brv[ :]+(\d+(\.\d+)?)/g.exec(ua) || [];
+            return 'IE '+(tem[1] || '');
+        }
+
+        M= M[2]? [M[1], M[2]]:[navigator.appName, navigator.appVersion, '-?'];
+        if((tem= ua.match(/version\/([\.\d]+)/i))!= null) M[2]= tem[1];
+
+        return M.join(' ');
+    }
     
     /**
     * adjusts the text to fit the screen size
@@ -42161,7 +42320,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
     /**
     * @method getRoot
-    * @return 
+    * @return    the root of the splash screen DOM
     */
     function getRoot() {
         return root;
@@ -42170,8 +42329,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
     return that;
 };
-
-
 
 LADS.Layout.StartPage.default_options = {
     repository: "http://cs.brown.edu/research/lads/LADS2.0Data/repository.xml",
@@ -42218,7 +42375,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         switching = false,
         confirmationBox,
         tagContainer = $('#tagRoot') || $('body'),
-        NUM_DRAWERS = 4;
+        NUM_DRAWERS = 0;
 
     if (prevInfo) {
         prevPage = prevInfo.prevPage,
@@ -42269,10 +42426,90 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 }
                 LADS.Util.Splitscreen.setViewers(root, zoomimage); // TODO should we get rid of all splitscreen stuff?
                 makeSidebar();
+                createSeadragonControls();
                 initialized = true;
             });
             
         }
+    }
+
+    /**
+     * Add controls for manual Seadragon manipulation
+     * This was written for testing purposes and was not carefully written
+     * DO NOT KEEP THIS AS IS!!!!!!
+     * @method createSeadragonControls
+     */
+    function createSeadragonControls() {
+        var container = $(document.createElement('div'));
+        container.attr('id', 'seadragonManipContainer');
+        container.css({
+            'left': ($('#tagRoot').width()-120) + "px"
+        });
+        root.append(container);
+
+        container.append(createButton('leftControl', '<', 0, 40));
+        container.append(createButton('upControl', '^', 40, 0));
+        container.append(createButton('rightControl', '>', 80, 40));
+        container.append(createButton('downControl', 'v', 40, 80));
+        container.append(createButton('zinControl', '+', 80, 0));
+        container.append(createButton('zoutControl', '-', 0, 0));
+
+        function createButton(id, text, left, top) {
+            var button = $(document.createElement('div'));
+            button.attr('id', id);
+            button.css({
+                left: left,
+                top: top
+            });
+            button.addClass('seadragonManipButton');
+            button.text(text);
+            return button;
+        }
+
+        var delt = 40,
+            scrollDelt = 0.1;
+
+        var interval;
+
+        $('#leftControl').on('mousedown', function() {
+            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
+            }, 100);
+        });
+        $('#upControl').on('mousedown', function() {
+            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
+            }, 100);
+        });
+        $('#rightControl').on('mousedown', function() {
+            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
+            }, 100);
+        });
+        $('#downControl').on('mousedown', function() {
+            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
+            }, 100);
+        });
+        $('#zinControl').on('mousedown', function() {
+            zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+            interval = setInterval(function() {
+                zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+            }, 100);
+        });
+        $('#zoutControl').on('mousedown', function() {
+            zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+            interval = setInterval(function() {
+                zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+            }, 100);
+        });
+        $('.seadragonManipButton').on('mouseup', function() {
+            clearInterval(interval);
+        });
     }
 
     /**
@@ -42412,21 +42649,34 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
         //Descriptions, Hotspots, Assets and Tours drawers
         var existsDescription = !!doq.Metadata.Description;
-        var descriptionDrawer = createDrawer("Description", !existsDescription);
-        if (doq.Metadata.Description) {
-            var descrip = doq.Metadata.Description.replace(/\n/g, "<br />");
-            descriptionDrawer.contents.html(descrip);
-
-        }
-        var test = doq;
-        assetContainer.append(descriptionDrawer);
         
-        //location history TODO
-        var locationHistorysec = initlocationHistory();
-        assetContainer.append(locationHistorysec);
+        if (existsDescription) {
+            NUM_DRAWERS++;
+            var descriptionDrawer = createDrawer("Description", !existsDescription);
+            if (doq.Metadata.Description) {
+                var descrip = doq.Metadata.Description.replace(/\n/g, "<br />");
+                
+                if (typeof Windows != "undefined") {
+                    // running in Win8 app
+                    descriptionDrawer.contents.html(descrip);
+                } else {  
+                    // running in browser
+                    descriptionDrawer.contents.html(Autolinker.link(descrip, {email: false, twitter: false}));
+                }
+            }
+            var test = doq;
+            assetContainer.append(descriptionDrawer);
+        }
 
+        //location history
+        locationList = LADS.Util.UI.getLocationList(options.doq.Metadata); 
+        if (locationList.length !== 0) {
+            NUM_DRAWERS++;
+            var locationHistorysec = initlocationHistory();
+            assetContainer.append(locationHistorysec);
+        }
 
-        var hotspotsDrawer = createDrawer('Hotspots', (hotspots.length === 0));
+        
 
         ///////////////////////////////////////
         function downhelper(elt) {
@@ -42551,17 +42801,23 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         ///////////////////////////////////////
         
         //get the hotspots for the artwork
-        for (var k = 0; k < hotspots.length; k++) {
-            loadQueue.add(createMediaHolder(hotspotsDrawer.contents, hotspots[k], true));
+        if (hotspots.length != 0) {
+            NUM_DRAWERS++;
+            var hotspotsDrawer = createDrawer('Hotspots', (hotspots.length === 0));
+            for (var k = 0; k < hotspots.length; k++) {
+                loadQueue.add(createMediaHolder(hotspotsDrawer.contents, hotspots[k], true));
+            }
+            assetContainer.append(hotspotsDrawer);
         }
-        assetContainer.append(hotspotsDrawer);
 
-
-        var assetsDrawer = createDrawer('Assets', (assets.length===0));
-        for (var j = 0; j< assets.length; j++) {
-            loadQueue.add(createMediaHolder(assetsDrawer.contents, assets[j], false));
+        if (assets.length != 0) {
+            NUM_DRAWERS++;
+            var assetsDrawer = createDrawer('Assets', (assets.length===0));
+            for (var j = 0; j< assets.length; j++) {
+                loadQueue.add(createMediaHolder(assetsDrawer.contents, assets[j], false));
+            }
+            assetContainer.append(assetsDrawer);
         }
-        assetContainer.append(assetsDrawer);
 
         function hotspotAssetClick(hotspotsAsset, btn) {//check if the location history is open before you click the button, if so, close it
             return function () {
@@ -42575,7 +42831,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     locationHistoryToggle.hide();
                     locationHistoryToggle.hide("slide", { direction: direction }, 500);
                     locationHistoryDiv.hide("slide", { direction: direction }, 500);
-                    toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
+                    setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 }
                 var circle = hotspotsAsset.toggle();
 
@@ -42627,15 +42883,28 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 var relatedArtworks = JSON.parse(tour.Metadata.RelatedArtworks);
                 return relatedArtworks instanceof Array && relatedArtworks.indexOf(doq.Identifier) > -1;
             });
-            toursDrawer = createDrawer('Tours', relatedTours.length === 0);
-            assetContainer.append(toursDrawer);
-            if (relatedTours.length > 0) {
-                toursDrawer.contents.text('');
-                $.each(relatedTours, function (index, tour) {
-                    loadQueue.add(createTourHolder(toursDrawer.contents, tour));
-                });
+
+            if (relatedTours.length != 0) {
+                NUM_DRAWERS++;
+                toursDrawer = createDrawer('Tours', relatedTours.length === 0);
+                assetContainer.append(toursDrawer);
+                if (relatedTours.length > 0) {
+                    toursDrawer.contents.text('');
+                    $.each(relatedTours, function (index, tour) {
+                        loadQueue.add(createTourHolder(toursDrawer.contents, tour));
+                    });
+                }
             }
+
+            var maxHeight= $("#assetContainer").height() - $('.drawerHeader').height() * NUM_DRAWERS - 10;
+            if (maxHeight<=0)
+                maxHeight=1;
+            root.find(".drawerContents").css({
+                "max-height": maxHeight +"px",
+            });
         });
+
+        
 
         function tourClicked(tour) {
             return function () {
@@ -42879,9 +43148,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 					((root.data('split') === 'L') ?
 						$('#metascreen-L').width() - window.innerWidth * 0.22 :
 						$('#metascreen-R').width() - window.innerWidth * 0.22);
-        // locationHistoryDiv.css({
-        //     'width': locwidth + 'px',
-        // });
 
         //create the panel for location history.
 		var locationHistoryPanel = root.find('#locationHistoryPanel');
@@ -42976,7 +43242,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
             locationList = LADS.Util.UI.getLocationList(options.doq.Metadata); //Location List is LOADED HERE
 
-            console.log("location list length: " + locationList.length);
             if (locationList.length === 0) {
                 mapOverlay.show();
             }
@@ -43097,7 +43362,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 locationHistoryToggle.hide();
                 locationHistoryToggle.hide("slide", { direction: direction }, 500);
                 locationHistoryDiv.hide("slide", { direction: direction }, 500);
-                toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
+                setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 locationHistoryActive = false;
             }
             else {//show the panel if it is hidden when clicked
@@ -43156,17 +43421,16 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             drawer.isslided = false;
             var drawerContents = $(document.createElement('div'));
             drawerContents.addClass("drawerContents");
-            var maxHeight= $("#assetContainer").height() - $('.drawerHeader').height() * NUM_DRAWERS - 10; // 165;
-            if (maxHeight<=0)
-                maxHeight=1;
-            drawerContents.css({
-                "max-height": maxHeight +"px",
-            });
+            // var maxHeight= $("#assetContainer").height() - $('.drawerHeader').height() * NUM_DRAWERS - 15; // 165;
+            // if (maxHeight<=0)
+            //     maxHeight=1;
+            // drawerContents.css({
+            //     "max-height": maxHeight +"px",
+            // });
             drawerContents.appendTo(drawer);
 
             //have the toggler icon minus when is is expanded, plus otherwise.
-            drawerHeader.on('click', function () {
-
+            drawerHeader.on('click', function (evt) {
                 if (drawer.isslided === false) {
                     root.find(".plusToggle").attr('src', tagPath+'images/icons/plus.svg');//ensure only one shows.
                     root.find(".drawerContents").slideUp();
@@ -43210,7 +43474,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
     // exhibition picker
     function createExhibitionPicker(artworkObj) {
-        debugger; // this shouldn't be called in the web app...
+        // debugger; // this shouldn't be called in the web app...
         var exhibitionPicker = $(document.createElement('div'));
         exhibitionPicker.addClass("exhibitionPicker");
 
@@ -43278,24 +43542,26 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     var listCell = $(document.createElement('div'));
                     listCell.addClass("exhibitions-list-cell");
 
-                    listCell.mousedown(function () {
+                    listCell.on('mousedown', function () {
                         listCell.css({
                             'background-color': 'white',
                             'color': 'black',
                         });
+                        listCell.on('mouseleave', function () {
+                            listCell.css({
+                                'background-color': 'black',
+                                'color': 'white',
+                            });
+                        });
                     });
-                    listCell.mouseup(function () {
+                    listCell.on('mouseup', function () {
                         listCell.css({
                             'background-color': 'black',
                             'color': 'white',
                         });
+                        listCell.off('mouseleave');
                     });
-                    listCell.mouseleave(function () {
-                        listCell.css({
-                            'background-color': 'black',
-                            'color': 'white',
-                        });
-                    });
+                    
 
                     var textBox = $(document.createElement('div'));
                     textBox.addClass("textbox");
@@ -43407,7 +43673,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 locationHistoryToggle.hide();
                 locationHistoryToggle.hide("slide", { direction: direction }, 500);
                 locationHistoryDiv.hide("slide", { direction: direction }, 500);
-                toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
+                setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 locationHistoryActive = false;
             }
             if (prevPage === "catalog" && initialized === true) {
@@ -44036,8 +44302,14 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             'width': '55%', 
             'font-size': 0.2 * LADS.Util.getMaxFontSizeEM(exhibition.Metadata.Description, 1.5, 0.55 * $(contentdiv).width(), 0.915 * $(contentdiv).height(), 0.1), // h1*0.055 + 'px',
         });
-           
-        descriptiontext.html(str);
+        
+        if (typeof Windows != "undefined") {
+            // running in Win8 app
+            descriptiontext.html(str);
+        } else {  
+            // running in browser
+            descriptiontext.html(Autolinker.link(str, {email: false, twitter: false}));
+        }
         contentdiv.append(descriptiontext);
         var circle = LADS.Util.showProgressCircle(descriptiontext, progressCircCSS, '0px', '0px', false);
         img1.load(function () {
@@ -44341,7 +44613,15 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             
             var descSpan = $(document.createElement('div'))
                             .attr('id', 'descSpan')
-                            .html(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '');
+
+            if (typeof Windows != "undefined") {
+                // running in Win8 app
+                descSpan.html(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '');
+            } else {  
+                // running in browser
+                descSpan.html(Autolinker.link(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '', {email: false, twitter: false}));
+            }
+                            
 
             descriptiontext.empty();
             descriptiontext.append(titleSpan).append(descSpan);            
@@ -44972,7 +45252,6 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
         overlayOnRoot = root.find('#overlayOnRoot');
 
     backButton.attr('src', tagPath+'images/icons/Back.svg');
-
     //clicked effect for back button
     backButton.on('mousedown', function(){
         LADS.Util.UI.cgBackColor("backButton", backButton, false);
@@ -45140,6 +45419,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
             }
         });
 
+        vol.attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
         $(vol).on('click', function () {
             if (videoElt.muted) {
                 videoElt.muted = false;
@@ -46055,7 +46335,8 @@ LADS.TESTS = (function () {
         var TAGSCRIPTS = [
                 'js/raphael.js',
                 'js/tagInk.js',
-                'js/RIN/web/lib/rin-core-1.0.js'
+                'js/RIN/web/lib/rin-core-1.0.js',
+                'js/Autolinker.js-master/dist/Autolinker.js'
             ],
             i,
             oHead,
@@ -46087,9 +46368,6 @@ LADS.TESTS = (function () {
 
 
         $("body").css("-ms-touch-action","none");
-    
-
-
 
        // if (checkInternetConnectivity())
         //     checkServerConnectivity();
@@ -46309,5 +46587,4 @@ LADS.TESTS = (function () {
             }
         });
     });
-})();
-};
+})();};

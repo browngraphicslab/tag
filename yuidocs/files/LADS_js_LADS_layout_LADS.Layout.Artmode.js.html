@@ -41,11 +41,19 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
+                <li><a href="../classes/Autolinker.html">Autolinker</a></li>
+            
+                <li><a href="../classes/CryptoJS.html">CryptoJS</a></li>
+            
                 <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
             
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
             
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
+            
+                <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
+            
+                <li><a href="../classes/Telemetry.html">Telemetry</a></li>
             
             </ul>
 
@@ -130,7 +138,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         switching = false,
         confirmationBox,
         tagContainer = $(&#x27;#tagRoot&#x27;) || $(&#x27;body&#x27;),
-        NUM_DRAWERS = 4;
+        NUM_DRAWERS = 0;
 
     if (prevInfo) {
         prevPage = prevInfo.prevPage,
@@ -181,10 +189,90 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 }
                 LADS.Util.Splitscreen.setViewers(root, zoomimage); // TODO should we get rid of all splitscreen stuff?
                 makeSidebar();
+                createSeadragonControls();
                 initialized = true;
             });
             
         }
+    }
+
+    /**
+     * Add controls for manual Seadragon manipulation
+     * This was written for testing purposes and was not carefully written
+     * DO NOT KEEP THIS AS IS!!!!!!
+     * @method createSeadragonControls
+     */
+    function createSeadragonControls() {
+        var container = $(document.createElement(&#x27;div&#x27;));
+        container.attr(&#x27;id&#x27;, &#x27;seadragonManipContainer&#x27;);
+        container.css({
+            &#x27;left&#x27;: ($(&#x27;#tagRoot&#x27;).width()-120) + &quot;px&quot;
+        });
+        root.append(container);
+
+        container.append(createButton(&#x27;leftControl&#x27;, &#x27;&lt;&#x27;, 0, 40));
+        container.append(createButton(&#x27;upControl&#x27;, &#x27;^&#x27;, 40, 0));
+        container.append(createButton(&#x27;rightControl&#x27;, &#x27;&gt;&#x27;, 80, 40));
+        container.append(createButton(&#x27;downControl&#x27;, &#x27;v&#x27;, 40, 80));
+        container.append(createButton(&#x27;zinControl&#x27;, &#x27;+&#x27;, 80, 0));
+        container.append(createButton(&#x27;zoutControl&#x27;, &#x27;-&#x27;, 0, 0));
+
+        function createButton(id, text, left, top) {
+            var button = $(document.createElement(&#x27;div&#x27;));
+            button.attr(&#x27;id&#x27;, id);
+            button.css({
+                left: left,
+                top: top
+            });
+            button.addClass(&#x27;seadragonManipButton&#x27;);
+            button.text(text);
+            return button;
+        }
+
+        var delt = 40,
+            scrollDelt = 0.1;
+
+        var interval;
+
+        $(&#x27;#leftControl&#x27;).on(&#x27;mousedown&#x27;, function() {
+            zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: delt, y: 0}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: delt, y: 0}, 1);
+            }, 100);
+        });
+        $(&#x27;#upControl&#x27;).on(&#x27;mousedown&#x27;, function() {
+            zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: 0, y: delt}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: 0, y: delt}, 1);
+            }, 100);
+        });
+        $(&#x27;#rightControl&#x27;).on(&#x27;mousedown&#x27;, function() {
+            zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: -delt, y: 0}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: -delt, y: 0}, 1);
+            }, 100);
+        });
+        $(&#x27;#downControl&#x27;).on(&#x27;mousedown&#x27;, function() {
+            zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: 0, y: -delt}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: 0, y: -delt}, 1);
+            }, 100);
+        });
+        $(&#x27;#zinControl&#x27;).on(&#x27;mousedown&#x27;, function() {
+            zoomimage.dzScroll(1+scrollDelt, {x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2});
+            interval = setInterval(function() {
+                zoomimage.dzScroll(1+scrollDelt, {x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2});
+            }, 100);
+        });
+        $(&#x27;#zoutControl&#x27;).on(&#x27;mousedown&#x27;, function() {
+            zoomimage.dzScroll(1-scrollDelt, {x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2});
+            interval = setInterval(function() {
+                zoomimage.dzScroll(1-scrollDelt, {x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2});
+            }, 100);
+        });
+        $(&#x27;.seadragonManipButton&#x27;).on(&#x27;mouseup&#x27;, function() {
+            clearInterval(interval);
+        });
     }
 
     /**
@@ -324,21 +412,34 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
         //Descriptions, Hotspots, Assets and Tours drawers
         var existsDescription = !!doq.Metadata.Description;
-        var descriptionDrawer = createDrawer(&quot;Description&quot;, !existsDescription);
-        if (doq.Metadata.Description) {
-            var descrip = doq.Metadata.Description.replace(/\n/g, &quot;&lt;br /&gt;&quot;);
-            descriptionDrawer.contents.html(descrip);
-
-        }
-        var test = doq;
-        assetContainer.append(descriptionDrawer);
         
-        //location history TODO
-        var locationHistorysec = initlocationHistory();
-        assetContainer.append(locationHistorysec);
+        if (existsDescription) {
+            NUM_DRAWERS++;
+            var descriptionDrawer = createDrawer(&quot;Description&quot;, !existsDescription);
+            if (doq.Metadata.Description) {
+                var descrip = doq.Metadata.Description.replace(/\n/g, &quot;&lt;br /&gt;&quot;);
+                
+                if (typeof Windows != &quot;undefined&quot;) {
+                    // running in Win8 app
+                    descriptionDrawer.contents.html(descrip);
+                } else {  
+                    // running in browser
+                    descriptionDrawer.contents.html(Autolinker.link(descrip, {email: false, twitter: false}));
+                }
+            }
+            var test = doq;
+            assetContainer.append(descriptionDrawer);
+        }
 
+        //location history
+        locationList = LADS.Util.UI.getLocationList(options.doq.Metadata); 
+        if (locationList.length !== 0) {
+            NUM_DRAWERS++;
+            var locationHistorysec = initlocationHistory();
+            assetContainer.append(locationHistorysec);
+        }
 
-        var hotspotsDrawer = createDrawer(&#x27;Hotspots&#x27;, (hotspots.length === 0));
+        
 
         ///////////////////////////////////////
         function downhelper(elt) {
@@ -463,20 +564,27 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         ///////////////////////////////////////
         
         //get the hotspots for the artwork
-        for (var k = 0; k &lt; hotspots.length; k++) {
-            loadQueue.add(createMediaHolder(hotspotsDrawer.contents, hotspots[k], true));
+        if (hotspots.length != 0) {
+            NUM_DRAWERS++;
+            var hotspotsDrawer = createDrawer(&#x27;Hotspots&#x27;, (hotspots.length === 0));
+            for (var k = 0; k &lt; hotspots.length; k++) {
+                loadQueue.add(createMediaHolder(hotspotsDrawer.contents, hotspots[k], true));
+            }
+            assetContainer.append(hotspotsDrawer);
         }
-        assetContainer.append(hotspotsDrawer);
 
-
-        var assetsDrawer = createDrawer(&#x27;Assets&#x27;, (assets.length===0));
-        for (var j = 0; j&lt; assets.length; j++) {
-            loadQueue.add(createMediaHolder(assetsDrawer.contents, assets[j], false));
+        if (assets.length != 0) {
+            NUM_DRAWERS++;
+            var assetsDrawer = createDrawer(&#x27;Assets&#x27;, (assets.length===0));
+            for (var j = 0; j&lt; assets.length; j++) {
+                loadQueue.add(createMediaHolder(assetsDrawer.contents, assets[j], false));
+            }
+            assetContainer.append(assetsDrawer);
         }
-        assetContainer.append(assetsDrawer);
 
         function hotspotAssetClick(hotspotsAsset, btn) {//check if the location history is open before you click the button, if so, close it
             return function () {
+                hotspotsAsset.mediaload();
                 if (locationHistoryActive) {
                     locationHistoryActive = false;
                     locationHistory.css({
@@ -486,7 +594,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     locationHistoryToggle.hide();
                     locationHistoryToggle.hide(&quot;slide&quot;, { direction: direction }, 500);
                     locationHistoryDiv.hide(&quot;slide&quot;, { direction: direction }, 500);
-                    toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
+                    setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 }
                 var circle = hotspotsAsset.toggle();
 
@@ -538,15 +646,28 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 var relatedArtworks = JSON.parse(tour.Metadata.RelatedArtworks);
                 return relatedArtworks instanceof Array &amp;&amp; relatedArtworks.indexOf(doq.Identifier) &gt; -1;
             });
-            toursDrawer = createDrawer(&#x27;Tours&#x27;, relatedTours.length === 0);
-            assetContainer.append(toursDrawer);
-            if (relatedTours.length &gt; 0) {
-                toursDrawer.contents.text(&#x27;&#x27;);
-                $.each(relatedTours, function (index, tour) {
-                    loadQueue.add(createTourHolder(toursDrawer.contents, tour));
-                });
+
+            if (relatedTours.length != 0) {
+                NUM_DRAWERS++;
+                toursDrawer = createDrawer(&#x27;Tours&#x27;, relatedTours.length === 0);
+                assetContainer.append(toursDrawer);
+                if (relatedTours.length &gt; 0) {
+                    toursDrawer.contents.text(&#x27;&#x27;);
+                    $.each(relatedTours, function (index, tour) {
+                        loadQueue.add(createTourHolder(toursDrawer.contents, tour));
+                    });
+                }
             }
+
+            var maxHeight= $(&quot;#assetContainer&quot;).height() - $(&#x27;.drawerHeader&#x27;).height() * NUM_DRAWERS - 10;
+            if (maxHeight&lt;=0)
+                maxHeight=1;
+            root.find(&quot;.drawerContents&quot;).css({
+                &quot;max-height&quot;: maxHeight +&quot;px&quot;,
+            });
         });
+
+        
 
         function tourClicked(tour) {
             return function () {
@@ -790,9 +911,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 					((root.data(&#x27;split&#x27;) === &#x27;L&#x27;) ?
 						$(&#x27;#metascreen-L&#x27;).width() - window.innerWidth * 0.22 :
 						$(&#x27;#metascreen-R&#x27;).width() - window.innerWidth * 0.22);
-        // locationHistoryDiv.css({
-        //     &#x27;width&#x27;: locwidth + &#x27;px&#x27;,
-        // });
 
         //create the panel for location history.
 		var locationHistoryPanel = root.find(&#x27;#locationHistoryPanel&#x27;);
@@ -887,7 +1005,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
             locationList = LADS.Util.UI.getLocationList(options.doq.Metadata); //Location List is LOADED HERE
 
-            console.log(&quot;location list length: &quot; + locationList.length);
             if (locationList.length === 0) {
                 mapOverlay.show();
             }
@@ -1008,7 +1125,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 locationHistoryToggle.hide();
                 locationHistoryToggle.hide(&quot;slide&quot;, { direction: direction }, 500);
                 locationHistoryDiv.hide(&quot;slide&quot;, { direction: direction }, 500);
-                toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
+                setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 locationHistoryActive = false;
             }
             else {//show the panel if it is hidden when clicked
@@ -1067,17 +1184,16 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             drawer.isslided = false;
             var drawerContents = $(document.createElement(&#x27;div&#x27;));
             drawerContents.addClass(&quot;drawerContents&quot;);
-            var maxHeight= $(&quot;#assetContainer&quot;).height() - $(&#x27;.drawerHeader&#x27;).height() * NUM_DRAWERS - 10; // 165;
-            if (maxHeight&lt;=0)
-                maxHeight=1;
-            drawerContents.css({
-                &quot;max-height&quot;: maxHeight +&quot;px&quot;,
-            });
+            // var maxHeight= $(&quot;#assetContainer&quot;).height() - $(&#x27;.drawerHeader&#x27;).height() * NUM_DRAWERS - 15; // 165;
+            // if (maxHeight&lt;=0)
+            //     maxHeight=1;
+            // drawerContents.css({
+            //     &quot;max-height&quot;: maxHeight +&quot;px&quot;,
+            // });
             drawerContents.appendTo(drawer);
 
             //have the toggler icon minus when is is expanded, plus otherwise.
-            drawerHeader.on(&#x27;click&#x27;, function () {
-
+            drawerHeader.on(&#x27;click&#x27;, function (evt) {
                 if (drawer.isslided === false) {
                     root.find(&quot;.plusToggle&quot;).attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/plus.svg&#x27;);//ensure only one shows.
                     root.find(&quot;.drawerContents&quot;).slideUp();
@@ -1121,7 +1237,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
     // exhibition picker
     function createExhibitionPicker(artworkObj) {
-        debugger; // this shouldn&#x27;t be called in the web app...
+        // debugger; // this shouldn&#x27;t be called in the web app...
         var exhibitionPicker = $(document.createElement(&#x27;div&#x27;));
         exhibitionPicker.addClass(&quot;exhibitionPicker&quot;);
 
@@ -1189,24 +1305,26 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     var listCell = $(document.createElement(&#x27;div&#x27;));
                     listCell.addClass(&quot;exhibitions-list-cell&quot;);
 
-                    listCell.mousedown(function () {
+                    listCell.on(&#x27;mousedown&#x27;, function () {
                         listCell.css({
                             &#x27;background-color&#x27;: &#x27;white&#x27;,
                             &#x27;color&#x27;: &#x27;black&#x27;,
                         });
+                        listCell.on(&#x27;mouseleave&#x27;, function () {
+                            listCell.css({
+                                &#x27;background-color&#x27;: &#x27;black&#x27;,
+                                &#x27;color&#x27;: &#x27;white&#x27;,
+                            });
+                        });
                     });
-                    listCell.mouseup(function () {
+                    listCell.on(&#x27;mouseup&#x27;, function () {
                         listCell.css({
                             &#x27;background-color&#x27;: &#x27;black&#x27;,
                             &#x27;color&#x27;: &#x27;white&#x27;,
                         });
+                        listCell.off(&#x27;mouseleave&#x27;);
                     });
-                    listCell.mouseleave(function () {
-                        listCell.css({
-                            &#x27;background-color&#x27;: &#x27;black&#x27;,
-                            &#x27;color&#x27;: &#x27;white&#x27;,
-                        });
-                    });
+                    
 
                     var textBox = $(document.createElement(&#x27;div&#x27;));
                     textBox.addClass(&quot;textbox&quot;);
@@ -1318,7 +1436,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 locationHistoryToggle.hide();
                 locationHistoryToggle.hide(&quot;slide&quot;, { direction: direction }, 500);
                 locationHistoryDiv.hide(&quot;slide&quot;, { direction: direction }, 500);
-                toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
+                setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 locationHistoryActive = false;
             }
             if (prevPage === &quot;catalog&quot; &amp;&amp; initialized === true) {
