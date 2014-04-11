@@ -41860,13 +41860,12 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
     options = LADS.Util.setToDefaults(options, LADS.Layout.StartPage.default_options);
     
-    options.tagContainer = $("#tagRoot"); // TODO more general
+    options.tagContainer = $("#tagRoot");
 
     var root = LADS.Util.getHtmlAjax('StartPage.html'), // use AJAX to load html from .html file
         overlay = root.find('#overlay'),
         serverTagBuffer = root.find('#serverTagBuffer'),
         serverSetUpContainer = root.find('#serverSetUpContainer'),
-        // repository = options.repository,
         serverURL,
         tagContainer;
 
@@ -41947,13 +41946,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         setUpCredits();
         setUpInfo(main);
         initializeHandlers();
-
-        /*
-        var loadedInterval2 = setInterval(function () { // TODO is this interval necessary?
-            fixText();
-            clearInterval(loadedInterval2);
-        });
-        */
         
         handGif.onclick = switchPage;
         //opens the exhibitions page on touch/click
@@ -42044,7 +42036,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         }
     }
 
-    /**
+   /**
     * isBrowserCompatible
     *
     * Returns true if the browser is compatible with TAG,
@@ -42313,7 +42305,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
     /**
     * @method getRoot
-    * @return 
+    * @return    the root of the splash screen DOM
     */
     function getRoot() {
         return root;
@@ -43535,24 +43527,26 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     var listCell = $(document.createElement('div'));
                     listCell.addClass("exhibitions-list-cell");
 
-                    listCell.mousedown(function () {
+                    listCell.on('mousedown', function () {
                         listCell.css({
                             'background-color': 'white',
                             'color': 'black',
                         });
+                        listCell.on('mouseleave', function () {
+                            listCell.css({
+                                'background-color': 'black',
+                                'color': 'white',
+                            });
+                        });
                     });
-                    listCell.mouseup(function () {
+                    listCell.on('mouseup', function () {
                         listCell.css({
                             'background-color': 'black',
                             'color': 'white',
                         });
+                        listCell.off('mouseleave');
                     });
-                    listCell.mouseleave(function () {
-                        listCell.css({
-                            'background-color': 'black',
-                            'color': 'white',
-                        });
-                    });
+                    
 
                     var textBox = $(document.createElement('div'));
                     textBox.addClass("textbox");
