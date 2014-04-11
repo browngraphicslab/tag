@@ -42441,31 +42441,95 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
      * @method createSeadragonControls
      */
     function createSeadragonControls() {
-        var container = $(document.createElement('div'));
-        container.attr('id', 'seadragonManipContainer');
+        var container = root.find('#seadragonManipContainer');
         container.css({
-            'left': ($('#tagRoot').width()-120) + "px"
+            'left': ($('#tagRoot').width()-160) + "px"
         });
         root.append(container);
+        
+        var slidebutton = root.find('#seadragonManipSlideButton');
+        slidebutton.css({
+            'left': 0 + "px"
+        });
+        var slideimg = $(document.createElement('img'));
+        slideimg.attr("src",tagPath+ 'images/icons/close_expand.svg');
+        slideimg.css({
+            'width':'23px',
+            'height': '40px',
+            'transform': 'rotate(180deg)'
+        });
+        
+        document.getElementById("seadragonManipSlideButton").innerHTML="Show Controls";
+        var top = 0;
+        var count = 0;
+        slidebutton.on('click', function () {
+            count = count + 1
+            container.animate({top:top});
+            if (count%2===0){
+                top = 0;
+                document.getElementById("seadragonManipSlideButton").innerHTML="Show Controls";
+            }
+            if(count%2===1){
+                top = -120;
+                document.getElementById("seadragonManipSlideButton").innerHTML = '';
+                slidebutton.append(slideimg);
+                
 
-        container.append(createButton('leftControl', '<', 0, 40));
-        container.append(createButton('upControl', '^', 40, 0));
-        container.append(createButton('rightControl', '>', 80, 40));
-        container.append(createButton('downControl', 'v', 40, 80));
-        container.append(createButton('zinControl', '+', 80, 0));
-        container.append(createButton('zoutControl', '-', 0, 0));
+               }
+                
+        });
+        
+        container.append(slidebutton);
+        container.append(createButton('leftControl', tagPath+ 'images/icons/zoom_left.svg', 40, 40));
+        container.append(createButton('upControl', tagPath+'images/icons/zoom_up.svg', 80, 0));
+        container.append(createButton('rightControl', tagPath+'images/icons/zoom_right.svg', 120, 40));
+        container.append(createButton('downControl', tagPath+'images/icons/zoom_down.svg', 80, 80));
+        container.append(createButton('zinControl', tagPath+'images/icons/zoom_plus.svg', 0, 20));
+        container.append(createButton('zoutControl', tagPath+'images/icons/zoom_minus.svg', 0, 60));
 
-        function createButton(id, text, left, top) {
+        function createButton(id, imgPath, left, top) {
             var button = $(document.createElement('div'));
             button.attr('id', id);
             button.css({
                 left: left,
                 top: top
             });
+            var img = $(document.createElement('img'));
+            img.attr("src",imgPath);
+            if (imgPath=='images/icons/zoom_plus.svg'){
+            img.css({
+
+                'width':'50%'
+                
+             });
+        }
+            if (imgPath=='images/icons/zoom_minus.svg'){
+            img.css({
+                'width':'50%'
+                
+             });
+        }
+            if (imgPath=='images/icons/zoom_right.svg'){
+            img.css({
+                'margin-top': '-13px',
+                'width':'23px',
+                'height': '40px'
+             });
+
+             
+        }
+           if (imgPath=='images/icons/zoom_left.svg'){
+            img.css({
+                'margin-top': '-13px',
+                'width':'23px',
+                'height': '40px'
+             });
+        }
             button.addClass('seadragonManipButton');
-            button.text(text);
+            button.append(img);
             return button;
         }
+        
 
         var delt = 40,
             scrollDelt = 0.1;
