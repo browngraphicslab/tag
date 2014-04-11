@@ -2069,7 +2069,6 @@ LADS.Layout.Exhibitions = function (options, exhibitionCallback) {
                 var parentid = root.parent().attr('id');
                 LADS.Util.Splitscreen.exit(parentid[parentid.length - 1]);
             }
-
             LADS.Util.UI.slidePageLeftSplit(root, rinPlayer.getRoot(), rinPlayer.startPlayback);
         }
     }
