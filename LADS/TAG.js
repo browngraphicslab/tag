@@ -42069,7 +42069,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             } else if(browser.indexOf('safari') >= 0) {
                 var detailedVersion = browser.substring(browser.indexOf(' ', browser.indexOf(' ') + 1) + 1);
                 version = detailedVersion.substring(0, detailedVersion.indexOf("."));
-                console.log("Detected Safari Version: '" + version + "'");
+                console.log("Detected Safari Version: " + version);
                 return(version >= 7);
             } else if(browser.indexOf('firefox') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
