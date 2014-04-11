@@ -41935,7 +41935,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     * @param {Object} main     contains all image paths and museum info
     */
     function loadHelper(main) {
-        debugger;
         LADS.Util.Constants.set("START_PAGE_SPLASH", tagPath+"images/birdtextile.jpg");
         if(!allowServerChange) {
             $('#serverTagBuffer').remove();
