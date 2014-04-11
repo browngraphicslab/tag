@@ -2545,7 +2545,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 1393,
+            "line": 1395,
             "description": "Return art viewer root element",
             "itemtype": "method",
             "name": "",
@@ -2557,7 +2557,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 1402,
+            "line": 1404,
             "description": "Make the map for location History.",
             "itemtype": "method",
             "name": "",
@@ -2967,7 +2967,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 37,
+            "line": 36,
             "description": "Test internet and server connections",
             "params": [
                 {
@@ -2979,7 +2979,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 88,
+            "line": 87,
             "description": "sets up the entire visual layout and images of the splash screen",
             "itemtype": "method",
             "name": "loadHelper",
@@ -2994,19 +2994,19 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 202,
+            "line": 194,
             "description": "isBrowserCompatible\n\nReturns true if the browser is compatible with TAG,\nfalse if it isn't",
             "class": "LADS.Layout.StartPage"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 237,
+            "line": 229,
             "description": "getBrowserVersion\n\nReturn's browser name followed by version\ne.g. \"Chrome 34.0.1847.116\"",
             "class": "LADS.Layout.StartPage"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 258,
+            "line": 250,
             "description": "adjusts the text to fit the screen size",
             "itemtype": "method",
             "name": "fixText",
@@ -3014,7 +3014,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 276,
+            "line": 268,
             "description": "initializes the handlers for various 'click' functions including setting up a server",
             "itemtype": "method",
             "name": "initializeHandlers",
@@ -3022,7 +3022,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 295,
+            "line": 287,
             "description": "gets the paths for all the images displayed on the splash screen",
             "itemtype": "method",
             "name": "setImagePaths",
@@ -3037,7 +3037,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 327,
+            "line": 319,
             "description": "Sets up the credits box with its content including text and images. Also includes function for animation of credits.",
             "itemtype": "method",
             "name": "setUpCredits",
@@ -3045,7 +3045,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 365,
+            "line": 357,
             "description": "animation of credits when user clicks",
             "itemtype": "method",
             "name": "expandInfo",
@@ -3060,7 +3060,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 400,
+            "line": 392,
             "description": "sets up the info div which contains all the museum information",
             "itemtype": "method",
             "name": "setUpInfo",
@@ -3075,7 +3075,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 423,
+            "line": 415,
             "description": "Fills in all museum info including name and location",
             "itemtype": "method",
             "name": "setUpMuseumInfo",
@@ -3090,11 +3090,11 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 469,
+            "line": 461,
             "itemtype": "method",
             "name": "getRoot",
             "return": {
-                "description": ""
+                "description": "the root of the splash screen DOM"
             },
             "class": "LADS.Layout.StartPage"
         },
@@ -13534,15 +13534,15 @@
         },
         {
             "message": "Missing item type\nTest internet and server connections",
-            "line": " LADS/js/LADS/layout/LADS.Layout.StartPage.js:37"
+            "line": " LADS/js/LADS/layout/LADS.Layout.StartPage.js:36"
         },
         {
             "message": "Missing item type\nisBrowserCompatible\n\nReturns true if the browser is compatible with TAG,\nfalse if it isn't",
-            "line": " LADS/js/LADS/layout/LADS.Layout.StartPage.js:202"
+            "line": " LADS/js/LADS/layout/LADS.Layout.StartPage.js:194"
         },
         {
             "message": "Missing item type\ngetBrowserVersion\n\nReturn's browser name followed by version\ne.g. \"Chrome 34.0.1847.116\"",
-            "line": " LADS/js/LADS/layout/LADS.Layout.StartPage.js:237"
+            "line": " LADS/js/LADS/layout/LADS.Layout.StartPage.js:229"
         },
         {
             "message": "Missing item type\nFinal layout for Tour Authoring\nAll parts of layout are container in separate files/classes\nLayout file also contains testing instructions / notes / functions",

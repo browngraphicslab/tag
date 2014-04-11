@@ -115,13 +115,12 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
     options = LADS.Util.setToDefaults(options, LADS.Layout.StartPage.default_options);
     
-    options.tagContainer = $(&quot;#tagRoot&quot;); // TODO more general
+    options.tagContainer = $(&quot;#tagRoot&quot;);
 
     var root = LADS.Util.getHtmlAjax(&#x27;StartPage.html&#x27;), // use AJAX to load html from .html file
         overlay = root.find(&#x27;#overlay&#x27;),
         serverTagBuffer = root.find(&#x27;#serverTagBuffer&#x27;),
         serverSetUpContainer = root.find(&#x27;#serverSetUpContainer&#x27;),
-        // repository = options.repository,
         serverURL,
         tagContainer;
 
@@ -202,13 +201,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         setUpCredits();
         setUpInfo(main);
         initializeHandlers();
-
-        /*
-        var loadedInterval2 = setInterval(function () { // TODO is this interval necessary?
-            fixText();
-            clearInterval(loadedInterval2);
-        });
-        */
         
         handGif.onclick = switchPage;
         //opens the exhibitions page on touch/click
@@ -219,7 +211,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         }
 
         // Test for browser compatibility
-        if(!isBrowserCompatible()) {
+        if(false &amp;&amp; !isBrowserCompatible()) { /* bleveque: doesn&#x27;t allow IE 11, so removing for now */
             var browserDialogOverlay = $(document.createElement(&#x27;div&#x27;));
             var tagContainer = $(&#x27;#tagRoot&#x27;);
             browserDialogOverlay.attr(&#x27;id&#x27;, &#x27;browserDialogOverlay&#x27;);
@@ -299,7 +291,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         }
     }
 
-    /**
+   /**
     * isBrowserCompatible
     *
     * Returns true if the browser is compatible with TAG,
@@ -568,7 +560,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
     /**
     * @method getRoot
-    * @return 
+    * @return    the root of the splash screen DOM
     */
     function getRoot() {
         return root;

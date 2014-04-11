@@ -41860,13 +41860,12 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
     options = LADS.Util.setToDefaults(options, LADS.Layout.StartPage.default_options);
     
-    options.tagContainer = $("#tagRoot"); // TODO more general
+    options.tagContainer = $("#tagRoot");
 
     var root = LADS.Util.getHtmlAjax('StartPage.html'), // use AJAX to load html from .html file
         overlay = root.find('#overlay'),
         serverTagBuffer = root.find('#serverTagBuffer'),
         serverSetUpContainer = root.find('#serverSetUpContainer'),
-        // repository = options.repository,
         serverURL,
         tagContainer;
 
@@ -41948,13 +41947,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         setUpCredits();
         setUpInfo(main);
         initializeHandlers();
-
-        /*
-        var loadedInterval2 = setInterval(function () { // TODO is this interval necessary?
-            fixText();
-            clearInterval(loadedInterval2);
-        });
-        */
         
         handGif.onclick = switchPage;
         //opens the exhibitions page on touch/click
@@ -41965,12 +41957,11 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         }
 
         // Test for browser compatibility
-        debugger;
         if(!isBrowserCompatible()) { /* bleveque: doesn't allow IE 11, so removing for now */
             var browserDialogOverlay = $(document.createElement('div'));
             var tagContainer = $('#tagRoot');
             browserDialogOverlay.attr('id', 'browserDialogOverlay');
-            debugger;
+
             browserDialogOverlay.css({
                 display: 'block',
                 position: 'absolute',
@@ -41982,11 +41973,9 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
                 'z-index': 1000000000 + 5
             });
 
-            // dialog box for browser update
+            // Dialog box for browser update
             var browserDialog = $(document.createElement('div'));
             browserDialog.attr('id', 'browserDialog');
-
-            //
 
             var browserDialogSpecs = LADS.Util.constrainAndPosition($(tagContainer).width(), $(tagContainer).height(),
             {
@@ -42047,10 +42036,9 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     }
 
     /**
-    * isBrowserCompatible
+    * @method isBrowserCompatible
     *
-    * Returns true if the browser is compatible with TAG,
-    * false if it isn't
+    * @return true if the browser is compatible with TAG, false if it isn't
     */
     function isBrowserCompatible() {
         var userAgent = navigator.userAgent.toLowerCase();
@@ -42089,10 +42077,9 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     }
 
     /** 
-    * getBrowserVersion
+    * @method getBrowserVersion
     *
-    * Return's browser name followed by version
-    * e.g. "Chrome 34.0.1847.116"
+    * @return Browser name followed by version e.g. "Chrome 34.0.1847.116"
     */
     function getBrowserVersion() {
         var ua= navigator.userAgent, tem, 
@@ -42322,7 +42309,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
     /**
     * @method getRoot
-    * @return 
+    * @return    the root of the splash screen DOM
     */
     function getRoot() {
         return root;
@@ -43544,24 +43531,26 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     var listCell = $(document.createElement('div'));
                     listCell.addClass("exhibitions-list-cell");
 
-                    listCell.mousedown(function () {
+                    listCell.on('mousedown', function () {
                         listCell.css({
                             'background-color': 'white',
                             'color': 'black',
                         });
+                        listCell.on('mouseleave', function () {
+                            listCell.css({
+                                'background-color': 'black',
+                                'color': 'white',
+                            });
+                        });
                     });
-                    listCell.mouseup(function () {
+                    listCell.on('mouseup', function () {
                         listCell.css({
                             'background-color': 'black',
                             'color': 'white',
                         });
+                        listCell.off('mouseleave');
                     });
-                    listCell.mouseleave(function () {
-                        listCell.css({
-                            'background-color': 'black',
-                            'color': 'white',
-                        });
-                    });
+                    
 
                     var textBox = $(document.createElement('div'));
                     textBox.addClass("textbox");

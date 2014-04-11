@@ -1305,24 +1305,26 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     var listCell = $(document.createElement(&#x27;div&#x27;));
                     listCell.addClass(&quot;exhibitions-list-cell&quot;);
 
-                    listCell.mousedown(function () {
+                    listCell.on(&#x27;mousedown&#x27;, function () {
                         listCell.css({
                             &#x27;background-color&#x27;: &#x27;white&#x27;,
                             &#x27;color&#x27;: &#x27;black&#x27;,
                         });
+                        listCell.on(&#x27;mouseleave&#x27;, function () {
+                            listCell.css({
+                                &#x27;background-color&#x27;: &#x27;black&#x27;,
+                                &#x27;color&#x27;: &#x27;white&#x27;,
+                            });
+                        });
                     });
-                    listCell.mouseup(function () {
+                    listCell.on(&#x27;mouseup&#x27;, function () {
                         listCell.css({
                             &#x27;background-color&#x27;: &#x27;black&#x27;,
                             &#x27;color&#x27;: &#x27;white&#x27;,
                         });
+                        listCell.off(&#x27;mouseleave&#x27;);
                     });
-                    listCell.mouseleave(function () {
-                        listCell.css({
-                            &#x27;background-color&#x27;: &#x27;black&#x27;,
-                            &#x27;color&#x27;: &#x27;white&#x27;,
-                        });
-                    });
+                    
 
                     var textBox = $(document.createElement(&#x27;div&#x27;));
                     textBox.addClass(&quot;textbox&quot;);
