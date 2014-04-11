@@ -438,6 +438,7 @@
   width: 160px;
   z-index: 10000000;
   border-radius: 10px;
+  border-top-left-radius: 0px;
 }
 #artmodeRoot #sideBar {
   position: absolute;
