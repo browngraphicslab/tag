@@ -42041,10 +42041,16 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     */
     function isBrowserCompatible() {
         var userAgent = navigator.userAgent.toLowerCase();
+        console.log("userAgent: " + navigator.userAgent);
+
         if(userAgent.indexOf('android') >= 0 || userAgent.indexOf('iphone') >= 0 || userAgent.indexOf('ipad') >= 0) {
-            if(userAgent.indexOf('android')) console.log("Detected Android Device. Unsupported browser.");
-            else if (userAgent.indexOf('iphone') >= 0) console.log("Detected iPhone. Unsupported browser.");
-            else if (userAgent.indexOf('ipad') >= 0) console.log("Detected iPad. Unsupported browser.");
+            if(userAgent.indexOf('android') >= 0) {
+                console.log("Detected Android Device. Unsupported browser.");
+            } else if (userAgent.indexOf('iphone') >= 0) {
+                console.log("Detected iPhone. Unsupported browser.");
+            } else if (userAgent.indexOf('ipad') >= 0) {
+                console.log("Detected iPad. Unsupported browser.");
+            }
             return false;
         } else {
             var browser = getBrowserVersion();
