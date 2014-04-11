@@ -40519,9 +40519,10 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         var assetHidden = true;
 
         var outerContainer = document.createElement('div');
-        outerContainer.style.width = "450px";
+        outerContainer.style.width = Math.min(Math.max(250, ($('#tagContainer').width() / 5)), 450)+'px';
 
         var innerContainer = document.createElement('div');
+        var mediaContainer = $(document.createElement('div'));
 
         // media-specific
         var controlPanel = $(document.createElement('div')),
@@ -40562,7 +40563,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             'padding-bottom': '2%',
             'overflow': 'hidden',
             'text-overflow': 'ellipsis',
-            'font-weight': '700',
+            'font-weight': '700'
         });
 
         innerContainer.appendChild(p1);
@@ -40581,7 +40582,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 });
                 console.log("appending new image");
                 if (!imgadded) {
-                    innerContainer.appendChild(img);
+                    mediaContainer.append(img);
                     imgadded = true;
                 }
             }
@@ -40600,7 +40601,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                     video.style.width = '100%';
                     video.controls = false;
 
-                    innerContainer.appendChild(video);
+                    mediaContainer.append(video);
 
                     playHolder = $(document.createElement('div'));
                     play = document.createElement('img');
@@ -40744,7 +40745,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                         $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
                     });
 
-                    innerContainer.appendChild(controlPanel[0]);
+                    mediaContainer.append(controlPanel[0]);
                     controlPanel.append(playHolder);
                     controlPanel.append(seekBar);
                     $(timeContainer).append(currentTimeDisplay);
@@ -40912,7 +40913,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                         $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
                     });
 
-                    innerContainer.appendChild(controlPanel[0]);
+                    mediaContainer.append(controlPanel[0]);
                     controlPanel.append(playHolder);
                     controlPanel.append(seekBar);
                     $(timeContainer).append(currentTimeDisplay);
@@ -40920,13 +40921,12 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                     controlPanel.append(volHolder);
             }
         };
+
+        $(innerContainer).append(mediaContainer);
        
         // add description -- ?
         if (this.description) {
             var p2 = document.createElement('div');
-            if (this.title === '2222')
-                console.log("jho");
-
             if (typeof Windows != "undefined") {
                 // running in Win8 app
                 $(p2).html(LADS.Util.htmlEntityDecode(this.description));
