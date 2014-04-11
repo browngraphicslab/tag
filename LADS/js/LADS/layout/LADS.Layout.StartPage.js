@@ -170,6 +170,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
             var updateBrowserLink = $(document.createElement('a'));
             updateBrowserLink.attr('id', 'updateBrowser');
+            updateBrowserLink.attr('target', '_blank');
             updateBrowserLink.attr('href', 'http://browsehappy.com');
             updateBrowserLink.css({
                 'display': 'block',
@@ -231,7 +232,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             } else if(browser.indexOf('firefox') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
                 console.log("Detected Firefox Version: " + version);
-                return(version >= 27);
+                return(version >= 28);
             } else if(browser.indexOf('msie') >= 0 || browser.indexOf('ie') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
                 console.log("Detected IE Version: " + version);
