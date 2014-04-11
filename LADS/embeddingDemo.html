@@ -3,7 +3,7 @@
 <head>
 	<title>TAG Embedded Demo</title>
 	<script src='TAG-embed.js'></script>
-	<script src='js/jquery-1.10.2.min.js'></script>
+	<!-- <script src='js/jquery-1.10.2.min.js'></script> -->
 	<script>
 		window.onload = load;
 
@@ -20,30 +20,10 @@
 				],
 				allowServerChange: true
 			});
-
-			
-
-            /*
-		    // do not let scroll events bubble out of tag container
-		    // when the mouse is in the container
-			var frameDiv = document.getElementById('frameContainer'),
-		        numEvents = 0;
-		    //frameDiv.innerHTML = 0;
-			frameDiv.addEventListener('mousewheel', function (evt) {
-			    //frameDiv.innerHTML = ++numEvents;
-			    evt.stopPropagation();
-			    evt.preventDefault();
-			});
-			frameDiv.addEventListener('DOMMouseScroll', function (evt) {
-			    //frameDiv.innerHTML = ++numEvents;
-			    evt.stopPropagation();
-			    evt.preventDefault();
-			});*/
-		    
 		}
 	</script>
 </head>
 <body style="height:2000px">
-	<div id='tagContainer'></div>
+	<div id='tagContainer' style='margin-left:200px;margin-top:100px;'></div>
 </body>
 </html>

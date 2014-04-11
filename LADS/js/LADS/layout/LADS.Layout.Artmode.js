@@ -382,8 +382,14 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             var descriptionDrawer = createDrawer("Description", !existsDescription);
             if (doq.Metadata.Description) {
                 var descrip = doq.Metadata.Description.replace(/\n/g, "<br />");
-                descriptionDrawer.contents.html(descrip);
-
+                
+                if (typeof Windows != "undefined") {
+                    // running in Win8 app
+                    descriptionDrawer.contents.html(descrip);
+                } else {  
+                    // running in browser
+                    descriptionDrawer.contents.html(Autolinker.link(descrip, {email: false, twitter: false}));
+                }
             }
             var test = doq;
             assetContainer.append(descriptionDrawer);
@@ -391,7 +397,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
         //location history
         locationList = LADS.Util.UI.getLocationList(options.doq.Metadata); 
-        if (locationList.length != 0) {
+        if (locationList.length !== 0) {
             NUM_DRAWERS++;
             var locationHistorysec = initlocationHistory();
             assetContainer.append(locationHistorysec);
@@ -552,7 +558,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     locationHistoryToggle.hide();
                     locationHistoryToggle.hide("slide", { direction: direction }, 500);
                     locationHistoryDiv.hide("slide", { direction: direction }, 500);
-                    toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
+                    setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 }
                 var circle = hotspotsAsset.toggle();
 
@@ -1083,7 +1089,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 locationHistoryToggle.hide();
                 locationHistoryToggle.hide("slide", { direction: direction }, 500);
                 locationHistoryDiv.hide("slide", { direction: direction }, 500);
-                toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
+                setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 locationHistoryActive = false;
             }
             else {//show the panel if it is hidden when clicked
@@ -1195,7 +1201,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
     // exhibition picker
     function createExhibitionPicker(artworkObj) {
-        debugger; // this shouldn't be called in the web app...
+        // debugger; // this shouldn't be called in the web app...
         var exhibitionPicker = $(document.createElement('div'));
         exhibitionPicker.addClass("exhibitionPicker");
 
@@ -1263,24 +1269,26 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     var listCell = $(document.createElement('div'));
                     listCell.addClass("exhibitions-list-cell");
 
-                    listCell.mousedown(function () {
+                    listCell.on('mousedown', function () {
                         listCell.css({
                             'background-color': 'white',
                             'color': 'black',
                         });
+                        listCell.on('mouseleave', function () {
+                            listCell.css({
+                                'background-color': 'black',
+                                'color': 'white',
+                            });
+                        });
                     });
-                    listCell.mouseup(function () {
+                    listCell.on('mouseup', function () {
                         listCell.css({
                             'background-color': 'black',
                             'color': 'white',
                         });
+                        listCell.off('mouseleave');
                     });
-                    listCell.mouseleave(function () {
-                        listCell.css({
-                            'background-color': 'black',
-                            'color': 'white',
-                        });
-                    });
+                    
 
                     var textBox = $(document.createElement('div'));
                     textBox.addClass("textbox");
@@ -1392,7 +1400,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 locationHistoryToggle.hide();
                 locationHistoryToggle.hide("slide", { direction: direction }, 500);
                 locationHistoryDiv.hide("slide", { direction: direction }, 500);
-                toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
+                setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 locationHistoryActive = false;
             }
             if (prevPage === "catalog" && initialized === true) {
