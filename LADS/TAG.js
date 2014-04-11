@@ -41936,6 +41936,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     * @param {Object} main     contains all image paths and museum info
     */
     function loadHelper(main) {
+        debugger;
         LADS.Util.Constants.set("START_PAGE_SPLASH", tagPath+"images/birdtextile.jpg");
         if(!allowServerChange) {
             $('#serverTagBuffer').remove();
@@ -41964,11 +41965,12 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         }
 
         // Test for browser compatibility
-        if(false && !isBrowserCompatible()) { /* bleveque: doesn't allow IE 11, so removing for now */
+        debugger;
+        if(!isBrowserCompatible()) { /* bleveque: doesn't allow IE 11, so removing for now */
             var browserDialogOverlay = $(document.createElement('div'));
             var tagContainer = $('#tagRoot');
             browserDialogOverlay.attr('id', 'browserDialogOverlay');
-            // debugger;
+            debugger;
             browserDialogOverlay.css({
                 display: 'block',
                 position: 'absolute',
@@ -42063,15 +42065,19 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
             if(browser.indexOf('chrome') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
+                console.log("Detected Chrome Version: " + version);
                 return(version >= 31);
             } else if(browser.indexOf('safari') >= 0) {
                 version = browser.substring(browser.indexOf(' ', browser.indexOf(' ') + 1), browser.indexOf("."));
+                console.log("Detected Safari Version: " + version);
                 return(version >= 7);
             } else if(browser.indexOf('firefox') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
-                return(version >= 26);
-            } else if(browser.indexOf('msie') >= 0) {
+                console.log("Detected Firefox Version: " + version);
+                return(version >= 27);
+            } else if(browser.indexOf('msie') >= 0 || browser.indexOf('ie') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
+                console.log("Detected IE Version: " + version);
                 return(version >= 10);
             } else {
                 return false;
