@@ -170,6 +170,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
             var updateBrowserLink = $(document.createElement('a'));
             updateBrowserLink.attr('id', 'updateBrowser');
+            updateBrowserLink.attr('target', '_blank');
             updateBrowserLink.attr('href', 'http://browsehappy.com');
             updateBrowserLink.css({
                 'display': 'block',
