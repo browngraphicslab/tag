@@ -111,14 +111,16 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         
         var slidebutton = root.find('#seadragonManipSlideButton');
         slidebutton.css({
-            'left': 0 + "px"
+            'left': 0 + "px",
+            'padding-top': '10px'
         });
         var slideimg = $(document.createElement('img'));
         slideimg.attr("src",tagPath+ 'images/icons/close_expand.svg');
         slideimg.css({
             'width':'23px',
             'height': '40px',
-            'transform': 'rotate(180deg)'
+            'transform': 'rotate(180deg)',
+            'margin-top':'-10px'
         });
         
         document.getElementById("seadragonManipSlideButton").innerHTML="Show Controls";
