@@ -42453,7 +42453,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             'padding-top': '10px'
         });
         var slideimg = $(document.createElement('img'));
-        slideimg.attr("src",tagPath+ 'images/icons/close_expand.svg');
+        slideimg.attr("src",tagPath+ 'images/icons/Close_expand.svg');
         slideimg.css({
             'width':'23px',
             'height': '40px',
@@ -42498,35 +42498,26 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             });
             var img = $(document.createElement('img'));
             img.attr("src",imgPath);
-            if (imgPath=='images/icons/zoom_plus.svg'){
-            img.css({
-
-                'width':'50%'
-                
-             });
-        }
-            if (imgPath=='images/icons/zoom_minus.svg'){
-            img.css({
-                'width':'50%'
-                
-             });
-        }
-            if (imgPath=='images/icons/zoom_right.svg'){
-            img.css({
-                'margin-top': '-13px',
-                'width':'23px',
-                'height': '40px'
-             });
-
-             
-        }
-           if (imgPath=='images/icons/zoom_left.svg'){
-            img.css({
-                'margin-top': '-13px',
-                'width':'23px',
-                'height': '40px'
-             });
-        }
+            if (imgPath==='images/icons/zoom_plus.svg' || imgPath==='images/icons/zoom_minus.svg'){
+                img.css({
+                    'width':'20px',
+                    'height': '20px',
+                    'max-width': '20px',
+                    'max-height': '20px'
+                 });
+            } else if (imgPath=='images/icons/zoom_right.svg'){
+                img.css({
+                    'margin-top': '-13px',
+                    'width':'23px',
+                    'height': '40px'
+                 });
+            } else if (imgPath=='images/icons/zoom_left.svg'){
+                img.css({
+                    'margin-top': '-13px',
+                    'width':'23px',
+                    'height': '40px'
+                 });
+            }
             button.addClass('seadragonManipButton');
             button.append(img);
             return button;
