@@ -42498,20 +42498,22 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             });
             var img = $(document.createElement('img'));
             img.attr("src",imgPath);
-            if (imgPath==='images/icons/zoom_plus.svg' || imgPath==='images/icons/zoom_minus.svg'){
+
+            // TODO should do the following by id in the .styl file
+            if (id==='zinControl' || id==='zoutControl'){
                 img.css({
                     'width':'20px',
                     'height': '20px',
                     'max-width': '20px',
                     'max-height': '20px'
                  });
-            } else if (imgPath=='images/icons/zoom_right.svg'){
+            } else if (id==='rightControl'){
                 img.css({
                     'margin-top': '-13px',
                     'width':'23px',
                     'height': '40px'
                  });
-            } else if (imgPath=='images/icons/zoom_left.svg'){
+            } else if (id==='leftControl'){
                 img.css({
                     'margin-top': '-13px',
                     'width':'23px',
