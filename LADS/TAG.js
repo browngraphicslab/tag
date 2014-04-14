@@ -42453,7 +42453,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             'padding-top': '10px'
         });
         var slideimg = $(document.createElement('img'));
-        slideimg.attr("src",tagPath+ 'images/icons/close_expand.svg');
+        slideimg.attr("src",tagPath+ 'images/icons/Close_expand.svg');
         slideimg.css({
             'width':'23px',
             'height': '40px',
