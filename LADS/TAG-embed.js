@@ -127,28 +127,27 @@ var TAG_embed = function(tagInput) {
     $frameDiv = $(frameDiv);
 
     var scrollTop = 0,
+        scrollLeft = 0,
         bodyLeft = 0;
 
     $frameDiv.on('mouseenter', function(evt) {
         var origLeft, newLeft, tbodyLeft;
 
         scrollTop = $(document).scrollTop();
+        scrollLeft = $(document).scrollLeft();
         console.log('scrollTop = '+scrollTop);
 
         bodyLeft = parseFloat($('body').css('margin-left'));
 
         origLeft = $(container).offset().left;
 
-        $('body').css({
-            'position': 'fixed',
-            'margin-top': (-scrollTop)+'px'
-        });
-
         newLeft = $(container).offset().left;
         tbodyLeft = parseFloat($('body').css('margin-left'));
 
         $('body').css({
-            'margin-left': (bodyLeft + origLeft - newLeft)+'px'
+            'position': 'fixed',
+            'margin-top': (-scrollTop)+'px',
+            'margin-left': (bodyLeft + origLeft - newLeft - scrollLeft)+'px'
         });        
 
         
@@ -162,5 +161,6 @@ var TAG_embed = function(tagInput) {
         });
 
         $(document).scrollTop(scrollTop);
+        $(document).scrollLeft(scrollLeft);
     });
 };

@@ -160,57 +160,26 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             });
             var img = $(document.createElement('img'));
             img.attr("src",imgPath);
-            if (imgPath=='images/icons/zoom_plus.svg'){
-                img.css({
 
-                    'width':'50%',
-                    'margin-right': '-30px',
-                    'margin-top': '-30px',
-                    'margin-bottom': '10px'
-                    
-                 });
-            }
-            if (imgPath=='images/icons/zoom_minus.svg'){
+            // TODO should do the following by id in the .styl file
+            if (id==='zinControl' || id==='zoutControl'){
                 img.css({
-                    'width':'50%',
-                    'margin-left': '25px'
-                    
+                    'width':'20px',
+                    'height': '20px',
+                    'max-width': '20px',
+                    'max-height': '20px'
                  });
-            }
-            if (imgPath=='images/icons/zoom_right.svg'){
+            } else if (id==='rightControl'){
                 img.css({
-                    'margin-top': '-30px',
-                    'margin-left': '-37px',
-                    'width': '23px',
-                    'height': '40px',
-                    'margin-right': '-1.5px'
+                    'margin-top': '-13px',
+                    'width':'23px',
+                    'height': '40px'
                  });
-
-                 
-            }
-           if (imgPath=='images/icons/zoom_left.svg'){
-           img.css({
-                   'margin-top': '-30px',
-                   'margin-left': '25px',
-                   'width':'23px',
-                   'height': '40px'
-                 });
-            }
-            if (imgPath=='images/icons/zoom_up.svg'){
+            } else if (id==='leftControl'){
                 img.css({
-                    'margin-top': '4px',
-                    'margin-left': '-3px'
-                    
-                 });
-            }
-
-            if (imgPath=='images/icons/zoom_down.svg'){
-                img.css({
-                    'margin-top': '-55px',
-                    'margin-right': '-3px',
-                    'margin-left': '-4px',
-                    'margin-bottom': '26px'
-                    
+                    'margin-top': '-13px',
+                    'width':'23px',
+                    'height': '40px'
                  });
             }
             button.addClass('seadragonManipButton');
@@ -224,43 +193,50 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
         var interval;
 
+        /* TODO factor some repeated code out */
         $('#leftControl').on('mousedown', function() {
+            clearInterval(interval);
             zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
             interval = setInterval(function() {
                 zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
             }, 100);
         });
         $('#upControl').on('mousedown', function() {
+            clearInterval(interval);
             zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
             interval = setInterval(function() {
                 zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
             }, 100);
         });
         $('#rightControl').on('mousedown', function() {
+            clearInterval(interval);
             zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
             interval = setInterval(function() {
                 zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
             }, 100);
         });
         $('#downControl').on('mousedown', function() {
+            clearInterval(interval);
             zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
             interval = setInterval(function() {
                 zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
             }, 100);
         });
         $('#zinControl').on('mousedown', function() {
+            clearInterval(interval);
             zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
             interval = setInterval(function() {
                 zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
             }, 100);
         });
         $('#zoutControl').on('mousedown', function() {
+            clearInterval(interval);
             zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
             interval = setInterval(function() {
                 zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
             }, 100);
         });
-        $('.seadragonManipButton').on('mouseup', function() {
+        $('.seadragonManipButton').on('mouseup mouseleave', function() {
             clearInterval(interval);
         });
     }
