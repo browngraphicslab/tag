@@ -141,12 +141,14 @@ var TAG_embed = function(tagInput) {
 
         origLeft = $(container).offset().left;
 
-        newLeft = $(container).offset().left;
-        tbodyLeft = parseFloat($('body').css('margin-left'));
-
         $('body').css({
             'position': 'fixed',
             'margin-top': (-scrollTop)+'px',
+        });
+
+        newLeft = $(container).offset().left;
+
+        $('body').css({
             'margin-left': (bodyLeft + origLeft - newLeft - scrollLeft)+'px'
         });        
 
