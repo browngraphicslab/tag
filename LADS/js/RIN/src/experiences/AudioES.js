@@ -270,11 +270,11 @@
                     var keyframeDuration = nextKeyframeData.offset - keyframeData.offset;
                     var animation = new rin.internal.DoubleAnimation(keyframeDuration, currentKeyframeVolume, nextKeyframeVolume);
                     currentKeyframeVolume = animation.getValueAt(interpolationOffset);
-                    this._audio.volume = currentKeyframeVolume;
+                    this._audio.volume = _computeEffectiveVolume(currentKeyframeVolume);
                     this._animateVolume(keyframeDuration - interpolationOffset, nextKeyframeVolume);
                 }
                 else {
-                    this._audio.volume = currentKeyframeVolume;
+                    this._audio.volume = _computeEffectiveVolume(currentKeyframeVolume);
                 }
             }
         },

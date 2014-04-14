@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-04-09 */
+/*! RIN | http://research.microsoft.com/rin | 2014-04-14 */
 (function() {
     "use strict";
     var rin = window.rin || {};
@@ -2784,11 +2784,11 @@ window.rin = window.rin || {};
                     var keyframeDuration = nextKeyframeData.offset - keyframeData.offset;
                     var animation = new rin.internal.DoubleAnimation(keyframeDuration, currentKeyframeVolume, nextKeyframeVolume);
                     currentKeyframeVolume = animation.getValueAt(interpolationOffset);
-                    this._audio.volume = currentKeyframeVolume;
+                    this._audio.volume = _computeEffectiveVolume(currentKeyframeVolume);
                     this._animateVolume(keyframeDuration - interpolationOffset, nextKeyframeVolume);
                 }
                 else {
-                    this._audio.volume = currentKeyframeVolume;
+                    this._audio.volume = _computeEffectiveVolume(currentKeyframeVolume);
                 }
             }
         },

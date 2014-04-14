@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-04-09 */
+/*! RIN | http://research.microsoft.com/rin | 2014-04-14 */
 /*!
 * RIN Core JavaScript Library v1.0
 * http://research.microsoft.com/rin
@@ -7744,6 +7744,13 @@ window.rin = window.rin || {};
         this.volumeChangedEvent = rin.contracts.Event();
         this.volumeSlider.valueChangedEvent.subscribe(function (value) {
             self.volumeChangedEvent.publish(value);
+            // dz17 - fix volume button opacity not being set to correct opacity upon manual mute/unmute via slider
+            // rin treats all values <= 5 to be a mute, so this works
+            if (value <= 5) {
+                volumeButton.css({ "opacity": "0.4" });
+            } else {
+                volumeButton.css({ "opacity": "1.0" });
+            }
         });
         this.setVM = function (viewModel) {
             ko.applyBindings(viewModel, control.get(0));
