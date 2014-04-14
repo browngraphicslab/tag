@@ -42453,7 +42453,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             'padding-top': '10px'
         });
         var slideimg = $(document.createElement('img'));
-        slideimg.attr("src",tagPath+ 'images/icons/close_expand.svg');
+        slideimg.attr("src",tagPath+ 'images/icons/Close_expand.svg');
         slideimg.css({
             'width':'23px',
             'height': '40px',
@@ -42498,6 +42498,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             });
             var img = $(document.createElement('img'));
             img.attr("src",imgPath);
+<<<<<<< HEAD
             if (imgPath=='images/icons/zoom_plus.svg'){
                 img.css({
 
@@ -42550,6 +42551,28 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     'margin-left': '-4px',
                     'margin-bottom': '26px'
                     
+=======
+
+            // TODO should do the following by id in the .styl file
+            if (id==='zinControl' || id==='zoutControl'){
+                img.css({
+                    'width':'20px',
+                    'height': '20px',
+                    'max-width': '20px',
+                    'max-height': '20px'
+                 });
+            } else if (id==='rightControl'){
+                img.css({
+                    'margin-top': '-13px',
+                    'width':'23px',
+                    'height': '40px'
+                 });
+            } else if (id==='leftControl'){
+                img.css({
+                    'margin-top': '-13px',
+                    'width':'23px',
+                    'height': '40px'
+>>>>>>> 270565766d73900e7f269ac7983fd15d033b9f8d
                  });
             }
             button.addClass('seadragonManipButton');
