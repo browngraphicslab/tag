@@ -328,7 +328,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
                     playHolder = $(document.createElement('div'));
                     play = document.createElement('img');
-                    $(play).attr('src', 'images/icons/PlayWhite.svg');
+                    $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
                     $(play).addClass('videoControls');
                     $(play).css({
                         'position': 'relative',
@@ -347,7 +347,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
                     volHolder = $(document.createElement('div'));
                     vol = document.createElement('img');
-                    $(vol).attr('src', 'images/icons/VolumeUpWhite.svg');
+                    $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
                     $(vol).addClass('videoControls');
                     $(vol).css({
                         'height': '20px',
@@ -366,30 +366,30 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                     volHolder.append(vol);
                     this.initVideoPlayHandlers = function () {
                         if (video.currentTime !== 0) video.currentTime = 0;
-                        $(play).attr('src', 'images/icons/PlayWhite.svg');
+                        $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
                         $(play).on('click', function () {
                             if (video.paused) {
                                 video.play();
-                                $(play).attr('src', 'images/icons/PauseWhite.svg');
+                                $(play).attr('src', tagPath+'images/icons/PauseWhite.svg');
                             } else {
                                 video.pause();
-                                $(play).attr('src', 'images/icons/PlayWhite.svg');
+                                $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
                             }
                         });
 
                         $(vol).on('click', function () {
                             if (video.muted) {
                                 video.muted = false;
-                                $(vol).attr('src', 'images/icons/VolumeUpWhite.svg');
+                                $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
                             } else {
                                 video.muted = true;
-                                $(vol).attr('src', 'images/icons/VolumeDownWhite.svg');
+                                $(vol).attr('src', tagPath+'images/icons/VolumeDownWhite.svg');
                             }
                         });
 
                         $(video).on('ended', function () {
                             video.pause();
-                            $(play).attr('src', 'images/icons/PlayWhite.svg');
+                            $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
                         });
                     };
                     this.initVideoPlayHandlers();
@@ -494,7 +494,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
                     playHolder = $(document.createElement('div'));
                     play = document.createElement('img');
-                    $(play).attr('src', 'images/icons/PlayWhite.svg');
+                    $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
                     $(play).addClass('audioControls');
                     $(play).css({
                         'position': 'relative',
@@ -519,7 +519,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
                     volHolder = $(document.createElement('div'));
                     vol = document.createElement('img');
-                    $(vol).attr('src', 'images/icons/VolumeUpWhite.svg');
+                    $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
                     $(vol).addClass('audioControls');
                     $(vol).css({
                         'height': '20px',
@@ -539,30 +539,30 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                     this.initAudioPlayHandlers = function () {
                         if (audio.currentTime !== 0) audio.currentTime = 0;
                         audio.pause();
-                        $(play).attr('src', 'images/icons/PlayWhite.svg');
+                        $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
                         $(play).on('click', function () {
                             if (audio.paused) {
                                 audio.play();
-                                $(play).attr('src', 'images/icons/PauseWhite.svg');
+                                $(play).attr('src', tagPath+'images/icons/PauseWhite.svg');
                             } else {
                                 audio.pause();
-                                $(play).attr('src', 'images/icons/PlayWhite.svg');
+                                $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
                             }
                         });
 
                         $(vol).on('click', function () {
                             if (audio.muted) {
                                 audio.muted = false;
-                                $(vol).attr('src', 'images/icons/VolumeUpWhite.svg');
+                                $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
                             } else {
                                 audio.muted = true;
-                                $(vol).attr('src', 'images/icons/VolumeDownWhite.svg');
+                                $(vol).attr('src', tagPath+'images/icons/VolumeDownWhite.svg');
                             }
                         });
 
                         $(audio).on('ended', function () {
                             audio.pause();
-                            $(play).attr('src', 'images/icons/PlayWhite.svg');
+                            $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
                         });
                     };
 
@@ -845,12 +845,12 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             if (this.contentType === 'Audio' && audio) {
                 if (audio.currentTime !== 0) audio.currentTime = 0;
                 audio.pause();
-                $(play).attr('src', 'images/icons/PlayWhite.svg');
+                $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
             }
             else if (this.contentType === 'Video' && video) {
                 if (video.currentTime > 0.1) video.currentTime = 0;
                 if (!video.paused) video.pause();
-                $(play).attr('src', 'images/icons/PlayWhite.svg');
+                $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
             }
         }
 
