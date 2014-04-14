@@ -42453,7 +42453,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             'padding-top': '10px'
         });
         var slideimg = $(document.createElement('img'));
-        slideimg.attr("src",tagPath+ 'images/icons/Close_expand.svg');
+        slideimg.attr("src",tagPath+ 'images/icons/close_expand.svg');
         slideimg.css({
             'width':'23px',
             'height': '40px',
@@ -42498,83 +42498,35 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             });
             var img = $(document.createElement('img'));
             img.attr("src",imgPath);
-<<<<<<< HEAD
             if (imgPath=='images/icons/zoom_plus.svg'){
-                img.css({
+            img.css({
 
-                    'width':'50%',
-                    'margin-right': '-30px',
-                    'margin-top': '-30px',
-                    'margin-bottom': '10px'
-                    
-                 });
-            }
+                'width':'50%'
+                
+             });
+        }
             if (imgPath=='images/icons/zoom_minus.svg'){
-                img.css({
-                    'width':'50%',
-                    'margin-left': '25px'
-                    
-                 });
-            }
-                if (imgPath=='images/icons/zoom_right.svg'){
-                    img.css({
-                        'margin-top': '-30px',
-                        'margin-left': '-37px',
-                        'width': '23px',
-                        'height': '40px',
-                        'margin-right': '-1.5px'
-                     });
+            img.css({
+                'width':'50%'
+                
+             });
+        }
+            if (imgPath=='images/icons/zoom_right.svg'){
+            img.css({
+                'margin-top': '-13px',
+                'width':'23px',
+                'height': '40px'
+             });
 
-                     
-                }
+             
+        }
            if (imgPath=='images/icons/zoom_left.svg'){
-               img.css({
-               'margin-top': '-30px',
-               'margin-left': '25px',
-               'width':'23px',
-               'height': '40px'
-                 });
-            }
-            
-            if (imgPath=='images/icons/zoom_up.svg'){
-                img.css({
-                    'margin-top': '4px',
-                    'margin-left': '-3px'
-                    
-                 });
-            }
-
-            if (imgPath=='images/icons/zoom_down.svg'){
-                img.css({
-                    'margin-top': '-55px',
-                    'margin-right': '-3px',
-                    'margin-left': '-4px',
-                    'margin-bottom': '26px'
-                    
-=======
-
-            // TODO should do the following by id in the .styl file
-            if (id==='zinControl' || id==='zoutControl'){
-                img.css({
-                    'width':'20px',
-                    'height': '20px',
-                    'max-width': '20px',
-                    'max-height': '20px'
-                 });
-            } else if (id==='rightControl'){
-                img.css({
-                    'margin-top': '-13px',
-                    'width':'23px',
-                    'height': '40px'
-                 });
-            } else if (id==='leftControl'){
-                img.css({
-                    'margin-top': '-13px',
-                    'width':'23px',
-                    'height': '40px'
->>>>>>> 270565766d73900e7f269ac7983fd15d033b9f8d
-                 });
-            }
+            img.css({
+                'margin-top': '-13px',
+                'width':'23px',
+                'height': '40px'
+             });
+        }
             button.addClass('seadragonManipButton');
             button.append(img);
             return button;
