@@ -238,12 +238,13 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         this.description = info.description;
         this.thumbnail = info.thumbnail;
         var assetHidden = true;
+        var audio, video;
 
         var outerContainer = document.createElement('div');
         outerContainer.style.width = Math.min(Math.max(250, ($('#tagContainer').width() / 5)), 450)+'px';
 
         var innerContainer = document.createElement('div');
-        var mediaContainer = $(document.createElement('div'));
+        var mediaContainer = $(document.createElement('div')).addClass('mediaContainer');
 
         // media-specific
         var controlPanel = $(document.createElement('div')),
@@ -291,6 +292,11 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         var hoverString, setHoverValue;
         
         this.mediaload=function(){
+            if(!imgadded) {
+                imgadded = true;
+            } else {
+                return;
+            }
             if (this.contentType === 'Image') {
                 
                 
@@ -302,16 +308,14 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                     height: 'auto'
                 });
                 console.log("appending new image");
-                if (!imgadded) {
-                    mediaContainer.append(img);
-                    imgadded = true;
-                }
+                mediaContainer.append(img);
+                imgadded = true;
             }
 
              
             if (this.contentType === 'Video') {
                 
-                    var video = document.createElement('video');
+                    video = document.createElement('video');
                     $(video).attr('preload', 'none');
                     $(video).attr('poster', (this.thumbnail && !this.thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(this.thumbnail) : '');
                     video.src = LADS.Worktop.Database.fixPath(this.source);
@@ -321,8 +325,6 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                     video.style.position = 'relative';
                     video.style.width = '100%';
                     video.controls = false;
-
-                    mediaContainer.append(video);
 
                     playHolder = $(document.createElement('div'));
                     play = document.createElement('img');
@@ -466,7 +468,11 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                         $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
                     });
 
+                    // if(!imgadded) {
+                    mediaContainer.append(video);
                     mediaContainer.append(controlPanel[0]);
+                    //    imgadded = true;
+                    //}
                     controlPanel.append(playHolder);
                     controlPanel.append(seekBar);
                     $(timeContainer).append(currentTimeDisplay);
@@ -475,14 +481,16 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 }
 
                 
-                    if (this.contentType === 'Audio') {
-                    
-                    var audio = document.createElement('audio');
-                    $(audio).attr('preload', 'none');
+                if (this.contentType === 'Audio') {
+                    // debugger;
+                    audio = document.createElement('audio');
+                    $(audio).attr({
+                        'preload': 'none'
+                    });
                     audio.src = LADS.Worktop.Database.fixPath(this.source);
                     audio.type = 'audio/ogg';
-                    audio.type = 'audio/mp3';
-                    audio.controls = 'false';
+                    audio.type = 'audio/mp3'; // TODO <-- we should be overwriting types!
+                    audio.removeAttribute('controls');
 
                     playHolder = $(document.createElement('div'));
                     play = document.createElement('img');
@@ -634,14 +642,19 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                         $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
                     });
 
+                    // if(!imgadded) {
+                    mediaContainer.append(audio);
                     mediaContainer.append(controlPanel[0]);
+                    //     imgadded = true;
+                    // }
+                    
                     controlPanel.append(playHolder);
                     controlPanel.append(seekBar);
                     $(timeContainer).append(currentTimeDisplay);
                     controlPanel.append(timeContainer);
                     controlPanel.append(volHolder);
             }
-        };
+        }
 
         $(innerContainer).append(mediaContainer);
        
@@ -672,7 +685,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         function resizeControlElements() {
             // scale control panel
             var cpSize = LADS.Util.constrainAndPosition(
-                $(innerContainer).width(), $(innerContainer).height(),
+                $(innerContainer).width()-20, $(innerContainer).height(),
                 {
                     width: 1,
                     height: 1,
@@ -742,7 +755,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             var textFontSize = LADS.Util.getMaxFontSizeEM("99:99", 0, textEltSize.width, textEltSize.height, 0.05);
 
             $(timeContainer).css({
-                width: textEltSize.width + 'px',
+                width: (textEltSize.width + 5) + 'px',
                 height: textEltSize.height + 'px',
                 top: textEltSize.y + 'px',
             });
@@ -814,7 +827,8 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             }
         };
 
-        function hideAsset() {
+        this.hideAsset = function() {
+            this.pauseAsset();
             $(outerContainer).hide();
             assetHidden = true;
         }
@@ -823,17 +837,17 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             if (assetHidden) {
                 showAsset();
             } else {
-                hideAsset();
+                this.hide();
             }
         };
 
-        this.pauseAsset = function () {
-            if (this.contentType === 'Audio') {
+        this.pauseAsset = function() {
+            if (this.contentType === 'Audio' && audio) {
                 if (audio.currentTime !== 0) audio.currentTime = 0;
                 audio.pause();
                 $(play).attr('src', 'images/icons/PlayWhite.svg');
             }
-            else if (this.contentType === 'Video') {
+            else if (this.contentType === 'Video' && video) {
                 if (video.currentTime > 0.1) video.currentTime = 0;
                 if (!video.paused) video.pause();
                 $(play).attr('src', 'images/icons/PlayWhite.svg');
@@ -861,7 +875,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 source: info.source,
                 thumbnail: info.thumbnail,
                 toggle: this.toggle,
-                hide: hideAsset,
+                hide: this.hideAsset,
                 show: showAsset,
                 resize: resizeControlElements,
                 pauseAsset: this.pauseAsset,
@@ -960,6 +974,9 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 $(circle).hide();
                 $(hotspot.getRoot()).hide();
             }
+
+            hotspot.pauseAsset();
+
             isCircleShowing = false;
             isOn = false;
             isInfoShowing = false;
