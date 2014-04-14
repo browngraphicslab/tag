@@ -161,34 +161,58 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             var img = $(document.createElement('img'));
             img.attr("src",imgPath);
             if (imgPath=='images/icons/zoom_plus.svg'){
-            img.css({
+                img.css({
 
-                'width':'50%'
-                
-             });
-        }
+                    'width':'50%',
+                    'margin-right': '-30px',
+                    'margin-top': '-30px',
+                    'margin-bottom': '10px'
+                    
+                 });
+            }
             if (imgPath=='images/icons/zoom_minus.svg'){
-            img.css({
-                'width':'50%'
-                
-             });
-        }
+                img.css({
+                    'width':'50%',
+                    'margin-left': '25px'
+                    
+                 });
+            }
             if (imgPath=='images/icons/zoom_right.svg'){
-            img.css({
-                'margin-top': '-13px',
-                'width':'23px',
-                'height': '40px'
-             });
+                img.css({
+                    'margin-top': '-30px',
+                    'margin-left': '-37px',
+                    'width': '23px',
+                    'height': '40px',
+                    'margin-right': '-1.5px'
+                 });
 
-             
-        }
+                 
+            }
            if (imgPath=='images/icons/zoom_left.svg'){
-            img.css({
-                'margin-top': '-13px',
-                'width':'23px',
-                'height': '40px'
-             });
-        }
+           img.css({
+                   'margin-top': '-30px',
+                   'margin-left': '25px',
+                   'width':'23px',
+                   'height': '40px'
+                 });
+            }
+            if (imgPath=='images/icons/zoom_up.svg'){
+                img.css({
+                    'margin-top': '4px',
+                    'margin-left': '-3px'
+                    
+                 });
+            }
+
+            if (imgPath=='images/icons/zoom_down.svg'){
+                img.css({
+                    'margin-top': '-55px',
+                    'margin-right': '-3px',
+                    'margin-left': '-4px',
+                    'margin-bottom': '26px'
+                    
+                 });
+            }
             button.addClass('seadragonManipButton');
             button.append(img);
             return button;
