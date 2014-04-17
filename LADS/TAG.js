@@ -30645,8 +30645,6 @@ LADS.Util = (function () {
     return {
         makeNamespace: namespace,
         setToDefaults: setToDefaults,
-        //localSettings: applicationData.localSettings,
-        //localFolder: applicationData.localFolder,
         getGestureRecognizer: getGestureRecognizer,
         makeXmlRequest: makeXmlRequest,
         makeManipulatable: makeManipulatable,
@@ -41967,7 +41965,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         handGif.onclick = switchPage;
         //opens the exhibitions page on touch/click
         function switchPage() {
-            var newCatalog = new LADS.Layout.NewCatalog();
+            var newCatalog = LADS.Layout.NewCatalog();
             overlay.on('click', function(){});
             LADS.Util.UI.slidePageLeft(newCatalog.getRoot());
         }
@@ -44068,7 +44066,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
 
         var displayHelpText = $(document.createElement('div'));
         displayHelpText.attr('id' ,'displayHelpText');
-        displayHelpText.text("Select an exhibition or tour from the left menu to begin exploring artworks");
+        displayHelpText.text("Select a collection from the left menu and browse artworks below.");
 
         displayHelp.append(displayHelpTitle);
         displayHelp.append(displayHelpText);
@@ -44431,7 +44429,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
     }
 
     function getArtworks(exhibition, callback) {//get rid of this func
-         LADS.Worktop.Database.getArtworksIn(exhibition.Identifier, getArtworksHelper, null, getArtworksHelper);
+        LADS.Worktop.Database.getArtworksIn(exhibition.Identifier, getArtworksHelper, null, getArtworksHelper);
 
         function getArtworksHelper(artworks) {
             if (!artworks || !artworks[0]) {//pops up a box warning user there is no artwork in the selected exhibition

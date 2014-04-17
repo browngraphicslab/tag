@@ -105,7 +105,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         handGif.onclick = switchPage;
         //opens the exhibitions page on touch/click
         function switchPage() {
-            var newCatalog = new LADS.Layout.NewCatalog();
+            var newCatalog = LADS.Layout.NewCatalog();
             overlay.on('click', function(){});
             LADS.Util.UI.slidePageLeft(newCatalog.getRoot());
         }

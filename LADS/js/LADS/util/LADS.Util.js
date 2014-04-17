@@ -19,8 +19,6 @@ LADS.Util = (function () {
     return {
         makeNamespace: namespace,
         setToDefaults: setToDefaults,
-        //localSettings: applicationData.localSettings,
-        //localFolder: applicationData.localFolder,
         getGestureRecognizer: getGestureRecognizer,
         makeXmlRequest: makeXmlRequest,
         makeManipulatable: makeManipulatable,
