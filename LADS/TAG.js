@@ -42704,9 +42704,44 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             var a = 0;
         }
         function onMinimapTapped(evt) {
-            var a = 0;
-        }
+            console.log("here")
+            /**
+            var minimaph = minimap.height();
+            var minimapw = minimap.width();
+            var minimapt = minimap.position().top;
+            var minimapl = parseFloat(minimap.css('marginLeft'));
 
+            //var parentPos = getPos(evt.currentTarget);
+            var xPos = evt.clientX //- parentPos.x;
+            var yPos = evt.clientY //- parentPos.y;
+            //x = (x - minimapl) / minimapw;
+            //y = (y - minimapt) / minimaph;
+            //y = y / AR;
+            //x = Math.max(0, Math.min(x, 1));
+           // y = Math.max(0, Math.min(y, 1 / AR));
+           // var s = 1 + (1 - evt.scale);
+           // if (s) zoomimage.viewer.viewport.zoomBy(s, false);
+            //zoomimage.viewer.viewport.panTo(new Seadragon.Point(x, y), true);
+            //zoomimage.viewer.viewport.applyConstraints();
+            minimaprect.css({
+                top: minimapContainer.height() + "px",
+                left: (minimapl - 1) + "px"
+            });
+                **/
+        }
+        
+        /**
+        function getPos(element){
+                var xPos = 0;
+                var yPos = 0;
+                while (element){
+                    xPos += (element.offsetLeft-element.scrollLeft+element.clientLeft);
+                    yPos += (element.offsetTop- element.scrollTop + element.clientTop);
+                    element = element.offsetParent;
+                }
+                return {x:xPos,y:yPos}
+            }
+            **/
         img.onload = minimapLoaded;
         //should be complete image of artwork NOT thumbnail
         img.src = LADS.Worktop.Database.fixPath(doq.URL);
@@ -45259,9 +45294,23 @@ LADS.Util.makeNamespace("LADS.Authoring.SettingsView");
 */
 LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabelID) {
     "use strict";
+
+    var root = LADS.Util.getHtmlAjax('SettingsView.html'), //Get html from html file
+        leftLoading = root.find('#setViewLoadingCircle')
+        settingsContainer = root.find('#setViewSettingsContainer')
+        searchContainer = root.find('#setViewSearchContainer');
+        leftbar = root.find('#setViewLeftBar');
+        leftLabelContainer = root.find('#setViewLeftLabelContainer');
+        rightbar = root.find('#setViewRightBar');
+        viewer = root.find('#setViewViewer');
+        buttonContainer = root.find('#setViewButtonContainer');
+        settings = root.find('#setViewSettingsBar');
     // Constants
     // Stuff that's commented here is used to put the nav bar on top
     // under the top bar instead of putting it on the left.
+
+    //TODO: Should be able to delete constants after factoring:
+    /**
     var ROOT_BGCOLOR = 'rgb(219,217,204)',
         ROOT_COLOR = 'black',
         TEXT_COLOR = 'black',
@@ -45293,7 +45342,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         DEFAULT_SEARCH_TEXT = 'Search...',
         PICKER_SEARCH_TEXT = 'Search by Name, Artist, or Year...';
 
-
+    **/
     // Text for Navagation labels
     var NAV_TEXT = {
         general: {
@@ -45322,6 +45371,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         },
     };
 
+    //TODO: figure out if i need to instantiate all these, delete ones from root
     var that = {
         getRoot: getRoot,
     },
@@ -45358,7 +45408,8 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         mediaUncheckedIDs = [], // artworks unchecked in associated media uploading
         editArt; // enter artwork editor button
 
-    // Sets up the UI
+    // TODO: Should be able to delete when factored: 
+    /**
     function init() {
         root = $(document.createElement('div'));
         root.css({
@@ -45419,7 +45470,67 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         if (callback)
             callback(that);
     }
+    **/
+    var that2 = {};
 
+    //TODO- new function to help set up layout
+    function loadHelper(main){
+
+    //UI stuff-->copying over dynamic parts from helper methods
+
+        //Set up Back button and label in top bar:
+
+        var backButton = root.find('#setViewBackButton');
+        backButton.attr('src', 'images/icons/Back.svg');
+
+        backButton.mousedown(function () {
+            LADS.Util.UI.cgBackColor("backButton", backButton, false);
+        });
+
+        backButton.mouseleave(function () {
+            LADS.Util.UI.cgBackColor("backButton", backButton, true);
+        });
+
+        backButton.click(function () {
+            LADS.Auth.clearToken();
+            rightQueue.clear();
+            leftQueue.clear();
+            backButton.off('click');
+            if (backPage) {
+                var bpage = backPage();
+                LADS.Util.UI.slidePageRight(bpage);
+            } else {
+                LADS.Layout.StartPage(null, function (page) {
+                    LADS.Util.UI.slidePageRight(page);
+                });
+            }
+        });
+
+        var topBarLabel = root.find('#setViewTopBarLabel');
+        var topBarLabelSpecs = LADS.Util.constrainAndPosition($(window).width(), $(window).height() * 0.08,
+        {
+            width: 0.4,
+            height: 0.9,
+        });
+        topBarLabel.css({
+            'height': topBarLabelSpecs.height + 'px',
+            'width': topBarLabelSpecs.width + 'px',
+        });
+        var fontsize = LADS.Util.getMaxFontSizeEM('Tour Authoring', 0.5, topBarLabelSpecs.width, topBarLabelSpecs.height * 0.8, 0.1);
+        topBarLabel.css({ 'font-size': fontsize });
+        topBarLabel.text('Authoring Mode');
+
+        //Add text to navigation bar:
+
+        navBar.append(nav[NAV_TEXT.general.text] = createNavLabel(NAV_TEXT.general, loadGeneralView));
+        navBar.append(nav[NAV_TEXT.exhib.text] = createNavLabel(NAV_TEXT.exhib, loadExhibitionsView));
+        navBar.append(nav[NAV_TEXT.art.text] = createNavLabel(NAV_TEXT.art, loadArtView));
+        navBar.append(nav[NAV_TEXT.media.text] = createNavLabel(NAV_TEXT.media, loadAssocMediaView)); // COMMENT!!!!!!!!
+        navBar.append(nav[NAV_TEXT.tour.text] = createNavLabel(NAV_TEXT.tour, loadTourView));
+        navBar.append(nav[NAV_TEXT.feedback.text] = createNavLabel(NAV_TEXT.feedback, loadFeedbackView));
+
+        return that2
+    }
     // Programatically switch view
     function switchView(view, id) {
         resetLabels('.navContainer');
@@ -45458,8 +45569,11 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }
     }
 
+    //TODO->see if I needed this. 
+    /**
     init();
     return that;
+    **/
 
     // Functions that can be called from external sources
 
@@ -48110,23 +48224,27 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     // Helper functions for creating and managing the UI
 
     // Creates the top bar where the back button and 'Authoring Mode' label are
-    function createTopBar() {
-        var topBar = $(document.createElement('div'));
-        topBar.css({
-            'background-color': TOPBAR_BGCOLOR,
-            'width': '100%',
-            'height': TOPBAR_HEIGHT + '%',
-        });
+    //TODO- delete all these when done factoring, move all the dynamic parts to loadingHelper
+
+    //Moved to helper method: 
+    /**
+   // function createTopBar() {
+        //var topBar = $(document.createElement('div'));
+        //topBar.css({
+           // 'background-color': TOPBAR_BGCOLOR,
+            //'width': '100%',
+            //'height': TOPBAR_HEIGHT + '%',
+       // });
 
         var backButton = $(document.createElement('img'));
         backButton.attr('src', 'images/icons/Back.svg');
-        backButton.css({
-            'height': '63%',
-            'margin-left': '1.2%',
-            'width': 'auto',
-            'top': '18.5%',
-            'position': 'relative',
-        });
+        //backButton.css({
+            //'height': '63%',
+            //'margin-left': '1.2%',
+          //  'width': 'auto',
+          //  'top': '18.5%',
+          //  'position': 'relative',
+       // });
 
         backButton.mousedown(function () {
             LADS.Util.UI.cgBackColor("backButton", backButton, false);
@@ -48157,37 +48275,40 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             width: 0.4,
             height: 0.9,
         });
-        topBarLabel.css({
-            'margin-right': '2%',
-            'margin-top': 8 * 0.045 + '%',
-            'color': 'white',
-            'position': 'absolute',
-            'text-align': 'right',
-            'right': '0px',
-            'top': '0px',
+        //topBarLabel.css({
+           // 'margin-right': '2%',
+           // 'margin-top': 8 * 0.045 + '%',
+           // 'color': 'white',
+           // 'position': 'absolute',
+           // 'text-align': 'right',
+           // 'right': '0px',
+            //'top': '0px',
+            //Dont delete:
             'height': topBarLabelSpecs.height + 'px',
             'width': topBarLabelSpecs.width + 'px',
-        });
+       // });
 
         var fontsize = LADS.Util.getMaxFontSizeEM('Tour Authoring', 0.5, topBarLabelSpecs.width, topBarLabelSpecs.height * 0.8, 0.1);
         topBarLabel.css({ 'font-size': fontsize });
 
         topBarLabel.text('Authoring Mode');
 
-        topBar.append(backButton);
-        topBar.append(topBarLabel);
+        //topBar.append(backButton);
+       // topBar.append(topBarLabel);
 
-        return topBar;
-    }
-
+        //return topBar;
+   // }
+    **/
+    //Moved to helper method:
     // Creates the nav bar
-    function createNavBar() {
-        var navBar = $(document.createElement('div'));
-        navBar.css({
-            'height': NAVBAR_HEIGHT,
-            'float': 'left',
-            'width': NAV_WIDTH + '%',
-        });
+    /**
+    //function createNavBar() {
+        //var navBar = $(document.createElement('div'));
+        //navBar.css({
+            //'height': NAVBAR_HEIGHT,
+            //'float': 'left',
+            //'width': NAV_WIDTH + '%',
+        //});
 
         // Assing the nav labels to a nav object with their name as the key
         navBar.append(nav[NAV_TEXT.general.text] = createNavLabel(NAV_TEXT.general, loadGeneralView));
@@ -48197,12 +48318,14 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         navBar.append(nav[NAV_TEXT.tour.text] = createNavLabel(NAV_TEXT.tour, loadTourView));
         navBar.append(nav[NAV_TEXT.feedback.text] = createNavLabel(NAV_TEXT.feedback, loadFeedbackView));
 
-        return navBar;
-    }
-
+       // return navBar;
+   // }
+        **/
     // Creates a single nav label.  text is an object
     // with keys 'text' and 'subtext' and onclick is called
     // when the label is clicked
+
+    //TODO-> make it so nav labels aren't created dynamically...
     function createNavLabel(text, onclick) {
         var container = $(document.createElement('div'));
         container.attr('class', 'navContainer');
@@ -48271,6 +48394,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     }
 
     // Create the left bar container where the search bar and left bar are placed
+    /**
     function createLeftBarContainer() {
         var container = $(document.createElement('div'));
         container.css({
@@ -48279,14 +48403,16 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         });
         return container;
     }
-
+    **/
     // Holds the left bar for scrolling
+    /**
     function createLeftBar() {
         var container = $(document.createElement('div'));
         container.css({
             // Set the height to CONTENT_HEIGHT percent of the window height, but subtract
             // LEFT_LABEL_HEIGHT for the search bar which goes above it and the margin for the
             // search bar
+            //Dont delete:
             'height': ($(window).height() * CONTENT_HEIGHT / 100 - (LEFT_LABEL_HEIGHT * 1 + $(window).width() * 0.22 * 0.05)) + 'px',
             'width': '100%',
             'overflow': 'auto',
@@ -48294,7 +48420,8 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
 
         return container;
     }
-
+    **/
+//WHERE I STOPPED WITH THE MOVING AROUND ON 4-17 LUCYvK
     // Create the label container where labels are added
     function createLeftLabelContainer() {
         var container = $(document.createElement('div'));
@@ -48540,6 +48667,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         var container = $(document.createElement('div'));
         container.attr('id', 'previewContainer');
         container.css({
+            //dont Delete:
             'width': $(window).width() * RIGHT_WIDTH / 100 + 'px', // 100% should work, need to figure out height though
             'height': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
             'color': 'white',
@@ -48560,6 +48688,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         container.css({
             'width': '100%',
             'position': 'absolute',
+            //Dont delete:
             'top': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
             'height': BUTTON_HEIGHT + 'px',
             'z-index': '5',
@@ -48574,7 +48703,8 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     function createSettings() {
         var container = $(document.createElement('div'));
         container.css({
-            // Be careful with this height
+            // Be careful with this height--
+            //Dont delete:
             'height': getSettingsHeight() + 'px',
             'width': '100%',
             'position': 'absolute',

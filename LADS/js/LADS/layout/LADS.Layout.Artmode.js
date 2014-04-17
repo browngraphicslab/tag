@@ -617,9 +617,44 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             var a = 0;
         }
         function onMinimapTapped(evt) {
-            var a = 0;
-        }
+            console.log("here")
+            /**
+            var minimaph = minimap.height();
+            var minimapw = minimap.width();
+            var minimapt = minimap.position().top;
+            var minimapl = parseFloat(minimap.css('marginLeft'));
 
+            //var parentPos = getPos(evt.currentTarget);
+            var xPos = evt.clientX //- parentPos.x;
+            var yPos = evt.clientY //- parentPos.y;
+            //x = (x - minimapl) / minimapw;
+            //y = (y - minimapt) / minimaph;
+            //y = y / AR;
+            //x = Math.max(0, Math.min(x, 1));
+           // y = Math.max(0, Math.min(y, 1 / AR));
+           // var s = 1 + (1 - evt.scale);
+           // if (s) zoomimage.viewer.viewport.zoomBy(s, false);
+            //zoomimage.viewer.viewport.panTo(new Seadragon.Point(x, y), true);
+            //zoomimage.viewer.viewport.applyConstraints();
+            minimaprect.css({
+                top: minimapContainer.height() + "px",
+                left: (minimapl - 1) + "px"
+            });
+                **/
+        }
+        
+        /**
+        function getPos(element){
+                var xPos = 0;
+                var yPos = 0;
+                while (element){
+                    xPos += (element.offsetLeft-element.scrollLeft+element.clientLeft);
+                    yPos += (element.offsetTop- element.scrollTop + element.clientTop);
+                    element = element.offsetParent;
+                }
+                return {x:xPos,y:yPos}
+            }
+            **/
         img.onload = minimapLoaded;
         //should be complete image of artwork NOT thumbnail
         img.src = LADS.Worktop.Database.fixPath(doq.URL);

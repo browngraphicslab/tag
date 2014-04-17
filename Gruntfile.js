@@ -115,7 +115,8 @@ module.exports = function(grunt) {
 						'LADS/css/NewCatalog.styl',
 						'LADS/css/VideoPlayer.styl',
 						'LADS/css/TourPlayer.styl',
-						'LADS/css/General.styl'
+						'LADS/css/General.styl',
+						'LADS/css/SettingsView.styl'
 					]
 				}
 			}
@@ -131,7 +132,8 @@ module.exports = function(grunt) {
 					'LADS/html/Artmode.html': 'LADS/html/Artmode.jade',
 					'LADS/html/NewCatalog.html': 'LADS/html/NewCatalog.jade',
 					'LADS/html/VideoPlayer.html': 'LADS/html/VideoPlayer.jade',
-					'LADS/html/TourPlayer.html': 'LADS/html/TourPlayer.jade'
+					'LADS/html/TourPlayer.html': 'LADS/html/TourPlayer.jade',
+					'LADS/html/SettingsView.html':'LADS/html/SettingsView.jade'
 				}
 			}
 		},
