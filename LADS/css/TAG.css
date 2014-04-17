@@ -413,28 +413,24 @@
   z-index: 50;
 }
 #artmodeRoot .seadragonManipButton {
-  background-color: rgba(0,0,0,0);
   cursor: pointer;
   height: 40px;
-  max-height: 40px;
-  max-width: 40px;
-  padding-top: 15px;
   position: absolute;
   text-align: center;
   width: 40px;
 }
 #artmodeRoot #seadragonManipContainer {
   background-color: rgba(0,0,0,0.85);
-  height: 120px;
+  height: 100px;
   position: absolute;
-  top: -120px;
+  top: -100px;
   width: 160px;
   z-index: 10000000;
 }
 #artmodeRoot #seadragonManipSlideButton {
   background-color: rgba(0,0,0,0.85);
   position: absolute;
-  top: 120px;
+  top: 100px;
   text-align: center;
   height: 30px;
   width: 160px;

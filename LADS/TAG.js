@@ -42489,7 +42489,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 document.getElementById("seadragonManipSlideButton").innerHTML="Show Controls";
             }
             if(count%2===1){
-                top = -120;
+                top = -100;
                 document.getElementById("seadragonManipSlideButton").innerHTML = '';
                 slidebutton.append(slideimg);
                 
@@ -42499,47 +42499,32 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         });
         
         container.append(slidebutton);
-        container.append(createButton('leftControl', tagPath+ 'images/icons/zoom_left.svg', 40, 40));
-        container.append(createButton('upControl', tagPath+'images/icons/zoom_up.svg', 80, 0));
-        container.append(createButton('rightControl', tagPath+'images/icons/zoom_right.svg', 120, 40));
-        container.append(createButton('downControl', tagPath+'images/icons/zoom_down.svg', 80, 80));
-        container.append(createButton('zinControl', tagPath+'images/icons/zoom_plus.svg', 0, 20));
-        container.append(createButton('zoutControl', tagPath+'images/icons/zoom_minus.svg', 0, 60));
+        container.append(createButton('leftControl', tagPath+ 'images/icons/zoom_left.svg', 60, 40));
+        container.append(createButton('upControl', tagPath+'images/icons/zoom_up.svg', 80, 20));
+        container.append(createButton('rightControl', tagPath+'images/icons/zoom_right.svg', 100, 40));
+        container.append(createButton('downControl', tagPath+'images/icons/zoom_down.svg', 80, 60));
+        container.append(createButton('zinControl', tagPath+'images/icons/zoom_plus.svg', 20, 20));
+        container.append(createButton('zoutControl', tagPath+'images/icons/zoom_minus.svg', 20, 60));
 
         function createButton(id, imgPath, left, top) {
-            var button = $(document.createElement('div'));
-            button.attr('id', id);
-            button.css({
-                left: left,
-                top: top
-            });
+            
             var img = $(document.createElement('img'));
             img.attr("src",imgPath);
+            img.attr('id',id);
+            img.css({
+                left : left,
+                top: top
+            });
+             img.addClass('seadragonManipButton');
+             container.append(img);
 
             // TODO should do the following by id in the .styl file
-            if (id==='zinControl' || id==='zoutControl'){
+            if (id==='zinControl' || id ==='zoutControl'){
                 img.css({
-                    'width':'20px',
-                    'height': '20px',
-                    'max-width': '20px',
-                    'max-height': '20px'
+                    'width':'25px'
                  });
-            } else if (id==='rightControl'){
-                img.css({
-                    'margin-top': '-13px',
-                    'width':'23px',
-                    'height': '40px'
-                 });
-            } else if (id==='leftControl'){
-                img.css({
-                    'margin-top': '-13px',
-                    'width':'23px',
-                    'height': '40px'
-                 });
-            }
-            button.addClass('seadragonManipButton');
-            button.append(img);
-            return button;
+            } 
+            return img;
         }
         
 
