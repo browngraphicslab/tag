@@ -230,7 +230,15 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
             }, 100);
         });
-        $('.seadragonManipButton').on('mouseup mouseleave', function() {
+        $('.seadragonManipButtonLR').on('mouseup mouseleave', function() {
+            clearInterval(interval);
+        });
+
+        $('.seadragonManipButtonUD').on('mouseup mouseleave', function() {
+            clearInterval(interval);
+        });
+
+        $('.seadragonManipButtoninout').on('mouseup mouseleave', function() {
             clearInterval(interval);
         });
     }
