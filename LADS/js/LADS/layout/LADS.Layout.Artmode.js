@@ -123,6 +123,9 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             'margin-top':'-10px'
         });
         
+        var D_PAD_LEFT = 60;
+        var D_PAD_TOP = 26;
+
         document.getElementById("seadragonManipSlideButton").innerHTML="Show Controls";
         var top = 0;
         var count = 0;
@@ -137,19 +140,17 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 top = -100;
                 document.getElementById("seadragonManipSlideButton").innerHTML = '';
                 slidebutton.append(slideimg);
-                
-
-               }
+            }
                 
         });
         
         container.append(slidebutton);
-        container.append(createButton('leftControl', tagPath+ 'images/icons/zoom_left.svg', 60, 40));
-        container.append(createButton('upControl', tagPath+'images/icons/zoom_up.svg', 80, 20));
-        container.append(createButton('rightControl', tagPath+'images/icons/zoom_right.svg', 100, 40));
-        container.append(createButton('downControl', tagPath+'images/icons/zoom_down.svg', 80, 60));
-        container.append(createButton('zinControl', tagPath+'images/icons/zoom_plus.svg', 20, 20));
-        container.append(createButton('zoutControl', tagPath+'images/icons/zoom_minus.svg', 20, 60));
+        container.append(createButton('leftControl', tagPath+ 'images/icons/zoom_left.svg', 60, D_PAD_TOP + 14));
+        container.append(createButton('upControl', tagPath+'images/icons/zoom_up.svg', D_PAD_LEFT + 12, D_PAD_TOP + 2));
+        container.append(createButton('rightControl', tagPath+'images/icons/zoom_right.svg', D_PAD_LEFT+41, D_PAD_TOP + 14));
+        container.append(createButton('downControl', tagPath+'images/icons/zoom_down.svg', D_PAD_LEFT+12, D_PAD_TOP+43));
+        container.append(createButton('zinControl', tagPath+'images/icons/zoom_plus.svg', D_PAD_LEFT-40, D_PAD_TOP-6));
+        container.append(createButton('zoutControl', tagPath+'images/icons/zoom_minus.svg', D_PAD_LEFT-40, D_PAD_TOP+34));
 
         function createButton(id, imgPath, left, top) {
             
@@ -160,7 +161,15 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 left : left,
                 top: top
             });
-             img.addClass('seadragonManipButton');
+            if (id==='leftControl' || id ==='rightControl'){
+                img.addClass('seadragonManipButtonLR');
+            }
+            if (id==='upControl'|| id==='downControl'){
+                img.addClass('seadragonManipButtonUD');
+            }
+            if (id==='zinControl'|| id==='zoutControl'){
+                img.addClass('seadragonManipButtoninout');
+            }
              container.append(img);
 
             // TODO should do the following by id in the .styl file
