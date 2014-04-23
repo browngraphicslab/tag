@@ -13,7 +13,10 @@
 	// some constants
 	var PORT = 9999,
 		NOT_AVAIL = "_",
-	    MAX_BODY_LENGTH = Math.pow(10,6);
+	    MAX_BODY_LENGTH = Math.pow(10,6),
+	    WRITE_DATA = writeTDataToFile,
+	    READ_DATA = readTDataFromFile,
+	    LOG_FILE_PATH = 'telemetry_log.txt';
 
 	// create server
 	http.createServer(function (request, response) {
@@ -41,6 +44,7 @@
 		var requestBody = '',
 			parsedBody,
 			date = new Date(),
+			printData,
 			tdata; // telemetry data
 
 		// read in data from request as it becomes available
@@ -68,16 +72,7 @@
 				time_human: date.toString()                         // human-readable time
 			};
 
-			fs.writeFile('telemetry_log.txt', JSON.stringify(tdata)+',', {flag: 'a'}, function(err){
-				if(err) {
-					console.log('err: '+err);
-				} else {
-					console.log('interaction successfully written to log:');
-					console.log('       time: '+date.toString());
-					console.log('       type: '+parsedBody.ttype);
-					console.log('');
-				}
-			});
+			WRITE_DATA(tdata);
 
 			response.writeHead(200, {
 				'Content-Type': 'text/plain',
@@ -113,28 +108,65 @@
 		// when all data is read
 		request.on('end', function() {
 			parsedBody = qs.parse(requestBody); // parse body to js object
+			console.log("about to call READ_DATA");
+			READ_DATA(response);
+		});
+	}
 
-			fs.readFile('telemetry_log.txt', {encoding: 'utf8'}, function(err, data) {
-				var arr,
-					i;
-				if(err) {
-					console.log('GET request error: '+err);
-					console.log('       time: '+date.toString());
-				} else {
-					if(data.charAt(data.length-1) === ',') {
-						data = data.slice(0, data.length-1);
-					}
-					arr = JSON.parse('['+data+']'); // arr is an array of telemetry data objects
-					for(i=0;i<arr.length;i++) { // this isn't very efficient...should use db queries
-						;
-					}
-				}
-			});
+	/**
+	 * Writes telemetry data to a log file (specified by LOG_FILE_PATH).
+	 * Set the global WRITE_DATA = writeTDataToFile to log data in this way.
+	 * @method writeTDataToFile
+	 * @param {Object} tdata     the telemetry data object to stringify and write to file
+	 */
+	function writeTDataToFile(tdata) {
+		fs.writeFile(LOG_FILE_PATH, JSON.stringify(tdata)+',', {flag: 'a'}, function(err){
+			if(err) {
+				console.log('err: '+err);
+			} else {
+				console.log('interaction successfully written to log:');
+				console.log('       time: '+tdata.time_human);
+				console.log('       type: '+tdata.type);
+				console.log('');
+			}
+		});
+	}
 
+	/**
+	 * Reads telemetry data from a file (specified by LOG_FILE_PATH) and
+	 * returns it to client in a response.
+	 * Set the global READ_DATA = readTDataFromFile to read data in this way.
+	 * @method readTDataFromFile
+	 * @param the response we will eventually send back
+	 */
+	function readTDataFromFile(response) {
+		fs.readFile(LOG_FILE_PATH, {encoding: 'utf8'}, function(err, data){
+			var i,
+				arr;
+			
 			response.writeHead(200, {
 				'Content-Type': 'text/plain',
 				'Access-Control-Allow-Origin': '*'
 			});
+
+			if(err) {
+				console.log('err: '+err);
+			} else {
+				if(data.charAt(data.length-1) === ',') {
+					data = data.slice(0, data.length-1); // remove trailing comma
+				}
+				arr = JSON.parse('['+data+']'); // arr is an array of telemetry data objects
+				for(i=0;i<arr.length;i++) { // this isn't very efficient...should use db queries
+					;
+				}
+
+				console.log('retrieving telemetry data succeeded:');
+				console.log('       time: '+(new Date()).toString());
+				console.log('');
+
+				response.write(JSON.stringify(arr));
+			}
+
 			response.end(); // done creating response, don't need to send back any data
 		});
 	}

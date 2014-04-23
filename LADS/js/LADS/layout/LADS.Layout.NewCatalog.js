@@ -211,7 +211,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
 
         var displayHelpText = $(document.createElement('div'));
         displayHelpText.attr('id' ,'displayHelpText');
-        displayHelpText.text("Select an exhibition or tour from the left menu to begin exploring artworks");
+        displayHelpText.text("Select a collection from the left menu and browse artworks below.");
 
         displayHelp.append(displayHelpTitle);
         displayHelp.append(displayHelpText);
@@ -574,7 +574,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
     }
 
     function getArtworks(exhibition, callback) {//get rid of this func
-         LADS.Worktop.Database.getArtworksIn(exhibition.Identifier, getArtworksHelper, null, getArtworksHelper);
+        LADS.Worktop.Database.getArtworksIn(exhibition.Identifier, getArtworksHelper, null, getArtworksHelper);
 
         function getArtworksHelper(artworks) {
             if (!artworks || !artworks[0]) {//pops up a box warning user there is no artwork in the selected exhibition
