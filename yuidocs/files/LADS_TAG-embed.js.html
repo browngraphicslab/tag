@@ -51,6 +51,8 @@
             
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
             
+                <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
+            
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
                 <li><a href="../classes/Telemetry.html">Telemetry</a></li>
@@ -211,7 +213,7 @@ var TAG_embed = function(tagInput) {
                     &lt;/style&gt; \
                 &lt;/head&gt; \
                 &lt;body&gt; \
-                    &lt;div id=&quot;tagContainer&quot; style=&quot;background:#222222;margin-left:16px;  width:&#x27;+(width-32)+&#x27;px; height:&#x27;+(height-18)+&#x27;px;&quot;&gt; \
+                    &lt;div id=&quot;tagContainer&quot; style=&quot;background:#222222;margin-left:16px; margin-top:9px; width:&#x27;+(width-32)+&#x27;px; height:&#x27;+(height-18)+&#x27;px;&quot;&gt; \
                     &lt;/div&gt; \
                 &lt;/body&gt; \
                 &lt;/html&gt;&#x27;;
@@ -227,12 +229,14 @@ var TAG_embed = function(tagInput) {
     $frameDiv = $(frameDiv);
 
     var scrollTop = 0,
+        scrollLeft = 0,
         bodyLeft = 0;
 
     $frameDiv.on(&#x27;mouseenter&#x27;, function(evt) {
         var origLeft, newLeft, tbodyLeft;
 
         scrollTop = $(document).scrollTop();
+        scrollLeft = $(document).scrollLeft();
         console.log(&#x27;scrollTop = &#x27;+scrollTop);
 
         bodyLeft = parseFloat($(&#x27;body&#x27;).css(&#x27;margin-left&#x27;));
@@ -241,14 +245,13 @@ var TAG_embed = function(tagInput) {
 
         $(&#x27;body&#x27;).css({
             &#x27;position&#x27;: &#x27;fixed&#x27;,
-            &#x27;margin-top&#x27;: (-scrollTop)+&#x27;px&#x27;
+            &#x27;margin-top&#x27;: (-scrollTop)+&#x27;px&#x27;,
         });
 
         newLeft = $(container).offset().left;
-        tbodyLeft = parseFloat($(&#x27;body&#x27;).css(&#x27;margin-left&#x27;));
 
         $(&#x27;body&#x27;).css({
-            &#x27;margin-left&#x27;: (bodyLeft + origLeft - newLeft)+&#x27;px&#x27;
+            &#x27;margin-left&#x27;: (bodyLeft + origLeft - newLeft - scrollLeft)+&#x27;px&#x27;
         });        
 
         
@@ -262,6 +265,7 @@ var TAG_embed = function(tagInput) {
         });
 
         $(document).scrollTop(scrollTop);
+        $(document).scrollLeft(scrollLeft);
     });
 };
     </pre>

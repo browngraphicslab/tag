@@ -51,6 +51,8 @@
             
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
             
+                <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
+            
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
                 <li><a href="../classes/Telemetry.html">Telemetry</a></li>
@@ -203,74 +205,142 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
      * @method createSeadragonControls
      */
     function createSeadragonControls() {
-        var container = $(document.createElement(&#x27;div&#x27;));
-        container.attr(&#x27;id&#x27;, &#x27;seadragonManipContainer&#x27;);
+        var container = root.find(&#x27;#seadragonManipContainer&#x27;);
         container.css({
-            &#x27;left&#x27;: ($(&#x27;#tagRoot&#x27;).width()-120) + &quot;px&quot;
+            &#x27;left&#x27;: ($(&#x27;#tagRoot&#x27;).width()-160) + &quot;px&quot;
         });
         root.append(container);
+        
+        var slidebutton = root.find(&#x27;#seadragonManipSlideButton&#x27;);
+        slidebutton.css({
+            &#x27;left&#x27;: 0 + &quot;px&quot;,
+            &#x27;padding-top&#x27;: &#x27;10px&#x27;
+        });
+        var slideimg = $(document.createElement(&#x27;img&#x27;));
+        slideimg.attr(&quot;src&quot;,tagPath+ &#x27;images/icons/Close_expand.svg&#x27;);
+        slideimg.css({
+            &#x27;width&#x27;:&#x27;23px&#x27;,
+            &#x27;height&#x27;: &#x27;40px&#x27;,
+            &#x27;transform&#x27;: &#x27;rotate(180deg)&#x27;,
+            &#x27;margin-top&#x27;:&#x27;-10px&#x27;
+        });
+        
+        var D_PAD_LEFT = 60;
+        var D_PAD_TOP = 26;
 
-        container.append(createButton(&#x27;leftControl&#x27;, &#x27;&lt;&#x27;, 0, 40));
-        container.append(createButton(&#x27;upControl&#x27;, &#x27;^&#x27;, 40, 0));
-        container.append(createButton(&#x27;rightControl&#x27;, &#x27;&gt;&#x27;, 80, 40));
-        container.append(createButton(&#x27;downControl&#x27;, &#x27;v&#x27;, 40, 80));
-        container.append(createButton(&#x27;zinControl&#x27;, &#x27;+&#x27;, 80, 0));
-        container.append(createButton(&#x27;zoutControl&#x27;, &#x27;-&#x27;, 0, 0));
+        document.getElementById(&quot;seadragonManipSlideButton&quot;).innerHTML=&quot;Show Controls&quot;;
+        var top = 0;
+        var count = 0;
+        slidebutton.on(&#x27;click&#x27;, function () {
+            count = count + 1
+            container.animate({top:top});
+            if (count%2===0){
+                top = 0;
+                document.getElementById(&quot;seadragonManipSlideButton&quot;).innerHTML=&quot;Show Controls&quot;;
+            }
+            if(count%2===1){
+                top = -100;
+                document.getElementById(&quot;seadragonManipSlideButton&quot;).innerHTML = &#x27;&#x27;;
+                slidebutton.append(slideimg);
+            }
+                
+        });
+        
+        container.append(slidebutton);
+        container.append(createButton(&#x27;leftControl&#x27;, tagPath+ &#x27;images/icons/zoom_left.svg&#x27;, 60, D_PAD_TOP + 14));
+        container.append(createButton(&#x27;upControl&#x27;, tagPath+&#x27;images/icons/zoom_up.svg&#x27;, D_PAD_LEFT + 12, D_PAD_TOP + 2));
+        container.append(createButton(&#x27;rightControl&#x27;, tagPath+&#x27;images/icons/zoom_right.svg&#x27;, D_PAD_LEFT+41, D_PAD_TOP + 14));
+        container.append(createButton(&#x27;downControl&#x27;, tagPath+&#x27;images/icons/zoom_down.svg&#x27;, D_PAD_LEFT+12, D_PAD_TOP+43));
+        container.append(createButton(&#x27;zinControl&#x27;, tagPath+&#x27;images/icons/zoom_plus.svg&#x27;, D_PAD_LEFT-40, D_PAD_TOP-6));
+        container.append(createButton(&#x27;zoutControl&#x27;, tagPath+&#x27;images/icons/zoom_minus.svg&#x27;, D_PAD_LEFT-40, D_PAD_TOP+34));
 
-        function createButton(id, text, left, top) {
-            var button = $(document.createElement(&#x27;div&#x27;));
-            button.attr(&#x27;id&#x27;, id);
-            button.css({
-                left: left,
+        function createButton(id, imgPath, left, top) {
+            
+            var img = $(document.createElement(&#x27;img&#x27;));
+            img.attr(&quot;src&quot;,imgPath);
+            img.attr(&#x27;id&#x27;,id);
+            img.css({
+                left : left,
                 top: top
             });
-            button.addClass(&#x27;seadragonManipButton&#x27;);
-            button.text(text);
-            return button;
+            if (id===&#x27;leftControl&#x27; || id ===&#x27;rightControl&#x27;){
+                img.addClass(&#x27;seadragonManipButtonLR&#x27;);
+            }
+            if (id===&#x27;upControl&#x27;|| id===&#x27;downControl&#x27;){
+                img.addClass(&#x27;seadragonManipButtonUD&#x27;);
+            }
+            if (id===&#x27;zinControl&#x27;|| id===&#x27;zoutControl&#x27;){
+                img.addClass(&#x27;seadragonManipButtoninout&#x27;);
+            }
+             container.append(img);
+
+            // TODO should do the following by id in the .styl file
+            if (id===&#x27;zinControl&#x27; || id ===&#x27;zoutControl&#x27;){
+                img.css({
+                    &#x27;width&#x27;:&#x27;25px&#x27;
+                 });
+            } 
+            return img;
         }
+        
 
         var delt = 40,
             scrollDelt = 0.1;
 
         var interval;
 
+        /* TODO factor some repeated code out */
         $(&#x27;#leftControl&#x27;).on(&#x27;mousedown&#x27;, function() {
+            clearInterval(interval);
             zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: delt, y: 0}, 1);
             interval = setInterval(function() {
                 zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: delt, y: 0}, 1);
             }, 100);
         });
         $(&#x27;#upControl&#x27;).on(&#x27;mousedown&#x27;, function() {
+            clearInterval(interval);
             zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: 0, y: delt}, 1);
             interval = setInterval(function() {
                 zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: 0, y: delt}, 1);
             }, 100);
         });
         $(&#x27;#rightControl&#x27;).on(&#x27;mousedown&#x27;, function() {
+            clearInterval(interval);
             zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: -delt, y: 0}, 1);
             interval = setInterval(function() {
                 zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: -delt, y: 0}, 1);
             }, 100);
         });
         $(&#x27;#downControl&#x27;).on(&#x27;mousedown&#x27;, function() {
+            clearInterval(interval);
             zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: 0, y: -delt}, 1);
             interval = setInterval(function() {
                 zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: 0, y: -delt}, 1);
             }, 100);
         });
         $(&#x27;#zinControl&#x27;).on(&#x27;mousedown&#x27;, function() {
+            clearInterval(interval);
             zoomimage.dzScroll(1+scrollDelt, {x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2});
             interval = setInterval(function() {
                 zoomimage.dzScroll(1+scrollDelt, {x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2});
             }, 100);
         });
         $(&#x27;#zoutControl&#x27;).on(&#x27;mousedown&#x27;, function() {
+            clearInterval(interval);
             zoomimage.dzScroll(1-scrollDelt, {x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2});
             interval = setInterval(function() {
                 zoomimage.dzScroll(1-scrollDelt, {x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2});
             }, 100);
         });
-        $(&#x27;.seadragonManipButton&#x27;).on(&#x27;mouseup&#x27;, function() {
+        $(&#x27;.seadragonManipButtonLR&#x27;).on(&#x27;mouseup mouseleave&#x27;, function() {
+            clearInterval(interval);
+        });
+
+        $(&#x27;.seadragonManipButtonUD&#x27;).on(&#x27;mouseup mouseleave&#x27;, function() {
+            clearInterval(interval);
+        });
+
+        $(&#x27;.seadragonManipButtoninout&#x27;).on(&#x27;mouseup mouseleave&#x27;, function() {
             clearInterval(interval);
         });
     }

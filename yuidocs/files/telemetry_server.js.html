@@ -51,6 +51,8 @@
             
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
             
+                <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
+            
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
                 <li><a href="../classes/Telemetry.html">Telemetry</a></li>
@@ -113,7 +115,10 @@
 	// some constants
 	var PORT = 9999,
 		NOT_AVAIL = &quot;_&quot;,
-	    MAX_BODY_LENGTH = Math.pow(10,6);
+	    MAX_BODY_LENGTH = Math.pow(10,6),
+	    WRITE_DATA = writeTDataToFile,
+	    READ_DATA = readTDataFromFile,
+	    LOG_FILE_PATH = &#x27;telemetry_log.txt&#x27;;
 
 	// create server
 	http.createServer(function (request, response) {
@@ -141,6 +146,7 @@
 		var requestBody = &#x27;&#x27;,
 			parsedBody,
 			date = new Date(),
+			printData,
 			tdata; // telemetry data
 
 		// read in data from request as it becomes available
@@ -168,16 +174,7 @@
 				time_human: date.toString()                         // human-readable time
 			};
 
-			fs.writeFile(&#x27;telemetry_log.txt&#x27;, JSON.stringify(tdata)+&#x27;,&#x27;, {flag: &#x27;a&#x27;}, function(err){
-				if(err) {
-					console.log(&#x27;err: &#x27;+err);
-				} else {
-					console.log(&#x27;interaction successfully written to log:&#x27;);
-					console.log(&#x27;       time: &#x27;+date.toString());
-					console.log(&#x27;       type: &#x27;+parsedBody.ttype);
-					console.log(&#x27;&#x27;);
-				}
-			});
+			WRITE_DATA(tdata);
 
 			response.writeHead(200, {
 				&#x27;Content-Type&#x27;: &#x27;text/plain&#x27;,
@@ -213,29 +210,66 @@
 		// when all data is read
 		request.on(&#x27;end&#x27;, function() {
 			parsedBody = qs.parse(requestBody); // parse body to js object
+			console.log(&quot;about to call READ_DATA&quot;);
+			READ_DATA(response);
+		});
+	}
 
-			fs.readFile(&#x27;telemetry_log.txt&#x27;, {encoding: &#x27;utf8&#x27;}, function(err, data) {
-				var arr,
-					i;
-				if(err) {
-					console.log(&#x27;GET request error: &#x27;+err);
-					console.log(&#x27;       time: &#x27;+date.toString());
-				} else {
-					if(data.charAt(data.length-1) === &#x27;,&#x27;) {
-						data = data.slice(0, data.length-1);
-					}
-					arr = JSON.parse(&#x27;[&#x27;+data+&#x27;]&#x27;); // arr is an array of telemetry data objects
-					for(i=0;i&lt;arr.length;i++) { // this isn&#x27;t very efficient...should use db queries
-						;
-					}
-				}
-			});
+	/**
+	 * Writes telemetry data to a log file (specified by LOG_FILE_PATH).
+	 * Set the global WRITE_DATA = writeTDataToFile to log data in this way.
+	 * @method writeTDataToFile
+	 * @param {Object} tdata     the telemetry data object to stringify and write to file
+	 */
+	function writeTDataToFile(tdata) {
+		fs.writeFile(LOG_FILE_PATH, JSON.stringify(tdata)+&#x27;,&#x27;, {flag: &#x27;a&#x27;}, function(err){
+			if(err) {
+				console.log(&#x27;err: &#x27;+err);
+			} else {
+				console.log(&#x27;interaction successfully written to log:&#x27;);
+				console.log(&#x27;       time: &#x27;+tdata.time_human);
+				console.log(&#x27;       type: &#x27;+tdata.type);
+				console.log(&#x27;&#x27;);
+			}
+		});
+	}
 
+	/**
+	 * Reads telemetry data from a file (specified by LOG_FILE_PATH) and
+	 * returns it to client in a response.
+	 * Set the global READ_DATA = readTDataFromFile to read data in this way.
+	 * @method readTDataFromFile
+	 * @param the response we will eventually send back
+	 */
+	function readTDataFromFile(response) {
+		fs.readFile(LOG_FILE_PATH, {encoding: &#x27;utf8&#x27;}, function(err, data){
+			var i,
+				arr;
+			
 			response.writeHead(200, {
 				&#x27;Content-Type&#x27;: &#x27;text/plain&#x27;,
 				&#x27;Access-Control-Allow-Origin&#x27;: &#x27;*&#x27;
 			});
-			response.end(); // done creating response, don&#x27;t need to send back any data
+
+			if(err) {
+				console.log(&#x27;err: &#x27;+err);
+			} else {
+				if(data.charAt(data.length-1) === &#x27;,&#x27;) {
+					data = data.slice(0, data.length-1); // remove trailing comma
+				}
+				arr = JSON.parse(&#x27;[&#x27;+data+&#x27;]&#x27;); // arr is an array of telemetry data objects
+				for(i=0;i&lt;arr.length;i++) { // this isn&#x27;t very efficient...should use db queries
+					;
+				}
+
+				console.log(&#x27;retrieving telemetry data succeeded:&#x27;);
+				console.log(&#x27;       time: &#x27;+(new Date()).toString());
+				console.log(&#x27;&#x27;);
+
+				response.write(JSON.stringify(arr));
+			}
+
+			response.end(); // done creating response
 		});
 	}
 

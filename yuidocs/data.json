@@ -130,7 +130,9 @@
         "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js": {
             "name": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
             "modules": {},
-            "classes": {},
+            "classes": {
+                "LADS.Layout.VideoPlayer": 1
+            },
             "fors": {},
             "namespaces": {}
         },
@@ -836,6 +838,41 @@
             ],
             "return": {
                 "description": "that                 collection of public methods and properties",
+                "type": "Object"
+            }
+        },
+        "LADS.Layout.VideoPlayer": {
+            "name": "LADS.Layout.VideoPlayer",
+            "shortname": "LADS.Layout.VideoPlayer",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "namespace": "",
+            "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
+            "line": 3,
+            "description": "TAG video player -- a wrapper around the standard html5 video element",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "videoSrc",
+                    "description": "the doq representing our video",
+                    "type": "Doq"
+                },
+                {
+                    "name": "collection",
+                    "description": "the parent collection of this video",
+                    "type": "Doq"
+                },
+                {
+                    "name": "prevInfo",
+                    "description": "some info about where we came from on the collections page:\n                  .artworkPrev     string representing where we came from\n                  .prevScroll      value of the scrollbar from new catalog page",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "the object representing public information about the video page\n                          (at the moment, just the root of the DOM)",
                 "type": "Object"
             }
         },
@@ -2508,7 +2545,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 178,
+            "line": 246,
             "description": "Makes the artwork viewer sidebar",
             "itemtype": "method",
             "name": "makeSidebar",
@@ -2516,17 +2553,17 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 686,
+            "line": 754,
             "class": "LADS.Layout.Artmode"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 699,
+            "line": 767,
             "class": "LADS.Layout.Artmode"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 782,
+            "line": 850,
             "description": "Create a drawer with a disclosure button used to display\nhotspots, assets, tours. The returned jQuery object has\na property called \"contents\" which should be used to add\nbuttons or messages to the contents of the drawer.",
             "params": [
                 {
@@ -2539,13 +2576,13 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 900,
+            "line": 968,
             "description": "This is the click function LocationHistoryContainer.",
             "class": "LADS.Layout.Artmode"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 1395,
+            "line": 1463,
             "description": "Return art viewer root element",
             "itemtype": "method",
             "name": "",
@@ -2557,7 +2594,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 1404,
+            "line": 1472,
             "description": "Make the map for location History.",
             "itemtype": "method",
             "name": "",
@@ -2899,7 +2936,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Exhibitions.js",
-            "line": 2077,
+            "line": 2076,
             "description": "Function for reflowing page based on orientation / for splitscreen",
             "class": "LADS.Layout.InternetFailurePage.js"
         },
@@ -2994,19 +3031,27 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 194,
-            "description": "isBrowserCompatible\n\nReturns true if the browser is compatible with TAG,\nfalse if it isn't",
+            "line": 195,
+            "itemtype": "method",
+            "name": "isBrowserCompatible",
+            "return": {
+                "description": "true if the browser is compatible with TAG, false if it isn't"
+            },
             "class": "LADS.Layout.StartPage"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 229,
-            "description": "getBrowserVersion\n\nReturn's browser name followed by version\ne.g. \"Chrome 34.0.1847.116\"",
+            "line": 246,
+            "itemtype": "method",
+            "name": "getBrowserVersion",
+            "return": {
+                "description": "Browser name followed by version e.g. \"Chrome 34.0.1847.116\""
+            },
             "class": "LADS.Layout.StartPage"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 250,
+            "line": 266,
             "description": "adjusts the text to fit the screen size",
             "itemtype": "method",
             "name": "fixText",
@@ -3014,7 +3059,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 268,
+            "line": 284,
             "description": "initializes the handlers for various 'click' functions including setting up a server",
             "itemtype": "method",
             "name": "initializeHandlers",
@@ -3022,7 +3067,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 287,
+            "line": 303,
             "description": "gets the paths for all the images displayed on the splash screen",
             "itemtype": "method",
             "name": "setImagePaths",
@@ -3037,7 +3082,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 319,
+            "line": 335,
             "description": "Sets up the credits box with its content including text and images. Also includes function for animation of credits.",
             "itemtype": "method",
             "name": "setUpCredits",
@@ -3045,7 +3090,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 357,
+            "line": 373,
             "description": "animation of credits when user clicks",
             "itemtype": "method",
             "name": "expandInfo",
@@ -3060,7 +3105,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 392,
+            "line": 408,
             "description": "sets up the info div which contains all the museum information",
             "itemtype": "method",
             "name": "setUpInfo",
@@ -3075,7 +3120,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 415,
+            "line": 431,
             "description": "Fills in all museum info including name and location",
             "itemtype": "method",
             "name": "setUpMuseumInfo",
@@ -3090,7 +3135,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 461,
+            "line": 477,
             "itemtype": "method",
             "name": "getRoot",
             "return": {
@@ -3112,19 +3157,19 @@
                     "description": "Callback to run once tour has loaded (loadRin runs async)"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Layout.VideoPlayer"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.TourAuthoringNew.js",
             "line": 41,
             "description": "Second row on screen, contains ComponentControls and Viewer",
-            "class": "CryptoJS"
+            "class": "LADS.Layout.VideoPlayer"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.TourAuthoringNew.js",
             "line": 164,
             "description": "Creates components and sets up UI",
-            "class": "CryptoJS"
+            "class": "LADS.Layout.VideoPlayer"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.TourPlayer.js",
@@ -3152,31 +3197,83 @@
                     "description": "the tour doq object, so we can return to the proper tour in the collections screen"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Layout.VideoPlayer"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
-            "line": 3,
-            "description": "Player for RIN tours",
-            "params": [
-                {
-                    "name": "tour",
-                    "description": "RIN tour in Javascript object (pre-parsed from JSON)"
-                },
-                {
-                    "name": "exhibition:",
-                    "description": ""
-                },
-                {
-                    "name": "prevInfo",
-                    "description": "object containing previous page info \n   artworkPrev      value is 'artmode' when we arrive here from the art viewer\n   prevScroll       value of scrollbar from new catalog page"
-                },
-                {
-                    "name": "artwork:the",
-                    "description": "artworks in this tour"
-                }
-            ],
-            "class": "CryptoJS"
+            "line": 51,
+            "description": "Return to the collections page from the video player.",
+            "itemtype": "method",
+            "name": "goBack",
+            "class": "LADS.Layout.VideoPlayer"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
+            "line": 72,
+            "description": "Take video to time 0 and pause.",
+            "itemtype": "method",
+            "name": "timeToZero",
+            "class": "LADS.Layout.VideoPlayer"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
+            "line": 84,
+            "description": "Play video and change play button image",
+            "itemtype": "method",
+            "name": "playVideo",
+            "class": "LADS.Layout.VideoPlayer"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
+            "line": 93,
+            "description": "Pause video and change play button image",
+            "itemtype": "method",
+            "name": "pauseVideo",
+            "class": "LADS.Layout.VideoPlayer"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
+            "line": 102,
+            "description": "Play or pause video depending on its current state",
+            "itemtype": "method",
+            "name": "toggleVideo",
+            "class": "LADS.Layout.VideoPlayer"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
+            "line": 110,
+            "description": "Set up handlers for video element and play/pause button",
+            "itemtype": "method",
+            "name": "initVideoPlayHandlers",
+            "class": "LADS.Layout.VideoPlayer"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
+            "line": 155,
+            "description": "Set up handlers for the seekbar",
+            "itemtype": "method",
+            "name": "initSeekHandlers",
+            "class": "LADS.Layout.VideoPlayer"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
+            "line": 221,
+            "description": "Initialize misc parts of the video player",
+            "itemtype": "method",
+            "name": "initPage",
+            "class": "LADS.Layout.VideoPlayer"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
+            "line": 258,
+            "description": "Return the root of the video page",
+            "itemtype": "method",
+            "name": "getRoot",
+            "return": {
+                "description": "root of the video page",
+                "type": "JQuery object"
+            },
+            "class": "LADS.Layout.VideoPlayer"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ArtworkTrack.js",
@@ -6109,7 +6206,7 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 1311,
+            "line": 1309,
             "description": "Used by web app code to slide in pages given their html files",
             "params": [
                 {
@@ -6121,7 +6218,7 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 1334,
+            "line": 1332,
             "params": [
                 {
                     "name": "collectionId",
@@ -6137,36 +6234,36 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 1362,
+            "line": 1360,
             "description": "Utils for Animation, splitscreen, colors and the like",
             "class": "CryptoJS"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 1823,
+            "line": 1821,
             "class": "CryptoJS"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 2161,
+            "line": 2159,
             "description": "Following functions transition between pages while in splitscreen mode",
             "class": "CryptoJS"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 2164,
+            "line": 2162,
             "description": "Use _Split fn's for transitions that need to preserve splitscreen\nNote: pages passed in to this function should have a top-level root node\n(true of exhibition, catalog and artmode)",
             "class": "CryptoJS"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 2270,
+            "line": 2268,
             "description": "Use for any page transition that does not need to preserve splitscreen",
             "class": "CryptoJS"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 2585,
+            "line": 2583,
             "description": "Creates a picker (e.g. click add/remove media in the artwork editor) to manage\n  associations between different TAG components (exhib, artworks, assoc media)",
             "params": [
                 {
@@ -6202,7 +6299,7 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 2911,
+            "line": 2909,
             "description": "Creates the media panel",
             "params": [
                 {
@@ -6218,13 +6315,13 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 3309,
+            "line": 3307,
             "description": "Built-in object extensions",
             "class": "CryptoJS"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 3332,
+            "line": 3330,
             "description": "If specified object is in the array, remove it",
             "params": [
                 {
@@ -6236,7 +6333,7 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 3346,
+            "line": 3344,
             "description": "Insert object into array based on comparator fn given\nAssumes array is already sorted!",
             "params": [
                 {
@@ -6255,7 +6352,7 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 3365,
+            "line": 3363,
             "description": "Constrain a number to given range",
             "params": [
                 {
@@ -12248,7 +12345,7 @@
         },
         {
             "file": "telemetry/server.js",
-            "line": 33,
+            "line": 36,
             "description": "Handles a post request to the server. Generally, writes data to log file.\nIn the future, this should probably log data in a database.",
             "itemtype": "method",
             "name": "handlePost",
@@ -12268,7 +12365,7 @@
         },
         {
             "file": "telemetry/server.js",
-            "line": 90,
+            "line": 85,
             "description": "Handles a get request to the server. SHOULD get data from server, return it to client\nfor data viz or analysis.",
             "itemtype": "method",
             "name": "handleGet",
@@ -12287,8 +12384,50 @@
             "class": "Telemetry"
         },
         {
+            "file": "telemetry/server.js",
+            "line": 116,
+            "description": "Writes telemetry data to a log file (specified by LOG_FILE_PATH).\nSet the global WRITE_DATA = writeTDataToFile to log data in this way.",
+            "itemtype": "method",
+            "name": "writeTDataToFile",
+            "params": [
+                {
+                    "name": "tdata",
+                    "description": "the telemetry data object to stringify and write to file",
+                    "type": "Object"
+                }
+            ],
+            "class": "Telemetry"
+        },
+        {
+            "file": "telemetry/server.js",
+            "line": 135,
+            "description": "Reads telemetry data from a file (specified by LOG_FILE_PATH) and\nreturns it to client in a response.\nSet the global READ_DATA = readTDataFromFile to read data in this way.",
+            "itemtype": "method",
+            "name": "readTDataFromFile",
+            "params": [
+                {
+                    "name": "the",
+                    "description": "response we will eventually send back"
+                }
+            ],
+            "class": "Telemetry"
+        },
+        {
             "file": "telemetry/telemetryTest.js",
             "line": 29,
+            "description": "Handles returned data from server after a get request.",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "",
+                    "type": "Array"
+                }
+            ],
+            "class": ""
+        },
+        {
+            "file": "telemetry/telemetryTest.js",
+            "line": 117,
             "description": "Make a request to the telemetry server",
             "params": [
                 {
@@ -12510,7 +12649,7 @@
         },
         {
             "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3346"
+            "line": " LADS/js/LADS/util/LADS.Util.js:3344"
         },
         {
             "message": "replacing incorrect tag: returns with return",
@@ -13366,19 +13505,19 @@
         },
         {
             "message": "Missing item type",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:686"
+            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:754"
         },
         {
             "message": "Missing item type",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:699"
+            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:767"
         },
         {
             "message": "Missing item type\nCreate a drawer with a disclosure button used to display\nhotspots, assets, tours. The returned jQuery object has\na property called \"contents\" which should be used to add\nbuttons or messages to the contents of the drawer.",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:782"
+            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:850"
         },
         {
             "message": "Missing item type\nThis is the click function LocationHistoryContainer.",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:900"
+            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:968"
         },
         {
             "message": "Missing item type\nCreate a new right panel for editing Associated Media and append it to the dom (just offscreen)",
@@ -13514,7 +13653,7 @@
         },
         {
             "message": "Missing item type\nFunction for reflowing page based on orientation / for splitscreen",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Exhibitions.js:2077"
+            "line": " LADS/js/LADS/layout/LADS.Layout.Exhibitions.js:2076"
         },
         {
             "message": "Missing item type\ninitiates UI stuff",
@@ -13537,14 +13676,6 @@
             "line": " LADS/js/LADS/layout/LADS.Layout.StartPage.js:36"
         },
         {
-            "message": "Missing item type\nisBrowserCompatible\n\nReturns true if the browser is compatible with TAG,\nfalse if it isn't",
-            "line": " LADS/js/LADS/layout/LADS.Layout.StartPage.js:194"
-        },
-        {
-            "message": "Missing item type\ngetBrowserVersion\n\nReturn's browser name followed by version\ne.g. \"Chrome 34.0.1847.116\"",
-            "line": " LADS/js/LADS/layout/LADS.Layout.StartPage.js:229"
-        },
-        {
             "message": "Missing item type\nFinal layout for Tour Authoring\nAll parts of layout are container in separate files/classes\nLayout file also contains testing instructions / notes / functions",
             "line": " LADS/js/LADS/layout/LADS.Layout.TourAuthoringNew.js:3"
         },
@@ -13559,10 +13690,6 @@
         {
             "message": "Missing item type\nPlayer for RIN tours",
             "line": " LADS/js/LADS/layout/LADS.Layout.TourPlayer.js:3"
-        },
-        {
-            "message": "Missing item type\nPlayer for RIN tours",
-            "line": " LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js:3"
         },
         {
             "message": "Missing item type\nCreates an Artwork track",
@@ -14734,55 +14861,55 @@
         },
         {
             "message": "Missing item type\nUsed by web app code to slide in pages given their html files",
-            "line": " LADS/js/LADS/util/LADS.Util.js:1311"
+            "line": " LADS/js/LADS/util/LADS.Util.js:1309"
         },
         {
             "message": "Missing item type",
-            "line": " LADS/js/LADS/util/LADS.Util.js:1334"
+            "line": " LADS/js/LADS/util/LADS.Util.js:1332"
         },
         {
             "message": "Missing item type\nUtils for Animation, splitscreen, colors and the like",
-            "line": " LADS/js/LADS/util/LADS.Util.js:1362"
+            "line": " LADS/js/LADS/util/LADS.Util.js:1360"
         },
         {
             "message": "Missing item type",
-            "line": " LADS/js/LADS/util/LADS.Util.js:1823"
+            "line": " LADS/js/LADS/util/LADS.Util.js:1821"
         },
         {
             "message": "Missing item type\nFollowing functions transition between pages while in splitscreen mode",
-            "line": " LADS/js/LADS/util/LADS.Util.js:2161"
+            "line": " LADS/js/LADS/util/LADS.Util.js:2159"
         },
         {
             "message": "Missing item type\nUse _Split fn's for transitions that need to preserve splitscreen\nNote: pages passed in to this function should have a top-level root node\n(true of exhibition, catalog and artmode)",
-            "line": " LADS/js/LADS/util/LADS.Util.js:2164"
+            "line": " LADS/js/LADS/util/LADS.Util.js:2162"
         },
         {
             "message": "Missing item type\nUse for any page transition that does not need to preserve splitscreen",
-            "line": " LADS/js/LADS/util/LADS.Util.js:2270"
+            "line": " LADS/js/LADS/util/LADS.Util.js:2268"
         },
         {
             "message": "Missing item type\nCreates a picker (e.g. click add/remove media in the artwork editor) to manage\n  associations between different TAG components (exhib, artworks, assoc media)",
-            "line": " LADS/js/LADS/util/LADS.Util.js:2585"
+            "line": " LADS/js/LADS/util/LADS.Util.js:2583"
         },
         {
             "message": "Missing item type\nCreates the media panel",
-            "line": " LADS/js/LADS/util/LADS.Util.js:2911"
+            "line": " LADS/js/LADS/util/LADS.Util.js:2909"
         },
         {
             "message": "Missing item type\nBuilt-in object extensions",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3309"
+            "line": " LADS/js/LADS/util/LADS.Util.js:3307"
         },
         {
             "message": "Missing item type\nIf specified object is in the array, remove it",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3332"
+            "line": " LADS/js/LADS/util/LADS.Util.js:3330"
         },
         {
             "message": "Missing item type\nInsert object into array based on comparator fn given\nAssumes array is already sorted!",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3346"
+            "line": " LADS/js/LADS/util/LADS.Util.js:3344"
         },
         {
             "message": "Missing item type\nConstrain a number to given range",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3365"
+            "line": " LADS/js/LADS/util/LADS.Util.js:3363"
         },
         {
             "message": "Missing item type\nSoft delete a hotspot by deleting both the hotspot linq and doq files",
@@ -16457,8 +16584,12 @@
             "line": " LADS/tests.js:592"
         },
         {
-            "message": "Missing item type\nMake a request to the telemetry server",
+            "message": "Missing item type\nHandles returned data from server after a get request.",
             "line": " telemetry/telemetryTest.js:29"
+        },
+        {
+            "message": "Missing item type\nMake a request to the telemetry server",
+            "line": " telemetry/telemetryTest.js:117"
         }
     ]
 }

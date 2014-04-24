@@ -51,6 +51,8 @@
             
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
             
+                <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
+            
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
                 <li><a href="../classes/Telemetry.html">Telemetry</a></li>
@@ -205,17 +207,19 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         handGif.onclick = switchPage;
         //opens the exhibitions page on touch/click
         function switchPage() {
-            var newCatalog = new LADS.Layout.NewCatalog();
+            var newCatalog = LADS.Layout.NewCatalog();
             overlay.on(&#x27;click&#x27;, function(){});
             LADS.Util.UI.slidePageLeft(newCatalog.getRoot());
         }
 
         // Test for browser compatibility
-        if(false &amp;&amp; !isBrowserCompatible()) { /* bleveque: doesn&#x27;t allow IE 11, so removing for now */
+        if(!isBrowserCompatible()) {
+            console.log(&quot;Unsupported browser.&quot;);
+            
             var browserDialogOverlay = $(document.createElement(&#x27;div&#x27;));
             var tagContainer = $(&#x27;#tagRoot&#x27;);
             browserDialogOverlay.attr(&#x27;id&#x27;, &#x27;browserDialogOverlay&#x27;);
-            // debugger;
+
             browserDialogOverlay.css({
                 display: &#x27;block&#x27;,
                 position: &#x27;absolute&#x27;,
@@ -227,11 +231,9 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
                 &#x27;z-index&#x27;: 1000000000 + 5
             });
 
-            // dialog box for browser update
+            // Dialog box for browser update
             var browserDialog = $(document.createElement(&#x27;div&#x27;));
             browserDialog.attr(&#x27;id&#x27;, &#x27;browserDialog&#x27;);
-
-            //
 
             var browserDialogSpecs = LADS.Util.constrainAndPosition($(tagContainer).width(), $(tagContainer).height(),
             {
@@ -270,6 +272,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
             var updateBrowserLink = $(document.createElement(&#x27;a&#x27;));
             updateBrowserLink.attr(&#x27;id&#x27;, &#x27;updateBrowser&#x27;);
+            updateBrowserLink.attr(&#x27;target&#x27;, &#x27;_blank&#x27;);
             updateBrowserLink.attr(&#x27;href&#x27;, &#x27;http://browsehappy.com&#x27;);
             updateBrowserLink.css({
                 &#x27;display&#x27;: &#x27;block&#x27;,
@@ -291,15 +294,23 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         }
     }
 
-   /**
-    * isBrowserCompatible
+    /**
+    * @method isBrowserCompatible
     *
-    * Returns true if the browser is compatible with TAG,
-    * false if it isn&#x27;t
+    * @return true if the browser is compatible with TAG, false if it isn&#x27;t
     */
     function isBrowserCompatible() {
         var userAgent = navigator.userAgent.toLowerCase();
+        console.log(&quot;userAgent: &quot; + navigator.userAgent);
+
         if(userAgent.indexOf(&#x27;android&#x27;) &gt;= 0 || userAgent.indexOf(&#x27;iphone&#x27;) &gt;= 0 || userAgent.indexOf(&#x27;ipad&#x27;) &gt;= 0) {
+            if(userAgent.indexOf(&#x27;android&#x27;) &gt;= 0) {
+                console.log(&quot;Detected Android Device. Unsupported browser.&quot;);
+            } else if (userAgent.indexOf(&#x27;iphone&#x27;) &gt;= 0) {
+                console.log(&quot;Detected iPhone. Unsupported browser.&quot;);
+            } else if (userAgent.indexOf(&#x27;ipad&#x27;) &gt;= 0) {
+                console.log(&quot;Detected iPad. Unsupported browser.&quot;);
+            }
             return false;
         } else {
             var browser = getBrowserVersion();
@@ -308,17 +319,25 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             browser = browser.toLowerCase();
             var version = 0;
 
-            if(browser.indexOf(&#x27;chrome&#x27;) &gt;= 0) {
+            if(browser.indexOf(&#x27;opera&#x27;) &gt;= 0) {
+                console.log(&quot;Detected Opera. Unsupported browser.&quot;);
+                return false;
+            } else if(browser.indexOf(&#x27;chrome&#x27;) &gt;= 0) {
                 version = browser.substring(browser.indexOf(&#x27; &#x27;) + 1, browser.indexOf(&quot;.&quot;));
+                console.log(&quot;Detected Chrome Version: &quot; + version);
                 return(version &gt;= 31);
             } else if(browser.indexOf(&#x27;safari&#x27;) &gt;= 0) {
-                version = browser.substring(browser.indexOf(&#x27; &#x27;, browser.indexOf(&#x27; &#x27;) + 1), browser.indexOf(&quot;.&quot;));
+                var detailedVersion = browser.substring(browser.indexOf(&#x27; &#x27;, browser.indexOf(&#x27; &#x27;) + 1) + 1);
+                version = detailedVersion.substring(0, detailedVersion.indexOf(&quot;.&quot;));
+                console.log(&quot;Detected Safari Version: &quot; + version);
                 return(version &gt;= 7);
             } else if(browser.indexOf(&#x27;firefox&#x27;) &gt;= 0) {
                 version = browser.substring(browser.indexOf(&#x27; &#x27;) + 1, browser.indexOf(&quot;.&quot;));
-                return(version &gt;= 26);
-            } else if(browser.indexOf(&#x27;msie&#x27;) &gt;= 0) {
+                console.log(&quot;Detected Firefox Version: &quot; + version);
+                return(version &gt;= 28);
+            } else if(browser.indexOf(&#x27;msie&#x27;) &gt;= 0 || browser.indexOf(&#x27;ie&#x27;) &gt;= 0) {
                 version = browser.substring(browser.indexOf(&#x27; &#x27;) + 1, browser.indexOf(&quot;.&quot;));
+                console.log(&quot;Detected IE Version: &quot; + version);
                 return(version &gt;= 10);
             } else {
                 return false;
@@ -327,10 +346,9 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     }
 
     /** 
-    * getBrowserVersion
+    * @method getBrowserVersion
     *
-    * Return&#x27;s browser name followed by version
-    * e.g. &quot;Chrome 34.0.1847.116&quot;
+    * @return Browser name followed by version e.g. &quot;Chrome 34.0.1847.116&quot;
     */
     function getBrowserVersion() {
         var ua= navigator.userAgent, tem, 
