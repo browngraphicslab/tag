@@ -57,23 +57,71 @@
 LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabelID) {
     "use strict";
 
+/*
+   //TODO: figure out if i need to instantiate all these, delete ones from root
+    var that = {
+        getRoot: getRoot,
+    },
+        //root,
+       // leftLabelContainer,
+        //leftLoading,
+       // leftbar,
+        //rightbar,
+        prevSelectedSetting,
+        prevSelectedLeftLabel,
+        //viewer,
+        searchbar,
+        settingsContainer,
+        settings,
+        searchContainer,
+        buttonContainer,
+        newButton,
+        secondaryButton,
+        // These are 'asynchronous' queues to perform tasks
+        leftQueue = LADS.Util.createQueue(),
+        rightQueue = LADS.Util.createQueue(),
+        cancelLastSetting,
+        artPickerOpen = false,
+        nav = [],
+        artworks = [],
+        assetUploader,
+        mediaMetadata = [],
+        numFiles = 0,
+        isUploading = false,
+        isCreatingMedia = false,
+        artworkAssociations = [], // entry i contains the artwork info for the ith associated media
+        artworkList = [], // save artworks retrieved from the database
+        mediaCheckedIDs = [], // artworks checked in associated media uploading
+        mediaUncheckedIDs = [], // artworks unchecked in associated media uploading
+        editArt; // 
+
+*/
     var root = LADS.Util.getHtmlAjax('SettingsView.html'), //Get html from html file
-        leftLoading = root.find('#setViewLoadingCircle')
-        settingsContainer = root.find('#setViewSettingsContainer')
-        searchContainer = root.find('#setViewSearchContainer');
-        leftbar = root.find('#setViewLeftBar');
-        leftLabelContainer = root.find('#setViewLeftLabelContainer');
-        rightbar = root.find('#setViewRightBar');
-        viewer = root.find('#setViewViewer');
-        buttonContainer = root.find('#setViewButtonContainer');
-        settings = root.find('#setViewSettingsBar');
+        leftLoading = root.find('#setViewLoadingCircle'),
+        settingsContainer = root.find('#setViewSettingsContainer'),
+        searchContainer = root.find('#setViewSearchContainer'),
+        navBar = root.find('#setViewNavBar'),
+        searchbar = root.find('#setViewSearchBar'),
+        newButton = root.find('#setViewNewButton'),
+        secondaryButton = root.find('#setViewSecondaryButton'),
+        leftbar = root.find('#setViewLeftBar'),
+        leftLabelContainer = root.find('#setViewLeftLabelContainer'),
+        rightbar = root.find('#setViewRightBar'),
+        viewer = root.find('#setViewViewer'),
+        buttonContainer = root.find('#setViewButtonContainer'),
+        settings = root.find('#setViewSettingsBar'),
+        label = root.find('#setViewLoadingLabel'),
+        circle = root.find('#setViewLoadingCircle'),
+        VIEWER_ASPECTRATIO = $(window).width() / $(window).height(),
+        RIGHT_WIDTH = '54',
+        CONTENT_HEIGHT = '92',
     // Constants
     // Stuff that's commented here is used to put the nav bar on top
     // under the top bar instead of putting it on the left.
 
     //TODO: Should be able to delete constants after factoring:
-    /**
-    var ROOT_BGCOLOR = 'rgb(219,217,204)',
+    
+        ROOT_BGCOLOR = 'rgb(219,217,204)',
         ROOT_COLOR = 'black',
         TEXT_COLOR = 'black',
         TOPBAR_HEIGHT = '8',
@@ -102,11 +150,10 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         // Use the apps's aspect ratio for the viewer
         VIEWER_ASPECTRATIO = $(window).width() / $(window).height(),
         DEFAULT_SEARCH_TEXT = 'Search...',
-        PICKER_SEARCH_TEXT = 'Search by Name, Artist, or Year...';
+        PICKER_SEARCH_TEXT = 'Search by Name, Artist, or Year...',
 
-    **/
     // Text for Navagation labels
-    var NAV_TEXT = {
+        NAV_TEXT = {
         general: {
             text: 'General Settings',
             subtext: 'Customize TAG experience'
@@ -131,27 +178,27 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             text: 'Feedback',
             subtext: 'View comments and reports'
         },
-    };
+    },
 
     //TODO: figure out if i need to instantiate all these, delete ones from root
-    var that = {
+    that = {
         getRoot: getRoot,
     },
-        root,
-        leftLabelContainer,
-        leftLoading,
-        leftbar,
-        rightbar,
+        //root,
+       // leftLabelContainer,
+        //leftLoading,
+       // leftbar,
+        //rightbar,
         prevSelectedSetting,
         prevSelectedLeftLabel,
-        viewer,
-        searchbar,
-        settingsContainer,
-        settings,
-        searchContainer,
-        buttonContainer,
-        newButton,
-        secondaryButton,
+        //viewer,
+        //searchbar,
+        //settingsContainer,
+        //settings,
+        //searchContainer,
+        //buttonContainer,
+        //newButton,
+        //secondaryButton,
         // These are 'asynchronous' queues to perform tasks
         leftQueue = LADS.Util.createQueue(),
         rightQueue = LADS.Util.createQueue(),
@@ -233,15 +280,16 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             callback(that);
     }
     **/
-    var that2 = {};
 
-    //TODO- new function to help set up layout
+    debugger;
+    loadHelper();
+    if (callback) {
+        callback(that);
+    }
+
     function loadHelper(main){
 
-    //UI stuff-->copying over dynamic parts from helper methods
-
-        //Set up Back button and label in top bar:
-
+        //Setting up UI:
         var backButton = root.find('#setViewBackButton');
         backButton.attr('src', 'images/icons/Back.svg');
 
@@ -290,8 +338,39 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         navBar.append(nav[NAV_TEXT.media.text] = createNavLabel(NAV_TEXT.media, loadAssocMediaView)); // COMMENT!!!!!!!!
         navBar.append(nav[NAV_TEXT.tour.text] = createNavLabel(NAV_TEXT.tour, loadTourView));
         navBar.append(nav[NAV_TEXT.feedback.text] = createNavLabel(NAV_TEXT.feedback, loadFeedbackView));
+        searchbar.keyup(function () {
+            search(searchbar.val(), '.leftLabel', 'div');
+        });
+        searchbar.change(function () {
+            search(searchbar.val(), '.leftLabel', 'div');
+        });
+        // Workaround for clear button (doesn't fire a change event...)
+        searchbar.mouseup(function () {
+            setTimeout(function () {
+                search(searchbar.val(), '.leftLabel', 'div');
+            }, 1);
+        });
+        //Do some of this in the jade ''file?
+        searchbar.attr('placeholder', 'Search...');
+        debugger;
+        newButton.text('New');
+        secondaryButton.text('Video');
+        label.text('Loading...');
+        circle.attr('src', 'images/icons/progress-circle.gif');
 
-        return that2
+        viewer.css({
+            'width': $(window).width() * RIGHT_WIDTH / 100 + 'px', // 100% should work, need to figure out height though
+            'height': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
+        });
+
+        buttonContainer.css({
+            'top': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
+        });
+        settings.css({
+            // Be careful with this height--
+            'height': getSettingsHeight() + 'px',
+        });
+        switchView(startView, startLabelID);
     }
     // Programatically switch view
     function switchView(view, id) {
@@ -3185,6 +3264,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     **/
 //WHERE I STOPPED WITH THE MOVING AROUND ON 4-17 LUCYvK
     // Create the label container where labels are added
+    /**
     function createLeftLabelContainer() {
         var container = $(document.createElement('div'));
         container.css({
@@ -3196,27 +3276,27 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         });
         return container;
     }
-
+        **/
     // Create the search bar with the new button
-    function createSearch() {
-        var container = $(document.createElement('div'));
-        container.css({
-            'height': LEFT_LABEL_HEIGHT + 'px',
-            'width': '100%',
-            'margin-top': '2.5%',
-            'margin-bottom': '2.5%',
-        });
-
+   // function createSearch() {
+        //var container = $(document.createElement('div'));
+        //container.css({
+           // 'height': LEFT_LABEL_HEIGHT + 'px',
+           // 'width': '100%',
+            //'margin-top': '2.5%',
+            //'margin-bottom': '2.5%',
+        //});
+/**
         searchbar = $(document.createElement('input'));
         searchbar.attr('type', 'text');
-        searchbar.attr('id', 'searchbar');
-        searchbar.css({
-            //'float': 'left',
-            'width': '55%',
-            'border-color': INPUT_BORDER,
-            'margin-top': '2%',
-            'margin-left': '3.5%',
-        });
+       // searchbar.attr('id', 'searchbar');
+        //searchbar.css({
+        //    //'float': 'left',
+         //   'width': '55%',
+           // 'border-color': INPUT_BORDER,
+            //'margin-top': '2%',
+            //'margin-left': '3.5%',
+     //   });
         searchbar.keyup(function () {
             search(searchbar.val(), '.leftLabel', 'div');
         });
@@ -3233,68 +3313,69 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
 
         newButton = $(document.createElement('button'));
         newButton.attr('type', 'button');
-        newButton.css({
-            'float': 'right',
-            'height': '100%',
-            'color': TEXT_COLOR,
-            'border-color': TEXT_COLOR,
-            'margin-top': '1%',
-            'padding-bottom': '1%',
-        });
+        //newButton.css({
+           // 'float': 'right',
+            //'height': '100%',
+           // 'color': TEXT_COLOR,
+           // 'border-color': TEXT_COLOR,
+            //'margin-top': '1%',
+            //'padding-bottom': '1%',
+        //});
         newButton.text('New');
 
         secondaryButton = $(document.createElement('button'));
         secondaryButton.attr('type', 'button');
-        secondaryButton.css({
-            'float': 'right',
-            'height': '100%',
-            'color': TEXT_COLOR,
-            'border-color': TEXT_COLOR,
-            'margin-top': '1%',
-            'padding-bottom': '1%',
-            'margin-right': '15px',
-            'display': 'none'
-        });
+       // secondaryButton.css({
+            //'float': 'right',
+           // 'height': '100%',
+            //'color': TEXT_COLOR,
+           // 'border-color': TEXT_COLOR,
+            //'margin-top': '1%',
+            //'padding-bottom': '1%',
+            //'margin-right': '15px',
+            //'display': 'none'
+        //});
         secondaryButton.text('Video');
 
-        container.append(searchbar);
-        container.append(newButton);
-        container.append(secondaryButton);
+        //container.append(searchbar);
+       // container.append(newButton);
+       // container.append(secondaryButton);
 
         return container;
     }
+    **/
 
     // Create the left loading label which has a spinning circle
     // Ideally this should always be at the bottom, so use jquery
     // .before to add elements before it
-    function createLeftLoading() {
-        var container = $(document.createElement('div'));
-        container.attr('id', 'leftLoading');
-        container.css({
-            'padding': '2%',
-            'height': LEFT_LABEL_HEIGHT + 'px',
-            'margin-right': '3%',
-        });
+   // function createLeftLoading() {
+        //var container = $(document.createElement('div'));
+       // container.attr('id', 'leftLoading');
+        //container.css({
+            //'padding': '2%',
+            //'height': LEFT_LABEL_HEIGHT + 'px',
+            //'margin-right': '3%',
+       // });
 
-        var label = $(document.createElement('label'));
-        label.css({
-            'font-size': LEFT_FONTSIZE,
-        });
-        label.text('Loading...');
+        //var label = $(document.createElement('label'));
+       // label.css({
+            //'font-size': LEFT_FONTSIZE,
+       // });
+      //  label.text('Loading...');
 
-        var circle = $(document.createElement('img'));
-        circle.attr('src', 'images/icons/progress-circle.gif');
-        circle.css({
-            'height': LEFT_LABEL_HEIGHT * 0.96 + 'px',
-            'width': 'auto',
-            'float': 'right',
-        });
+       // var circle = $(document.createElement('img'));
+      //  circle.attr('src', 'images/icons/progress-circle.gif');
+        //circle.css({
+           // 'height': LEFT_LABEL_HEIGHT * 0.96 + 'px',
+           // 'width': 'auto',
+           // 'float': 'right',
+       // });
 
-        container.append(label);
-        container.append(circle);
+       // container.append(label);
+        //container.append(circle);
 
-        return container;
-    }
+        //return container;
+    //}
 
     // Creates a left label with
     //      text:       the text of the label
@@ -3314,7 +3395,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             'padding-left': '2%',
             'padding-top': '2%',
             'padding-bottom': '2%',
-            // 'margin-right': '3.2%',
+            'margin-right': '3.2%',
             'margin-bottom': '3%',
             'overflow': 'hidden',
             'position': 'relative',
@@ -3411,7 +3492,8 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     }
 
     // Creates the right bar which holds the viewer
-    // button container and settings container
+    // button container and settings container]
+    /**
     function createRightBar() {
         var container = $(document.createElement('div'));
         container.css({
@@ -3423,8 +3505,9 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
 
         return container;
     }
-
+        **/
     // Creates the viewer
+    /**
     function createViewer() {
         var container = $(document.createElement('div'));
         container.attr('id', 'previewContainer');
@@ -3443,39 +3526,41 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         });
         return container;
     }
-
+        **/
+    /**
     // Creates the button container
     function createButtonContainer() {
         var container = $(document.createElement('div'));
         container.css({
-            'width': '100%',
-            'position': 'absolute',
+            //'width': '100%',
+            //'position': 'absolute',
             //Dont delete:
             'top': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
-            'height': BUTTON_HEIGHT + 'px',
-            'z-index': '5',
-            'background': ROOT_BGCOLOR,
-            'margin-top': '0.35%',
-            'margin-bottom': '2.5%',
+            //'height': BUTTON_HEIGHT + 'px',
+            //'z-index': '5',
+            //'background': ROOT_BGCOLOR,
+            //'margin-top': '0.35%',
+            //margin-bottom': '2.5%',
         });
-        return container;
+       // return container;
     }
-
+        **/
     // Creates the settings bar which holds the settings container
+    /**
     function createSettings() {
         var container = $(document.createElement('div'));
         container.css({
             // Be careful with this height--
             //Dont delete:
             'height': getSettingsHeight() + 'px',
-            'width': '100%',
-            'position': 'absolute',
-            'bottom': '0px',
-            'overflow': 'auto',
+            //'width': '100%',
+            //'position': 'absolute',
+            //'bottom': '0px',
+            //'overflow': 'auto',
         });
         return container;
     }
-
+    **/
     // Gets the height of the settings section
     // Since the viewer has to be positioned absolutely,
     // the entire right bar needs to be position absolutely.
@@ -4469,4 +4554,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             $(confirmationBox).show();
         }
     }
+
+    return that;
 };

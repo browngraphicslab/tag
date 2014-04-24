@@ -112,11 +112,12 @@ module.exports = function(grunt) {
 						'LADS/css/StartPage.styl',
 						'LADS/css/InternetFailurePage.styl',
 						'LADS/css/Artmode.styl',
+						'LADS/css/SettingsView.styl',
 						'LADS/css/NewCatalog.styl',
 						'LADS/css/VideoPlayer.styl',
 						'LADS/css/TourPlayer.styl',
-						'LADS/css/General.styl',
-						'LADS/css/SettingsView.styl'
+						'LADS/css/General.styl'
+
 					]
 				}
 			}
