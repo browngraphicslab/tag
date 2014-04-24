@@ -297,6 +297,12 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         serverTagBuffer.on('click', function (evt) {
             evt.stopPropagation();
         });
+
+        overlay.on('click', 'a', function (evt) {
+            //this == the link that was clicked
+            var href = $(this).attr("href");
+            evt.stopPropagation();
+        });
     }
 
 
@@ -470,7 +476,14 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         if (!tempInfo) {
             tempInfo = "";
         }
-        museumInfoSpan.text(tempInfo);
+
+        if (typeof Windows != "undefined") {
+            // running in Win8 app
+            museumInfoSpan.html(tempInfo);
+        } else {  
+            // running in browser
+            museumInfoSpan.html(Autolinker.link(tempInfo , {email: false, twitter: false}));
+        }
     }
     
 
