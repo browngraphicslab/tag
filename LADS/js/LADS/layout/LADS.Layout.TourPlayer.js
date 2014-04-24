@@ -33,7 +33,6 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
         overlayOnRoot = root.find('#overlayOnRoot');
 
     backButton.attr('src', tagPath+'images/icons/Back.svg');
-
     //clicked effect for back button
     backButton.on('mousedown', function(){
         LADS.Util.UI.cgBackColor("backButton", backButton, false);
@@ -68,6 +67,9 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
             artmode = new LADS.Layout.Artmode(prevInfo, artwork, exhibition);
             /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, artmode.getRoot());
+
+            var selectedExhib = $('#exhib-' + prevExhib.Identifier);
+            selectedExhib.attr('flagClicked', 'true');
         } else {
             /* nbowditch _editted 2/13/2014 : added backInfo */
             var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
@@ -78,7 +80,7 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
 				var selectedExhib = $('#exhib-' + prevExhib.Identifier);
 				selectedExhib.attr('flagClicked', 'true');
 				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
-                if(selectedExhib[0] && selectedExhib[0].firstChild) {
+                if(selectedExhib[0].firstChild) {
     				$(selectedExhib[0].firstChild).css({'color': 'black'});
                 }
 			});           

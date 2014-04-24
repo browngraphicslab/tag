@@ -167,13 +167,16 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
         that.viewer.viewport.applyConstraints();
     }
+    this.dzManip = dzManip;
 
     function dzScroll(delta, pivot) {
-        // console.log("pivot.x "+ pivot.x+"  pivot.y :  "+pivot.y);
-        // console.log(delta);
+        console.log("pivot.x "+ pivot.x+"  pivot.y :  "+pivot.y);
+        console.log(delta);
         that.viewer.viewport.zoomBy(delta, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
         that.viewer.viewport.applyConstraints();
     }
+
+    this.dzScroll = dzScroll;
 
     function init() {
         if(Seadragon.Config) {
@@ -228,17 +231,20 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
     //new hotspot function
     function hotspot(info) {
+        var imgadded = false;
         this.title = info.title;
         this.contentType = info.contentType;
         this.source = info.source;
         this.description = info.description;
         this.thumbnail = info.thumbnail;
         var assetHidden = true;
+        var audio, video;
 
         var outerContainer = document.createElement('div');
-        outerContainer.style.width = "450px";
+        outerContainer.style.width = Math.min(Math.max(250, ($('#tagContainer').width() / 5)), 450)+'px';
 
         var innerContainer = document.createElement('div');
+        var mediaContainer = $(document.createElement('div')).addClass('mediaContainer');
 
         // media-specific
         var controlPanel = $(document.createElement('div')),
@@ -279,357 +285,391 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             'padding-bottom': '2%',
             'overflow': 'hidden',
             'text-overflow': 'ellipsis',
-            'font-weight': '700',
+            'font-weight': '700'
         });
 
         innerContainer.appendChild(p1);
         var hoverString, setHoverValue;
-        // show image/video/audio/text
-        if (this.contentType === 'Image') {
-            var img = document.createElement('img');
-            img.src = LADS.Worktop.Database.fixPath(this.source);
-            $(img).css({
-                'position': 'relative',
-                width: '100%',
-                height: 'auto'
-            });
-            innerContainer.appendChild(img);
-
-        } else if (this.contentType === 'Video') {
-            var video = document.createElement('video');
-            $(video).attr('preload', 'none');
-            $(video).attr('poster', (this.thumbnail && !this.thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(this.thumbnail) : '');
-            video.src = LADS.Worktop.Database.fixPath(this.source);
-            video.type = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';//'video/mp4';
-            video.type = 'video/ogg; codecs="theora, vorbis"';//'video/ogg';
-            video.type = 'video/webm; codecs="vp8, vorbis"';//'video/webm'; // TODO this doesn't make any sense. why are we overwriting this twice?
-            video.style.position = 'relative';
-            video.style.width = '100%';
-            video.controls = false;
-
-            innerContainer.appendChild(video);
-
-            playHolder = $(document.createElement('div'));
-            play = document.createElement('img');
-            $(play).attr('src', 'images/icons/PlayWhite.svg');
-            $(play).addClass('videoControls');
-            $(play).css({
-                'position': 'relative',
-                'height': '20px',
-                'width': '20px',
-                'display': 'inline-block',
-            });
-            playHolder.css({
-                'position': 'relative',
-                'height': '20px',
-                'width': '20px',
-                'display': 'inline-block',
-                'margin': '0px 1% 0px 1%',
-            });
-            playHolder.append(play);
-
-            volHolder = $(document.createElement('div'));
-            vol = document.createElement('img');
-            $(vol).attr('src', 'images/icons/VolumeUpWhite.svg');
-            $(vol).addClass('videoControls');
-            $(vol).css({
-                'height': '20px',
-                'width': '20px',
-                'position': 'relative',
-                'display': 'inline-block',
-            });
-
-            volHolder.css({
-                'height': '20px',
-                'width': '20px',
-                'position': 'relative',
-                'display': 'inline-block',
-                'margin': '0px 1% 0px 1%',
-            });
-            volHolder.append(vol);
-            this.initVideoPlayHandlers = function () {
-                if (video.currentTime !== 0) video.currentTime = 0;
-                $(play).attr('src', 'images/icons/PlayWhite.svg');
-                $(play).on('click', function () {
-                    if (video.paused) {
-                        video.play();
-                        $(play).attr('src', 'images/icons/PauseWhite.svg');
-                    } else {
-                        video.pause();
-                        $(play).attr('src', 'images/icons/PlayWhite.svg');
-                    }
+        
+        this.mediaload=function(){
+            if(!imgadded) {
+                imgadded = true;
+            } else {
+                return;
+            }
+            if (this.contentType === 'Image') {
+                
+                
+                var img = document.createElement('img');
+                img.src = LADS.Worktop.Database.fixPath(this.source);
+                $(img).css({
+                    'position': 'relative',
+                    width: '100%',
+                    height: 'auto'
                 });
+                console.log("appending new image");
+                mediaContainer.append(img);
+                imgadded = true;
+            }
 
-                $(vol).on('click', function () {
-                    if (video.muted) {
-                        video.muted = false;
-                        $(vol).attr('src', 'images/icons/VolumeUpWhite.svg');
-                    } else {
-                        video.muted = true;
-                        $(vol).attr('src', 'images/icons/VolumeDownWhite.svg');
-                    }
-                });
+             
+            if (this.contentType === 'Video') {
+                
+                    video = document.createElement('video');
+                    $(video).attr('preload', 'none');
+                    $(video).attr('poster', (this.thumbnail && !this.thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(this.thumbnail) : '');
+                    video.src = LADS.Worktop.Database.fixPath(this.source);
+                    video.type = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';//'video/mp4';
+                    video.type = 'video/ogg; codecs="theora, vorbis"';//'video/ogg';
+                    video.type = 'video/webm; codecs="vp8, vorbis"';//'video/webm'; // TODO this doesn't make any sense. why are we overwriting this twice?
+                    video.style.position = 'relative';
+                    video.style.width = '100%';
+                    video.controls = false;
 
-                $(video).on('ended', function () {
-                    video.pause();
-                    $(play).attr('src', 'images/icons/PlayWhite.svg');
-                });
-            };
-            this.initVideoPlayHandlers();
+                    playHolder = $(document.createElement('div'));
+                    play = document.createElement('img');
+                    $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                    $(play).addClass('videoControls');
+                    $(play).css({
+                        'position': 'relative',
+                        'height': '20px',
+                        'width': '20px',
+                        'display': 'inline-block',
+                    });
+                    playHolder.css({
+                        'position': 'relative',
+                        'height': '20px',
+                        'width': '20px',
+                        'display': 'inline-block',
+                        'margin': '0px 1% 0px 1%',
+                    });
+                    playHolder.append(play);
 
-            seekBar = document.createElement('input');
-            $(seekBar).addClass('videoControls');
-            seekBar.type = 'range';
-            $(seekBar).attr('id', "seek-bar");
-            $(seekBar).attr('value', "0");
-            seekBar.style.margin = '0px 1% 0px 1%';
-            seekBar.style.display = 'inline-block';
-            seekBar.style.padding = '0px';
-            $(seekBar).css({
-                left: '30px',
-            });
+                    volHolder = $(document.createElement('div'));
+                    vol = document.createElement('img');
+                    $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
+                    $(vol).addClass('videoControls');
+                    $(vol).css({
+                        'height': '20px',
+                        'width': '20px',
+                        'position': 'relative',
+                        'display': 'inline-block',
+                    });
 
-            // Event listener for the seek bar
-            seekBar.addEventListener("change", function (evt) {
-                evt.stopPropagation();
-                // Calculate the new time
-                var time = video.duration * (seekBar.value / 100);
-                // Update the video time
-                if (!isNaN(time)) {
-                    video.currentTime = time;
+                    volHolder.css({
+                        'height': '20px',
+                        'width': '20px',
+                        'position': 'relative',
+                        'display': 'inline-block',
+                        'margin': '0px 1% 0px 1%',
+                    });
+                    volHolder.append(vol);
+                    this.initVideoPlayHandlers = function () {
+                        if (video.currentTime !== 0) video.currentTime = 0;
+                        $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                        $(play).on('click', function () {
+                            if (video.paused) {
+                                video.play();
+                                $(play).attr('src', tagPath+'images/icons/PauseWhite.svg');
+                            } else {
+                                video.pause();
+                                $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                            }
+                        });
+
+                        $(vol).on('click', function () {
+                            if (video.muted) {
+                                video.muted = false;
+                                $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
+                            } else {
+                                video.muted = true;
+                                $(vol).attr('src', tagPath+'images/icons/VolumeDownWhite.svg');
+                            }
+                        });
+
+                        $(video).on('ended', function () {
+                            video.pause();
+                            $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                        });
+                    };
+                    this.initVideoPlayHandlers();
+
+                    seekBar = document.createElement('input');
+                    $(seekBar).addClass('videoControls');
+                    seekBar.type = 'range';
+                    $(seekBar).attr('id', "seek-bar");
+                    $(seekBar).attr('value', "0");
+                    seekBar.style.margin = '0px 1% 0px 1%';
+                    seekBar.style.display = 'inline-block';
+                    seekBar.style.padding = '0px';
+                    $(seekBar).css({
+                        left: '30px',
+                    });
+
+                    // Event listener for the seek bar
+                    seekBar.addEventListener("change", function (evt) {
+                        evt.stopPropagation();
+                        // Calculate the new time
+                        var time = video.duration * (seekBar.value / 100);
+                        // Update the video time
+                        if (!isNaN(time)) {
+                            video.currentTime = time;
+                        }
+                    });
+
+                    $(seekBar).mouseover(function (evt) {
+                        var percent = evt.offsetX / $(seekBar).width();
+                        var hoverTime = video.duration * percent;
+                        var minutes = Math.floor(hoverTime / 60);
+                        var seconds = Math.floor(hoverTime % 60);
+                        hoverString = String(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
+                        seekBar.title = hoverString;
+                        //console.log("minute "+ minutes+" seconds "+seconds+"hover "+ hoverString+"percent "+percent );
+                    });
+
+                    $(seekBar).mousedown(function (evt) {
+                        dragBar = true;
+                        evt.stopPropagation();
+                    });
+
+                    $(seekBar).mouseup(function (evt) {
+                        dragBar = false;
+                        evt.stopPropagation();
+                    });
+
+                    timeContainer = document.createElement('div');
+                    $(timeContainer).css({
+                        'height': '20px',
+                        'width': '40px',
+                        'margin': '0px 1% 0px 1%',
+                        'padding': '0',
+                        'display': 'inline-block',
+                        'overflow': 'hidden',
+                    });
+
+                    currentTimeDisplay = document.createElement('span');
+                    $(currentTimeDisplay).text("00:00");
+                    $(currentTimeDisplay).addClass('videoControls');
+
+                    // Update the seek bar as the video plays
+                    video.addEventListener("timeupdate", function () {
+                        // Calculate the slider value
+                        var value = (100 / video.duration) * video.currentTime;
+                        // Update the slider value
+                        seekBar.value = value;
+                        var minutes = Math.floor(video.currentTime / 60);
+                        var seconds = Math.floor(video.currentTime % 60);
+                        var adjMin;
+                        if (String(minutes).length < 2) {
+                            adjMin = String('0' + minutes);
+                        } else {
+                            adjMin = String(minutes);
+                        }
+                        $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
+                    });
+
+                    // if(!imgadded) {
+                    mediaContainer.append(video);
+                    mediaContainer.append(controlPanel[0]);
+                    //    imgadded = true;
+                    //}
+                    controlPanel.append(playHolder);
+                    controlPanel.append(seekBar);
+                    $(timeContainer).append(currentTimeDisplay);
+                    controlPanel.append(timeContainer);
+                    controlPanel.append(volHolder);
                 }
-            });
 
-            $(seekBar).mouseover(function (evt) {
-                var percent = evt.offsetX / $(seekBar).width();
-                var hoverTime = video.duration * percent;
-                var minutes = Math.floor(hoverTime / 60);
-                var seconds = Math.floor(hoverTime % 60);
-                hoverString = String(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
-                seekBar.title = hoverString;
-                //console.log("minute "+ minutes+" seconds "+seconds+"hover "+ hoverString+"percent "+percent );
-            });
+                
+                if (this.contentType === 'Audio') {
+                    // debugger;
+                    audio = document.createElement('audio');
+                    $(audio).attr({
+                        'preload': 'none'
+                    });
+                    audio.src = LADS.Worktop.Database.fixPath(this.source);
+                    audio.type = 'audio/ogg';
+                    audio.type = 'audio/mp3'; // TODO <-- we should be overwriting types!
+                    audio.removeAttribute('controls');
 
-            $(seekBar).mousedown(function (evt) {
-                dragBar = true;
-                evt.stopPropagation();
-            });
+                    playHolder = $(document.createElement('div'));
+                    play = document.createElement('img');
+                    $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                    $(play).addClass('audioControls');
+                    $(play).css({
+                        'position': 'relative',
+                        'height': '20px',
+                        'width': '20px',
+                        'display': 'inline-block',
+                    });
+                    playHolder.css({
+                        'position': 'relative',
+                        'height': '20px',
+                        'width': '20px',
+                        'display': 'inline-block',
+                        'margin': '0px 1% 0px 1%',
+                    });
 
-            $(seekBar).mouseup(function (evt) {
-                dragBar = false;
-                evt.stopPropagation();
-            });
+                    play.style.width = "32px";
+                    play.style.height = "32px";
+                    playHolder.width(32);
+                    playHolder.height(32);
 
-            timeContainer = document.createElement('div');
-            $(timeContainer).css({
-                'height': '20px',
-                'width': '40px',
-                'margin': '0px 1% 0px 1%',
-                'padding': '0',
-                'display': 'inline-block',
-                'overflow': 'hidden',
-            });
+                    playHolder.append(play);
 
-            currentTimeDisplay = document.createElement('span');
-            $(currentTimeDisplay).text("00:00");
-            $(currentTimeDisplay).addClass('videoControls');
+                    volHolder = $(document.createElement('div'));
+                    vol = document.createElement('img');
+                    $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
+                    $(vol).addClass('audioControls');
+                    $(vol).css({
+                        'height': '20px',
+                        'width': '20px',
+                        'position': 'relative',
+                        'display': 'inline-block',
+                    });
 
-            // Update the seek bar as the video plays
-            video.addEventListener("timeupdate", function () {
-                // Calculate the slider value
-                var value = (100 / video.duration) * video.currentTime;
-                // Update the slider value
-                seekBar.value = value;
-                var minutes = Math.floor(video.currentTime / 60);
-                var seconds = Math.floor(video.currentTime % 60);
-                var adjMin;
-                if (String(minutes).length < 2) {
-                    adjMin = String('0' + minutes);
-                } else {
-                    adjMin = String(minutes);
-                }
-                $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
-            });
-
-            innerContainer.appendChild(controlPanel[0]);
-            controlPanel.append(playHolder);
-            controlPanel.append(seekBar);
-            $(timeContainer).append(currentTimeDisplay);
-            controlPanel.append(timeContainer);
-            controlPanel.append(volHolder);
-
-        } else if (this.contentType === 'Audio') {
-            var audio = document.createElement('audio');
-            $(audio).attr('preload', 'none');
-            audio.src = LADS.Worktop.Database.fixPath(this.source);
-            audio.type = 'audio/ogg';
-            audio.type = 'audio/mp3';
-            audio.controls = 'false';
-
-            playHolder = $(document.createElement('div'));
-            play = document.createElement('img');
-            $(play).attr('src', 'images/icons/PlayWhite.svg');
-            $(play).addClass('audioControls');
-            $(play).css({
-                'position': 'relative',
-                'height': '20px',
-                'width': '20px',
-                'display': 'inline-block',
-            });
-            playHolder.css({
-                'position': 'relative',
-                'height': '20px',
-                'width': '20px',
-                'display': 'inline-block',
-                'margin': '0px 1% 0px 1%',
-            });
-
-            play.style.width = "32px";
-            play.style.height = "32px";
-            playHolder.width(32);
-            playHolder.height(32);
-
-            playHolder.append(play);
-
-            volHolder = $(document.createElement('div'));
-            vol = document.createElement('img');
-            $(vol).attr('src', 'images/icons/VolumeUpWhite.svg');
-            $(vol).addClass('audioControls');
-            $(vol).css({
-                'height': '20px',
-                'width': '20px',
-                'position': 'relative',
-                'display': 'inline-block',
-            });
-
-            volHolder.css({
-                'height': '20px',
-                'width': '20px',
-                'position': 'relative',
-                'display': 'inline-block',
-                'margin': '0px 1% 0px 1%',
-            });
-            volHolder.append(vol);
-            this.initAudioPlayHandlers = function () {
-                if (audio.currentTime !== 0) audio.currentTime = 0;
-                audio.pause();
-                $(play).attr('src', 'images/icons/PlayWhite.svg');
-                $(play).on('click', function () {
-                    if (audio.paused) {
-                        audio.play();
-                        $(play).attr('src', 'images/icons/PauseWhite.svg');
-                    } else {
+                    volHolder.css({
+                        'height': '20px',
+                        'width': '20px',
+                        'position': 'relative',
+                        'display': 'inline-block',
+                        'margin': '0px 1% 0px 1%',
+                    });
+                    volHolder.append(vol);
+                    this.initAudioPlayHandlers = function () {
+                        if (audio.currentTime !== 0) audio.currentTime = 0;
                         audio.pause();
-                        $(play).attr('src', 'images/icons/PlayWhite.svg');
-                    }
-                });
+                        $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                        $(play).on('click', function () {
+                            if (audio.paused) {
+                                audio.play();
+                                $(play).attr('src', tagPath+'images/icons/PauseWhite.svg');
+                            } else {
+                                audio.pause();
+                                $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                            }
+                        });
 
-                $(vol).on('click', function () {
-                    if (audio.muted) {
-                        audio.muted = false;
-                        $(vol).attr('src', 'images/icons/VolumeUpWhite.svg');
-                    } else {
-                        audio.muted = true;
-                        $(vol).attr('src', 'images/icons/VolumeDownWhite.svg');
-                    }
-                });
+                        $(vol).on('click', function () {
+                            if (audio.muted) {
+                                audio.muted = false;
+                                $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
+                            } else {
+                                audio.muted = true;
+                                $(vol).attr('src', tagPath+'images/icons/VolumeDownWhite.svg');
+                            }
+                        });
 
-                $(audio).on('ended', function () {
-                    audio.pause();
-                    $(play).attr('src', 'images/icons/PlayWhite.svg');
-                });
-            };
+                        $(audio).on('ended', function () {
+                            audio.pause();
+                            $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                        });
+                    };
 
-            this.initAudioPlayHandlers();
+                    this.initAudioPlayHandlers();
 
-            seekBar = document.createElement('input');
-            $(seekBar).addClass('audioControls');
-            seekBar.type = 'range';
-            $(seekBar).attr('id', "seek-bar");
-            $(seekBar).attr('value', "0");
-            seekBar.style.margin = '0px 1% 0px 1%';
-            seekBar.style.display = 'inline-block';
-            seekBar.style.padding = '0px';
-            $(seekBar).css({
-                left: '30px',
-            });
+                    seekBar = document.createElement('input');
+                    $(seekBar).addClass('audioControls');
+                    seekBar.type = 'range';
+                    $(seekBar).attr('id', "seek-bar");
+                    $(seekBar).attr('value', "0");
+                    seekBar.style.margin = '0px 1% 0px 1%';
+                    seekBar.style.display = 'inline-block';
+                    seekBar.style.padding = '0px';
+                    $(seekBar).css({
+                        left: '30px',
+                    });
 
-            // Event listener for the seek bar
-            seekBar.addEventListener("change", function (evt) {
-                evt.stopPropagation();
-                // Calculate the new time
-                var time = audio.duration * (seekBar.value / 100);
-                // Update the audio time
-                if (!isNaN(time)) {
-                    audio.currentTime = time;
-                }
-            });
+                    // Event listener for the seek bar
+                    seekBar.addEventListener("change", function (evt) {
+                        evt.stopPropagation();
+                        // Calculate the new time
+                        var time = audio.duration * (seekBar.value / 100);
+                        // Update the audio time
+                        if (!isNaN(time)) {
+                            audio.currentTime = time;
+                        }
+                    });
 
-            $(seekBar).mouseover(function (evt) {
-                var percent = evt.offsetX / $(seekBar).width();
-                var hoverTime = audio.duration * percent;
-                var minutes = Math.floor(hoverTime / 60);
-                var seconds = Math.floor(hoverTime % 60);
-                hoverString = String(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
-                seekBar.title = hoverString;
-                //console.log("minute "+ minutes+" seconds "+seconds+"hover "+ hoverString+"percent "+percent );
-            });
+                    $(seekBar).mouseover(function (evt) {
+                        var percent = evt.offsetX / $(seekBar).width();
+                        var hoverTime = audio.duration * percent;
+                        var minutes = Math.floor(hoverTime / 60);
+                        var seconds = Math.floor(hoverTime % 60);
+                        hoverString = String(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
+                        seekBar.title = hoverString;
+                        //console.log("minute "+ minutes+" seconds "+seconds+"hover "+ hoverString+"percent "+percent );
+                    });
 
-            $(seekBar).mousedown(function (evt) {
-                dragBar = true;
-                evt.stopPropagation();
-            });
+                    $(seekBar).mousedown(function (evt) {
+                        dragBar = true;
+                        evt.stopPropagation();
+                    });
 
-            $(seekBar).mouseup(function (evt) {
-                dragBar = false;
-                evt.stopPropagation();
-            });
+                    $(seekBar).mouseup(function (evt) {
+                        dragBar = false;
+                        evt.stopPropagation();
+                    });
 
-            timeContainer = document.createElement('div');
-            $(timeContainer).css({
-                'height': '20px',
-                'width': '40px',
-                'margin': '0px 1% 0px 1%',
-                'padding': '0',
-                'display': 'inline-block',
-                'overflow': 'hidden',
-            });
+                    timeContainer = document.createElement('div');
+                    $(timeContainer).css({
+                        'height': '20px',
+                        'width': '40px',
+                        'margin': '0px 1% 0px 1%',
+                        'padding': '0',
+                        'display': 'inline-block',
+                        'overflow': 'hidden',
+                    });
 
-            currentTimeDisplay = document.createElement('span');
-            $(currentTimeDisplay).text("00:00");
-            $(currentTimeDisplay).addClass('audioControls');
+                    currentTimeDisplay = document.createElement('span');
+                    $(currentTimeDisplay).text("00:00");
+                    $(currentTimeDisplay).addClass('audioControls');
 
-            // Update the seek bar as the audio plays
-            audio.addEventListener("timeupdate", function () {
-                // Calculate the slider value
-                var value = (100 / audio.duration) * audio.currentTime;
-                // Update the slider value
-                seekBar.value = value;
-                var minutes = Math.floor(audio.currentTime / 60);
-                var seconds = Math.floor(audio.currentTime % 60);
-                var adjMin;
-                if (String(minutes).length < 2) {
-                    adjMin = String('0' + minutes);
-                } else {
-                    adjMin = String(minutes);
-                }
-                $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
-            });
+                    // Update the seek bar as the audio plays
+                    audio.addEventListener("timeupdate", function () {
+                        // Calculate the slider value
+                        var value = (100 / audio.duration) * audio.currentTime;
+                        // Update the slider value
+                        seekBar.value = value;
+                        var minutes = Math.floor(audio.currentTime / 60);
+                        var seconds = Math.floor(audio.currentTime % 60);
+                        var adjMin;
+                        if (String(minutes).length < 2) {
+                            adjMin = String('0' + minutes);
+                        } else {
+                            adjMin = String(minutes);
+                        }
+                        $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
+                    });
 
-            innerContainer.appendChild(controlPanel[0]);
-            controlPanel.append(playHolder);
-            controlPanel.append(seekBar);
-            $(timeContainer).append(currentTimeDisplay);
-            controlPanel.append(timeContainer);
-            controlPanel.append(volHolder);
+                    // if(!imgadded) {
+                    mediaContainer.append(audio);
+                    mediaContainer.append(controlPanel[0]);
+                    //     imgadded = true;
+                    // }
+                    
+                    controlPanel.append(playHolder);
+                    controlPanel.append(seekBar);
+                    $(timeContainer).append(currentTimeDisplay);
+                    controlPanel.append(timeContainer);
+                    controlPanel.append(volHolder);
+            }
         }
 
+        $(innerContainer).append(mediaContainer);
+       
         // add description -- ?
         if (this.description) {
             var p2 = document.createElement('div');
-            if (this.title === '2222')
-                console.log("jho");
-            $(p2).html(LADS.Util.htmlEntityDecode(this.description));
+            if (typeof Windows != "undefined") {
+                // running in Win8 app
+                $(p2).html(LADS.Util.htmlEntityDecode(this.description));
+            } else {  
+                // running in browser
+                $(p2).html(Autolinker.link(LADS.Util.htmlEntityDecode(this.description), {email: false, twitter: false}));
+            }
+            
+            
             $(p2).css({
                 'position': 'relative',
                 'left': '5%',
@@ -645,7 +685,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         function resizeControlElements() {
             // scale control panel
             var cpSize = LADS.Util.constrainAndPosition(
-                $(innerContainer).width(), $(innerContainer).height(),
+                $(innerContainer).width()-20, $(innerContainer).height(),
                 {
                     width: 1,
                     height: 1,
@@ -715,7 +755,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             var textFontSize = LADS.Util.getMaxFontSizeEM("99:99", 0, textEltSize.width, textEltSize.height, 0.05);
 
             $(timeContainer).css({
-                width: textEltSize.width + 'px',
+                width: (textEltSize.width + 5) + 'px',
                 height: textEltSize.height + 'px',
                 top: textEltSize.y + 'px',
             });
@@ -787,7 +827,8 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             }
         };
 
-        function hideAsset() {
+        this.hideAsset = function() {
+            this.pauseAsset();
             $(outerContainer).hide();
             assetHidden = true;
         }
@@ -796,20 +837,20 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             if (assetHidden) {
                 showAsset();
             } else {
-                hideAsset();
+                this.hide();
             }
         };
 
-        this.pauseAsset = function () {
-            if (this.contentType === 'Audio') {
+        this.pauseAsset = function() {
+            if (this.contentType === 'Audio' && audio) {
                 if (audio.currentTime !== 0) audio.currentTime = 0;
                 audio.pause();
-                $(play).attr('src', 'images/icons/PlayWhite.svg');
+                $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
             }
-            else if (this.contentType === 'Video') {
+            else if (this.contentType === 'Video' && video) {
                 if (video.currentTime > 0.1) video.currentTime = 0;
                 if (!video.paused) video.pause();
-                $(play).attr('src', 'images/icons/PlayWhite.svg');
+                $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
             }
         }
 
@@ -834,10 +875,11 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 source: info.source,
                 thumbnail: info.thumbnail,
                 toggle: this.toggle,
-                hide: hideAsset,
+                hide: this.hideAsset,
                 show: showAsset,
                 resize: resizeControlElements,
-                pauseAsset: this.pauseAsset
+                pauseAsset: this.pauseAsset,
+                mediaload: this.mediaload
             });
         }
     }
@@ -932,6 +974,9 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 $(circle).hide();
                 $(hotspot.getRoot()).hide();
             }
+
+            hotspot.pauseAsset();
+
             isCircleShowing = false;
             isOn = false;
             isInfoShowing = false;
@@ -953,7 +998,8 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 toggle: toggle,
                 hide: hide,
                 show: show,
-                pauseAsset: hotspot.pauseAsset,
+                mediaload: hotspot.mediaload,
+                pauseAsset: hotspot.pauseAsset
             });
         }
     }

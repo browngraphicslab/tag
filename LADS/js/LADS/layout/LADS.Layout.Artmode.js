@@ -16,59 +16,65 @@
 LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
     "use strict";
 
-    /* nbowditch _editted 2/13/2014 : added prevInfo */
-    var prevPage;
-    var prevScroll = 0;
-	var prevExhib = exhibition;
-    if (prevInfo) {
-        prevPage = prevInfo.prevPage,
-        prevScroll = prevInfo.prevScroll;
-    }
-    /* end nbowditch edit */
-
-    var locationList = LADS.Util.UI.getLocationList(options.doq.Metadata);
-    var initialized = false;
-    var root, doq, map, splitscreen, locsize, backButton,
+    var prevPage,
+        prevScroll,
+        prevExhib = exhibition,
+        locationList = LADS.Util.UI.getLocationList(options.doq.Metadata),
+        initialized = false,
+        root, doq, map, splitscreen, locsize, backButton,
         sideBar, toggler, togglerImage, locationHistoryDiv, info, //Need to be instance vars for splitscreen
         zoomimage = null,
         locationHistoryToggle,
         locationHistoryContainer,
         locationHistory,
         direction, //direction for location history panel
-        mapMade = false;
-    var locationHistoryActive = false;//have the location history panel hidden as default.
-    var drawers = [];
-    var hotspotsHolderArray = [];
-    var hotspotsArray = [];
-    var assets, hotspots;
-    var loadQueue = LADS.Util.createQueue();
-    var switching = false;
-    var confirmationBox;
-    var tagContainer = $('#tagRoot') || $('body');
-    var NUM_DRAWERS = 4;
+        mapMade = false,
+        locationHistoryActive = false,//have the location history panel hidden as default.
+        drawers = [],
+        hotspotsHolderArray = [],
+        hotspotsArray = [],
+        assets, hotspots,
+        loadQueue = LADS.Util.createQueue(),
+        switching = false,
+        confirmationBox,
+        tagContainer = $('#tagRoot') || $('body'),
+        NUM_DRAWERS = 0;
+
+    if (prevInfo) {
+        prevPage = prevInfo.prevPage,
+        prevScroll = prevInfo.prevScroll || 0;
+    }
+        
     options = LADS.Util.setToDefaults(options, LADS.Layout.Artmode.default_options);
     doq = options.doq;
 
     init();
+
     /**
-    *initiate artmode with a root, artwork image and a sidebar on the left.
-    */
+     * Initiate artmode with a root, artwork image and a sidebar on the left.
+     * @method init
+     */
     function init() {
         // add elements to the header for displaying bing maps
-        var head = document.getElementsByTagName('head').item(0);
-        var script = document.createElement("script");
+        var head,
+            script,
+            meta;
+
+        head = document.getElementsByTagName('head').item(0);
+        script = document.createElement("script");
         script.charset = "UTF-8";
         script.type = "text/javascript";
         script.src = "http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0";
         head.appendChild(script);
 
-        var meta = document.createElement('meta');
+        meta = document.createElement('meta');
         meta.httpEquiv = "Content-Type";
         meta.content = "text/html; charset=utf-8";
         head.appendChild(meta);
 
         root = LADS.Util.getHtmlAjax('Artmode.html');
         root.data('split', options.split);
+
         //get the artwork
         if (doq) {
             zoomimage = new LADS.AnnotatedImage(root, doq, options.split, function () {
@@ -79,10 +85,11 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 try { // TODO figure out why loadDoq sometimes causes a NetworkError (still happening?)
                     zoomimage.loadDoq(doq);
                 } catch(err) {
-                    console.log(err); // TODO if we hit a network error, show an error message on screen
+                    console.log(err); // TODO if we hit a network error, show an error message
                 }
                 LADS.Util.Splitscreen.setViewers(root, zoomimage); // TODO should we get rid of all splitscreen stuff?
                 makeSidebar();
+                createSeadragonControls();
                 initialized = true;
             });
             
@@ -90,8 +97,156 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
     }
 
     /**
-    *When called, makes the sidebar. TODO: Factor most of this out to constants
-    */
+     * Add controls for manual Seadragon manipulation
+     * This was written for testing purposes and was not carefully written
+     * DO NOT KEEP THIS AS IS!!!!!!
+     * @method createSeadragonControls
+     */
+    function createSeadragonControls() {
+        var container = root.find('#seadragonManipContainer');
+        container.css({
+            'left': ($('#tagRoot').width()-160) + "px"
+        });
+        root.append(container);
+        
+        var slidebutton = root.find('#seadragonManipSlideButton');
+        slidebutton.css({
+            'left': 0 + "px",
+            'padding-top': '10px'
+        });
+        var slideimg = $(document.createElement('img'));
+        slideimg.attr("src",tagPath+ 'images/icons/Close_expand.svg');
+        slideimg.css({
+            'width':'23px',
+            'height': '40px',
+            'transform': 'rotate(180deg)',
+            'margin-top':'-10px'
+        });
+        
+        var D_PAD_LEFT = 60;
+        var D_PAD_TOP = 26;
+
+        document.getElementById("seadragonManipSlideButton").innerHTML="Show Controls";
+        var top = 0;
+        var count = 0;
+        slidebutton.on('click', function () {
+            count = count + 1
+            container.animate({top:top});
+            if (count%2===0){
+                top = 0;
+                document.getElementById("seadragonManipSlideButton").innerHTML="Show Controls";
+            }
+            if(count%2===1){
+                top = -100;
+                document.getElementById("seadragonManipSlideButton").innerHTML = '';
+                slidebutton.append(slideimg);
+            }
+                
+        });
+        
+        container.append(slidebutton);
+        container.append(createButton('leftControl', tagPath+ 'images/icons/zoom_left.svg', 60, D_PAD_TOP + 14));
+        container.append(createButton('upControl', tagPath+'images/icons/zoom_up.svg', D_PAD_LEFT + 12, D_PAD_TOP + 2));
+        container.append(createButton('rightControl', tagPath+'images/icons/zoom_right.svg', D_PAD_LEFT+41, D_PAD_TOP + 14));
+        container.append(createButton('downControl', tagPath+'images/icons/zoom_down.svg', D_PAD_LEFT+12, D_PAD_TOP+43));
+        container.append(createButton('zinControl', tagPath+'images/icons/zoom_plus.svg', D_PAD_LEFT-40, D_PAD_TOP-6));
+        container.append(createButton('zoutControl', tagPath+'images/icons/zoom_minus.svg', D_PAD_LEFT-40, D_PAD_TOP+34));
+
+        function createButton(id, imgPath, left, top) {
+            
+            var img = $(document.createElement('img'));
+            img.attr("src",imgPath);
+            img.attr('id',id);
+            img.css({
+                left : left,
+                top: top
+            });
+            if (id==='leftControl' || id ==='rightControl'){
+                img.addClass('seadragonManipButtonLR');
+            }
+            if (id==='upControl'|| id==='downControl'){
+                img.addClass('seadragonManipButtonUD');
+            }
+            if (id==='zinControl'|| id==='zoutControl'){
+                img.addClass('seadragonManipButtoninout');
+            }
+             container.append(img);
+
+            // TODO should do the following by id in the .styl file
+            if (id==='zinControl' || id ==='zoutControl'){
+                img.css({
+                    'width':'25px'
+                 });
+            } 
+            return img;
+        }
+        
+
+        var delt = 40,
+            scrollDelt = 0.1;
+
+        var interval;
+
+        /* TODO factor some repeated code out */
+        $('#leftControl').on('mousedown', function() {
+            clearInterval(interval);
+            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
+            }, 100);
+        });
+        $('#upControl').on('mousedown', function() {
+            clearInterval(interval);
+            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
+            }, 100);
+        });
+        $('#rightControl').on('mousedown', function() {
+            clearInterval(interval);
+            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
+            }, 100);
+        });
+        $('#downControl').on('mousedown', function() {
+            clearInterval(interval);
+            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
+            }, 100);
+        });
+        $('#zinControl').on('mousedown', function() {
+            clearInterval(interval);
+            zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+            interval = setInterval(function() {
+                zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+            }, 100);
+        });
+        $('#zoutControl').on('mousedown', function() {
+            clearInterval(interval);
+            zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+            interval = setInterval(function() {
+                zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+            }, 100);
+        });
+        $('.seadragonManipButtonLR').on('mouseup mouseleave', function() {
+            clearInterval(interval);
+        });
+
+        $('.seadragonManipButtonUD').on('mouseup mouseleave', function() {
+            clearInterval(interval);
+        });
+
+        $('.seadragonManipButtoninout').on('mouseup mouseleave', function() {
+            clearInterval(interval);
+        });
+    }
+
+    /**
+     * Makes the artwork viewer sidebar
+     * @method makeSidebar
+     */
     function makeSidebar() {
         var i;
         var button;
@@ -128,37 +283,19 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         var isBarOpen = true;
         //click toggler to hide/show sidebar
         toggler.click(function () {
-            var opts;
+            var opts = {};
 	    
             //when the bar is open, set the sidebar position according to splitscreen states.
             if (root.data('split') === 'R') {
-                opts = {
-                    right: '-22%' //-(sideBarWidth)
-                };
+                opts.right = isBarOpen ? '-22%' : '0%';
+            } else {
+                opts.left = isBarOpen ? '-22%' : '0%';
             }
-            else {
-                opts = {
-                    left: '-22%' //-(sideBarWidth)
-                };
-            }
-            //if the bar is not open
-            if (!isBarOpen) {
-                if (root.data('split') === 'R') {
-                    opts.right = "0%";
-                } else {
-                    opts.left = "0%";
-                }
-                isBarOpen = true;
-                //togglerImage.attr("src", tagPath+'images/icons/Open.svg');
-            }
-            else {
-                isBarOpen = false;
-                //togglerImage.attr("src", tagPath+'images/icons/Close.svg');
-            }
+            isBarOpen = !isBarOpen;
+
             //when click the toggler, the arrow will rotate 180 degree to change direction.
             $(sideBar).animate(opts, 1000, function () {
-                // $(togglerImage[0]).rotate("180deg");
-                togglerImage.attr('src', tagPath + 'images/icons/' + (!isBarOpen ? 'Open.svg' : 'Close.svg'));
+                togglerImage.attr('src', tagPath + 'images/icons/' + (isBarOpen ? 'Close.svg' : 'Open.svg'));
             });
         });
 
@@ -168,13 +305,13 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 		backButton = root.find('#backButton');
         $(backButton).attr('src',tagPath+'images/icons/Back.svg');
 
-        //change the backColor to show the button is being clicked. 
+        //change the backColor to show the button is being clicked
         //mouseleave for lifting the finger from the back button
-        backButton.mouseleave(function () {
+        backButton.on('mouseleave mouseup', function () {
             LADS.Util.UI.cgBackColor("backButton", backButton, true);
         });
         //mousedown for pressing the back button
-        backButton.mousedown(function () {
+        backButton.on('mousedown', function () {
             LADS.Util.UI.cgBackColor("backButton", backButton, false);
         });
 
@@ -184,11 +321,8 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 		backButton.on('click', function () {
 			backButton.off('click'); // prevent user from clicking twice
 			zoomimage && zoomimage.unload();
-		    /* nbowditch _editted 2/13/2014 : added backInfo */
 			var backInfo = { backArtwork: doq, backScroll: prevScroll };
 			var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
-            /* end nbowditch edit */
-			//catalog.showExhibiton(exhibition);
 			catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO this line shouldn't be necessary -- do in styl file
 			LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
                 if(prevExhib && prevExhib.Identifier) {
@@ -246,21 +380,34 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
         //Descriptions, Hotspots, Assets and Tours drawers
         var existsDescription = !!doq.Metadata.Description;
-        var descriptionDrawer = createDrawer("Description", !existsDescription);
-        if (doq.Metadata.Description) {
-            var descrip = doq.Metadata.Description.replace(/\n/g, "<br />");
-            descriptionDrawer.contents.html(descrip);
-
-        }
-        var test = doq;
-        assetContainer.append(descriptionDrawer);
         
-        //location history TODO
-        var locationHistorysec = initlocationHistory();
-        assetContainer.append(locationHistorysec);
+        if (existsDescription) {
+            NUM_DRAWERS++;
+            var descriptionDrawer = createDrawer("Description", !existsDescription);
+            if (doq.Metadata.Description) {
+                var descrip = doq.Metadata.Description.replace(/\n/g, "<br />");
+                
+                if (typeof Windows != "undefined") {
+                    // running in Win8 app
+                    descriptionDrawer.contents.html(descrip);
+                } else {  
+                    // running in browser
+                    descriptionDrawer.contents.html(Autolinker.link(descrip, {email: false, twitter: false}));
+                }
+            }
+            var test = doq;
+            assetContainer.append(descriptionDrawer);
+        }
 
+        //location history
+        locationList = LADS.Util.UI.getLocationList(options.doq.Metadata); 
+        if (locationList.length !== 0) {
+            NUM_DRAWERS++;
+            var locationHistorysec = initlocationHistory();
+            assetContainer.append(locationHistorysec);
+        }
 
-        var hotspotsDrawer = createDrawer('Hotspots', (hotspots.length === 0));
+        
 
         ///////////////////////////////////////
         function downhelper(elt) {
@@ -385,20 +532,27 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         ///////////////////////////////////////
         
         //get the hotspots for the artwork
-        for (var k = 0; k < hotspots.length; k++) {
-            loadQueue.add(createMediaHolder(hotspotsDrawer.contents, hotspots[k], true));
+        if (hotspots.length != 0) {
+            NUM_DRAWERS++;
+            var hotspotsDrawer = createDrawer('Hotspots', (hotspots.length === 0));
+            for (var k = 0; k < hotspots.length; k++) {
+                loadQueue.add(createMediaHolder(hotspotsDrawer.contents, hotspots[k], true));
+            }
+            assetContainer.append(hotspotsDrawer);
         }
-        assetContainer.append(hotspotsDrawer);
 
-
-        var assetsDrawer = createDrawer('Assets', (assets.length===0));
-        for (var j = 0; j< assets.length; j++) {
-            loadQueue.add(createMediaHolder(assetsDrawer.contents, assets[j], false));
+        if (assets.length != 0) {
+            NUM_DRAWERS++;
+            var assetsDrawer = createDrawer('Assets', (assets.length===0));
+            for (var j = 0; j< assets.length; j++) {
+                loadQueue.add(createMediaHolder(assetsDrawer.contents, assets[j], false));
+            }
+            assetContainer.append(assetsDrawer);
         }
-        assetContainer.append(assetsDrawer);
 
         function hotspotAssetClick(hotspotsAsset, btn) {//check if the location history is open before you click the button, if so, close it
             return function () {
+                hotspotsAsset.mediaload();
                 if (locationHistoryActive) {
                     locationHistoryActive = false;
                     locationHistory.css({
@@ -408,7 +562,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     locationHistoryToggle.hide();
                     locationHistoryToggle.hide("slide", { direction: direction }, 500);
                     locationHistoryDiv.hide("slide", { direction: direction }, 500);
-                    toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
+                    setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 }
                 var circle = hotspotsAsset.toggle();
 
@@ -460,15 +614,28 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 var relatedArtworks = JSON.parse(tour.Metadata.RelatedArtworks);
                 return relatedArtworks instanceof Array && relatedArtworks.indexOf(doq.Identifier) > -1;
             });
-            toursDrawer = createDrawer('Tours', relatedTours.length === 0);
-            assetContainer.append(toursDrawer);
-            if (relatedTours.length > 0) {
-                toursDrawer.contents.text('');
-                $.each(relatedTours, function (index, tour) {
-                    loadQueue.add(createTourHolder(toursDrawer.contents, tour));
-                });
+
+            if (relatedTours.length != 0) {
+                NUM_DRAWERS++;
+                toursDrawer = createDrawer('Tours', relatedTours.length === 0);
+                assetContainer.append(toursDrawer);
+                if (relatedTours.length > 0) {
+                    toursDrawer.contents.text('');
+                    $.each(relatedTours, function (index, tour) {
+                        loadQueue.add(createTourHolder(toursDrawer.contents, tour));
+                    });
+                }
             }
+
+            var maxHeight= $("#assetContainer").height() - $('.drawerHeader').height() * NUM_DRAWERS - 10;
+            if (maxHeight<=0)
+                maxHeight=1;
+            root.find(".drawerContents").css({
+                "max-height": maxHeight +"px",
+            });
         });
+
+        
 
         function tourClicked(tour) {
             return function () {
@@ -712,9 +879,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 					((root.data('split') === 'L') ?
 						$('#metascreen-L').width() - window.innerWidth * 0.22 :
 						$('#metascreen-R').width() - window.innerWidth * 0.22);
-        // locationHistoryDiv.css({
-        //     'width': locwidth + 'px',
-        // });
 
         //create the panel for location history.
 		var locationHistoryPanel = root.find('#locationHistoryPanel');
@@ -809,7 +973,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
             locationList = LADS.Util.UI.getLocationList(options.doq.Metadata); //Location List is LOADED HERE
 
-            console.log("location list length: " + locationList.length);
             if (locationList.length === 0) {
                 mapOverlay.show();
             }
@@ -866,7 +1029,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                         };
                         var pushpinOptions = {
                             text: String(i + 1),
-                            icon: tagPath+'/images/icons/locationPin.png',
+                            icon: tagPath+'images/icons/locationPin.png',
                             width: 20,
                             height: 30
                         };
@@ -930,7 +1093,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 locationHistoryToggle.hide();
                 locationHistoryToggle.hide("slide", { direction: direction }, 500);
                 locationHistoryDiv.hide("slide", { direction: direction }, 500);
-                toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
+                setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 locationHistoryActive = false;
             }
             else {//show the panel if it is hidden when clicked
@@ -989,17 +1152,16 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             drawer.isslided = false;
             var drawerContents = $(document.createElement('div'));
             drawerContents.addClass("drawerContents");
-            var maxHeight= $("#assetContainer").height() - $('.drawerHeader').height() * NUM_DRAWERS - 10; // 165;
-            if (maxHeight<=0)
-                maxHeight=1;
-            drawerContents.css({
-                "max-height": maxHeight +"px",
-            });
+            // var maxHeight= $("#assetContainer").height() - $('.drawerHeader').height() * NUM_DRAWERS - 15; // 165;
+            // if (maxHeight<=0)
+            //     maxHeight=1;
+            // drawerContents.css({
+            //     "max-height": maxHeight +"px",
+            // });
             drawerContents.appendTo(drawer);
 
             //have the toggler icon minus when is is expanded, plus otherwise.
-            drawerHeader.on('click', function () {
-
+            drawerHeader.on('click', function (evt) {
                 if (drawer.isslided === false) {
                     root.find(".plusToggle").attr('src', tagPath+'images/icons/plus.svg');//ensure only one shows.
                     root.find(".drawerContents").slideUp();
@@ -1043,7 +1205,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
     // exhibition picker
     function createExhibitionPicker(artworkObj) {
-        debugger; // this shouldn't be called in the web app...
+        // debugger; // this shouldn't be called in the web app...
         var exhibitionPicker = $(document.createElement('div'));
         exhibitionPicker.addClass("exhibitionPicker");
 
@@ -1111,24 +1273,26 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     var listCell = $(document.createElement('div'));
                     listCell.addClass("exhibitions-list-cell");
 
-                    listCell.mousedown(function () {
+                    listCell.on('mousedown', function () {
                         listCell.css({
                             'background-color': 'white',
                             'color': 'black',
                         });
+                        listCell.on('mouseleave', function () {
+                            listCell.css({
+                                'background-color': 'black',
+                                'color': 'white',
+                            });
+                        });
                     });
-                    listCell.mouseup(function () {
+                    listCell.on('mouseup', function () {
                         listCell.css({
                             'background-color': 'black',
                             'color': 'white',
                         });
+                        listCell.off('mouseleave');
                     });
-                    listCell.mouseleave(function () {
-                        listCell.css({
-                            'background-color': 'black',
-                            'color': 'white',
-                        });
-                    });
+                    
 
                     var textBox = $(document.createElement('div'));
                     textBox.addClass("textbox");
@@ -1240,7 +1404,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 locationHistoryToggle.hide();
                 locationHistoryToggle.hide("slide", { direction: direction }, 500);
                 locationHistoryDiv.hide("slide", { direction: direction }, 500);
-                toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
+                setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 locationHistoryActive = false;
             }
             if (prevPage === "catalog" && initialized === true) {
@@ -1296,12 +1460,19 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         return splitscreenContainer;
     }
 
+    /**
+     * Return art viewer root element
+     * @method
+     * @return {Object}    root jquery object
+     */
     this.getRoot = function () {
         return root;
     };
-    /*
-    **make the Map for location History.
-    **@para: callback function
+
+    /**
+     * Make the map for location History.
+     * @method
+     * @param {Function} callback     function to be called when map making is complete
     */
     function makeMap(callback) {
         console.log("in make map");
@@ -1335,7 +1506,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         };
 
         initMap();
-        //Microsoft.Maps.loadModule('Microsoft.Maps.Map', { callback: initMap });
     }
 
 };

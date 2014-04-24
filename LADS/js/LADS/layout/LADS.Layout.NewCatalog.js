@@ -211,7 +211,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
 
         var displayHelpText = $(document.createElement('div'));
         displayHelpText.attr('id' ,'displayHelpText');
-        displayHelpText.text("Select an exhibition or tour from the left menu to begin exploring artworks");
+        displayHelpText.text("Select a collection from the left menu and browse artworks below.");
 
         displayHelp.append(displayHelpTitle);
         displayHelp.append(displayHelpText);
@@ -514,8 +514,14 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             'width': '55%', 
             'font-size': 0.2 * LADS.Util.getMaxFontSizeEM(exhibition.Metadata.Description, 1.5, 0.55 * $(contentdiv).width(), 0.915 * $(contentdiv).height(), 0.1), // h1*0.055 + 'px',
         });
-           
-        descriptiontext.html(str);
+        
+        if (typeof Windows != "undefined") {
+            // running in Win8 app
+            descriptiontext.html(str);
+        } else {  
+            // running in browser
+            descriptiontext.html(Autolinker.link(str, {email: false, twitter: false}));
+        }
         contentdiv.append(descriptiontext);
         var circle = LADS.Util.showProgressCircle(descriptiontext, progressCircCSS, '0px', '0px', false);
         img1.load(function () {
@@ -568,7 +574,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
     }
 
     function getArtworks(exhibition, callback) {//get rid of this func
-         LADS.Worktop.Database.getArtworksIn(exhibition.Identifier, getArtworksHelper, null, getArtworksHelper);
+        LADS.Worktop.Database.getArtworksIn(exhibition.Identifier, getArtworksHelper, null, getArtworksHelper);
 
         function getArtworksHelper(artworks) {
             if (!artworks || !artworks[0]) {//pops up a box warning user there is no artwork in the selected exhibition
@@ -819,7 +825,15 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             
             var descSpan = $(document.createElement('div'))
                             .attr('id', 'descSpan')
-                            .html(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '');
+
+            if (typeof Windows != "undefined") {
+                // running in Win8 app
+                descSpan.html(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '');
+            } else {  
+                // running in browser
+                descSpan.html(Autolinker.link(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '', {email: false, twitter: false}));
+            }
+                            
 
             descriptiontext.empty();
             descriptiontext.append(titleSpan).append(descSpan);            

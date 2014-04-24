@@ -519,6 +519,8 @@ window.rin = window.rin || {};
             if (this.esItemsManager) this.esItemsManager.unload();
             this._esLoadedInfo = {};
             this._rinData = null;
+            console.log("setting player state to STOPPED (bleveque)");
+            this.setPlayerState(rin.contracts.playerState.stopped); // bleveque: prevent further buffering messages
         },
 
         // Get all ES items currently on stage.

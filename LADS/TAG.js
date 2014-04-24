@@ -30645,8 +30645,6 @@ LADS.Util = (function () {
     return {
         makeNamespace: namespace,
         setToDefaults: setToDefaults,
-        //localSettings: applicationData.localSettings,
-        //localFolder: applicationData.localFolder,
         getGestureRecognizer: getGestureRecognizer,
         makeXmlRequest: makeXmlRequest,
         makeManipulatable: makeManipulatable,
@@ -31597,6 +31595,7 @@ LADS.Util = (function () {
                 */
 				if (delta < 0) delta = 1.0 / 1.1;
             	else delta = 1.1;
+				console.log("delta processed " + delta);
                 evt.cancelBubble = true;
                 if (typeof functions.onScroll === "function") { 
                     functions.onScroll(delta, pivot);
@@ -32244,7 +32243,7 @@ LADS.Util.UI = (function () {
         serverDialog.append(serverButtonRow);
         var serverSaveButton = $(document.createElement('button'));
         serverSaveButton.css({
-            'padding': '1%', 'border': '1px solid white', 'width': '12%','height':'3%' ,'position': 'relative','margin-top': '1%', 'float': "left", 'margin-left':'7%' ,'font-size':'90%','bottom':'1%'
+            'padding': '1%', 'border': '1px solid white', 'width': '14%','height':'3%' ,'position': 'relative','margin-top': '1%', 'float': "left", 'margin-left':'7%' ,'font-size':'90%','bottom':'1%'
         });
         serverSaveButton.text('Save');
         var serverErrorMessage = $(document.createElement('div'));
@@ -32264,7 +32263,7 @@ LADS.Util.UI = (function () {
 
         var serverCancelButton = $(document.createElement('button'));
         serverCancelButton.css({
-            'padding': '1%', 'border': '1px solid white', 'width': '12%','height':'3%', 'position': 'relative', 'margin-top': '1%', 'float': "right", 'margin-right': '7%','font-size':'90%','bottom':'1%'
+            'padding': '1%', 'border': '1px solid white', 'width': '14%','height':'3%', 'position': 'relative', 'margin-top': '1%', 'float': "right", 'margin-right': '7%','font-size':'90%','bottom':'1%'
         });
         serverCancelButton.text('Cancel');
         serverCancelButton.attr('type', 'button');
@@ -33094,7 +33093,7 @@ LADS.Util.UI = (function () {
             }
             var pushpinOptions = {
                 text: String(i + 1),
-                icon: tagPath+'/images/icons/locationPin.png',
+                icon: tagPath+'images/icons/locationPin.png',
                 width: 20,
                 height: 30
             };
@@ -40445,13 +40444,16 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
         that.viewer.viewport.applyConstraints();
     }
+    this.dzManip = dzManip;
 
     function dzScroll(delta, pivot) {
-        // console.log("pivot.x "+ pivot.x+"  pivot.y :  "+pivot.y);
-        // console.log(delta);
+        console.log("pivot.x "+ pivot.x+"  pivot.y :  "+pivot.y);
+        console.log(delta);
         that.viewer.viewport.zoomBy(delta, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
         that.viewer.viewport.applyConstraints();
     }
+
+    this.dzScroll = dzScroll;
 
     function init() {
         if(Seadragon.Config) {
@@ -40506,17 +40508,20 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
     //new hotspot function
     function hotspot(info) {
+        var imgadded = false;
         this.title = info.title;
         this.contentType = info.contentType;
         this.source = info.source;
         this.description = info.description;
         this.thumbnail = info.thumbnail;
         var assetHidden = true;
+        var audio, video;
 
         var outerContainer = document.createElement('div');
-        outerContainer.style.width = "450px";
+        outerContainer.style.width = Math.min(Math.max(250, ($('#tagContainer').width() / 5)), 450)+'px';
 
         var innerContainer = document.createElement('div');
+        var mediaContainer = $(document.createElement('div')).addClass('mediaContainer');
 
         // media-specific
         var controlPanel = $(document.createElement('div')),
@@ -40557,357 +40562,391 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             'padding-bottom': '2%',
             'overflow': 'hidden',
             'text-overflow': 'ellipsis',
-            'font-weight': '700',
+            'font-weight': '700'
         });
 
         innerContainer.appendChild(p1);
         var hoverString, setHoverValue;
-        // show image/video/audio/text
-        if (this.contentType === 'Image') {
-            var img = document.createElement('img');
-            img.src = LADS.Worktop.Database.fixPath(this.source);
-            $(img).css({
-                'position': 'relative',
-                width: '100%',
-                height: 'auto'
-            });
-            innerContainer.appendChild(img);
-
-        } else if (this.contentType === 'Video') {
-            var video = document.createElement('video');
-            $(video).attr('preload', 'none');
-            $(video).attr('poster', (this.thumbnail && !this.thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(this.thumbnail) : '');
-            video.src = LADS.Worktop.Database.fixPath(this.source);
-            video.type = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';//'video/mp4';
-            video.type = 'video/ogg; codecs="theora, vorbis"';//'video/ogg';
-            video.type = 'video/webm; codecs="vp8, vorbis"';//'video/webm'; // TODO this doesn't make any sense. why are we overwriting this twice?
-            video.style.position = 'relative';
-            video.style.width = '100%';
-            video.controls = false;
-
-            innerContainer.appendChild(video);
-
-            playHolder = $(document.createElement('div'));
-            play = document.createElement('img');
-            $(play).attr('src', 'images/icons/PlayWhite.svg');
-            $(play).addClass('videoControls');
-            $(play).css({
-                'position': 'relative',
-                'height': '20px',
-                'width': '20px',
-                'display': 'inline-block',
-            });
-            playHolder.css({
-                'position': 'relative',
-                'height': '20px',
-                'width': '20px',
-                'display': 'inline-block',
-                'margin': '0px 1% 0px 1%',
-            });
-            playHolder.append(play);
-
-            volHolder = $(document.createElement('div'));
-            vol = document.createElement('img');
-            $(vol).attr('src', 'images/icons/VolumeUpWhite.svg');
-            $(vol).addClass('videoControls');
-            $(vol).css({
-                'height': '20px',
-                'width': '20px',
-                'position': 'relative',
-                'display': 'inline-block',
-            });
-
-            volHolder.css({
-                'height': '20px',
-                'width': '20px',
-                'position': 'relative',
-                'display': 'inline-block',
-                'margin': '0px 1% 0px 1%',
-            });
-            volHolder.append(vol);
-            this.initVideoPlayHandlers = function () {
-                if (video.currentTime !== 0) video.currentTime = 0;
-                $(play).attr('src', 'images/icons/PlayWhite.svg');
-                $(play).on('click', function () {
-                    if (video.paused) {
-                        video.play();
-                        $(play).attr('src', 'images/icons/PauseWhite.svg');
-                    } else {
-                        video.pause();
-                        $(play).attr('src', 'images/icons/PlayWhite.svg');
-                    }
+        
+        this.mediaload=function(){
+            if(!imgadded) {
+                imgadded = true;
+            } else {
+                return;
+            }
+            if (this.contentType === 'Image') {
+                
+                
+                var img = document.createElement('img');
+                img.src = LADS.Worktop.Database.fixPath(this.source);
+                $(img).css({
+                    'position': 'relative',
+                    width: '100%',
+                    height: 'auto'
                 });
+                console.log("appending new image");
+                mediaContainer.append(img);
+                imgadded = true;
+            }
 
-                $(vol).on('click', function () {
-                    if (video.muted) {
-                        video.muted = false;
-                        $(vol).attr('src', 'images/icons/VolumeUpWhite.svg');
-                    } else {
-                        video.muted = true;
-                        $(vol).attr('src', 'images/icons/VolumeDownWhite.svg');
-                    }
-                });
+             
+            if (this.contentType === 'Video') {
+                
+                    video = document.createElement('video');
+                    $(video).attr('preload', 'none');
+                    $(video).attr('poster', (this.thumbnail && !this.thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(this.thumbnail) : '');
+                    video.src = LADS.Worktop.Database.fixPath(this.source);
+                    video.type = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';//'video/mp4';
+                    video.type = 'video/ogg; codecs="theora, vorbis"';//'video/ogg';
+                    video.type = 'video/webm; codecs="vp8, vorbis"';//'video/webm'; // TODO this doesn't make any sense. why are we overwriting this twice?
+                    video.style.position = 'relative';
+                    video.style.width = '100%';
+                    video.controls = false;
 
-                $(video).on('ended', function () {
-                    video.pause();
-                    $(play).attr('src', 'images/icons/PlayWhite.svg');
-                });
-            };
-            this.initVideoPlayHandlers();
+                    playHolder = $(document.createElement('div'));
+                    play = document.createElement('img');
+                    $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                    $(play).addClass('videoControls');
+                    $(play).css({
+                        'position': 'relative',
+                        'height': '20px',
+                        'width': '20px',
+                        'display': 'inline-block',
+                    });
+                    playHolder.css({
+                        'position': 'relative',
+                        'height': '20px',
+                        'width': '20px',
+                        'display': 'inline-block',
+                        'margin': '0px 1% 0px 1%',
+                    });
+                    playHolder.append(play);
 
-            seekBar = document.createElement('input');
-            $(seekBar).addClass('videoControls');
-            seekBar.type = 'range';
-            $(seekBar).attr('id', "seek-bar");
-            $(seekBar).attr('value', "0");
-            seekBar.style.margin = '0px 1% 0px 1%';
-            seekBar.style.display = 'inline-block';
-            seekBar.style.padding = '0px';
-            $(seekBar).css({
-                left: '30px',
-            });
+                    volHolder = $(document.createElement('div'));
+                    vol = document.createElement('img');
+                    $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
+                    $(vol).addClass('videoControls');
+                    $(vol).css({
+                        'height': '20px',
+                        'width': '20px',
+                        'position': 'relative',
+                        'display': 'inline-block',
+                    });
 
-            // Event listener for the seek bar
-            seekBar.addEventListener("change", function (evt) {
-                evt.stopPropagation();
-                // Calculate the new time
-                var time = video.duration * (seekBar.value / 100);
-                // Update the video time
-                if (!isNaN(time)) {
-                    video.currentTime = time;
+                    volHolder.css({
+                        'height': '20px',
+                        'width': '20px',
+                        'position': 'relative',
+                        'display': 'inline-block',
+                        'margin': '0px 1% 0px 1%',
+                    });
+                    volHolder.append(vol);
+                    this.initVideoPlayHandlers = function () {
+                        if (video.currentTime !== 0) video.currentTime = 0;
+                        $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                        $(play).on('click', function () {
+                            if (video.paused) {
+                                video.play();
+                                $(play).attr('src', tagPath+'images/icons/PauseWhite.svg');
+                            } else {
+                                video.pause();
+                                $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                            }
+                        });
+
+                        $(vol).on('click', function () {
+                            if (video.muted) {
+                                video.muted = false;
+                                $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
+                            } else {
+                                video.muted = true;
+                                $(vol).attr('src', tagPath+'images/icons/VolumeDownWhite.svg');
+                            }
+                        });
+
+                        $(video).on('ended', function () {
+                            video.pause();
+                            $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                        });
+                    };
+                    this.initVideoPlayHandlers();
+
+                    seekBar = document.createElement('input');
+                    $(seekBar).addClass('videoControls');
+                    seekBar.type = 'range';
+                    $(seekBar).attr('id', "seek-bar");
+                    $(seekBar).attr('value', "0");
+                    seekBar.style.margin = '0px 1% 0px 1%';
+                    seekBar.style.display = 'inline-block';
+                    seekBar.style.padding = '0px';
+                    $(seekBar).css({
+                        left: '30px',
+                    });
+
+                    // Event listener for the seek bar
+                    seekBar.addEventListener("change", function (evt) {
+                        evt.stopPropagation();
+                        // Calculate the new time
+                        var time = video.duration * (seekBar.value / 100);
+                        // Update the video time
+                        if (!isNaN(time)) {
+                            video.currentTime = time;
+                        }
+                    });
+
+                    $(seekBar).mouseover(function (evt) {
+                        var percent = evt.offsetX / $(seekBar).width();
+                        var hoverTime = video.duration * percent;
+                        var minutes = Math.floor(hoverTime / 60);
+                        var seconds = Math.floor(hoverTime % 60);
+                        hoverString = String(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
+                        seekBar.title = hoverString;
+                        //console.log("minute "+ minutes+" seconds "+seconds+"hover "+ hoverString+"percent "+percent );
+                    });
+
+                    $(seekBar).mousedown(function (evt) {
+                        dragBar = true;
+                        evt.stopPropagation();
+                    });
+
+                    $(seekBar).mouseup(function (evt) {
+                        dragBar = false;
+                        evt.stopPropagation();
+                    });
+
+                    timeContainer = document.createElement('div');
+                    $(timeContainer).css({
+                        'height': '20px',
+                        'width': '40px',
+                        'margin': '0px 1% 0px 1%',
+                        'padding': '0',
+                        'display': 'inline-block',
+                        'overflow': 'hidden',
+                    });
+
+                    currentTimeDisplay = document.createElement('span');
+                    $(currentTimeDisplay).text("00:00");
+                    $(currentTimeDisplay).addClass('videoControls');
+
+                    // Update the seek bar as the video plays
+                    video.addEventListener("timeupdate", function () {
+                        // Calculate the slider value
+                        var value = (100 / video.duration) * video.currentTime;
+                        // Update the slider value
+                        seekBar.value = value;
+                        var minutes = Math.floor(video.currentTime / 60);
+                        var seconds = Math.floor(video.currentTime % 60);
+                        var adjMin;
+                        if (String(minutes).length < 2) {
+                            adjMin = String('0' + minutes);
+                        } else {
+                            adjMin = String(minutes);
+                        }
+                        $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
+                    });
+
+                    // if(!imgadded) {
+                    mediaContainer.append(video);
+                    mediaContainer.append(controlPanel[0]);
+                    //    imgadded = true;
+                    //}
+                    controlPanel.append(playHolder);
+                    controlPanel.append(seekBar);
+                    $(timeContainer).append(currentTimeDisplay);
+                    controlPanel.append(timeContainer);
+                    controlPanel.append(volHolder);
                 }
-            });
 
-            $(seekBar).mouseover(function (evt) {
-                var percent = evt.offsetX / $(seekBar).width();
-                var hoverTime = video.duration * percent;
-                var minutes = Math.floor(hoverTime / 60);
-                var seconds = Math.floor(hoverTime % 60);
-                hoverString = String(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
-                seekBar.title = hoverString;
-                //console.log("minute "+ minutes+" seconds "+seconds+"hover "+ hoverString+"percent "+percent );
-            });
+                
+                if (this.contentType === 'Audio') {
+                    // debugger;
+                    audio = document.createElement('audio');
+                    $(audio).attr({
+                        'preload': 'none'
+                    });
+                    audio.src = LADS.Worktop.Database.fixPath(this.source);
+                    audio.type = 'audio/ogg';
+                    audio.type = 'audio/mp3'; // TODO <-- we should be overwriting types!
+                    audio.removeAttribute('controls');
 
-            $(seekBar).mousedown(function (evt) {
-                dragBar = true;
-                evt.stopPropagation();
-            });
+                    playHolder = $(document.createElement('div'));
+                    play = document.createElement('img');
+                    $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                    $(play).addClass('audioControls');
+                    $(play).css({
+                        'position': 'relative',
+                        'height': '20px',
+                        'width': '20px',
+                        'display': 'inline-block',
+                    });
+                    playHolder.css({
+                        'position': 'relative',
+                        'height': '20px',
+                        'width': '20px',
+                        'display': 'inline-block',
+                        'margin': '0px 1% 0px 1%',
+                    });
 
-            $(seekBar).mouseup(function (evt) {
-                dragBar = false;
-                evt.stopPropagation();
-            });
+                    play.style.width = "32px";
+                    play.style.height = "32px";
+                    playHolder.width(32);
+                    playHolder.height(32);
 
-            timeContainer = document.createElement('div');
-            $(timeContainer).css({
-                'height': '20px',
-                'width': '40px',
-                'margin': '0px 1% 0px 1%',
-                'padding': '0',
-                'display': 'inline-block',
-                'overflow': 'hidden',
-            });
+                    playHolder.append(play);
 
-            currentTimeDisplay = document.createElement('span');
-            $(currentTimeDisplay).text("00:00");
-            $(currentTimeDisplay).addClass('videoControls');
+                    volHolder = $(document.createElement('div'));
+                    vol = document.createElement('img');
+                    $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
+                    $(vol).addClass('audioControls');
+                    $(vol).css({
+                        'height': '20px',
+                        'width': '20px',
+                        'position': 'relative',
+                        'display': 'inline-block',
+                    });
 
-            // Update the seek bar as the video plays
-            video.addEventListener("timeupdate", function () {
-                // Calculate the slider value
-                var value = (100 / video.duration) * video.currentTime;
-                // Update the slider value
-                seekBar.value = value;
-                var minutes = Math.floor(video.currentTime / 60);
-                var seconds = Math.floor(video.currentTime % 60);
-                var adjMin;
-                if (String(minutes).length < 2) {
-                    adjMin = String('0' + minutes);
-                } else {
-                    adjMin = String(minutes);
-                }
-                $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
-            });
-
-            innerContainer.appendChild(controlPanel[0]);
-            controlPanel.append(playHolder);
-            controlPanel.append(seekBar);
-            $(timeContainer).append(currentTimeDisplay);
-            controlPanel.append(timeContainer);
-            controlPanel.append(volHolder);
-
-        } else if (this.contentType === 'Audio') {
-            var audio = document.createElement('audio');
-            $(audio).attr('preload', 'none');
-            audio.src = LADS.Worktop.Database.fixPath(this.source);
-            audio.type = 'audio/ogg';
-            audio.type = 'audio/mp3';
-            audio.controls = 'false';
-
-            playHolder = $(document.createElement('div'));
-            play = document.createElement('img');
-            $(play).attr('src', 'images/icons/PlayWhite.svg');
-            $(play).addClass('audioControls');
-            $(play).css({
-                'position': 'relative',
-                'height': '20px',
-                'width': '20px',
-                'display': 'inline-block',
-            });
-            playHolder.css({
-                'position': 'relative',
-                'height': '20px',
-                'width': '20px',
-                'display': 'inline-block',
-                'margin': '0px 1% 0px 1%',
-            });
-
-            play.style.width = "32px";
-            play.style.height = "32px";
-            playHolder.width(32);
-            playHolder.height(32);
-
-            playHolder.append(play);
-
-            volHolder = $(document.createElement('div'));
-            vol = document.createElement('img');
-            $(vol).attr('src', 'images/icons/VolumeUpWhite.svg');
-            $(vol).addClass('audioControls');
-            $(vol).css({
-                'height': '20px',
-                'width': '20px',
-                'position': 'relative',
-                'display': 'inline-block',
-            });
-
-            volHolder.css({
-                'height': '20px',
-                'width': '20px',
-                'position': 'relative',
-                'display': 'inline-block',
-                'margin': '0px 1% 0px 1%',
-            });
-            volHolder.append(vol);
-            this.initAudioPlayHandlers = function () {
-                if (audio.currentTime !== 0) audio.currentTime = 0;
-                audio.pause();
-                $(play).attr('src', 'images/icons/PlayWhite.svg');
-                $(play).on('click', function () {
-                    if (audio.paused) {
-                        audio.play();
-                        $(play).attr('src', 'images/icons/PauseWhite.svg');
-                    } else {
+                    volHolder.css({
+                        'height': '20px',
+                        'width': '20px',
+                        'position': 'relative',
+                        'display': 'inline-block',
+                        'margin': '0px 1% 0px 1%',
+                    });
+                    volHolder.append(vol);
+                    this.initAudioPlayHandlers = function () {
+                        if (audio.currentTime !== 0) audio.currentTime = 0;
                         audio.pause();
-                        $(play).attr('src', 'images/icons/PlayWhite.svg');
-                    }
-                });
+                        $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                        $(play).on('click', function () {
+                            if (audio.paused) {
+                                audio.play();
+                                $(play).attr('src', tagPath+'images/icons/PauseWhite.svg');
+                            } else {
+                                audio.pause();
+                                $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                            }
+                        });
 
-                $(vol).on('click', function () {
-                    if (audio.muted) {
-                        audio.muted = false;
-                        $(vol).attr('src', 'images/icons/VolumeUpWhite.svg');
-                    } else {
-                        audio.muted = true;
-                        $(vol).attr('src', 'images/icons/VolumeDownWhite.svg');
-                    }
-                });
+                        $(vol).on('click', function () {
+                            if (audio.muted) {
+                                audio.muted = false;
+                                $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
+                            } else {
+                                audio.muted = true;
+                                $(vol).attr('src', tagPath+'images/icons/VolumeDownWhite.svg');
+                            }
+                        });
 
-                $(audio).on('ended', function () {
-                    audio.pause();
-                    $(play).attr('src', 'images/icons/PlayWhite.svg');
-                });
-            };
+                        $(audio).on('ended', function () {
+                            audio.pause();
+                            $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                        });
+                    };
 
-            this.initAudioPlayHandlers();
+                    this.initAudioPlayHandlers();
 
-            seekBar = document.createElement('input');
-            $(seekBar).addClass('audioControls');
-            seekBar.type = 'range';
-            $(seekBar).attr('id', "seek-bar");
-            $(seekBar).attr('value', "0");
-            seekBar.style.margin = '0px 1% 0px 1%';
-            seekBar.style.display = 'inline-block';
-            seekBar.style.padding = '0px';
-            $(seekBar).css({
-                left: '30px',
-            });
+                    seekBar = document.createElement('input');
+                    $(seekBar).addClass('audioControls');
+                    seekBar.type = 'range';
+                    $(seekBar).attr('id', "seek-bar");
+                    $(seekBar).attr('value', "0");
+                    seekBar.style.margin = '0px 1% 0px 1%';
+                    seekBar.style.display = 'inline-block';
+                    seekBar.style.padding = '0px';
+                    $(seekBar).css({
+                        left: '30px',
+                    });
 
-            // Event listener for the seek bar
-            seekBar.addEventListener("change", function (evt) {
-                evt.stopPropagation();
-                // Calculate the new time
-                var time = audio.duration * (seekBar.value / 100);
-                // Update the audio time
-                if (!isNaN(time)) {
-                    audio.currentTime = time;
-                }
-            });
+                    // Event listener for the seek bar
+                    seekBar.addEventListener("change", function (evt) {
+                        evt.stopPropagation();
+                        // Calculate the new time
+                        var time = audio.duration * (seekBar.value / 100);
+                        // Update the audio time
+                        if (!isNaN(time)) {
+                            audio.currentTime = time;
+                        }
+                    });
 
-            $(seekBar).mouseover(function (evt) {
-                var percent = evt.offsetX / $(seekBar).width();
-                var hoverTime = audio.duration * percent;
-                var minutes = Math.floor(hoverTime / 60);
-                var seconds = Math.floor(hoverTime % 60);
-                hoverString = String(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
-                seekBar.title = hoverString;
-                //console.log("minute "+ minutes+" seconds "+seconds+"hover "+ hoverString+"percent "+percent );
-            });
+                    $(seekBar).mouseover(function (evt) {
+                        var percent = evt.offsetX / $(seekBar).width();
+                        var hoverTime = audio.duration * percent;
+                        var minutes = Math.floor(hoverTime / 60);
+                        var seconds = Math.floor(hoverTime % 60);
+                        hoverString = String(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
+                        seekBar.title = hoverString;
+                        //console.log("minute "+ minutes+" seconds "+seconds+"hover "+ hoverString+"percent "+percent );
+                    });
 
-            $(seekBar).mousedown(function (evt) {
-                dragBar = true;
-                evt.stopPropagation();
-            });
+                    $(seekBar).mousedown(function (evt) {
+                        dragBar = true;
+                        evt.stopPropagation();
+                    });
 
-            $(seekBar).mouseup(function (evt) {
-                dragBar = false;
-                evt.stopPropagation();
-            });
+                    $(seekBar).mouseup(function (evt) {
+                        dragBar = false;
+                        evt.stopPropagation();
+                    });
 
-            timeContainer = document.createElement('div');
-            $(timeContainer).css({
-                'height': '20px',
-                'width': '40px',
-                'margin': '0px 1% 0px 1%',
-                'padding': '0',
-                'display': 'inline-block',
-                'overflow': 'hidden',
-            });
+                    timeContainer = document.createElement('div');
+                    $(timeContainer).css({
+                        'height': '20px',
+                        'width': '40px',
+                        'margin': '0px 1% 0px 1%',
+                        'padding': '0',
+                        'display': 'inline-block',
+                        'overflow': 'hidden',
+                    });
 
-            currentTimeDisplay = document.createElement('span');
-            $(currentTimeDisplay).text("00:00");
-            $(currentTimeDisplay).addClass('audioControls');
+                    currentTimeDisplay = document.createElement('span');
+                    $(currentTimeDisplay).text("00:00");
+                    $(currentTimeDisplay).addClass('audioControls');
 
-            // Update the seek bar as the audio plays
-            audio.addEventListener("timeupdate", function () {
-                // Calculate the slider value
-                var value = (100 / audio.duration) * audio.currentTime;
-                // Update the slider value
-                seekBar.value = value;
-                var minutes = Math.floor(audio.currentTime / 60);
-                var seconds = Math.floor(audio.currentTime % 60);
-                var adjMin;
-                if (String(minutes).length < 2) {
-                    adjMin = String('0' + minutes);
-                } else {
-                    adjMin = String(minutes);
-                }
-                $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
-            });
+                    // Update the seek bar as the audio plays
+                    audio.addEventListener("timeupdate", function () {
+                        // Calculate the slider value
+                        var value = (100 / audio.duration) * audio.currentTime;
+                        // Update the slider value
+                        seekBar.value = value;
+                        var minutes = Math.floor(audio.currentTime / 60);
+                        var seconds = Math.floor(audio.currentTime % 60);
+                        var adjMin;
+                        if (String(minutes).length < 2) {
+                            adjMin = String('0' + minutes);
+                        } else {
+                            adjMin = String(minutes);
+                        }
+                        $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
+                    });
 
-            innerContainer.appendChild(controlPanel[0]);
-            controlPanel.append(playHolder);
-            controlPanel.append(seekBar);
-            $(timeContainer).append(currentTimeDisplay);
-            controlPanel.append(timeContainer);
-            controlPanel.append(volHolder);
+                    // if(!imgadded) {
+                    mediaContainer.append(audio);
+                    mediaContainer.append(controlPanel[0]);
+                    //     imgadded = true;
+                    // }
+                    
+                    controlPanel.append(playHolder);
+                    controlPanel.append(seekBar);
+                    $(timeContainer).append(currentTimeDisplay);
+                    controlPanel.append(timeContainer);
+                    controlPanel.append(volHolder);
+            }
         }
 
+        $(innerContainer).append(mediaContainer);
+       
         // add description -- ?
         if (this.description) {
             var p2 = document.createElement('div');
-            if (this.title === '2222')
-                console.log("jho");
-            $(p2).html(LADS.Util.htmlEntityDecode(this.description));
+            if (typeof Windows != "undefined") {
+                // running in Win8 app
+                $(p2).html(LADS.Util.htmlEntityDecode(this.description));
+            } else {  
+                // running in browser
+                $(p2).html(Autolinker.link(LADS.Util.htmlEntityDecode(this.description), {email: false, twitter: false}));
+            }
+            
+            
             $(p2).css({
                 'position': 'relative',
                 'left': '5%',
@@ -40923,7 +40962,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         function resizeControlElements() {
             // scale control panel
             var cpSize = LADS.Util.constrainAndPosition(
-                $(innerContainer).width(), $(innerContainer).height(),
+                $(innerContainer).width()-20, $(innerContainer).height(),
                 {
                     width: 1,
                     height: 1,
@@ -40993,7 +41032,7 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             var textFontSize = LADS.Util.getMaxFontSizeEM("99:99", 0, textEltSize.width, textEltSize.height, 0.05);
 
             $(timeContainer).css({
-                width: textEltSize.width + 'px',
+                width: (textEltSize.width + 5) + 'px',
                 height: textEltSize.height + 'px',
                 top: textEltSize.y + 'px',
             });
@@ -41065,7 +41104,8 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             }
         };
 
-        function hideAsset() {
+        this.hideAsset = function() {
+            this.pauseAsset();
             $(outerContainer).hide();
             assetHidden = true;
         }
@@ -41074,20 +41114,20 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             if (assetHidden) {
                 showAsset();
             } else {
-                hideAsset();
+                this.hide();
             }
         };
 
-        this.pauseAsset = function () {
-            if (this.contentType === 'Audio') {
+        this.pauseAsset = function() {
+            if (this.contentType === 'Audio' && audio) {
                 if (audio.currentTime !== 0) audio.currentTime = 0;
                 audio.pause();
-                $(play).attr('src', 'images/icons/PlayWhite.svg');
+                $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
             }
-            else if (this.contentType === 'Video') {
+            else if (this.contentType === 'Video' && video) {
                 if (video.currentTime > 0.1) video.currentTime = 0;
                 if (!video.paused) video.pause();
-                $(play).attr('src', 'images/icons/PlayWhite.svg');
+                $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
             }
         }
 
@@ -41112,10 +41152,11 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 source: info.source,
                 thumbnail: info.thumbnail,
                 toggle: this.toggle,
-                hide: hideAsset,
+                hide: this.hideAsset,
                 show: showAsset,
                 resize: resizeControlElements,
-                pauseAsset: this.pauseAsset
+                pauseAsset: this.pauseAsset,
+                mediaload: this.mediaload
             });
         }
     }
@@ -41210,6 +41251,9 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 $(circle).hide();
                 $(hotspot.getRoot()).hide();
             }
+
+            hotspot.pauseAsset();
+
             isCircleShowing = false;
             isOn = false;
             isInfoShowing = false;
@@ -41231,7 +41275,8 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 toggle: toggle,
                 hide: hide,
                 show: show,
-                pauseAsset: hotspot.pauseAsset,
+                mediaload: hotspot.mediaload,
+                pauseAsset: hotspot.pauseAsset
             });
         }
     }
@@ -41815,18 +41860,27 @@ LADS.Auth = (function () {
 ;
 LADS.Util.makeNamespace("LADS.Layout.StartPage");
 
+
+/**
+* The start page for TAG, which contains mueseum info, server preferences and credits.
+* @class LADS.Layout.StartPage
+* @constructor
+*
+* @param {Object} options
+* @param {Function} startPageCallback
+* @return {Object} that                 collection of public methods and properties
+*/
 LADS.Layout.StartPage = function (options, startPageCallback) {
     "use strict";
 
     options = LADS.Util.setToDefaults(options, LADS.Layout.StartPage.default_options);
     
-    options.tagContainer = $("#tagRoot"); // TODO more general
+    options.tagContainer = $("#tagRoot");
 
     var root = LADS.Util.getHtmlAjax('StartPage.html'), // use AJAX to load html from .html file
         overlay = root.find('#overlay'),
         serverTagBuffer = root.find('#serverTagBuffer'),
         serverSetUpContainer = root.find('#serverSetUpContainer'),
-        // repository = options.repository,
         serverURL,
         tagContainer;
 
@@ -41884,46 +41938,239 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         }
     }
 
-    var that = {};
+    var that = {};    
+    var backgroundColor,
+        logoContainer,
+        touchHint,
+        handGif;    
 
-    //sets up the entire visual layout and images of the splash screen
+    /**
+    * sets up the entire visual layout and images of the splash screen
+    * @method loadHelper
+    * @param {Object} main     contains all image paths and museum info
+    */
     function loadHelper(main) {
-        var fullScreen,
-            overlayColor,
-            overlayTransparency,
-            backgroundColor,
-            imageBgColor,
-            logoContainer,
-            logo,
-            brownInfoBox,
-            expandInfoButton,
-            expandImage,
-            tagName,
-            fullTag,
-            infoExpanded,
-            brownPeople,
-            sponsoredText,
-            microsoftLogo,
-            museumName,
-            museumNameSpan,
-            tempName,
-            museumLoc,
-            museumLocSpan,
-            tempLoc,
-            museumInfoDiv,
-            museumInfoSpan,
-            tempInfo,
-            infoTextHolder,
-            infoDiv,
-            touchHint,
-            handGif;
-
         LADS.Util.Constants.set("START_PAGE_SPLASH", tagPath+"images/birdtextile.jpg");
-
         if(!allowServerChange) {
             $('#serverTagBuffer').remove();
         }
+    
+        overlay.on('click', switchPage);
+        
+        setImagePaths(main);
+        setUpCredits();
+        setUpInfo(main);
+        initializeHandlers();
+        
+        handGif.onclick = switchPage;
+        //opens the exhibitions page on touch/click
+        function switchPage() {
+            var newCatalog = LADS.Layout.NewCatalog();
+            overlay.on('click', function(){});
+            LADS.Util.UI.slidePageLeft(newCatalog.getRoot());
+        }
 
+        // Test for browser compatibility
+        if(!isBrowserCompatible()) {
+            console.log("Unsupported browser.");
+            
+            var browserDialogOverlay = $(document.createElement('div'));
+            var tagContainer = $('#tagRoot');
+            browserDialogOverlay.attr('id', 'browserDialogOverlay');
+
+            browserDialogOverlay.css({
+                display: 'block',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                'background-color': 'rgba(0,0,0,0.6)',
+                'z-index': 1000000000 + 5
+            });
+
+            // Dialog box for browser update
+            var browserDialog = $(document.createElement('div'));
+            browserDialog.attr('id', 'browserDialog');
+
+            var browserDialogSpecs = LADS.Util.constrainAndPosition($(tagContainer).width(), $(tagContainer).height(),
+            {
+                center_h: true,
+                center_v: true,
+                width: 0.5,
+                height: 0.35,
+                max_width: 560,
+                max_height: 230
+            });
+            browserDialog.css({
+                position: 'absolute',
+                left: '30%',
+                top: '30%',
+                width: '40%',
+                height: '40%',
+                border: '3px double white',
+                'text-align': 'center',
+                'background-color': 'black'
+            });
+
+            var browserDialogTitle = $(document.createElement('div'));
+            browserDialogTitle.attr('id', 'dialogTitle');
+            browserDialogTitle.css({
+                'color': 'white',
+                'width': '80%',
+                'height': '15%',
+                'left': '10%',
+                'top': '25%',
+                'font-size': '1em',
+                'position': 'relative',
+                'text-align': 'center'
+            });
+            browserDialogTitle.text("Touch Art Gallery is not supported in your browser. Please download or update to a newer browser.");
+            browserDialog.append(browserDialogTitle);
+
+            var updateBrowserLink = $(document.createElement('a'));
+            updateBrowserLink.attr('id', 'updateBrowser');
+            updateBrowserLink.attr('target', '_blank');
+            updateBrowserLink.attr('href', 'http://browsehappy.com');
+            updateBrowserLink.css({
+                'display': 'block',
+                'margin': 'auto',
+                'margin-bottom': '1%',
+                'width': '60%',
+                'height':'10%',
+                'position':'relative',
+                'top':'40%',
+                'font-size':'100%',
+                'text-decoration': 'underline',
+                'color': 'white'
+            });
+            updateBrowserLink.text("Update Browser");
+            browserDialog.append(updateBrowserLink);
+
+            browserDialogOverlay.append(browserDialog);
+            tagContainer.append(browserDialogOverlay);
+        }
+    }
+
+    /**
+    * @method isBrowserCompatible
+    *
+    * @return true if the browser is compatible with TAG, false if it isn't
+    */
+    function isBrowserCompatible() {
+        var userAgent = navigator.userAgent.toLowerCase();
+        console.log("userAgent: " + navigator.userAgent);
+
+        if(userAgent.indexOf('android') >= 0 || userAgent.indexOf('iphone') >= 0 || userAgent.indexOf('ipad') >= 0) {
+            if(userAgent.indexOf('android') >= 0) {
+                console.log("Detected Android Device. Unsupported browser.");
+            } else if (userAgent.indexOf('iphone') >= 0) {
+                console.log("Detected iPhone. Unsupported browser.");
+            } else if (userAgent.indexOf('ipad') >= 0) {
+                console.log("Detected iPad. Unsupported browser.");
+            }
+            return false;
+        } else {
+            var browser = getBrowserVersion();
+            console.log("Browser Version: " + browser);
+
+            browser = browser.toLowerCase();
+            var version = 0;
+
+            if(browser.indexOf('opera') >= 0) {
+                console.log("Detected Opera. Unsupported browser.");
+                return false;
+            } else if(browser.indexOf('chrome') >= 0) {
+                version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
+                console.log("Detected Chrome Version: " + version);
+                return(version >= 31);
+            } else if(browser.indexOf('safari') >= 0) {
+                var detailedVersion = browser.substring(browser.indexOf(' ', browser.indexOf(' ') + 1) + 1);
+                version = detailedVersion.substring(0, detailedVersion.indexOf("."));
+                console.log("Detected Safari Version: " + version);
+                return(version >= 7);
+            } else if(browser.indexOf('firefox') >= 0) {
+                version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
+                console.log("Detected Firefox Version: " + version);
+                return(version >= 28);
+            } else if(browser.indexOf('msie') >= 0 || browser.indexOf('ie') >= 0) {
+                version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
+                console.log("Detected IE Version: " + version);
+                return(version >= 10);
+            } else {
+                return false;
+            }
+        }
+    }
+
+    /** 
+    * @method getBrowserVersion
+    *
+    * @return Browser name followed by version e.g. "Chrome 34.0.1847.116"
+    */
+    function getBrowserVersion() {
+        var ua= navigator.userAgent, tem, 
+        M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*([\d\.]+)/i) || [];
+
+        if(/trident/i.test(M[1])){
+            tem=  /\brv[ :]+(\d+(\.\d+)?)/g.exec(ua) || [];
+            return 'IE '+(tem[1] || '');
+        }
+
+        M= M[2]? [M[1], M[2]]:[navigator.appName, navigator.appVersion, '-?'];
+        if((tem= ua.match(/version\/([\.\d]+)/i))!= null) M[2]= tem[1];
+
+        return M.join(' ');
+    }
+    
+    /**
+    * adjusts the text to fit the screen size
+    * @method fixText
+    */
+    function fixText() { // TODO fix this up, make it cleaner
+            var nameDivSize,
+                nameSpanSize,
+                fontSizeSpan,
+                subheadingFont;
+            if (LADS.Util.elementInDocument(museumName)) {
+                subheadingFont = parseInt(museumLoc.css('font-size'), 10);
+                nameDivSize = museumName.height();
+                fontSizeSpan = museumName.height();
+    
+                museumNameSpan.css('height', nameSpanSize);
+            }
+        }
+
+    /**
+    * initializes the handlers for various 'click' functions including setting up a server
+    * @method initializeHandlers
+    */
+    function initializeHandlers(){
+        logoContainer.on('click', function (evt) {
+            evt.stopPropagation();
+        });
+
+        serverSetUpContainer.on('click', function() {
+            LADS.Util.UI.ChangeServerDialog();
+        });
+
+        serverTagBuffer.on('click', function (evt) {
+            evt.stopPropagation();
+        });
+    }
+
+
+    /**
+    * gets the paths for all the images displayed on the splash screen
+    * @method setImagePaths
+    * @param {Object} main    contains all the image links
+    */
+    function setImagePaths(main){
+        var fullScreen,
+            overlayColor,
+            overlayTransparency,
+            imageBgColor,
+            logo;
         // set image paths
         root.find('#expandImage').attr('src', tagPath+'images/icons/Left.png');
         root.find('#handGif').attr('src', tagPath+'images/RippleNewSmall.gif');
@@ -41942,12 +42189,23 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         logo = root.find('#logo');
         logo.attr('src', LADS.Worktop.Database.fixPath(main.Metadata["Icon"]));
+    }
 
-        logoContainer.on('click', function (evt) {
-            evt.stopPropagation();
-        });
-
-        overlay.on('click', switchPage);
+    
+    /**
+    * Sets up the credits box with its content including text and images. Also includes function for animation of credits.
+    * @method setUpCredits
+    */
+    function setUpCredits(){
+        var brownInfoBox,
+            expandInfoButton,
+            expandImage,
+            tagName,
+            fullTag,
+            infoExpanded,
+            brownPeople,
+            sponsoredText,
+            microsoftLogo;
 
         brownInfoBox = root.find('#brownInfoBox');
         brownInfoBox.on('click', expandInfo);
@@ -41964,98 +42222,19 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         sponsoredText = $(document.createElement('label'));
         sponsoredText.attr('id', 'sponsoredText');
+        sponsoredText.css('overflow', 'hidden');
+        sponsoredText.css('white-space', 'pre');
         sponsoredText.text('Sponsored by');
 
         microsoftLogo = $(document.createElement('img'));
         microsoftLogo.attr('id', 'microsoftLogo');
         microsoftLogo.attr('src', tagPath+'images/icons/MicrosoftLogo.png');
 
-        museumName = root.find('#museumName');
-        museumNameSpan = root.find('#museumNameSpan');
-
-        tempName = main.Metadata["MuseumName"];
-        if (tempName === undefined) {
-            tempName = "";
-        }
-        museumNameSpan.text(tempName);
-
-        museumLoc = root.find('#museumLoc');
-        museumLocSpan = root.find('#museumLocSpan');
-
-        tempLoc = main.Metadata["MuseumLoc"];
-        if (tempLoc === undefined) {
-            tempLoc = "";
-        }
-        museumLocSpan.text(tempLoc);
-
-        var loadedInterval2 = setInterval(function () { // TODO is this interval necessary?
-            fixText();
-            clearInterval(loadedInterval2);
-        });
-
-        function fixText() { // TODO fix this up, make it cleaner
-            var nameDivSize,
-                nameSpanSize,
-                fontSizeSpan,
-                subheadingFont;
-            if (LADS.Util.elementInDocument(museumName)) {
-                subheadingFont = parseInt(museumLoc.css('font-size'), 10);
-                //here we are going to construct the function
-                nameDivSize = museumName.height();
-                fontSizeSpan = museumName.height();
-		/*                
-		museumNameSpan.css('font-size', nameDivSize + 'px');
-                nameSpanSize = museumNameSpan.height();
-                while (nameDivSize < nameSpanSize) {
-                    fontSizeSpan--;
-                    museumNameSpan.css('font-size', fontSizeSpan + 'px');
-                    nameSpanSize = museumNameSpan.height();
-                }*/
-                museumNameSpan.css('height', nameSpanSize);
-            }
-        }
-        that.fixText = fixText;
-
-        museumInfoDiv = root.find('#museumInfoDiv');
-
-        museumInfoSpan = root.find('#museumInfoSpan');
-
-        tempInfo = main.Metadata["MuseumInfo"];
-        if (!tempInfo) {
-            tempInfo = "";
-        }
-        museumInfoSpan.text(tempInfo);
-	
-	/*
-        var loadedInterval = setInterval(function () { // TODO must be a better way...
-            if (LADS.Util.elementInDocument(museumInfoDiv)) {
-                var subheadingFont = parseInt(museumLoc.css('font-size'), 10);
-                LADS.Util.UI.fitTextInDiv(museumInfoSpan, Math.round(subheadingFont * 2 / 3), Math.round(subheadingFont * 1 / 3));
-                clearInterval(loadedInterval);
-            }
-        });*/
-
-        infoTextHolder = root.find('#infoTextHolder');
-
-        infoDiv = root.find('#infoDiv');
-        infoDiv.css({
-            'background-color': backgroundColor
-        });
-
-        serverSetUpContainer.on('click', function() {
-            LADS.Util.UI.ChangeServerDialog();
-        });
-        serverTagBuffer.on('click', function (evt) {
-            evt.stopPropagation();
-        });
-
-        touchHint = root.find('#touchHint');
-
-        handGif = root.find('#handGif');
-
-        handGif.onclick = switchPage;
-
-        //this handes the animation for opening/closing the div that holds the information about the project
+        /**
+        * animation of credits when user clicks 
+        * @method expandInfo
+        * @param {Object} event     the trigger event for animation, in this case a click
+        */
         function expandInfo(event) {
             event.stopPropagation();
             if (infoExpanded) {
@@ -42078,20 +42257,87 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
                 brownInfoBox.append(microsoftLogo);
                 expandImage.css({ 'transform': 'scaleX(-1)' });
                 brownPeople.css({ "right": "0%", "bottom": "0%", "position": "absolute", "font-size": "0%" });
-                brownPeople.animate({ "left": "12%", "top": "51%", "position": "absolute", "font-size": "81%" }, 700, 'swing', function () { $(brownPeople).fitText(5); });
+                brownPeople.animate({ "left": "12%", "top": "51%", "position": "absolute", "font-size": "61%" }, 700, 'swing', function () { $(brownPeople).fitText(5); });
                 tagName.animate({ left: '12%', top: '3%', 'font-size': '300%' }, 700);
                 fullTag.animate({ left: '12%', top: '35%', 'font-size': '130%' }, 700);
             }
         }
-
-        //opens the exhibitions page on touch/click
-        function switchPage() {
-            var newCatalog = new LADS.Layout.NewCatalog();
-            overlay.on('click', function(){});
-            LADS.Util.UI.slidePageLeft(newCatalog.getRoot());
-        }
     }
 
+    
+    /**
+    * sets up the info div which contains all the museum information
+    * @method setUpInfo
+    * @param {Object} main    contains all the museum information
+    */
+    function setUpInfo(main){
+        var infoTextHolder,
+            infoDiv;
+        
+        infoTextHolder = root.find('#infoTextHolder');
+        infoDiv = root.find('#infoDiv');
+        infoDiv.css({
+            'background-color': backgroundColor
+        });
+
+        touchHint = root.find('#touchHint');
+        handGif = root.find('#handGif');
+
+        setUpMuseumInfo(main);
+
+    }
+
+    
+    /**
+    * Fills in all museum info including name and location
+    * @method setUpMuseumInfo
+    * @param {Object} main     contains all the museum information
+    */
+    function setUpMuseumInfo(main){
+        var museumName,
+            museumNameSpan,
+            tempName,
+            museumLoc,
+            museumLocSpan,
+            tempLoc,
+            museumInfoDiv,
+            museumInfoSpan,
+            tempInfo;
+            
+        museumName = root.find('#museumName');
+        museumNameSpan = root.find('#museumNameSpan');
+        tempName = main.Metadata["MuseumName"];
+        if (tempName === undefined) {
+            tempName = "";
+        }
+        museumNameSpan.text(tempName);
+
+        museumLoc = root.find('#museumLoc');
+        museumLocSpan = root.find('#museumLocSpan');
+        tempLoc = main.Metadata["MuseumLoc"];
+        if (tempLoc === undefined) {
+            tempLoc = "";
+        }
+
+        museumLocSpan.text(tempLoc);
+
+        that.fixText = fixText;
+
+        museumInfoDiv = root.find('#museumInfoDiv');
+
+        museumInfoSpan = root.find('#museumInfoSpan');
+        tempInfo = main.Metadata["MuseumInfo"];
+        if (!tempInfo) {
+            tempInfo = "";
+        }
+        museumInfoSpan.text(tempInfo);
+    }
+    
+
+    /**
+    * @method getRoot
+    * @return    the root of the splash screen DOM
+    */
     function getRoot() {
         return root;
     }
@@ -42099,8 +42345,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
     return that;
 };
-
-
 
 LADS.Layout.StartPage.default_options = {
     repository: "http://cs.brown.edu/research/lads/LADS2.0Data/repository.xml",
@@ -42125,59 +42369,65 @@ LADS.Util.makeNamespace("LADS.Layout.Artmode");
 LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
     "use strict";
 
-    /* nbowditch _editted 2/13/2014 : added prevInfo */
-    var prevPage;
-    var prevScroll = 0;
-	var prevExhib = exhibition;
-    if (prevInfo) {
-        prevPage = prevInfo.prevPage,
-        prevScroll = prevInfo.prevScroll;
-    }
-    /* end nbowditch edit */
-
-    var locationList = LADS.Util.UI.getLocationList(options.doq.Metadata);
-    var initialized = false;
-    var root, doq, map, splitscreen, locsize, backButton,
+    var prevPage,
+        prevScroll,
+        prevExhib = exhibition,
+        locationList = LADS.Util.UI.getLocationList(options.doq.Metadata),
+        initialized = false,
+        root, doq, map, splitscreen, locsize, backButton,
         sideBar, toggler, togglerImage, locationHistoryDiv, info, //Need to be instance vars for splitscreen
         zoomimage = null,
         locationHistoryToggle,
         locationHistoryContainer,
         locationHistory,
         direction, //direction for location history panel
-        mapMade = false;
-    var locationHistoryActive = false;//have the location history panel hidden as default.
-    var drawers = [];
-    var hotspotsHolderArray = [];
-    var hotspotsArray = [];
-    var assets, hotspots;
-    var loadQueue = LADS.Util.createQueue();
-    var switching = false;
-    var confirmationBox;
-    var tagContainer = $('#tagRoot') || $('body');
-    var NUM_DRAWERS = 4;
+        mapMade = false,
+        locationHistoryActive = false,//have the location history panel hidden as default.
+        drawers = [],
+        hotspotsHolderArray = [],
+        hotspotsArray = [],
+        assets, hotspots,
+        loadQueue = LADS.Util.createQueue(),
+        switching = false,
+        confirmationBox,
+        tagContainer = $('#tagRoot') || $('body'),
+        NUM_DRAWERS = 0;
+
+    if (prevInfo) {
+        prevPage = prevInfo.prevPage,
+        prevScroll = prevInfo.prevScroll || 0;
+    }
+        
     options = LADS.Util.setToDefaults(options, LADS.Layout.Artmode.default_options);
     doq = options.doq;
 
     init();
+
     /**
-    *initiate artmode with a root, artwork image and a sidebar on the left.
-    */
+     * Initiate artmode with a root, artwork image and a sidebar on the left.
+     * @method init
+     */
     function init() {
         // add elements to the header for displaying bing maps
-        var head = document.getElementsByTagName('head').item(0);
-        var script = document.createElement("script");
+        var head,
+            script,
+            meta;
+
+        head = document.getElementsByTagName('head').item(0);
+        script = document.createElement("script");
         script.charset = "UTF-8";
         script.type = "text/javascript";
         script.src = "http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0";
         head.appendChild(script);
 
-        var meta = document.createElement('meta');
+        meta = document.createElement('meta');
         meta.httpEquiv = "Content-Type";
         meta.content = "text/html; charset=utf-8";
         head.appendChild(meta);
 
         root = LADS.Util.getHtmlAjax('Artmode.html');
         root.data('split', options.split);
+
         //get the artwork
         if (doq) {
             zoomimage = new LADS.AnnotatedImage(root, doq, options.split, function () {
@@ -42188,10 +42438,11 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 try { // TODO figure out why loadDoq sometimes causes a NetworkError (still happening?)
                     zoomimage.loadDoq(doq);
                 } catch(err) {
-                    console.log(err); // TODO if we hit a network error, show an error message on screen
+                    console.log(err); // TODO if we hit a network error, show an error message
                 }
                 LADS.Util.Splitscreen.setViewers(root, zoomimage); // TODO should we get rid of all splitscreen stuff?
                 makeSidebar();
+                createSeadragonControls();
                 initialized = true;
             });
             
@@ -42199,8 +42450,156 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
     }
 
     /**
-    *When called, makes the sidebar. TODO: Factor most of this out to constants
-    */
+     * Add controls for manual Seadragon manipulation
+     * This was written for testing purposes and was not carefully written
+     * DO NOT KEEP THIS AS IS!!!!!!
+     * @method createSeadragonControls
+     */
+    function createSeadragonControls() {
+        var container = root.find('#seadragonManipContainer');
+        container.css({
+            'left': ($('#tagRoot').width()-160) + "px"
+        });
+        root.append(container);
+        
+        var slidebutton = root.find('#seadragonManipSlideButton');
+        slidebutton.css({
+            'left': 0 + "px",
+            'padding-top': '10px'
+        });
+        var slideimg = $(document.createElement('img'));
+        slideimg.attr("src",tagPath+ 'images/icons/Close_expand.svg');
+        slideimg.css({
+            'width':'23px',
+            'height': '40px',
+            'transform': 'rotate(180deg)',
+            'margin-top':'-10px'
+        });
+        
+        var D_PAD_LEFT = 60;
+        var D_PAD_TOP = 26;
+
+        document.getElementById("seadragonManipSlideButton").innerHTML="Show Controls";
+        var top = 0;
+        var count = 0;
+        slidebutton.on('click', function () {
+            count = count + 1
+            container.animate({top:top});
+            if (count%2===0){
+                top = 0;
+                document.getElementById("seadragonManipSlideButton").innerHTML="Show Controls";
+            }
+            if(count%2===1){
+                top = -100;
+                document.getElementById("seadragonManipSlideButton").innerHTML = '';
+                slidebutton.append(slideimg);
+            }
+                
+        });
+        
+        container.append(slidebutton);
+        container.append(createButton('leftControl', tagPath+ 'images/icons/zoom_left.svg', 60, D_PAD_TOP + 14));
+        container.append(createButton('upControl', tagPath+'images/icons/zoom_up.svg', D_PAD_LEFT + 12, D_PAD_TOP + 2));
+        container.append(createButton('rightControl', tagPath+'images/icons/zoom_right.svg', D_PAD_LEFT+41, D_PAD_TOP + 14));
+        container.append(createButton('downControl', tagPath+'images/icons/zoom_down.svg', D_PAD_LEFT+12, D_PAD_TOP+43));
+        container.append(createButton('zinControl', tagPath+'images/icons/zoom_plus.svg', D_PAD_LEFT-40, D_PAD_TOP-6));
+        container.append(createButton('zoutControl', tagPath+'images/icons/zoom_minus.svg', D_PAD_LEFT-40, D_PAD_TOP+34));
+
+        function createButton(id, imgPath, left, top) {
+            
+            var img = $(document.createElement('img'));
+            img.attr("src",imgPath);
+            img.attr('id',id);
+            img.css({
+                left : left,
+                top: top
+            });
+            if (id==='leftControl' || id ==='rightControl'){
+                img.addClass('seadragonManipButtonLR');
+            }
+            if (id==='upControl'|| id==='downControl'){
+                img.addClass('seadragonManipButtonUD');
+            }
+            if (id==='zinControl'|| id==='zoutControl'){
+                img.addClass('seadragonManipButtoninout');
+            }
+             container.append(img);
+
+            // TODO should do the following by id in the .styl file
+            if (id==='zinControl' || id ==='zoutControl'){
+                img.css({
+                    'width':'25px'
+                 });
+            } 
+            return img;
+        }
+        
+
+        var delt = 40,
+            scrollDelt = 0.1;
+
+        var interval;
+
+        /* TODO factor some repeated code out */
+        $('#leftControl').on('mousedown', function() {
+            clearInterval(interval);
+            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
+            }, 100);
+        });
+        $('#upControl').on('mousedown', function() {
+            clearInterval(interval);
+            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
+            }, 100);
+        });
+        $('#rightControl').on('mousedown', function() {
+            clearInterval(interval);
+            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
+            }, 100);
+        });
+        $('#downControl').on('mousedown', function() {
+            clearInterval(interval);
+            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
+            interval = setInterval(function() {
+                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
+            }, 100);
+        });
+        $('#zinControl').on('mousedown', function() {
+            clearInterval(interval);
+            zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+            interval = setInterval(function() {
+                zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+            }, 100);
+        });
+        $('#zoutControl').on('mousedown', function() {
+            clearInterval(interval);
+            zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+            interval = setInterval(function() {
+                zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+            }, 100);
+        });
+        $('.seadragonManipButtonLR').on('mouseup mouseleave', function() {
+            clearInterval(interval);
+        });
+
+        $('.seadragonManipButtonUD').on('mouseup mouseleave', function() {
+            clearInterval(interval);
+        });
+
+        $('.seadragonManipButtoninout').on('mouseup mouseleave', function() {
+            clearInterval(interval);
+        });
+    }
+
+    /**
+     * Makes the artwork viewer sidebar
+     * @method makeSidebar
+     */
     function makeSidebar() {
         var i;
         var button;
@@ -42237,37 +42636,19 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         var isBarOpen = true;
         //click toggler to hide/show sidebar
         toggler.click(function () {
-            var opts;
+            var opts = {};
 	    
             //when the bar is open, set the sidebar position according to splitscreen states.
             if (root.data('split') === 'R') {
-                opts = {
-                    right: '-22%' //-(sideBarWidth)
-                };
+                opts.right = isBarOpen ? '-22%' : '0%';
+            } else {
+                opts.left = isBarOpen ? '-22%' : '0%';
             }
-            else {
-                opts = {
-                    left: '-22%' //-(sideBarWidth)
-                };
-            }
-            //if the bar is not open
-            if (!isBarOpen) {
-                if (root.data('split') === 'R') {
-                    opts.right = "0%";
-                } else {
-                    opts.left = "0%";
-                }
-                isBarOpen = true;
-                //togglerImage.attr("src", tagPath+'images/icons/Open.svg');
-            }
-            else {
-                isBarOpen = false;
-                //togglerImage.attr("src", tagPath+'images/icons/Close.svg');
-            }
+            isBarOpen = !isBarOpen;
+
             //when click the toggler, the arrow will rotate 180 degree to change direction.
             $(sideBar).animate(opts, 1000, function () {
-                // $(togglerImage[0]).rotate("180deg");
-                togglerImage.attr('src', tagPath + 'images/icons/' + (!isBarOpen ? 'Open.svg' : 'Close.svg'));
+                togglerImage.attr('src', tagPath + 'images/icons/' + (isBarOpen ? 'Close.svg' : 'Open.svg'));
             });
         });
 
@@ -42277,13 +42658,13 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 		backButton = root.find('#backButton');
         $(backButton).attr('src',tagPath+'images/icons/Back.svg');
 
-        //change the backColor to show the button is being clicked. 
+        //change the backColor to show the button is being clicked
         //mouseleave for lifting the finger from the back button
-        backButton.mouseleave(function () {
+        backButton.on('mouseleave mouseup', function () {
             LADS.Util.UI.cgBackColor("backButton", backButton, true);
         });
         //mousedown for pressing the back button
-        backButton.mousedown(function () {
+        backButton.on('mousedown', function () {
             LADS.Util.UI.cgBackColor("backButton", backButton, false);
         });
 
@@ -42293,11 +42674,8 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 		backButton.on('click', function () {
 			backButton.off('click'); // prevent user from clicking twice
 			zoomimage && zoomimage.unload();
-		    /* nbowditch _editted 2/13/2014 : added backInfo */
 			var backInfo = { backArtwork: doq, backScroll: prevScroll };
 			var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
-            /* end nbowditch edit */
-			//catalog.showExhibiton(exhibition);
 			catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO this line shouldn't be necessary -- do in styl file
 			LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
                 if(prevExhib && prevExhib.Identifier) {
@@ -42355,21 +42733,34 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
         //Descriptions, Hotspots, Assets and Tours drawers
         var existsDescription = !!doq.Metadata.Description;
-        var descriptionDrawer = createDrawer("Description", !existsDescription);
-        if (doq.Metadata.Description) {
-            var descrip = doq.Metadata.Description.replace(/\n/g, "<br />");
-            descriptionDrawer.contents.html(descrip);
-
-        }
-        var test = doq;
-        assetContainer.append(descriptionDrawer);
         
-        //location history TODO
-        var locationHistorysec = initlocationHistory();
-        assetContainer.append(locationHistorysec);
+        if (existsDescription) {
+            NUM_DRAWERS++;
+            var descriptionDrawer = createDrawer("Description", !existsDescription);
+            if (doq.Metadata.Description) {
+                var descrip = doq.Metadata.Description.replace(/\n/g, "<br />");
+                
+                if (typeof Windows != "undefined") {
+                    // running in Win8 app
+                    descriptionDrawer.contents.html(descrip);
+                } else {  
+                    // running in browser
+                    descriptionDrawer.contents.html(Autolinker.link(descrip, {email: false, twitter: false}));
+                }
+            }
+            var test = doq;
+            assetContainer.append(descriptionDrawer);
+        }
 
+        //location history
+        locationList = LADS.Util.UI.getLocationList(options.doq.Metadata); 
+        if (locationList.length !== 0) {
+            NUM_DRAWERS++;
+            var locationHistorysec = initlocationHistory();
+            assetContainer.append(locationHistorysec);
+        }
 
-        var hotspotsDrawer = createDrawer('Hotspots', (hotspots.length === 0));
+        
 
         ///////////////////////////////////////
         function downhelper(elt) {
@@ -42494,20 +42885,27 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         ///////////////////////////////////////
         
         //get the hotspots for the artwork
-        for (var k = 0; k < hotspots.length; k++) {
-            loadQueue.add(createMediaHolder(hotspotsDrawer.contents, hotspots[k], true));
+        if (hotspots.length != 0) {
+            NUM_DRAWERS++;
+            var hotspotsDrawer = createDrawer('Hotspots', (hotspots.length === 0));
+            for (var k = 0; k < hotspots.length; k++) {
+                loadQueue.add(createMediaHolder(hotspotsDrawer.contents, hotspots[k], true));
+            }
+            assetContainer.append(hotspotsDrawer);
         }
-        assetContainer.append(hotspotsDrawer);
 
-
-        var assetsDrawer = createDrawer('Assets', (assets.length===0));
-        for (var j = 0; j< assets.length; j++) {
-            loadQueue.add(createMediaHolder(assetsDrawer.contents, assets[j], false));
+        if (assets.length != 0) {
+            NUM_DRAWERS++;
+            var assetsDrawer = createDrawer('Assets', (assets.length===0));
+            for (var j = 0; j< assets.length; j++) {
+                loadQueue.add(createMediaHolder(assetsDrawer.contents, assets[j], false));
+            }
+            assetContainer.append(assetsDrawer);
         }
-        assetContainer.append(assetsDrawer);
 
         function hotspotAssetClick(hotspotsAsset, btn) {//check if the location history is open before you click the button, if so, close it
             return function () {
+                hotspotsAsset.mediaload();
                 if (locationHistoryActive) {
                     locationHistoryActive = false;
                     locationHistory.css({
@@ -42517,7 +42915,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     locationHistoryToggle.hide();
                     locationHistoryToggle.hide("slide", { direction: direction }, 500);
                     locationHistoryDiv.hide("slide", { direction: direction }, 500);
-                    toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
+                    setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 }
                 var circle = hotspotsAsset.toggle();
 
@@ -42569,15 +42967,28 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 var relatedArtworks = JSON.parse(tour.Metadata.RelatedArtworks);
                 return relatedArtworks instanceof Array && relatedArtworks.indexOf(doq.Identifier) > -1;
             });
-            toursDrawer = createDrawer('Tours', relatedTours.length === 0);
-            assetContainer.append(toursDrawer);
-            if (relatedTours.length > 0) {
-                toursDrawer.contents.text('');
-                $.each(relatedTours, function (index, tour) {
-                    loadQueue.add(createTourHolder(toursDrawer.contents, tour));
-                });
+
+            if (relatedTours.length != 0) {
+                NUM_DRAWERS++;
+                toursDrawer = createDrawer('Tours', relatedTours.length === 0);
+                assetContainer.append(toursDrawer);
+                if (relatedTours.length > 0) {
+                    toursDrawer.contents.text('');
+                    $.each(relatedTours, function (index, tour) {
+                        loadQueue.add(createTourHolder(toursDrawer.contents, tour));
+                    });
+                }
             }
+
+            var maxHeight= $("#assetContainer").height() - $('.drawerHeader').height() * NUM_DRAWERS - 10;
+            if (maxHeight<=0)
+                maxHeight=1;
+            root.find(".drawerContents").css({
+                "max-height": maxHeight +"px",
+            });
         });
+
+        
 
         function tourClicked(tour) {
             return function () {
@@ -42821,9 +43232,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 					((root.data('split') === 'L') ?
 						$('#metascreen-L').width() - window.innerWidth * 0.22 :
 						$('#metascreen-R').width() - window.innerWidth * 0.22);
-        // locationHistoryDiv.css({
-        //     'width': locwidth + 'px',
-        // });
 
         //create the panel for location history.
 		var locationHistoryPanel = root.find('#locationHistoryPanel');
@@ -42918,7 +43326,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
             locationList = LADS.Util.UI.getLocationList(options.doq.Metadata); //Location List is LOADED HERE
 
-            console.log("location list length: " + locationList.length);
             if (locationList.length === 0) {
                 mapOverlay.show();
             }
@@ -42975,7 +43382,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                         };
                         var pushpinOptions = {
                             text: String(i + 1),
-                            icon: tagPath+'/images/icons/locationPin.png',
+                            icon: tagPath+'images/icons/locationPin.png',
                             width: 20,
                             height: 30
                         };
@@ -43039,7 +43446,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 locationHistoryToggle.hide();
                 locationHistoryToggle.hide("slide", { direction: direction }, 500);
                 locationHistoryDiv.hide("slide", { direction: direction }, 500);
-                toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
+                setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 locationHistoryActive = false;
             }
             else {//show the panel if it is hidden when clicked
@@ -43098,17 +43505,16 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             drawer.isslided = false;
             var drawerContents = $(document.createElement('div'));
             drawerContents.addClass("drawerContents");
-            var maxHeight= $("#assetContainer").height() - $('.drawerHeader').height() * NUM_DRAWERS - 10; // 165;
-            if (maxHeight<=0)
-                maxHeight=1;
-            drawerContents.css({
-                "max-height": maxHeight +"px",
-            });
+            // var maxHeight= $("#assetContainer").height() - $('.drawerHeader').height() * NUM_DRAWERS - 15; // 165;
+            // if (maxHeight<=0)
+            //     maxHeight=1;
+            // drawerContents.css({
+            //     "max-height": maxHeight +"px",
+            // });
             drawerContents.appendTo(drawer);
 
             //have the toggler icon minus when is is expanded, plus otherwise.
-            drawerHeader.on('click', function () {
-
+            drawerHeader.on('click', function (evt) {
                 if (drawer.isslided === false) {
                     root.find(".plusToggle").attr('src', tagPath+'images/icons/plus.svg');//ensure only one shows.
                     root.find(".drawerContents").slideUp();
@@ -43152,7 +43558,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 
     // exhibition picker
     function createExhibitionPicker(artworkObj) {
-        debugger; // this shouldn't be called in the web app...
+        // debugger; // this shouldn't be called in the web app...
         var exhibitionPicker = $(document.createElement('div'));
         exhibitionPicker.addClass("exhibitionPicker");
 
@@ -43220,24 +43626,26 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     var listCell = $(document.createElement('div'));
                     listCell.addClass("exhibitions-list-cell");
 
-                    listCell.mousedown(function () {
+                    listCell.on('mousedown', function () {
                         listCell.css({
                             'background-color': 'white',
                             'color': 'black',
                         });
+                        listCell.on('mouseleave', function () {
+                            listCell.css({
+                                'background-color': 'black',
+                                'color': 'white',
+                            });
+                        });
                     });
-                    listCell.mouseup(function () {
+                    listCell.on('mouseup', function () {
                         listCell.css({
                             'background-color': 'black',
                             'color': 'white',
                         });
+                        listCell.off('mouseleave');
                     });
-                    listCell.mouseleave(function () {
-                        listCell.css({
-                            'background-color': 'black',
-                            'color': 'white',
-                        });
-                    });
+                    
 
                     var textBox = $(document.createElement('div'));
                     textBox.addClass("textbox");
@@ -43349,7 +43757,7 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 locationHistoryToggle.hide();
                 locationHistoryToggle.hide("slide", { direction: direction }, 500);
                 locationHistoryDiv.hide("slide", { direction: direction }, 500);
-                toggler.show();//show the toggler for sidebar and hide the locationhistory toggler.
+                setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 locationHistoryActive = false;
             }
             if (prevPage === "catalog" && initialized === true) {
@@ -43405,12 +43813,19 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         return splitscreenContainer;
     }
 
+    /**
+     * Return art viewer root element
+     * @method
+     * @return {Object}    root jquery object
+     */
     this.getRoot = function () {
         return root;
     };
-    /*
-    **make the Map for location History.
-    **@para: callback function
+
+    /**
+     * Make the map for location History.
+     * @method
+     * @param {Function} callback     function to be called when map making is complete
     */
     function makeMap(callback) {
         console.log("in make map");
@@ -43444,7 +43859,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         };
 
         initMap();
-        //Microsoft.Maps.loadModule('Microsoft.Maps.Map', { callback: initMap });
     }
 
 };
@@ -43669,7 +44083,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
 
         var displayHelpText = $(document.createElement('div'));
         displayHelpText.attr('id' ,'displayHelpText');
-        displayHelpText.text("Select an exhibition or tour from the left menu to begin exploring artworks");
+        displayHelpText.text("Select a collection from the left menu and browse artworks below.");
 
         displayHelp.append(displayHelpTitle);
         displayHelp.append(displayHelpText);
@@ -43972,8 +44386,14 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             'width': '55%', 
             'font-size': 0.2 * LADS.Util.getMaxFontSizeEM(exhibition.Metadata.Description, 1.5, 0.55 * $(contentdiv).width(), 0.915 * $(contentdiv).height(), 0.1), // h1*0.055 + 'px',
         });
-           
-        descriptiontext.html(str);
+        
+        if (typeof Windows != "undefined") {
+            // running in Win8 app
+            descriptiontext.html(str);
+        } else {  
+            // running in browser
+            descriptiontext.html(Autolinker.link(str, {email: false, twitter: false}));
+        }
         contentdiv.append(descriptiontext);
         var circle = LADS.Util.showProgressCircle(descriptiontext, progressCircCSS, '0px', '0px', false);
         img1.load(function () {
@@ -44026,7 +44446,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
     }
 
     function getArtworks(exhibition, callback) {//get rid of this func
-         LADS.Worktop.Database.getArtworksIn(exhibition.Identifier, getArtworksHelper, null, getArtworksHelper);
+        LADS.Worktop.Database.getArtworksIn(exhibition.Identifier, getArtworksHelper, null, getArtworksHelper);
 
         function getArtworksHelper(artworks) {
             if (!artworks || !artworks[0]) {//pops up a box warning user there is no artwork in the selected exhibition
@@ -44277,7 +44697,15 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             
             var descSpan = $(document.createElement('div'))
                             .attr('id', 'descSpan')
-                            .html(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '');
+
+            if (typeof Windows != "undefined") {
+                // running in Win8 app
+                descSpan.html(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '');
+            } else {  
+                // running in browser
+                descSpan.html(Autolinker.link(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '', {email: false, twitter: false}));
+            }
+                            
 
             descriptiontext.empty();
             descriptiontext.append(titleSpan).append(descSpan);            
@@ -44667,7 +45095,6 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
         return root;
     };
 
-
     var root,
         mainPanel,
         needPassword = false, // used to determine whether password input box appears
@@ -44687,8 +45114,8 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
         root = LADS.Util.getHtmlAjax('InternetFailurePage.html');
         root.css("width", $("#tagRoot").width());
         root.css("height", $("#tagRoot").height());
-	    mainPanel=root.find("#mainPanel");
-	    mainPanel.css("width", $("#tagRoot").width());
+	mainPanel=root.find("#mainPanel");
+	mainPanel.css("width", $("#tagRoot").width());
         mainPanel.css("height", $("#tagRoot").height());
 
         var sadface = root.find('#sadFace');
@@ -44706,7 +45133,7 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
         var changeServerButton = root.find('#changeServerButton');
 
 	    changeServerButton.text('Change Server');
-        changeServerButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '50%', 'top': '5%' });
+        //changeServerButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '50%', 'top': '5%' });
 
         changeServerButton.on('click', LADS.Util.UI.ChangeServerDialog);
 
@@ -44735,10 +45162,10 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
         }
         else if (errorType === SERVER_DOWN) {
             reconnectButton.text('Reconnect');
-            reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '30%', 'top': '5%' });
+            //reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '30%', 'top': '5%' });
         } else {
             reconnectButton.text('Reconnect');
-            reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '53%', 'top': '5%' });
+            //reconnectButton.css({ 'font-size': '150%', 'position': 'relative', 'left': '53%', 'top': '5%' });
         }
 
 
@@ -44909,7 +45336,6 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
         overlayOnRoot = root.find('#overlayOnRoot');
 
     backButton.attr('src', tagPath+'images/icons/Back.svg');
-
     //clicked effect for back button
     backButton.on('mousedown', function(){
         LADS.Util.UI.cgBackColor("backButton", backButton, false);
@@ -44944,6 +45370,9 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
             artmode = new LADS.Layout.Artmode(prevInfo, artwork, exhibition);
             /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, artmode.getRoot());
+
+            var selectedExhib = $('#exhib-' + prevExhib.Identifier);
+            selectedExhib.attr('flagClicked', 'true');
         } else {
             /* nbowditch _editted 2/13/2014 : added backInfo */
             var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
@@ -44954,7 +45383,7 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
 				var selectedExhib = $('#exhib-' + prevExhib.Identifier);
 				selectedExhib.attr('flagClicked', 'true');
 				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
-                if(selectedExhib[0] && selectedExhib[0].firstChild) {
+                if(selectedExhib[0].firstChild) {
     				$(selectedExhib[0].firstChild).css({'color': 'black'});
                 }
 			});           
@@ -44995,26 +45424,28 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
 LADS.Util.makeNamespace("LADS.Layout.VideoPlayer");
 
 /**
- * Player for RIN tours
- * @param tour      RIN tour in Javascript object (pre-parsed from JSON)
- *@param exhibition: 
- *@param prevInfo   object containing previous page info 
- *    artworkPrev      value is 'artmode' when we arrive here from the art viewer
- *    prevScroll       value of scrollbar from new catalog page
- *@param artwork:the artworks in this tour
+ * TAG video player -- a wrapper around the standard html5 video element
+ * @class LADS.Layout.VideoPlayer
+ * @constructor
+ * @param {Doq} videoSrc     the doq representing our video
+ * @param {Doq} collection   the parent collection of this video
+ * @param {Object} prevInfo  some info about where we came from on the collections page:
+ *                   .artworkPrev     string representing where we came from
+ *                   .prevScroll      value of the scrollbar from new catalog page
+ * @return {Object}          the object representing public information about the video page
+ *                           (at the moment, just the root of the DOM)
  */
-LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
+LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
     "use strict";
 
-    /* nowditch _editted 2/13/2014 : added prevScroll */
-    var artworkPrev;
-    var prevScroll = 0;
-	var prevExhib = exhibition;
+    var artworkPrev,
+        prevScroll = 0,
+	    prevExhib = collection;
+
     if (prevInfo) {
         artworkPrev = prevInfo.artworkPrev,
         prevScroll = prevInfo.prevScroll || 0;
     }
-    /* end nbowditch edit */
 
     var that = {};
 
@@ -45027,211 +45458,231 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         DURATION = parseFloat(videoSrc.Metadata.Duration),
         play = root.find('#playPauseButton'),
         vol = root.find('#videoControlsButton'),
-        //sliderControl = root.find('#sliderControl'),
         sliderContainer = root.find('#sliderContainer'),
-        dragBar = false,
-        hoverString,
-        setHoverValue,
-        currTime;
+        currTime,
+        poster = (videoSrc.Metadata.Thumbnail && !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : '',
+        source = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source),
+        sourceWithoutExtension = source.substring(0, source.lastIndexOf('.')),
+        currentTimeDisplay = root.find('#currentTimeDisplay'),
+        backButton = root.find('#backButton');
 
-    video.attr({
-        poster: (videoSrc.Metadata.Thumbnail && !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : '',
-        controls: false,
-        preload: 'metadata'
-    });
-
-    //Adding sources for the video file
-    var source = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source);
-    //var source = 'http://techslides.com/demos/sample-videos/small.webm'; //Video file to test code without server conversion
-    var sourceSansExtension = source.substring(0, source.lastIndexOf('.')) || input;
-    sourceMP4 = sourceSansExtension + ".mp4";
-    sourceWEBM = sourceSansExtension + ".webm";
-    sourceOGG = sourceSansExtension + ".ogg";
-    
-    //video[0] converts the jQuery object 'video' into an HTML object, allowing us to use innerHTML on it
-    video[0].innerHTML = '<source src="' + sourceMP4 + '" type="video/mp4; codecs="avc1.42E01E, mp4a.40.2"">';
-    video[0].innerHTML += '<source src="' + sourceWEBM + '" type="video/webm; codecs="vorbis, vp8"">';
-    video[0].innerHTML += '<source src="' + sourceOGG + '" type="video/ogg; codecs="theora, vorbis"">';
-
+    // init the video player status
+    initPage();
     timeToZero();
     initVideoPlayHandlers();
 
+    /**
+     * Return to the collections page from the video player.
+     * @method goBack
+     */
+    function goBack() {
+        videoElt.pause();
+        video.attr('src', "");
+
+        var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
+        var catalog = new LADS.Layout.NewCatalog(backInfo, collection);
+
+        catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO should be default in .styl file
+        LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
+            artworkPrev = "catalog";
+            var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
+            selectedExhib.attr('flagClicked', 'true');
+            selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
+            $(selectedExhib[0].firstChild).css({'color': 'black'});
+        });
+    }
+
+    /**
+     * Take video to time 0 and pause.
+     * @method timeToZero
+     */
     function timeToZero() {
         if (videoElt.currentTime !== 0) {
             videoElt.currentTime = 0;
+            videoElt.pause();
         }
         play.attr('src', tagPath+'images/icons/PlayWhite.svg');
     }
 
-    function initVideoPlayHandlers() {
-        play.attr('src', tagPath+'images/icons/PlayWhite.svg');
-        play.on('click', function () {
-            console.log("playbutton down");
-            if (videoElt.paused) {
-                videoElt.play();
-                console.log("time to play");
-                play.attr('src', tagPath+'images/icons/PauseWhite.svg');
-            } else {
-                videoElt.pause();
-                play.attr('src', tagPath+'images/icons/PlayWhite.svg');
-            }
-        });
+    /**
+     * Play video and change play button image
+     * @method playVideo
+     */
+    function playVideo() {
+        videoElt.play();
+        play.attr('src', tagPath+'images/icons/PauseWhite.svg');
+    }
 
-        $(vol).on('click', function () {
-            if (videoElt.muted) {
-                videoElt.muted = false;
-                vol.attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
-            } else {
-                videoElt.muted = true;
-                vol.attr('src', tagPath+'images/icons/VolumeDownWhite.svg');
-            }
-        });
-
-        video.on('ended', function () {
+    /**
+     * Pause video and change play button image
+     * @method pauseVideo
+     */
+    function pauseVideo() {
         videoElt.pause();
-        timeToZero();
-        // initVideoPlayHandlers(); // is this necessary here TODO
+        play.attr('src', tagPath+'images/icons/PlayWhite.svg');
+    }
+
+    /**
+     * Play or pause video depending on its current state
+     * @method toggleVideo
+     */
+    function toggleVideo() {
+        videoElt.paused ? playVideo() : pauseVideo();
+    }
+
+    /**
+     * Set up handlers for video element and play/pause button
+     * @method initVideoPlayHandlers
+     */
+    function initVideoPlayHandlers() {
+        video.on('loadedmetadata', initSeekHandlers);
+
+        // set up play button
+        play.attr('src', tagPath+'images/icons/PlayWhite.svg');
+        play.on('click', toggleVideo);
+
+        // set up mute button
+        vol.attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
+        $(vol).on('click', function () {
+            videoElt.muted = !videoElt.muted;
+            vol.attr('src', tagPath+'images/icons/Volume'+ (videoElt.muted ? 'Down' : 'Up') + 'White.svg');
+        });
+
+        // when video ends, return to collections page after a short delay
+        video.on('ended', function () {
+            setTimeout(goBack, 300);
+        });
+
+        // Update the seek bar as the video plays
+        video.on("timeupdate", function () {
+            var value,
+                minutes,
+                seconds,
+                adjMin;
+
+            // Calculate the slider value and update the slider value
+            value = ($('#sliderContainer').width() / videoElt.duration) * videoElt.currentTime;
+            $('#sliderPoint').css('width',value);
+
+            minutes = Math.floor(videoElt.currentTime / 60);
+            seconds = Math.floor(videoElt.currentTime % 60);
+            if (String(minutes).length < 2) {
+                adjMin = '0' + minutes;
+            } else {
+                adjMin = minutes;
+            }
+            currentTimeDisplay.text(adjMin + ":" + (seconds < 10 ? "0" : "") + seconds);
         });
     }
-    
 
-
-
-    setHoverValue = function (percent) {
-        var totalDuration = orchestrator.getNarrativeInfo().totalDuration, // ???
-            hoverTime = narrativeDuration * percent,
-            minutes = Math.floor(hoverTime / 60),
-            seconds = Math.floor(hoverTime % 60);
-        hoverString(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
-    };
-
-    // handlers for seek bar
-    video.on('loadedmetadata', initSeekHandlers);
-
+    /**
+     * Set up handlers for the seekbar
+     * @method initSeekHandlers
+     */
     function initSeekHandlers() {
         sliderContainer.on('mousedown', function(evt) {
-            console.log("seeker mousedown detected!1");
-            var time = $(video).get(0).duration * (evt.offsetX / $('#sliderContainer').width());    
+            var time = videoElt.duration * (evt.offsetX / $('#sliderContainer').width());    
             if (!isNaN(time)) {
-                $(video).get(0).currentTime = time;
+                videoElt.currentTime = time;
             }
         });
 
+        // set up mousedown handler for the seekbar
         sliderContainer.on('mousedown', function(e) {
             e.stopPropagation();
-            console.log("seeker mousedown detected!2");
             var origPoint = e.pageX,
                 origTime = videoElt.currentTime,
-                timePxRatio = DURATION / sliderContainer.width(); // sec/px
-                console.log('ratio = '+timePxRatio);
-                currTime = Math.max(0, Math.min(DURATION, origTime));
-                var currPx = currTime / timePxRatio;
-                var minutes = Math.floor(currTime / 60);
-                if((""+minutes).length < 2) {
-                    minutes = "0" + minutes;
-                }
-                var seconds = Math.floor(currTime % 60);
-
-                //console.log("currTime1 "+origTime);
-
-                // Update the video time and slider values
+                timePxRatio = DURATION / sliderContainer.width(), // sec/px
+                currPx,
+                minutes,
+                seconds;
             
+            currTime = Math.max(0, Math.min(DURATION, origTime));
+            currPx   = currTime / timePxRatio;
+            minutes  = Math.floor(currTime / 60);
+            seconds  = Math.floor(currTime % 60);
 
+            if((""+minutes).length < 2) {
+                minutes = "0" + minutes;
+            }
+
+            // set up mousemove handler now that mousedown has happened
             $('body').on('mousemove.seek', function(evt) {
                 var currPoint = evt.pageX,
                     timeDiff = (currPoint - origPoint) * timePxRatio;
-                    //currPx,
-                    //minutes,
-                    //seconds;
+
                 currTime = Math.max(0, Math.min(DURATION, origTime + timeDiff));
-                currPx = currTime / timePxRatio;
-                minutes = Math.floor(currTime / 60);
+                currPx   = currTime / timePxRatio;
+                minutes  = Math.floor(currTime / 60);
+                seconds  = Math.floor(currTime % 60);
+
                 if((""+minutes).length < 2) {
                     minutes = "0" + minutes;
                 }
-                seconds = Math.floor(currTime % 60);
-
-                console.log("currTime "+currTime);
 
                 // Update the video time and slider values
                 if (!isNaN(currTime)) {
-                    // debugger;
                     $('#currentTimeDisplay').text(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
                     videoElt.currentTime = currTime;
-                    
-                    //$('#sliderContainer').css('left', currPx);
                     $('#sliderPoint').css('width', currPx);
                 }
 
             });
 
-            $('body').on('mouseup.seek', function() {
-                // when the mouse is released, remove the mousemove handler
-                // debugger;
+            // when the mouse is released or leaves iframe, remove the mousemove handler and set time
+            $('body').on('mouseup.seek mouseleave.seek', function() {
                 $('body').off('mousemove.seek');
                 $('body').off('mouseup.seek');
-		$('#currentTimeDisplay').text(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
+                $('body').off('mouseleave.seek');
+		        $('#currentTimeDisplay').text(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
                 videoElt.currentTime = currTime;
-		$('#sliderPoint').css('width', currPx);
+		        $('#sliderPoint').css('width', currPx);
             });
         });
     }
+
+    /**
+     * Initialize misc parts of the video player
+     * @method initPage
+     */
+    function initPage() {
+        // set attributes of video element
+        video.attr({
+            poster: poster,
+            controls: false,
+            preload: 'metadata'
+        });
+
+        //Adding sources for the video file
+        sourceMP4  = sourceWithoutExtension + ".mp4";
+        sourceWEBM = sourceWithoutExtension + ".webm";
+        sourceOGG  = sourceWithoutExtension + ".ogg";
+        
+        //video[0] converts the jQuery object 'video' into an HTML object, allowing us to use innerHTML on it
+        videoElt.innerHTML  = '<source src="' + sourceMP4  + '" type="video/mp4; codecs="avc1.42E01E, mp4a.40.2"">';
+        videoElt.innerHTML += '<source src="' + sourceWEBM + '" type="video/webm; codecs="vorbis, vp8"">';
+        videoElt.innerHTML += '<source src="' + sourceOGG  + '" type="video/ogg; codecs="theora, vorbis"">';
+
+        // set text of time display
+        currentTimeDisplay.text("00:00");
     
-    var currentTimeDisplay = root.find('#currentTimeDisplay');
-    $(currentTimeDisplay).text("00:00");
-    var backButton = root.find('#backButton');
-    $(backButton).attr('src',tagPath+'images/icons/Back.svg');
-    backButton.mousedown(function () {
-        LADS.Util.UI.cgBackColor("backButton", backButton, false);
-    });
-    backButton.mouseleave(function () {
-        LADS.Util.UI.cgBackColor("backButton", backButton, true);
-    });
+        // set up back button
+        backButton.attr('src',tagPath+'images/icons/Back.svg');
+        backButton.on('mousedown', function () {
+            LADS.Util.UI.cgBackColor("backButton", backButton, false);
+        });
+        backButton.on('mouseleave', function () {
+            LADS.Util.UI.cgBackColor("backButton", backButton, true);
+        });
 
-    backButton.on('click', function () {
-        videoElt.pause();
-        // delete(video[0]);
-        $(videoElt).attr('src', "");
+        backButton.on('click', goBack);
+    }
 
-        /* nbowditch _editted 2/13/2014 : added backInfo */
-        var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
-        var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
-        /* end nbowditch edit */
-		catalog.getRoot().css({ 'overflow-x': 'hidden' });
-        LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
-				artworkPrev = "catalog";
-				var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
-				selectedExhib.attr('flagClicked', 'true');
-				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
-				$(selectedExhib[0].firstChild).css({'color': 'black'});
-			});
-    });
-
-
-
-    // Update the seek bar as the video plays
-    video.on("timeupdate", function () {
-        var value,
-            minutes,
-            seconds,
-            adjMin;
-
-        // Calculate the slider value and update the slider value
-
-        value = ($('#sliderContainer').width() / videoElt.duration) * videoElt.currentTime;
-      // $('#sliderControl').css('left',value);
-       $('#sliderPoint').css('width',value);
-
-        minutes = Math.floor(videoElt.currentTime / 60);
-        seconds = Math.floor(videoElt.currentTime % 60);
-        if (String(minutes).length < 2) {
-            adjMin = '0' + minutes;
-        } else {
-            adjMin = minutes;
-        }
-        currentTimeDisplay.text(adjMin + ":" + (seconds < 10 ? "0" : "") + seconds);
-    });
-
+    /**
+     * Return the root of the video page
+     * @method getRoot
+     * @return {jQuery object}   root of the video page
+     */
     function getRoot() {
         return root;
     }
@@ -45992,7 +46443,8 @@ LADS.TESTS = (function () {
         var TAGSCRIPTS = [
                 'js/raphael.js',
                 'js/tagInk.js',
-                'js/RIN/web/lib/rin-core-1.0.js'
+                'js/RIN/web/lib/rin-core-1.0.js',
+                'js/Autolinker.js-master/dist/Autolinker.js'
             ],
             i,
             oHead,
@@ -46024,9 +46476,6 @@ LADS.TESTS = (function () {
 
 
         $("body").css("-ms-touch-action","none");
-    
-
-
 
        // if (checkInternetConnectivity())
         //     checkServerConnectivity();
@@ -46246,5 +46695,4 @@ LADS.TESTS = (function () {
             }
         });
     });
-})();
-};
+})();};

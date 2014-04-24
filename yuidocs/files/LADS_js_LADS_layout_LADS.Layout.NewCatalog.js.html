@@ -41,9 +41,21 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
+                <li><a href="../classes/Autolinker.html">Autolinker</a></li>
+            
+                <li><a href="../classes/CryptoJS.html">CryptoJS</a></li>
+            
                 <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
             
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
+            
+                <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
+            
+                <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
+            
+                <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
+            
+                <li><a href="../classes/Telemetry.html">Telemetry</a></li>
             
             </ul>
 
@@ -301,7 +313,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
 
         var displayHelpText = $(document.createElement(&#x27;div&#x27;));
         displayHelpText.attr(&#x27;id&#x27; ,&#x27;displayHelpText&#x27;);
-        displayHelpText.text(&quot;Select an exhibition or tour from the left menu to begin exploring artworks&quot;);
+        displayHelpText.text(&quot;Select a collection from the left menu and browse artworks below.&quot;);
 
         displayHelp.append(displayHelpTitle);
         displayHelp.append(displayHelpText);
@@ -604,8 +616,14 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             &#x27;width&#x27;: &#x27;55%&#x27;, 
             &#x27;font-size&#x27;: 0.2 * LADS.Util.getMaxFontSizeEM(exhibition.Metadata.Description, 1.5, 0.55 * $(contentdiv).width(), 0.915 * $(contentdiv).height(), 0.1), // h1*0.055 + &#x27;px&#x27;,
         });
-           
-        descriptiontext.html(str);
+        
+        if (typeof Windows != &quot;undefined&quot;) {
+            // running in Win8 app
+            descriptiontext.html(str);
+        } else {  
+            // running in browser
+            descriptiontext.html(Autolinker.link(str, {email: false, twitter: false}));
+        }
         contentdiv.append(descriptiontext);
         var circle = LADS.Util.showProgressCircle(descriptiontext, progressCircCSS, &#x27;0px&#x27;, &#x27;0px&#x27;, false);
         img1.load(function () {
@@ -658,7 +676,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
     }
 
     function getArtworks(exhibition, callback) {//get rid of this func
-         LADS.Worktop.Database.getArtworksIn(exhibition.Identifier, getArtworksHelper, null, getArtworksHelper);
+        LADS.Worktop.Database.getArtworksIn(exhibition.Identifier, getArtworksHelper, null, getArtworksHelper);
 
         function getArtworksHelper(artworks) {
             if (!artworks || !artworks[0]) {//pops up a box warning user there is no artwork in the selected exhibition
@@ -909,7 +927,15 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             
             var descSpan = $(document.createElement(&#x27;div&#x27;))
                             .attr(&#x27;id&#x27;, &#x27;descSpan&#x27;)
-                            .html(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, &#x27;&lt;br /&gt;&#x27;) : &#x27;&#x27;);
+
+            if (typeof Windows != &quot;undefined&quot;) {
+                // running in Win8 app
+                descSpan.html(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, &#x27;&lt;br /&gt;&#x27;) : &#x27;&#x27;);
+            } else {  
+                // running in browser
+                descSpan.html(Autolinker.link(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, &#x27;&lt;br /&gt;&#x27;) : &#x27;&#x27;, {email: false, twitter: false}));
+            }
+                            
 
             descriptiontext.empty();
             descriptiontext.append(titleSpan).append(descSpan);            

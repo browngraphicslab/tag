@@ -41,9 +41,21 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
+                <li><a href="../classes/Autolinker.html">Autolinker</a></li>
+            
+                <li><a href="../classes/CryptoJS.html">CryptoJS</a></li>
+            
                 <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
             
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
+            
+                <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
+            
+                <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
+            
+                <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
+            
+                <li><a href="../classes/Telemetry.html">Telemetry</a></li>
             
             </ul>
 
@@ -102,7 +114,8 @@ LADS.Layout.InternetFailure.lastOverlay = {};
  * Internet failure page, which appears when TAG detects a loss of internet.
  * @class LADS.Layout.InternetFailurePage.js
  * @constructor
- * @param errorType   
+ * @param {String} errorType     the type of connectivity error
+ * @param {Boolean} detach       used in Win8 app
  */
 LADS.Layout.InternetFailurePage = function (errorType, detach) {
     &quot;use strict&quot;;
@@ -130,8 +143,8 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
         root = LADS.Util.getHtmlAjax(&#x27;InternetFailurePage.html&#x27;);
         root.css(&quot;width&quot;, $(&quot;#tagRoot&quot;).width());
         root.css(&quot;height&quot;, $(&quot;#tagRoot&quot;).height());
-	    mainPanel=root.find(&quot;#mainPanel&quot;);
-	    mainPanel.css(&quot;width&quot;, $(&quot;#tagRoot&quot;).width());
+	mainPanel=root.find(&quot;#mainPanel&quot;);
+	mainPanel.css(&quot;width&quot;, $(&quot;#tagRoot&quot;).width());
         mainPanel.css(&quot;height&quot;, $(&quot;#tagRoot&quot;).height());
 
         var sadface = root.find(&#x27;#sadFace&#x27;);
@@ -149,7 +162,7 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
         var changeServerButton = root.find(&#x27;#changeServerButton&#x27;);
 
 	    changeServerButton.text(&#x27;Change Server&#x27;);
-        changeServerButton.css({ &#x27;font-size&#x27;: &#x27;150%&#x27;, &#x27;position&#x27;: &#x27;relative&#x27;, &#x27;left&#x27;: &#x27;50%&#x27;, &#x27;top&#x27;: &#x27;5%&#x27; });
+        //changeServerButton.css({ &#x27;font-size&#x27;: &#x27;150%&#x27;, &#x27;position&#x27;: &#x27;relative&#x27;, &#x27;left&#x27;: &#x27;50%&#x27;, &#x27;top&#x27;: &#x27;5%&#x27; });
 
         changeServerButton.on(&#x27;click&#x27;, LADS.Util.UI.ChangeServerDialog);
 
@@ -178,10 +191,10 @@ LADS.Layout.InternetFailurePage = function (errorType, detach) {
         }
         else if (errorType === SERVER_DOWN) {
             reconnectButton.text(&#x27;Reconnect&#x27;);
-            reconnectButton.css({ &#x27;font-size&#x27;: &#x27;150%&#x27;, &#x27;position&#x27;: &#x27;relative&#x27;, &#x27;left&#x27;: &#x27;30%&#x27;, &#x27;top&#x27;: &#x27;5%&#x27; });
+            //reconnectButton.css({ &#x27;font-size&#x27;: &#x27;150%&#x27;, &#x27;position&#x27;: &#x27;relative&#x27;, &#x27;left&#x27;: &#x27;30%&#x27;, &#x27;top&#x27;: &#x27;5%&#x27; });
         } else {
             reconnectButton.text(&#x27;Reconnect&#x27;);
-            reconnectButton.css({ &#x27;font-size&#x27;: &#x27;150%&#x27;, &#x27;position&#x27;: &#x27;relative&#x27;, &#x27;left&#x27;: &#x27;53%&#x27;, &#x27;top&#x27;: &#x27;5%&#x27; });
+            //reconnectButton.css({ &#x27;font-size&#x27;: &#x27;150%&#x27;, &#x27;position&#x27;: &#x27;relative&#x27;, &#x27;left&#x27;: &#x27;53%&#x27;, &#x27;top&#x27;: &#x27;5%&#x27; });
         }
 
 

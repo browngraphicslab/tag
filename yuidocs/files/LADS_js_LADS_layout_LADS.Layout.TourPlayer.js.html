@@ -41,9 +41,21 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
+                <li><a href="../classes/Autolinker.html">Autolinker</a></li>
+            
+                <li><a href="../classes/CryptoJS.html">CryptoJS</a></li>
+            
                 <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
             
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
+            
+                <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
+            
+                <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
+            
+                <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
+            
+                <li><a href="../classes/Telemetry.html">Telemetry</a></li>
             
             </ul>
 
@@ -123,7 +135,6 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
         overlayOnRoot = root.find(&#x27;#overlayOnRoot&#x27;);
 
     backButton.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/Back.svg&#x27;);
-
     //clicked effect for back button
     backButton.on(&#x27;mousedown&#x27;, function(){
         LADS.Util.UI.cgBackColor(&quot;backButton&quot;, backButton, false);
@@ -158,6 +169,9 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
             artmode = new LADS.Layout.Artmode(prevInfo, artwork, exhibition);
             /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, artmode.getRoot());
+
+            var selectedExhib = $(&#x27;#exhib-&#x27; + prevExhib.Identifier);
+            selectedExhib.attr(&#x27;flagClicked&#x27;, &#x27;true&#x27;);
         } else {
             /* nbowditch _editted 2/13/2014 : added backInfo */
             var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
@@ -168,7 +182,7 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
 				var selectedExhib = $(&#x27;#exhib-&#x27; + prevExhib.Identifier);
 				selectedExhib.attr(&#x27;flagClicked&#x27;, &#x27;true&#x27;);
 				selectedExhib.css({ &#x27;background-color&#x27;: &#x27;white&#x27;, &#x27;color&#x27;: &#x27;black&#x27; });
-                if(selectedExhib[0] &amp;&amp; selectedExhib[0].firstChild) {
+                if(selectedExhib[0].firstChild) {
     				$(selectedExhib[0].firstChild).css({&#x27;color&#x27;: &#x27;black&#x27;});
                 }
 			});           

@@ -19,8 +19,6 @@ LADS.Util = (function () {
     return {
         makeNamespace: namespace,
         setToDefaults: setToDefaults,
-        //localSettings: applicationData.localSettings,
-        //localFolder: applicationData.localFolder,
         getGestureRecognizer: getGestureRecognizer,
         makeXmlRequest: makeXmlRequest,
         makeManipulatable: makeManipulatable,
@@ -971,6 +969,7 @@ LADS.Util = (function () {
                 */
 				if (delta < 0) delta = 1.0 / 1.1;
             	else delta = 1.1;
+				console.log("delta processed " + delta);
                 evt.cancelBubble = true;
                 if (typeof functions.onScroll === "function") { 
                     functions.onScroll(delta, pivot);
@@ -1618,7 +1617,7 @@ LADS.Util.UI = (function () {
         serverDialog.append(serverButtonRow);
         var serverSaveButton = $(document.createElement('button'));
         serverSaveButton.css({
-            'padding': '1%', 'border': '1px solid white', 'width': '12%','height':'3%' ,'position': 'relative','margin-top': '1%', 'float': "left", 'margin-left':'7%' ,'font-size':'90%','bottom':'1%'
+            'padding': '1%', 'border': '1px solid white', 'width': '14%','height':'3%' ,'position': 'relative','margin-top': '1%', 'float': "left", 'margin-left':'7%' ,'font-size':'90%','bottom':'1%'
         });
         serverSaveButton.text('Save');
         var serverErrorMessage = $(document.createElement('div'));
@@ -1638,7 +1637,7 @@ LADS.Util.UI = (function () {
 
         var serverCancelButton = $(document.createElement('button'));
         serverCancelButton.css({
-            'padding': '1%', 'border': '1px solid white', 'width': '12%','height':'3%', 'position': 'relative', 'margin-top': '1%', 'float': "right", 'margin-right': '7%','font-size':'90%','bottom':'1%'
+            'padding': '1%', 'border': '1px solid white', 'width': '14%','height':'3%', 'position': 'relative', 'margin-top': '1%', 'float': "right", 'margin-right': '7%','font-size':'90%','bottom':'1%'
         });
         serverCancelButton.text('Cancel');
         serverCancelButton.attr('type', 'button');
@@ -2468,7 +2467,7 @@ LADS.Util.UI = (function () {
             }
             var pushpinOptions = {
                 text: String(i + 1),
-                icon: tagPath+'/images/icons/locationPin.png',
+                icon: tagPath+'images/icons/locationPin.png',
                 width: 20,
                 height: 30
             };
