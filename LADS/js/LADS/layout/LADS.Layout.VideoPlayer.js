@@ -1,26 +1,28 @@
 LADS.Util.makeNamespace("LADS.Layout.VideoPlayer");
 
 /**
- * Player for RIN tours
- * @param tour      RIN tour in Javascript object (pre-parsed from JSON)
- *@param exhibition: 
- *@param prevInfo   object containing previous page info 
- *    artworkPrev      value is 'artmode' when we arrive here from the art viewer
- *    prevScroll       value of scrollbar from new catalog page
- *@param artwork:the artworks in this tour
+ * TAG video player -- a wrapper around the standard html5 video element
+ * @class LADS.Layout.VideoPlayer
+ * @constructor
+ * @param {Doq} videoSrc     the doq representing our video
+ * @param {Doq} collection   the parent collection of this video
+ * @param {Object} prevInfo  some info about where we came from on the collections page:
+ *                   .artworkPrev     string representing where we came from
+ *                   .prevScroll      value of the scrollbar from new catalog page
+ * @return {Object}          the object representing public information about the video page
+ *                           (at the moment, just the root of the DOM)
  */
-LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
+LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
     "use strict";
 
-    /* nowditch _editted 2/13/2014 : added prevScroll */
-    var artworkPrev;
-    var prevScroll = 0;
-	var prevExhib = exhibition;
+    var artworkPrev,
+        prevScroll = 0,
+	    prevExhib = collection;
+
     if (prevInfo) {
         artworkPrev = prevInfo.artworkPrev,
         prevScroll = prevInfo.prevScroll || 0;
     }
-    /* end nbowditch edit */
 
     var that = {};
 
@@ -33,212 +35,231 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         DURATION = parseFloat(videoSrc.Metadata.Duration),
         play = root.find('#playPauseButton'),
         vol = root.find('#videoControlsButton'),
-        //sliderControl = root.find('#sliderControl'),
         sliderContainer = root.find('#sliderContainer'),
-        dragBar = false,
-        hoverString,
-        setHoverValue,
-        currTime;
+        currTime,
+        poster = (videoSrc.Metadata.Thumbnail && !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : '',
+        source = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source),
+        sourceWithoutExtension = source.substring(0, source.lastIndexOf('.')),
+        currentTimeDisplay = root.find('#currentTimeDisplay'),
+        backButton = root.find('#backButton');
 
-    video.attr({
-        poster: (videoSrc.Metadata.Thumbnail && !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : '',
-        controls: false,
-        preload: 'metadata'
-    });
-
-    //Adding sources for the video file
-    var source = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source);
-    //var source = 'http://techslides.com/demos/sample-videos/small.webm'; //Video file to test code without server conversion
-    var sourceWithoutExtension = source.substring(0, source.lastIndexOf('.'));
-    sourceMP4 = sourceWithoutExtension + ".mp4";
-    sourceWEBM = sourceWithoutExtension + ".webm";
-    sourceOGG = sourceWithoutExtension + ".ogg";
-    
-    //video[0] converts the jQuery object 'video' into an HTML object, allowing us to use innerHTML on it
-    video[0].innerHTML = '<source src="' + sourceMP4 + '" type="video/mp4; codecs="avc1.42E01E, mp4a.40.2"">';
-    video[0].innerHTML += '<source src="' + sourceWEBM + '" type="video/webm; codecs="vorbis, vp8"">';
-    video[0].innerHTML += '<source src="' + sourceOGG + '" type="video/ogg; codecs="theora, vorbis"">';
-
+    // init the video player status
+    initPage();
     timeToZero();
     initVideoPlayHandlers();
 
+    /**
+     * Return to the collections page from the video player.
+     * @method goBack
+     */
+    function goBack() {
+        videoElt.pause();
+        video.attr('src', "");
+
+        var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
+        var catalog = new LADS.Layout.NewCatalog(backInfo, collection);
+
+        catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO should be default in .styl file
+        LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
+            artworkPrev = "catalog";
+            var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
+            selectedExhib.attr('flagClicked', 'true');
+            selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
+            $(selectedExhib[0].firstChild).css({'color': 'black'});
+        });
+    }
+
+    /**
+     * Take video to time 0 and pause.
+     * @method timeToZero
+     */
     function timeToZero() {
         if (videoElt.currentTime !== 0) {
             videoElt.currentTime = 0;
+            videoElt.pause();
         }
         play.attr('src', tagPath+'images/icons/PlayWhite.svg');
     }
 
-    function initVideoPlayHandlers() {
-        play.attr('src', tagPath+'images/icons/PlayWhite.svg');
-        play.on('click', function () {
-            console.log("playbutton down");
-            if (videoElt.paused) {
-                videoElt.play();
-                console.log("time to play");
-                play.attr('src', tagPath+'images/icons/PauseWhite.svg');
-            } else {
-                videoElt.pause();
-                play.attr('src', tagPath+'images/icons/PlayWhite.svg');
-            }
-        });
+    /**
+     * Play video and change play button image
+     * @method playVideo
+     */
+    function playVideo() {
+        videoElt.play();
+        play.attr('src', tagPath+'images/icons/PauseWhite.svg');
+    }
 
+    /**
+     * Pause video and change play button image
+     * @method pauseVideo
+     */
+    function pauseVideo() {
+        videoElt.pause();
+        play.attr('src', tagPath+'images/icons/PlayWhite.svg');
+    }
+
+    /**
+     * Play or pause video depending on its current state
+     * @method toggleVideo
+     */
+    function toggleVideo() {
+        videoElt.paused ? playVideo() : pauseVideo();
+    }
+
+    /**
+     * Set up handlers for video element and play/pause button
+     * @method initVideoPlayHandlers
+     */
+    function initVideoPlayHandlers() {
+        video.on('loadedmetadata', initSeekHandlers);
+
+        // set up play button
+        play.attr('src', tagPath+'images/icons/PlayWhite.svg');
+        play.on('click', toggleVideo);
+
+        // set up mute button
         vol.attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
         $(vol).on('click', function () {
-            if (videoElt.muted) {
-                videoElt.muted = false;
-                vol.attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
-            } else {
-                videoElt.muted = true;
-                vol.attr('src', tagPath+'images/icons/VolumeDownWhite.svg');
-            }
+            videoElt.muted = !videoElt.muted;
+            vol.attr('src', tagPath+'images/icons/Volume'+ (videoElt.muted ? 'Down' : 'Up') + 'White.svg');
         });
 
+        // when video ends, return to collections page after a short delay
         video.on('ended', function () {
-        videoElt.pause();
-        timeToZero();
-        // initVideoPlayHandlers(); // is this necessary here TODO
+            setTimeout(goBack, 300);
+        });
+
+        // Update the seek bar as the video plays
+        video.on("timeupdate", function () {
+            var value,
+                minutes,
+                seconds,
+                adjMin;
+
+            // Calculate the slider value and update the slider value
+            value = ($('#sliderContainer').width() / videoElt.duration) * videoElt.currentTime;
+            $('#sliderPoint').css('width',value);
+
+            minutes = Math.floor(videoElt.currentTime / 60);
+            seconds = Math.floor(videoElt.currentTime % 60);
+            if (String(minutes).length < 2) {
+                adjMin = '0' + minutes;
+            } else {
+                adjMin = minutes;
+            }
+            currentTimeDisplay.text(adjMin + ":" + (seconds < 10 ? "0" : "") + seconds);
         });
     }
-    
 
-
-
-    setHoverValue = function (percent) {
-        var totalDuration = orchestrator.getNarrativeInfo().totalDuration, // ???
-            hoverTime = narrativeDuration * percent,
-            minutes = Math.floor(hoverTime / 60),
-            seconds = Math.floor(hoverTime % 60);
-        hoverString(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
-    };
-
-    // handlers for seek bar
-    video.on('loadedmetadata', initSeekHandlers);
-
+    /**
+     * Set up handlers for the seekbar
+     * @method initSeekHandlers
+     */
     function initSeekHandlers() {
         sliderContainer.on('mousedown', function(evt) {
-            console.log("seeker mousedown detected!1");
-            var time = $(video).get(0).duration * (evt.offsetX / $('#sliderContainer').width());    
+            var time = videoElt.duration * (evt.offsetX / $('#sliderContainer').width());    
             if (!isNaN(time)) {
-                $(video).get(0).currentTime = time;
+                videoElt.currentTime = time;
             }
         });
 
+        // set up mousedown handler for the seekbar
         sliderContainer.on('mousedown', function(e) {
             e.stopPropagation();
-            console.log("seeker mousedown detected!2");
             var origPoint = e.pageX,
                 origTime = videoElt.currentTime,
-                timePxRatio = DURATION / sliderContainer.width(); // sec/px
-                console.log('ratio = '+timePxRatio);
-                currTime = Math.max(0, Math.min(DURATION, origTime));
-                var currPx = currTime / timePxRatio;
-                var minutes = Math.floor(currTime / 60);
-                if((""+minutes).length < 2) {
-                    minutes = "0" + minutes;
-                }
-                var seconds = Math.floor(currTime % 60);
-
-                //console.log("currTime1 "+origTime);
-
-                // Update the video time and slider values
+                timePxRatio = DURATION / sliderContainer.width(), // sec/px
+                currPx,
+                minutes,
+                seconds;
             
+            currTime = Math.max(0, Math.min(DURATION, origTime));
+            currPx   = currTime / timePxRatio;
+            minutes  = Math.floor(currTime / 60);
+            seconds  = Math.floor(currTime % 60);
 
+            if((""+minutes).length < 2) {
+                minutes = "0" + minutes;
+            }
+
+            // set up mousemove handler now that mousedown has happened
             $('body').on('mousemove.seek', function(evt) {
                 var currPoint = evt.pageX,
                     timeDiff = (currPoint - origPoint) * timePxRatio;
-                    //currPx,
-                    //minutes,
-                    //seconds;
+
                 currTime = Math.max(0, Math.min(DURATION, origTime + timeDiff));
-                currPx = currTime / timePxRatio;
-                minutes = Math.floor(currTime / 60);
+                currPx   = currTime / timePxRatio;
+                minutes  = Math.floor(currTime / 60);
+                seconds  = Math.floor(currTime % 60);
+
                 if((""+minutes).length < 2) {
                     minutes = "0" + minutes;
                 }
-                seconds = Math.floor(currTime % 60);
-
-                console.log("currTime "+currTime);
 
                 // Update the video time and slider values
                 if (!isNaN(currTime)) {
-                    // debugger;
                     $('#currentTimeDisplay').text(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
                     videoElt.currentTime = currTime;
-                    
-                    //$('#sliderContainer').css('left', currPx);
                     $('#sliderPoint').css('width', currPx);
                 }
 
             });
 
-            $('body').on('mouseup.seek', function() {
-                // when the mouse is released, remove the mousemove handler
-                // debugger;
+            // when the mouse is released or leaves iframe, remove the mousemove handler and set time
+            $('body').on('mouseup.seek mouseleave.seek', function() {
                 $('body').off('mousemove.seek');
                 $('body').off('mouseup.seek');
-		$('#currentTimeDisplay').text(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
+                $('body').off('mouseleave.seek');
+		        $('#currentTimeDisplay').text(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
                 videoElt.currentTime = currTime;
-		$('#sliderPoint').css('width', currPx);
+		        $('#sliderPoint').css('width', currPx);
             });
         });
     }
+
+    /**
+     * Initialize misc parts of the video player
+     * @method initPage
+     */
+    function initPage() {
+        // set attributes of video element
+        video.attr({
+            poster: poster,
+            controls: false,
+            preload: 'metadata'
+        });
+
+        //Adding sources for the video file
+        sourceMP4  = sourceWithoutExtension + ".mp4";
+        sourceWEBM = sourceWithoutExtension + ".webm";
+        sourceOGG  = sourceWithoutExtension + ".ogg";
+        
+        //video[0] converts the jQuery object 'video' into an HTML object, allowing us to use innerHTML on it
+        videoElt.innerHTML  = '<source src="' + sourceMP4  + '" type="video/mp4; codecs="avc1.42E01E, mp4a.40.2"">';
+        videoElt.innerHTML += '<source src="' + sourceWEBM + '" type="video/webm; codecs="vorbis, vp8"">';
+        videoElt.innerHTML += '<source src="' + sourceOGG  + '" type="video/ogg; codecs="theora, vorbis"">';
+
+        // set text of time display
+        currentTimeDisplay.text("00:00");
     
-    var currentTimeDisplay = root.find('#currentTimeDisplay');
-    $(currentTimeDisplay).text("00:00");
-    var backButton = root.find('#backButton');
-    $(backButton).attr('src',tagPath+'images/icons/Back.svg');
-    backButton.mousedown(function () {
-        LADS.Util.UI.cgBackColor("backButton", backButton, false);
-    });
-    backButton.mouseleave(function () {
-        LADS.Util.UI.cgBackColor("backButton", backButton, true);
-    });
+        // set up back button
+        backButton.attr('src',tagPath+'images/icons/Back.svg');
+        backButton.on('mousedown', function () {
+            LADS.Util.UI.cgBackColor("backButton", backButton, false);
+        });
+        backButton.on('mouseleave', function () {
+            LADS.Util.UI.cgBackColor("backButton", backButton, true);
+        });
 
-    backButton.on('click', function () {
-        videoElt.pause();
-        // delete(video[0]);
-        $(videoElt).attr('src', "");
+        backButton.on('click', goBack);
+    }
 
-        /* nbowditch _editted 2/13/2014 : added backInfo */
-        var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
-        var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
-        /* end nbowditch edit */
-		catalog.getRoot().css({ 'overflow-x': 'hidden' });
-        LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
-				artworkPrev = "catalog";
-				var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
-				selectedExhib.attr('flagClicked', 'true');
-				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
-				$(selectedExhib[0].firstChild).css({'color': 'black'});
-			});
-    });
-
-
-
-    // Update the seek bar as the video plays
-    video.on("timeupdate", function () {
-        var value,
-            minutes,
-            seconds,
-            adjMin;
-
-        // Calculate the slider value and update the slider value
-
-        value = ($('#sliderContainer').width() / videoElt.duration) * videoElt.currentTime;
-      // $('#sliderControl').css('left',value);
-       $('#sliderPoint').css('width',value);
-
-        minutes = Math.floor(videoElt.currentTime / 60);
-        seconds = Math.floor(videoElt.currentTime % 60);
-        if (String(minutes).length < 2) {
-            adjMin = '0' + minutes;
-        } else {
-            adjMin = minutes;
-        }
-        currentTimeDisplay.text(adjMin + ":" + (seconds < 10 ? "0" : "") + seconds);
-    });
-
+    /**
+     * Return the root of the video page
+     * @method getRoot
+     * @return {jQuery object}   root of the video page
+     */
     function getRoot() {
         return root;
     }
