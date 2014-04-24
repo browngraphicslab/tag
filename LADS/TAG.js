@@ -45086,7 +45086,8 @@ LADS.Layout.InternetFailure.lastOverlay = {};
  * Internet failure page, which appears when TAG detects a loss of internet.
  * @class LADS.Layout.InternetFailurePage.js
  * @constructor
- * @param errorType   
+ * @param {String} errorType     the type of connectivity error
+ * @param {Boolean} detach       used in Win8 app
  */
 LADS.Layout.InternetFailurePage = function (errorType, detach) {
     "use strict";
