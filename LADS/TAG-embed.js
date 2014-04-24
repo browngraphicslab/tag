@@ -120,7 +120,6 @@ var TAG_embed = function(tagInput) {
     frameDoc.open();
     frameDoc.write(htmlStr);
     frameDoc.close();
-    
 
     var frameDiv = document.getElementById('frameInnerContainer');
 
