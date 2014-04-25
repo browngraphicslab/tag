@@ -42054,7 +42054,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             browser = browser.toLowerCase();
             var version = 0;
 
-            if(browser.indexOf('opera') >= 0) {
+            if(browser.indexOf('opera') >= 0 || userAgent.indexOf('opr') >= 0) {
                 console.log("Detected Opera. Unsupported browser.");
                 return false;
             } else if(browser.indexOf('chrome') >= 0) {
