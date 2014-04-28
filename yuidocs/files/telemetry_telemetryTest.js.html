@@ -51,6 +51,8 @@
             
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
             
+                <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
+            
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
                 <li><a href="../classes/Telemetry.html">Telemetry</a></li>
@@ -127,6 +129,94 @@ function browserVersion() {
 }
 
 /**
+ * Handles returned data from server after a get request.
+ * @param {Array} data
+ */
+function handleGetRequestData(data) {
+	var elt = $(&#x27;#results&#x27;),
+		table,
+		tableHeaders = [],
+		tr, td, th;
+
+	if(!data || data.length === 0) {
+		return;
+	}
+
+	elt.empty();
+
+	table = createTable(data);
+
+	elt.append(table);
+
+}
+
+function createTable(data) {
+ 	var i, j,
+ 		table,
+ 		numResults,
+ 		tableHead,
+ 		tableHeader,
+ 		tableBody,
+ 		tableEntry, text,
+ 		prop,
+		data, headers = [], inputClass, numRows, numCols;
+		
+	data = data || [];
+
+	for(prop in data[0]) {
+		if(data[0].hasOwnProperty(prop)) {
+			headers.push(prop);
+		}
+	}
+	
+	numResults = data.length || 0;
+	numColumns = headers.length || 0;
+	
+	console.log(&quot;numResults = &quot; + numResults);
+
+	if(numResults.length === 0) {
+		return;
+	}
+
+ 	table = $(document.createElement(&#x27;table&#x27;));
+
+	if(headers.length &gt; 0) {
+ 		tableHead = $(document.createElement(&#x27;thead&#x27;));
+	 	tableRow = $(document.createElement(&#x27;tr&#x27;));
+	 	tableHead.append(tableRow);
+	 	for(i=0;i&lt;numColumns;i++) {
+	 		tableHeader = $(document.createElement(&#x27;th&#x27;));
+	 		tableRow.append(tableHeader);
+	 		tableHeader.text(headers[i]);
+	 	}
+	 	table.append(tableHead);
+	}
+
+ 	tableBody = $(document.createElement(&#x27;tbody&#x27;));
+ 	table.append(tableBody);
+ 	for(i=0;i&lt;numResults;i++) {
+ 		tableRow = $(document.createElement(&#x27;tr&#x27;));
+ 		tableBody.append(tableRow);
+ 		for(j=0;j&lt;numColumns;j++) {
+ 			tableEntry = $(document.createElement(&#x27;td&#x27;));
+ 			tableRow.append(tableEntry);
+ 			tableEntry.css(&#x27;width&#x27;, (100/numColumns)+&#x27;%&#x27;)
+			if(j===0 &amp;&amp; headers[0] === &quot;&quot;) {
+				tableEntry.css({
+					&#x27;vertical-align&#x27;:&#x27;text-top&#x27;,
+					&#x27;font-size&#x27;:&#x27;90%&#x27;
+				});
+ 				text = formatTime(startTime + i);
+ 			} else {
+ 				text = data.length &gt; 0 ? data[i][headers[j]] : &#x27;&#x27;;
+ 			}
+ 			tableEntry.text(text);
+ 		}
+ 	}
+ 	return table;
+}
+
+/**
  * Make a request to the telemetry server
  * @param type      &#x27;POST&#x27; for updating data or &#x27;GET&#x27; for getting it
  * @param data      object; data to be sent in body of request
@@ -149,13 +239,16 @@ function telemetryRequest(type, ttype) {
 		url: &#x27;http://127.0.0.1:9999/&#x27;,
 		data: data,
 		async: true, // this is the default, but just make it explicit
-		success: function() {
+		success: function(data) {
 			console.log(type+&#x27; request to server worked&#x27;);
+			if(type === &#x27;GET&#x27;) {
+				handleGetRequestData(JSON.parse(data));
+			}
 		},
 		error: function(e) {
 			console.log(&#x27;telemetry error! look at node output...&#x27;);
 		}
-	})
+	});
 }
     </pre>
 </div>

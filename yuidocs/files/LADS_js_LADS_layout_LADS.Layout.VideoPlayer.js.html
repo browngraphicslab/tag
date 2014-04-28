@@ -51,6 +51,8 @@
             
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
             
+                <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
+            
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
                 <li><a href="../classes/Telemetry.html">Telemetry</a></li>
@@ -101,26 +103,28 @@
 LADS.Util.makeNamespace(&quot;LADS.Layout.VideoPlayer&quot;);
 
 /**
- * Player for RIN tours
- * @param tour      RIN tour in Javascript object (pre-parsed from JSON)
- *@param exhibition: 
- *@param prevInfo   object containing previous page info 
- *    artworkPrev      value is &#x27;artmode&#x27; when we arrive here from the art viewer
- *    prevScroll       value of scrollbar from new catalog page
- *@param artwork:the artworks in this tour
+ * TAG video player -- a wrapper around the standard html5 video element
+ * @class LADS.Layout.VideoPlayer
+ * @constructor
+ * @param {Doq} videoSrc     the doq representing our video
+ * @param {Doq} collection   the parent collection of this video
+ * @param {Object} prevInfo  some info about where we came from on the collections page:
+ *                   .artworkPrev     string representing where we came from
+ *                   .prevScroll      value of the scrollbar from new catalog page
+ * @return {Object}          the object representing public information about the video page
+ *                           (at the moment, just the root of the DOM)
  */
-LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
+LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
     &quot;use strict&quot;;
 
-    /* nowditch _editted 2/13/2014 : added prevScroll */
-    var artworkPrev;
-    var prevScroll = 0;
-	var prevExhib = exhibition;
+    var artworkPrev,
+        prevScroll = 0,
+	    prevExhib = collection;
+
     if (prevInfo) {
         artworkPrev = prevInfo.artworkPrev,
         prevScroll = prevInfo.prevScroll || 0;
     }
-    /* end nbowditch edit */
 
     var that = {};
 
@@ -133,212 +137,231 @@ LADS.Layout.VideoPlayer = function (videoSrc, exhibition, prevInfo) {
         DURATION = parseFloat(videoSrc.Metadata.Duration),
         play = root.find(&#x27;#playPauseButton&#x27;),
         vol = root.find(&#x27;#videoControlsButton&#x27;),
-        //sliderControl = root.find(&#x27;#sliderControl&#x27;),
         sliderContainer = root.find(&#x27;#sliderContainer&#x27;),
-        dragBar = false,
-        hoverString,
-        setHoverValue,
-        currTime;
+        currTime,
+        poster = (videoSrc.Metadata.Thumbnail &amp;&amp; !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : &#x27;&#x27;,
+        source = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source),
+        sourceWithoutExtension = source.substring(0, source.lastIndexOf(&#x27;.&#x27;)),
+        currentTimeDisplay = root.find(&#x27;#currentTimeDisplay&#x27;),
+        backButton = root.find(&#x27;#backButton&#x27;);
 
-    video.attr({
-        poster: (videoSrc.Metadata.Thumbnail &amp;&amp; !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : &#x27;&#x27;,
-        controls: false,
-        preload: &#x27;metadata&#x27;
-    });
-
-    //Adding sources for the video file
-    var source = LADS.Worktop.Database.fixPath(videoSrc.Metadata.Source);
-    //var source = &#x27;http://techslides.com/demos/sample-videos/small.webm&#x27;; //Video file to test code without server conversion
-    var sourceWithoutExtension = source.substring(0, source.lastIndexOf(&#x27;.&#x27;));
-    sourceMP4 = sourceWithoutExtension + &quot;.mp4&quot;;
-    sourceWEBM = sourceWithoutExtension + &quot;.webm&quot;;
-    sourceOGG = sourceWithoutExtension + &quot;.ogg&quot;;
-    
-    //video[0] converts the jQuery object &#x27;video&#x27; into an HTML object, allowing us to use innerHTML on it
-    video[0].innerHTML = &#x27;&lt;source src=&quot;&#x27; + sourceMP4 + &#x27;&quot; type=&quot;video/mp4; codecs=&quot;avc1.42E01E, mp4a.40.2&quot;&quot;&gt;&#x27;;
-    video[0].innerHTML += &#x27;&lt;source src=&quot;&#x27; + sourceWEBM + &#x27;&quot; type=&quot;video/webm; codecs=&quot;vorbis, vp8&quot;&quot;&gt;&#x27;;
-    video[0].innerHTML += &#x27;&lt;source src=&quot;&#x27; + sourceOGG + &#x27;&quot; type=&quot;video/ogg; codecs=&quot;theora, vorbis&quot;&quot;&gt;&#x27;;
-
+    // init the video player status
+    initPage();
     timeToZero();
     initVideoPlayHandlers();
 
+    /**
+     * Return to the collections page from the video player.
+     * @method goBack
+     */
+    function goBack() {
+        videoElt.pause();
+        video.attr(&#x27;src&#x27;, &quot;&quot;);
+
+        var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
+        var catalog = new LADS.Layout.NewCatalog(backInfo, collection);
+
+        catalog.getRoot().css({ &#x27;overflow-x&#x27;: &#x27;hidden&#x27; }); // TODO should be default in .styl file
+        LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
+            artworkPrev = &quot;catalog&quot;;
+            var selectedExhib = $(&#x27;#&#x27; + &#x27;exhib-&#x27; + prevExhib.Identifier);
+            selectedExhib.attr(&#x27;flagClicked&#x27;, &#x27;true&#x27;);
+            selectedExhib.css({ &#x27;background-color&#x27;: &#x27;white&#x27;, &#x27;color&#x27;: &#x27;black&#x27; });
+            $(selectedExhib[0].firstChild).css({&#x27;color&#x27;: &#x27;black&#x27;});
+        });
+    }
+
+    /**
+     * Take video to time 0 and pause.
+     * @method timeToZero
+     */
     function timeToZero() {
         if (videoElt.currentTime !== 0) {
             videoElt.currentTime = 0;
+            videoElt.pause();
         }
         play.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/PlayWhite.svg&#x27;);
     }
 
-    function initVideoPlayHandlers() {
-        play.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/PlayWhite.svg&#x27;);
-        play.on(&#x27;click&#x27;, function () {
-            console.log(&quot;playbutton down&quot;);
-            if (videoElt.paused) {
-                videoElt.play();
-                console.log(&quot;time to play&quot;);
-                play.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/PauseWhite.svg&#x27;);
-            } else {
-                videoElt.pause();
-                play.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/PlayWhite.svg&#x27;);
-            }
-        });
+    /**
+     * Play video and change play button image
+     * @method playVideo
+     */
+    function playVideo() {
+        videoElt.play();
+        play.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/PauseWhite.svg&#x27;);
+    }
 
+    /**
+     * Pause video and change play button image
+     * @method pauseVideo
+     */
+    function pauseVideo() {
+        videoElt.pause();
+        play.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/PlayWhite.svg&#x27;);
+    }
+
+    /**
+     * Play or pause video depending on its current state
+     * @method toggleVideo
+     */
+    function toggleVideo() {
+        videoElt.paused ? playVideo() : pauseVideo();
+    }
+
+    /**
+     * Set up handlers for video element and play/pause button
+     * @method initVideoPlayHandlers
+     */
+    function initVideoPlayHandlers() {
+        video.on(&#x27;loadedmetadata&#x27;, initSeekHandlers);
+
+        // set up play button
+        play.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/PlayWhite.svg&#x27;);
+        play.on(&#x27;click&#x27;, toggleVideo);
+
+        // set up mute button
         vol.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/VolumeUpWhite.svg&#x27;);
         $(vol).on(&#x27;click&#x27;, function () {
-            if (videoElt.muted) {
-                videoElt.muted = false;
-                vol.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/VolumeUpWhite.svg&#x27;);
-            } else {
-                videoElt.muted = true;
-                vol.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/VolumeDownWhite.svg&#x27;);
-            }
+            videoElt.muted = !videoElt.muted;
+            vol.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/Volume&#x27;+ (videoElt.muted ? &#x27;Down&#x27; : &#x27;Up&#x27;) + &#x27;White.svg&#x27;);
         });
 
+        // when video ends, return to collections page after a short delay
         video.on(&#x27;ended&#x27;, function () {
-        videoElt.pause();
-        timeToZero();
-        // initVideoPlayHandlers(); // is this necessary here TODO
+            setTimeout(goBack, 300);
+        });
+
+        // Update the seek bar as the video plays
+        video.on(&quot;timeupdate&quot;, function () {
+            var value,
+                minutes,
+                seconds,
+                adjMin;
+
+            // Calculate the slider value and update the slider value
+            value = ($(&#x27;#sliderContainer&#x27;).width() / videoElt.duration) * videoElt.currentTime;
+            $(&#x27;#sliderPoint&#x27;).css(&#x27;width&#x27;,value);
+
+            minutes = Math.floor(videoElt.currentTime / 60);
+            seconds = Math.floor(videoElt.currentTime % 60);
+            if (String(minutes).length &lt; 2) {
+                adjMin = &#x27;0&#x27; + minutes;
+            } else {
+                adjMin = minutes;
+            }
+            currentTimeDisplay.text(adjMin + &quot;:&quot; + (seconds &lt; 10 ? &quot;0&quot; : &quot;&quot;) + seconds);
         });
     }
-    
 
-
-
-    setHoverValue = function (percent) {
-        var totalDuration = orchestrator.getNarrativeInfo().totalDuration, // ???
-            hoverTime = narrativeDuration * percent,
-            minutes = Math.floor(hoverTime / 60),
-            seconds = Math.floor(hoverTime % 60);
-        hoverString(minutes + &quot;:&quot; + (seconds &lt; 10 ? &quot;0&quot; : &quot;&quot;) + seconds);
-    };
-
-    // handlers for seek bar
-    video.on(&#x27;loadedmetadata&#x27;, initSeekHandlers);
-
+    /**
+     * Set up handlers for the seekbar
+     * @method initSeekHandlers
+     */
     function initSeekHandlers() {
         sliderContainer.on(&#x27;mousedown&#x27;, function(evt) {
-            console.log(&quot;seeker mousedown detected!1&quot;);
-            var time = $(video).get(0).duration * (evt.offsetX / $(&#x27;#sliderContainer&#x27;).width());    
+            var time = videoElt.duration * (evt.offsetX / $(&#x27;#sliderContainer&#x27;).width());    
             if (!isNaN(time)) {
-                $(video).get(0).currentTime = time;
+                videoElt.currentTime = time;
             }
         });
 
+        // set up mousedown handler for the seekbar
         sliderContainer.on(&#x27;mousedown&#x27;, function(e) {
             e.stopPropagation();
-            console.log(&quot;seeker mousedown detected!2&quot;);
             var origPoint = e.pageX,
                 origTime = videoElt.currentTime,
-                timePxRatio = DURATION / sliderContainer.width(); // sec/px
-                console.log(&#x27;ratio = &#x27;+timePxRatio);
-                currTime = Math.max(0, Math.min(DURATION, origTime));
-                var currPx = currTime / timePxRatio;
-                var minutes = Math.floor(currTime / 60);
-                if((&quot;&quot;+minutes).length &lt; 2) {
-                    minutes = &quot;0&quot; + minutes;
-                }
-                var seconds = Math.floor(currTime % 60);
-
-                //console.log(&quot;currTime1 &quot;+origTime);
-
-                // Update the video time and slider values
+                timePxRatio = DURATION / sliderContainer.width(), // sec/px
+                currPx,
+                minutes,
+                seconds;
             
+            currTime = Math.max(0, Math.min(DURATION, origTime));
+            currPx   = currTime / timePxRatio;
+            minutes  = Math.floor(currTime / 60);
+            seconds  = Math.floor(currTime % 60);
 
+            if((&quot;&quot;+minutes).length &lt; 2) {
+                minutes = &quot;0&quot; + minutes;
+            }
+
+            // set up mousemove handler now that mousedown has happened
             $(&#x27;body&#x27;).on(&#x27;mousemove.seek&#x27;, function(evt) {
                 var currPoint = evt.pageX,
                     timeDiff = (currPoint - origPoint) * timePxRatio;
-                    //currPx,
-                    //minutes,
-                    //seconds;
+
                 currTime = Math.max(0, Math.min(DURATION, origTime + timeDiff));
-                currPx = currTime / timePxRatio;
-                minutes = Math.floor(currTime / 60);
+                currPx   = currTime / timePxRatio;
+                minutes  = Math.floor(currTime / 60);
+                seconds  = Math.floor(currTime % 60);
+
                 if((&quot;&quot;+minutes).length &lt; 2) {
                     minutes = &quot;0&quot; + minutes;
                 }
-                seconds = Math.floor(currTime % 60);
-
-                console.log(&quot;currTime &quot;+currTime);
 
                 // Update the video time and slider values
                 if (!isNaN(currTime)) {
-                    // debugger;
                     $(&#x27;#currentTimeDisplay&#x27;).text(minutes + &quot;:&quot; + (seconds &lt; 10 ? &quot;0&quot; : &quot;&quot;) + seconds);
                     videoElt.currentTime = currTime;
-                    
-                    //$(&#x27;#sliderContainer&#x27;).css(&#x27;left&#x27;, currPx);
                     $(&#x27;#sliderPoint&#x27;).css(&#x27;width&#x27;, currPx);
                 }
 
             });
 
-            $(&#x27;body&#x27;).on(&#x27;mouseup.seek&#x27;, function() {
-                // when the mouse is released, remove the mousemove handler
-                // debugger;
+            // when the mouse is released or leaves iframe, remove the mousemove handler and set time
+            $(&#x27;body&#x27;).on(&#x27;mouseup.seek mouseleave.seek&#x27;, function() {
                 $(&#x27;body&#x27;).off(&#x27;mousemove.seek&#x27;);
                 $(&#x27;body&#x27;).off(&#x27;mouseup.seek&#x27;);
-		$(&#x27;#currentTimeDisplay&#x27;).text(minutes + &quot;:&quot; + (seconds &lt; 10 ? &quot;0&quot; : &quot;&quot;) + seconds);
+                $(&#x27;body&#x27;).off(&#x27;mouseleave.seek&#x27;);
+		        $(&#x27;#currentTimeDisplay&#x27;).text(minutes + &quot;:&quot; + (seconds &lt; 10 ? &quot;0&quot; : &quot;&quot;) + seconds);
                 videoElt.currentTime = currTime;
-		$(&#x27;#sliderPoint&#x27;).css(&#x27;width&#x27;, currPx);
+		        $(&#x27;#sliderPoint&#x27;).css(&#x27;width&#x27;, currPx);
             });
         });
     }
+
+    /**
+     * Initialize misc parts of the video player
+     * @method initPage
+     */
+    function initPage() {
+        // set attributes of video element
+        video.attr({
+            poster: poster,
+            controls: false,
+            preload: &#x27;metadata&#x27;
+        });
+
+        //Adding sources for the video file
+        sourceMP4  = sourceWithoutExtension + &quot;.mp4&quot;;
+        sourceWEBM = sourceWithoutExtension + &quot;.webm&quot;;
+        sourceOGG  = sourceWithoutExtension + &quot;.ogg&quot;;
+        
+        //video[0] converts the jQuery object &#x27;video&#x27; into an HTML object, allowing us to use innerHTML on it
+        videoElt.innerHTML  = &#x27;&lt;source src=&quot;&#x27; + sourceMP4  + &#x27;&quot; type=&quot;video/mp4; codecs=&quot;avc1.42E01E, mp4a.40.2&quot;&quot;&gt;&#x27;;
+        videoElt.innerHTML += &#x27;&lt;source src=&quot;&#x27; + sourceWEBM + &#x27;&quot; type=&quot;video/webm; codecs=&quot;vorbis, vp8&quot;&quot;&gt;&#x27;;
+        videoElt.innerHTML += &#x27;&lt;source src=&quot;&#x27; + sourceOGG  + &#x27;&quot; type=&quot;video/ogg; codecs=&quot;theora, vorbis&quot;&quot;&gt;&#x27;;
+
+        // set text of time display
+        currentTimeDisplay.text(&quot;00:00&quot;);
     
-    var currentTimeDisplay = root.find(&#x27;#currentTimeDisplay&#x27;);
-    $(currentTimeDisplay).text(&quot;00:00&quot;);
-    var backButton = root.find(&#x27;#backButton&#x27;);
-    $(backButton).attr(&#x27;src&#x27;,tagPath+&#x27;images/icons/Back.svg&#x27;);
-    backButton.mousedown(function () {
-        LADS.Util.UI.cgBackColor(&quot;backButton&quot;, backButton, false);
-    });
-    backButton.mouseleave(function () {
-        LADS.Util.UI.cgBackColor(&quot;backButton&quot;, backButton, true);
-    });
+        // set up back button
+        backButton.attr(&#x27;src&#x27;,tagPath+&#x27;images/icons/Back.svg&#x27;);
+        backButton.on(&#x27;mousedown&#x27;, function () {
+            LADS.Util.UI.cgBackColor(&quot;backButton&quot;, backButton, false);
+        });
+        backButton.on(&#x27;mouseleave&#x27;, function () {
+            LADS.Util.UI.cgBackColor(&quot;backButton&quot;, backButton, true);
+        });
 
-    backButton.on(&#x27;click&#x27;, function () {
-        videoElt.pause();
-        // delete(video[0]);
-        $(videoElt).attr(&#x27;src&#x27;, &quot;&quot;);
+        backButton.on(&#x27;click&#x27;, goBack);
+    }
 
-        /* nbowditch _editted 2/13/2014 : added backInfo */
-        var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
-        var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
-        /* end nbowditch edit */
-		catalog.getRoot().css({ &#x27;overflow-x&#x27;: &#x27;hidden&#x27; });
-        LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
-				artworkPrev = &quot;catalog&quot;;
-				var selectedExhib = $(&#x27;#&#x27; + &#x27;exhib-&#x27; + prevExhib.Identifier);
-				selectedExhib.attr(&#x27;flagClicked&#x27;, &#x27;true&#x27;);
-				selectedExhib.css({ &#x27;background-color&#x27;: &#x27;white&#x27;, &#x27;color&#x27;: &#x27;black&#x27; });
-				$(selectedExhib[0].firstChild).css({&#x27;color&#x27;: &#x27;black&#x27;});
-			});
-    });
-
-
-
-    // Update the seek bar as the video plays
-    video.on(&quot;timeupdate&quot;, function () {
-        var value,
-            minutes,
-            seconds,
-            adjMin;
-
-        // Calculate the slider value and update the slider value
-
-        value = ($(&#x27;#sliderContainer&#x27;).width() / videoElt.duration) * videoElt.currentTime;
-      // $(&#x27;#sliderControl&#x27;).css(&#x27;left&#x27;,value);
-       $(&#x27;#sliderPoint&#x27;).css(&#x27;width&#x27;,value);
-
-        minutes = Math.floor(videoElt.currentTime / 60);
-        seconds = Math.floor(videoElt.currentTime % 60);
-        if (String(minutes).length &lt; 2) {
-            adjMin = &#x27;0&#x27; + minutes;
-        } else {
-            adjMin = minutes;
-        }
-        currentTimeDisplay.text(adjMin + &quot;:&quot; + (seconds &lt; 10 ? &quot;0&quot; : &quot;&quot;) + seconds);
-    });
-
+    /**
+     * Return the root of the video page
+     * @method getRoot
+     * @return {jQuery object}   root of the video page
+     */
     function getRoot() {
         return root;
     }

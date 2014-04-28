@@ -109,7 +109,8 @@ module.exports = function(grunt) {
 						'LADS/css/NewCatalog.styl',
 						'LADS/css/VideoPlayer.styl',
 						'LADS/css/TourPlayer.styl',
-						'LADS/css/General.styl'
+						'LADS/css/General.styl',
+						'LADS/css/Util.styl'
 					]
 				}
 			}

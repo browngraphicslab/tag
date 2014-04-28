@@ -6,6 +6,7 @@ YUI.add("yuidoc-meta", function(Y) {
         "LADS.Layout.Artmode",
         "LADS.Layout.InternetFailurePage.js",
         "LADS.Layout.StartPage",
+        "LADS.Layout.VideoPlayer",
         "TAG_embed",
         "Telemetry"
     ],

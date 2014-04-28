@@ -167,7 +167,7 @@
 				response.write(JSON.stringify(arr));
 			}
 
-			response.end(); // done creating response, don't need to send back any data
+			response.end(); // done creating response
 		});
 	}
 
