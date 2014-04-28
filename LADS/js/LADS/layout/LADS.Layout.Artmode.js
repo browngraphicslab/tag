@@ -92,7 +92,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 createSeadragonControls();
                 initialized = true;
             });
-            
         }
     }
 
@@ -461,8 +460,8 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 holder.data("ishotspot", isHotspot);
 
                 holder.data('info', media);
-
-                holder.on("click", hotspotAssetClick(media, holder));
+                media.button = holder;
+                holder.on("click", hotspotAssetClick(media));
                 holder.on("mousedown", downhelper(holder));
                 holder.on("mouseup", uphelper(holder));
                 container.append(holder);
@@ -533,7 +532,8 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             assetContainer.append(assetsDrawer);
         }
 
-        function hotspotAssetClick(hotspotsAsset, btn) {//check if the location history is open before you click the button, if so, close it
+        //Called when hotspots or assets are clicked
+        function hotspotAssetClick(hotspotsAsset) {//check if the location history is open before you click the button, if so, close it
             return function () {
                 hotspotsAsset.mediaload();
                 if (locationHistoryActive) {
@@ -547,48 +547,12 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     locationHistoryDiv.hide("slide", { direction: direction }, 500);
                     setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 }
-                var circle = hotspotsAsset.toggle();
-
-                if (btn.data("ishotspot")) {//btn change for hotspots
-                    if (btn.data("assetHidden") && $(circle).css('display') === 'block') {
-                        btn.css({
-                            'color': 'black',
-                            'background-color': 'rgba(255,255,255, 0.3)',
-                        });
-                        btn.data("assetHidden", false);
-                    }
-                    else {
-                        btn.css({
-                            'color': 'white',
-                            'background-color': ''
-                        });
-
-                        btn.data("assetHidden", true);
-                    }
-                } else {//btn change for assets
-                    if (btn.data("assetHidden")) {
-                        btn.css({
-                            'color': 'black',
-                            'background-color': 'rgba(255,255,255, 0.3)',
-                        });
-                        btn.data("assetHidden", false);
-                    } else {
-                        btn.css({
-                            'color': 'white',
-                            'background-color': ''
-                        });
-
-                        btn.data("assetHidden", true);
-                    }
-                }
+                hotspotsAsset.toggle();
                 hotspotsAsset.pauseAsset();
-                if (circle) {
-                    setTimeout(function () { circle.click(); }, 500); // has to be a better way.....
-                }
             };
         }
-
         var toursDrawer;
+
         // Load tours and filter for tours associated with this artwork
         LADS.Worktop.Database.getTours(function (tours) {
             var relatedTours = tours.filter(function (tour) {
@@ -617,8 +581,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 "max-height": maxHeight +"px",
             });
         });
-
-        
 
         function tourClicked(tour) {
             return function () {
