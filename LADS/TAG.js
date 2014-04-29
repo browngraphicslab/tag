@@ -41161,7 +41161,7 @@ function loadHotspots(callback) {
         var circle = document.createElement("img");
         var position = new Seadragon.Point(info.x, info.y);
         if (isHotspot){
-            circle.src = tagPath+'images/icons/PlayWhite.svg'
+            circle.src = tagPath+'images/icons/hotspot_circle.svg'
             $(circle).css({
                 'height': '60px',
                 'width': '60px',
