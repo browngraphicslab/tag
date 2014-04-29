@@ -40447,8 +40447,6 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
     this.dzManip = dzManip;
 
     function dzScroll(delta, pivot) {
-        console.log("pivot.x "+ pivot.x+"  pivot.y :  "+pivot.y);
-        console.log(delta);
         that.viewer.viewport.zoomBy(delta, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
         that.viewer.viewport.applyConstraints();
     }
@@ -40477,7 +40475,6 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         $(canvas).addClass('artworkCanvasTesting');
         LADS.Util.makeManipulatable(canvas, {
             onScroll: function (delta, pivot) {
-                console.log("scrolling");
                 dzScroll(delta, pivot);
             },
             onManipulate: function (res) {
@@ -40506,8 +40503,87 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
     init();
 
+
+
+function loadHotspots(callback) {
+        // retrieve linqs from server
+        hotspots = [];
+        assets = [];
+        //var linqs = LADS.Worktop.Database.getDoqLinqs(artworkGuid);
+        // TODO: Make work properly with async
+        var done = 0;
+        var total;
+        LADS.Worktop.Database.getAssocMediaTo(artworkGuid, loadAssocMedia, null, null);
+        function loadAssocMedia(doqs) {
+            total = doqs && doqs.length || 0;
+            if (doqs && doqs.length > 0) {
+                var assocMedia;
+                for (var i = 0; i < doqs.length; i++) {
+                    LADS.Worktop.Database.getLinq(artworkGuid, doqs[i].Identifier, loadLinqHelper(doqs[i]), null, loadLinqHelper(doqs[i]));
+                }
+            } else {
+                callback && callback(hotspots,assets);
+            }
+        }
+
+        function loadLinqHelper(assocMedia) {
+            return function (linq) {
+                if (linq) {
+                    var position_x = linq.Offset._x;
+                    var position_y = linq.Offset._y;
+                    var info = {
+                        assetType: linq.Metadata.Type,
+                        title: assocMedia.Name,
+                        contentType: assocMedia.Metadata.ContentType,
+                        source: assocMedia.Metadata.Source,
+                        thumbnail: assocMedia.Metadata.Thumbnail,
+                        description: assocMedia.Metadata.Description,
+                        x: parseFloat(position_x),
+                        y: parseFloat(position_y),
+                        assetDoqID: assocMedia.Identifier,
+                        assetLinqID: linq.Identifier
+                    };
+                    createNewHotspot(info, linq.Metadata.Type ? (info.assetType === "Hotspot") : false);
+                    done++;
+                    if (done >= total && callback)
+                        callback(hotspots, assets);
+                }
+            }
+        }
+        //if (linqs) {
+        //    for (var i = 0; i < linqs.length; i++) {
+        //        //get the hotspot doc
+        //        var hotspotDoqID = linqs[i].Targets.BubbleRef[1].BubbleContentID;
+        //        var hotspotDoq = LADS.Worktop.Database.getDoqByGuid(hotspotDoqID);
+
+        //        //in seadragon coordinates [0,1]*[0,height/width]
+        //        var position_x = linqs[i].Offset._x;
+        //        var position_y = linqs[i].Offset._y;
+
+        //        var info = {
+        //            assetType: linqs[i].Metadata.Type,
+        //            title: hotspotDoq.Name,
+        //            contentType: hotspotDoq.Metadata.ContentType,
+        //            source: hotspotDoq.Metadata.Source,
+        //            description: hotspotDoq.Metadata.Description,
+        //            x: parseFloat(position_x),
+        //            y: parseFloat(position_y),
+        //            assetDoqID: hotspotDoqID,
+        //            assetLinqID: linqs[i].Identifier
+        //        };
+        //        createNewHotspot(info, (linqs[i].Metadata.Type.text === "Hotspot"));
+        //    }
+        //}
+    }
+
+    this.loadHotspots = loadHotspots;
+
+
+
+
     //new hotspot function
-    function hotspot(info) {
+    function hotspot(info, isHotspot) {
+        //Hotspot info
         var imgadded = false;
         this.title = info.title;
         this.contentType = info.contentType;
@@ -40517,11 +40593,14 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         var assetHidden = true;
         var audio, video;
 
+        //Create and append asset/hotspot containerscontainers
         var outerContainer = document.createElement('div');
         outerContainer.style.width = Math.min(Math.max(250, ($('#tagContainer').width() / 5)), 450)+'px';
 
         var innerContainer = document.createElement('div');
+        innerContainer.style.backgroundColor = 'rgba(0,0,0,0.65)';
         var mediaContainer = $(document.createElement('div')).addClass('mediaContainer');
+        outerContainer.appendChild(innerContainer);
 
         // media-specific
         var controlPanel = $(document.createElement('div')),
@@ -40536,44 +40615,38 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             'margin-bottom': '2.5%',
         });
 
-        innerContainer.style.backgroundColor = 'rgba(0,0,0,0.65)';
+        //Add title
+        this.createTitle = function() {
+            if (this.title){
+                var p1 = document.createElement('div');
 
-        outerContainer.appendChild(innerContainer);
+                $(p1).text(LADS.Util.htmlEntityDecode(this.title)).css({
+                    'position': 'relative',
+                    'left': '5%',
+                    'width': '90%',
+                    'color': 'white',
+                    'top': '5px',
+                    'padding-bottom': '2%',
+                    'overflow': 'hidden',
+                    'text-overflow': 'ellipsis',
+                    'font-weight': '700'
+                });
 
-        var t = Math.min(Math.max(20, Math.random() * 100), 80);
-        var h = Math.min(Math.max(20, Math.random() * 100), 80);
-        $(outerContainer).css({
-            top: t + "%",
-            left: h + "%",
-            position: 'absolute',
-            'z-index': 1000,
-            'pointer-events': 'all'
-        });
-
-        // add title
-        var p1 = document.createElement('div');
-
-        $(p1).text(LADS.Util.htmlEntityDecode(this.title)).css({
-            'position': 'relative',
-            'left': '5%',
-            'width': '90%',
-            'color': 'white',
-            'top': '5px',
-            'padding-bottom': '2%',
-            'overflow': 'hidden',
-            'text-overflow': 'ellipsis',
-            'font-weight': '700'
-        });
-
-        innerContainer.appendChild(p1);
-        var hoverString, setHoverValue;
+                innerContainer.appendChild(p1);
+                var hoverString, setHoverValue;
+            }
+        }
+        this.createTitle();
         
-        this.mediaload=function(){
+        //Load media
+        this.mediaload = function(){
             if(!imgadded) {
                 imgadded = true;
             } else {
                 return;
             }
+
+            //IMAGE
             if (this.contentType === 'Image') {
                 
                 
@@ -40584,12 +40657,10 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                     width: '100%',
                     height: 'auto'
                 });
-                console.log("appending new image");
                 mediaContainer.append(img);
                 imgadded = true;
             }
 
-             
             if (this.contentType === 'Video') {
                 
                     video = document.createElement('video');
@@ -40935,30 +41006,33 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
         $(innerContainer).append(mediaContainer);
        
-        // add description -- ?
-        if (this.description) {
-            var p2 = document.createElement('div');
-            if (typeof Windows != "undefined") {
-                // running in Win8 app
-                $(p2).html(LADS.Util.htmlEntityDecode(this.description));
-            } else {  
-                // running in browser
-                $(p2).html(Autolinker.link(LADS.Util.htmlEntityDecode(this.description), {email: false, twitter: false}));
+        //Create description for asset/hotspot
+        this.createDescription = function() {
+            if (this.description) {
+                var p2 = document.createElement('div');
+                if (typeof Windows != "undefined") {
+                    // running in Win8 app
+                    $(p2).html(LADS.Util.htmlEntityDecode(this.description));
+                } else {  
+                    // running in browser
+                    $(p2).html(Autolinker.link(LADS.Util.htmlEntityDecode(this.description), {email: false, twitter: false}));
+                }
+                
+                //CSS for description
+                $(p2).css({
+                    'position': 'relative',
+                    'left': '5%',
+                    'width': '90%',
+                    'color': 'white',
+                    'bottom': '5px',
+                    'word-wrap': 'break-word'
+                });
+                innerContainer.appendChild(p2);
             }
-            
-            
-            $(p2).css({
-                'position': 'relative',
-                'left': '5%',
-                'width': '90%',
-                'color': 'white',
-                'bottom': '5px',
-                'word-wrap': 'break-word'
-            });
-
-            innerContainer.appendChild(p2);
         }
+        this.createDescription();
 
+        //Resize and scale control panel, buttons, etc.
         function resizeControlElements() {
             // scale control panel
             var cpSize = LADS.Util.constrainAndPosition(
@@ -41068,30 +41142,6 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             $(seekBar).width(currSeekWidth + controlPanel.width() - eltWidth);
         }
 
-        function showAsset() {
-            var t = Math.min(Math.max(10, Math.random() * 100), 60);
-            var h = Math.min(Math.max(30, Math.random() * 100), 70);
-            // debugger;
-            $(outerContainer).css({
-                top: t + "%",
-                left: h + "%",
-                position: 'absolute',
-                'z-index': 1000,
-                'pointer-events': 'all'
-            });
-            $(outerContainer).show();
-            assetCanvas.append(outerContainer);
-
-            if ((info.contentType === 'Video') || (info.contentType === 'Audio')) {
-                resizeControlElements();
-            }
-            assetHidden = false;
-        }
-
-        this.getRoot = function () {
-            return outerContainer;
-        };
-
         this.setRoot = function (newRoot) {
             var tempInnerContainer = innerContainer;
             outerContainer = newRoot;
@@ -41104,15 +41154,104 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             }
         };
 
+        $(assetCanvas).append(outerContainer);
+        $(outerContainer).hide();
+
+        //Create circle for positioning of hotspot
+        var circle = document.createElement("img");
+        var position = new Seadragon.Point(info.x, info.y);
+        if (isHotspot){
+            circle.src = tagPath+'images/icons/hotspot_circle.svg'
+            $(circle).css({
+                'height': '60px',
+                'width': '60px',
+                position: 'absolute',
+                //top: y +'px',
+                //left: x + 'px',
+                'display': 'inline-block',
+                'z-index': '100000',
+                'visibility': 'hidden'
+            });
+            document.getElementById('tagContainer').appendChild(circle);
+        }
+
+        //To show asset
+        this.showAsset = function() {
+            //If hotspot/asset is an asset, add it to a random position
+            var t = Math.min(Math.max(10, Math.random() * 100), 60);
+            var h = Math.min(Math.max(30, Math.random() * 100), 70);
+            if (!isHotspot){
+                $(outerContainer).css({
+                    top: t + "%",
+                    left: h + "%",
+                    position: 'absolute',
+                    'z-index': 1000,
+                    'pointer-events': 'all'
+                });
+            }
+            //If it's a hotspot, add it to the area with which it is associated, and show circle
+            else{
+                $(circle).css({
+                    'visibility':'visible'
+                });
+                if (!that.viewer.isOpen()) {
+                    that.viewer.addEventListener('open', function () {
+                        that.viewer.drawer.addOverlay(circle, position, Seadragon.OverlayPlacement.TOP_LEFT);
+                    });
+                }
+                else {
+                    that.viewer.drawer.addOverlay(circle, position, Seadragon.OverlayPlacement.TOP_LEFT);
+                }
+                that.viewer.drawer.updateOverlay(circle, position, Seadragon.OverlayPlacement.TOP_LEFT);
+                that.viewer.viewport.panTo(position, false);
+
+                var top = $("#tagContainer").height()/2 + $(circle).height()*3/4;
+                var left = $("#tagContainer").width()/2 + $(circle).width()*3/4;
+
+                $(outerContainer).css({
+                    top: top+'px',
+                    left: left+'px',
+                    position: 'absolute',
+                    'z-index': 1000,
+                    'pointer-events': 'all'
+                });
+            }
+
+            //Show hotspot
+            $(outerContainer).show();
+            assetCanvas.append(outerContainer);
+
+            //Show button
+            this.button.css({
+                'color': 'black',
+                'background-color': 'rgba(255,255,255, 0.3)',
+            });
+
+            if ((info.contentType === 'Video') || (info.contentType === 'Audio')) {
+                resizeControlElements();
+            }
+            assetHidden = false;
+        };
+
         this.hideAsset = function() {
             this.pauseAsset();
-            $(outerContainer).hide();
+            that.removeOverlay(circle);
+            $(outerContainer).hide();   
             assetHidden = true;
-        }
+
+            //Make button grayed-out
+            if (this.button == undefined){
+                this.button = $("#" + info.assetLinqID);
+            }
+            this.button.css({
+                'color': 'white',
+                'background-color': ''
+            });
+        };
 
         this.toggle = function () {
             if (assetHidden) {
-                showAsset();
+                this.show();
             } else {
                 this.hide();
             }
@@ -41135,12 +41274,9 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             document.body.removeChild(outerContainer);
         };
 
+        //Push asset or hotspot into asset/hotspot array
         this.resizeControlElements = resizeControlElements;
-
-        if (info.assetType === 'Hotspot') {
-            
-        } else {
-            assets.push({
+        var assetInfo = {
                 title: info.title,
                 assetType: info.assetType,
                 contentType: info.contentType,
@@ -41153,132 +41289,117 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 thumbnail: info.thumbnail,
                 toggle: this.toggle,
                 hide: this.hideAsset,
-                show: showAsset,
+                show: this.showAsset,
                 resize: resizeControlElements,
                 pauseAsset: this.pauseAsset,
                 mediaload: this.mediaload
-            });
-        }
-    }
+            };
 
-    // make circle function
-    function makeCircle(info, hotspot, isHotspot) {
-        $(hotspot.getRoot()).hide();
-        // circle
-        var circle = document.createElement('div');
-        circle.innerText = "";
-        circle.setAttribute('style', "display: block; width: 40px;height: 40px; border: solid rgba(255,255,255,1) 5px;border-radius:50%;");
-        circle.setAttribute("on", "0");
-        var innercircle = document.createElement('div');
-        innercircle.innerText = "";
-        innercircle.setAttribute('style', "display: block; width: 30px;height: 30px;background:rgba(0,0,0,0);border: solid rgba(0,0,0,1) 5px;border-radius:50%;");
-        circle.appendChild(innercircle);
-        var clickable = document.createElement('div');
-        clickable.setAttribute('style', "display: block; width: 0px;height: 0px;background: rgba(0,0,0,0);border: solid rgba(0,0,0,0.01) 15px;border-radius:50%;");
-        clickable.innerText = "";
-        innercircle.appendChild(clickable);
-        var position = new Seadragon.Point(info.x, info.y);
-
-        var isInfoShowing = false;
-
-        var isCircleShowing = false;
-        var isOn = false;
-        var title = info.title;
-
-        function toggle() {
-            if (isOn) hide();
-            else return show(); // clean this up. Weird that it only returns something in one case
+        if (info.assetType === 'Hotspot') {
+            hotspots.push(assetInfo);
+        } else {
+            assets.push(assetInfo);
         }
 
-        function show() {
-            if (isCircleShowing) return;
 
-            if (!that.viewer.isOpen()) {
-                that.viewer.addEventListener('open', function () {
-                    that.viewer.drawer.addOverlay(circle, position, Seadragon.OverlayPlacement.TOP_LEFT);
-                });
+        //Drag/mouse interaction controls (except click, which is in LADS.Layout.Artmode.js)
+        LADS.Util.disableDrag($(outerContainer));
+        var hotspotAsset = this;
+        function setHandlers(currRoot) {
+
+            //see makeManipulatable() in LADS.Util.js for what res is
+            function onManip(res) {
+                if (dragBar) return;
+                if (this) {
+                    var hotspotroot = $(currRoot);
+                    var t = hotspotroot.css('top');
+                    var l = hotspotroot.css('left');
+                    var w = hotspotroot.css('width');
+                    var h = hotspotroot.css('height');
+                    var neww = parseFloat(w) * res.scale;
+                    var that = this;
+                    var maxConstraint = 800;
+                    var minConstraint;
+                    if (this.contentType === 'Video' || this.contentType === 'Audio') {
+                        minConstraint = 450;
+                    } else {
+                        minConstraint = 200;
+                    }
+                    //if the new width is in the right range, scale from the point of contact and translate properly; otherwise, just translate and clamp
+                    //var newClone;
+                    if ((neww >= minConstraint) && (neww <= maxConstraint)) {                        
+                        if (0 < parseFloat(t) + parseFloat(h) && parseFloat(t) < $("#tagContainer").height() && 0 < parseFloat(l) + parseFloat(w) && parseFloat(l)< $("#tagContainer").width() && res) {
+                            hotspotroot.css("top", (parseFloat(t) + res.translation.y + (1.0 - res.scale) * (res.pivot.y)) + "px");
+                            hotspotroot.css("left", (parseFloat(l) + res.translation.x + (1.0 - res.scale) * (res.pivot.x)) + "px");
+                        }
+                        else {
+                            hotspotAsset.hideAsset();
+                            that.pauseAsset;
+                        }
+                    } else {
+                        if (0 < parseFloat(t) + parseFloat(h) && parseFloat(t) < window.innerHeight && 0 < parseFloat(l) + parseFloat(w) && parseFloat(l) < window.innerWidth && res) {
+                            hotspotroot.css("top", (parseFloat(t) + res.translation.y) + "px");
+                            hotspotroot.css("left", (parseFloat(l) + res.translation.x) + "px");
+                            neww = Math.min(Math.max(neww, minConstraint), 800);                
+                        } else {
+                            hotspotAsset.hideAsset();
+                            that.pauseAsset;
+                            }
+                    }
+
+                    hotspotroot.css("width", neww + "px");
+                    hotspotroot.css("height", "auto");
+
+                    if (this.contentType === 'Video' || this.contentType === 'Audio') {
+                        this.resizeControlElements();
+                    }
+                }
             }
-            else {
-                that.viewer.drawer.addOverlay(circle, position, Seadragon.OverlayPlacement.TOP_LEFT);
-            }
-            that.viewer.drawer.updateOverlay(circle, position, Seadragon.OverlayPlacement.TOP_LEFT);
 
-            $(circle).show();
+            function onScroll(res, pivot) {
+                // check if dragging the seekbar
+                if (dragBar) return;
 
-            that.viewer.viewport.panTo(position, false);
+                //here, res is the scale factor
+                var t = $(currRoot).css('top');
+                var l = $(currRoot).css('left');
+                var w = $(currRoot).css('width');
+                var neww = parseFloat(w) * res;
+                $(currRoot).css("width", neww + "px");
 
-            $(circle).click(function (e) {
-                var t, l, splitbar = $('#splitbar');
-                hotspot.pauseAsset();
-                if (isInfoShowing && document.body.contains(hotspot.getRoot())) {
-                    $(hotspot.getRoot()).hide();
-                    isInfoShowing = false;
+                var minConstraint;
+                if (this.contentType === 'Video' || this.contentType === 'Audio') {
+                    minConstraint = 450;
+                } else {
+                    minConstraint = 200;
+                }
+
+                if ((neww >= minConstraint) && (neww <= 800)) {
+                    $(currRoot).css("top", (parseFloat(t) + (1.0 - res) * (pivot.y)) + "px");
+                    $(currRoot).css("left", (parseFloat(l) + (1.0 - res) * (pivot.x)) + "px");
                 }
                 else {
-                    t = parseInt($(circle).css('top'))+ $(circle).height();
-                    l = parseInt($(circle).css('left')) + $(circle).width();
-                    if (split === 'R' && splitbar[0]) {
-                        l = l - splitbar.offset().left - splitbar.width();
-                    }
-                    $(hotspot.getRoot()).css({
-                        top: t+'px',
-                        left: l+'px',
-                        position: 'absolute',
-                        'z-index': 1000,
-                        'pointer-events': 'all'
-                    });
-                    $(hotspot.getRoot()).show();
-                    assetCanvas.append(hotspot.getRoot());
-                    isInfoShowing = true;
-                    if (hotspot.contentType === "Audio" || hotspot.contentType === "Video") {
-                        hotspot.resizeControlElements();
-                    }
+                    neww = Math.min(Math.max(neww, minConstraint), 800);
                 }
-                e.stopImmediatePropagation();
-            });
-            isCircleShowing = true;
-            isOn = true;
-            return $(circle); // there should be a better way.....
-        }
 
-        function hide() {
-            if (!isCircleShowing)
-                return;
+                $(currRoot).css("width", neww + "px");
+                $(currRoot).css("height", "auto");
 
-            that.removeOverlay(circle);
-
-            if (!$(circle).hidden) {
-                $(circle).hide();
-                $(hotspot.getRoot()).hide();
+                if (this.contentType === 'Video' || this.contentType === 'Audio') {
+                    this.resizeControlElements();
+                }
             }
-
-            hotspot.pauseAsset();
-
-            isCircleShowing = false;
-            isOn = false;
-            isInfoShowing = false;
-        }
-
-        if (info.assetType === "Hotspot") {
             // debugger;
-            hotspots.push({
-                title: info.title,
-                assetType: info.assetType,
-                contentType: info.contentType,
-                description: info.description,
-                x: info.x,
-                y: info.y,
-                assetDoqID: info.assetDoqID,
-                assetLinqID: info.assetLinqID,
-                source: info.source,
-                thumbnail:info.thumbnail,
-                toggle: toggle,
-                hide: hide,
-                show: show,
-                mediaload: hotspot.mediaload,
-                pauseAsset: hotspot.pauseAsset
-            });
+            var gr = LADS.Util.makeManipulatable(currRoot, {
+                onManipulate: onManip,
+                onScroll: onScroll
+            }, null, true); // NO ACCELERATION FOR NOW
         }
+                setHandlers(outerContainer);
+    }
+
+    function createNewHotspot(info, isHotspot) {//if isHotspot is false, it's just an asset, don't add to hotspots list
+        var newhotspot = new hotspot(info, isHotspot);
     }
 
     //Don't think it works -- ria: how can we check?
@@ -41312,239 +41433,10 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
     // bmost: Consider making things asynchronous by using callbacks
     // Worktop.Database might not support asynchronous requests
     // for getDoqLinqs so that might have to be added.
-    function loadHotspots(callback) {
-        // retrieve linqs from server
-        hotspots = [];
-        assets = [];
-        //var linqs = LADS.Worktop.Database.getDoqLinqs(artworkGuid);
-        // TODO: Make work properly with async
-        var done = 0;
-        var total;
-        LADS.Worktop.Database.getAssocMediaTo(artworkGuid, loadAssocMedia, null, null);
-        function loadAssocMedia(doqs) {
-            total = doqs && doqs.length || 0;
-            if (doqs && doqs.length > 0) {
-                var assocMedia;
-                for (var i = 0; i < doqs.length; i++) {
-                    LADS.Worktop.Database.getLinq(artworkGuid, doqs[i].Identifier, loadLinqHelper(doqs[i]), null, loadLinqHelper(doqs[i]));
-                }
-            } else {
-                callback && callback(hotspots,assets);
-            }
-        }
-
-        function loadLinqHelper(assocMedia) {
-            return function (linq) {
-                if (linq) {
-                    var position_x = linq.Offset._x;
-                    var position_y = linq.Offset._y;
-                    var info = {
-                        assetType: linq.Metadata.Type,
-                        title: assocMedia.Name,
-                        contentType: assocMedia.Metadata.ContentType,
-                        source: assocMedia.Metadata.Source,
-                        thumbnail: assocMedia.Metadata.Thumbnail,
-                        description: assocMedia.Metadata.Description,
-                        x: parseFloat(position_x),
-                        y: parseFloat(position_y),
-                        assetDoqID: assocMedia.Identifier,
-                        assetLinqID: linq.Identifier
-                    };
-                    createNewHotspot(info, linq.Metadata.Type ? (info.assetType === "Hotspot") : false);
-                    done++;
-                    if (done >= total && callback)
-                        callback(hotspots, assets);
-                }
-            }
-        }
-        //if (linqs) {
-        //    for (var i = 0; i < linqs.length; i++) {
-        //        //get the hotspot doc
-        //        var hotspotDoqID = linqs[i].Targets.BubbleRef[1].BubbleContentID;
-        //        var hotspotDoq = LADS.Worktop.Database.getDoqByGuid(hotspotDoqID);
-
-        //        //in seadragon coordinates [0,1]*[0,height/width]
-        //        var position_x = linqs[i].Offset._x;
-        //        var position_y = linqs[i].Offset._y;
-
-        //        var info = {
-        //            assetType: linqs[i].Metadata.Type,
-        //            title: hotspotDoq.Name,
-        //            contentType: hotspotDoq.Metadata.ContentType,
-        //            source: hotspotDoq.Metadata.Source,
-        //            description: hotspotDoq.Metadata.Description,
-        //            x: parseFloat(position_x),
-        //            y: parseFloat(position_y),
-        //            assetDoqID: hotspotDoqID,
-        //            assetLinqID: linqs[i].Identifier
-        //        };
-        //        createNewHotspot(info, (linqs[i].Metadata.Type.text === "Hotspot"));
-        //    }
-        //}
-    }
-    this.loadHotspots = loadHotspots;
+    
 
     // bmost: Consider renaming?  Its called createNewHostspot but has a paremeter 'isHotspot'.
-    function createNewHotspot(info, isHotspot) {//if isHotspot is false, it's just an asset, don't add to hotspots list
 
-        var newhotspot = new hotspot(info);
-        //var htmlelement = newhotspot.getRoot();
-        LADS.Util.disableDrag($(newhotspot.getRoot()));
-        var tempRootClone = $(newhotspot.getRoot()).clone(true, true);
-        tempRootClone.empty();
-        var rootClone = tempRootClone[0];
-        setHandlers(newhotspot.getRoot());
-        var btn;
-        function setHandlers(currRoot) {
-            var flung = false;
-
-            //see makeManipulatable() in LADS.Util.js for what res is
-            function onManip(res) {
-                if (flung) return;
-                if (dragBar) return;
-
-                if (newhotspot) {
-                    var hotspotroot = $(currRoot);
-                    var t = hotspotroot.css('top');
-                    var l = hotspotroot.css('left');
-                    var w = hotspotroot.css('width');
-                    var h = hotspotroot.css('height');
-                    var neww = parseFloat(w) * res.scale;
-
-                    var minConstraint;
-                    if (newhotspot.contentType === 'Video' || newhotspot.contentType === 'Audio') {
-                        minConstraint = 450;
-                    } else {
-                        minConstraint = 200;
-                    }
-
-                    //check if the hotspot is outside of the screen, and if so, set its velocity to 0
-                    //where to put code for this?
-                    if(-parseFloat(w)>parseFloat(l) || parseFloat(l)>$("#tagContainer").width()|| -(parseFloat(h))>parseFloat(t)||parseFloat(t)>$("#tagContainer").height()){
-                        console.log("outsider");
-                        btn = $("#" + info.assetLinqID);
-                        if(!btn.data("ishotspot")){
-                            console.log("not hotspot");
-                            if (!btn.data("assetHidden")) {
-                                console.log("nothidden");
-                                    btn.css({
-                                    'color': 'white',
-                                    'background-color': '',
-                                });
-                                btn.data("assetHidden", true);
-                                newhotspot.toggle();
-                                $(currRoot).remove();
-                            }
-                        }
-                    }
-                    
-                    //if the new width is in the right range, scale from the point of contact and translate properly; otherwise, just translate and clamp
-                    var newClone;
-                    if ((neww >= minConstraint) && (neww <= 800)) {
-                        if (0 < parseFloat(t) + parseFloat(h) && parseFloat(t) < window.innerHeight && 0 < parseFloat(l) + parseFloat(w) && parseFloat(l) < window.innerWidth && res) {
-                            hotspotroot.css("top", (parseFloat(t) + res.translation.y + (1.0 - res.scale) * (res.pivot.y)) + "px");
-                            hotspotroot.css("left", (parseFloat(l) + res.translation.x + (1.0 - res.scale) * (res.pivot.x)) + "px");
-                        }
-                        else {
-                            flung = true;
-                            btn = $("#" + info.assetLinqID);
-                            if (!btn.data("ishotspot")) {
-                                btn.css({
-                                    'color': 'white',
-                                    'background-color': '',
-                                });
-                                btn.data("assetHidden", true)
-                                newhotspot.toggle();
-                                $(currRoot).remove();
-                                newClone = $(rootClone).clone(true, true)[0];
-                                newhotspot.setRoot(newClone);
-                                setHandlers(newClone);
-                            }
-                            else {
-                                btn.data("assetHidden", true)
-                                $(currRoot).remove();
-                                newClone = $(rootClone).clone(true, true)[0];
-                                newhotspot.setRoot(newClone);
-                                setHandlers(newClone);
-                            }
-                        }
-                    } else {
-                        if (0 < parseFloat(t) + parseFloat(h) && parseFloat(t) < window.innerHeight && 0 < parseFloat(l) + parseFloat(w) && parseFloat(l) < window.innerWidth && res) {
-                            hotspotroot.css("top", (parseFloat(t) + res.translation.y) + "px");
-                            hotspotroot.css("left", (parseFloat(l) + res.translation.x) + "px");
-                            neww = Math.min(Math.max(neww, minConstraint), 800);                
-                        } else {
-                            flung = true;
-                            btn = $("#" + info.assetLinqID);
-                            if (!btn.data("ishotspot")) {
-                                btn.css({
-                                    'color': 'white',
-                                    'background-color': 'rgba(0,0,0,0.7)',
-                                });
-                                btn.data("assetHidden", true)
-                                $(currRoot).remove();
-                                newClone = $(rootClone).clone(true, true)[0];
-                                newhotspot.setRoot(newClone);
-                                setHandlers(newClone);
-                            }
-                        }
-                    }
-
-                    hotspotroot.css("width", neww + "px");
-                    hotspotroot.css("height", "auto");
-
-                    if (newhotspot.contentType === 'Video' || newhotspot.contentType === 'Audio') {
-                        newhotspot.resizeControlElements();
-                    }
-                }
-            }
-
-            function onScroll(res, pivot) {
-                // check if dragging the seekbar
-                if (dragBar) return;
-
-                //here, res is the scale factor
-                var t = $(currRoot).css('top');
-                var l = $(currRoot).css('left');
-                var w = $(currRoot).css('width');
-                var neww = parseFloat(w) * res;
-                $(currRoot).css("width", neww + "px");
-
-                var minConstraint;
-                if (newhotspot.contentType === 'Video' || newhotspot.contentType === 'Audio') {
-                    minConstraint = 450;
-                } else {
-                    minConstraint = 200;
-                }
-
-
-                if ((neww >= minConstraint) && (neww <= 800)) {
-                    $(currRoot).css("top", (parseFloat(t) + (1.0 - res) * (pivot.y)) + "px");
-                    $(currRoot).css("left", (parseFloat(l) + (1.0 - res) * (pivot.x)) + "px");
-                }
-                else {
-                    neww = Math.min(Math.max(neww, minConstraint), 800);
-                }
-
-                $(currRoot).css("width", neww + "px");
-                $(currRoot).css("height", "auto");
-
-                if (newhotspot.contentType === 'Video' || newhotspot.contentType === 'Audio') {
-                    newhotspot.resizeControlElements();
-                }
-            }
-            // debugger;
-            var gr = LADS.Util.makeManipulatable(currRoot, {
-                onManipulate: onManip,
-                onScroll: onScroll
-            }, null, true); // NO ACCELERATION FOR NOW
-        }
-
-
-        $(assetCanvas).append(newhotspot.getRoot());
-
-        makeCircle(info, newhotspot, isHotspot);
-    }
 };
 
 ;
@@ -41973,82 +41865,59 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         // Test for browser compatibility
         if(!isBrowserCompatible()) {
             console.log("Unsupported browser.");
-            
-            var browserDialogOverlay = $(document.createElement('div'));
+
             var tagContainer = $('#tagRoot');
+
+            // Creating Overlay
+            var browserDialogOverlay = $(document.createElement('div'));
             browserDialogOverlay.attr('id', 'browserDialogOverlay');
+            browserDialogOverlay.addClass('dialogBoxOverlay');
+            tagContainer.prepend(browserDialogOverlay);
 
-            browserDialogOverlay.css({
-                display: 'block',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                'background-color': 'rgba(0,0,0,0.6)',
-                'z-index': 1000000000 + 5
-            });
+            // Creating Dialog Box Container (required for centering)
+            var browserDialogContainer = $(document.createElement('div'));
+            browserDialogContainer.attr('id', 'browserDialogContainer');
+            browserDialogContainer.addClass('dialogBoxContainer');
+            browserDialogOverlay.append(browserDialogContainer);
 
-            // Dialog box for browser update
+            // Creating Dialog Box
             var browserDialog = $(document.createElement('div'));
             browserDialog.attr('id', 'browserDialog');
+            browserDialog.addClass('dialogBox');
+            browserDialogContainer.append(browserDialog);
 
-            var browserDialogSpecs = LADS.Util.constrainAndPosition($(tagContainer).width(), $(tagContainer).height(),
-            {
-                center_h: true,
-                center_v: true,
-                width: 0.5,
-                height: 0.35,
-                max_width: 560,
-                max_height: 230
-            });
-            browserDialog.css({
-                position: 'absolute',
-                left: '30%',
-                top: '30%',
-                width: '40%',
-                height: '40%',
-                border: '3px double white',
-                'text-align': 'center',
-                'background-color': 'black'
-            });
+            // Content
+            var browserDialogPara = $(document.createElement('p'));
+            browserDialogPara.attr('id', 'dialogBoxPara');
+            browserDialogPara.text("Touch Art Gallery is not supported in your browser. Please download or update to a newer browser.");
+            browserDialog.append(browserDialogPara);
 
-            var browserDialogTitle = $(document.createElement('div'));
-            browserDialogTitle.attr('id', 'dialogTitle');
-            browserDialogTitle.css({
-                'color': 'white',
-                'width': '80%',
-                'height': '15%',
-                'left': '10%',
-                'top': '25%',
-                'font-size': '1em',
-                'position': 'relative',
-                'text-align': 'center'
-            });
-            browserDialogTitle.text("Touch Art Gallery is not supported in your browser. Please download or update to a newer browser.");
-            browserDialog.append(browserDialogTitle);
+            // Browser Icon Container
+            var browserIcons = $(document.createElement('div'));
+            browserIcons.attr('id', 'browserIcons');
+            browserDialog.append(browserIcons);
 
-            var updateBrowserLink = $(document.createElement('a'));
-            updateBrowserLink.attr('id', 'updateBrowser');
-            updateBrowserLink.attr('target', '_blank');
-            updateBrowserLink.attr('href', 'http://browsehappy.com');
-            updateBrowserLink.css({
-                'display': 'block',
-                'margin': 'auto',
-                'margin-bottom': '1%',
-                'width': '60%',
-                'height':'10%',
-                'position':'relative',
-                'top':'40%',
-                'font-size':'100%',
-                'text-decoration': 'underline',
-                'color': 'white'
-            });
-            updateBrowserLink.text("Update Browser");
-            browserDialog.append(updateBrowserLink);
+            // Browser Icon Links
+            var ieIconLink = $(document.createElement('a')); ieIconLink.attr('href', 'http://windows.microsoft.com/ie');
+            var chromeIconLink = $(document.createElement('a')); chromeIconLink.attr('href', 'https://www.google.com/chrome');
+            var firefoxIconLink = $(document.createElement('a')); firefoxIconLink.attr('href', 'http://www.firefox.com');
+            var safariIconLink = $(document.createElement('a')); safariIconLink.attr('href', 'http://www.apple.com/safari');
 
-            browserDialogOverlay.append(browserDialog);
-            tagContainer.append(browserDialogOverlay);
+            browserIcons.append(ieIconLink, chromeIconLink, firefoxIconLink, safariIconLink);
+            $('#browserIcons a').addClass('browserIconLink');
+
+            // Browser Icon Images
+            var ieIcon = $(document.createElement('img')); ieIcon.attr('title', 'Internet Explorer'); ieIconLink.append(ieIcon);
+            var chromeIcon = $(document.createElement('img')); chromeIcon.attr('title', 'Google Chrome'); chromeIconLink.append(chromeIcon);
+            var firefoxIcon = $(document.createElement('img')); firefoxIcon.attr('title', 'Firefox'); firefoxIconLink.append(firefoxIcon);
+            var safariIcon = $(document.createElement('img')); safariIcon.attr('title', 'Safari'); safariIconLink.append(safariIcon);
+
+            ieIcon.attr('src', tagPath+'images/icons/browserIcons/ie.png');
+            chromeIcon.attr('src', tagPath+'images/icons/browserIcons/chrome.png');
+            firefoxIcon.attr('src', tagPath+'images/icons/browserIcons/firefox.png');
+            safariIcon.attr('src', tagPath+'images/icons/browserIcons/safari.png');
+
+            $('#browserIcons a img').addClass('browserIcon');
         }
     }
 
@@ -42077,7 +41946,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             browser = browser.toLowerCase();
             var version = 0;
 
-            if(browser.indexOf('opera') >= 0) {
+            if(browser.indexOf('opera') >= 0 || userAgent.indexOf('opr') >= 0) {
                 console.log("Detected Opera. Unsupported browser.");
                 return false;
             } else if(browser.indexOf('chrome') >= 0) {
@@ -42458,7 +42327,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 createSeadragonControls();
                 initialized = true;
             });
-            
         }
     }
 
@@ -42844,8 +42712,8 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 holder.data("ishotspot", isHotspot);
 
                 holder.data('info', media);
-
-                holder.on("click", hotspotAssetClick(media, holder));
+                media.button = holder;
+                holder.on("click", hotspotAssetClick(media));
                 holder.on("mousedown", downhelper(holder));
                 holder.on("mouseup", uphelper(holder));
                 container.append(holder);
@@ -42916,7 +42784,8 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             assetContainer.append(assetsDrawer);
         }
 
-        function hotspotAssetClick(hotspotsAsset, btn) {//check if the location history is open before you click the button, if so, close it
+        //Called when hotspots or assets are clicked
+        function hotspotAssetClick(hotspotsAsset) {//check if the location history is open before you click the button, if so, close it
             return function () {
                 hotspotsAsset.mediaload();
                 if (locationHistoryActive) {
@@ -42930,48 +42799,12 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     locationHistoryDiv.hide("slide", { direction: direction }, 500);
                     setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 }
-                var circle = hotspotsAsset.toggle();
-
-                if (btn.data("ishotspot")) {//btn change for hotspots
-                    if (btn.data("assetHidden") && $(circle).css('display') === 'block') {
-                        btn.css({
-                            'color': 'black',
-                            'background-color': 'rgba(255,255,255, 0.3)',
-                        });
-                        btn.data("assetHidden", false);
-                    }
-                    else {
-                        btn.css({
-                            'color': 'white',
-                            'background-color': ''
-                        });
-
-                        btn.data("assetHidden", true);
-                    }
-                } else {//btn change for assets
-                    if (btn.data("assetHidden")) {
-                        btn.css({
-                            'color': 'black',
-                            'background-color': 'rgba(255,255,255, 0.3)',
-                        });
-                        btn.data("assetHidden", false);
-                    } else {
-                        btn.css({
-                            'color': 'white',
-                            'background-color': ''
-                        });
-
-                        btn.data("assetHidden", true);
-                    }
-                }
+                hotspotsAsset.toggle();
                 hotspotsAsset.pauseAsset();
-                if (circle) {
-                    setTimeout(function () { circle.click(); }, 500); // has to be a better way.....
-                }
             };
         }
-
         var toursDrawer;
+
         // Load tours and filter for tours associated with this artwork
         LADS.Worktop.Database.getTours(function (tours) {
             var relatedTours = tours.filter(function (tour) {
@@ -43000,8 +42833,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 "max-height": maxHeight +"px",
             });
         });
-
-        
 
         function tourClicked(tour) {
             return function () {

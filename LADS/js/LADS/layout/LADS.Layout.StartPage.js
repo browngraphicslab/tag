@@ -113,82 +113,59 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         // Test for browser compatibility
         if(!isBrowserCompatible()) {
             console.log("Unsupported browser.");
-            
-            var browserDialogOverlay = $(document.createElement('div'));
+
             var tagContainer = $('#tagRoot');
+
+            // Creating Overlay
+            var browserDialogOverlay = $(document.createElement('div'));
             browserDialogOverlay.attr('id', 'browserDialogOverlay');
+            browserDialogOverlay.addClass('dialogBoxOverlay');
+            tagContainer.prepend(browserDialogOverlay);
 
-            browserDialogOverlay.css({
-                display: 'block',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                'background-color': 'rgba(0,0,0,0.6)',
-                'z-index': 1000000000 + 5
-            });
+            // Creating Dialog Box Container (required for centering)
+            var browserDialogContainer = $(document.createElement('div'));
+            browserDialogContainer.attr('id', 'browserDialogContainer');
+            browserDialogContainer.addClass('dialogBoxContainer');
+            browserDialogOverlay.append(browserDialogContainer);
 
-            // Dialog box for browser update
+            // Creating Dialog Box
             var browserDialog = $(document.createElement('div'));
             browserDialog.attr('id', 'browserDialog');
+            browserDialog.addClass('dialogBox');
+            browserDialogContainer.append(browserDialog);
 
-            var browserDialogSpecs = LADS.Util.constrainAndPosition($(tagContainer).width(), $(tagContainer).height(),
-            {
-                center_h: true,
-                center_v: true,
-                width: 0.5,
-                height: 0.35,
-                max_width: 560,
-                max_height: 230
-            });
-            browserDialog.css({
-                position: 'absolute',
-                left: '30%',
-                top: '30%',
-                width: '40%',
-                height: '40%',
-                border: '3px double white',
-                'text-align': 'center',
-                'background-color': 'black'
-            });
+            // Content
+            var browserDialogPara = $(document.createElement('p'));
+            browserDialogPara.attr('id', 'dialogBoxPara');
+            browserDialogPara.text("Touch Art Gallery is not supported in your browser. Please download or update to a newer browser.");
+            browserDialog.append(browserDialogPara);
 
-            var browserDialogTitle = $(document.createElement('div'));
-            browserDialogTitle.attr('id', 'dialogTitle');
-            browserDialogTitle.css({
-                'color': 'white',
-                'width': '80%',
-                'height': '15%',
-                'left': '10%',
-                'top': '25%',
-                'font-size': '1em',
-                'position': 'relative',
-                'text-align': 'center'
-            });
-            browserDialogTitle.text("Touch Art Gallery is not supported in your browser. Please download or update to a newer browser.");
-            browserDialog.append(browserDialogTitle);
+            // Browser Icon Container
+            var browserIcons = $(document.createElement('div'));
+            browserIcons.attr('id', 'browserIcons');
+            browserDialog.append(browserIcons);
 
-            var updateBrowserLink = $(document.createElement('a'));
-            updateBrowserLink.attr('id', 'updateBrowser');
-            updateBrowserLink.attr('target', '_blank');
-            updateBrowserLink.attr('href', 'http://browsehappy.com');
-            updateBrowserLink.css({
-                'display': 'block',
-                'margin': 'auto',
-                'margin-bottom': '1%',
-                'width': '60%',
-                'height':'10%',
-                'position':'relative',
-                'top':'40%',
-                'font-size':'100%',
-                'text-decoration': 'underline',
-                'color': 'white'
-            });
-            updateBrowserLink.text("Update Browser");
-            browserDialog.append(updateBrowserLink);
+            // Browser Icon Links
+            var ieIconLink = $(document.createElement('a')); ieIconLink.attr('href', 'http://windows.microsoft.com/ie');
+            var chromeIconLink = $(document.createElement('a')); chromeIconLink.attr('href', 'https://www.google.com/chrome');
+            var firefoxIconLink = $(document.createElement('a')); firefoxIconLink.attr('href', 'http://www.firefox.com');
+            var safariIconLink = $(document.createElement('a')); safariIconLink.attr('href', 'http://www.apple.com/safari');
 
-            browserDialogOverlay.append(browserDialog);
-            tagContainer.append(browserDialogOverlay);
+            browserIcons.append(ieIconLink, chromeIconLink, firefoxIconLink, safariIconLink);
+            $('#browserIcons a').addClass('browserIconLink');
+
+            // Browser Icon Images
+            var ieIcon = $(document.createElement('img')); ieIcon.attr('title', 'Internet Explorer'); ieIconLink.append(ieIcon);
+            var chromeIcon = $(document.createElement('img')); chromeIcon.attr('title', 'Google Chrome'); chromeIconLink.append(chromeIcon);
+            var firefoxIcon = $(document.createElement('img')); firefoxIcon.attr('title', 'Firefox'); firefoxIconLink.append(firefoxIcon);
+            var safariIcon = $(document.createElement('img')); safariIcon.attr('title', 'Safari'); safariIconLink.append(safariIcon);
+
+            ieIcon.attr('src', tagPath+'images/icons/browserIcons/ie.png');
+            chromeIcon.attr('src', tagPath+'images/icons/browserIcons/chrome.png');
+            firefoxIcon.attr('src', tagPath+'images/icons/browserIcons/firefox.png');
+            safariIcon.attr('src', tagPath+'images/icons/browserIcons/safari.png');
+
+            $('#browserIcons a img').addClass('browserIcon');
         }
     }
 
@@ -217,7 +194,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             browser = browser.toLowerCase();
             var version = 0;
 
-            if(browser.indexOf('opera') >= 0) {
+            if(browser.indexOf('opera') >= 0 || userAgent.indexOf('opr') >= 0) {
                 console.log("Detected Opera. Unsupported browser.");
                 return false;
             } else if(browser.indexOf('chrome') >= 0) {
