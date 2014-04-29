@@ -318,7 +318,9 @@ function loadHotspots(callback) {
 
         //Create and append asset/hotspot containerscontainers
         var outerContainer = document.createElement('div');
-        outerContainer.style.width = Math.min(Math.max(250, ($('#tagContainer').width() / 5)), 450)+'px';
+        var containerHeight = $("#artmodeRoot").height();
+        var containerWidth = $("#artmodeRoot").width();
+        outerContainer.style.width = Math.min(Math.max(250, (containerWidth / 5)), 450)+'px';
 
         var innerContainer = document.createElement('div');
         innerContainer.style.backgroundColor = 'rgba(0,0,0,0.65)';
@@ -928,8 +930,8 @@ function loadHotspots(callback) {
                 that.viewer.drawer.updateOverlay(circle, position, Seadragon.OverlayPlacement.TOP_LEFT);
                 that.viewer.viewport.panTo(position, false);
 
-                var top = $("#tagContainer").height()/2 + $(circle).height()*3/4;
-                var left = $("#tagContainer").width()/2 + $(circle).width()*3/4;
+                var top = containerHeight/2 + $(circle).height()*3/4;
+                var left = containerWidth/2 + $(circle).width()*3/4;
 
                 $(outerContainer).css({
                     top: top+'px',
@@ -1051,7 +1053,7 @@ function loadHotspots(callback) {
                     //if the new width is in the right range, scale from the point of contact and translate properly; otherwise, just translate and clamp
                     //var newClone;
                     if ((neww >= minConstraint) && (neww <= maxConstraint)) {                        
-                        if (0 < parseFloat(t) + parseFloat(h) && parseFloat(t) < $("#tagContainer").height() && 0 < parseFloat(l) + parseFloat(w) && parseFloat(l)< $("#tagContainer").width() && res) {
+                        if (0 < parseFloat(t) + parseFloat(h) && parseFloat(t) < containerHeight && 0 < parseFloat(l) + parseFloat(w) && parseFloat(l)< containerWidth && res) {
                             hotspotroot.css("top", (parseFloat(t) + res.translation.y + (1.0 - res.scale) * (res.pivot.y)) + "px");
                             hotspotroot.css("left", (parseFloat(l) + res.translation.x + (1.0 - res.scale) * (res.pivot.x)) + "px");
                         }
@@ -1060,7 +1062,7 @@ function loadHotspots(callback) {
                             that.pauseAsset;
                         }
                     } else {
-                        if (0 < parseFloat(t) + parseFloat(h) && parseFloat(t) < window.innerHeight && 0 < parseFloat(l) + parseFloat(w) && parseFloat(l) < window.innerWidth && res) {
+                        if (0 < parseFloat(t) + parseFloat(h) && parseFloat(t) < containerHeight && 0 < parseFloat(l) + parseFloat(w) && parseFloat(l)< containerWidth && res) {
                             hotspotroot.css("top", (parseFloat(t) + res.translation.y) + "px");
                             hotspotroot.css("left", (parseFloat(l) + res.translation.x) + "px");
                             neww = Math.min(Math.max(neww, minConstraint), 800);                
