@@ -41972,72 +41972,93 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         // Test for browser compatibility
         if(!isBrowserCompatible()) {
-            console.log("Unsupported browser.");
-
-            var tagContainer = $('#tagRoot');
-
-            // Creating Overlay
-            var browserDialogOverlay = $(document.createElement('div'));
-            browserDialogOverlay.attr('id', 'browserDialogOverlay');
-            browserDialogOverlay.addClass('dialogBoxOverlay');
-            tagContainer.prepend(browserDialogOverlay);
-
-            // Creating Dialog Box Container (required for centering)
-            var browserDialogContainer = $(document.createElement('div'));
-            browserDialogContainer.attr('id', 'browserDialogContainer');
-            browserDialogContainer.addClass('dialogBoxContainer');
-            browserDialogOverlay.append(browserDialogContainer);
-
-            // Creating Dialog Box
-            var browserDialog = $(document.createElement('div'));
-            browserDialog.attr('id', 'browserDialog');
-            browserDialog.addClass('dialogBox');
-            browserDialogContainer.append(browserDialog);
-
-            // Content
-            var browserDialogPara = $(document.createElement('p'));
-            browserDialogPara.attr('id', 'dialogBoxPara');
-            browserDialogPara.text("Touch Art Gallery is not supported in your browser. Please download or update to a newer browser.");
-            browserDialog.append(browserDialogPara);
-
-            // Browser Icon Container
-            var browserIcons = $(document.createElement('div'));
-            browserIcons.attr('id', 'browserIcons');
-            browserDialog.append(browserIcons);
-
-            // Browser Icon Links
-            var ieIconLink = $(document.createElement('a')); ieIconLink.attr('href', 'http://windows.microsoft.com/ie');
-            var chromeIconLink = $(document.createElement('a')); chromeIconLink.attr('href', 'https://www.google.com/chrome');
-            var firefoxIconLink = $(document.createElement('a')); firefoxIconLink.attr('href', 'http://www.firefox.com');
-            var safariIconLink = $(document.createElement('a')); safariIconLink.attr('href', 'http://www.apple.com/safari');
-
-            browserIcons.append(ieIconLink, chromeIconLink, firefoxIconLink, safariIconLink);
-            $('#browserIcons a').addClass('browserIconLink');
-
-            // Browser Icon Images
-            var ieIcon = $(document.createElement('img')); ieIcon.attr('title', 'Internet Explorer'); ieIconLink.append(ieIcon);
-            var chromeIcon = $(document.createElement('img')); chromeIcon.attr('title', 'Google Chrome'); chromeIconLink.append(chromeIcon);
-            var firefoxIcon = $(document.createElement('img')); firefoxIcon.attr('title', 'Firefox'); firefoxIconLink.append(firefoxIcon);
-            var safariIcon = $(document.createElement('img')); safariIcon.attr('title', 'Safari'); safariIconLink.append(safariIcon);
-
-            ieIcon.attr('src', tagPath+'images/icons/browserIcons/ie.png');
-            chromeIcon.attr('src', tagPath+'images/icons/browserIcons/chrome.png');
-            firefoxIcon.attr('src', tagPath+'images/icons/browserIcons/firefox.png');
-            safariIcon.attr('src', tagPath+'images/icons/browserIcons/safari.png');
-
-            $('#browserIcons a img').addClass('browserIcon');
+            handleIncompatibleBrowser();
         }
     }
 
     /**
-    * @method isBrowserCompatible
+    * Displays a dialog box indicating that the user is using an
+    * incompatible browser. Points them to links to download the latest
+    * version of supported browsers such as IE, Chrome, Safari and Firefox.
     *
+    * @method handleIncompatibleBrowser
+    * @author Athyuttam Eleti
+    */
+    function handleIncompatibleBrowser() {
+        console.log("Unsupported browser.");
+
+        var tagContainer = $('#tagRoot');
+
+        // Creating Overlay
+        var browserDialogOverlay = $(document.createElement('div'));
+        browserDialogOverlay.attr('id', 'browserDialogOverlay');
+        browserDialogOverlay.addClass('dialogBoxOverlay');
+        tagContainer.prepend(browserDialogOverlay);
+
+        // Creating Dialog Box Container (required for centering)
+        var browserDialogContainer = $(document.createElement('div'));
+        browserDialogContainer.attr('id', 'browserDialogContainer');
+        browserDialogContainer.addClass('dialogBoxContainer');
+        browserDialogOverlay.append(browserDialogContainer);
+
+        // Creating Dialog Box
+        var browserDialog = $(document.createElement('div'));
+        browserDialog.attr('id', 'browserDialog');
+        browserDialog.addClass('dialogBox');
+        browserDialogContainer.append(browserDialog);
+
+        // Content
+        var browserDialogPara = $(document.createElement('p'));
+        browserDialogPara.attr('id', 'dialogBoxPara');
+        browserDialogPara.text("Touch Art Gallery is not supported in your browser. Please download or update to a newer browser.");
+        browserDialog.append(browserDialogPara);
+
+        // Browser Icon Container
+        var browserIcons = $(document.createElement('div'));
+        browserIcons.attr('id', 'browserIcons');
+        browserDialog.append(browserIcons);
+
+        // Browser Icon Links
+        var ieIconLink = $(document.createElement('a')); ieIconLink.attr('href', 'http://windows.microsoft.com/ie');
+        var chromeIconLink = $(document.createElement('a')); chromeIconLink.attr('href', 'https://www.google.com/chrome');
+        var firefoxIconLink = $(document.createElement('a')); firefoxIconLink.attr('href', 'http://www.firefox.com');
+        var safariIconLink = $(document.createElement('a')); safariIconLink.attr('href', 'http://www.apple.com/safari');
+
+        var linksArray = [ieIconLink, chromeIconLink, firefoxIconLink, safariIconLink];
+        for(var i = 0; i < linksArray.length; i++) {
+            var current = linksArray[i]
+            current.attr('target', '_blank'); // Set target="_blank" to open links in new tab
+            current.addClass('browserIconLink'); // Set the corresponding CSS class to each link
+        }
+
+        browserIcons.append(ieIconLink, chromeIconLink, firefoxIconLink, safariIconLink);
+
+        // Browser Icon Images
+        var ieIcon = $(document.createElement('img')); ieIcon.attr('title', 'Internet Explorer'); ieIconLink.append(ieIcon);
+        var chromeIcon = $(document.createElement('img')); chromeIcon.attr('title', 'Google Chrome'); chromeIconLink.append(chromeIcon);
+        var firefoxIcon = $(document.createElement('img')); firefoxIcon.attr('title', 'Firefox'); firefoxIconLink.append(firefoxIcon);
+        var safariIcon = $(document.createElement('img')); safariIcon.attr('title', 'Safari'); safariIconLink.append(safariIcon);
+
+        ieIcon.attr('src', tagPath+'images/icons/browserIcons/ie.png');
+        chromeIcon.attr('src', tagPath+'images/icons/browserIcons/chrome.png');
+        firefoxIcon.attr('src', tagPath+'images/icons/browserIcons/firefox.png');
+        safariIcon.attr('src', tagPath+'images/icons/browserIcons/safari.png');
+
+        $('#browserIcons a img').addClass('browserIcon');
+    }
+
+    /**
+    * Checks if TAG is compatible with the current browser.
+    *
+    * @method isBrowserCompatible
+    * @author Athyuttam Eleti
     * @return true if the browser is compatible with TAG, false if it isn't
     */
     function isBrowserCompatible() {
         var userAgent = navigator.userAgent.toLowerCase();
         console.log("userAgent: " + navigator.userAgent);
 
+        // Android and iOS are incompatible
         if(userAgent.indexOf('android') >= 0 || userAgent.indexOf('iphone') >= 0 || userAgent.indexOf('ipad') >= 0) {
             if(userAgent.indexOf('android') >= 0) {
                 console.log("Detected Android Device. Unsupported browser.");
@@ -42054,35 +42075,49 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             browser = browser.toLowerCase();
             var version = 0;
 
+            // Opera is incompatible
             if(browser.indexOf('opera') >= 0 || userAgent.indexOf('opr') >= 0) {
                 console.log("Detected Opera. Unsupported browser.");
                 return false;
-            } else if(browser.indexOf('chrome') >= 0) {
+            } 
+            // Chrome 31+
+            else if(browser.indexOf('chrome') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
                 console.log("Detected Chrome Version: " + version);
                 return(version >= 31);
-            } else if(browser.indexOf('safari') >= 0) {
+            } 
+            // Safari 7+
+            else if(browser.indexOf('safari') >= 0) {
                 var detailedVersion = browser.substring(browser.indexOf(' ', browser.indexOf(' ') + 1) + 1);
                 version = detailedVersion.substring(0, detailedVersion.indexOf("."));
                 console.log("Detected Safari Version: " + version);
                 return(version >= 7);
-            } else if(browser.indexOf('firefox') >= 0) {
+            } 
+            // Firefox 28+
+            else if(browser.indexOf('firefox') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
                 console.log("Detected Firefox Version: " + version);
                 return(version >= 28);
-            } else if(browser.indexOf('msie') >= 0 || browser.indexOf('ie') >= 0) {
+            } 
+            // Internet Explorer 10+
+            else if(browser.indexOf('msie') >= 0 || browser.indexOf('ie') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
                 console.log("Detected IE Version: " + version);
                 return(version >= 10);
-            } else {
+            } 
+            // Other browsers are incompatible
+            else {
                 return false;
             }
         }
     }
 
     /** 
-    * @method getBrowserVersion
+    * Finds the current browser version.
+    * Code from http://stackoverflow.com/questions/5916900/detect-version-of-browser
     *
+    * @method getBrowserVersion
+    * @author Athyuttam Eleti
     * @return Browser name followed by version e.g. "Chrome 34.0.1847.116"
     */
     function getBrowserVersion() {
@@ -43887,7 +43922,8 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
         img1,
         leftbarHeader = root.find('#leftbar-header'), 
         exhibitionLabel = root.find('#exhibition-label'), 
-        exhibitionSpan = root.find('#exhibitionSpan'), 
+        exhibitionSpan = root.find('#exhibitionSpan'),
+        numberOfVisibleExhibitions, 
         contentdiv,
         imgDiv,
         descriptiontext,
@@ -44083,6 +44119,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
 
         /**helper function to exhibitions**/
         function getExhibitionsHelper(exhibitionsLocal) {
+            numberOfVisibleExhibitions = 0;
             currentExhElements = {};
             currentExhElements.displayareasub = displayHelp; //asign displayhelp to displayareasub to each exhibition
 
@@ -44100,9 +44137,19 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
                         bgimage.css('background-image', "url(" + LADS.Worktop.Database.fixPath(e.Metadata.BackgroundImage) + ")");
                     }
                     addExhibit(e);
+                    numberOfVisibleExhibitions++;
                     gotFirst = true;
                 }
             });
+
+            // Single collection UI
+            // CSS modifications for the case when there is only one collection
+            if(numberOfVisibleExhibitions == 1) {
+                console.log("There is only 1 collection.");
+                enableSingleCollectionUI()
+            } else {
+                console.log("There are " + numberOfVisibleExhibitions + " collections.");
+            }
 
             if (currExhibition) {
                 loadExhibit(currExhibition, currExhibition);
@@ -44117,6 +44164,23 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
 
     }   //end init()
 
+    /**
+    * When only a single collection exists, this function modifies
+    * the CSS to hide the list of collections and expand the
+    * description area.
+    *
+    * @method enableSingleCollectionUI
+    * @author Athyuttam Eleti
+    */
+    function enableSingleCollectionUI() {
+        exhibitarea.css("display", "none");
+        exhibitionSpan.css("display", "none");
+        displayarea.css({
+            "left": "0",
+            "width": "100%"
+        });
+    }
+
     function clickExhibition(i) {
         if (exhibitelements[i])
             exhibitelements[i].click();
@@ -44124,7 +44188,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
 
     /**
      * Adds exhibitions to page
-     *@param: exhibition to add
+     * @param: exhibition to add
      * Creates button in sidebar
      */
     function addExhibit(exhibition) {
