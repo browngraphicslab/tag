@@ -208,61 +208,60 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         });
         $(document).keydown(function(event){
             if(containerFocused) {
-                console.log(event.which);
-            switch(event.which) {
-
-                case 37: 
-                    event.preventDefault();
-                    clearInterval(interval);
-                    zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
-                    interval = setInterval(function() {
-                    zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
-                    }, 100);
+                switch(event.which) {
+    
+                    case 37: 
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
+                        }, 100);
                     
-                break;
-                case 38:
-                    event.preventDefault();
-                    clearInterval(interval);
-                    zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
-                    interval = setInterval(function() {
-                    zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
-                    }, 100);
-                break;
-                case 39:
-                    event.preventDefault();
-                    clearInterval(interval);
-                    zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
-                    interval = setInterval(function() {
-                    zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
-                    }, 100);
-                break;
-                case 40:
-                    event.preventDefault();
-                    clearInterval(interval);
-                    zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
-                    interval = setInterval(function() {
-                    zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
-                    }, 100);
-                break;
-                case 187:
-                case 61:
-                    event.preventDefault();
-                    clearInterval(interval);
-                    zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
-                    interval = setInterval(function() {
-                    zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
-                    }, 100);
-                break;
-                case 189:
-                case 173:
-                    event.preventDefault();
-                    clearInterval(interval);
-                    zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
-                    interval = setInterval(function() {
-                    zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
-                    }, 100);
-                break;
-            }
+                    break;
+                    case 38:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
+                        }, 100);
+                    break;
+                    case 39:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
+                        }, 100);
+                    break;
+                    case 40:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
+                        }, 100);
+                    break;
+                    case 187:
+                    case 61:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+                        interval = setInterval(function() {
+                        zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+                        }, 100);
+                    break;
+                    case 189:
+                    case 173:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+                        interval = setInterval(function() {
+                        zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+                        }, 100);
+                    break;
+                }
             }
         });
         
