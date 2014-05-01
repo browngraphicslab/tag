@@ -25,7 +25,8 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
         img1,
         leftbarHeader = root.find('#leftbar-header'), 
         exhibitionLabel = root.find('#exhibition-label'), 
-        exhibitionSpan = root.find('#exhibitionSpan'), 
+        exhibitionSpan = root.find('#exhibitionSpan'),
+        numberOfVisibleExhibitions, 
         contentdiv,
         imgDiv,
         descriptiontext,
@@ -221,6 +222,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
 
         /**helper function to exhibitions**/
         function getExhibitionsHelper(exhibitionsLocal) {
+            numberOfVisibleExhibitions = 0;
             currentExhElements = {};
             currentExhElements.displayareasub = displayHelp; //asign displayhelp to displayareasub to each exhibition
 
@@ -238,9 +240,19 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
                         bgimage.css('background-image', "url(" + LADS.Worktop.Database.fixPath(e.Metadata.BackgroundImage) + ")");
                     }
                     addExhibit(e);
+                    numberOfVisibleExhibitions++;
                     gotFirst = true;
                 }
             });
+
+            // Single collection UI
+            // CSS modifications for the case when there is only one collection
+            if(numberOfVisibleExhibitions == 1) {
+                console.log("There is only 1 collection.");
+                enableSingleCollectionUI()
+            } else {
+                console.log("There are " + numberOfVisibleExhibitions + " collections.");
+            }
 
             if (currExhibition) {
                 loadExhibit(currExhibition, currExhibition);
@@ -255,6 +267,23 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
 
     }   //end init()
 
+    /**
+    * When only a single collection exists, this function modifies
+    * the CSS to hide the list of collections and expand the
+    * description area.
+    *
+    * @method enableSingleCollectionUI
+    * @author Athyuttam Eleti
+    */
+    function enableSingleCollectionUI() {
+        exhibitarea.css("display", "none");
+        exhibitionSpan.css("display", "none");
+        displayarea.css({
+            "left": "0",
+            "width": "100%"
+        });
+    }
+
     function clickExhibition(i) {
         if (exhibitelements[i])
             exhibitelements[i].click();
@@ -262,7 +291,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
 
     /**
      * Adds exhibitions to page
-     *@param: exhibition to add
+     * @param: exhibition to add
      * Creates button in sidebar
      */
     function addExhibit(exhibition) {
