@@ -41871,77 +41871,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     }
 
     /**
-    * Displays a dialog box indicating that the user is using an
-    * incompatible browser. Points them to links to download the latest
-    * version of supported browsers such as IE, Chrome, Safari and Firefox.
-    *
-    * @method handleIncompatibleBrowser
-    * @author Athyuttam Eleti
-    */
-    function handleIncompatibleBrowser() {
-        console.log("Unsupported browser.");
-
-        var tagContainer = $('#tagRoot');
-
-        // Creating Overlay
-        var browserDialogOverlay = $(document.createElement('div'));
-        browserDialogOverlay.attr('id', 'browserDialogOverlay');
-        browserDialogOverlay.addClass('dialogBoxOverlay');
-        tagContainer.prepend(browserDialogOverlay);
-
-        // Creating Dialog Box Container (required for centering)
-        var browserDialogContainer = $(document.createElement('div'));
-        browserDialogContainer.attr('id', 'browserDialogContainer');
-        browserDialogContainer.addClass('dialogBoxContainer');
-        browserDialogOverlay.append(browserDialogContainer);
-
-        // Creating Dialog Box
-        var browserDialog = $(document.createElement('div'));
-        browserDialog.attr('id', 'browserDialog');
-        browserDialog.addClass('dialogBox');
-        browserDialogContainer.append(browserDialog);
-
-        // Content
-        var browserDialogPara = $(document.createElement('p'));
-        browserDialogPara.attr('id', 'dialogBoxPara');
-        browserDialogPara.text("Touch Art Gallery is not supported in your browser. Please download or update to a newer browser.");
-        browserDialog.append(browserDialogPara);
-
-        // Browser Icon Container
-        var browserIcons = $(document.createElement('div'));
-        browserIcons.attr('id', 'browserIcons');
-        browserDialog.append(browserIcons);
-
-        // Browser Icon Links
-        var ieIconLink = $(document.createElement('a')); ieIconLink.attr('href', 'http://windows.microsoft.com/ie');
-        var chromeIconLink = $(document.createElement('a')); chromeIconLink.attr('href', 'https://www.google.com/chrome');
-        var firefoxIconLink = $(document.createElement('a')); firefoxIconLink.attr('href', 'http://www.firefox.com');
-        var safariIconLink = $(document.createElement('a')); safariIconLink.attr('href', 'http://www.apple.com/safari');
-
-        var linksArray = [ieIconLink, chromeIconLink, firefoxIconLink, safariIconLink];
-        for(var i = 0; i < linksArray.length; i++) {
-            var current = linksArray[i]
-            current.attr('target', '_blank'); // Set target="_blank" to open links in new tab
-            current.addClass('browserIconLink'); // Set the corresponding CSS class to each link
-        }
-
-        browserIcons.append(ieIconLink, chromeIconLink, firefoxIconLink, safariIconLink);
-
-        // Browser Icon Images
-        var ieIcon = $(document.createElement('img')); ieIcon.attr('title', 'Internet Explorer'); ieIconLink.append(ieIcon);
-        var chromeIcon = $(document.createElement('img')); chromeIcon.attr('title', 'Google Chrome'); chromeIconLink.append(chromeIcon);
-        var firefoxIcon = $(document.createElement('img')); firefoxIcon.attr('title', 'Firefox'); firefoxIconLink.append(firefoxIcon);
-        var safariIcon = $(document.createElement('img')); safariIcon.attr('title', 'Safari'); safariIconLink.append(safariIcon);
-
-        ieIcon.attr('src', tagPath+'images/icons/browserIcons/ie.png');
-        chromeIcon.attr('src', tagPath+'images/icons/browserIcons/chrome.png');
-        firefoxIcon.attr('src', tagPath+'images/icons/browserIcons/firefox.png');
-        safariIcon.attr('src', tagPath+'images/icons/browserIcons/safari.png');
-
-        $('#browserIcons a img').addClass('browserIcon');
-    }
-
-    /**
     * Checks if TAG is compatible with the current browser.
     *
     * @method isBrowserCompatible
@@ -41949,6 +41878,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     * @return true if the browser is compatible with TAG, false if it isn't
     */
     function isBrowserCompatible() {
+        console.log("\n///// Browser Compatibility /////")
         var userAgent = navigator.userAgent.toLowerCase();
         console.log("userAgent: " + navigator.userAgent);
 
@@ -42001,6 +41931,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             } 
             // Other browsers are incompatible
             else {
+                console.log("Unsupported browser.");
                 return false;
             }
         }
@@ -42027,6 +41958,75 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         if((tem= ua.match(/version\/([\.\d]+)/i))!= null) M[2]= tem[1];
 
         return M.join(' ');
+    }
+
+    /**
+    * Displays a dialog box indicating that the user is using an
+    * incompatible browser. Points them to links to download the latest
+    * version of supported browsers such as IE, Chrome, Safari and Firefox.
+    *
+    * @method handleIncompatibleBrowser
+    * @author Athyuttam Eleti
+    */
+    function handleIncompatibleBrowser() {
+        var tagContainer = $('#tagRoot');
+
+        // Creating Overlay
+        var browserDialogOverlay = $(document.createElement('div'));
+        browserDialogOverlay.attr('id', 'browserDialogOverlay');
+        browserDialogOverlay.addClass('dialogBoxOverlay');
+        tagContainer.prepend(browserDialogOverlay);
+
+        // Creating Dialog Box Container (required for centering)
+        var browserDialogContainer = $(document.createElement('div'));
+        browserDialogContainer.attr('id', 'browserDialogContainer');
+        browserDialogContainer.addClass('dialogBoxContainer');
+        browserDialogOverlay.append(browserDialogContainer);
+
+        // Creating Dialog Box
+        var browserDialog = $(document.createElement('div'));
+        browserDialog.attr('id', 'browserDialog');
+        browserDialog.addClass('dialogBox');
+        browserDialogContainer.append(browserDialog);
+
+        // Content
+        var browserDialogPara = $(document.createElement('p'));
+        browserDialogPara.attr('id', 'dialogBoxPara');
+        browserDialogPara.text("Touch Art Gallery is not supported in your browser. Please download or update to a newer browser.");
+        browserDialog.append(browserDialogPara);
+
+        // Browser Icon Container
+        var browserIcons = $(document.createElement('div'));
+        browserIcons.attr('id', 'browserIcons');
+        browserDialog.append(browserIcons);
+
+        // Browser Icon Links
+        var ieIconLink = $(document.createElement('a')).attr('href', 'http://windows.microsoft.com/ie');
+        var chromeIconLink = $(document.createElement('a')).attr('href', 'https://www.google.com/chrome');
+        var firefoxIconLink = $(document.createElement('a')).attr('href', 'http://www.firefox.com');
+        var safariIconLink = $(document.createElement('a')).attr('href', 'http://www.apple.com/safari');
+
+        var linksArray = [ieIconLink, chromeIconLink, firefoxIconLink, safariIconLink];
+        for(var i = 0; i < linksArray.length; i++) {
+            var current = linksArray[i]
+            current.attr('target', '_blank'); // Set target="_blank" to open links in new tab
+            current.addClass('browserIconLink'); // Set the corresponding CSS class to each link
+        }
+
+        browserIcons.append(ieIconLink, chromeIconLink, firefoxIconLink, safariIconLink);
+
+        // Browser Icon Images
+        var ieIcon = $(document.createElement('img')).attr('title', 'Internet Explorer').attr('src', tagPath+'images/icons/browserIcons/ie.png');
+        var chromeIcon = $(document.createElement('img')).attr('title', 'Google Chrome').attr('src', tagPath+'images/icons/browserIcons/chrome.png'); 
+        var firefoxIcon = $(document.createElement('img')).attr('title', 'Firefox').attr('src', tagPath+'images/icons/browserIcons/firefox.png');
+        var safariIcon = $(document.createElement('img')).attr('title', 'Safari').attr('src', tagPath+'images/icons/browserIcons/safari.png');
+
+        ieIconLink.append(ieIcon);
+        chromeIconLink.append(chromeIcon);
+        firefoxIconLink.append(firefoxIcon);
+        safariIconLink.append(safariIcon);
+
+        $('#browserIcons a img').addClass('browserIcon');
     }
     
     /**
