@@ -58,6 +58,10 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
 
     var exLabels = [];
     that.exLabels = exLabels;
+	
+	//vars from Database
+	var baseFontSize = LADS.Worktop.Database.getBaseFontSize();
+	console.log("Base Font Size" + baseFontSize);
 
     // vars from Catalog
     var timelineDiv = root.find('#timelineDiv'),
@@ -138,7 +142,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
         search.attr("placeholder", "Enter Keyword").blur();
         search.css({
             'max-height': $(row).height()*0.75 + '%',
-            'font-size': '80%'
+            'font-size': '80%',
         });
         
         // the following mousedown and mouseup handlers deal with clicking the 'X' in the search box
@@ -459,7 +463,8 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
         contentdiv.append(imgDiv);
         imgDiv.append(img1);
         imgDiv.append(exploreTab);
-        exploreTabText.css("font-size", LADS.Util.getMaxFontSizeEM("Explore", 0.5, 0.5 * exploreTab.width(), 0.7 * exploreTab.height(),0.1));
+        //exploreTabText.css("font-size", LADS.Util.getMaxFontSizeEM("Explore", 0.5, 0.5 * exploreTab.width(), 0.7 * exploreTab.height(),0.1));
+		exploreTabText.css("font-size", 20 * baseFontSize / 30 + 'em');
 
         img1.on('click', function () {//exploreTab
             if (artworkSelected) {
@@ -473,13 +478,16 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
         artistInfo = $(document.createElement('div'));
         artistInfo.attr('id', 'artistInfo');
         artistInfo.css({
-            'font-size': '0.65em' 
+            //'font-size': '0.65em' 
+			'font-size': 11 * baseFontSize / 30 + 'em',
         });
+		//debugger;
+		//console.log("FONTSIZE" + artistInfo.css('font-size'));
 
         yearInfo = $(document.createElement('div'));
         yearInfo.attr('id', 'yearInfo');
         yearInfo.css({
-            'font-size': '0.65em' 
+            'font-size': 11 * baseFontSize / 30 + 'em' 
         });
 
         moreInfo.append(artistInfo);
