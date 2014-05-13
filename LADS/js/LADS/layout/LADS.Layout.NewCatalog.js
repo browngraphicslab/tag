@@ -25,7 +25,8 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
         img1,
         leftbarHeader = root.find('#leftbar-header'), 
         exhibitionLabel = root.find('#exhibition-label'), 
-        exhibitionSpan = root.find('#exhibitionSpan'), 
+        exhibitionSpan = root.find('#exhibitionSpan'),
+        numberOfVisibleExhibitions, 
         contentdiv,
         imgDiv,
         descriptiontext,
@@ -58,6 +59,10 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
 
     var exLabels = [];
     that.exLabels = exLabels;
+	
+	//vars from Database
+	var baseFontSize = LADS.Worktop.Database.getBaseFontSize();
+	console.log("Base Font Size" + baseFontSize);
 
     // vars from Catalog
     var timelineDiv = root.find('#timelineDiv'),
@@ -138,7 +143,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
         search.attr("placeholder", "Enter Keyword").blur();
         search.css({
             'max-height': $(row).height()*0.75 + '%',
-            'font-size': '80%'
+            'font-size': '80%',
         });
         
         // the following mousedown and mouseup handlers deal with clicking the 'X' in the search box
@@ -221,6 +226,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
 
         /**helper function to exhibitions**/
         function getExhibitionsHelper(exhibitionsLocal) {
+            numberOfVisibleExhibitions = 0;
             currentExhElements = {};
             currentExhElements.displayareasub = displayHelp; //asign displayhelp to displayareasub to each exhibition
 
@@ -238,9 +244,19 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
                         bgimage.css('background-image', "url(" + LADS.Worktop.Database.fixPath(e.Metadata.BackgroundImage) + ")");
                     }
                     addExhibit(e);
+                    numberOfVisibleExhibitions++;
                     gotFirst = true;
                 }
             });
+
+            // Single collection UI
+            // CSS modifications for the case when there is only one collection
+            if(numberOfVisibleExhibitions == 1) {
+                console.log("There is only 1 collection.");
+                enableSingleCollectionUI()
+            } else {
+                console.log("There are " + numberOfVisibleExhibitions + " collections.");
+            }
 
             if (currExhibition) {
                 loadExhibit(currExhibition, currExhibition);
@@ -255,6 +271,23 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
 
     }   //end init()
 
+    /**
+    * When only a single collection exists, this function modifies
+    * the CSS to hide the list of collections and expand the
+    * description area.
+    *
+    * @method enableSingleCollectionUI
+    * @author Athyuttam Eleti
+    */
+    function enableSingleCollectionUI() {
+        exhibitarea.css("display", "none");
+        exhibitionSpan.css("display", "none");
+        displayarea.css({
+            "left": "0",
+            "width": "100%"
+        });
+    }
+
     function clickExhibition(i) {
         if (exhibitelements[i])
             exhibitelements[i].click();
@@ -262,7 +295,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
 
     /**
      * Adds exhibitions to page
-     *@param: exhibition to add
+     * @param: exhibition to add
      * Creates button in sidebar
      */
     function addExhibit(exhibition) {
@@ -459,7 +492,8 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
         contentdiv.append(imgDiv);
         imgDiv.append(img1);
         imgDiv.append(exploreTab);
-        exploreTabText.css("font-size", LADS.Util.getMaxFontSizeEM("Explore", 0.5, 0.5 * exploreTab.width(), 0.7 * exploreTab.height(),0.1));
+        //exploreTabText.css("font-size", LADS.Util.getMaxFontSizeEM("Explore", 0.5, 0.5 * exploreTab.width(), 0.7 * exploreTab.height(),0.1));
+		exploreTabText.css("font-size", 20 * baseFontSize / 30 + 'em');
 
         img1.on('click', function () {//exploreTab
             if (artworkSelected) {
@@ -473,13 +507,16 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
         artistInfo = $(document.createElement('div'));
         artistInfo.attr('id', 'artistInfo');
         artistInfo.css({
-            'font-size': '0.65em' 
+            //'font-size': '0.65em' 
+			'font-size': 11 * baseFontSize / 30 + 'em',
         });
+		//debugger;
+		//console.log("FONTSIZE" + artistInfo.css('font-size'));
 
         yearInfo = $(document.createElement('div'));
         yearInfo.attr('id', 'yearInfo');
         yearInfo.css({
-            'font-size': '0.65em' 
+            'font-size': 11 * baseFontSize / 30 + 'em' 
         });
 
         moreInfo.append(artistInfo);

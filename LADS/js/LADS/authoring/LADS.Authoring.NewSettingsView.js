@@ -1,4 +1,4 @@
-﻿LADS.Util.makeNamespace("LADS.Authoring.NewSettingsView");
+LADS.Util.makeNamespace("LADS.Authoring.NewSettingsView");
 
 /*  Creates a SettingsView.  
         startView argument sets the starting setting.  
@@ -435,6 +435,7 @@ LADS.Authoring.NewSettingsView = function (startView, callback, backPage, startL
         var logoColor = inputs.logoColorInput.val();
         var bgImg = inputs.bgImgInput.val();
         var logo = inputs.logoInput.val();
+		var baseFontSize = LADS.Util.getMaxFontSize('Test', 2, 1000000000, 30, 0.1);
       
         var options = {
             Name: name,
@@ -443,6 +444,7 @@ LADS.Authoring.NewSettingsView = function (startView, callback, backPage, startL
             Location: loc,
             Info: info,
             IconColor: logoColor,
+			BaseFontSize: baseFontSize,
         };
         if (bgImg) options.Background = bgImg;
         if (logo) options.Icon = logo;
