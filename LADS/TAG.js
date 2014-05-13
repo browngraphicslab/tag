@@ -45304,6 +45304,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         DURATION = parseFloat(videoSrc.Metadata.Duration),
         play = root.find('#playPauseButton'),
         vol = root.find('#videoControlsButton'),
+        loop = root.find('#loopButton'),
         sliderContainer = root.find('#sliderContainer'),
         currTime,
         poster = (videoSrc.Metadata.Thumbnail && !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : '',
@@ -45336,6 +45337,10 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
             selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
             $(selectedExhib[0].firstChild).css({'color': 'black'});
         });
+    }
+
+    function loop(){
+
     }
 
     /**
@@ -45397,6 +45402,11 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         // when video ends, return to collections page after a short delay
         video.on('ended', function () {
             setTimeout(goBack, 300);
+        });
+
+        // set up loop button
+        loop.on('click', function() {
+
         });
 
         // Update the seek bar as the video plays
