@@ -573,9 +573,9 @@ LADS.Util = (function () {
         testDiv.css({
             'position': 'absolute',
             'visibility': 'hidden',
+			'font-size': minFontSize + 'em',
             'height': 'auto',
             'width': 'auto',
-            'font-size': minFontSize + 'em',
         });
 
         testDiv.text(text);
@@ -583,6 +583,8 @@ LADS.Util = (function () {
 
         if (testDiv.width() >= maxWidth || testDiv.height() >= maxHeight) {
             return minFontSize + 'em';
+			//currSize = minFontSize;
+			//testDiv.css('font-size', currSize + 'em');
         }
 
         while (testDiv.width() < maxWidth && testDiv.height() < maxHeight) {
@@ -591,6 +593,44 @@ LADS.Util = (function () {
         }
         testDiv.remove();
         return currSize + 'em';
+    }
+	
+	/*
+		Gets the maximum font size without em.
+	*/
+	function getMaxFontSize(text, minFontSize, maxWidth, maxHeight, step) {
+        console.log('getting max font size.....');
+        if (!text) {
+            return;
+        }
+        var testDiv = $(document.createElement('div'));
+        var tagContainer = $('#tagRoot');
+        step = step || 0.1;
+        var currSize = minFontSize;
+
+        testDiv.css({
+            'position': 'absolute',
+            'visibility': 'hidden',
+			'font-size': minFontSize + 'em',
+            'height': 'auto',
+            'width': 'auto',
+        });
+
+        testDiv.text(text);
+        tagContainer.append(testDiv);
+
+        if (testDiv.width() >= maxWidth || testDiv.height() >= maxHeight) {
+            return minFontSize + 'em';
+			//currSize = minFontSize;
+			//testDiv.css('font-size', currSize + 'em');
+        }
+
+        while (testDiv.width() < maxWidth && testDiv.height() < maxHeight) {
+            currSize += step;
+            testDiv.css('font-size', currSize + 'em');
+        }
+        testDiv.remove();
+        return currSize;
     }
 
     //Shouldn't be public anymore, this is primarially used by makeManipulatable

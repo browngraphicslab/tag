@@ -36,6 +36,7 @@
             stageControl = null,
             interactionControlsWrap = null,
             playPauseControl,
+            loopControl,
             volumeControl,
             timelineControl,
             fullScreenControl,
@@ -44,12 +45,14 @@
             createChildControls = function () {
                 var playPauseUIControl = $(".rin_PlayPauseContainer", playerControllerElement),
                     volumeUIControl = $(".rin_VolumeControl", playerControllerElement),
+                    loopUIControl = $(".rin_LoopControl", playerControllerElement),
                     timelineUIControl = $(".rin_TimelineHolder", playerControllerElement),
                     fullScreenUIControl = $(".rin_FullScreenControl", playerControllerElement),
                     troubleShooterUIControl = $(".rin_TroubleShooterControlHolder", playerControllerElement),
                     startExploringUIControl = $(".rin_startExploring", playerControllerElement);
 
-                playPauseControl = new rin.internal.ui.PlayPauseControl(playPauseUIControl, viewModel.playPauseVM);
+                playPauseControl = new rin.internal.ui.PlayPauseControl(playPauseUIControl, viewModel.playPauseVM);                
+                loopControl = new rin.internal.ui.LoopControl(loopUIControl, viewModel.loopVM);
                 volumeControl = new rin.internal.ui.VolumeControl(volumeUIControl, viewModel.volumeVM);
                 timelineControl = new rin.internal.ui.SeekerControl(timelineUIControl, viewModel.seekerVM);
                 fullScreenControl = new rin.internal.ui.FullScreenControl(fullScreenUIControl, self.getUIControl());
@@ -140,6 +143,7 @@
             ko.virtualElements.allowedBindings.stopBinding = true;
             ko.applyBindings(viewModel, this.getUIControl());
             playPauseControl.setVM(viewModel.playPauseVM);
+            loopControl.setVM(viewModel.loopVM);
             volumeControl.setVM(viewModel.volumeVM);
             timelineControl.setVM(viewModel.seekerVM);
             troubleShooterControl.setVM(viewModel.troubleShooterVM);
@@ -289,6 +293,13 @@
         };
     };
 
+    rin.internal.ui.LoopControl = function (control, viewModel) {
+        ko.renderTemplate('LoopControl.tmpl', viewModel, null, control.get(0));
+        this.setVM = function (viewModel) {
+            ko.applyBindings(viewModel, control.get(0));
+        };
+    };
+
     rin.internal.ui.VolumeControl = function (control, viewModel) {
         ko.renderTemplate('VolumeControl.tmpl', viewModel, null, control.get(0));
 
@@ -388,7 +399,6 @@
                     }
                 }
                 toggleFullScreenResources();
-
                 htmlElement.dispatchEvent(playerResizeEvent);
             },
             escListener = function (e) {

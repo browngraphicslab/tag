@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-04-17 */
+/*! RIN | http://research.microsoft.com/rin | 2014-05-12 */
 /*!
 * RIN Core JavaScript Library v1.0
 * http://research.microsoft.com/rin
@@ -6115,6 +6115,17 @@ window.rin = window.rin || {};
             }
             return this.playerConfiguration.loop;
         },
+
+        //Toggle loop
+        toggleLoop: function() {
+            if (this.playerConfiguration.loop === true) {
+                this.playerConfiguration.loop = false;
+            }
+            else {
+                this.playerConfiguration.loop = true;
+            }
+            return this.playerConfiguration.loop;
+        },
     
         //Sets the player volume and returns the current volume
         //volumeLevel should be a number between 0 and 1
@@ -7348,6 +7359,7 @@ window.rin = window.rin || {};
             var self = this,
                 stageElement,
                 playPauseVM,
+                loopVM,
                 seekerVM,
                 volumeVM,
                 troubleshootVM,
@@ -7402,6 +7414,7 @@ window.rin = window.rin || {};
             this._playerControllerViewModel = new rin.internal.PlayerControllerViewModel(this.orchestrator, this.playerControl);
             playPauseVM = this._playerControllerViewModel.playPauseVM;
             seekerVM = this._playerControllerViewModel.seekerVM;
+            loopVM = this._playerControllerViewModel.loopVM;
             volumeVM = this._playerControllerViewModel.volumeVM;
             troubleshootVM = this._playerControllerViewModel.troubleShooterVM;
 
@@ -7413,6 +7426,9 @@ window.rin = window.rin || {};
 
         },
         load: function () {
+        },
+        isLooped: function() {
+            this._playerControllerViewModel.loopVM.isLooped();
         },
         play: function () {
             this._playerControllerViewModel.playPauseVM.isPlaying(true);
@@ -7480,6 +7496,7 @@ window.rin = window.rin || {};
             stageControl = null,
             interactionControlsWrap = null,
             playPauseControl,
+            loopControl,
             volumeControl,
             timelineControl,
             fullScreenControl,
@@ -7488,12 +7505,14 @@ window.rin = window.rin || {};
             createChildControls = function () {
                 var playPauseUIControl = $(".rin_PlayPauseContainer", playerControllerElement),
                     volumeUIControl = $(".rin_VolumeControl", playerControllerElement),
+                    loopUIControl = $(".rin_LoopControl", playerControllerElement),
                     timelineUIControl = $(".rin_TimelineHolder", playerControllerElement),
                     fullScreenUIControl = $(".rin_FullScreenControl", playerControllerElement),
                     troubleShooterUIControl = $(".rin_TroubleShooterControlHolder", playerControllerElement),
                     startExploringUIControl = $(".rin_startExploring", playerControllerElement);
 
-                playPauseControl = new rin.internal.ui.PlayPauseControl(playPauseUIControl, viewModel.playPauseVM);
+                playPauseControl = new rin.internal.ui.PlayPauseControl(playPauseUIControl, viewModel.playPauseVM);                
+                loopControl = new rin.internal.ui.LoopControl(loopUIControl, viewModel.loopVM);
                 volumeControl = new rin.internal.ui.VolumeControl(volumeUIControl, viewModel.volumeVM);
                 timelineControl = new rin.internal.ui.SeekerControl(timelineUIControl, viewModel.seekerVM);
                 fullScreenControl = new rin.internal.ui.FullScreenControl(fullScreenUIControl, self.getUIControl());
@@ -7584,6 +7603,7 @@ window.rin = window.rin || {};
             ko.virtualElements.allowedBindings.stopBinding = true;
             ko.applyBindings(viewModel, this.getUIControl());
             playPauseControl.setVM(viewModel.playPauseVM);
+            loopControl.setVM(viewModel.loopVM);
             volumeControl.setVM(viewModel.volumeVM);
             timelineControl.setVM(viewModel.seekerVM);
             troubleShooterControl.setVM(viewModel.troubleShooterVM);
@@ -7733,6 +7753,13 @@ window.rin = window.rin || {};
         };
     };
 
+    rin.internal.ui.LoopControl = function (control, viewModel) {
+        ko.renderTemplate('LoopControl.tmpl', viewModel, null, control.get(0));
+        this.setVM = function (viewModel) {
+            ko.applyBindings(viewModel, control.get(0));
+        };
+    };
+
     rin.internal.ui.VolumeControl = function (control, viewModel) {
         ko.renderTemplate('VolumeControl.tmpl', viewModel, null, control.get(0));
 
@@ -7832,7 +7859,6 @@ window.rin = window.rin || {};
                     }
                 }
                 toggleFullScreenResources();
-
                 htmlElement.dispatchEvent(playerResizeEvent);
             },
             escListener = function (e) {
@@ -7965,6 +7991,7 @@ window.rin = window.rin || {};
             areShareButtonsVisible = ko.observable(true),
             isVolumeVisible = ko.observable(true),
             isSeekerVisible = ko.observable(true),
+            isLoopVisible = ko.observable(true),
             isFullScreenControlVisible = ko.observable(true),
             areTroubleShootControlsVisible = ko.observable(false),
             interactionControls = ko.observable(null),
@@ -7973,6 +8000,7 @@ window.rin = window.rin || {};
             description = ko.observable(""),
             seekerViewModel = new rin.internal.SeekerControllerViewModel(orchestrator, playerControl),
             playPauseViewModel = new rin.internal.PlayPauseControllerViewModel(orchestrator, playerControl),
+            loopViewModel = new rin.internal.loopControllerViewModel(orchestrator, playerControl),
             volumeControlViewModel = new rin.internal.VolumeControllerViewModel(orchestrator, playerControl),
             debugCurrentTime = ko.observable("0:00"),
             troubleShooterViewModel = new rin.internal.TroubleShooterViewModel(orchestrator, playerControl),
@@ -8023,7 +8051,6 @@ window.rin = window.rin || {};
                 } else {
                     showControls(false);
                 }
-
             },
             setControllerOptions = function () {
                 var controllerOptions = orchestrator.playerConfiguration.controllerOptions || {};
@@ -8045,6 +8072,9 @@ window.rin = window.rin || {};
                 if (controllerOptions.volume !== undefined)
                     isVolumeVisible(controllerOptions.volume);
 
+                if (controllerOptions.loop !== undefined)
+                    isLoopVisible(controllerOptions.loop);
+
                 seekToBeginningOnEnd = !!controllerOptions.seekToBeginningOnEnd;
             },
             toggleControls = function () {
@@ -8053,12 +8083,14 @@ window.rin = window.rin || {};
                     areShareButtonsVisible(false);
                     isFullScreenControlVisible(false);
                     isSeekerVisible(false);
+                    isLoopVisible(false);
                 }
                 else if (orchestrator.playerConfiguration.playerMode === rin.contracts.playerMode.AuthorerEditor) {
                     isPlayPauseVisible(false);
                     isRightContainerVisible(false);
                     isHeaderVisible(false);
                     isSeekerVisible(false);
+                    isLoopVisible(false);
                 }
             },
             changeTroubleShootControlsVisibilty = function (isShow) {
@@ -8095,6 +8127,7 @@ window.rin = window.rin || {};
             initialize = function () {
                 seekerViewModel.initialize();
                 playPauseViewModel.initialize();
+                loopViewModel.initialize();
                 volumeControlViewModel.initialize();
                 troubleShooterViewModel.initialize();
                 title(orchestrator.getNarrativeInfo().title || "");
@@ -8118,6 +8151,7 @@ window.rin = window.rin || {};
             volumeVM: volumeControlViewModel,
             seekerVM: seekerViewModel,
             playPauseVM: playPauseViewModel,
+            loopVM: loopViewModel,
             troubleShooterVM: troubleShooterViewModel,
             shareLinks: shareLinks,
 
@@ -8133,6 +8167,7 @@ window.rin = window.rin || {};
             isFullScreenControlVisible: isFullScreenControlVisible,
             areTroubleShootControlsVisible: areTroubleShootControlsVisible,
             changeTroubleShootControlsVisibilty: changeTroubleShootControlsVisibilty,
+            isLoopVisible: isLoopVisible,
 
             isPlayerReady: isPlayerReady,
             interactionControls: interactionControls,
@@ -8287,6 +8322,23 @@ window.rin = window.rin || {};
             setSeekPositionPercent: setSeekPositionPercent,
             startSeekPositionUpdater: startSeekPositionUpdater,
             stopSeekPositionUpdater: stopSeekPositionUpdater
+        };
+    };
+
+    rin.internal.loopControllerViewModel = function(orchestrator, playerControl){
+        var isLooped = ko.observable(false);
+        this.isLooped = ko.observable(false);
+        this.loopEvent = function () {
+            this.isLooped = playerControl.toggleLoop();
+            isLooped = this.isLooped;
+            var loopButton = $(".rin_LoopOff");
+            if (isLooped) {
+                loopButton.css({ "opacity": "1.0" });
+            } else {
+                loopButton.css({ "opacity": "0.4" });
+            }
+        };
+        this.initialize = function () {
         };
     };
 
