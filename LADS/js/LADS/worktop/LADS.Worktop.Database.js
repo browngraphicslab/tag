@@ -1,4 +1,4 @@
-﻿LADS.Util.makeNamespace("LADS.Worktop.Database");
+LADS.Util.makeNamespace("LADS.Worktop.Database");
 
 /*
     Contains static methods for accessing the database.  Holds an instance of Worktop.Database
@@ -104,6 +104,7 @@ LADS.Worktop.Database = (function () {
         getMuseumOverlayColor: getMuseumOverlayColor,
         getMuseumOverlayTransparency: getMuseumOverlayTransparency,
         getLogoBackgroundColor: getLogoBackgroundColor,
+		getBaseFontSize: getBaseFontSize,
 
         // NEW
 
@@ -1010,6 +1011,10 @@ LADS.Worktop.Database = (function () {
     function getMuseumInfo() {
         return _main.Metadata["MuseumInfo"];
     }
+	
+	function getBaseFontSize() {
+		return _main.Metadata["BaseFontSize"] || "1.77";
+	}
 
     function getStartPageBackground() {
         return LADS.Worktop.Database.fixPath(_main.Metadata["BackgroundImage"]);

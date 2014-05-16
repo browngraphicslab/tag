@@ -31199,9 +31199,9 @@ LADS.Util = (function () {
         testDiv.css({
             'position': 'absolute',
             'visibility': 'hidden',
+			'font-size': minFontSize + 'em',
             'height': 'auto',
             'width': 'auto',
-            'font-size': minFontSize + 'em',
         });
 
         testDiv.text(text);
@@ -31209,6 +31209,8 @@ LADS.Util = (function () {
 
         if (testDiv.width() >= maxWidth || testDiv.height() >= maxHeight) {
             return minFontSize + 'em';
+			//currSize = minFontSize;
+			//testDiv.css('font-size', currSize + 'em');
         }
 
         while (testDiv.width() < maxWidth && testDiv.height() < maxHeight) {
@@ -31217,6 +31219,41 @@ LADS.Util = (function () {
         }
         testDiv.remove();
         return currSize + 'em';
+    }
+	
+	function getMaxFontSize(text, minFontSize, maxWidth, maxHeight, step) {
+        console.log('getting max font size.....');
+        if (!text) {
+            return;
+        }
+        var testDiv = $(document.createElement('div'));
+        var tagContainer = $('#tagRoot');
+        step = step || 0.1;
+        var currSize = minFontSize;
+
+        testDiv.css({
+            'position': 'absolute',
+            'visibility': 'hidden',
+			'font-size': minFontSize + 'em',
+            'height': 'auto',
+            'width': 'auto',
+        });
+
+        testDiv.text(text);
+        tagContainer.append(testDiv);
+
+        if (testDiv.width() >= maxWidth || testDiv.height() >= maxHeight) {
+            return minFontSize + 'em';
+			//currSize = minFontSize;
+			//testDiv.css('font-size', currSize + 'em');
+        }
+
+        while (testDiv.width() < maxWidth && testDiv.height() < maxHeight) {
+            currSize += step;
+            testDiv.css('font-size', currSize + 'em');
+        }
+        testDiv.remove();
+        return currSize;
     }
 
     //Shouldn't be public anymore, this is primarially used by makeManipulatable
@@ -38392,6 +38429,7 @@ LADS.Worktop.Database = (function () {
         getMuseumOverlayColor: getMuseumOverlayColor,
         getMuseumOverlayTransparency: getMuseumOverlayTransparency,
         getLogoBackgroundColor: getLogoBackgroundColor,
+		getBaseFontSize: getBaseFontSize,
 
         // NEW
 
@@ -39298,6 +39336,10 @@ LADS.Worktop.Database = (function () {
     function getMuseumInfo() {
         return _main.Metadata["MuseumInfo"];
     }
+	
+	function getBaseFontSize() {
+		return _main.Metadata["BaseFontSize"] || "1.77";
+	}
 
     function getStartPageBackground() {
         return LADS.Worktop.Database.fixPath(_main.Metadata["BackgroundImage"]);
@@ -43812,6 +43854,10 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
 
     var exLabels = [];
     that.exLabels = exLabels;
+	
+	//vars from Database
+	var baseFontSize = LADS.Worktop.Database.getBaseFontSize();
+	console.log("Base Font Size" + baseFontSize);
 
     // vars from Catalog
     var timelineDiv = root.find('#timelineDiv'),
@@ -43892,7 +43938,7 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
         search.attr("placeholder", "Enter Keyword").blur();
         search.css({
             'max-height': $(row).height()*0.75 + '%',
-            'font-size': '80%'
+            'font-size': '80%',
         });
         
         // the following mousedown and mouseup handlers deal with clicking the 'X' in the search box
@@ -44256,7 +44302,8 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
         contentdiv.append(imgDiv);
         imgDiv.append(img1);
         imgDiv.append(exploreTab);
-        exploreTabText.css("font-size", LADS.Util.getMaxFontSizeEM("Explore", 0.5, 0.5 * exploreTab.width(), 0.7 * exploreTab.height(),0.1));
+        //exploreTabText.css("font-size", LADS.Util.getMaxFontSizeEM("Explore", 0.5, 0.5 * exploreTab.width(), 0.7 * exploreTab.height(),0.1));
+		exploreTabText.css("font-size", 20 * baseFontSize / 30 + 'em');
 
         img1.on('click', function () {//exploreTab
             if (artworkSelected) {
@@ -44270,13 +44317,16 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
         artistInfo = $(document.createElement('div'));
         artistInfo.attr('id', 'artistInfo');
         artistInfo.css({
-            'font-size': '0.65em' 
+            //'font-size': '0.65em' 
+			'font-size': 11 * baseFontSize / 30 + 'em',
         });
+		//debugger;
+		//console.log("FONTSIZE" + artistInfo.css('font-size'));
 
         yearInfo = $(document.createElement('div'));
         yearInfo.attr('id', 'yearInfo');
         yearInfo.css({
-            'font-size': '0.65em' 
+            'font-size': 11 * baseFontSize / 30 + 'em' 
         });
 
         moreInfo.append(artistInfo);
@@ -45383,6 +45433,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         DURATION = parseFloat(videoSrc.Metadata.Duration),
         play = root.find('#playPauseButton'),
         vol = root.find('#videoControlsButton'),
+        loop = root.find('#loopButton'),
         sliderContainer = root.find('#sliderContainer'),
         currTime,
         poster = (videoSrc.Metadata.Thumbnail && !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : '',
@@ -45415,6 +45466,10 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
             selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
             $(selectedExhib[0].firstChild).css({'color': 'black'});
         });
+    }
+
+    function loop(){
+
     }
 
     /**
@@ -45476,6 +45531,11 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         // when video ends, return to collections page after a short delay
         video.on('ended', function () {
             setTimeout(goBack, 300);
+        });
+
+        // set up loop button
+        loop.on('click', function() {
+
         });
 
         // Update the seek bar as the video plays
