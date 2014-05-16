@@ -282,6 +282,21 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             "left": "0",
             "width": "100%"
         });
+
+        // NOT WOKING BECAUSE THESE DIVS AREN'T YET
+        // CREATED WHEN THIS CODE IS EXECUTED
+
+        // var exhibition_info = root.find("#exhibition-info");
+        // exhibition_info.css("width", "100%");
+
+        // var exhibition_name_div = root.find("#exhibition-name-div");
+        // exhibition_name_div.css("width", "100%");
+
+        // var content_div = root.find("#content-div");
+        // content_div.css({
+        //     "left": "4.5%",
+        //     "right": "4.5%"
+        // })
     }
 
     function clickExhibition(i) {
