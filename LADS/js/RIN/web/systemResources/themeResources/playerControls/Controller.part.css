@@ -300,6 +300,7 @@ html, body, .rinPlayer /* TODO do we need to get rid of this? in iframe, so migh
     background-repeat: no-repeat;
     outline: none;
     opacity: 0.4;
+    position: inherit;
 }
 
 .rin_LoopOff
