@@ -41932,13 +41932,15 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         console.log("userAgent: " + navigator.userAgent);
 
         // Android and iOS are incompatible
-        if(userAgent.indexOf('android') >= 0 || userAgent.indexOf('iphone') >= 0 || userAgent.indexOf('ipad') >= 0) {
+        if(userAgent.indexOf('android') >= 0 || userAgent.indexOf('iphone') >= 0 || userAgent.indexOf('ipad') >= 0 || userAgent.indexOf('ipod') >= 0) {
             if(userAgent.indexOf('android') >= 0) {
                 console.log("Detected Android Device. Unsupported browser.");
             } else if (userAgent.indexOf('iphone') >= 0) {
                 console.log("Detected iPhone. Unsupported browser.");
             } else if (userAgent.indexOf('ipad') >= 0) {
                 console.log("Detected iPad. Unsupported browser.");
+            } else if(userAgent.indexOf('ipod') >= 0) {
+                console.log("Detected iPod. Unsupported browser.");
             }
             return false;
         } else {
