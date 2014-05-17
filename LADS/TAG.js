@@ -31221,6 +31221,9 @@ LADS.Util = (function () {
         return currSize + 'em';
     }
 	
+	/*
+		Gets the maximum font size without em.
+	*/
 	function getMaxFontSize(text, minFontSize, maxWidth, maxHeight, step) {
         console.log('getting max font size.....');
         if (!text) {
@@ -42499,8 +42502,89 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             scrollDelt = 0.1;
 
         var interval;
-
+        
         /* TODO factor some repeated code out */
+
+
+        /*Key press controls */
+        var containerFocused = true;
+
+        $('#tagContainer').attr("tabindex", -1);
+        $("[tabindex='-1']").focus();
+        $("[tabindex='-1']").css('outline', 'none');
+        $("[tabindex='-1']").click(function() {
+            $("[tabindex='-1']").focus();
+            containerFocused = true;
+        });
+        $("[tabindex='-1']").focus(function() {
+            containerFocused = true;
+
+        });
+        $("[tabindex='-1']").focusout(function() {
+            containerFocused = false;
+        });
+        $(document).keydown(function(event){
+            if(containerFocused) {
+                switch(event.which) {
+    
+                    case 37: 
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
+                        }, 100);
+                    
+                    break;
+                    case 38:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
+                        }, 100);
+                    break;
+                    case 39:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
+                        }, 100);
+                    break;
+                    case 40:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
+                        }, 100);
+                    break;
+                    case 187:
+                    case 61:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+                        interval = setInterval(function() {
+                        zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+                        }, 100);
+                    break;
+                    case 189:
+                    case 173:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+                        interval = setInterval(function() {
+                        zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+                        }, 100);
+                    break;
+                }
+            }
+        });
+        
+        $(document).keyup(function(event){
+            clearInterval(interval);
+        });
         $('#leftControl').on('mousedown', function() {
             clearInterval(interval);
             zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);

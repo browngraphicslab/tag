@@ -289,7 +289,6 @@ html, body, .rinPlayer /* TODO do we need to get rid of this? in iframe, so migh
 {
     position: relative;
     left: 10;
-    border: 5px solid red;
     padding-top: 10px;
     border-top: 10px;
     margin-top: 10px;
