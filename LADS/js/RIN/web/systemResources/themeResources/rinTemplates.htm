@@ -1,4 +1,4 @@
-<!-- RIN | http://research.microsoft.com/rin | 2014-05-16 -->
+<!-- RIN | http://research.microsoft.com/rin | 2014-05-19 -->
 <script type="text/html" id="Controller.tmpl">
 <div class="rin_mainContainer selectDisable" tabindex="0">
     <div class="rin_Header" data-bind="visible: isHeaderVisible()">
@@ -60,6 +60,9 @@
     <!-- /ko -->
 </div>
 
+</script>
+<script type="text/html" id="LoopControl.tmpl">
+<input type="button" class="rin_Button" data-bind="css: {rin_LoopOn: isLooped(), rin_LoopOff: !isLooped()}, click: loopEvent" />
 </script>
 <script type="text/html" id="PlayPauseControl.tmpl">
 <input type="button" class="rin_Button" data-bind="css: {rin_Pause: isPlaying(), rin_Play: !isPlaying()}, click: playPauseEvent" />
