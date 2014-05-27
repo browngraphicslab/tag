@@ -58,12 +58,16 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         video.attr('src', "");
 
         var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
-        var catalog = new LADS.Layout.NewCatalog(backInfo, collection);
+        var catalog = new LADS.Layout.NewCatalog({
+            backScroll: prevScroll,
+            backArtwork: videoSrc,
+            backCollection: collection
+        });
 
         catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO should be default in .styl file
         LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
             artworkPrev = "catalog";
-            var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
+            var selectedExhib = $('#collection-' + prevExhib.Identifier);
             selectedExhib.attr('flagClicked', 'true');
             selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
             $(selectedExhib[0].firstChild).css({'color': 'black'});

@@ -5,6 +5,7 @@ YUI.add("yuidoc-meta", function(Y) {
         "CryptoJS",
         "LADS.Layout.Artmode",
         "LADS.Layout.InternetFailurePage.js",
+        "LADS.Layout.NewCatalog",
         "LADS.Layout.StartPage",
         "LADS.Layout.VideoPlayer",
         "TAG_embed",

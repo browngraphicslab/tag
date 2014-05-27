@@ -13,15 +13,11 @@ LADS.Util.makeNamespace("LADS.Layout.TourPlayer");
 LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj) {
     "use strict";
 
-    /* nbowditch _editted 2/13/2014 : added prevInfo */
+    debugger; // for prevInfo
+
     var artworkPrev;
     var prevScroll = 0;
 	var prevExhib = exhibition;
-    if (prevInfo) {
-        artworkPrev = prevInfo.artworkPrev,
-        prevScroll = prevInfo.prevScroll || 0;
-    }
-    /* end nbowditch edit */
 
     var tagContainer = $('#tagRoot');
 
@@ -62,22 +58,23 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
         backButton.off('click'); // prevent user from clicking twice
 
         if (artworkPrev && artwork) {
-            /* nbowditch _editted 2/13/2014 : added prevInfo */
-            var prevInfo = {prevPage: artworkPrev, prevScroll: prevScroll}; // for now, scrollbar will reset if you go further than 1 page
             artmode = new LADS.Layout.Artmode(prevInfo, artwork, exhibition);
-            /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, artmode.getRoot());
 
-            var selectedExhib = $('#exhib-' + prevExhib.Identifier);
+            var selectedExhib = $('#collection-' + prevExhib.Identifier);
             selectedExhib.attr('flagClicked', 'true');
         } else {
             /* nbowditch _editted 2/13/2014 : added backInfo */
             var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
-            catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
+            catalog = new LADS.Layout.NewCatalog({
+                backScroll: prevScroll,
+                backArtwork: tourObj,
+                backCollection: exhibition
+            });
             /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
 				artworkPrev = "catalog";
-				var selectedExhib = $('#exhib-' + prevExhib.Identifier);
+				var selectedExhib = $('#collection-' + prevExhib.Identifier);
 				selectedExhib.attr('flagClicked', 'true');
 				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
                 if(selectedExhib[0].firstChild) {

@@ -49,6 +49,8 @@
             
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
             
+                <li><a href="../classes/LADS.Layout.NewCatalog.html">LADS.Layout.NewCatalog</a></li>
+            
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
             
                 <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
@@ -214,102 +216,32 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         // Test for browser compatibility
         if(!isBrowserCompatible()) {
-            console.log(&quot;Unsupported browser.&quot;);
-            
-            var browserDialogOverlay = $(document.createElement(&#x27;div&#x27;));
-            var tagContainer = $(&#x27;#tagRoot&#x27;);
-            browserDialogOverlay.attr(&#x27;id&#x27;, &#x27;browserDialogOverlay&#x27;);
-
-            browserDialogOverlay.css({
-                display: &#x27;block&#x27;,
-                position: &#x27;absolute&#x27;,
-                top: 0,
-                left: 0,
-                width: &#x27;100%&#x27;,
-                height: &#x27;100%&#x27;,
-                &#x27;background-color&#x27;: &#x27;rgba(0,0,0,0.6)&#x27;,
-                &#x27;z-index&#x27;: 1000000000 + 5
-            });
-
-            // Dialog box for browser update
-            var browserDialog = $(document.createElement(&#x27;div&#x27;));
-            browserDialog.attr(&#x27;id&#x27;, &#x27;browserDialog&#x27;);
-
-            var browserDialogSpecs = LADS.Util.constrainAndPosition($(tagContainer).width(), $(tagContainer).height(),
-            {
-                center_h: true,
-                center_v: true,
-                width: 0.5,
-                height: 0.35,
-                max_width: 560,
-                max_height: 230
-            });
-            browserDialog.css({
-                position: &#x27;absolute&#x27;,
-                left: &#x27;30%&#x27;,
-                top: &#x27;30%&#x27;,
-                width: &#x27;40%&#x27;,
-                height: &#x27;40%&#x27;,
-                border: &#x27;3px double white&#x27;,
-                &#x27;text-align&#x27;: &#x27;center&#x27;,
-                &#x27;background-color&#x27;: &#x27;black&#x27;
-            });
-
-            var browserDialogTitle = $(document.createElement(&#x27;div&#x27;));
-            browserDialogTitle.attr(&#x27;id&#x27;, &#x27;dialogTitle&#x27;);
-            browserDialogTitle.css({
-                &#x27;color&#x27;: &#x27;white&#x27;,
-                &#x27;width&#x27;: &#x27;80%&#x27;,
-                &#x27;height&#x27;: &#x27;15%&#x27;,
-                &#x27;left&#x27;: &#x27;10%&#x27;,
-                &#x27;top&#x27;: &#x27;25%&#x27;,
-                &#x27;font-size&#x27;: &#x27;1em&#x27;,
-                &#x27;position&#x27;: &#x27;relative&#x27;,
-                &#x27;text-align&#x27;: &#x27;center&#x27;
-            });
-            browserDialogTitle.text(&quot;Touch Art Gallery is not supported in your browser. Please download or update to a newer browser.&quot;);
-            browserDialog.append(browserDialogTitle);
-
-            var updateBrowserLink = $(document.createElement(&#x27;a&#x27;));
-            updateBrowserLink.attr(&#x27;id&#x27;, &#x27;updateBrowser&#x27;);
-            updateBrowserLink.attr(&#x27;target&#x27;, &#x27;_blank&#x27;);
-            updateBrowserLink.attr(&#x27;href&#x27;, &#x27;http://browsehappy.com&#x27;);
-            updateBrowserLink.css({
-                &#x27;display&#x27;: &#x27;block&#x27;,
-                &#x27;margin&#x27;: &#x27;auto&#x27;,
-                &#x27;margin-bottom&#x27;: &#x27;1%&#x27;,
-                &#x27;width&#x27;: &#x27;60%&#x27;,
-                &#x27;height&#x27;:&#x27;10%&#x27;,
-                &#x27;position&#x27;:&#x27;relative&#x27;,
-                &#x27;top&#x27;:&#x27;40%&#x27;,
-                &#x27;font-size&#x27;:&#x27;100%&#x27;,
-                &#x27;text-decoration&#x27;: &#x27;underline&#x27;,
-                &#x27;color&#x27;: &#x27;white&#x27;
-            });
-            updateBrowserLink.text(&quot;Update Browser&quot;);
-            browserDialog.append(updateBrowserLink);
-
-            browserDialogOverlay.append(browserDialog);
-            tagContainer.append(browserDialogOverlay);
+            handleIncompatibleBrowser();
         }
     }
 
     /**
-    * @method isBrowserCompatible
+    * Checks if TAG is compatible with the current browser.
     *
+    * @method isBrowserCompatible
+    * @author Athyuttam Eleti
     * @return true if the browser is compatible with TAG, false if it isn&#x27;t
     */
     function isBrowserCompatible() {
+        console.log(&quot;\n///// Browser Compatibility /////&quot;)
         var userAgent = navigator.userAgent.toLowerCase();
         console.log(&quot;userAgent: &quot; + navigator.userAgent);
 
-        if(userAgent.indexOf(&#x27;android&#x27;) &gt;= 0 || userAgent.indexOf(&#x27;iphone&#x27;) &gt;= 0 || userAgent.indexOf(&#x27;ipad&#x27;) &gt;= 0) {
+        // Android and iOS are incompatible
+        if(userAgent.indexOf(&#x27;android&#x27;) &gt;= 0 || userAgent.indexOf(&#x27;iphone&#x27;) &gt;= 0 || userAgent.indexOf(&#x27;ipad&#x27;) &gt;= 0 || userAgent.indexOf(&#x27;ipod&#x27;) &gt;= 0) {
             if(userAgent.indexOf(&#x27;android&#x27;) &gt;= 0) {
                 console.log(&quot;Detected Android Device. Unsupported browser.&quot;);
             } else if (userAgent.indexOf(&#x27;iphone&#x27;) &gt;= 0) {
                 console.log(&quot;Detected iPhone. Unsupported browser.&quot;);
             } else if (userAgent.indexOf(&#x27;ipad&#x27;) &gt;= 0) {
                 console.log(&quot;Detected iPad. Unsupported browser.&quot;);
+            } else if(userAgent.indexOf(&#x27;ipod&#x27;) &gt;= 0) {
+                console.log(&quot;Detected iPod. Unsupported browser.&quot;);
             }
             return false;
         } else {
@@ -319,35 +251,50 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             browser = browser.toLowerCase();
             var version = 0;
 
-            if(browser.indexOf(&#x27;opera&#x27;) &gt;= 0) {
+            // Opera is incompatible
+            if(browser.indexOf(&#x27;opera&#x27;) &gt;= 0 || userAgent.indexOf(&#x27;opr&#x27;) &gt;= 0) {
                 console.log(&quot;Detected Opera. Unsupported browser.&quot;);
                 return false;
-            } else if(browser.indexOf(&#x27;chrome&#x27;) &gt;= 0) {
+            } 
+            // Chrome 31+
+            else if(browser.indexOf(&#x27;chrome&#x27;) &gt;= 0) {
                 version = browser.substring(browser.indexOf(&#x27; &#x27;) + 1, browser.indexOf(&quot;.&quot;));
                 console.log(&quot;Detected Chrome Version: &quot; + version);
                 return(version &gt;= 31);
-            } else if(browser.indexOf(&#x27;safari&#x27;) &gt;= 0) {
+            } 
+            // Safari 7+
+            else if(browser.indexOf(&#x27;safari&#x27;) &gt;= 0) {
                 var detailedVersion = browser.substring(browser.indexOf(&#x27; &#x27;, browser.indexOf(&#x27; &#x27;) + 1) + 1);
                 version = detailedVersion.substring(0, detailedVersion.indexOf(&quot;.&quot;));
                 console.log(&quot;Detected Safari Version: &quot; + version);
                 return(version &gt;= 7);
-            } else if(browser.indexOf(&#x27;firefox&#x27;) &gt;= 0) {
+            } 
+            // Firefox 28+
+            else if(browser.indexOf(&#x27;firefox&#x27;) &gt;= 0) {
                 version = browser.substring(browser.indexOf(&#x27; &#x27;) + 1, browser.indexOf(&quot;.&quot;));
                 console.log(&quot;Detected Firefox Version: &quot; + version);
                 return(version &gt;= 28);
-            } else if(browser.indexOf(&#x27;msie&#x27;) &gt;= 0 || browser.indexOf(&#x27;ie&#x27;) &gt;= 0) {
+            } 
+            // Internet Explorer 10+
+            else if(browser.indexOf(&#x27;msie&#x27;) &gt;= 0 || browser.indexOf(&#x27;ie&#x27;) &gt;= 0) {
                 version = browser.substring(browser.indexOf(&#x27; &#x27;) + 1, browser.indexOf(&quot;.&quot;));
                 console.log(&quot;Detected IE Version: &quot; + version);
                 return(version &gt;= 10);
-            } else {
+            } 
+            // Other browsers are incompatible
+            else {
+                console.log(&quot;Unsupported browser.&quot;);
                 return false;
             }
         }
     }
 
     /** 
-    * @method getBrowserVersion
+    * Finds the current browser version.
+    * Code from http://stackoverflow.com/questions/5916900/detect-version-of-browser
     *
+    * @method getBrowserVersion
+    * @author Athyuttam Eleti
     * @return Browser name followed by version e.g. &quot;Chrome 34.0.1847.116&quot;
     */
     function getBrowserVersion() {
@@ -363,6 +310,75 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         if((tem= ua.match(/version\/([\.\d]+)/i))!= null) M[2]= tem[1];
 
         return M.join(&#x27; &#x27;);
+    }
+
+    /**
+    * Displays a dialog box indicating that the user is using an
+    * incompatible browser. Points them to links to download the latest
+    * version of supported browsers such as IE, Chrome, Safari and Firefox.
+    *
+    * @method handleIncompatibleBrowser
+    * @author Athyuttam Eleti
+    */
+    function handleIncompatibleBrowser() {
+        var tagContainer = $(&#x27;#tagRoot&#x27;);
+
+        // Creating Overlay
+        var browserDialogOverlay = $(document.createElement(&#x27;div&#x27;));
+        browserDialogOverlay.attr(&#x27;id&#x27;, &#x27;browserDialogOverlay&#x27;);
+        browserDialogOverlay.addClass(&#x27;dialogBoxOverlay&#x27;);
+        tagContainer.prepend(browserDialogOverlay);
+
+        // Creating Dialog Box Container (required for centering)
+        var browserDialogContainer = $(document.createElement(&#x27;div&#x27;));
+        browserDialogContainer.attr(&#x27;id&#x27;, &#x27;browserDialogContainer&#x27;);
+        browserDialogContainer.addClass(&#x27;dialogBoxContainer&#x27;);
+        browserDialogOverlay.append(browserDialogContainer);
+
+        // Creating Dialog Box
+        var browserDialog = $(document.createElement(&#x27;div&#x27;));
+        browserDialog.attr(&#x27;id&#x27;, &#x27;browserDialog&#x27;);
+        browserDialog.addClass(&#x27;dialogBox&#x27;);
+        browserDialogContainer.append(browserDialog);
+
+        // Content
+        var browserDialogPara = $(document.createElement(&#x27;p&#x27;));
+        browserDialogPara.attr(&#x27;id&#x27;, &#x27;dialogBoxPara&#x27;);
+        browserDialogPara.text(&quot;Touch Art Gallery is not supported in your browser. Please download or update to a newer browser.&quot;);
+        browserDialog.append(browserDialogPara);
+
+        // Browser Icon Container
+        var browserIcons = $(document.createElement(&#x27;div&#x27;));
+        browserIcons.attr(&#x27;id&#x27;, &#x27;browserIcons&#x27;);
+        browserDialog.append(browserIcons);
+
+        // Browser Icon Links
+        var ieIconLink = $(document.createElement(&#x27;a&#x27;)).attr(&#x27;href&#x27;, &#x27;http://windows.microsoft.com/ie&#x27;);
+        var chromeIconLink = $(document.createElement(&#x27;a&#x27;)).attr(&#x27;href&#x27;, &#x27;https://www.google.com/chrome&#x27;);
+        var firefoxIconLink = $(document.createElement(&#x27;a&#x27;)).attr(&#x27;href&#x27;, &#x27;http://www.firefox.com&#x27;);
+        var safariIconLink = $(document.createElement(&#x27;a&#x27;)).attr(&#x27;href&#x27;, &#x27;http://www.apple.com/safari&#x27;);
+
+        var linksArray = [ieIconLink, chromeIconLink, firefoxIconLink, safariIconLink];
+        for(var i = 0; i &lt; linksArray.length; i++) {
+            var current = linksArray[i]
+            current.attr(&#x27;target&#x27;, &#x27;_blank&#x27;); // Set target=&quot;_blank&quot; to open links in new tab
+            current.addClass(&#x27;browserIconLink&#x27;); // Set the corresponding CSS class to each link
+        }
+
+        browserIcons.append(ieIconLink, chromeIconLink, firefoxIconLink, safariIconLink);
+
+        // Browser Icon Images
+        var ieIcon = $(document.createElement(&#x27;img&#x27;)).attr(&#x27;title&#x27;, &#x27;Internet Explorer&#x27;).attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/browserIcons/ie.png&#x27;);
+        var chromeIcon = $(document.createElement(&#x27;img&#x27;)).attr(&#x27;title&#x27;, &#x27;Google Chrome&#x27;).attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/browserIcons/chrome.png&#x27;); 
+        var firefoxIcon = $(document.createElement(&#x27;img&#x27;)).attr(&#x27;title&#x27;, &#x27;Firefox&#x27;).attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/browserIcons/firefox.png&#x27;);
+        var safariIcon = $(document.createElement(&#x27;img&#x27;)).attr(&#x27;title&#x27;, &#x27;Safari&#x27;).attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/browserIcons/safari.png&#x27;);
+
+        ieIconLink.append(ieIcon);
+        chromeIconLink.append(chromeIcon);
+        firefoxIconLink.append(firefoxIcon);
+        safariIconLink.append(safariIcon);
+
+        $(&#x27;#browserIcons a img&#x27;).addClass(&#x27;browserIcon&#x27;);
     }
     
     /**
@@ -397,6 +413,12 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         });
 
         serverTagBuffer.on(&#x27;click&#x27;, function (evt) {
+            evt.stopPropagation();
+        });
+
+        overlay.on(&#x27;click&#x27;, &#x27;a&#x27;, function (evt) {
+            //this == the link that was clicked
+            var href = $(this).attr(&quot;href&quot;);
             evt.stopPropagation();
         });
     }
@@ -572,7 +594,14 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         if (!tempInfo) {
             tempInfo = &quot;&quot;;
         }
-        museumInfoSpan.text(tempInfo);
+
+        if (typeof Windows != &quot;undefined&quot;) {
+            // running in Win8 app
+            museumInfoSpan.html(tempInfo);
+        } else {  
+            // running in browser
+            museumInfoSpan.html(Autolinker.link(tempInfo , {email: false, twitter: false}));
+        }
     }
     
 

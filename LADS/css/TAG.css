@@ -712,7 +712,7 @@
   white-space: nowrap;
   width: 70%;
 }
-#newCatalogRoot #artText {
+#newCatalogRoot .artText {
   margin-top: 0.84%;
   font-size: 0.75em;
   overflow: hidden;
@@ -723,10 +723,12 @@
   position: relative;
   left: 5%;
 }
-#newCatalogRoot #artTitle {
+#newCatalogRoot .artTitle {
   background-color: rgba(0,0,0,0.6);
+  height: 20%;
   opacity: 1;
   position: absolute;
+  width: 100%;
 }
 #newCatalogRoot #backbuttonArea {
   height: 5%;
@@ -744,17 +746,25 @@
   height: 100%;
 }
 #newCatalogRoot #catalogBackButton {
+  display: block;
   height: auto;
   position: relative;
   top: 30%;
   width: 76.3%;
 }
 #newCatalogRoot #contentdiv {
+  height: 80%;
   left: 2%;
   position: relative;
   text-overflow: ellipsis;
   top: 2.25%;
   width: 94%;
+}
+#newCatalogRoot #currentThumbnail {
+  max-height: 100%;
+  max-width: 100%;
+  width: 100%;
+  height: 100%;
 }
 #newCatalogRoot #descSpan {
   text-overflow: ellipsis;
@@ -780,6 +790,7 @@
   width: 75%;
 }
 #newCatalogRoot #displayareasub {
+  left: 0%;
   position: absolute;
   width: 100%;
   height: 100%;
@@ -807,7 +818,7 @@
   text-align: center;
   width: 60%;
 }
-#newCatalogRoot #exhibitarea {
+#newCatalogRoot #collectionArea {
   background-color: rgba(0,0,0,0.7);
   height: 88%;
   margin-left: 4%;
@@ -815,7 +826,7 @@
   overflow: auto;
   width: 82%;
 }
-#newCatalogRoot #exhibition-label {
+#newCatalogRoot #collection-label {
   height: 7%;
   left: 19%;
   margin-left: 1.22%;
@@ -826,13 +837,13 @@
   width: 45%;
   font-size: 1.7em;
 }
-#newCatalogRoot #exhibition-info {
+#newCatalogRoot #collection-info {
   height: 96%;
   position: absolute;
   top: 0%;
   width: 98%;
 }
-#newCatalogRoot #exhibition-name-div {
+#newCatalogRoot #collection-name-div {
   display: inline-block;
   overflow: hidden;
   text-align: center;
@@ -842,7 +853,7 @@
   z-index: 100;
   margin-top: 5px;
 }
-#newCatalogRoot #exhibition-selection {
+#newCatalogRoot #collection-selection {
   border: solid transparent;
   border-width: 5px 0px 5px 0px;
   display: inline-block;
@@ -852,7 +863,7 @@
   overflow: none;
   width: 100%;
 }
-#newCatalogRoot #exhibition-title {
+#newCatalogRoot .collection-title {
   display: inline-block;
   height: 100%;
   margin-left: 5%;
@@ -871,7 +882,7 @@
   top: 25%;
   width: auto;
 }
-#newCatalogRoot .explore-tab {
+#newCatalogRoot #explore-tab {
   background-color: rgba(0,0,0,0.4);
   color: #fff;
   display: none;
@@ -905,15 +916,11 @@
   vertical-align: middle;
   width: auto;
 }
-#newCatalogRoot #image {
-  max-height: 100%;
-  max-width: 100%;
-  width: 100%;
-  height: 100%;
-}
 #newCatalogRoot #img-container {
+  height: 91.5%;
   position: absolute;
   top: 0%;
+  width: 40%;
 }
 #newCatalogRoot #info-text {
   display: inline-block;
@@ -947,7 +954,7 @@
   width: 100%;
   height: 100%;
 }
-#newCatalogRoot #row {
+#newCatalogRoot #sortRow {
   background-color: rgba(0,0,0,0.5);
   height: 12.5%;
   position: relative;
@@ -968,6 +975,7 @@
   border-width: 0.05em;
   color: #788077;
   float: right;
+  font-size: 80%;
   max-width: 15%;
   margin-top: 0.5%;
   position: relative;
@@ -977,11 +985,23 @@
 #newCatalogRoot #searchTxt {
   color: #fff;
   float: right;
+  font-size: 80%;
   margin: 0.65% 3% 0 0;
   text-align: right;
   width: 25%;
 }
-#newCatalogRoot #timelineDiv {
+#newCatalogRoot .tile {
+  border: 1px solid rgba(0,0,0,0.85);
+  height: 48%;
+  position: absolute;
+  width: 16%;
+}
+#newCatalogRoot .tileImage {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+#newCatalogRoot #catalogDiv {
   background-color: rgba(0,0,0,0.5);
   height: 100%;
   overflow-x: auto;
@@ -991,7 +1011,7 @@
   width: 100%;
   z-index: 49;
 }
-#newCatalogRoot #timelineDivContainer {
+#newCatalogRoot #catalogDivContainer {
   height: 42.5%;
   position: absolute;
   top: 51%;
@@ -1003,15 +1023,20 @@
   overflow-x: none;
   text-overflow: ellipsis;
 }
-#newCatalogRoot #tourLabel {
+#newCatalogRoot .tourLabel {
   bottom: 0px;
+  margin-right: -7%;
   position: absolute;
   right: 5px;
+  width: 30%;
+  height: 30%;
 }
-#newCatalogRoot #videoLabel {
+#newCatalogRoot .videoLabel {
   bottom: 0px;
+  height: 35%;
   position: absolute;
   right: 5px;
+  width: 20%;
 }
 #newCatalogRoot #yearInfo {
   color: #fff;
@@ -1238,7 +1263,9 @@
   color: #eee;
 }
 #tagRoot a {
-  color: #26e;
+  color: #fff;
+  cursor: pointer;
+  text-decoration: none;
 }
 #tagRoot img {
   -moz-user-select: -moz-none;
