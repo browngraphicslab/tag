@@ -44020,7 +44020,8 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         var i,
             privateState,
             c,
-            artwrk;
+            artwrk,
+            toShowFirst;
 
         numVisibleCollections = 0;
 
@@ -44031,6 +44032,7 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
                 if(numVisibleCollections) {
                     bgimage.css('background-image', "url(" + FIX_PATH(c.Metadata.BackgroundImage) + ")");
                 }
+                toShowFirst = toShowFirst || c;
                 addCollection(c);
                 numVisibleCollections++;
             }
@@ -44043,20 +44045,20 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
 
         if (currCollection) {
             clickCollection(currCollection, scrollPos, currentArtwork)();
-        } else {
-            clickCollection(collections[0])(); // first collection selected by default
+        } else if(toShowFirst) {
+            clickCollection(toShowFirst)(); // first collection selected by default
         }
         loadingArea.hide();
     }
 
     /**
-    * When only a single collection exists, this function modifies
-    * the CSS to hide the list of collections and expand the
-    * description area.
-    *
-    * @method enableSingleCollectionUI
-    * @author Athyuttam Eleti
-    */
+     * When only a single collection exists, this function modifies
+     * the CSS to hide the list of collections and expand the
+     * description area.
+     *
+     * @method enableSingleCollectionUI
+     * @author Athyuttam Eleti
+     */
     function enableSingleCollectionUI() {
         collectionArea.css("display", "none");
         collectionHeader.css("display", "none");
