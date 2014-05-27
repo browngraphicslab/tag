@@ -7,7 +7,7 @@ module.exports = function(grunt) {
 					        \n    tagPath = tagInput.path; \
 					        \n    containerId = tagInput.containerId; \
 					        \n    ip = tagInput.serverIp; \
-					        \n    allowServerChange = tagInput.allowServerChange;\n',
+					        \n    allowServerChange = tagInput.allowServerChange;\n\n',
 				footer: '};'
 			},
 			dist: {
@@ -109,7 +109,8 @@ module.exports = function(grunt) {
 						'LADS/css/NewCatalog.styl',
 						'LADS/css/VideoPlayer.styl',
 						'LADS/css/TourPlayer.styl',
-						'LADS/css/General.styl'
+						'LADS/css/General.styl',
+						'LADS/css/Util.styl'
 					]
 				}
 			}

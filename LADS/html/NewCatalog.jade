@@ -1,28 +1,30 @@
 #newCatalogRoot
 	#overlay
-	#timelineDivContainer
-		#row
-			#artistButton
+	#catalogDivContainer
+		#sortRow
+			#artistButton.rowButton(tagName="Artist")
 				|Artist
-			#titleButton
+			#titleButton.rowButton(tagName="Title")
 				|Title
-			#yearButton
+			#yearButton.rowButton(tagName="Year")
 				|Year
-			#typeButton
+			#typeButton.rowButton(tagName="Type")
 				|Type
 			#searchFilter
-				input#searchInput
+				input#searchInput(placeholder="Enter Keyword")
 				#searchTxt
-		#timelineDiv
+		#catalogDiv
 	#bgimage
 	#leftbar
 		#leftbar-header
 			#backbuttonArea
 				img#catalogBackButton
-			#exhibition-label
-				#exhibitionSpan
-					|Collections
-		#exhibitarea
-	#displayarea				
+			#collection-label
+				#collectionHeader
+					| Collections
+		#collectionArea
+	#displayarea
+		#displayareasub
+	#loadingArea			
 	//- #feedbackContainer
 	//- 	img#feedback-icon

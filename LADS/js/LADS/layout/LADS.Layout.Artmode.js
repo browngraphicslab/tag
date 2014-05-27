@@ -92,7 +92,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 createSeadragonControls();
                 initialized = true;
             });
-            
         }
     }
 
@@ -186,8 +185,89 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             scrollDelt = 0.1;
 
         var interval;
-
+        
         /* TODO factor some repeated code out */
+
+
+        /*Key press controls */
+        var containerFocused = true;
+
+        $('#tagContainer').attr("tabindex", -1);
+        $("[tabindex='-1']").focus();
+        $("[tabindex='-1']").css('outline', 'none');
+        $("[tabindex='-1']").click(function() {
+            $("[tabindex='-1']").focus();
+            containerFocused = true;
+        });
+        $("[tabindex='-1']").focus(function() {
+            containerFocused = true;
+
+        });
+        $("[tabindex='-1']").focusout(function() {
+            containerFocused = false;
+        });
+        $(document).keydown(function(event){
+            if(containerFocused) {
+                switch(event.which) {
+    
+                    case 37: 
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
+                        }, 100);
+                    
+                    break;
+                    case 38:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
+                        }, 100);
+                    break;
+                    case 39:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
+                        }, 100);
+                    break;
+                    case 40:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
+                        }, 100);
+                    break;
+                    case 187:
+                    case 61:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+                        interval = setInterval(function() {
+                        zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+                        }, 100);
+                    break;
+                    case 189:
+                    case 173:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+                        interval = setInterval(function() {
+                        zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+                        }, 100);
+                    break;
+                }
+            }
+        });
+        
+        $(document).keyup(function(event){
+            clearInterval(interval);
+        });
         $('#leftControl').on('mousedown', function() {
             clearInterval(interval);
             zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
@@ -322,7 +402,11 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 			backButton.off('click'); // prevent user from clicking twice
 			zoomimage && zoomimage.unload();
 			var backInfo = { backArtwork: doq, backScroll: prevScroll };
-			var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
+			var catalog = new LADS.Layout.NewCatalog({
+                backScroll: prevScroll,
+                backArtwork: doq,
+                backCollection: exhibition
+            });
 			catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO this line shouldn't be necessary -- do in styl file
 			LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
                 if(prevExhib && prevExhib.Identifier) {
@@ -478,8 +562,8 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 holder.data("ishotspot", isHotspot);
 
                 holder.data('info', media);
-
-                holder.on("click", hotspotAssetClick(media, holder));
+                media.button = holder;
+                holder.on("click", hotspotAssetClick(media));
                 holder.on("mousedown", downhelper(holder));
                 holder.on("mouseup", uphelper(holder));
                 container.append(holder);
@@ -550,7 +634,8 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             assetContainer.append(assetsDrawer);
         }
 
-        function hotspotAssetClick(hotspotsAsset, btn) {//check if the location history is open before you click the button, if so, close it
+        //Called when hotspots or assets are clicked
+        function hotspotAssetClick(hotspotsAsset) {//check if the location history is open before you click the button, if so, close it
             return function () {
                 hotspotsAsset.mediaload();
                 if (locationHistoryActive) {
@@ -564,48 +649,12 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     locationHistoryDiv.hide("slide", { direction: direction }, 500);
                     setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 }
-                var circle = hotspotsAsset.toggle();
-
-                if (btn.data("ishotspot")) {//btn change for hotspots
-                    if (btn.data("assetHidden") && $(circle).css('display') === 'block') {
-                        btn.css({
-                            'color': 'black',
-                            'background-color': 'rgba(255,255,255, 0.3)',
-                        });
-                        btn.data("assetHidden", false);
-                    }
-                    else {
-                        btn.css({
-                            'color': 'white',
-                            'background-color': ''
-                        });
-
-                        btn.data("assetHidden", true);
-                    }
-                } else {//btn change for assets
-                    if (btn.data("assetHidden")) {
-                        btn.css({
-                            'color': 'black',
-                            'background-color': 'rgba(255,255,255, 0.3)',
-                        });
-                        btn.data("assetHidden", false);
-                    } else {
-                        btn.css({
-                            'color': 'white',
-                            'background-color': ''
-                        });
-
-                        btn.data("assetHidden", true);
-                    }
-                }
+                hotspotsAsset.toggle();
                 hotspotsAsset.pauseAsset();
-                if (circle) {
-                    setTimeout(function () { circle.click(); }, 500); // has to be a better way.....
-                }
             };
         }
-
         var toursDrawer;
+
         // Load tours and filter for tours associated with this artwork
         LADS.Worktop.Database.getTours(function (tours) {
             var relatedTours = tours.filter(function (tour) {
@@ -634,8 +683,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 "max-height": maxHeight +"px",
             });
         });
-
-        
 
         function tourClicked(tour) {
             return function () {

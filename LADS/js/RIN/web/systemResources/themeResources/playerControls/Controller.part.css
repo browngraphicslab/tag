@@ -210,7 +210,7 @@ html, body, .rinPlayer /* TODO do we need to get rid of this? in iframe, so migh
 .rin_RightContainer
 {
     float: right;
-    margin-right: 15px;
+    margin-top: 15px;
     position: relative;
     margin: 0px;
     display: inline-block;
@@ -283,6 +283,32 @@ html, body, .rinPlayer /* TODO do we need to get rid of this? in iframe, so migh
     height: 10px;
     width: 100%;
     display: inline-block;
+}
+
+.rin_loopControl
+{
+    position: relative;
+    left: 10;
+    padding-top: 10px;
+    border-top: 10px;
+    margin-top: 10px;
+}
+
+.rin_LoopOn
+{
+    background-image: url('images/loop_gray.png');
+    background-repeat: no-repeat;
+    outline: none;
+    opacity: 0.4;
+    position: inherit;
+}
+
+.rin_LoopOff
+{
+    background-image: url('images/loop_white.png');
+    background-repeat: no-repeat;
+    outline: none;
+    opacity: 0.4;
 }
 
 .rin_TimelineHolder .rin_timeMarker 

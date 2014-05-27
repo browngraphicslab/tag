@@ -49,6 +49,8 @@
             
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
             
+                <li><a href="../classes/LADS.Layout.NewCatalog.html">LADS.Layout.NewCatalog</a></li>
+            
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
             
                 <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
@@ -137,6 +139,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         DURATION = parseFloat(videoSrc.Metadata.Duration),
         play = root.find(&#x27;#playPauseButton&#x27;),
         vol = root.find(&#x27;#videoControlsButton&#x27;),
+        loop = root.find(&#x27;#loopButton&#x27;),
         sliderContainer = root.find(&#x27;#sliderContainer&#x27;),
         currTime,
         poster = (videoSrc.Metadata.Thumbnail &amp;&amp; !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : &#x27;&#x27;,
@@ -159,16 +162,24 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         video.attr(&#x27;src&#x27;, &quot;&quot;);
 
         var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
-        var catalog = new LADS.Layout.NewCatalog(backInfo, collection);
+        var catalog = new LADS.Layout.NewCatalog({
+            backScroll: prevScroll,
+            backArtwork: videoSrc,
+            backCollection: collection
+        });
 
         catalog.getRoot().css({ &#x27;overflow-x&#x27;: &#x27;hidden&#x27; }); // TODO should be default in .styl file
         LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
             artworkPrev = &quot;catalog&quot;;
-            var selectedExhib = $(&#x27;#&#x27; + &#x27;exhib-&#x27; + prevExhib.Identifier);
+            var selectedExhib = $(&#x27;#collection-&#x27; + prevExhib.Identifier);
             selectedExhib.attr(&#x27;flagClicked&#x27;, &#x27;true&#x27;);
             selectedExhib.css({ &#x27;background-color&#x27;: &#x27;white&#x27;, &#x27;color&#x27;: &#x27;black&#x27; });
             $(selectedExhib[0].firstChild).css({&#x27;color&#x27;: &#x27;black&#x27;});
         });
+    }
+
+    function loop(){
+
     }
 
     /**
@@ -230,6 +241,11 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         // when video ends, return to collections page after a short delay
         video.on(&#x27;ended&#x27;, function () {
             setTimeout(goBack, 300);
+        });
+
+        // set up loop button
+        loop.on(&#x27;click&#x27;, function() {
+
         });
 
         // Update the seek bar as the video plays

@@ -3,6 +3,7 @@ var TAG = function(tagInput) {
     containerId = tagInput.containerId; 					        
     ip = tagInput.serverIp; 					        
     allowServerChange = tagInput.allowServerChange;
+
 /*!
  * jQuery JavaScript Library v1.7.1
  * http://jquery.com/
@@ -31199,9 +31200,9 @@ LADS.Util = (function () {
         testDiv.css({
             'position': 'absolute',
             'visibility': 'hidden',
+			'font-size': minFontSize + 'em',
             'height': 'auto',
             'width': 'auto',
-            'font-size': minFontSize + 'em',
         });
 
         testDiv.text(text);
@@ -31209,6 +31210,8 @@ LADS.Util = (function () {
 
         if (testDiv.width() >= maxWidth || testDiv.height() >= maxHeight) {
             return minFontSize + 'em';
+			//currSize = minFontSize;
+			//testDiv.css('font-size', currSize + 'em');
         }
 
         while (testDiv.width() < maxWidth && testDiv.height() < maxHeight) {
@@ -31217,6 +31220,44 @@ LADS.Util = (function () {
         }
         testDiv.remove();
         return currSize + 'em';
+    }
+	
+	/*
+		Gets the maximum font size without em.
+	*/
+	function getMaxFontSize(text, minFontSize, maxWidth, maxHeight, step) {
+        console.log('getting max font size.....');
+        if (!text) {
+            return;
+        }
+        var testDiv = $(document.createElement('div'));
+        var tagContainer = $('#tagRoot');
+        step = step || 0.1;
+        var currSize = minFontSize;
+
+        testDiv.css({
+            'position': 'absolute',
+            'visibility': 'hidden',
+			'font-size': minFontSize + 'em',
+            'height': 'auto',
+            'width': 'auto',
+        });
+
+        testDiv.text(text);
+        tagContainer.append(testDiv);
+
+        if (testDiv.width() >= maxWidth || testDiv.height() >= maxHeight) {
+            return minFontSize + 'em';
+			//currSize = minFontSize;
+			//testDiv.css('font-size', currSize + 'em');
+        }
+
+        while (testDiv.width() < maxWidth && testDiv.height() < maxHeight) {
+            currSize += step;
+            testDiv.css('font-size', currSize + 'em');
+        }
+        testDiv.remove();
+        return currSize;
     }
 
     //Shouldn't be public anymore, this is primarially used by makeManipulatable
@@ -32013,6 +32054,7 @@ LADS.Util.UI = (function () {
         popUpMessage: popUpMessage,
         PopUpConfirmation: PopUpConfirmation,
         cgBackColor: cgBackColor,
+        setUpBackButton: setUpBackButton,
         blockInteractionOverlay: blockInteractionOverlay,
         FeedbackBox: FeedbackBox,
         ChangeServerDialog: ChangeServerDialog,
@@ -32803,12 +32845,27 @@ LADS.Util.UI = (function () {
                 break;
             case "labelButton":
                 $(buttonToChange).css({ 'background-color': 'white', 'color': 'black' });
-
                 break;
             case "forwardButton":
                 $(buttonToChange).css({ 'background-color': 'gray' });
                 break;
         }
+    }
+
+    /**
+     * Set up handlers for back button
+     * @method setUpBackButton
+     * @param {jQuery Obj} elt         jQuery object for back button element
+     * @param {Function} clickHandler  click handler for button
+     */
+    function setUpBackButton(elt, clickHandler) {
+        elt.on('mouseleave', function () {
+            cgBackColor("backButton", elt, true);
+        });
+        elt.on('mousedown', function () {
+            cgBackColor("backButton", elt, false);
+        });
+        elt.on('click', clickHandler);
     }
 
     // slide towards left (splitscreen)
@@ -38392,6 +38449,7 @@ LADS.Worktop.Database = (function () {
         getMuseumOverlayColor: getMuseumOverlayColor,
         getMuseumOverlayTransparency: getMuseumOverlayTransparency,
         getLogoBackgroundColor: getLogoBackgroundColor,
+		getBaseFontSize: getBaseFontSize,
 
         // NEW
 
@@ -39291,6 +39349,10 @@ LADS.Worktop.Database = (function () {
         return _main.Metadata["OverlayTransparency"];
     }
 
+    function getPrimaryFontColor() {
+        return _main.Metadata["FontColor"] || "#eeeeee";
+    }
+
     function getMuseumLoc() {
         return _main.Metadata["MuseumLoc"];
     }
@@ -39298,6 +39360,10 @@ LADS.Worktop.Database = (function () {
     function getMuseumInfo() {
         return _main.Metadata["MuseumInfo"];
     }
+	
+	function getBaseFontSize() {
+		return _main.Metadata["BaseFontSize"] || "1.77";
+	}
 
     function getStartPageBackground() {
         return LADS.Worktop.Database.fixPath(_main.Metadata["BackgroundImage"]);
@@ -40447,8 +40513,6 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
     this.dzManip = dzManip;
 
     function dzScroll(delta, pivot) {
-        console.log("pivot.x "+ pivot.x+"  pivot.y :  "+pivot.y);
-        console.log(delta);
         that.viewer.viewport.zoomBy(delta, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
         that.viewer.viewport.applyConstraints();
     }
@@ -40477,7 +40541,6 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         $(canvas).addClass('artworkCanvasTesting');
         LADS.Util.makeManipulatable(canvas, {
             onScroll: function (delta, pivot) {
-                console.log("scrolling");
                 dzScroll(delta, pivot);
             },
             onManipulate: function (res) {
@@ -40506,8 +40569,87 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
     init();
 
+
+
+function loadHotspots(callback) {
+        // retrieve linqs from server
+        hotspots = [];
+        assets = [];
+        //var linqs = LADS.Worktop.Database.getDoqLinqs(artworkGuid);
+        // TODO: Make work properly with async
+        var done = 0;
+        var total;
+        LADS.Worktop.Database.getAssocMediaTo(artworkGuid, loadAssocMedia, null, null);
+        function loadAssocMedia(doqs) {
+            total = doqs && doqs.length || 0;
+            if (doqs && doqs.length > 0) {
+                var assocMedia;
+                for (var i = 0; i < doqs.length; i++) {
+                    LADS.Worktop.Database.getLinq(artworkGuid, doqs[i].Identifier, loadLinqHelper(doqs[i]), null, loadLinqHelper(doqs[i]));
+                }
+            } else {
+                callback && callback(hotspots,assets);
+            }
+        }
+
+        function loadLinqHelper(assocMedia) {
+            return function (linq) {
+                if (linq) {
+                    var position_x = linq.Offset._x;
+                    var position_y = linq.Offset._y;
+                    var info = {
+                        assetType: linq.Metadata.Type,
+                        title: assocMedia.Name,
+                        contentType: assocMedia.Metadata.ContentType,
+                        source: assocMedia.Metadata.Source,
+                        thumbnail: assocMedia.Metadata.Thumbnail,
+                        description: assocMedia.Metadata.Description,
+                        x: parseFloat(position_x),
+                        y: parseFloat(position_y),
+                        assetDoqID: assocMedia.Identifier,
+                        assetLinqID: linq.Identifier
+                    };
+                    createNewHotspot(info, linq.Metadata.Type ? (info.assetType === "Hotspot") : false);
+                    done++;
+                    if (done >= total && callback)
+                        callback(hotspots, assets);
+                }
+            }
+        }
+        //if (linqs) {
+        //    for (var i = 0; i < linqs.length; i++) {
+        //        //get the hotspot doc
+        //        var hotspotDoqID = linqs[i].Targets.BubbleRef[1].BubbleContentID;
+        //        var hotspotDoq = LADS.Worktop.Database.getDoqByGuid(hotspotDoqID);
+
+        //        //in seadragon coordinates [0,1]*[0,height/width]
+        //        var position_x = linqs[i].Offset._x;
+        //        var position_y = linqs[i].Offset._y;
+
+        //        var info = {
+        //            assetType: linqs[i].Metadata.Type,
+        //            title: hotspotDoq.Name,
+        //            contentType: hotspotDoq.Metadata.ContentType,
+        //            source: hotspotDoq.Metadata.Source,
+        //            description: hotspotDoq.Metadata.Description,
+        //            x: parseFloat(position_x),
+        //            y: parseFloat(position_y),
+        //            assetDoqID: hotspotDoqID,
+        //            assetLinqID: linqs[i].Identifier
+        //        };
+        //        createNewHotspot(info, (linqs[i].Metadata.Type.text === "Hotspot"));
+        //    }
+        //}
+    }
+
+    this.loadHotspots = loadHotspots;
+
+
+
+
     //new hotspot function
-    function hotspot(info) {
+    function hotspot(info, isHotspot) {
+        //Hotspot info
         var imgadded = false;
         this.title = info.title;
         this.contentType = info.contentType;
@@ -40517,11 +40659,16 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
         var assetHidden = true;
         var audio, video;
 
+        //Create and append asset/hotspot containerscontainers
         var outerContainer = document.createElement('div');
-        outerContainer.style.width = Math.min(Math.max(250, ($('#tagContainer').width() / 5)), 450)+'px';
+        var containerHeight = $("#artmodeRoot").height();
+        var containerWidth = $("#artmodeRoot").width();
+        outerContainer.style.width = Math.min(Math.max(250, (containerWidth / 5)), 450)+'px';
 
         var innerContainer = document.createElement('div');
+        innerContainer.style.backgroundColor = 'rgba(0,0,0,0.65)';
         var mediaContainer = $(document.createElement('div')).addClass('mediaContainer');
+        outerContainer.appendChild(innerContainer);
 
         // media-specific
         var controlPanel = $(document.createElement('div')),
@@ -40536,44 +40683,38 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             'margin-bottom': '2.5%',
         });
 
-        innerContainer.style.backgroundColor = 'rgba(0,0,0,0.65)';
+        //Add title
+        this.createTitle = function() {
+            if (this.title){
+                var p1 = document.createElement('div');
 
-        outerContainer.appendChild(innerContainer);
+                $(p1).text(LADS.Util.htmlEntityDecode(this.title)).css({
+                    'position': 'relative',
+                    'left': '5%',
+                    'width': '90%',
+                    'color': 'white',
+                    'top': '5px',
+                    'padding-bottom': '2%',
+                    'overflow': 'hidden',
+                    'text-overflow': 'ellipsis',
+                    'font-weight': '700'
+                });
 
-        var t = Math.min(Math.max(20, Math.random() * 100), 80);
-        var h = Math.min(Math.max(20, Math.random() * 100), 80);
-        $(outerContainer).css({
-            top: t + "%",
-            left: h + "%",
-            position: 'absolute',
-            'z-index': 1000,
-            'pointer-events': 'all'
-        });
-
-        // add title
-        var p1 = document.createElement('div');
-
-        $(p1).text(LADS.Util.htmlEntityDecode(this.title)).css({
-            'position': 'relative',
-            'left': '5%',
-            'width': '90%',
-            'color': 'white',
-            'top': '5px',
-            'padding-bottom': '2%',
-            'overflow': 'hidden',
-            'text-overflow': 'ellipsis',
-            'font-weight': '700'
-        });
-
-        innerContainer.appendChild(p1);
-        var hoverString, setHoverValue;
+                innerContainer.appendChild(p1);
+                var hoverString, setHoverValue;
+            }
+        }
+        this.createTitle();
         
-        this.mediaload=function(){
+        //Load media
+        this.mediaload = function(){
             if(!imgadded) {
                 imgadded = true;
             } else {
                 return;
             }
+
+            //IMAGE
             if (this.contentType === 'Image') {
                 
                 
@@ -40584,12 +40725,10 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                     width: '100%',
                     height: 'auto'
                 });
-                console.log("appending new image");
                 mediaContainer.append(img);
                 imgadded = true;
             }
 
-             
             if (this.contentType === 'Video') {
                 
                     video = document.createElement('video');
@@ -40935,30 +41074,33 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
 
         $(innerContainer).append(mediaContainer);
        
-        // add description -- ?
-        if (this.description) {
-            var p2 = document.createElement('div');
-            if (typeof Windows != "undefined") {
-                // running in Win8 app
-                $(p2).html(LADS.Util.htmlEntityDecode(this.description));
-            } else {  
-                // running in browser
-                $(p2).html(Autolinker.link(LADS.Util.htmlEntityDecode(this.description), {email: false, twitter: false}));
+        //Create description for asset/hotspot
+        this.createDescription = function() {
+            if (this.description) {
+                var p2 = document.createElement('div');
+                if (typeof Windows != "undefined") {
+                    // running in Win8 app
+                    $(p2).html(LADS.Util.htmlEntityDecode(this.description));
+                } else {  
+                    // running in browser
+                    $(p2).html(Autolinker.link(LADS.Util.htmlEntityDecode(this.description), {email: false, twitter: false}));
+                }
+                
+                //CSS for description
+                $(p2).css({
+                    'position': 'relative',
+                    'left': '5%',
+                    'width': '90%',
+                    'color': 'white',
+                    'bottom': '5px',
+                    'word-wrap': 'break-word'
+                });
+                innerContainer.appendChild(p2);
             }
-            
-            
-            $(p2).css({
-                'position': 'relative',
-                'left': '5%',
-                'width': '90%',
-                'color': 'white',
-                'bottom': '5px',
-                'word-wrap': 'break-word'
-            });
-
-            innerContainer.appendChild(p2);
         }
+        this.createDescription();
 
+        //Resize and scale control panel, buttons, etc.
         function resizeControlElements() {
             // scale control panel
             var cpSize = LADS.Util.constrainAndPosition(
@@ -41068,30 +41210,6 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             $(seekBar).width(currSeekWidth + controlPanel.width() - eltWidth);
         }
 
-        function showAsset() {
-            var t = Math.min(Math.max(10, Math.random() * 100), 60);
-            var h = Math.min(Math.max(30, Math.random() * 100), 70);
-            // debugger;
-            $(outerContainer).css({
-                top: t + "%",
-                left: h + "%",
-                position: 'absolute',
-                'z-index': 1000,
-                'pointer-events': 'all'
-            });
-            $(outerContainer).show();
-            assetCanvas.append(outerContainer);
-
-            if ((info.contentType === 'Video') || (info.contentType === 'Audio')) {
-                resizeControlElements();
-            }
-            assetHidden = false;
-        }
-
-        this.getRoot = function () {
-            return outerContainer;
-        };
-
         this.setRoot = function (newRoot) {
             var tempInnerContainer = innerContainer;
             outerContainer = newRoot;
@@ -41104,15 +41222,104 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             }
         };
 
+        $(assetCanvas).append(outerContainer);
+        $(outerContainer).hide();
+
+        //Create circle for positioning of hotspot
+        var circle = document.createElement("img");
+        var position = new Seadragon.Point(info.x, info.y);
+        if (isHotspot){
+            circle.src = tagPath+'images/icons/hotspot_circle.svg'
+            $(circle).css({
+                'height': '60px',
+                'width': '60px',
+                position: 'absolute',
+                //top: y +'px',
+                //left: x + 'px',
+                'display': 'inline-block',
+                'z-index': '100000',
+                'visibility': 'hidden'
+            });
+            document.getElementById('tagContainer').appendChild(circle);
+        }
+
+        //To show asset
+        this.showAsset = function() {
+            //If hotspot/asset is an asset, add it to a random position
+            var t = Math.min(Math.max(10, Math.random() * 100), 60);
+            var h = Math.min(Math.max(30, Math.random() * 100), 70);
+            if (!isHotspot){
+                $(outerContainer).css({
+                    top: t + "%",
+                    left: h + "%",
+                    position: 'absolute',
+                    'z-index': 1000,
+                    'pointer-events': 'all'
+                });
+            }
+            //If it's a hotspot, add it to the area with which it is associated, and show circle
+            else{
+                $(circle).css({
+                    'visibility':'visible'
+                });
+                if (!that.viewer.isOpen()) {
+                    that.viewer.addEventListener('open', function () {
+                        that.viewer.drawer.addOverlay(circle, position, Seadragon.OverlayPlacement.TOP_LEFT);
+                    });
+                }
+                else {
+                    that.viewer.drawer.addOverlay(circle, position, Seadragon.OverlayPlacement.TOP_LEFT);
+                }
+                that.viewer.drawer.updateOverlay(circle, position, Seadragon.OverlayPlacement.TOP_LEFT);
+                that.viewer.viewport.panTo(position, false);
+
+                var top = containerHeight/2 + $(circle).height()*3/4;
+                var left = containerWidth/2 + $(circle).width()*3/4;
+
+                $(outerContainer).css({
+                    top: top+'px',
+                    left: left+'px',
+                    position: 'absolute',
+                    'z-index': 1000,
+                    'pointer-events': 'all'
+                });
+            }
+
+            //Show hotspot
+            $(outerContainer).show();
+            assetCanvas.append(outerContainer);
+
+            //Show button
+            this.button.css({
+                'color': 'black',
+                'background-color': 'rgba(255,255,255, 0.3)',
+            });
+
+            if ((info.contentType === 'Video') || (info.contentType === 'Audio')) {
+                resizeControlElements();
+            }
+            assetHidden = false;
+        };
+
         this.hideAsset = function() {
             this.pauseAsset();
-            $(outerContainer).hide();
+            that.removeOverlay(circle);
+            $(outerContainer).hide();   
             assetHidden = true;
-        }
+
+            //Make button grayed-out
+            if (this.button == undefined){
+                this.button = $("#" + info.assetLinqID);
+            }
+            this.button.css({
+                'color': 'white',
+                'background-color': ''
+            });
+        };
 
         this.toggle = function () {
             if (assetHidden) {
-                showAsset();
+                this.show();
             } else {
                 this.hide();
             }
@@ -41135,12 +41342,9 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
             document.body.removeChild(outerContainer);
         };
 
+        //Push asset or hotspot into asset/hotspot array
         this.resizeControlElements = resizeControlElements;
-
-        if (info.assetType === 'Hotspot') {
-            
-        } else {
-            assets.push({
+        var assetInfo = {
                 title: info.title,
                 assetType: info.assetType,
                 contentType: info.contentType,
@@ -41153,132 +41357,117 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
                 thumbnail: info.thumbnail,
                 toggle: this.toggle,
                 hide: this.hideAsset,
-                show: showAsset,
+                show: this.showAsset,
                 resize: resizeControlElements,
                 pauseAsset: this.pauseAsset,
                 mediaload: this.mediaload
-            });
-        }
-    }
+            };
 
-    // make circle function
-    function makeCircle(info, hotspot, isHotspot) {
-        $(hotspot.getRoot()).hide();
-        // circle
-        var circle = document.createElement('div');
-        circle.innerText = "";
-        circle.setAttribute('style', "display: block; width: 40px;height: 40px; border: solid rgba(255,255,255,1) 5px;border-radius:50%;");
-        circle.setAttribute("on", "0");
-        var innercircle = document.createElement('div');
-        innercircle.innerText = "";
-        innercircle.setAttribute('style', "display: block; width: 30px;height: 30px;background:rgba(0,0,0,0);border: solid rgba(0,0,0,1) 5px;border-radius:50%;");
-        circle.appendChild(innercircle);
-        var clickable = document.createElement('div');
-        clickable.setAttribute('style', "display: block; width: 0px;height: 0px;background: rgba(0,0,0,0);border: solid rgba(0,0,0,0.01) 15px;border-radius:50%;");
-        clickable.innerText = "";
-        innercircle.appendChild(clickable);
-        var position = new Seadragon.Point(info.x, info.y);
-
-        var isInfoShowing = false;
-
-        var isCircleShowing = false;
-        var isOn = false;
-        var title = info.title;
-
-        function toggle() {
-            if (isOn) hide();
-            else return show(); // clean this up. Weird that it only returns something in one case
+        if (info.assetType === 'Hotspot') {
+            hotspots.push(assetInfo);
+        } else {
+            assets.push(assetInfo);
         }
 
-        function show() {
-            if (isCircleShowing) return;
 
-            if (!that.viewer.isOpen()) {
-                that.viewer.addEventListener('open', function () {
-                    that.viewer.drawer.addOverlay(circle, position, Seadragon.OverlayPlacement.TOP_LEFT);
-                });
+        //Drag/mouse interaction controls (except click, which is in LADS.Layout.Artmode.js)
+        LADS.Util.disableDrag($(outerContainer));
+        var hotspotAsset = this;
+        function setHandlers(currRoot) {
+
+            //see makeManipulatable() in LADS.Util.js for what res is
+            function onManip(res) {
+                if (dragBar) return;
+                if (this) {
+                    var hotspotroot = $(currRoot);
+                    var t = hotspotroot.css('top');
+                    var l = hotspotroot.css('left');
+                    var w = hotspotroot.css('width');
+                    var h = hotspotroot.css('height');
+                    var neww = parseFloat(w) * res.scale;
+                    var that = this;
+                    var maxConstraint = 800;
+                    var minConstraint;
+                    if (this.contentType === 'Video' || this.contentType === 'Audio') {
+                        minConstraint = 450;
+                    } else {
+                        minConstraint = 200;
+                    }
+                    //if the new width is in the right range, scale from the point of contact and translate properly; otherwise, just translate and clamp
+                    //var newClone;
+                    if ((neww >= minConstraint) && (neww <= maxConstraint)) {                        
+                        if (0 < parseFloat(t) + parseFloat(h) && parseFloat(t) < containerHeight && 0 < parseFloat(l) + parseFloat(w) && parseFloat(l)< containerWidth && res) {
+                            hotspotroot.css("top", (parseFloat(t) + res.translation.y + (1.0 - res.scale) * (res.pivot.y)) + "px");
+                            hotspotroot.css("left", (parseFloat(l) + res.translation.x + (1.0 - res.scale) * (res.pivot.x)) + "px");
+                        }
+                        else {
+                            hotspotAsset.hideAsset();
+                            that.pauseAsset;
+                        }
+                    } else {
+                        if (0 < parseFloat(t) + parseFloat(h) && parseFloat(t) < containerHeight && 0 < parseFloat(l) + parseFloat(w) && parseFloat(l)< containerWidth && res) {
+                            hotspotroot.css("top", (parseFloat(t) + res.translation.y) + "px");
+                            hotspotroot.css("left", (parseFloat(l) + res.translation.x) + "px");
+                            neww = Math.min(Math.max(neww, minConstraint), 800);                
+                        } else {
+                            hotspotAsset.hideAsset();
+                            that.pauseAsset;
+                            }
+                    }
+
+                    hotspotroot.css("width", neww + "px");
+                    hotspotroot.css("height", "auto");
+
+                    if (this.contentType === 'Video' || this.contentType === 'Audio') {
+                        this.resizeControlElements();
+                    }
+                }
             }
-            else {
-                that.viewer.drawer.addOverlay(circle, position, Seadragon.OverlayPlacement.TOP_LEFT);
-            }
-            that.viewer.drawer.updateOverlay(circle, position, Seadragon.OverlayPlacement.TOP_LEFT);
 
-            $(circle).show();
+            function onScroll(res, pivot) {
+                // check if dragging the seekbar
+                if (dragBar) return;
 
-            that.viewer.viewport.panTo(position, false);
+                //here, res is the scale factor
+                var t = $(currRoot).css('top');
+                var l = $(currRoot).css('left');
+                var w = $(currRoot).css('width');
+                var neww = parseFloat(w) * res;
+                $(currRoot).css("width", neww + "px");
 
-            $(circle).click(function (e) {
-                var t, l, splitbar = $('#splitbar');
-                hotspot.pauseAsset();
-                if (isInfoShowing && document.body.contains(hotspot.getRoot())) {
-                    $(hotspot.getRoot()).hide();
-                    isInfoShowing = false;
+                var minConstraint;
+                if (this.contentType === 'Video' || this.contentType === 'Audio') {
+                    minConstraint = 450;
+                } else {
+                    minConstraint = 200;
+                }
+
+                if ((neww >= minConstraint) && (neww <= 800)) {
+                    $(currRoot).css("top", (parseFloat(t) + (1.0 - res) * (pivot.y)) + "px");
+                    $(currRoot).css("left", (parseFloat(l) + (1.0 - res) * (pivot.x)) + "px");
                 }
                 else {
-                    t = parseInt($(circle).css('top'))+ $(circle).height();
-                    l = parseInt($(circle).css('left')) + $(circle).width();
-                    if (split === 'R' && splitbar[0]) {
-                        l = l - splitbar.offset().left - splitbar.width();
-                    }
-                    $(hotspot.getRoot()).css({
-                        top: t+'px',
-                        left: l+'px',
-                        position: 'absolute',
-                        'z-index': 1000,
-                        'pointer-events': 'all'
-                    });
-                    $(hotspot.getRoot()).show();
-                    assetCanvas.append(hotspot.getRoot());
-                    isInfoShowing = true;
-                    if (hotspot.contentType === "Audio" || hotspot.contentType === "Video") {
-                        hotspot.resizeControlElements();
-                    }
+                    neww = Math.min(Math.max(neww, minConstraint), 800);
                 }
-                e.stopImmediatePropagation();
-            });
-            isCircleShowing = true;
-            isOn = true;
-            return $(circle); // there should be a better way.....
-        }
 
-        function hide() {
-            if (!isCircleShowing)
-                return;
+                $(currRoot).css("width", neww + "px");
+                $(currRoot).css("height", "auto");
 
-            that.removeOverlay(circle);
-
-            if (!$(circle).hidden) {
-                $(circle).hide();
-                $(hotspot.getRoot()).hide();
+                if (this.contentType === 'Video' || this.contentType === 'Audio') {
+                    this.resizeControlElements();
+                }
             }
-
-            hotspot.pauseAsset();
-
-            isCircleShowing = false;
-            isOn = false;
-            isInfoShowing = false;
-        }
-
-        if (info.assetType === "Hotspot") {
             // debugger;
-            hotspots.push({
-                title: info.title,
-                assetType: info.assetType,
-                contentType: info.contentType,
-                description: info.description,
-                x: info.x,
-                y: info.y,
-                assetDoqID: info.assetDoqID,
-                assetLinqID: info.assetLinqID,
-                source: info.source,
-                thumbnail:info.thumbnail,
-                toggle: toggle,
-                hide: hide,
-                show: show,
-                mediaload: hotspot.mediaload,
-                pauseAsset: hotspot.pauseAsset
-            });
+            var gr = LADS.Util.makeManipulatable(currRoot, {
+                onManipulate: onManip,
+                onScroll: onScroll
+            }, null, true); // NO ACCELERATION FOR NOW
         }
+                setHandlers(outerContainer);
+    }
+
+    function createNewHotspot(info, isHotspot) {//if isHotspot is false, it's just an asset, don't add to hotspots list
+        var newhotspot = new hotspot(info, isHotspot);
     }
 
     //Don't think it works -- ria: how can we check?
@@ -41312,239 +41501,10 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
     // bmost: Consider making things asynchronous by using callbacks
     // Worktop.Database might not support asynchronous requests
     // for getDoqLinqs so that might have to be added.
-    function loadHotspots(callback) {
-        // retrieve linqs from server
-        hotspots = [];
-        assets = [];
-        //var linqs = LADS.Worktop.Database.getDoqLinqs(artworkGuid);
-        // TODO: Make work properly with async
-        var done = 0;
-        var total;
-        LADS.Worktop.Database.getAssocMediaTo(artworkGuid, loadAssocMedia, null, null);
-        function loadAssocMedia(doqs) {
-            total = doqs && doqs.length || 0;
-            if (doqs && doqs.length > 0) {
-                var assocMedia;
-                for (var i = 0; i < doqs.length; i++) {
-                    LADS.Worktop.Database.getLinq(artworkGuid, doqs[i].Identifier, loadLinqHelper(doqs[i]), null, loadLinqHelper(doqs[i]));
-                }
-            } else {
-                callback && callback(hotspots,assets);
-            }
-        }
-
-        function loadLinqHelper(assocMedia) {
-            return function (linq) {
-                if (linq) {
-                    var position_x = linq.Offset._x;
-                    var position_y = linq.Offset._y;
-                    var info = {
-                        assetType: linq.Metadata.Type,
-                        title: assocMedia.Name,
-                        contentType: assocMedia.Metadata.ContentType,
-                        source: assocMedia.Metadata.Source,
-                        thumbnail: assocMedia.Metadata.Thumbnail,
-                        description: assocMedia.Metadata.Description,
-                        x: parseFloat(position_x),
-                        y: parseFloat(position_y),
-                        assetDoqID: assocMedia.Identifier,
-                        assetLinqID: linq.Identifier
-                    };
-                    createNewHotspot(info, linq.Metadata.Type ? (info.assetType === "Hotspot") : false);
-                    done++;
-                    if (done >= total && callback)
-                        callback(hotspots, assets);
-                }
-            }
-        }
-        //if (linqs) {
-        //    for (var i = 0; i < linqs.length; i++) {
-        //        //get the hotspot doc
-        //        var hotspotDoqID = linqs[i].Targets.BubbleRef[1].BubbleContentID;
-        //        var hotspotDoq = LADS.Worktop.Database.getDoqByGuid(hotspotDoqID);
-
-        //        //in seadragon coordinates [0,1]*[0,height/width]
-        //        var position_x = linqs[i].Offset._x;
-        //        var position_y = linqs[i].Offset._y;
-
-        //        var info = {
-        //            assetType: linqs[i].Metadata.Type,
-        //            title: hotspotDoq.Name,
-        //            contentType: hotspotDoq.Metadata.ContentType,
-        //            source: hotspotDoq.Metadata.Source,
-        //            description: hotspotDoq.Metadata.Description,
-        //            x: parseFloat(position_x),
-        //            y: parseFloat(position_y),
-        //            assetDoqID: hotspotDoqID,
-        //            assetLinqID: linqs[i].Identifier
-        //        };
-        //        createNewHotspot(info, (linqs[i].Metadata.Type.text === "Hotspot"));
-        //    }
-        //}
-    }
-    this.loadHotspots = loadHotspots;
+    
 
     // bmost: Consider renaming?  Its called createNewHostspot but has a paremeter 'isHotspot'.
-    function createNewHotspot(info, isHotspot) {//if isHotspot is false, it's just an asset, don't add to hotspots list
 
-        var newhotspot = new hotspot(info);
-        //var htmlelement = newhotspot.getRoot();
-        LADS.Util.disableDrag($(newhotspot.getRoot()));
-        var tempRootClone = $(newhotspot.getRoot()).clone(true, true);
-        tempRootClone.empty();
-        var rootClone = tempRootClone[0];
-        setHandlers(newhotspot.getRoot());
-        var btn;
-        function setHandlers(currRoot) {
-            var flung = false;
-
-            //see makeManipulatable() in LADS.Util.js for what res is
-            function onManip(res) {
-                if (flung) return;
-                if (dragBar) return;
-
-                if (newhotspot) {
-                    var hotspotroot = $(currRoot);
-                    var t = hotspotroot.css('top');
-                    var l = hotspotroot.css('left');
-                    var w = hotspotroot.css('width');
-                    var h = hotspotroot.css('height');
-                    var neww = parseFloat(w) * res.scale;
-
-                    var minConstraint;
-                    if (newhotspot.contentType === 'Video' || newhotspot.contentType === 'Audio') {
-                        minConstraint = 450;
-                    } else {
-                        minConstraint = 200;
-                    }
-
-                    //check if the hotspot is outside of the screen, and if so, set its velocity to 0
-                    //where to put code for this?
-                    if(-parseFloat(w)>parseFloat(l) || parseFloat(l)>$("#tagContainer").width()|| -(parseFloat(h))>parseFloat(t)||parseFloat(t)>$("#tagContainer").height()){
-                        console.log("outsider");
-                        btn = $("#" + info.assetLinqID);
-                        if(!btn.data("ishotspot")){
-                            console.log("not hotspot");
-                            if (!btn.data("assetHidden")) {
-                                console.log("nothidden");
-                                    btn.css({
-                                    'color': 'white',
-                                    'background-color': '',
-                                });
-                                btn.data("assetHidden", true);
-                                newhotspot.toggle();
-                                $(currRoot).remove();
-                            }
-                        }
-                    }
-                    
-                    //if the new width is in the right range, scale from the point of contact and translate properly; otherwise, just translate and clamp
-                    var newClone;
-                    if ((neww >= minConstraint) && (neww <= 800)) {
-                        if (0 < parseFloat(t) + parseFloat(h) && parseFloat(t) < window.innerHeight && 0 < parseFloat(l) + parseFloat(w) && parseFloat(l) < window.innerWidth && res) {
-                            hotspotroot.css("top", (parseFloat(t) + res.translation.y + (1.0 - res.scale) * (res.pivot.y)) + "px");
-                            hotspotroot.css("left", (parseFloat(l) + res.translation.x + (1.0 - res.scale) * (res.pivot.x)) + "px");
-                        }
-                        else {
-                            flung = true;
-                            btn = $("#" + info.assetLinqID);
-                            if (!btn.data("ishotspot")) {
-                                btn.css({
-                                    'color': 'white',
-                                    'background-color': '',
-                                });
-                                btn.data("assetHidden", true)
-                                newhotspot.toggle();
-                                $(currRoot).remove();
-                                newClone = $(rootClone).clone(true, true)[0];
-                                newhotspot.setRoot(newClone);
-                                setHandlers(newClone);
-                            }
-                            else {
-                                btn.data("assetHidden", true)
-                                $(currRoot).remove();
-                                newClone = $(rootClone).clone(true, true)[0];
-                                newhotspot.setRoot(newClone);
-                                setHandlers(newClone);
-                            }
-                        }
-                    } else {
-                        if (0 < parseFloat(t) + parseFloat(h) && parseFloat(t) < window.innerHeight && 0 < parseFloat(l) + parseFloat(w) && parseFloat(l) < window.innerWidth && res) {
-                            hotspotroot.css("top", (parseFloat(t) + res.translation.y) + "px");
-                            hotspotroot.css("left", (parseFloat(l) + res.translation.x) + "px");
-                            neww = Math.min(Math.max(neww, minConstraint), 800);                
-                        } else {
-                            flung = true;
-                            btn = $("#" + info.assetLinqID);
-                            if (!btn.data("ishotspot")) {
-                                btn.css({
-                                    'color': 'white',
-                                    'background-color': 'rgba(0,0,0,0.7)',
-                                });
-                                btn.data("assetHidden", true)
-                                $(currRoot).remove();
-                                newClone = $(rootClone).clone(true, true)[0];
-                                newhotspot.setRoot(newClone);
-                                setHandlers(newClone);
-                            }
-                        }
-                    }
-
-                    hotspotroot.css("width", neww + "px");
-                    hotspotroot.css("height", "auto");
-
-                    if (newhotspot.contentType === 'Video' || newhotspot.contentType === 'Audio') {
-                        newhotspot.resizeControlElements();
-                    }
-                }
-            }
-
-            function onScroll(res, pivot) {
-                // check if dragging the seekbar
-                if (dragBar) return;
-
-                //here, res is the scale factor
-                var t = $(currRoot).css('top');
-                var l = $(currRoot).css('left');
-                var w = $(currRoot).css('width');
-                var neww = parseFloat(w) * res;
-                $(currRoot).css("width", neww + "px");
-
-                var minConstraint;
-                if (newhotspot.contentType === 'Video' || newhotspot.contentType === 'Audio') {
-                    minConstraint = 450;
-                } else {
-                    minConstraint = 200;
-                }
-
-
-                if ((neww >= minConstraint) && (neww <= 800)) {
-                    $(currRoot).css("top", (parseFloat(t) + (1.0 - res) * (pivot.y)) + "px");
-                    $(currRoot).css("left", (parseFloat(l) + (1.0 - res) * (pivot.x)) + "px");
-                }
-                else {
-                    neww = Math.min(Math.max(neww, minConstraint), 800);
-                }
-
-                $(currRoot).css("width", neww + "px");
-                $(currRoot).css("height", "auto");
-
-                if (newhotspot.contentType === 'Video' || newhotspot.contentType === 'Audio') {
-                    newhotspot.resizeControlElements();
-                }
-            }
-            // debugger;
-            var gr = LADS.Util.makeManipulatable(currRoot, {
-                onManipulate: onManip,
-                onScroll: onScroll
-            }, null, true); // NO ACCELERATION FOR NOW
-        }
-
-
-        $(assetCanvas).append(newhotspot.getRoot());
-
-        makeCircle(info, newhotspot, isHotspot);
-    }
 };
 
 ;
@@ -41972,102 +41932,32 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         // Test for browser compatibility
         if(!isBrowserCompatible()) {
-            console.log("Unsupported browser.");
-            
-            var browserDialogOverlay = $(document.createElement('div'));
-            var tagContainer = $('#tagRoot');
-            browserDialogOverlay.attr('id', 'browserDialogOverlay');
-
-            browserDialogOverlay.css({
-                display: 'block',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                'background-color': 'rgba(0,0,0,0.6)',
-                'z-index': 1000000000 + 5
-            });
-
-            // Dialog box for browser update
-            var browserDialog = $(document.createElement('div'));
-            browserDialog.attr('id', 'browserDialog');
-
-            var browserDialogSpecs = LADS.Util.constrainAndPosition($(tagContainer).width(), $(tagContainer).height(),
-            {
-                center_h: true,
-                center_v: true,
-                width: 0.5,
-                height: 0.35,
-                max_width: 560,
-                max_height: 230
-            });
-            browserDialog.css({
-                position: 'absolute',
-                left: '30%',
-                top: '30%',
-                width: '40%',
-                height: '40%',
-                border: '3px double white',
-                'text-align': 'center',
-                'background-color': 'black'
-            });
-
-            var browserDialogTitle = $(document.createElement('div'));
-            browserDialogTitle.attr('id', 'dialogTitle');
-            browserDialogTitle.css({
-                'color': 'white',
-                'width': '80%',
-                'height': '15%',
-                'left': '10%',
-                'top': '25%',
-                'font-size': '1em',
-                'position': 'relative',
-                'text-align': 'center'
-            });
-            browserDialogTitle.text("Touch Art Gallery is not supported in your browser. Please download or update to a newer browser.");
-            browserDialog.append(browserDialogTitle);
-
-            var updateBrowserLink = $(document.createElement('a'));
-            updateBrowserLink.attr('id', 'updateBrowser');
-            updateBrowserLink.attr('target', '_blank');
-            updateBrowserLink.attr('href', 'http://browsehappy.com');
-            updateBrowserLink.css({
-                'display': 'block',
-                'margin': 'auto',
-                'margin-bottom': '1%',
-                'width': '60%',
-                'height':'10%',
-                'position':'relative',
-                'top':'40%',
-                'font-size':'100%',
-                'text-decoration': 'underline',
-                'color': 'white'
-            });
-            updateBrowserLink.text("Update Browser");
-            browserDialog.append(updateBrowserLink);
-
-            browserDialogOverlay.append(browserDialog);
-            tagContainer.append(browserDialogOverlay);
+            handleIncompatibleBrowser();
         }
     }
 
     /**
-    * @method isBrowserCompatible
+    * Checks if TAG is compatible with the current browser.
     *
+    * @method isBrowserCompatible
+    * @author Athyuttam Eleti
     * @return true if the browser is compatible with TAG, false if it isn't
     */
     function isBrowserCompatible() {
+        console.log("\n///// Browser Compatibility /////")
         var userAgent = navigator.userAgent.toLowerCase();
         console.log("userAgent: " + navigator.userAgent);
 
-        if(userAgent.indexOf('android') >= 0 || userAgent.indexOf('iphone') >= 0 || userAgent.indexOf('ipad') >= 0) {
+        // Android and iOS are incompatible
+        if(userAgent.indexOf('android') >= 0 || userAgent.indexOf('iphone') >= 0 || userAgent.indexOf('ipad') >= 0 || userAgent.indexOf('ipod') >= 0) {
             if(userAgent.indexOf('android') >= 0) {
                 console.log("Detected Android Device. Unsupported browser.");
             } else if (userAgent.indexOf('iphone') >= 0) {
                 console.log("Detected iPhone. Unsupported browser.");
             } else if (userAgent.indexOf('ipad') >= 0) {
                 console.log("Detected iPad. Unsupported browser.");
+            } else if(userAgent.indexOf('ipod') >= 0) {
+                console.log("Detected iPod. Unsupported browser.");
             }
             return false;
         } else {
@@ -42077,35 +41967,50 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             browser = browser.toLowerCase();
             var version = 0;
 
-            if(browser.indexOf('opera') >= 0) {
+            // Opera is incompatible
+            if(browser.indexOf('opera') >= 0 || userAgent.indexOf('opr') >= 0) {
                 console.log("Detected Opera. Unsupported browser.");
                 return false;
-            } else if(browser.indexOf('chrome') >= 0) {
+            } 
+            // Chrome 31+
+            else if(browser.indexOf('chrome') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
                 console.log("Detected Chrome Version: " + version);
                 return(version >= 31);
-            } else if(browser.indexOf('safari') >= 0) {
+            } 
+            // Safari 7+
+            else if(browser.indexOf('safari') >= 0) {
                 var detailedVersion = browser.substring(browser.indexOf(' ', browser.indexOf(' ') + 1) + 1);
                 version = detailedVersion.substring(0, detailedVersion.indexOf("."));
                 console.log("Detected Safari Version: " + version);
                 return(version >= 7);
-            } else if(browser.indexOf('firefox') >= 0) {
+            } 
+            // Firefox 28+
+            else if(browser.indexOf('firefox') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
                 console.log("Detected Firefox Version: " + version);
                 return(version >= 28);
-            } else if(browser.indexOf('msie') >= 0 || browser.indexOf('ie') >= 0) {
+            } 
+            // Internet Explorer 10+
+            else if(browser.indexOf('msie') >= 0 || browser.indexOf('ie') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
                 console.log("Detected IE Version: " + version);
                 return(version >= 10);
-            } else {
+            } 
+            // Other browsers are incompatible
+            else {
+                console.log("Unsupported browser.");
                 return false;
             }
         }
     }
 
     /** 
-    * @method getBrowserVersion
+    * Finds the current browser version.
+    * Code from http://stackoverflow.com/questions/5916900/detect-version-of-browser
     *
+    * @method getBrowserVersion
+    * @author Athyuttam Eleti
     * @return Browser name followed by version e.g. "Chrome 34.0.1847.116"
     */
     function getBrowserVersion() {
@@ -42121,6 +42026,75 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         if((tem= ua.match(/version\/([\.\d]+)/i))!= null) M[2]= tem[1];
 
         return M.join(' ');
+    }
+
+    /**
+    * Displays a dialog box indicating that the user is using an
+    * incompatible browser. Points them to links to download the latest
+    * version of supported browsers such as IE, Chrome, Safari and Firefox.
+    *
+    * @method handleIncompatibleBrowser
+    * @author Athyuttam Eleti
+    */
+    function handleIncompatibleBrowser() {
+        var tagContainer = $('#tagRoot');
+
+        // Creating Overlay
+        var browserDialogOverlay = $(document.createElement('div'));
+        browserDialogOverlay.attr('id', 'browserDialogOverlay');
+        browserDialogOverlay.addClass('dialogBoxOverlay');
+        tagContainer.prepend(browserDialogOverlay);
+
+        // Creating Dialog Box Container (required for centering)
+        var browserDialogContainer = $(document.createElement('div'));
+        browserDialogContainer.attr('id', 'browserDialogContainer');
+        browserDialogContainer.addClass('dialogBoxContainer');
+        browserDialogOverlay.append(browserDialogContainer);
+
+        // Creating Dialog Box
+        var browserDialog = $(document.createElement('div'));
+        browserDialog.attr('id', 'browserDialog');
+        browserDialog.addClass('dialogBox');
+        browserDialogContainer.append(browserDialog);
+
+        // Content
+        var browserDialogPara = $(document.createElement('p'));
+        browserDialogPara.attr('id', 'dialogBoxPara');
+        browserDialogPara.text("Touch Art Gallery is not supported in your browser. Please download or update to a newer browser.");
+        browserDialog.append(browserDialogPara);
+
+        // Browser Icon Container
+        var browserIcons = $(document.createElement('div'));
+        browserIcons.attr('id', 'browserIcons');
+        browserDialog.append(browserIcons);
+
+        // Browser Icon Links
+        var ieIconLink = $(document.createElement('a')).attr('href', 'http://windows.microsoft.com/ie');
+        var chromeIconLink = $(document.createElement('a')).attr('href', 'https://www.google.com/chrome');
+        var firefoxIconLink = $(document.createElement('a')).attr('href', 'http://www.firefox.com');
+        var safariIconLink = $(document.createElement('a')).attr('href', 'http://www.apple.com/safari');
+
+        var linksArray = [ieIconLink, chromeIconLink, firefoxIconLink, safariIconLink];
+        for(var i = 0; i < linksArray.length; i++) {
+            var current = linksArray[i]
+            current.attr('target', '_blank'); // Set target="_blank" to open links in new tab
+            current.addClass('browserIconLink'); // Set the corresponding CSS class to each link
+        }
+
+        browserIcons.append(ieIconLink, chromeIconLink, firefoxIconLink, safariIconLink);
+
+        // Browser Icon Images
+        var ieIcon = $(document.createElement('img')).attr('title', 'Internet Explorer').attr('src', tagPath+'images/icons/browserIcons/ie.png');
+        var chromeIcon = $(document.createElement('img')).attr('title', 'Google Chrome').attr('src', tagPath+'images/icons/browserIcons/chrome.png'); 
+        var firefoxIcon = $(document.createElement('img')).attr('title', 'Firefox').attr('src', tagPath+'images/icons/browserIcons/firefox.png');
+        var safariIcon = $(document.createElement('img')).attr('title', 'Safari').attr('src', tagPath+'images/icons/browserIcons/safari.png');
+
+        ieIconLink.append(ieIcon);
+        chromeIconLink.append(chromeIcon);
+        firefoxIconLink.append(firefoxIcon);
+        safariIconLink.append(safariIcon);
+
+        $('#browserIcons a img').addClass('browserIcon');
     }
     
     /**
@@ -42155,6 +42129,12 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         });
 
         serverTagBuffer.on('click', function (evt) {
+            evt.stopPropagation();
+        });
+
+        overlay.on('click', 'a', function (evt) {
+            //this == the link that was clicked
+            var href = $(this).attr("href");
             evt.stopPropagation();
         });
     }
@@ -42330,7 +42310,14 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         if (!tempInfo) {
             tempInfo = "";
         }
-        museumInfoSpan.text(tempInfo);
+
+        if (typeof Windows != "undefined") {
+            // running in Win8 app
+            museumInfoSpan.html(tempInfo);
+        } else {  
+            // running in browser
+            museumInfoSpan.html(Autolinker.link(tempInfo , {email: false, twitter: false}));
+        }
     }
     
 
@@ -42445,7 +42432,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 createSeadragonControls();
                 initialized = true;
             });
-            
         }
     }
 
@@ -42539,8 +42525,89 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             scrollDelt = 0.1;
 
         var interval;
-
+        
         /* TODO factor some repeated code out */
+
+
+        /*Key press controls */
+        var containerFocused = true;
+
+        $('#tagContainer').attr("tabindex", -1);
+        $("[tabindex='-1']").focus();
+        $("[tabindex='-1']").css('outline', 'none');
+        $("[tabindex='-1']").click(function() {
+            $("[tabindex='-1']").focus();
+            containerFocused = true;
+        });
+        $("[tabindex='-1']").focus(function() {
+            containerFocused = true;
+
+        });
+        $("[tabindex='-1']").focusout(function() {
+            containerFocused = false;
+        });
+        $(document).keydown(function(event){
+            if(containerFocused) {
+                switch(event.which) {
+    
+                    case 37: 
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
+                        }, 100);
+                    
+                    break;
+                    case 38:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
+                        }, 100);
+                    break;
+                    case 39:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
+                        }, 100);
+                    break;
+                    case 40:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
+                        }, 100);
+                    break;
+                    case 187:
+                    case 61:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+                        interval = setInterval(function() {
+                        zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+                        }, 100);
+                    break;
+                    case 189:
+                    case 173:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+                        interval = setInterval(function() {
+                        zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
+                        }, 100);
+                    break;
+                }
+            }
+        });
+        
+        $(document).keyup(function(event){
+            clearInterval(interval);
+        });
         $('#leftControl').on('mousedown', function() {
             clearInterval(interval);
             zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
@@ -42675,7 +42742,11 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 			backButton.off('click'); // prevent user from clicking twice
 			zoomimage && zoomimage.unload();
 			var backInfo = { backArtwork: doq, backScroll: prevScroll };
-			var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
+			var catalog = new LADS.Layout.NewCatalog({
+                backScroll: prevScroll,
+                backArtwork: doq,
+                backCollection: exhibition
+            });
 			catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO this line shouldn't be necessary -- do in styl file
 			LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
                 if(prevExhib && prevExhib.Identifier) {
@@ -42831,8 +42902,8 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 holder.data("ishotspot", isHotspot);
 
                 holder.data('info', media);
-
-                holder.on("click", hotspotAssetClick(media, holder));
+                media.button = holder;
+                holder.on("click", hotspotAssetClick(media));
                 holder.on("mousedown", downhelper(holder));
                 holder.on("mouseup", uphelper(holder));
                 container.append(holder);
@@ -42903,7 +42974,8 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             assetContainer.append(assetsDrawer);
         }
 
-        function hotspotAssetClick(hotspotsAsset, btn) {//check if the location history is open before you click the button, if so, close it
+        //Called when hotspots or assets are clicked
+        function hotspotAssetClick(hotspotsAsset) {//check if the location history is open before you click the button, if so, close it
             return function () {
                 hotspotsAsset.mediaload();
                 if (locationHistoryActive) {
@@ -42917,48 +42989,12 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     locationHistoryDiv.hide("slide", { direction: direction }, 500);
                     setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 }
-                var circle = hotspotsAsset.toggle();
-
-                if (btn.data("ishotspot")) {//btn change for hotspots
-                    if (btn.data("assetHidden") && $(circle).css('display') === 'block') {
-                        btn.css({
-                            'color': 'black',
-                            'background-color': 'rgba(255,255,255, 0.3)',
-                        });
-                        btn.data("assetHidden", false);
-                    }
-                    else {
-                        btn.css({
-                            'color': 'white',
-                            'background-color': ''
-                        });
-
-                        btn.data("assetHidden", true);
-                    }
-                } else {//btn change for assets
-                    if (btn.data("assetHidden")) {
-                        btn.css({
-                            'color': 'black',
-                            'background-color': 'rgba(255,255,255, 0.3)',
-                        });
-                        btn.data("assetHidden", false);
-                    } else {
-                        btn.css({
-                            'color': 'white',
-                            'background-color': ''
-                        });
-
-                        btn.data("assetHidden", true);
-                    }
-                }
+                hotspotsAsset.toggle();
                 hotspotsAsset.pauseAsset();
-                if (circle) {
-                    setTimeout(function () { circle.click(); }, 500); // has to be a better way.....
-                }
             };
         }
-
         var toursDrawer;
+
         // Load tours and filter for tours associated with this artwork
         LADS.Worktop.Database.getTours(function (tours) {
             var relatedTours = tours.filter(function (tour) {
@@ -42987,8 +43023,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 "max-height": maxHeight +"px",
             });
         });
-
-        
 
         function tourClicked(tour) {
             return function () {
@@ -43871,494 +43905,375 @@ LADS.Layout.Artmode.default_options = {
 
 ;
 LADS.Util.makeNamespace("LADS.Layout.NewCatalog");
-//catalog should only get artworks and exhibitions
 
-// backInfo: {backArtwork: [artwork selected], backScroll: [int; position of scroll on timelineDiv] }
-
-LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplitscreen) {
+/**
+ * The collections page
+ * @class LADS.Layout.NewCatalog
+ * @constructor
+ * @param {Object} options         some options for the collections page
+ * 
+ */
+LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, container, forSplitscreen) {
     "use strict";
 
-    /* nbowditch _editted 2/13/2014 */
-    var backArtwork;
-    var scrollPos = 0;
-    if (backInfo) {
-        backArtwork = backInfo.backArtwork;
-        scrollPos = backInfo.backScroll || 0;
-    }
-    /* end nbowditch edit */
+    options = options || {}; // cut down on null checks later
 
-    //vars from exhibition
-    var root = LADS.Util.getHtmlAjax('NewCatalog.html'), // use AJAX to load html from .html file
-        leftbar = root.find('#leftbar'), // back-button, exhibit, tour selectors
-        displayarea = root.find('#displayarea'), 
-        displayHelp, 
-        exhibitarea = root.find('#exhibitarea'), 
-        currentExhElements, 
-        img1,
-        leftbarHeader = root.find('#leftbar-header'), 
-        exhibitionLabel = root.find('#exhibition-label'), 
-        exhibitionSpan = root.find('#exhibitionSpan'), 
-        contentdiv,
-        imgDiv,
-        descriptiontext,
-        loadingArea,
-        titlediv, 
-        artworkSelected = false,
-        switching = false, //boolean for switching the page
-        exhibitelements = [], // this is shared between exhibitions and tours
-        exhibTabSelected = true, //which tab is selected at the top (true for exhib, false for tour)
-        firstLoad = true;
+    var // DOM-related
+        root             = LADS.Util.getHtmlAjax('NewCatalog.html'), // use AJAX to load html from .html file
+        leftbar          = root.find('#leftbar'),                    // see .jade file to see where these fit in
+        displayarea      = root.find('#displayarea'),
+        displayareasub   = root.find('#displayareasub'),
+        collectionArea   = root.find('#collectionArea'),
+        leftbarHeader    = root.find('#leftbar-header'),
+        collectionHeader = root.find('#collectionHeader'),
+        bgimage          = root.find('#bgimage'),
+        catalogDiv       = root.find('#catalogDiv'),
+        artistButton     = root.find('#artistButton'),
+        yearButton       = root.find('#yearButton'),
+        titleButton      = root.find('#titleButton'),
+        typeButton       = root.find('#typeButton'),
+        sortRow          = root.find('#sortRow'),
+        searchInput      = root.find('#searchInput'),
+        searchTxt        = root.find('#searchTxt'),
+        loadingArea      = root.find('#loadingArea'),
+        backbuttonIcon   = root.find('#catalogBackButton'),
 
-    var bgimage = root.find('#bgimage');
+        // input options
+        scrollPos        = options.backScroll || 0,     // horizontal position within collection's catalog
+        currCollection   = options.backCollection,      // the currently selected collection
+        currentArtwork   = options.backArtwork,         // the currently selected artwork
 
-    var currExhibition = null,
-        currentImage = null;
+        // misc initialized vars
+        loadQueue        = LADS.Util.createQueue(),     // an async queue for artwork tile creation, etc
+        artworkSelected  = false,                       // whether an artwork is selected
+        collectionTitles = [],                          // array of collection title DOM elements
+        firstLoad        = true,                        // TODO is this necessary? what is it doing?
+        currentArtworks  = [],                          // array of artworks in current collection
+        infoSource       = [],                          // array to hold sorting/searching information
+        //inSearch         = false,                       // in the midst of a search?
 
-    // set values passed from previous page
-    if (backExhibition) currExhibition = backExhibition;
-    if (backArtwork) currentImage = backArtwork;
-    var currExhibIndex = 0;
-    var currTour = null;
-    var numberOfTours, noTours, noArtworks;
-    var toursGlobal;
-    var loadQueue = LADS.Util.createQueue();
-    var that = {
-        getRoot: getRoot,
-        loadExhibit: loadExhibit
-    };
-    container = container || window;
+        // constants
+        DEFAULT_TAG      = "Title",                                 // default sort tag
+        BASE_FONT_SIZE   = LADS.Worktop.Database.getBaseFontSize(), // base font size for current font
+        FIX_PATH         = LADS.Worktop.Database.fixPath,
 
-    var exLabels = [];
-    that.exLabels = exLabels;
+        // misc uninitialized vars
+        toursIn,                        // tours in current collection
+        currentThumbnail,               // img tag for current thumbnail image
+        numVisibleCollections,          // number of collections that are both published and visible
+        imgDiv,                         // container for thumbnail image
+        descriptiontext,                // description of current collection or artwork
+        loadingArea,                    // container for progress circle
+        moreInfo,                       // div holding tombstone information for current artwork
+        artistInfo,                     // artist tombstone info div
+        yearInfo,                       // year tombstone info div
+        currentTag;                     // current sort tag
 
-    // vars from Catalog
-    var timelineDiv = root.find('#timelineDiv'),
-        artistButton = root.find('#artistButton'),
-        yearButton = root.find('#yearButton'),
-        titleButton = root.find('#titleButton'),
-        typeButton = root.find('#typeButton'),
-        row = root.find('#row'),
-        timelineDivContainer = root.find('#timelineDivContainer'),
-        search = root.find('#searchInput'),
-        searchTxt = root.find('#searchTxt'),
-        searchFilter = root.find('#searchFilter'), // contains searchInput and searchTxt
-        moreInfo,
-        artistInfo,
-        yearInfo,
-        currentArtworks = [],
-        infoSource = [],
-        inSearch = false,
-        defaultTag = "Title",
-        currentTag;
-
+    // get things rolling
     init();
 
-    return that;
-
     /**
-    *initiates UI stuff
-    */
+     * Sets up the collections page UI
+     * @method init
+     */
     function init() {
-        // create loading page
-        loadingArea = $(document.createElement('div'));
-        loadingArea.attr('id', 'loadingArea');
-        root.append(loadingArea);
+        var progressCircCSS,
+            circle,
+            oldSearchTerm;
 
-        // set image paths
-        root.find('#catalogBackButton').attr('src', tagPath+'images/icons/Back.svg');
-        root.find('#feedback-icon').attr('src', tagPath+'images/icons/FeedbackIcon.svg');
+        backbuttonIcon.attr('src', tagPath+'images/icons/Back.svg');
 
-        var progressCircCSS = { "position": 'absolute', 'z-index': '50', 'height': 'auto', 'width': '5%', 'left': '47.5%', 'top': '42.5%' };
-        var centerhor = '0px';
-        var centerver = '0px';
-        var circle = LADS.Util.showProgressCircle(loadingArea, progressCircCSS, centerhor, centerver, false);
-
-        // after loading finishes
-        var overlay = root.find('#overlay');
-
-        makeTimeline();
-
-        artistButton
-        .addClass('rowButton')
-        .click(function () {
-            changeDisplayTag(currentArtworks, "Artist");
-        });
-
-        titleButton
-        .addClass('rowButton')
-        .click(function () {
-            changeDisplayTag(currentArtworks, "Title");
-        });
-
-        yearButton
-        .addClass('rowButton')
-        .click(function () {
-            changeDisplayTag(currentArtworks, "Year");
-        });
-
-        typeButton
-        .addClass('rowButton')
-        .click(function () {
-            changeDisplayTag(currentArtworks, "Type");
-        });
-
-        searchTxt.css({
-            'font-size': '80%'
-        });
-
-        //The search and filter begins here.
-        search.attr("placeholder", "Enter Keyword").blur();
-        search.css({
-            'max-height': $(row).height()*0.75 + '%',
-            'font-size': '80%'
-        });
+        progressCircCSS = {
+            'position': 'absolute',
+            'z-index': '50',
+            'height': 'auto',
+            'width': '5%',
+            'left': '47.5%',
+            'top': '42.5%'
+        };
         
-        // the following mousedown and mouseup handlers deal with clicking the 'X' in the search box
-        var oldSearchTerm;
-        $(search).on('mousedown', function () {
-            oldSearchTerm = $(search).val().toLowerCase();
-        });
+        circle = LADS.Util.showProgressCircle(loadingArea, progressCircCSS, '0px', '0px', false);
 
-        $(search).mouseup(function () {
-            setTimeout(function () {
-                if ($(search).val().toLowerCase() !== oldSearchTerm) {
-                    doSearch();
-                }
-            }, 1);
+        root.find('.rowButton').on('click', function() {
+            changeDisplayTag(currentArtworks, $(this).attr('tagName'));
         });
 
         // search on keyup
-        $(search).on('keyup', function (e) {
+        searchInput.on('keyup', function (e) {
             doSearch();
         });
 
-        var feedbackContainer = initFeedback();
-
-        // Back button/overlay area
-        var backbuttonArea = root.find('#backbuttonArea');
-
-        var backbuttonIcon = root.find('#catalogBackButton');
-        backbuttonIcon.css({
-            'display': (!forSplitscreen && !LADS.Util.Splitscreen.on()) ? 'block' : 'none'
-        });
-
         //handles changing the color when clicking/mousing over on the backButton
-        backbuttonIcon.mouseleave(function () {
-            LADS.Util.UI.cgBackColor("backButton", backbuttonIcon, true);
-        });
-        backbuttonIcon.mousedown(function () {
-            LADS.Util.UI.cgBackColor("backButton", backbuttonIcon, false);
-        });
-
-        //opens the splash screen when the back button is clicked
-        backbuttonIcon.click(function () {
+        LADS.Util.UI.setUpBackButton(backbuttonIcon, function () {
             backbuttonIcon.off('click');
-            LADS.Layout.StartPage(null, function (root) {
-                LADS.Util.Splitscreen.setOn(false);
-                LADS.Util.UI.slidePageRight(root);
-            }, true);
+            LADS.Layout.StartPage(null, LADS.Util.UI.slidePageRight, true);
         });
 
-        // Labels (Exhibition)
-        //var fontSize = LADS.Util.getMaxFontSizeEM('Collections', 2.5, $(container).width() * 0.085, 1000, 0.2);
-        exhibitionLabel.css({
-            //'font-size': '2.1em',
-            'display': (!forSplitscreen && !LADS.Util.Splitscreen.on()) ? 'display' : 'none'
-        });
-
-        //have exhibition mode selected
-        exhibitionSpan.mousedown(function () {
-            $(this).css({ 'color': 'white' });
-        });
-
-        // Main display area
-        // Initial text displayed in display area
-        displayHelp = $(document.createElement('div'));
-        displayHelp.attr('id', 'displayHelp');
-        displayarea.append(displayHelp);
-
-        var displayHelpTitle = $(document.createElement('div'));
-        displayHelpTitle.attr('id', 'displayHelpTitle');
-        displayHelpTitle.text("Welcome to the " + LADS.Worktop.Database.getMuseumName());
-
-        var displayHelpText = $(document.createElement('div'));
-        displayHelpText.attr('id' ,'displayHelpText');
-        displayHelpText.text("Select a collection from the left menu and browse artworks below.");
-
-        displayHelp.append(displayHelpTitle);
-        displayHelp.append(displayHelpText);
-
-        // gets a list of exhibitions from the server or the cache
-        LADS.Worktop.Database.getExhibitions(getExhibitionsHelper, null, getExhibitionsHelper);
-
-        /**helper function to exhibitions**/
-        function getExhibitionsHelper(exhibitionsLocal) {
-            currentExhElements = {};
-            currentExhElements.displayareasub = displayHelp; //asign displayhelp to displayareasub to each exhibition
-
-            // Add exhibitions to sidebar
-            var gotFirst = false;
-            $.each(exhibitionsLocal, function (_, e) {
-                var privateState;
-                if (e.Metadata.Private) {
-                    privateState = (/^true$/i).test(e.Metadata.Private);
-                } else {
-                    privateState = false;
-                }
-                if (!privateState && LADS.Util.localVisibility(e.Identifier)) {
-                    if (!gotFirst) {
-                        bgimage.css('background-image', "url(" + LADS.Worktop.Database.fixPath(e.Metadata.BackgroundImage) + ")");
-                    }
-                    addExhibit(e);
-                    gotFirst = true;
-                }
-            });
-
-            if (currExhibition) {
-                loadExhibit(currExhibition, currExhibition);
-                showExhibition(currExhibition);
-                // debugger;
-                $("#exhib-" + currExhibition.Identifier).css({ 'background-color': 'rgb(255,255,255)', 'color': 'black' });
-            } else {
-                clickExhibition(0);//have the first exhibition selected
-            }
-            loadingArea.hide();
-        }   // end getting exhibition
-
-    }   //end init()
-
-    function clickExhibition(i) {
-        if (exhibitelements[i])
-            exhibitelements[i].click();
+        LADS.Worktop.Database.getExhibitions(getCollectionsHelper, null, getCollectionsHelper);
     }
 
     /**
-     * Adds exhibitions to page
-     *@param: exhibition to add
-     * Creates button in sidebar
+     * Helper function to add collections to left bar
+     * @method getCollectionsHelper
      */
-    function addExhibit(exhibition) {
-        var title = LADS.Util.htmlEntityDecode(exhibition.Name),
-            toAddImage = $(document.createElement('img')),
-            toAdd = $(document.createElement('div')),
-            subInfo = $(document.createElement('div')),
-            text = exhibition.Metadata.Description || "",
-            shortenedText = text ? text.substr(0, 18) + "..." : "";
+    function getCollectionsHelper(collections) {
+        var i,
+            privateState,
+            c,
+            artwrk,
+            toShowFirst;
+
+        numVisibleCollections = 0;
+
+        for(i=0; i<collections.length; i++) {
+            c = collections[i];
+            privateState = c.Metadata.Private ? (/^true$/i).test(c.Metadata.Private) : false;
+            if(!privateState && LADS.Util.localVisibility(c.Identifier)) {
+                if(numVisibleCollections) {
+                    bgimage.css('background-image', "url(" + FIX_PATH(c.Metadata.BackgroundImage) + ")");
+                }
+                toShowFirst = toShowFirst || c;
+                addCollection(c);
+                numVisibleCollections++;
+            }
+        }
+
+        // Single collection UI; CSS modifications for the case when there is only one collection
+        if(numVisibleCollections === 1) {
+            enableSingleCollectionUI()
+        }
+
+        if (currCollection) {
+            clickCollection(currCollection, scrollPos, currentArtwork)();
+        } else if(toShowFirst) {
+            clickCollection(toShowFirst)(); // first collection selected by default
+        }
+        loadingArea.hide();
+    }
+
+    /**
+     * When only a single collection exists, this function modifies
+     * the CSS to hide the list of collections and expand the
+     * description area.
+     *
+     * @method enableSingleCollectionUI
+     * @author Athyuttam Eleti
+     */
+    function enableSingleCollectionUI() {
+        collectionArea.css("display", "none");
+        collectionHeader.css("display", "none");
+        displayarea.css({
+            "left": "0",
+            "width": "100%"
+        });
+
+        // NOT WOKING BECAUSE THESE DIVS AREN'T YET
+        // CREATED WHEN THIS CODE IS EXECUTED
+
+        // var exhibition_info = root.find("#collection-info");
+        // exhibition_info.css("width", "100%");
+
+        // var exhibition_name_div = root.find("#collection-name-div");
+        // exhibition_name_div.css("width", "100%");
+
+        // var content_div = root.find("#content-div");
+        // content_div.css({
+        //     "left": "4.5%",
+        //     "right": "4.5%"
+        // })
+    }
+
+    /**
+     * Add a collection to the left bar
+     * @method addCollection
+     * @param {doq} collection     the collection to add
+     */
+    function addCollection(collection) {
+        var title    = LADS.Util.htmlEntityDecode(collection.Name),
+            toAdd    = $(document.createElement('div')),
+            titleBox = $(document.createElement('div')),
+            text     = collection.Metadata.Description ? LADS.Util.htmlEntityDecode(collection.Metadata.Description) : "";
 
         text = text.replace(/<br>/g, '').replace(/<br \/>/g, '');
 
-        toAdd = $(document.createElement('div'));
-        toAdd.attr('id' ,'exhibition-selection');
-
-        var titleBox = $(document.createElement('div'));
-        titleBox.attr('id' ,'exhibition-title');
-        
-        titleBox.html(title);
-
-        toAdd.append(titleBox);
-        var size = 0.096 * 0.45 * $(window).height();
-        
-        // var exhibTitleSize = LADS.Util.getMaxFontSizeEM('W', 0.25, 9999, size * 0.85, 0.1);
-
-		/*
-        titleBox.css({
-            "font-size": '1.4em' //exhibTitleSize,            
-        });
-		*/
-
-        exLabels.push(toAdd);
-        exhibitarea.append(toAdd);
-        toAdd.attr('flagClicked', 'false');
         toAdd.addClass('collectionClickable');
-        toAdd.attr('id', 'exhib-' + exhibition.Identifier);
+        toAdd.attr({
+            'flagClicked': 'false',
+            'id': 'collection-' + collection.Identifier
+        });
     
-        toAdd.mousedown(function () {
-            $(this).css({ 'background-color': 'white'});
-            titleBox.css({'color': 'black'});
+        toAdd.on('mousedown', function () {
+            $(this).css('background-color', 'white');
+            titleBox.css('color', 'black');
         });
        
-        toAdd.mouseleave(function () {
-            if ($(this).attr('flagClicked') == 'false') {
-                $(this).css({ 'background-color': 'transparent', 'color': 'white' });
-                titleBox.css({'color': 'white'});
+        toAdd.on('mouseleave', function () {
+            var elt = $(this);
+            if (elt.attr('flagClicked') === 'false') {
+                elt.css({
+                    'background-color': 'transparent',
+                    'color': 'white'
+                });
+                titleBox.css('color', 'white');
             }             
         });
     
-        toAdd.on('click', function () {
-            //put this all in diff func and call in constructor 
-            for (var i = 0; i < exhibitelements.length; i++) {
-                // prevents animation if exhibit is already selected
-                if (exhibitelements[i] != toAdd) {
-                    exhibitelements[i].css({ 'background-color': 'transparent', 'color': 'white' });
-                    exhibitelements[i].data("selected", false);
-                    exhibitelements[i].attr('flagClicked', 'false');
-                    exhibitelements[i].children().css({'color': 'white'});
-                }
-            }
-            $(this).attr('flagClicked', 'true');
-            titleBox.css({'color': 'black'});
-            currExhibition = exhibition;
-            currentImage = null;
-            loadExhibit.call(toAdd, currExhibition);
-            scrollPos = 0; // nbowditch _editted 2/13/2014 
-            showExhibition(currExhibition);
+        toAdd.on('click', clickCollection(collection));
 
-        });
+        titleBox.attr('id' ,'collection-title-'+collection.Identifier);
+        titleBox.addClass('collection-title');
+        titleBox.html(title);
 
-        exhibitelements.push(toAdd);
+        toAdd.append(titleBox);
+        collectionArea.append(toAdd);
+
+        collectionTitles.push(toAdd);
     }
 
+    /**
+     * Click handler for collection title in left bar
+     * @method clickCollection
+     * @param {jQuery obj} elt       the element we're clicking
+     * @param {Number} sPos          if undefined, set scroll position to 0, otherwise, use this
+     * @param {doq} artwrk           if undefined, set currentArtwork to null, otherwise, use this
+     */
+    function clickCollection(collection, sPos, artwrk) {
+        return function() {
+            var i;
+            for (i = 0; i < collectionTitles.length; i++) {
+                collectionTitles[i].css({ 'background-color': 'transparent', 'color': 'white' });
+                collectionTitles[i].data("selected", false);
+                collectionTitles[i].attr('flagClicked', 'false');
+                collectionTitles[i].children().css('color', 'white');
+            }
+            $('#collection-'+collection.Identifier).attr('flagClicked', 'true');
+            $('#collection-title-'+collection.Identifier).css('color', 'black');
+            currCollection = collection;
+            currentArtwork = artwrk || null;
+            loadCollection.call($('#collection-'+currCollection.Identifier), currCollection);
+            scrollPos = sPos || 0;
+            showCollection(currCollection);
+        }
+    }
 
     /**
-     * When exhibition is selected in sidebar,
-     * this function creates description to display in main display area
-     * @param: selected exhibition
+     * When a collection is selected in the left bar, load its image and description
+     * in the display area
+     * @method loadCollection
+     * @param {doq} collection     the collection to load
+     * @param {Boolean} isPrivate  a little bit of a hack to get private exhibits
+     *                             to show in settings view.  When set to true it just ignores anything
+     *                             that relies on 'this' since 'this' doesn't exist for a private exhibit
+     *                             (it doesn't have a label in the exhib list)
      */
-    // BM - privateExhib is a little bit of a hack to get private exhibits
-    // to show in settings view.  When set to true it just ignores anything
-    // that relies on 'this' since 'this' doesn't exist for a private exhibit
-    // (it doesn't have a label in the exhib list)
-    
-    function loadExhibit(exhibition, privateExhib) {
+    function loadCollection(collection, isPrivate) {
+        var display,
+            w,
+            str,
+            fontSize,
+            titlediv,
+            contentdiv,
+            exploreTabText,
+            exploreTab,
+            exploreIcon,
+            progressCircCSS,
+            circle;
+
         searchTxt.text("");
 
-        timelineDiv && timelineDiv.empty();
+        catalogDiv && catalogDiv.empty();
 
-        //this refers to toAdd- just particular one
-        if (exhibition) {
-            bgimage.css('background-image', "url(" + LADS.Worktop.Database.fixPath(exhibition.Metadata.BackgroundImage) + ")");// RIA ADDED
+        if (collection.Metadata.BackgroundImage) {
+            bgimage.css('background-image', "url(" + FIX_PATH(collection.Metadata.BackgroundImage) + ")");
         }
-        if (!privateExhib && this.data("selected")) { return; }//if the exhibition has already been selected, do nothing
 
-        if (!privateExhib) {
-            this.data("selected", true);
-        }
-        // Start loading artwork now in background
+        !isPrivate && this.data("selected", true);
 
         // Remove current contents of display area
-        var d;
-        if (firstLoad) {
-            d = currentExhElements.displayareasub;
-            d.remove();
-            firstLoad = false;
-        }
-        else if (currentExhElements) {
-            currentExhElements.block.remove();
-            d = currentExhElements.displayareasub;
-            d.css('z-index', 1000);
-            d.remove();
-        }
+        displayareasub.empty();
 
-        var displayareasub = $(document.createElement('div'));
-        displayareasub.attr('id' ,'displayareasub');
-        displayarea.append(displayareasub);
-
-        currentExhElements = {};
-        currentExhElements.block = $(document.createElement('div'));
-        if (!privateExhib) {
-            currentExhElements.block.css({
-                "top": $(this).position().top, "left": "100%", "height": $(this).css('height'),
-                "width": "4%", "font-size": "1.5em", 'position': 'absolute',
-                'border': 'solid transparent', 'border-width': '5px 0px 5px 0px',
-                'background-color': 'rgba(255,255,255,0)', 'z-index': '50'
-            });
-        }
-
-        // Make titles
+        // make title
         titlediv = $(document.createElement('div'));
-        titlediv.attr('id', 'exhibition-name-div');
-        titlediv.text(LADS.Util.htmlEntityDecode(exhibition.Name));
+        titlediv.attr('id', 'collection-name-div');
+        titlediv.text(LADS.Util.htmlEntityDecode(collection.Name));
 
-        var w = $(container).width() * 0.75 * 0.8;
-        
-        currentExhElements.title = titlediv;
+        w = $(window).width() * 0.75 * 0.8;
 
-        // Display contains description, thumbnails and view button
-        // TODO Might need to push this down farther (make top larger), Looks fine for now, though
-        var display = $(document.createElement('div'));
-        display.attr('id', 'exhibition-info');
-
+        // display contains description, thumbnails and view button
+        display = $(document.createElement('div'));
+        display.attr('id', 'collection-info');
         displayareasub.append(display);
 
-        currentExhElements.display = display;
-        var fontSize = LADS.Util.getMaxFontSizeEM(exhibition.Name, 1.5, w, 0.2 * display.height(),0.2);
+        // TODO fix this
+        fontSize = LADS.Util.getMaxFontSizeEM(LADS.Util.htmlEntityDecode(collection.Name), 1.5, w, 0.2 * display.height(),0.2);
         titlediv.css({ 'font-size': fontSize });
         display.append(titlediv);
 
         // Contains text
         contentdiv = $(document.createElement('div'));
         contentdiv.attr('id', 'contentdiv');
-        contentdiv.css({
-            'width': '94%', 
-            'height': '80%', //(display.height()-titlediv.height()-20)+"px",
-        });
         display.append(contentdiv);
 
         imgDiv = $(document.createElement('div'));
         imgDiv.attr('id', 'img-container');
-        imgDiv.css({       
-            height: '91.5%', 
-            width: '40%', 
-            position: 'absolute',
-            top: '0%',
-        });
 
-        img1 = $(document.createElement('img'));
-        img1.attr('id', 'image');
-        img1.attr('src', LADS.Worktop.Database.fixPath(exhibition.Metadata.DescriptionImage1));
-        img1.attr('thumbnail', LADS.Worktop.Database.fixPath(exhibition.Metadata.DescriptionImage1));       
+        currentThumbnail = $(document.createElement('img'));
+        currentThumbnail.attr('id', 'currentThumbnail');
+        currentThumbnail.attr('src', FIX_PATH(collection.Metadata.DescriptionImage1));
+        currentThumbnail.attr('thumbnail', FIX_PATH(collection.Metadata.DescriptionImage1));
+        currentThumbnail.on('click', switchPage);      
         
-        var exploreTabText = $(document.createElement('div'));
+        exploreTabText = $(document.createElement('div'));
         exploreTabText.attr('id','explore-text');
-
-        var exploreTab = $(document.createElement('div'));
-        exploreTab.addClass('explore-tab');
-
+        exploreTabText.css("font-size", 20 * BASE_FONT_SIZE / 30 + 'em');
         exploreTabText.text("Explore");
-        exploreTab.on('click', function () {
-            if (artworkSelected) {
-                switchPage();
-            }
-        });
 
-        var exploreIcon = $(document.createElement('img'));
+        exploreIcon = $(document.createElement('img'));
         exploreIcon.attr('id', 'exploreIcon');
         exploreIcon.attr('src', tagPath+'images/icons/ExploreIcon.svg');
 
+        exploreTab = $(document.createElement('div'));
+        exploreTab.attr('id', 'explore-tab');
+        exploreTab.on('click', switchPage);
+
         exploreTab.append(exploreIcon);
-        exploreTab.append(exploreTabText);    
+        exploreTab.append(exploreTabText);
 
-        contentdiv.append(imgDiv);
-        imgDiv.append(img1);
+        imgDiv.append(currentThumbnail);
         imgDiv.append(exploreTab);
-        exploreTabText.css("font-size", LADS.Util.getMaxFontSizeEM("Explore", 0.5, 0.5 * exploreTab.width(), 0.7 * exploreTab.height(),0.1));
-
-        img1.on('click', function () {//exploreTab
-            if (artworkSelected) {
-                switchPage();
-            }
-        });
-
+        contentdiv.append(imgDiv);
+        
         moreInfo = $(document.createElement('div'));
         moreInfo.attr('id', 'info-text');
 
         artistInfo = $(document.createElement('div'));
         artistInfo.attr('id', 'artistInfo');
-        artistInfo.css({
-            'font-size': '0.65em' 
-        });
+        artistInfo.css('font-size', 11 * BASE_FONT_SIZE / 30 + 'em');
 
         yearInfo = $(document.createElement('div'));
         yearInfo.attr('id', 'yearInfo');
-        yearInfo.css({
-            'font-size': '0.65em' 
-        });
+        yearInfo.css('font-size', 11 * BASE_FONT_SIZE / 30 + 'em');
 
         moreInfo.append(artistInfo);
         moreInfo.append(yearInfo);
         imgDiv.append(moreInfo);
 
-        var progressCircCSS = {
+        descriptiontext = $(document.createElement('div'));
+        descriptiontext.attr('id', 'description-text');
+
+        str = collection.Metadata.Description ? collection.Metadata.Description.replace(/\n\r?/g, '<br />') : "";
+        
+        descriptiontext.css({
+            'height': '91.5%',
+            'width': '55%', 
+            'font-size': 0.2 * LADS.Util.getMaxFontSizeEM(str, 1.5, 0.55 * $(contentdiv).width(), 0.915 * $(contentdiv).height(), 0.1),
+        });
+        
+        descriptiontext.html(Autolinker.link(str, {email: false, twitter: false}));
+
+        contentdiv.append(descriptiontext);
+
+        progressCircCSS = {
             'position': 'absolute',
             'float': 'left',
             'left': '12%',
@@ -44367,388 +44282,367 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             'width': 'auto',
             'top': '22%',
         };
-        
+        circle = LADS.Util.showProgressCircle(descriptiontext, progressCircCSS, '0px', '0px', false);
 
-        var h1 = $(display).height() * 0.9;
-
-        descriptiontext = $(document.createElement('div'));
-        descriptiontext.attr('id', 'description-text');
-
-        var str;
-        if (exhibition.Metadata.Description) {
-            str = exhibition.Metadata.Description.replace(/\n\r?/g, '<br />');
-        } else {
-            str = "";
-        }
-        
-        descriptiontext.css({
-            'height': '91.5%',
-            'width': '55%', 
-            'font-size': 0.2 * LADS.Util.getMaxFontSizeEM(exhibition.Metadata.Description, 1.5, 0.55 * $(contentdiv).width(), 0.915 * $(contentdiv).height(), 0.1), // h1*0.055 + 'px',
-        });
-        
-        if (typeof Windows != "undefined") {
-            // running in Win8 app
-            descriptiontext.html(str);
-        } else {  
-            // running in browser
-            descriptiontext.html(Autolinker.link(str, {email: false, twitter: false}));
-        }
-        contentdiv.append(descriptiontext);
-        var circle = LADS.Util.showProgressCircle(descriptiontext, progressCircCSS, '0px', '0px', false);
-        img1.load(function () {
+        currentThumbnail.on('load', function () {
             LADS.Util.removeProgressCircle(circle);
         });
 
-        if (!privateExhib)
-            $(this).css({ 'background-color': 'rgb(255,255,255)', 'color': 'black' });
-
-        currentExhElements.displayareasub = displayareasub;
-
-        $(document).ready(function () {
-            displayareasub.css({ 'width': '100%', 'height': '100%', 'left': '0%' });
-        });
-
-    }
-
-
-    function getTours(exhib, callback) {//dont send in anything
-        //LADS.Worktop.Database.getTours(tourHelper, null, tourHelper);///getartwrksin
-        LADS.Worktop.Database.getArtworksIn(exhib.Identifier, tourHelper, null, tourHelper);///getartwrksin
-
-        function tourHelper(tours) {
-            numberOfTours = tours.length;
-            var publicTours=[];
-            var k=0;
-            for (var i = 0; i < tours.length; i++) {
-                if (tours[i].Metadata.Private !== "true") {
-                    //publicTours[tours.length-numberOfTours]=tours[i];//filter tours
-                    numberOfTours--;
-                }
-                else {
-                    publicTours.push(tours[i]);
-                    k++;
-                }
-            }
-
-            if (numberOfTours === 0) {
-                noTours = true;
-            }
-            else {
-                noTours = false;
-            }
-
-            //return tours;
-            toursGlobal = publicTours;
-            callback && callback();
+        if (!isPrivate) {
+            $(this).css({
+                'background-color': 'rgb(255,255,255)',
+                'color': 'black'
+            });
         }
-        //check in gettoursand artworks if both are empty using a flag
     }
 
-    function getArtworks(exhibition, callback) {//get rid of this func
-        LADS.Worktop.Database.getArtworksIn(exhibition.Identifier, getArtworksHelper, null, getArtworksHelper);
+    /**
+     * Get contents (artworks, videos, tours) in the specified collection and make catalog
+     * @method getCollectionContents
+     * @param {doq} collecion         the collection whose contents we want
+     * @param {Function} callback     a function to call when the contents have been retrieved
+     */
+    function getCollectionContents(collection, callback) {
+        LADS.Worktop.Database.getArtworksIn(collection.Identifier, contentsHelper, null, contentsHelper);
 
-        function getArtworksHelper(artworks) {
-            if (!artworks || !artworks[0]) {//pops up a box warning user there is no artwork in the selected exhibition
-                var noArtworksOptionBox = LADS.Util.UI.makeNoArtworksOptionBox();
+        /**
+         * Helper function to process collection contents
+         * @method contentsHelper
+         * @param {Array} contents     array of doq objects for each of the contents of this collection
+         */
+        function contentsHelper(contents) {
+            var makeNoArtworksOptionBox;
+
+            if (!contents || !contents[0]) { // pops up box warning user there is no artwork in selected collection
+                noArtworksOptionBox = LADS.Util.UI.makeNoArtworksOptionBox();
                 root.append(noArtworksOptionBox);
                 $(noArtworksOptionBox).fadeIn(500);
-                noArtworks = true;
-               // return;
             }
-            else { noArtworks = false; }
 
-            //create tiles for artworks here
-            if (toursGlobal && toursGlobal.length) {
-                artworks = toursGlobal.concat(artworks || []);//$.merge(toursGlobal, artworks);//causes error
-            }
-            createArtTiles(artworks);
-            initSearch(artworks);
+            createArtTiles(contents);
+            initSearch(contents);
             callback && callback();
         }
     }
 
-    // store sorting source
-    function initSearch(artworks) {
-        $(search)[0].value = "";
+    /**
+     * Store the search strings for each artwork/tour
+     * @method initSearch
+     * @param {Array} contents    the contents of this collection (array of doqs)
+     */
+    function initSearch(contents) {
+        var info,
+            i,
+            cts;
+
+        searchInput[0].value = "";
         infoSource = [];
-        for (var i = 0; i < artworks.length; i++) {
-            var infos;
-            if (!artworks[i]) { continue; }
-            infos = artworks[i].Name + " "
-                + artworks[i].Metadata.Artist + " "
-                + artworks[i].Metadata.Year + " "
-                + artworks[i].Metadata.Type;
-            infos = infos.toLowerCase();
-            infoSource.push({ "id": i, "keys": infos });
+
+        for (i = 0; i < contents.length; i++) {
+            cts = contents[i];
+            if (!cts) {
+                continue;
+            }
+            info = cts.Name + " " + cts.Metadata.Artist + " " + cts.Metadata.Year + " " + cts.Metadata.Type;
+            infoSource.push({
+                "id": i,
+                "keys": info.toLowerCase()
+            });
         }
     }
 
+    /**
+     * Search collection using string in search input box
+     * @method doSearch
+     */
     function doSearch() {
-        var content = $(search).val().toLowerCase();
-        if (content === "") {
+        var content = searchInput.val().toLowerCase(),
+            matchedArts = [],
+            unmatchedArts = [],
+            i;
+
+        if (!content) {
             searchTxt.text("");
-            drawTimeline(currentArtworks, currentTag, 0, false);
+            drawCatalog(currentArtworks, currentTag, 0, false);
             return;
         }
-        inSearch = true;
-        var matchedArts = [], unmatchedArts = [];
 
-        for (var i = 0; i < infoSource.length; i++) {
+        for (i = 0; i < infoSource.length; i++) {
             if (infoSource[i].keys.indexOf(content) > -1) {
                 matchedArts.push(currentArtworks[i]);
-            }
-            else {
+            } else {
                 unmatchedArts.push(currentArtworks[i]);
             }
         }
 
-        if (matchedArts.length > 0) searchTxt.text("Results Found");
-        else searchTxt.text("No Matching Results");
-        var numDrawn = drawTimeline(matchedArts, currentTag, 0, true);
-        drawTimeline(unmatchedArts, currentTag, numDrawn, false);
-        inSearch = false;
+        searchTxt.text(matchedArts.length > 0 ? "Results Found" : "No Matching Results");
+
+        drawCatalog(matchedArts, currentTag, 0, true);
+        drawCatalog(unmatchedArts, currentTag, matchedArts.length, false);
     }
 
-
-    function makeTimeline() {
-        timelineDiv.scrollLeft();
-    }
-
+    /**
+     * Create tiles for each artwork/tour in a collection
+     * @method createArtTiles
+     * @param {Array} artworks     an array of doq objects
+     */
     function createArtTiles(artworks) {
         currentArtworks = artworks;
-        currentTag = defaultTag;
-        handleSelectTags(currentTag);
-        drawTimeline(currentArtworks, currentTag, 0);
+        currentTag = DEFAULT_TAG;
+        colorSortTags(currentTag);
+        drawCatalog(currentArtworks, currentTag, 0);
     }
 
-    // artworks: artworks to be sorted
-    // tag: current tag to be sorted by
-    // start: the index in the array to start sort from
-    // onSearch: used only for matched results to make it highlighted
-    function drawTimeline(artworks, tag, start, onSearch) {
-        if (!currExhibition) return;
+    /**
+     * Draw the collection catalog
+     * @method drawCatalog
+     * @param {Array} artworks    the contents of the collection
+     * @param {String} tag        current sorting tag
+     * @param {Number} start      starting at start-th artwork total (note NOT start-th artwork in artworks)
+     * @param {Boolean} onSearch  whether the list of artworks is a list of works matching a search term
+     */
+    function drawCatalog(artworks, tag, start, onSearch) {
+        if (!currCollection) {
+            return;
+        }
+
         if (start === 0) {
-            // console.log('currExhib = ' + currExhibition.Name);
             loadQueue.clear();
-            setTimeout(function () {
-                timelineDiv.empty();
-            });
+            catalogDiv.empty();
+            drawHelper();
+            
+        } else {
+            drawHelper();
         }
-        if (artworks === null) return;
-        var sortedArtworks = sortTimeline(artworks, tag);
-        var each = sortedArtworks.min();
-        var currentWork = (each) ? each.artwork : null;
-        var i = start;
-        var h = $(timelineDiv).height() * 0.48;
-        var w = h * 1.4;
 
-        var works = sortedArtworks.getContents();
-        for (var j = 0; j < works.length; j++) {
-            var k = j;
-            loadQueue.add(drawArtworkTile(works[k].artwork, tag, onSearch, k + i, w, h));
-            loadQueue.add(function () { timelineDiv.animate({ scrollLeft: scrollPos }, 0); });
+        // helper function to perform the actual drawing (to make sure we deal with async correctly)
+        function drawHelper() {
+            var sortedArtworks,
+                minOfSort,
+                currentWork,
+                works,
+                i, h, w, j;
+
+            if (!artworks || artworks.length === 0){
+                return;
+            }
+
+            sortedArtworks = sortCatalog(artworks, tag);
+            minOfSort = sortedArtworks.min();
+            currentWork = minOfSort ? minOfSort.artwork : null;
+            i = start;
+            h = $(catalogDiv).height() * 0.48;
+            w = h * 1.4;
+
+            works = sortedArtworks.getContents();
+            for (j = 0; j < works.length; j++) {
+                loadQueue.add(drawArtworkTile(works[j].artwork, tag, onSearch, i + j, w, h));
+                loadQueue.add(function () {
+                    if(catalogDiv.width() <= scrollPos) {
+                        catalogDiv.animate({
+                            scrollLeft: scrollPos
+                        }, 0);
+                    }
+                });
+            }
         }
-        
-
-        return works.length;
     }
 
+    /**
+     * Creates an artwork tile in a collection's catalog
+     * @method drawArtworkTile
+     * @param {doq} currentWork     the artwork/tour for which we're creating a tile
+     * @param {String} tag          current sort tag
+     * @param {Boolean} onSearch    whether this work is a match after searching
+     * @param {Number} i            index into list of all works in this collection
+     * @param {Number} w            width of this tile
+     * @param {Number} h            height of this tile
+     */
     function drawArtworkTile(currentWork, tag, onSearch, i, w, h) {
         return function () {
-            var main = $(document.createElement('div'));
+            var main      = $(document.createElement('div')),
+                artTitle  = $(document.createElement('div')),
+                artText   = $(document.createElement('div')),
+                tileImage = $(document.createElement('img')),
+                tourLabel,
+                videoLabel;
+
             main.addClass("tile");
-            //if (i >= 2) return;
+            tileImage.addClass('tileImage');
+            artTitle.addClass('artTitle');
+            artText.addClass('artText');
+
             main.css({
-                'height': '48%', 
-                'width': '16%', 
-                'position': 'absolute',
-                'margin-left': parseInt(i / 2) * 16.5 + 1 + '%', // (parseInt(i / 2) * $(timelineDiv).width() * 0.16 * 1.03) + 10 + "px",
-                'margin-top': (i % 2) * 12.25 + '%', // ((i % 2) * $(timelineDiv).height() * 0.48 * 1.05) + "px",
-                'border': '1px solid rgba(0,0,0,0.85)',
+                'margin-left': Math.floor(i / 2) * 16.5 + 1 + '%', // TODO do this using w rather than 16.5%
+                'margin-top': (i % 2) * 12.25 + '%'
             });
 
             main.on('click', function () {
-                if (img1.attr('guid') === currentWork.Identifier) {
+                if (currentThumbnail.attr('guid') === currentWork.Identifier) { // click twice to enter viewer
                     switchPage();
                 } else {
                     showArtwork(currentWork)();
                 }
             });
 
-            var tourLabel = $(document.createElement('img'));
-            tourLabel.attr('id', 'tourLabel');
-            tourLabel.attr('src', tagPath+'images/icons/catalog_tour_icon.svg');
-            tourLabel.css({
-                'height': '30%', 
-                'width': '30%', 
-                'margin-right': '-7%'
-            });
-
-            var videoLabel = $(document.createElement('img'));
-            videoLabel.attr('id', 'videoLabel');
-            videoLabel.attr('src', tagPath+'images/icons/catalog_video_icon.svg');
-            videoLabel.css({
-                'height': '35%', 
-                'width': '20%', 
-            });
-
-            var image = $(document.createElement('img'));
-            //debugger;
-            if(currentWork.Metadata.Thumbnail != null) {
-                image.attr("src", LADS.Worktop.Database.fixPath(currentWork.Metadata.Thumbnail));
+            if(currentWork.Metadata.Thumbnail) {
+                tileImage.attr("src", FIX_PATH(currentWork.Metadata.Thumbnail));
+            } else {
+                tileImage.attr("src", tagPath+'images/no_thumbnail.svg');
             }
-            
-            //<img style="width: 100%; height: 100%; position: absolute;" src="http://browntagserver.com:8086/Images/20121002202624.jpg">
-            else {
-                image.attr("src", tagPath+'images/no_thumbnail.svg');
-            }
-            
-            image.css({ width: '100%', height: "100%", position: 'absolute' });
-
-            var specs = LADS.Util.constrainAndPosition(w, h,
-            {
-                center_h: true,
-                center_v: true,
-                width: 1.0,
-                height: 0.20,
-                max_height: 35,
-            });
-
-            var artTitle = $(document.createElement('div'));
-            artTitle.attr('id', 'artTitle');
-            artTitle.css({
-                'width': '100%', 
-                'height': '20%', 
-            });
-
-            // text div for artwork
-            var artText = $(document.createElement('div'));
-            artText.attr('id', 'artText');
-			
-			/*
-            artText.css({
-                'font-size': '0.6em', // ($(artTitle).height() * 0.55) + "px",
-            });
-			*/
 
             if (tag === 'Title') {
                 artText.text(LADS.Util.htmlEntityDecode(currentWork.Name));
+            } else if (tag === 'Artist') {
+                artText.text(currentWork.Type === 'Empty' ? '(Interactive Tour)' : currentWork.Metadata.Artist);
+            } else if (tag === 'Year') {
+                artText.text(currentWork.Type === 'Empty' ? '(Interactive Tour)' : currentWork.Metadata.Year);
+            } else if (tag === 'Type') {
+                artText.text(LADS.Util.htmlEntityDecode(currentWork.Name));
             }
-            else if (tag === 'Artist') artText.text(currentWork.Type === 'Empty' ? '(Interactive Tour)' : currentWork.Metadata.Artist);
-            else if (tag === 'Year') artText.text(currentWork.Type === 'Empty' ? '(Interactive Tour)' : currentWork.Metadata.Year);
-            else if (tag === 'Type') artText.text(LADS.Util.htmlEntityDecode(currentWork.Name));
             artTitle.append(artText);
 
-            if (!onSearch && $(search).val() !== '') {
-                image.css({ 'opacity': '0.3' });
-                main.css('border', '1px solid black');
-            } else if (inSearch) {
-                image.css({ 'opacity': '0.3' });
+            if (!onSearch && searchInput.val() !== '') {
+                tileImage.css({ 'opacity': '0.3' });
                 main.css('border', '1px solid black');
             } else if (onSearch) {
-                image.css({ 'opacity': '1.0'});
-                main.css('border', '1px solid white');
+                tileImage.css({ 'opacity': '1.0'});
+                main.css('border', '1px solid rgba(255, 255, 255, 0.5)');
             }
-            main.append(image);
+            main.append(tileImage);
             main.append(artTitle);
 
             if (currentWork.Type === "Empty") {
+                tourLabel = $(document.createElement('img'))
+                tourLabel.addClass('tourLabel');
+                tourLabel.attr('src', tagPath+'images/icons/catalog_tour_icon.svg');
                 main.append(tourLabel);
-            }
-            else if (currentWork.Metadata.Medium === "Video") {
+            } else if (currentWork.Metadata.Medium === "Video") {
+                videoLabel = $(document.createElement('img'));
+                videoLabel.addClass('videoLabel');
+                videoLabel.attr('src', tagPath+'images/icons/catalog_video_icon.svg');
                 main.append(videoLabel);
             }
-            timelineDiv.append(main);
+            catalogDiv.append(main);
         };
     }
 
+    /**
+     * Shows an artwork in the upper section; sets the current thumbnail to be the artwork's
+     * and shows name, description, etc
+     * @method showArtwork
+     * @param {doq} artwork     the artwork doq to be shown
+     * 
+     */
     function showArtwork(artwork) {
         return function () {
-            currentImage = artwork;
-            artworkSelected = true;
-            $('.explore-tab').css('display', 'inline-block');
+            var titleSpan,
+                descSpan;
 
-            if (artwork.Type != "Empty") {
-                if (artwork.Metadata.Artist === undefined) {
-                    artistInfo.text("Artist: Unknown");
-                } else {
-                    artistInfo.text("Artist: " + artwork.Metadata.Artist);
-                }
-                
-                if (artwork.Metadata.Year === undefined) {
-                    yearInfo.text("");
-                } else {
-                    yearInfo.text(artwork.Metadata.Year);
-                }
+            if(!artwork) {
+                return;
             }
-            else {
-                artistInfo.text("Interactive Tour" );
+
+            currentArtwork = artwork;
+            artworkSelected = true;
+            $('#explore-tab').css('display', 'inline-block');
+
+            if (artwork.Type !== "Empty") {
+                artistInfo.text("Artist: " + (artwork.Metadata.Artist ? artwork.Metadata.Artist : "Unknown"));
+                yearInfo.text(artwork.Metadata.Year ? artwork.Metadata.Year : " ");
+            } else {
+                artistInfo.text("(Interactive Tour)" );
                 yearInfo.text(" " );
             }
                 
-            img1.attr("src", artwork.Metadata.Thumbnail ? LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail) : (tagPath+'images/no_thumbnail.svg'))
+            currentThumbnail.attr("src", artwork.Metadata.Thumbnail ? FIX_PATH(artwork.Metadata.Thumbnail) : (tagPath+'images/no_thumbnail.svg'))
                 .css('border', '1px solid rgba(0,0,0,0.5)')
                 .attr('guid', artwork.Identifier);
-            
-            var titleSpan = $(document.createElement('div'))
-                            .text(LADS.Util.htmlEntityDecode(artwork.Name))
-                            .attr('id', 'titleSpan')
-            
-            var descSpan = $(document.createElement('div'))
-                            .attr('id', 'descSpan')
 
-            if (typeof Windows != "undefined") {
-                // running in Win8 app
-                descSpan.html(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '');
-            } else {  
-                // running in browser
-                descSpan.html(Autolinker.link(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '', {email: false, twitter: false}));
-            }
+            setTimeout(function() {
+                currentThumbnail.attr('guid', '');
+            }, 400); // hack to simulate double-click event
+            
+            titleSpan = $(document.createElement('div'))
+                        .text(LADS.Util.htmlEntityDecode(artwork.Name))
+                        .attr('id', 'titleSpan');
+            
+            descSpan = $(document.createElement('div'))
+                        .attr('id', 'descSpan');
+            
+            descSpan.html(Autolinker.link(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '', {email: false, twitter: false}));
                             
-
             descriptiontext.empty();
             descriptiontext.append(titleSpan).append(descSpan);            
         };
     }
 
-    function sortTimeline(artworks, tag) {
-        var identical = 0;
-        var comparator;
-        var valuation;
-        var avlTree;
-        var artNode;
-        var i;
-        if (tag === 'Title') {
-            identical = 0;
-            comparator = function (a, b) {
-                if (a.nameKey < b.nameKey) {
+    /**
+     * Generates a comparator function for catalog sorting
+     * @method sortComparator
+     * @param {String} primary     the primary sorting property
+     * @param {String} secondary   the secondary sorting property
+     *                                if left undefined, a.artwork.Identifier is used
+     *                                as the secondary property
+     */
+    function sortComparator(primary, secondary) {
+        return function(a, b) {
+            var aSecondary,
+                bSecondary;
+            if (a[primary] < b[primary]) {
+                return -1;
+            } else if (a[primary] > b[primary]) {
+                return 1;
+            } else {
+                aSecondary = secondary ? a[secondary] : a.artwork.Identifier;
+                bSecondary = secondary ? b[secondary] : b.artwork.Identifier;
+                if (aSecondary < bSecondary) {
                     return -1;
-                } else if (a.nameKey > b.nameKey) {
-                    return 1;
-                } else {
-                    if (a.artwork.Identifier > b.artwork.Identifier) {
-                        return 1;
-                    }
-                    else if (a.artwork.Identifier < b.artwork.Identifier) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
-                }
-            };
-
-            valuation = function (value, compareToNode) {
-                if (!compareToNode) {
-                    return null;
-                } else if (value < compareToNode.nameKey) {
-                    return -1;
-                } else if (value > compareToNode.nameKey) {
+                } else if (aSecondary > bSecondary) {
                     return 1;
                 } else {
                     return 0;
                 }
-            };
+            }
+        }
+    }
+
+    /**
+     * Generates a valuation function for catalog sorting
+     * @method sortValuation
+     * @param {String} property     valuation property name
+     */
+    function sortValuation(property) {
+        return function(value, compareToNode) {
+            if (!compareToNode) {
+                return null;
+            } else if (value < compareToNode[property]) {
+                return -1;
+            } else if (value > compareToNode[property]) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    }
+
+    /**
+     * Sort the catalog by the given criterium
+     * @method sortCatalog
+     * @param {Array} artworks    an array of doq objects to be sorted
+     * @param {String} tag        the sort type
+     * @return {AVLTree}          an avl tree for easy sorting
+     */
+    function sortCatalog(artworks, tag) {
+        var comparator,
+            valuation,
+            avlTree,
+            artNode,
+            i;
+
+        if (tag === 'Title') {
+            comparator = sortComparator('nameKey');
+            valuation  = sortValuation('nameKey');
 
             avlTree = new AVLTree(comparator, valuation);
             avlTree.clear();
@@ -44761,115 +44655,34 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             }
             return avlTree;
         } else if (tag === 'Artist') {
-            identical = 0;
-            comparator = function (a, b) {
-                if (a.artistKey < b.artistKey) {
-                    return -1;
-                } else if (a.artistKey > b.artistKey) {
-                    return 1;
-                } else {
-                    if (a.artwork.Identifier > b.artwork.Identifier) {
-                        return 1;
-                    } 
-                    else if (a.artwork.Identifier < b.artwork.Identifier) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
-                }
-            };
-
-            valuation = function (value, compareToNode) {
-                if (!compareToNode) {
-                    return null;
-                } else if (value < compareToNode.artistKey) {
-                    return -1;
-                } else if (value > compareToNode.artistKey) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            };
+            comparator = sortComparator('artistKey');
+            valuation  = sortValuation('artistKey');
 
             avlTree = new AVLTree(comparator, valuation);
             for (i = 0; i < artworks.length; i++) {
                 artNode = {
                     artwork: artworks[i],
-                    artistKey: artworks[i].Type === 'Empty' ? '~~~~' : artworks[i].Metadata.Artist
+                    artistKey: artworks[i].Type === 'Empty' ? '~~~~' : artworks[i].Metadata.Artist // tours show up at end
                 };
                 avlTree.add(artNode);
             }
             return avlTree;
         } else if (tag === 'Year') {
-            identical = 0;
-            comparator = function (a, b) {
-                if (a.yearKey < b.yearKey) {
-                    return -1;
-                } else if (a.yearKey > b.yearKey) {
-                    return 1;
-                } else {
-                    if (a.artwork.Identifier > b.artwork.Identifier) {
-                        return 1;
-                    }
-                    else if (a.artwork.Identifier < b.artwork.Identifier) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
-                }
-            };
-
-            valuation = function (value, compareToNode) {
-                if (!compareToNode) {
-                    return null;
-                } else if (value < compareToNode.yearKey) {
-                    return -1;
-                } else if (value > compareToNode.yearKey) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            };
+            comparator = sortComparator('yearKey');
+            valuation  = sortValuation('yearKey');
 
             avlTree = new AVLTree(comparator, valuation);
             for (i = 0; i < artworks.length; i++) {
                 artNode = {
                     artwork: artworks[i],
-                    yearKey: artworks[i].Type === 'Empty' ? '~~~~' : artworks[i].Metadata.Year
+                    yearKey: artworks[i].Type === 'Empty' ? '~~~~' : artworks[i].Metadata.Year // tours show up at end
                 };
                 avlTree.add(artNode);
             }
             return avlTree;
         } else if (tag === 'Type') {
-            identical = 0;
-            comparator = function (a, b) {
-                if (a.typeKey < b.typeKey) {
-                    return -1;
-                } else if (a.typeKey > b.typeKey) {
-                    return 1;
-                } else {
-                    if (a.nameKey > b.nameKey) {
-                        return 1;
-                    }
-                    else if (a.nameKey < b.nameKey) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
-                }
-            };
-
-            valuation = function (value, compareToNode) {
-                if (!compareToNode) {
-                    return null;
-                } else if (value < compareToNode.nameKey) {
-                    return -1;
-                } else if (value > compareToNode.nameKey) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            };
+            comparator = sortComparator('typeKey', 'nameKey');
+            valuation  = sortValuation('nameKey');
 
             avlTree = new AVLTree(comparator, valuation);
             for (i = 0; i < artworks.length; i++) {
@@ -44882,44 +44695,40 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
             }
             return avlTree;
         }
-        else return null; // error case: should check 'tag'
+        
+        return null; // error case: falsy tag
     }
 
-    function handleSelectTags(tag) {
-        //unselected tags are gray
-        artistButton.css("color", "gray");
-        titleButton.css("color", "gray");
-        yearButton.css("color", "gray");
-        typeButton.css("color", "gray");
-
-        switch (tag) {
-            case "Artist":
-                artistButton.css("color", "white");
-                break;
-            case "Title":
-                titleButton.css("color", "white");
-                break;
-            case "Year":
-                yearButton.css("color", "white");
-                break;
-            case "Type":
-                typeButton.css("color", "white");
-                break;
-        }
+    /** 
+     * Set the colors of the sort tags
+     * @method colorSortTags
+     * @param {String} tag    the name of the sort tag
+     */
+    function colorSortTags(tag) {
+        $('.rowButton').css('color', 'gray');
+        $('[tagName="'+tag+'"]').css('color', 'white');
     }
 
-    /*
-    **Changes the tag to a different one, and re-sorts.
-    **@para:tag, which indicates how to arrange the artworks
-    */
+    /**
+     * Changes the selected tag and re-sorts
+     * @method changeDisplayTag
+     * @param {Array} artworks     the array of artwork doqs to sort
+     * @param {String} tag         the name of the sort tag
+     */
     function changeDisplayTag(artworks, tag) {
-        var guidsSeen = [];
+        var guidsSeen   = [],
+            toursArray  = [],
+            artsArray   = [],
+            videosArray = [],
+            bigArray    = [],
+            i;
+
         currentTag = tag;
-        handleSelectTags(currentTag);
-        if (tag !== 'Type') drawTimeline(artworks, currentTag, 0, false);
-        else { // sort by Type
-            var toursArray = [], artsArray = [], videosArray = [];
-            for (var i = 0; i < artworks.length; i++) {
+        colorSortTags(currentTag);
+        if (tag !== 'Type') {
+            drawCatalog(artworks, currentTag, 0, false);
+        } else {
+            for (i = 0; i < artworks.length; i++) {
                 if (guidsSeen.indexOf(artworks[i].Identifier) < 0) {
                     guidsSeen.push(artworks[i].Identifier);
                 } else {
@@ -44927,147 +44736,153 @@ LADS.Layout.NewCatalog = function (backInfo, backExhibition, container, forSplit
                 }
                 if (artworks[i].Type === "Empty") {
                     toursArray.push(artworks[i]);
-                }
-                else if (artworks[i].Metadata.Type === "Artwork") {
+                } else if (artworks[i].Metadata.Type === "Artwork") {
                     artsArray.push(artworks[i]);
-                }
-                else {
+                } else {
                     videosArray.push(artworks[i]);
                 }
-            } //  done sorting
-            drawTimeline(toursArray, "Title", 0, false);
-            drawTimeline(artsArray, "Title", toursArray.length, false);
-            drawTimeline(videosArray, "Title", toursArray.length + artsArray.length, false);
+            }
+
+            // draw tours, artworks, then videos
+            bigArray.concat(toursArray).concat(artsArray).concat(videosArray);
+            drawCatalog(bigArray, "Title", 0, false);
         }
-        doSearch(); // should sort by new tag
+        doSearch(); // search with new tag
     }
 
+    /**
+     * Switch to the tour player
+     * @method switchPageTour
+     * @param {doq} tour    the relevant tour doq
+     */
     function switchPageTour(tour) {
-        var rinData, rinPlayer;
+        var rinData,
+            rinPlayer,
+            prevInfo,
+            messageBox,
+            collectionOptions,
+            parentid;
        
         rinData = JSON.parse(unescape(tour.Metadata.Content));
-            if (!rinData || !rinData.data) {
-                var messageBox = $(LADS.Util.UI.popUpMessage(null, "Cannot play empty tour.", null));
-                messageBox.css('z-index', LADS.TourAuthoring.Constants.aboveRinZIndex + 7);
-                root.append(messageBox);
-                messageBox.fadeIn(500);
-                switching = false;
-                return;
-            }
-            /* nbowditch _editted 2/13/2014 : added prevInfo */
-            scrollPos = timelineDiv.scrollLeft();
-            var prevInfo = { artworkPrev: null, prevScroll: scrollPos };
-            rinPlayer = new LADS.Layout.TourPlayer(rinData, currExhibition, prevInfo, null, tour);//error here-in util, line 524
-            /* end nbowditch edit */
 
-            if (LADS.Util.Splitscreen.on()) {//if the splitscreen is on, exit it.
-                var parentid = root.parent().attr('id');
-                LADS.Util.Splitscreen.exit(parentid[parentid.length - 1]);
-            }
-
-            LADS.Util.UI.slidePageLeftSplit(root, rinPlayer.getRoot(), rinPlayer.startPlayback);
+        if (!rinData || !rinData.data) {
+            messageBox = $(LADS.Util.UI.popUpMessage(null, "Cannot play empty tour.", null));
+            messageBox.css('z-index', LADS.TourAuthoring.Constants.aboveRinZIndex + 7);
+            root.append(messageBox);
+            messageBox.fadeIn(500);
+            return;
+        }
         
+        scrollPos = catalogDiv.scrollLeft();
+
+        collectionOptions = {
+            backScroll: scrollPos,
+            backCollection: currCollection,
+            backArtwork: currentArtwork
+        }
+
+        rinPlayer = new LADS.Layout.TourPlayer(rinData, currCollection, collectionOptions, null, tour);
+
+        if (LADS.Util.Splitscreen.on()) { // if splitscreen is on, exit it
+            parentid = root.parent().attr('id');
+            LADS.Util.Splitscreen.exit(parentid[parentid.length - 1]);
+        }
+
+        LADS.Util.UI.slidePageLeftSplit(root, rinPlayer.getRoot(), rinPlayer.startPlayback);
     }
 
+    /**
+     * Switch to the artwork viewer or tour player
+     * @method switchPage
+     */
     function switchPage() {
-        if (!currentImage)
-            return;//do nothing when there is no artwork in this catalog
-        var curOpts, deepZoom, splitopts,
-            opts = getState(), confirmationBox;
-        //check the splitscreen states.
-        if (root.parent().attr('id') === 'metascreen-R') {
-            splitopts = 'R';
-        } else {
-            splitopts = 'L';
-        }
-        curOpts = { catalogState: opts, doq: currentImage, split: splitopts };
+        var curOpts,
+            artworkViewer,
+            splitopts = 'L',
+            opts = getState(),
+            confirmationBox,
+            prevInfo,
+            videoPlayer;
 
-        if (currentImage.Type === "Empty") {
-            // put in a check for splitscreen here
+        if (!currentArtwork || !artworkSelected) {
+            return;
+        }
+
+        curOpts = {
+            catalogState: opts,
+            doq: currentArtwork,
+            split: splitopts
+        };
+
+        if (currentArtwork.Type === "Empty") { // tour
             if (LADS.Util.Splitscreen.on()) {
                 confirmationBox = LADS.Util.UI.PopUpConfirmation(function(){
-                    switchPageTour(currentImage);
-                }, "By opening this tour, you will exit split screen mode. Would you like to continue?",
-                "Continue", false, function () {
+                    switchPageTour(currentArtwork);
+                }, "By opening this tour, you will exit split screen mode. Would you like to continue?", "Continue", false, function () {
                     $(confirmationBox).remove();
                 }, root);
                 $(confirmationBox).css('z-index', 10001);
                 root.append($(confirmationBox));
                 $(confirmationBox).show();
             } else {
-                switchPageTour(currentImage);
+                switchPageTour(currentArtwork);
             }
+        } else if (currentArtwork.Metadata.Type === "VideoArtwork") { // video
+            scrollPos = catalogDiv.scrollLeft();
+            prevInfo = {
+                artworkPrev: null,
+                prevScroll: scrollPos
+            };
+            videoPlayer = new LADS.Layout.VideoPlayer(currentArtwork, currCollection, prevInfo);
+            LADS.Util.UI.slidePageLeftSplit(root, videoPlayer.getRoot());
         }
-        else if (currentImage.Metadata.Type === "VideoArtwork") {
-            /* nbowditch _editted 2/13/2013 : added prevInfo */
-            scrollPos = timelineDiv.scrollLeft();
-            var prevInfo = {artworkPrev: null, prevScroll: scrollPos};
-            var video = new LADS.Layout.VideoPlayer(currentImage, currExhibition, prevInfo);
-            /* end nbowditch edit */
-            LADS.Util.UI.slidePageLeftSplit(root, video.getRoot());//have the page sliding to left and 
-        }
-        else {//if it's an image
-            
-            /* nbowditch _editted 2/13/2014 : added prevInfo */
-            scrollPos = timelineDiv.scrollLeft();
-            var prevInfo = {prevPage: "catalog", prevScroll: scrollPos};
-            deepZoom = new LADS.Layout.Artmode(prevInfo, curOpts, currExhibition);
-            /* end nbowditch edit */
-            LADS.Util.UI.slidePageLeftSplit(root, deepZoom.getRoot());//have the page sliding to left and 
+        else { // artwork
+            scrollPos = catalogDiv.scrollLeft();
+            prevInfo = {
+                prevPage: "catalog",
+                prevScroll: scrollPos
+            };
+            artworkViewer = new LADS.Layout.Artmode(prevInfo, curOpts, currCollection);
+            LADS.Util.UI.slidePageLeftSplit(root, artworkViewer.getRoot());
         }
         root.css({ 'overflow-x': 'hidden' });
     }
 
-    function initFeedback() {
-        var feedbackContainer = root.find('#feedbackContainer'); 
-
-        var feedbackIcon = root.find('#feedbackIcon'); 
-        feedbackIcon.css({
-            'display': (!forSplitscreen && !LADS.Util.Splitscreen.on()) ? 'inline' : 'none',
-        });
-
-        var feedbackBox = LADS.Util.UI.FeedbackBox("Exhibition", getCurrentID);
-        root.append(feedbackBox);
-
-        feedbackContainer.click(makeFeedback);
-        function makeFeedback() {
-            $(feedbackBox).css({ 
-                'display': 'block'
-            });
-        }
-
-        return feedbackContainer;
+    /**
+     * Show collection contents and display current artwork if there is one
+     * @method showCollection
+     * @param {doq} c         the relevant collection doq
+     */
+    function showCollection (c) {
+        getCollectionContents(c, showArtwork(currentArtwork));
     }
 
-    function getCurrentID() {
-        if (currExhibition) {
-            return currExhibition.Identifier;
-        } else {
-            return "";
-        }
-    }
-
-    function showExhibition (e) {
-        getTours(e, function () { // TODO make this better
-            getArtworks(e, function () {
-                if (currentImage)
-                    showArtwork(currentImage)();
-            });
-        });
-    }
-
+    /**
+     * Gets the current state of the collections page
+     * @method getState
+     * @return {Object}    object containing state
+     */
     function getState() {
         return {
-            exhibition: currExhibition,
-            currentTag: defaultTag,
-            currentImage: currentImage
+            exhibition: currCollection,
+            currentTag: DEFAULT_TAG,
+            currentImage: currentArtwork
         };
     }
 
+    /**
+     * Returns the root of the collections page
+     * @method getRoot
+     * @return {jQuery Object}    root of the collections page
+     */
     function getRoot() {
         return root;
     }
 
+    return {
+        getRoot: getRoot,
+        loadCollection: loadCollection
+    };
 };
 
 LADS.Layout.NewCatalog.default_options = {};
@@ -45317,15 +45132,11 @@ LADS.Util.makeNamespace("LADS.Layout.TourPlayer");
 LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj) {
     "use strict";
 
-    /* nbowditch _editted 2/13/2014 : added prevInfo */
+    debugger; // for prevInfo
+
     var artworkPrev;
     var prevScroll = 0;
 	var prevExhib = exhibition;
-    if (prevInfo) {
-        artworkPrev = prevInfo.artworkPrev,
-        prevScroll = prevInfo.prevScroll || 0;
-    }
-    /* end nbowditch edit */
 
     var tagContainer = $('#tagRoot');
 
@@ -45366,22 +45177,23 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
         backButton.off('click'); // prevent user from clicking twice
 
         if (artworkPrev && artwork) {
-            /* nbowditch _editted 2/13/2014 : added prevInfo */
-            var prevInfo = {prevPage: artworkPrev, prevScroll: prevScroll}; // for now, scrollbar will reset if you go further than 1 page
             artmode = new LADS.Layout.Artmode(prevInfo, artwork, exhibition);
-            /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, artmode.getRoot());
 
-            var selectedExhib = $('#exhib-' + prevExhib.Identifier);
+            var selectedExhib = $('#collection-' + prevExhib.Identifier);
             selectedExhib.attr('flagClicked', 'true');
         } else {
             /* nbowditch _editted 2/13/2014 : added backInfo */
             var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
-            catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
+            catalog = new LADS.Layout.NewCatalog({
+                backScroll: prevScroll,
+                backArtwork: tourObj,
+                backCollection: exhibition
+            });
             /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
 				artworkPrev = "catalog";
-				var selectedExhib = $('#exhib-' + prevExhib.Identifier);
+				var selectedExhib = $('#collection-' + prevExhib.Identifier);
 				selectedExhib.attr('flagClicked', 'true');
 				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
                 if(selectedExhib[0].firstChild) {
@@ -45459,6 +45271,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         DURATION = parseFloat(videoSrc.Metadata.Duration),
         play = root.find('#playPauseButton'),
         vol = root.find('#videoControlsButton'),
+        loop = root.find('#loopButton'),
         sliderContainer = root.find('#sliderContainer'),
         currTime,
         poster = (videoSrc.Metadata.Thumbnail && !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : '',
@@ -45481,16 +45294,24 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         video.attr('src', "");
 
         var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
-        var catalog = new LADS.Layout.NewCatalog(backInfo, collection);
+        var catalog = new LADS.Layout.NewCatalog({
+            backScroll: prevScroll,
+            backArtwork: videoSrc,
+            backCollection: collection
+        });
 
         catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO should be default in .styl file
         LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
             artworkPrev = "catalog";
-            var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
+            var selectedExhib = $('#collection-' + prevExhib.Identifier);
             selectedExhib.attr('flagClicked', 'true');
             selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
             $(selectedExhib[0].firstChild).css({'color': 'black'});
         });
+    }
+
+    function loop(){
+
     }
 
     /**
@@ -45552,6 +45373,11 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         // when video ends, return to collections page after a short delay
         video.on('ended', function () {
             setTimeout(goBack, 300);
+        });
+
+        // set up loop button
+        loop.on('click', function() {
+
         });
 
         // Update the seek bar as the video plays

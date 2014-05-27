@@ -112,102 +112,32 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 
         // Test for browser compatibility
         if(!isBrowserCompatible()) {
-            console.log("Unsupported browser.");
-            
-            var browserDialogOverlay = $(document.createElement('div'));
-            var tagContainer = $('#tagRoot');
-            browserDialogOverlay.attr('id', 'browserDialogOverlay');
-
-            browserDialogOverlay.css({
-                display: 'block',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                'background-color': 'rgba(0,0,0,0.6)',
-                'z-index': 1000000000 + 5
-            });
-
-            // Dialog box for browser update
-            var browserDialog = $(document.createElement('div'));
-            browserDialog.attr('id', 'browserDialog');
-
-            var browserDialogSpecs = LADS.Util.constrainAndPosition($(tagContainer).width(), $(tagContainer).height(),
-            {
-                center_h: true,
-                center_v: true,
-                width: 0.5,
-                height: 0.35,
-                max_width: 560,
-                max_height: 230
-            });
-            browserDialog.css({
-                position: 'absolute',
-                left: '30%',
-                top: '30%',
-                width: '40%',
-                height: '40%',
-                border: '3px double white',
-                'text-align': 'center',
-                'background-color': 'black'
-            });
-
-            var browserDialogTitle = $(document.createElement('div'));
-            browserDialogTitle.attr('id', 'dialogTitle');
-            browserDialogTitle.css({
-                'color': 'white',
-                'width': '80%',
-                'height': '15%',
-                'left': '10%',
-                'top': '25%',
-                'font-size': '1em',
-                'position': 'relative',
-                'text-align': 'center'
-            });
-            browserDialogTitle.text("Touch Art Gallery is not supported in your browser. Please download or update to a newer browser.");
-            browserDialog.append(browserDialogTitle);
-
-            var updateBrowserLink = $(document.createElement('a'));
-            updateBrowserLink.attr('id', 'updateBrowser');
-            updateBrowserLink.attr('target', '_blank');
-            updateBrowserLink.attr('href', 'http://browsehappy.com');
-            updateBrowserLink.css({
-                'display': 'block',
-                'margin': 'auto',
-                'margin-bottom': '1%',
-                'width': '60%',
-                'height':'10%',
-                'position':'relative',
-                'top':'40%',
-                'font-size':'100%',
-                'text-decoration': 'underline',
-                'color': 'white'
-            });
-            updateBrowserLink.text("Update Browser");
-            browserDialog.append(updateBrowserLink);
-
-            browserDialogOverlay.append(browserDialog);
-            tagContainer.append(browserDialogOverlay);
+            handleIncompatibleBrowser();
         }
     }
 
     /**
-    * @method isBrowserCompatible
+    * Checks if TAG is compatible with the current browser.
     *
+    * @method isBrowserCompatible
+    * @author Athyuttam Eleti
     * @return true if the browser is compatible with TAG, false if it isn't
     */
     function isBrowserCompatible() {
+        console.log("\n///// Browser Compatibility /////")
         var userAgent = navigator.userAgent.toLowerCase();
         console.log("userAgent: " + navigator.userAgent);
 
-        if(userAgent.indexOf('android') >= 0 || userAgent.indexOf('iphone') >= 0 || userAgent.indexOf('ipad') >= 0) {
+        // Android and iOS are incompatible
+        if(userAgent.indexOf('android') >= 0 || userAgent.indexOf('iphone') >= 0 || userAgent.indexOf('ipad') >= 0 || userAgent.indexOf('ipod') >= 0) {
             if(userAgent.indexOf('android') >= 0) {
                 console.log("Detected Android Device. Unsupported browser.");
             } else if (userAgent.indexOf('iphone') >= 0) {
                 console.log("Detected iPhone. Unsupported browser.");
             } else if (userAgent.indexOf('ipad') >= 0) {
                 console.log("Detected iPad. Unsupported browser.");
+            } else if(userAgent.indexOf('ipod') >= 0) {
+                console.log("Detected iPod. Unsupported browser.");
             }
             return false;
         } else {
@@ -217,35 +147,50 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             browser = browser.toLowerCase();
             var version = 0;
 
-            if(browser.indexOf('opera') >= 0) {
+            // Opera is incompatible
+            if(browser.indexOf('opera') >= 0 || userAgent.indexOf('opr') >= 0) {
                 console.log("Detected Opera. Unsupported browser.");
                 return false;
-            } else if(browser.indexOf('chrome') >= 0) {
+            } 
+            // Chrome 31+
+            else if(browser.indexOf('chrome') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
                 console.log("Detected Chrome Version: " + version);
                 return(version >= 31);
-            } else if(browser.indexOf('safari') >= 0) {
+            } 
+            // Safari 7+
+            else if(browser.indexOf('safari') >= 0) {
                 var detailedVersion = browser.substring(browser.indexOf(' ', browser.indexOf(' ') + 1) + 1);
                 version = detailedVersion.substring(0, detailedVersion.indexOf("."));
                 console.log("Detected Safari Version: " + version);
                 return(version >= 7);
-            } else if(browser.indexOf('firefox') >= 0) {
+            } 
+            // Firefox 28+
+            else if(browser.indexOf('firefox') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
                 console.log("Detected Firefox Version: " + version);
                 return(version >= 28);
-            } else if(browser.indexOf('msie') >= 0 || browser.indexOf('ie') >= 0) {
+            } 
+            // Internet Explorer 10+
+            else if(browser.indexOf('msie') >= 0 || browser.indexOf('ie') >= 0) {
                 version = browser.substring(browser.indexOf(' ') + 1, browser.indexOf("."));
                 console.log("Detected IE Version: " + version);
                 return(version >= 10);
-            } else {
+            } 
+            // Other browsers are incompatible
+            else {
+                console.log("Unsupported browser.");
                 return false;
             }
         }
     }
 
     /** 
-    * @method getBrowserVersion
+    * Finds the current browser version.
+    * Code from http://stackoverflow.com/questions/5916900/detect-version-of-browser
     *
+    * @method getBrowserVersion
+    * @author Athyuttam Eleti
     * @return Browser name followed by version e.g. "Chrome 34.0.1847.116"
     */
     function getBrowserVersion() {
@@ -261,6 +206,75 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         if((tem= ua.match(/version\/([\.\d]+)/i))!= null) M[2]= tem[1];
 
         return M.join(' ');
+    }
+
+    /**
+    * Displays a dialog box indicating that the user is using an
+    * incompatible browser. Points them to links to download the latest
+    * version of supported browsers such as IE, Chrome, Safari and Firefox.
+    *
+    * @method handleIncompatibleBrowser
+    * @author Athyuttam Eleti
+    */
+    function handleIncompatibleBrowser() {
+        var tagContainer = $('#tagRoot');
+
+        // Creating Overlay
+        var browserDialogOverlay = $(document.createElement('div'));
+        browserDialogOverlay.attr('id', 'browserDialogOverlay');
+        browserDialogOverlay.addClass('dialogBoxOverlay');
+        tagContainer.prepend(browserDialogOverlay);
+
+        // Creating Dialog Box Container (required for centering)
+        var browserDialogContainer = $(document.createElement('div'));
+        browserDialogContainer.attr('id', 'browserDialogContainer');
+        browserDialogContainer.addClass('dialogBoxContainer');
+        browserDialogOverlay.append(browserDialogContainer);
+
+        // Creating Dialog Box
+        var browserDialog = $(document.createElement('div'));
+        browserDialog.attr('id', 'browserDialog');
+        browserDialog.addClass('dialogBox');
+        browserDialogContainer.append(browserDialog);
+
+        // Content
+        var browserDialogPara = $(document.createElement('p'));
+        browserDialogPara.attr('id', 'dialogBoxPara');
+        browserDialogPara.text("Touch Art Gallery is not supported in your browser. Please download or update to a newer browser.");
+        browserDialog.append(browserDialogPara);
+
+        // Browser Icon Container
+        var browserIcons = $(document.createElement('div'));
+        browserIcons.attr('id', 'browserIcons');
+        browserDialog.append(browserIcons);
+
+        // Browser Icon Links
+        var ieIconLink = $(document.createElement('a')).attr('href', 'http://windows.microsoft.com/ie');
+        var chromeIconLink = $(document.createElement('a')).attr('href', 'https://www.google.com/chrome');
+        var firefoxIconLink = $(document.createElement('a')).attr('href', 'http://www.firefox.com');
+        var safariIconLink = $(document.createElement('a')).attr('href', 'http://www.apple.com/safari');
+
+        var linksArray = [ieIconLink, chromeIconLink, firefoxIconLink, safariIconLink];
+        for(var i = 0; i < linksArray.length; i++) {
+            var current = linksArray[i]
+            current.attr('target', '_blank'); // Set target="_blank" to open links in new tab
+            current.addClass('browserIconLink'); // Set the corresponding CSS class to each link
+        }
+
+        browserIcons.append(ieIconLink, chromeIconLink, firefoxIconLink, safariIconLink);
+
+        // Browser Icon Images
+        var ieIcon = $(document.createElement('img')).attr('title', 'Internet Explorer').attr('src', tagPath+'images/icons/browserIcons/ie.png');
+        var chromeIcon = $(document.createElement('img')).attr('title', 'Google Chrome').attr('src', tagPath+'images/icons/browserIcons/chrome.png'); 
+        var firefoxIcon = $(document.createElement('img')).attr('title', 'Firefox').attr('src', tagPath+'images/icons/browserIcons/firefox.png');
+        var safariIcon = $(document.createElement('img')).attr('title', 'Safari').attr('src', tagPath+'images/icons/browserIcons/safari.png');
+
+        ieIconLink.append(ieIcon);
+        chromeIconLink.append(chromeIcon);
+        firefoxIconLink.append(firefoxIcon);
+        safariIconLink.append(safariIcon);
+
+        $('#browserIcons a img').addClass('browserIcon');
     }
     
     /**
@@ -295,6 +309,12 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         });
 
         serverTagBuffer.on('click', function (evt) {
+            evt.stopPropagation();
+        });
+
+        overlay.on('click', 'a', function (evt) {
+            //this == the link that was clicked
+            var href = $(this).attr("href");
             evt.stopPropagation();
         });
     }
@@ -470,7 +490,14 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         if (!tempInfo) {
             tempInfo = "";
         }
-        museumInfoSpan.text(tempInfo);
+
+        if (typeof Windows != "undefined") {
+            // running in Win8 app
+            museumInfoSpan.html(tempInfo);
+        } else {  
+            // running in browser
+            museumInfoSpan.html(Autolinker.link(tempInfo , {email: false, twitter: false}));
+        }
     }
     
 

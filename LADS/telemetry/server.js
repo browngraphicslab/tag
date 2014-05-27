@@ -137,7 +137,7 @@
 	 * returns it to client in a response.
 	 * Set the global READ_DATA = readTDataFromFile to read data in this way.
 	 * @method readTDataFromFile
-	 * @param the response we will eventually send back
+	 * @param {Object} tdata    the response we will eventually send back
 	 */
 	function readTDataFromFile(response) {
 		fs.readFile(LOG_FILE_PATH, {encoding: 'utf8'}, function(err, data){

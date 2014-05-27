@@ -39,6 +39,7 @@
             areShareButtonsVisible = ko.observable(true),
             isVolumeVisible = ko.observable(true),
             isSeekerVisible = ko.observable(true),
+            isLoopVisible = ko.observable(true),
             isFullScreenControlVisible = ko.observable(true),
             areTroubleShootControlsVisible = ko.observable(false),
             interactionControls = ko.observable(null),
@@ -47,6 +48,7 @@
             description = ko.observable(""),
             seekerViewModel = new rin.internal.SeekerControllerViewModel(orchestrator, playerControl),
             playPauseViewModel = new rin.internal.PlayPauseControllerViewModel(orchestrator, playerControl),
+            loopViewModel = new rin.internal.loopControllerViewModel(orchestrator, playerControl),
             volumeControlViewModel = new rin.internal.VolumeControllerViewModel(orchestrator, playerControl),
             debugCurrentTime = ko.observable("0:00"),
             troubleShooterViewModel = new rin.internal.TroubleShooterViewModel(orchestrator, playerControl),
@@ -97,7 +99,6 @@
                 } else {
                     showControls(false);
                 }
-
             },
             setControllerOptions = function () {
                 var controllerOptions = orchestrator.playerConfiguration.controllerOptions || {};
@@ -119,6 +120,9 @@
                 if (controllerOptions.volume !== undefined)
                     isVolumeVisible(controllerOptions.volume);
 
+                if (controllerOptions.loop !== undefined)
+                    isLoopVisible(controllerOptions.loop);
+
                 seekToBeginningOnEnd = !!controllerOptions.seekToBeginningOnEnd;
             },
             toggleControls = function () {
@@ -127,12 +131,14 @@
                     areShareButtonsVisible(false);
                     isFullScreenControlVisible(false);
                     isSeekerVisible(false);
+                    isLoopVisible(false);
                 }
                 else if (orchestrator.playerConfiguration.playerMode === rin.contracts.playerMode.AuthorerEditor) {
                     isPlayPauseVisible(false);
                     isRightContainerVisible(false);
                     isHeaderVisible(false);
                     isSeekerVisible(false);
+                    isLoopVisible(false);
                 }
             },
             changeTroubleShootControlsVisibilty = function (isShow) {
@@ -169,6 +175,7 @@
             initialize = function () {
                 seekerViewModel.initialize();
                 playPauseViewModel.initialize();
+                loopViewModel.initialize();
                 volumeControlViewModel.initialize();
                 troubleShooterViewModel.initialize();
                 title(orchestrator.getNarrativeInfo().title || "");
@@ -192,6 +199,7 @@
             volumeVM: volumeControlViewModel,
             seekerVM: seekerViewModel,
             playPauseVM: playPauseViewModel,
+            loopVM: loopViewModel,
             troubleShooterVM: troubleShooterViewModel,
             shareLinks: shareLinks,
 
@@ -207,6 +215,7 @@
             isFullScreenControlVisible: isFullScreenControlVisible,
             areTroubleShootControlsVisible: areTroubleShootControlsVisible,
             changeTroubleShootControlsVisibilty: changeTroubleShootControlsVisibilty,
+            isLoopVisible: isLoopVisible,
 
             isPlayerReady: isPlayerReady,
             interactionControls: interactionControls,
@@ -361,6 +370,23 @@
             setSeekPositionPercent: setSeekPositionPercent,
             startSeekPositionUpdater: startSeekPositionUpdater,
             stopSeekPositionUpdater: stopSeekPositionUpdater
+        };
+    };
+
+    rin.internal.loopControllerViewModel = function(orchestrator, playerControl){
+        var isLooped = ko.observable(false);
+        this.isLooped = ko.observable(false);
+        this.loopEvent = function () {
+            this.isLooped = playerControl.toggleLoop();
+            isLooped = this.isLooped;
+            var loopButton = $(".rin_LoopOff");
+            if (isLooped) {
+                loopButton.css({ "opacity": "1.0" });
+            } else {
+                loopButton.css({ "opacity": "0.4" });
+            }
+        };
+        this.initialize = function () {
         };
     };
 

@@ -100,7 +100,9 @@
         "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js": {
             "name": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
             "modules": {},
-            "classes": {},
+            "classes": {
+                "LADS.Layout.NewCatalog": 1
+            },
             "fors": {},
             "namespaces": {}
         },
@@ -705,6 +707,29 @@
             "fors": {},
             "namespaces": {}
         },
+        "LADS/telemetry/server.js": {
+            "name": "LADS/telemetry/server.js",
+            "modules": {},
+            "classes": {
+                "Telemetry": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "LADS/telemetry/telemetry.js": {
+            "name": "LADS/telemetry/telemetry.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "LADS/telemetry/telemetryTest.js": {
+            "name": "LADS/telemetry/telemetryTest.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
         "LADS/TAG-embed.js": {
             "name": "LADS/TAG-embed.js",
             "modules": {},
@@ -723,22 +748,6 @@
         },
         "LADS/tests.js": {
             "name": "LADS/tests.js",
-            "modules": {},
-            "classes": {},
-            "fors": {},
-            "namespaces": {}
-        },
-        "telemetry/server.js": {
-            "name": "telemetry/server.js",
-            "modules": {},
-            "classes": {
-                "Telemetry": 1
-            },
-            "fors": {},
-            "namespaces": {}
-        },
-        "telemetry/telemetryTest.js": {
-            "name": "telemetry/telemetryTest.js",
             "modules": {},
             "classes": {},
             "fors": {},
@@ -814,6 +823,27 @@
                     "name": "detach",
                     "description": "used in Win8 app",
                     "type": "Boolean"
+                }
+            ]
+        },
+        "LADS.Layout.NewCatalog": {
+            "name": "LADS.Layout.NewCatalog",
+            "shortname": "LADS.Layout.NewCatalog",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "namespace": "",
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 3,
+            "description": "The collections page",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "options",
+                    "description": "some options for the collections page",
+                    "type": "Object"
                 }
             ]
         },
@@ -895,6 +925,20 @@
             "line": 1,
             "description": "Class to capture CryptoJS properties and methods."
         },
+        "Telemetry": {
+            "name": "Telemetry",
+            "shortname": "Telemetry",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "namespace": "",
+            "file": "LADS/telemetry/server.js",
+            "line": 1,
+            "description": "A basic telemetry server. Should probably be hooked up with a DB.",
+            "is_constructor": 1
+        },
         "TAG_embed": {
             "name": "TAG_embed",
             "shortname": "TAG_embed",
@@ -950,20 +994,6 @@
                     "type": "Property"
                 }
             ]
-        },
-        "Telemetry": {
-            "name": "Telemetry",
-            "shortname": "Telemetry",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "namespace": "",
-            "file": "telemetry/server.js",
-            "line": 1,
-            "description": "A basic telemetry server. Should probably be hooked up with a DB.",
-            "is_constructor": 1
         }
     },
     "classitems": [
@@ -2515,7 +2545,7 @@
         },
         {
             "file": "LADS/js/LADS/authoring/LADS.Authoring.NewSettingsView.js",
-            "line": 2067,
+            "line": 2069,
             "description": "Uploads hotspot i to artwork j in its list of artworks to associate to.",
             "params": [
                 {
@@ -2543,7 +2573,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 99,
+            "line": 98,
             "description": "Add controls for manual Seadragon manipulation\nThis was written for testing purposes and was not carefully written\nDO NOT KEEP THIS AS IS!!!!!!",
             "itemtype": "method",
             "name": "createSeadragonControls",
@@ -2551,7 +2581,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 246,
+            "line": 326,
             "description": "Makes the artwork viewer sidebar",
             "itemtype": "method",
             "name": "makeSidebar",
@@ -2559,17 +2589,17 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 754,
+            "line": 801,
             "class": "LADS.Layout.Artmode"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 767,
+            "line": 814,
             "class": "LADS.Layout.Artmode"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 850,
+            "line": 897,
             "description": "Create a drawer with a disclosure button used to display\nhotspots, assets, tours. The returned jQuery object has\na property called \"contents\" which should be used to add\nbuttons or messages to the contents of the drawer.",
             "params": [
                 {
@@ -2582,13 +2612,13 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 968,
+            "line": 1015,
             "description": "This is the click function LocationHistoryContainer.",
             "class": "LADS.Layout.Artmode"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 1463,
+            "line": 1510,
             "description": "Return art viewer root element",
             "itemtype": "method",
             "name": "",
@@ -2600,7 +2630,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 1472,
+            "line": 1519,
             "description": "Make the map for location History.",
             "itemtype": "method",
             "name": "",
@@ -2975,38 +3005,402 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 86,
-            "description": "initiates UI stuff",
-            "class": "LADS.Layout.StartPage"
+            "line": 69,
+            "description": "Sets up the collections page UI",
+            "itemtype": "method",
+            "name": "init",
+            "class": "LADS.Layout.NewCatalog"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 222,
-            "class": "LADS.Layout.StartPage"
+            "line": 109,
+            "description": "Helper function to add collections to left bar",
+            "itemtype": "method",
+            "name": "getCollectionsHelper",
+            "class": "LADS.Layout.NewCatalog"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 263,
-            "description": "Adds exhibitions to page",
+            "line": 146,
+            "description": "When only a single collection exists, this function modifies\nthe CSS to hide the list of collections and expand the\ndescription area.",
+            "itemtype": "method",
+            "name": "enableSingleCollectionUI",
+            "author": "Athyuttam Eleti",
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 178,
+            "description": "Add a collection to the left bar",
+            "itemtype": "method",
+            "name": "addCollection",
             "params": [
                 {
-                    "name": ":",
-                    "description": "exhibition to add\nCreates button in sidebar"
+                    "name": "collection",
+                    "description": "the collection to add",
+                    "type": "Doq"
                 }
             ],
-            "class": "LADS.Layout.StartPage"
+            "class": "LADS.Layout.NewCatalog"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 340,
-            "description": "When exhibition is selected in sidebar,\nthis function creates description to display in main display area",
+            "line": 225,
+            "description": "Click handler for collection title in left bar",
+            "itemtype": "method",
+            "name": "clickCollection",
             "params": [
                 {
-                    "name": ":",
-                    "description": "selected exhibition"
+                    "name": "elt",
+                    "description": "the element we're clicking",
+                    "type": "JQuery obj"
+                },
+                {
+                    "name": "sPos",
+                    "description": "if undefined, set scroll position to 0, otherwise, use this",
+                    "type": "Number"
+                },
+                {
+                    "name": "artwrk",
+                    "description": "if undefined, set currentArtwork to null, otherwise, use this",
+                    "type": "Doq"
                 }
             ],
-            "class": "LADS.Layout.StartPage"
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 251,
+            "description": "When a collection is selected in the left bar, load its image and description\nin the display area",
+            "itemtype": "method",
+            "name": "loadCollection",
+            "params": [
+                {
+                    "name": "collection",
+                    "description": "the collection to load",
+                    "type": "Doq"
+                },
+                {
+                    "name": "isPrivate",
+                    "description": "a little bit of a hack to get private exhibits\n                            to show in settings view.  When set to true it just ignores anything\n                            that relies on 'this' since 'this' doesn't exist for a private exhibit\n                            (it doesn't have a label in the exhib list)",
+                    "type": "Boolean"
+                }
+            ],
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 391,
+            "description": "Get contents (artworks, videos, tours) in the specified collection and make catalog",
+            "itemtype": "method",
+            "name": "getCollectionContents",
+            "params": [
+                {
+                    "name": "collecion",
+                    "description": "the collection whose contents we want",
+                    "type": "Doq"
+                },
+                {
+                    "name": "callback",
+                    "description": "a function to call when the contents have been retrieved",
+                    "type": "Function"
+                }
+            ],
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 400,
+            "description": "Helper function to process collection contents",
+            "itemtype": "method",
+            "name": "contentsHelper",
+            "params": [
+                {
+                    "name": "contents",
+                    "description": "array of doq objects for each of the contents of this collection",
+                    "type": "Array"
+                }
+            ],
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 420,
+            "description": "Store the search strings for each artwork/tour",
+            "itemtype": "method",
+            "name": "initSearch",
+            "params": [
+                {
+                    "name": "contents",
+                    "description": "the contents of this collection (array of doqs)",
+                    "type": "Array"
+                }
+            ],
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 446,
+            "description": "Search collection using string in search input box",
+            "itemtype": "method",
+            "name": "doSearch",
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 476,
+            "description": "Create tiles for each artwork/tour in a collection",
+            "itemtype": "method",
+            "name": "createArtTiles",
+            "params": [
+                {
+                    "name": "artworks",
+                    "description": "an array of doq objects",
+                    "type": "Array"
+                }
+            ],
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 488,
+            "description": "Draw the collection catalog",
+            "itemtype": "method",
+            "name": "drawCatalog",
+            "params": [
+                {
+                    "name": "artworks",
+                    "description": "the contents of the collection",
+                    "type": "Array"
+                },
+                {
+                    "name": "tag",
+                    "description": "current sorting tag",
+                    "type": "String"
+                },
+                {
+                    "name": "start",
+                    "description": "starting at start-th artwork total (note NOT start-th artwork in artworks)",
+                    "type": "Number"
+                },
+                {
+                    "name": "onSearch",
+                    "description": "whether the list of artworks is a list of works matching a search term",
+                    "type": "Boolean"
+                }
+            ],
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 543,
+            "description": "Creates an artwork tile in a collection's catalog",
+            "itemtype": "method",
+            "name": "drawArtworkTile",
+            "params": [
+                {
+                    "name": "currentWork",
+                    "description": "the artwork/tour for which we're creating a tile",
+                    "type": "Doq"
+                },
+                {
+                    "name": "tag",
+                    "description": "current sort tag",
+                    "type": "String"
+                },
+                {
+                    "name": "onSearch",
+                    "description": "whether this work is a match after searching",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "i",
+                    "description": "index into list of all works in this collection",
+                    "type": "Number"
+                },
+                {
+                    "name": "w",
+                    "description": "width of this tile",
+                    "type": "Number"
+                },
+                {
+                    "name": "h",
+                    "description": "height of this tile",
+                    "type": "Number"
+                }
+            ],
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 622,
+            "description": "Shows an artwork in the upper section; sets the current thumbnail to be the artwork's\nand shows name, description, etc",
+            "itemtype": "method",
+            "name": "showArtwork",
+            "params": [
+                {
+                    "name": "artwork",
+                    "description": "the artwork doq to be shown",
+                    "type": "Doq"
+                }
+            ],
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 672,
+            "description": "Generates a comparator function for catalog sorting",
+            "itemtype": "method",
+            "name": "sortComparator",
+            "params": [
+                {
+                    "name": "primary",
+                    "description": "the primary sorting property",
+                    "type": "String"
+                },
+                {
+                    "name": "secondary",
+                    "description": "the secondary sorting property\n                               if left undefined, a.artwork.Identifier is used\n                               as the secondary property",
+                    "type": "String"
+                }
+            ],
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 702,
+            "description": "Generates a valuation function for catalog sorting",
+            "itemtype": "method",
+            "name": "sortValuation",
+            "params": [
+                {
+                    "name": "property",
+                    "description": "valuation property name",
+                    "type": "String"
+                }
+            ],
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 721,
+            "description": "Sort the catalog by the given criterium",
+            "itemtype": "method",
+            "name": "sortCatalog",
+            "params": [
+                {
+                    "name": "artworks",
+                    "description": "an array of doq objects to be sorted",
+                    "type": "Array"
+                },
+                {
+                    "name": "tag",
+                    "description": "the sort type",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "an avl tree for easy sorting",
+                "type": "AVLTree"
+            },
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 794,
+            "description": "Set the colors of the sort tags",
+            "itemtype": "method",
+            "name": "colorSortTags",
+            "params": [
+                {
+                    "name": "tag",
+                    "description": "the name of the sort tag",
+                    "type": "String"
+                }
+            ],
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 804,
+            "description": "Changes the selected tag and re-sorts",
+            "itemtype": "method",
+            "name": "changeDisplayTag",
+            "params": [
+                {
+                    "name": "artworks",
+                    "description": "the array of artwork doqs to sort",
+                    "type": "Array"
+                },
+                {
+                    "name": "tag",
+                    "description": "the name of the sort tag",
+                    "type": "String"
+                }
+            ],
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 845,
+            "description": "Switch to the tour player",
+            "itemtype": "method",
+            "name": "switchPageTour",
+            "params": [
+                {
+                    "name": "tour",
+                    "description": "the relevant tour doq",
+                    "type": "Doq"
+                }
+            ],
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 886,
+            "description": "Switch to the artwork viewer or tour player",
+            "itemtype": "method",
+            "name": "switchPage",
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 943,
+            "description": "Show collection contents and display current artwork if there is one",
+            "itemtype": "method",
+            "name": "showCollection",
+            "params": [
+                {
+                    "name": "c",
+                    "description": "the relevant collection doq",
+                    "type": "Doq"
+                }
+            ],
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 952,
+            "description": "Gets the current state of the collections page",
+            "itemtype": "method",
+            "name": "getState",
+            "return": {
+                "description": "object containing state",
+                "type": "Object"
+            },
+            "class": "LADS.Layout.NewCatalog"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
+            "line": 965,
+            "description": "Returns the root of the collections page",
+            "itemtype": "method",
+            "name": "getRoot",
+            "return": {
+                "description": "root of the collections page",
+                "type": "JQuery Object"
+            },
+            "class": "LADS.Layout.NewCatalog"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
@@ -3037,9 +3431,11 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 195,
+            "line": 119,
+            "description": "Checks if TAG is compatible with the current browser.",
             "itemtype": "method",
             "name": "isBrowserCompatible",
+            "author": "Athyuttam Eleti",
             "return": {
                 "description": "true if the browser is compatible with TAG, false if it isn't"
             },
@@ -3047,9 +3443,11 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 246,
+            "line": 188,
+            "description": "Finds the current browser version.\nCode from http://stackoverflow.com/questions/5916900/detect-version-of-browser",
             "itemtype": "method",
             "name": "getBrowserVersion",
+            "author": "Athyuttam Eleti",
             "return": {
                 "description": "Browser name followed by version e.g. \"Chrome 34.0.1847.116\""
             },
@@ -3057,7 +3455,16 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 266,
+            "line": 211,
+            "description": "Displays a dialog box indicating that the user is using an\nincompatible browser. Points them to links to download the latest\nversion of supported browsers such as IE, Chrome, Safari and Firefox.",
+            "itemtype": "method",
+            "name": "handleIncompatibleBrowser",
+            "author": "Athyuttam Eleti",
+            "class": "LADS.Layout.StartPage"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
+            "line": 280,
             "description": "adjusts the text to fit the screen size",
             "itemtype": "method",
             "name": "fixText",
@@ -3065,7 +3472,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 284,
+            "line": 298,
             "description": "initializes the handlers for various 'click' functions including setting up a server",
             "itemtype": "method",
             "name": "initializeHandlers",
@@ -3073,7 +3480,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 303,
+            "line": 323,
             "description": "gets the paths for all the images displayed on the splash screen",
             "itemtype": "method",
             "name": "setImagePaths",
@@ -3088,7 +3495,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 335,
+            "line": 355,
             "description": "Sets up the credits box with its content including text and images. Also includes function for animation of credits.",
             "itemtype": "method",
             "name": "setUpCredits",
@@ -3096,7 +3503,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 373,
+            "line": 393,
             "description": "animation of credits when user clicks",
             "itemtype": "method",
             "name": "expandInfo",
@@ -3111,7 +3518,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 408,
+            "line": 428,
             "description": "sets up the info div which contains all the museum information",
             "itemtype": "method",
             "name": "setUpInfo",
@@ -3126,7 +3533,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 431,
+            "line": 451,
             "description": "Fills in all museum info including name and location",
             "itemtype": "method",
             "name": "setUpMuseumInfo",
@@ -3141,7 +3548,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 477,
+            "line": 504,
             "itemtype": "method",
             "name": "getRoot",
             "return": {
@@ -3207,7 +3614,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
-            "line": 51,
+            "line": 52,
             "description": "Return to the collections page from the video player.",
             "itemtype": "method",
             "name": "goBack",
@@ -3215,7 +3622,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
-            "line": 72,
+            "line": 81,
             "description": "Take video to time 0 and pause.",
             "itemtype": "method",
             "name": "timeToZero",
@@ -3223,7 +3630,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
-            "line": 84,
+            "line": 93,
             "description": "Play video and change play button image",
             "itemtype": "method",
             "name": "playVideo",
@@ -3231,7 +3638,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
-            "line": 93,
+            "line": 102,
             "description": "Pause video and change play button image",
             "itemtype": "method",
             "name": "pauseVideo",
@@ -3239,7 +3646,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
-            "line": 102,
+            "line": 111,
             "description": "Play or pause video depending on its current state",
             "itemtype": "method",
             "name": "toggleVideo",
@@ -3247,7 +3654,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
-            "line": 110,
+            "line": 119,
             "description": "Set up handlers for video element and play/pause button",
             "itemtype": "method",
             "name": "initVideoPlayHandlers",
@@ -3255,7 +3662,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
-            "line": 155,
+            "line": 169,
             "description": "Set up handlers for the seekbar",
             "itemtype": "method",
             "name": "initSeekHandlers",
@@ -3263,7 +3670,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
-            "line": 221,
+            "line": 235,
             "description": "Initialize misc parts of the video player",
             "itemtype": "method",
             "name": "initPage",
@@ -3271,7 +3678,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js",
-            "line": 258,
+            "line": 272,
             "description": "Return the root of the video page",
             "itemtype": "method",
             "name": "getRoot",
@@ -6212,7 +6619,7 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 1309,
+            "line": 1349,
             "description": "Used by web app code to slide in pages given their html files",
             "params": [
                 {
@@ -6224,7 +6631,7 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 1332,
+            "line": 1372,
             "params": [
                 {
                     "name": "collectionId",
@@ -6240,36 +6647,56 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 1360,
+            "line": 1400,
             "description": "Utils for Animation, splitscreen, colors and the like",
             "class": "CryptoJS"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 1821,
+            "line": 1862,
             "class": "CryptoJS"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 2159,
+            "line": 2200,
             "description": "Following functions transition between pages while in splitscreen mode",
             "class": "CryptoJS"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 2162,
+            "line": 2203,
             "description": "Use _Split fn's for transitions that need to preserve splitscreen\nNote: pages passed in to this function should have a top-level root node\n(true of exhibition, catalog and artmode)",
             "class": "CryptoJS"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 2268,
+            "line": 2228,
+            "description": "Set up handlers for back button",
+            "itemtype": "method",
+            "name": "setUpBackButton",
+            "params": [
+                {
+                    "name": "elt",
+                    "description": "jQuery object for back button element",
+                    "type": "JQuery Obj"
+                },
+                {
+                    "name": "clickHandler",
+                    "description": "click handler for button",
+                    "type": "Function"
+                }
+            ],
+            "class": "CryptoJS"
+        },
+        {
+            "file": "LADS/js/LADS/util/LADS.Util.js",
+            "line": 2324,
             "description": "Use for any page transition that does not need to preserve splitscreen",
             "class": "CryptoJS"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 2583,
+            "line": 2639,
             "description": "Creates a picker (e.g. click add/remove media in the artwork editor) to manage\n  associations between different TAG components (exhib, artworks, assoc media)",
             "params": [
                 {
@@ -6305,7 +6732,7 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 2909,
+            "line": 2965,
             "description": "Creates the media panel",
             "params": [
                 {
@@ -6321,13 +6748,13 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 3307,
+            "line": 3363,
             "description": "Built-in object extensions",
             "class": "CryptoJS"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 3330,
+            "line": 3386,
             "description": "If specified object is in the array, remove it",
             "params": [
                 {
@@ -6339,7 +6766,7 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 3344,
+            "line": 3400,
             "description": "Insert object into array based on comparator fn given\nAssumes array is already sorted!",
             "params": [
                 {
@@ -6358,7 +6785,7 @@
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 3363,
+            "line": 3419,
             "description": "Constrain a number to given range",
             "params": [
                 {
@@ -6378,7 +6805,7 @@
         },
         {
             "file": "LADS/js/LADS/worktop/LADS.Worktop.Database.js",
-            "line": 1191,
+            "line": 1200,
             "description": "Soft delete a hotspot by deleting both the hotspot linq and doq files",
             "class": "CryptoJS"
         },
@@ -9615,12 +10042,12 @@
         {
             "file": "LADS/js/utils/avltree.js",
             "line": 130,
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/doubleLinkedList.js",
             "line": 141,
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -9643,13 +10070,13 @@
                 "type": "Hammer.Instance"
             },
             "is_constructor": 1,
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
             "line": 80,
             "description": "setup events to detect gestures on the document",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -9674,7 +10101,7 @@
                 "type": "Hammer.Instance"
             },
             "is_constructor": 1,
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -9696,7 +10123,7 @@
                 "description": "",
                 "type": "Hammer.Instance"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -9718,7 +10145,7 @@
                 "description": "",
                 "type": "Hammer.Instance"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -9740,7 +10167,7 @@
                 "description": "",
                 "type": "Hammer.Instance"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -9757,28 +10184,28 @@
                 "description": "",
                 "type": "Hammer.Instance"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
             "line": 218,
             "description": "this holds the last move event,\nused to fix empty touchend issue\nsee the onTouch event for an explanation",
             "type": "{Object}",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
             "line": 227,
             "description": "when the mouse is hold down, this is true",
             "type": "{Boolean}",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
             "line": 234,
             "description": "when touch events have been fired, this is true",
             "type": "{Boolean}",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -9801,7 +10228,7 @@
                     "type": "Function"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -9824,13 +10251,13 @@
                     "type": "Function"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
             "line": 349,
             "description": "we have different events for each device/browser\ndetermine what we need and set them in the Hammer.EVENT_TYPES constant",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -9848,7 +10275,7 @@
                     "type": "String"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -9871,19 +10298,19 @@
                     "type": "Object"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
             "line": 433,
             "description": "prevent the browser default actions\nmostly used to disable scrolling of the browser",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
             "line": 447,
             "description": "stop bubbling the event up to its parents",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -9893,14 +10320,14 @@
                 "description": "",
                 "type": "*"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
             "line": 467,
             "description": "holds all pointers",
             "type": "{Object}",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -9910,7 +10337,7 @@
                 "description": "touchlist",
                 "type": "Array"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -9928,7 +10355,7 @@
                     "type": "Object"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -9946,19 +10373,19 @@
                     "type": "PointerEvent"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
             "line": 523,
             "description": "get events",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
             "line": 534,
             "description": "reset the list",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -9985,7 +10412,7 @@
                 "description": "dest",
                 "type": "Object"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -10007,7 +10434,7 @@
                 "description": "has_parent",
                 "type": "Boolean"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -10024,7 +10451,7 @@
                 "description": "center",
                 "type": "Object"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -10051,7 +10478,7 @@
                 "description": "velocity",
                 "type": "Object"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -10073,7 +10500,7 @@
                 "description": "angle",
                 "type": "Number"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -10095,7 +10522,7 @@
                 "description": "direction constant, like Hammer.DIRECTION_LEFT",
                 "type": "String"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -10117,7 +10544,7 @@
                 "description": "distance",
                 "type": "Number"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -10139,7 +10566,7 @@
                 "description": "scale",
                 "type": "Number"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -10161,7 +10588,7 @@
                 "description": "rotation",
                 "type": "Number"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -10178,7 +10605,7 @@
                 "description": "is_vertical",
                 "type": "Boolean"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -10196,7 +10623,7 @@
                     "type": "Object"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -10214,7 +10641,7 @@
                     "type": "Object"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -10232,13 +10659,13 @@
                     "type": "Object"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
             "line": 826,
             "description": "clear the Hammer.gesture vars\nthis is called on endDetect, but can also be used when a final Hammer.gesture has been detected\nto stop other Hammer.gestures from being fired",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -10255,7 +10682,7 @@
                 "description": "ev",
                 "type": "Object"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -10272,7 +10699,7 @@
                 "description": "gestures",
                 "type": "Array"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
@@ -10335,62 +10762,62 @@
                 }
             ],
             "readonly": "",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
             "line": 1038,
             "description": "Hold\nTouch stays at the same place for x time",
             "events": "hold",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
             "line": 1084,
             "description": "Tap/DoubleTap\nQuick touch at a place or double at the same place",
             "events": "tap, doubletap",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
             "line": 1130,
             "description": "Swipe\ntriggers swipe events when the end velocity is above the threshold",
             "events": "swipe, swipeleft, swiperight, swipeup, swipedown",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
             "line": 1164,
             "description": "Drag\nMove with x fingers (default 1) around on the page. Blocking the scrolling when\nmoving left and right is a good practice. When all the drag events are blocking\nyou disable scrolling on that area.",
             "events": "drag, drapleft, dragright, dragup, dragdown",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
             "line": 1269,
             "description": "Transform\nUser want to scale or rotate with 2 fingers",
             "events": "transform, pinch, pinchin, pinchout, rotate",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
             "line": 1359,
             "description": "Touch\nCalled as first, tells the user has touched the screen",
             "events": "touch",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/hammer.js",
             "line": 1395,
             "description": "Release\nCalled as last, tells the user has released the screen",
             "events": "release",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.getScrollbarWidth.js",
             "line": 6,
             "description": "Gets the width of the OS scrollbar",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10413,13 +10840,13 @@
                 "type": "Hammer.Instance"
             },
             "is_constructor": 1,
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
             "line": 80,
             "description": "setup events to detect gestures on the document",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10444,7 +10871,7 @@
                 "type": "Hammer.Instance"
             },
             "is_constructor": 1,
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10466,7 +10893,7 @@
                 "description": "",
                 "type": "Hammer.Instance"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10488,7 +10915,7 @@
                 "description": "",
                 "type": "Hammer.Instance"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10510,7 +10937,7 @@
                 "description": "",
                 "type": "Hammer.Instance"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10527,28 +10954,28 @@
                 "description": "",
                 "type": "Hammer.Instance"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
             "line": 214,
             "description": "this holds the last move event,\nused to fix empty touchend issue\nsee the onTouch event for an explanation",
             "type": "{Object}",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
             "line": 223,
             "description": "when the mouse is hold down, this is true",
             "type": "{Boolean}",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
             "line": 230,
             "description": "when touch events have been fired, this is true",
             "type": "{Boolean}",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10571,7 +10998,7 @@
                     "type": "Function"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10594,13 +11021,13 @@
                     "type": "Function"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
             "line": 345,
             "description": "we have different events for each device/browser\ndetermine what we need and set them in the Hammer.EVENT_TYPES constant",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10618,7 +11045,7 @@
                     "type": "String"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10641,19 +11068,19 @@
                     "type": "Object"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
             "line": 429,
             "description": "prevent the browser default actions\nmostly used to disable scrolling of the browser",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
             "line": 443,
             "description": "stop bubbling the event up to its parents",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10663,14 +11090,14 @@
                 "description": "",
                 "type": "*"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
             "line": 463,
             "description": "holds all pointers",
             "type": "{Object}",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10680,7 +11107,7 @@
                 "description": "touchlist",
                 "type": "Array"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10698,7 +11125,7 @@
                     "type": "Object"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10716,19 +11143,19 @@
                     "type": "PointerEvent"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
             "line": 519,
             "description": "get events",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
             "line": 530,
             "description": "reset the list",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10755,7 +11182,7 @@
                 "description": "dest",
                 "type": "Object"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10777,7 +11204,7 @@
                 "description": "has_parent",
                 "type": "Boolean"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10794,7 +11221,7 @@
                 "description": "center",
                 "type": "Object"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10821,7 +11248,7 @@
                 "description": "velocity",
                 "type": "Object"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10843,7 +11270,7 @@
                 "description": "angle",
                 "type": "Number"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10865,7 +11292,7 @@
                 "description": "direction constant, like Hammer.DIRECTION_LEFT",
                 "type": "String"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10887,7 +11314,7 @@
                 "description": "distance",
                 "type": "Number"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10909,7 +11336,7 @@
                 "description": "scale",
                 "type": "Number"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10931,7 +11358,7 @@
                 "description": "rotation",
                 "type": "Number"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10948,7 +11375,7 @@
                 "description": "is_vertical",
                 "type": "Boolean"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10966,7 +11393,7 @@
                     "type": "Object"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -10984,7 +11411,7 @@
                     "type": "Object"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -11002,13 +11429,13 @@
                     "type": "Object"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
             "line": 822,
             "description": "clear the Hammer.gesture vars\nthis is called on endDetect, but can also be used when a final Hammer.gesture has been detected\nto stop other Hammer.gestures from being fired",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -11025,7 +11452,7 @@
                 "description": "ev",
                 "type": "Object"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -11042,7 +11469,7 @@
                 "description": "gestures",
                 "type": "Array"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -11105,56 +11532,56 @@
                 }
             ],
             "readonly": "",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
             "line": 1034,
             "description": "Hold\nTouch stays at the same place for x time",
             "events": "hold",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
             "line": 1080,
             "description": "Tap/DoubleTap\nQuick touch at a place or double at the same place",
             "events": "tap, doubletap",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
             "line": 1126,
             "description": "Swipe\ntriggers swipe events when the end velocity is above the threshold",
             "events": "swipe, swipeleft, swiperight, swipeup, swipedown",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
             "line": 1160,
             "description": "Drag\nMove with x fingers (default 1) around on the page. Blocking the scrolling when\nmoving left and right is a good practice. When all the drag events are blocking\nyou disable scrolling on that area.",
             "events": "drag, drapleft, dragright, dragup, dragdown",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
             "line": 1265,
             "description": "Transform\nUser want to scale or rotate with 2 fingers",
             "events": "transform, pinch, pinchin, pinchout, rotate",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
             "line": 1355,
             "description": "Touch\nCalled as first, tells the user has touched the screen",
             "events": "touch",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
             "line": 1391,
             "description": "Release\nCalled as last, tells the user has released the screen",
             "events": "release",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -11177,7 +11604,7 @@
                     "type": "Function"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -11188,7 +11615,7 @@
                 "description": "",
                 "type": "JQuery"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -11211,7 +11638,7 @@
                 "description": "",
                 "type": "JQuery"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/utils/jquery.hammer.js",
@@ -11230,7 +11657,7 @@
                 "description": "",
                 "type": "JQuery"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
@@ -11246,7 +11673,7 @@
                     "description": "in the case that the div above is not in the dom yet, send in a variable for its html element."
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
@@ -11258,7 +11685,7 @@
                     "description": "the current dimensions of our artwork in absolute coordinates"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
@@ -11273,19 +11700,19 @@
             "return": {
                 "description": "reversed path (with outer path)"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
             "line": 228,
             "description": "Uses the arrays ml, xy, and pa to draw paths with the correct properties.\nFirst clears the canvas of existing paths, then draws new ones.",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
             "line": 280,
             "description": "A helper function to draw transparencies. Takes the arrays transLetters (representing the\nsvg path commands in the transparency string) and transCoords (corresponding locations on the\ncanvas in relative coordinates) and draws the appropriate type of transparency to the canvas.\nIf the type is 'isolate,' calls block_to_isol, which reverses the path and adds an outer path\naround the canvas to fill the in-between space.",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
@@ -11308,7 +11735,7 @@
             "return": {
                 "description": "the value of the attribute in the correct format"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
@@ -11320,13 +11747,13 @@
                     "description": "datastring to be loaded (see update_datastring for datastring format)"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
             "line": 442,
             "description": "Helper function to determine whether p1 and p2 are effectively the same point. Returns true if so.",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
@@ -11342,7 +11769,7 @@
                     "description": "should we take time to draw the objects?"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
@@ -11358,13 +11785,13 @@
                     "description": "the relevant canvas dimension to scale by"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
             "line": 515,
             "description": "Removes all Raphael elements from the canvas and clears arrays",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
@@ -11380,37 +11807,37 @@
                     "description": "should we take the time to draw the result?"
                 }
             ],
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
             "line": 582,
             "description": "Set the variables related to adjustViewBox (original artwork location) using the art proxy,\nwhich keeps track of its dimensions",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
             "line": 606,
             "description": "Setter for the artname of a linked ink's associated artwork",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
             "line": 614,
             "description": "Setter (sets experience id of ink)",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
             "line": 622,
             "description": "Sets the initial artwork keyframe",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
             "line": 630,
             "description": "Sets the ink mode",
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
@@ -11419,7 +11846,7 @@
             "return": {
                 "description": "up to date datastring"
             },
-            "class": "TAG_embed"
+            "class": "Telemetry"
         },
         {
             "file": "LADS/js/tagInk.js",
@@ -11429,6 +11856,146 @@
                 {
                     "name": "str",
                     "description": "the datastring loaded"
+                }
+            ],
+            "class": "Telemetry"
+        },
+        {
+            "file": "LADS/telemetry/server.js",
+            "line": 36,
+            "description": "Handles a post request to the server. Generally, writes data to log file.\nIn the future, this should probably log data in a database.",
+            "itemtype": "method",
+            "name": "handlePost",
+            "params": [
+                {
+                    "name": "request",
+                    "description": "the http request sent to the server",
+                    "type": "Object"
+                },
+                {
+                    "name": "response",
+                    "description": "a response object we'll write to and return",
+                    "type": "Object"
+                }
+            ],
+            "class": "Telemetry"
+        },
+        {
+            "file": "LADS/telemetry/server.js",
+            "line": 85,
+            "description": "Handles a get request to the server. SHOULD get data from server, return it to client\nfor data viz or analysis.",
+            "itemtype": "method",
+            "name": "handleGet",
+            "params": [
+                {
+                    "name": "request",
+                    "description": "the http request to the server",
+                    "type": "Object"
+                },
+                {
+                    "name": "response",
+                    "description": "the response we'll send back to the client",
+                    "type": "Object"
+                }
+            ],
+            "class": "Telemetry"
+        },
+        {
+            "file": "LADS/telemetry/server.js",
+            "line": 116,
+            "description": "Writes telemetry data to a log file (specified by LOG_FILE_PATH).\nSet the global WRITE_DATA = writeTDataToFile to log data in this way.",
+            "itemtype": "method",
+            "name": "writeTDataToFile",
+            "params": [
+                {
+                    "name": "tdata",
+                    "description": "the telemetry data object to stringify and write to file",
+                    "type": "Object"
+                }
+            ],
+            "class": "Telemetry"
+        },
+        {
+            "file": "LADS/telemetry/server.js",
+            "line": 135,
+            "description": "Reads telemetry data from a file (specified by LOG_FILE_PATH) and\nreturns it to client in a response.\nSet the global READ_DATA = readTDataFromFile to read data in this way.",
+            "itemtype": "method",
+            "name": "readTDataFromFile",
+            "params": [
+                {
+                    "name": "tdata",
+                    "description": "the response we will eventually send back",
+                    "type": "Object"
+                }
+            ],
+            "class": "Telemetry"
+        },
+        {
+            "file": "LADS/telemetry/telemetry.js",
+            "line": 9,
+            "description": "Get the current browser version\nBorrowed from http://stackoverflow.com/questions/5916900/detect-version-of-browser",
+            "itemtype": "method",
+            "name": "browserVersion",
+            "class": "TAG_embed"
+        },
+        {
+            "file": "LADS/telemetry/telemetry.js",
+            "line": 26,
+            "description": "Register an element with the telemetry module",
+            "itemtype": "method",
+            "name": "registerTelemetry",
+            "params": [
+                {
+                    "name": "element",
+                    "description": "the element to which we'll attach a telemetry event handler",
+                    "type": "JQuery Obj"
+                },
+                {
+                    "name": "etype",
+                    "description": "the type of event (e.g., 'mousedown') for which we'll create the handler",
+                    "type": "String"
+                },
+                {
+                    "name": "ttype",
+                    "description": "the type of telemetry request to log",
+                    "type": "String"
+                }
+            ],
+            "class": "TAG_embed"
+        },
+        {
+            "file": "LADS/telemetry/telemetry.js",
+            "line": 50,
+            "description": "Make a request to the telemetry server using the requests variable",
+            "itemtype": "method",
+            "name": "telemetryRequests",
+            "class": "TAG_embed"
+        },
+        {
+            "file": "LADS/telemetry/telemetryTest.js",
+            "line": 29,
+            "description": "Handles returned data from server after a get request.",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "",
+                    "type": "Array"
+                }
+            ],
+            "class": "TAG_embed"
+        },
+        {
+            "file": "LADS/telemetry/telemetryTest.js",
+            "line": 117,
+            "description": "Make a request to the telemetry server",
+            "params": [
+                {
+                    "name": "type",
+                    "description": "'POST' for updating data or 'GET' for getting it"
+                },
+                {
+                    "name": "data",
+                    "description": "object; data to be sent in body of request"
                 }
             ],
             "class": "TAG_embed"
@@ -11454,13 +12021,13 @@
                 "type": "Hammer.Instance"
             },
             "is_constructor": 1,
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
             "line": 83,
             "description": "setup events to detect gestures on the document",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11487,7 +12054,7 @@
                 "description": "dest",
                 "type": "Object"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11503,7 +12070,7 @@
                     "description": ""
                 }
             ],
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11525,7 +12092,7 @@
                 "description": "has_parent",
                 "type": "Boolean"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11542,7 +12109,7 @@
                 "description": "center",
                 "type": "Object"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11569,7 +12136,7 @@
                 "description": "velocity",
                 "type": "Object"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11591,7 +12158,7 @@
                 "description": "angle",
                 "type": "Number"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11613,7 +12180,7 @@
                 "description": "direction constant, like Hammer.DIRECTION_LEFT",
                 "type": "String"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11635,7 +12202,7 @@
                 "description": "distance",
                 "type": "Number"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11657,7 +12224,7 @@
                 "description": "scale",
                 "type": "Number"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11679,7 +12246,7 @@
                 "description": "rotation",
                 "type": "Number"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11696,7 +12263,7 @@
                 "description": "is_vertical",
                 "type": "Boolean"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11714,7 +12281,7 @@
                     "type": "Object"
                 }
             ],
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11739,7 +12306,7 @@
                 "type": "Hammer.Instance"
             },
             "is_constructor": 1,
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11761,7 +12328,7 @@
                 "description": "",
                 "type": "Hammer.Instance"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11783,7 +12350,7 @@
                 "description": "",
                 "type": "Hammer.Instance"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11806,7 +12373,7 @@
                 "description": "",
                 "type": "Hammer.Instance"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11823,28 +12390,28 @@
                 "description": "",
                 "type": "Hammer.Instance"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
             "line": 453,
             "description": "this holds the last move event,\nused to fix empty touchend issue\nsee the onTouch event for an explanation",
             "type": "{Object}",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
             "line": 462,
             "description": "when the mouse is hold down, this is true",
             "type": "{Boolean}",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
             "line": 469,
             "description": "when touch events have been fired, this is true",
             "type": "{Boolean}",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11867,7 +12434,7 @@
                     "type": "Function"
                 }
             ],
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11890,13 +12457,13 @@
                     "type": "Function"
                 }
             ],
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
             "line": 583,
             "description": "we have different events for each device/browser\ndetermine what we need and set them in the Hammer.EVENT_TYPES constant",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11914,7 +12481,7 @@
                     "type": "String"
                 }
             ],
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11937,19 +12504,19 @@
                     "type": "Object"
                 }
             ],
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
             "line": 661,
             "description": "prevent the browser default actions\nmostly used to disable scrolling of the browser",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
             "line": 675,
             "description": "stop bubbling the event up to its parents",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11959,14 +12526,14 @@
                 "description": "",
                 "type": "*"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
             "line": 695,
             "description": "holds all pointers",
             "type": "{Object}",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11976,7 +12543,7 @@
                 "description": "touchlist",
                 "type": "Array"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -11994,7 +12561,7 @@
                     "type": "Object"
                 }
             ],
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -12012,19 +12579,19 @@
                     "type": "PointerEvent"
                 }
             ],
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
             "line": 753,
             "description": "get events",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
             "line": 764,
             "description": "reset the list",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -12042,7 +12609,7 @@
                     "type": "Object"
                 }
             ],
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -12055,13 +12622,13 @@
                     "type": "Object"
                 }
             ],
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
             "line": 853,
             "description": "clear the Hammer.gesture vars\nthis is called on endDetect, but can also be used when a final Hammer.gesture has been detected\nto stop other Hammer.gestures from being fired",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -12078,7 +12645,7 @@
                 "description": "ev",
                 "type": "Object"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
@@ -12095,80 +12662,80 @@
                 "description": "gestures",
                 "type": "Array"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
             "line": 971,
             "description": "Drag\nMove with x fingers (default 1) around on the page. Blocking the scrolling when\nmoving left and right is a good practice. When all the drag events are blocking\nyou disable scrolling on that area.",
             "events": "drag, drapleft, dragright, dragup, dragdown",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
             "line": 1099,
             "description": "Hold\nTouch stays at the same place for x time",
             "events": "hold",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
             "line": 1144,
             "description": "Release\nCalled as last, tells the user has released the screen",
             "events": "release",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
             "line": 1159,
             "description": "Swipe\ntriggers swipe events when the end velocity is above the threshold",
             "events": "swipe, swipeleft, swiperight, swipeup, swipedown",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
             "line": 1194,
             "description": "Tap/DoubleTap\nQuick touch at a place or double at the same place",
             "events": "tap, doubletap",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
             "line": 1239,
             "description": "Touch\nCalled as first, tells the user has touched the screen",
             "events": "touch",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/hammer.js",
             "line": 1274,
             "description": "Transform\nUser want to scale or rotate with 2 fingers",
             "events": "transform, pinch, pinchin, pinchout, rotate",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/tests.js",
             "line": 3,
             "description": "TAG testing framework\n\nThe TEST SCRIPTS section below has a few test routines. These\nroutines are made public at the bottom of this file. They call\nrunTests on a collection of TEST SCRIPT ACTIONs, which are defined\nin the second section. These are 'atomic' actions that can\nbe combined to make more complex routines. There are a few\nTEST SUPPORT FUNCTIONs defined in the last section below.",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/tests.js",
             "line": 32,
             "description": "|**** TEST SCRIPTS ****|",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/tests.js",
             "line": 71,
             "description": "|**** TEST SCRIPT ACTIONS ****|",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/tests.js",
             "line": 249,
             "description": "|**** TESTING SUPPORT FUNCTIONS ****|",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/tests.js",
@@ -12187,13 +12754,13 @@
             "return": {
                 "description": "-1 if an error was thrown during testing"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/tests.js",
             "line": 272,
             "description": "Called by runTests, calls a single test, then calls runTest with incremented index",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/tests.js",
@@ -12208,19 +12775,19 @@
             "return": {
                 "description": "combined test objects"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/tests.js",
             "line": 321,
             "description": "Create click event on the input element",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/tests.js",
             "line": 330,
             "description": "Simulate a pinch zoom event",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/tests.js",
@@ -12236,7 +12803,7 @@
                     "description": "object with the following properties:\n           startX     starting x coordinate relative to #tagRoot\n           startY     ...\n           endX       ...\n           endY"
                 }
             ],
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/tests.js",
@@ -12260,13 +12827,13 @@
                     "description": "function to be called when all moves have executed"
                 }
             ],
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/tests.js",
             "line": 432,
             "description": "Linearly interpolate between start and stop by t in [0,1]",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/tests.js",
@@ -12294,7 +12861,7 @@
                     "description": "(optional) width of the highlight circle"
                 }
             ],
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/tests.js",
@@ -12308,7 +12875,7 @@
             "return": {
                 "description": "random index into array, -1 if arr is empty"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/tests.js",
@@ -12323,7 +12890,7 @@
             "return": {
                 "description": "random element, null if arr=[]"
             },
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/tests.js",
@@ -12335,116 +12902,18 @@
                     "description": "string: calling function's name"
                 }
             ],
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/tests.js",
             "line": 546,
             "description": "Show an overlay explaining that the first step in the test is to\nnavigate to the correct starting page.",
-            "class": "Telemetry"
+            "class": ""
         },
         {
             "file": "LADS/tests.js",
             "line": 592,
             "description": "Cancels the currently-running test",
-            "class": "Telemetry"
-        },
-        {
-            "file": "telemetry/server.js",
-            "line": 36,
-            "description": "Handles a post request to the server. Generally, writes data to log file.\nIn the future, this should probably log data in a database.",
-            "itemtype": "method",
-            "name": "handlePost",
-            "params": [
-                {
-                    "name": "request",
-                    "description": "the http request sent to the server",
-                    "type": "Object"
-                },
-                {
-                    "name": "response",
-                    "description": "a response object we'll write to and return",
-                    "type": "Object"
-                }
-            ],
-            "class": "Telemetry"
-        },
-        {
-            "file": "telemetry/server.js",
-            "line": 85,
-            "description": "Handles a get request to the server. SHOULD get data from server, return it to client\nfor data viz or analysis.",
-            "itemtype": "method",
-            "name": "handleGet",
-            "params": [
-                {
-                    "name": "request",
-                    "description": "the http request to the server",
-                    "type": "Object"
-                },
-                {
-                    "name": "response",
-                    "description": "the response we'll send back to the client",
-                    "type": "Object"
-                }
-            ],
-            "class": "Telemetry"
-        },
-        {
-            "file": "telemetry/server.js",
-            "line": 116,
-            "description": "Writes telemetry data to a log file (specified by LOG_FILE_PATH).\nSet the global WRITE_DATA = writeTDataToFile to log data in this way.",
-            "itemtype": "method",
-            "name": "writeTDataToFile",
-            "params": [
-                {
-                    "name": "tdata",
-                    "description": "the telemetry data object to stringify and write to file",
-                    "type": "Object"
-                }
-            ],
-            "class": "Telemetry"
-        },
-        {
-            "file": "telemetry/server.js",
-            "line": 135,
-            "description": "Reads telemetry data from a file (specified by LOG_FILE_PATH) and\nreturns it to client in a response.\nSet the global READ_DATA = readTDataFromFile to read data in this way.",
-            "itemtype": "method",
-            "name": "readTDataFromFile",
-            "params": [
-                {
-                    "name": "the",
-                    "description": "response we will eventually send back"
-                }
-            ],
-            "class": "Telemetry"
-        },
-        {
-            "file": "telemetry/telemetryTest.js",
-            "line": 29,
-            "description": "Handles returned data from server after a get request.",
-            "params": [
-                {
-                    "name": "data",
-                    "description": "",
-                    "type": "Array"
-                }
-            ],
-            "class": ""
-        },
-        {
-            "file": "telemetry/telemetryTest.js",
-            "line": 117,
-            "description": "Make a request to the telemetry server",
-            "params": [
-                {
-                    "name": "type",
-                    "description": "'POST' for updating data or 'GET' for getting it"
-                },
-                {
-                    "name": "data",
-                    "description": "object; data to be sent in body of request"
-                }
-            ],
             "class": ""
         }
     ],
@@ -12655,7 +13124,7 @@
         },
         {
             "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3344"
+            "line": " LADS/js/LADS/util/LADS.Util.js:3400"
         },
         {
             "message": "replacing incorrect tag: returns with return",
@@ -13507,23 +13976,23 @@
         },
         {
             "message": "Missing item type\nUploads hotspot i to artwork j in its list of artworks to associate to.",
-            "line": " LADS/js/LADS/authoring/LADS.Authoring.NewSettingsView.js:2067"
+            "line": " LADS/js/LADS/authoring/LADS.Authoring.NewSettingsView.js:2069"
         },
         {
             "message": "Missing item type",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:754"
+            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:801"
         },
         {
             "message": "Missing item type",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:767"
+            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:814"
         },
         {
             "message": "Missing item type\nCreate a drawer with a disclosure button used to display\nhotspots, assets, tours. The returned jQuery object has\na property called \"contents\" which should be used to add\nbuttons or messages to the contents of the drawer.",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:850"
+            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:897"
         },
         {
             "message": "Missing item type\nThis is the click function LocationHistoryContainer.",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:968"
+            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:1015"
         },
         {
             "message": "Missing item type\nCreate a new right panel for editing Associated Media and append it to the dom (just offscreen)",
@@ -13660,22 +14129,6 @@
         {
             "message": "Missing item type\nFunction for reflowing page based on orientation / for splitscreen",
             "line": " LADS/js/LADS/layout/LADS.Layout.Exhibitions.js:2076"
-        },
-        {
-            "message": "Missing item type\ninitiates UI stuff",
-            "line": " LADS/js/LADS/layout/LADS.Layout.NewCatalog.js:86"
-        },
-        {
-            "message": "Missing item type",
-            "line": " LADS/js/LADS/layout/LADS.Layout.NewCatalog.js:222"
-        },
-        {
-            "message": "Missing item type\nAdds exhibitions to page",
-            "line": " LADS/js/LADS/layout/LADS.Layout.NewCatalog.js:263"
-        },
-        {
-            "message": "Missing item type\nWhen exhibition is selected in sidebar,\nthis function creates description to display in main display area",
-            "line": " LADS/js/LADS/layout/LADS.Layout.NewCatalog.js:340"
         },
         {
             "message": "Missing item type\nTest internet and server connections",
@@ -14867,59 +15320,59 @@
         },
         {
             "message": "Missing item type\nUsed by web app code to slide in pages given their html files",
-            "line": " LADS/js/LADS/util/LADS.Util.js:1309"
+            "line": " LADS/js/LADS/util/LADS.Util.js:1349"
         },
         {
             "message": "Missing item type",
-            "line": " LADS/js/LADS/util/LADS.Util.js:1332"
+            "line": " LADS/js/LADS/util/LADS.Util.js:1372"
         },
         {
             "message": "Missing item type\nUtils for Animation, splitscreen, colors and the like",
-            "line": " LADS/js/LADS/util/LADS.Util.js:1360"
+            "line": " LADS/js/LADS/util/LADS.Util.js:1400"
         },
         {
             "message": "Missing item type",
-            "line": " LADS/js/LADS/util/LADS.Util.js:1821"
+            "line": " LADS/js/LADS/util/LADS.Util.js:1862"
         },
         {
             "message": "Missing item type\nFollowing functions transition between pages while in splitscreen mode",
-            "line": " LADS/js/LADS/util/LADS.Util.js:2159"
+            "line": " LADS/js/LADS/util/LADS.Util.js:2200"
         },
         {
             "message": "Missing item type\nUse _Split fn's for transitions that need to preserve splitscreen\nNote: pages passed in to this function should have a top-level root node\n(true of exhibition, catalog and artmode)",
-            "line": " LADS/js/LADS/util/LADS.Util.js:2162"
+            "line": " LADS/js/LADS/util/LADS.Util.js:2203"
         },
         {
             "message": "Missing item type\nUse for any page transition that does not need to preserve splitscreen",
-            "line": " LADS/js/LADS/util/LADS.Util.js:2268"
+            "line": " LADS/js/LADS/util/LADS.Util.js:2324"
         },
         {
             "message": "Missing item type\nCreates a picker (e.g. click add/remove media in the artwork editor) to manage\n  associations between different TAG components (exhib, artworks, assoc media)",
-            "line": " LADS/js/LADS/util/LADS.Util.js:2583"
+            "line": " LADS/js/LADS/util/LADS.Util.js:2639"
         },
         {
             "message": "Missing item type\nCreates the media panel",
-            "line": " LADS/js/LADS/util/LADS.Util.js:2909"
+            "line": " LADS/js/LADS/util/LADS.Util.js:2965"
         },
         {
             "message": "Missing item type\nBuilt-in object extensions",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3307"
-        },
-        {
-            "message": "Missing item type\nIf specified object is in the array, remove it",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3330"
-        },
-        {
-            "message": "Missing item type\nInsert object into array based on comparator fn given\nAssumes array is already sorted!",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3344"
-        },
-        {
-            "message": "Missing item type\nConstrain a number to given range",
             "line": " LADS/js/LADS/util/LADS.Util.js:3363"
         },
         {
+            "message": "Missing item type\nIf specified object is in the array, remove it",
+            "line": " LADS/js/LADS/util/LADS.Util.js:3386"
+        },
+        {
+            "message": "Missing item type\nInsert object into array based on comparator fn given\nAssumes array is already sorted!",
+            "line": " LADS/js/LADS/util/LADS.Util.js:3400"
+        },
+        {
+            "message": "Missing item type\nConstrain a number to given range",
+            "line": " LADS/js/LADS/util/LADS.Util.js:3419"
+        },
+        {
             "message": "Missing item type\nSoft delete a hotspot by deleting both the hotspot linq and doq files",
-            "line": " LADS/js/LADS/worktop/LADS.Worktop.Database.js:1191"
+            "line": " LADS/js/LADS/worktop/LADS.Worktop.Database.js:1200"
         },
         {
             "message": "Missing item type",
@@ -16326,6 +16779,14 @@
             "line": " LADS/js/tagInk.js:698"
         },
         {
+            "message": "Missing item type\nHandles returned data from server after a get request.",
+            "line": " LADS/telemetry/telemetryTest.js:29"
+        },
+        {
+            "message": "Missing item type\nMake a request to the telemetry server",
+            "line": " LADS/telemetry/telemetryTest.js:117"
+        },
+        {
             "message": "Missing item type\nHammer\nuse this to create instances",
             "line": " LADS/hammer.js:10"
         },
@@ -16588,14 +17049,6 @@
         {
             "message": "Missing item type\nCancels the currently-running test",
             "line": " LADS/tests.js:592"
-        },
-        {
-            "message": "Missing item type\nHandles returned data from server after a get request.",
-            "line": " telemetry/telemetryTest.js:29"
-        },
-        {
-            "message": "Missing item type\nMake a request to the telemetry server",
-            "line": " telemetry/telemetryTest.js:117"
         }
     ]
 }

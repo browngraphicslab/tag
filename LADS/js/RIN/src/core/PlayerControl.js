@@ -205,6 +205,17 @@ window.rin = window.rin || {};
             }
             return this.playerConfiguration.loop;
         },
+
+        //Toggle loop
+        toggleLoop: function() {
+            if (this.playerConfiguration.loop === true) {
+                this.playerConfiguration.loop = false;
+            }
+            else {
+                this.playerConfiguration.loop = true;
+            }
+            return this.playerConfiguration.loop;
+        },
     
         //Sets the player volume and returns the current volume
         //volumeLevel should be a number between 0 and 1

@@ -49,6 +49,8 @@
             
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
             
+                <li><a href="../classes/LADS.Layout.NewCatalog.html">LADS.Layout.NewCatalog</a></li>
+            
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
             
                 <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
@@ -675,9 +677,9 @@ LADS.Util = (function () {
         testDiv.css({
             &#x27;position&#x27;: &#x27;absolute&#x27;,
             &#x27;visibility&#x27;: &#x27;hidden&#x27;,
+			&#x27;font-size&#x27;: minFontSize + &#x27;em&#x27;,
             &#x27;height&#x27;: &#x27;auto&#x27;,
             &#x27;width&#x27;: &#x27;auto&#x27;,
-            &#x27;font-size&#x27;: minFontSize + &#x27;em&#x27;,
         });
 
         testDiv.text(text);
@@ -685,6 +687,8 @@ LADS.Util = (function () {
 
         if (testDiv.width() &gt;= maxWidth || testDiv.height() &gt;= maxHeight) {
             return minFontSize + &#x27;em&#x27;;
+			//currSize = minFontSize;
+			//testDiv.css(&#x27;font-size&#x27;, currSize + &#x27;em&#x27;);
         }
 
         while (testDiv.width() &lt; maxWidth &amp;&amp; testDiv.height() &lt; maxHeight) {
@@ -693,6 +697,44 @@ LADS.Util = (function () {
         }
         testDiv.remove();
         return currSize + &#x27;em&#x27;;
+    }
+	
+	/*
+		Gets the maximum font size without em.
+	*/
+	function getMaxFontSize(text, minFontSize, maxWidth, maxHeight, step) {
+        console.log(&#x27;getting max font size.....&#x27;);
+        if (!text) {
+            return;
+        }
+        var testDiv = $(document.createElement(&#x27;div&#x27;));
+        var tagContainer = $(&#x27;#tagRoot&#x27;);
+        step = step || 0.1;
+        var currSize = minFontSize;
+
+        testDiv.css({
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;visibility&#x27;: &#x27;hidden&#x27;,
+			&#x27;font-size&#x27;: minFontSize + &#x27;em&#x27;,
+            &#x27;height&#x27;: &#x27;auto&#x27;,
+            &#x27;width&#x27;: &#x27;auto&#x27;,
+        });
+
+        testDiv.text(text);
+        tagContainer.append(testDiv);
+
+        if (testDiv.width() &gt;= maxWidth || testDiv.height() &gt;= maxHeight) {
+            return minFontSize + &#x27;em&#x27;;
+			//currSize = minFontSize;
+			//testDiv.css(&#x27;font-size&#x27;, currSize + &#x27;em&#x27;);
+        }
+
+        while (testDiv.width() &lt; maxWidth &amp;&amp; testDiv.height() &lt; maxHeight) {
+            currSize += step;
+            testDiv.css(&#x27;font-size&#x27;, currSize + &#x27;em&#x27;);
+        }
+        testDiv.remove();
+        return currSize;
     }
 
     //Shouldn&#x27;t be public anymore, this is primarially used by makeManipulatable
@@ -1489,6 +1531,7 @@ LADS.Util.UI = (function () {
         popUpMessage: popUpMessage,
         PopUpConfirmation: PopUpConfirmation,
         cgBackColor: cgBackColor,
+        setUpBackButton: setUpBackButton,
         blockInteractionOverlay: blockInteractionOverlay,
         FeedbackBox: FeedbackBox,
         ChangeServerDialog: ChangeServerDialog,
@@ -2279,12 +2322,27 @@ LADS.Util.UI = (function () {
                 break;
             case &quot;labelButton&quot;:
                 $(buttonToChange).css({ &#x27;background-color&#x27;: &#x27;white&#x27;, &#x27;color&#x27;: &#x27;black&#x27; });
-
                 break;
             case &quot;forwardButton&quot;:
                 $(buttonToChange).css({ &#x27;background-color&#x27;: &#x27;gray&#x27; });
                 break;
         }
+    }
+
+    /**
+     * Set up handlers for back button
+     * @method setUpBackButton
+     * @param {jQuery Obj} elt         jQuery object for back button element
+     * @param {Function} clickHandler  click handler for button
+     */
+    function setUpBackButton(elt, clickHandler) {
+        elt.on(&#x27;mouseleave&#x27;, function () {
+            cgBackColor(&quot;backButton&quot;, elt, true);
+        });
+        elt.on(&#x27;mousedown&#x27;, function () {
+            cgBackColor(&quot;backButton&quot;, elt, false);
+        });
+        elt.on(&#x27;click&#x27;, clickHandler);
     }
 
     // slide towards left (splitscreen)
