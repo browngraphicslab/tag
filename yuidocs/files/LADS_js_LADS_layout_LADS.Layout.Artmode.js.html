@@ -49,6 +49,8 @@
             
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
             
+                <li><a href="../classes/LADS.Layout.NewCatalog.html">LADS.Layout.NewCatalog</a></li>
+            
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
             
                 <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
@@ -194,7 +196,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 createSeadragonControls();
                 initialized = true;
             });
-            
         }
     }
 
@@ -288,8 +289,89 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             scrollDelt = 0.1;
 
         var interval;
-
+        
         /* TODO factor some repeated code out */
+
+
+        /*Key press controls */
+        var containerFocused = true;
+
+        $(&#x27;#tagContainer&#x27;).attr(&quot;tabindex&quot;, -1);
+        $(&quot;[tabindex=&#x27;-1&#x27;]&quot;).focus();
+        $(&quot;[tabindex=&#x27;-1&#x27;]&quot;).css(&#x27;outline&#x27;, &#x27;none&#x27;);
+        $(&quot;[tabindex=&#x27;-1&#x27;]&quot;).click(function() {
+            $(&quot;[tabindex=&#x27;-1&#x27;]&quot;).focus();
+            containerFocused = true;
+        });
+        $(&quot;[tabindex=&#x27;-1&#x27;]&quot;).focus(function() {
+            containerFocused = true;
+
+        });
+        $(&quot;[tabindex=&#x27;-1&#x27;]&quot;).focusout(function() {
+            containerFocused = false;
+        });
+        $(document).keydown(function(event){
+            if(containerFocused) {
+                switch(event.which) {
+    
+                    case 37: 
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: delt, y: 0}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: delt, y: 0}, 1);
+                        }, 100);
+                    
+                    break;
+                    case 38:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: 0, y: delt}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: 0, y: delt}, 1);
+                        }, 100);
+                    break;
+                    case 39:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: -delt, y: 0}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: -delt, y: 0}, 1);
+                        }, 100);
+                    break;
+                    case 40:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: 0, y: -delt}, 1);
+                        interval = setInterval(function() {
+                        zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: 0, y: -delt}, 1);
+                        }, 100);
+                    break;
+                    case 187:
+                    case 61:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzScroll(1+scrollDelt, {x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2});
+                        interval = setInterval(function() {
+                        zoomimage.dzScroll(1+scrollDelt, {x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2});
+                        }, 100);
+                    break;
+                    case 189:
+                    case 173:
+                        event.preventDefault();
+                        clearInterval(interval);
+                        zoomimage.dzScroll(1-scrollDelt, {x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2});
+                        interval = setInterval(function() {
+                        zoomimage.dzScroll(1-scrollDelt, {x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2});
+                        }, 100);
+                    break;
+                }
+            }
+        });
+        
+        $(document).keyup(function(event){
+            clearInterval(interval);
+        });
         $(&#x27;#leftControl&#x27;).on(&#x27;mousedown&#x27;, function() {
             clearInterval(interval);
             zoomimage.dzManip({x: $(&#x27;#tagRoot&#x27;).width()/2, y: $(&#x27;#tagRoot&#x27;).height()/2}, {x: delt, y: 0}, 1);
@@ -424,7 +506,11 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 			backButton.off(&#x27;click&#x27;); // prevent user from clicking twice
 			zoomimage &amp;&amp; zoomimage.unload();
 			var backInfo = { backArtwork: doq, backScroll: prevScroll };
-			var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
+			var catalog = new LADS.Layout.NewCatalog({
+                backScroll: prevScroll,
+                backArtwork: doq,
+                backCollection: exhibition
+            });
 			catalog.getRoot().css({ &#x27;overflow-x&#x27;: &#x27;hidden&#x27; }); // TODO this line shouldn&#x27;t be necessary -- do in styl file
 			LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
                 if(prevExhib &amp;&amp; prevExhib.Identifier) {
@@ -580,8 +666,8 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 holder.data(&quot;ishotspot&quot;, isHotspot);
 
                 holder.data(&#x27;info&#x27;, media);
-
-                holder.on(&quot;click&quot;, hotspotAssetClick(media, holder));
+                media.button = holder;
+                holder.on(&quot;click&quot;, hotspotAssetClick(media));
                 holder.on(&quot;mousedown&quot;, downhelper(holder));
                 holder.on(&quot;mouseup&quot;, uphelper(holder));
                 container.append(holder);
@@ -652,7 +738,8 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             assetContainer.append(assetsDrawer);
         }
 
-        function hotspotAssetClick(hotspotsAsset, btn) {//check if the location history is open before you click the button, if so, close it
+        //Called when hotspots or assets are clicked
+        function hotspotAssetClick(hotspotsAsset) {//check if the location history is open before you click the button, if so, close it
             return function () {
                 hotspotsAsset.mediaload();
                 if (locationHistoryActive) {
@@ -666,48 +753,12 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                     locationHistoryDiv.hide(&quot;slide&quot;, { direction: direction }, 500);
                     setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
                 }
-                var circle = hotspotsAsset.toggle();
-
-                if (btn.data(&quot;ishotspot&quot;)) {//btn change for hotspots
-                    if (btn.data(&quot;assetHidden&quot;) &amp;&amp; $(circle).css(&#x27;display&#x27;) === &#x27;block&#x27;) {
-                        btn.css({
-                            &#x27;color&#x27;: &#x27;black&#x27;,
-                            &#x27;background-color&#x27;: &#x27;rgba(255,255,255, 0.3)&#x27;,
-                        });
-                        btn.data(&quot;assetHidden&quot;, false);
-                    }
-                    else {
-                        btn.css({
-                            &#x27;color&#x27;: &#x27;white&#x27;,
-                            &#x27;background-color&#x27;: &#x27;&#x27;
-                        });
-
-                        btn.data(&quot;assetHidden&quot;, true);
-                    }
-                } else {//btn change for assets
-                    if (btn.data(&quot;assetHidden&quot;)) {
-                        btn.css({
-                            &#x27;color&#x27;: &#x27;black&#x27;,
-                            &#x27;background-color&#x27;: &#x27;rgba(255,255,255, 0.3)&#x27;,
-                        });
-                        btn.data(&quot;assetHidden&quot;, false);
-                    } else {
-                        btn.css({
-                            &#x27;color&#x27;: &#x27;white&#x27;,
-                            &#x27;background-color&#x27;: &#x27;&#x27;
-                        });
-
-                        btn.data(&quot;assetHidden&quot;, true);
-                    }
-                }
+                hotspotsAsset.toggle();
                 hotspotsAsset.pauseAsset();
-                if (circle) {
-                    setTimeout(function () { circle.click(); }, 500); // has to be a better way.....
-                }
             };
         }
-
         var toursDrawer;
+
         // Load tours and filter for tours associated with this artwork
         LADS.Worktop.Database.getTours(function (tours) {
             var relatedTours = tours.filter(function (tour) {
@@ -736,8 +787,6 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 &quot;max-height&quot;: maxHeight +&quot;px&quot;,
             });
         });
-
-        
 
         function tourClicked(tour) {
             return function () {

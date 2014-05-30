@@ -39,6 +39,7 @@ window.rin = window.rin || {};
             var self = this,
                 stageElement,
                 playPauseVM,
+                loopVM,
                 seekerVM,
                 volumeVM,
                 troubleshootVM,
@@ -93,6 +94,7 @@ window.rin = window.rin || {};
             this._playerControllerViewModel = new rin.internal.PlayerControllerViewModel(this.orchestrator, this.playerControl);
             playPauseVM = this._playerControllerViewModel.playPauseVM;
             seekerVM = this._playerControllerViewModel.seekerVM;
+            loopVM = this._playerControllerViewModel.loopVM;
             volumeVM = this._playerControllerViewModel.volumeVM;
             troubleshootVM = this._playerControllerViewModel.troubleShooterVM;
 
@@ -104,6 +106,9 @@ window.rin = window.rin || {};
 
         },
         load: function () {
+        },
+        isLooped: function() {
+            this._playerControllerViewModel.loopVM.isLooped();
         },
         play: function () {
             this._playerControllerViewModel.playPauseVM.isPlaying(true);

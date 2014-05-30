@@ -1,4 +1,4 @@
-<!-- RIN | http://research.microsoft.com/rin | 2014-04-17 -->
+<!-- RIN | http://research.microsoft.com/rin | 2014-05-19 -->
 <script type="text/html" id="Controller.tmpl">
 <div class="rin_mainContainer selectDisable" tabindex="0">
     <div class="rin_Header" data-bind="visible: isHeaderVisible()">
@@ -32,6 +32,9 @@
                         <li data-bind="visible: isVolumeVisible">
                             <div class="rin_VolumeControl" data-bind="stopBinding: true"></div>
                         </li>
+                        <li data-bind="visible: isLoopVisible">
+                            <div class="rin_LoopControl" data-bind="stopBinding: true"></div>
+                        </li>
                         <!-- <li data-bind="visible: isFullScreenControlVisible">
                             <div class="rin_FullScreenControl" data-bind="stopBinding: true"></div>
                         </li> -->
@@ -57,6 +60,9 @@
     <!-- /ko -->
 </div>
 
+</script>
+<script type="text/html" id="LoopControl.tmpl">
+<input type="button" class="rin_Button" data-bind="css: {rin_LoopOn: isLooped(), rin_LoopOff: !isLooped()}, click: loopEvent" />
 </script>
 <script type="text/html" id="PlayPauseControl.tmpl">
 <input type="button" class="rin_Button" data-bind="css: {rin_Pause: isPlaying(), rin_Play: !isPlaying()}, click: playPauseEvent" />

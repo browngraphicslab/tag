@@ -1004,6 +1004,10 @@ LADS.Worktop.Database = (function () {
         return _main.Metadata["OverlayTransparency"];
     }
 
+    function getPrimaryFontColor() {
+        return _main.Metadata["FontColor"] || "#eeeeee";
+    }
+
     function getMuseumLoc() {
         return _main.Metadata["MuseumLoc"];
     }

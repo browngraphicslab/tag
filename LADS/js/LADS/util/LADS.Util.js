@@ -1427,6 +1427,7 @@ LADS.Util.UI = (function () {
         popUpMessage: popUpMessage,
         PopUpConfirmation: PopUpConfirmation,
         cgBackColor: cgBackColor,
+        setUpBackButton: setUpBackButton,
         blockInteractionOverlay: blockInteractionOverlay,
         FeedbackBox: FeedbackBox,
         ChangeServerDialog: ChangeServerDialog,
@@ -2217,12 +2218,27 @@ LADS.Util.UI = (function () {
                 break;
             case "labelButton":
                 $(buttonToChange).css({ 'background-color': 'white', 'color': 'black' });
-
                 break;
             case "forwardButton":
                 $(buttonToChange).css({ 'background-color': 'gray' });
                 break;
         }
+    }
+
+    /**
+     * Set up handlers for back button
+     * @method setUpBackButton
+     * @param {jQuery Obj} elt         jQuery object for back button element
+     * @param {Function} clickHandler  click handler for button
+     */
+    function setUpBackButton(elt, clickHandler) {
+        elt.on('mouseleave', function () {
+            cgBackColor("backButton", elt, true);
+        });
+        elt.on('mousedown', function () {
+            cgBackColor("backButton", elt, false);
+        });
+        elt.on('click', clickHandler);
     }
 
     // slide towards left (splitscreen)

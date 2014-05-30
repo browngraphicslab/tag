@@ -35,6 +35,7 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         DURATION = parseFloat(videoSrc.Metadata.Duration),
         play = root.find('#playPauseButton'),
         vol = root.find('#videoControlsButton'),
+        loop = root.find('#loopButton'),
         sliderContainer = root.find('#sliderContainer'),
         currTime,
         poster = (videoSrc.Metadata.Thumbnail && !videoSrc.Metadata.Thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(videoSrc.Metadata.Thumbnail) : '',
@@ -57,16 +58,24 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         video.attr('src', "");
 
         var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
-        var catalog = new LADS.Layout.NewCatalog(backInfo, collection);
+        var catalog = new LADS.Layout.NewCatalog({
+            backScroll: prevScroll,
+            backArtwork: videoSrc,
+            backCollection: collection
+        });
 
         catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO should be default in .styl file
         LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
             artworkPrev = "catalog";
-            var selectedExhib = $('#' + 'exhib-' + prevExhib.Identifier);
+            var selectedExhib = $('#collection-' + prevExhib.Identifier);
             selectedExhib.attr('flagClicked', 'true');
             selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
             $(selectedExhib[0].firstChild).css({'color': 'black'});
         });
+    }
+
+    function loop(){
+
     }
 
     /**
@@ -128,6 +137,11 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         // when video ends, return to collections page after a short delay
         video.on('ended', function () {
             setTimeout(goBack, 300);
+        });
+
+        // set up loop button
+        loop.on('click', function() {
+
         });
 
         // Update the seek bar as the video plays

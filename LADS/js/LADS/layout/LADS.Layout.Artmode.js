@@ -402,7 +402,11 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
 			backButton.off('click'); // prevent user from clicking twice
 			zoomimage && zoomimage.unload();
 			var backInfo = { backArtwork: doq, backScroll: prevScroll };
-			var catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
+			var catalog = new LADS.Layout.NewCatalog({
+                backScroll: prevScroll,
+                backArtwork: doq,
+                backCollection: exhibition
+            });
 			catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO this line shouldn't be necessary -- do in styl file
 			LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
                 if(prevExhib && prevExhib.Identifier) {

@@ -49,6 +49,8 @@
             
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
             
+                <li><a href="../classes/LADS.Layout.NewCatalog.html">LADS.Layout.NewCatalog</a></li>
+            
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
             
                 <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
@@ -115,15 +117,11 @@ LADS.Util.makeNamespace(&quot;LADS.Layout.TourPlayer&quot;);
 LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj) {
     &quot;use strict&quot;;
 
-    /* nbowditch _editted 2/13/2014 : added prevInfo */
+    debugger; // for prevInfo
+
     var artworkPrev;
     var prevScroll = 0;
 	var prevExhib = exhibition;
-    if (prevInfo) {
-        artworkPrev = prevInfo.artworkPrev,
-        prevScroll = prevInfo.prevScroll || 0;
-    }
-    /* end nbowditch edit */
 
     var tagContainer = $(&#x27;#tagRoot&#x27;);
 
@@ -164,22 +162,23 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
         backButton.off(&#x27;click&#x27;); // prevent user from clicking twice
 
         if (artworkPrev &amp;&amp; artwork) {
-            /* nbowditch _editted 2/13/2014 : added prevInfo */
-            var prevInfo = {prevPage: artworkPrev, prevScroll: prevScroll}; // for now, scrollbar will reset if you go further than 1 page
             artmode = new LADS.Layout.Artmode(prevInfo, artwork, exhibition);
-            /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, artmode.getRoot());
 
-            var selectedExhib = $(&#x27;#exhib-&#x27; + prevExhib.Identifier);
+            var selectedExhib = $(&#x27;#collection-&#x27; + prevExhib.Identifier);
             selectedExhib.attr(&#x27;flagClicked&#x27;, &#x27;true&#x27;);
         } else {
             /* nbowditch _editted 2/13/2014 : added backInfo */
             var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
-            catalog = new LADS.Layout.NewCatalog(backInfo, exhibition);
+            catalog = new LADS.Layout.NewCatalog({
+                backScroll: prevScroll,
+                backArtwork: tourObj,
+                backCollection: exhibition
+            });
             /* end nbowditch edit */
             LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
 				artworkPrev = &quot;catalog&quot;;
-				var selectedExhib = $(&#x27;#exhib-&#x27; + prevExhib.Identifier);
+				var selectedExhib = $(&#x27;#collection-&#x27; + prevExhib.Identifier);
 				selectedExhib.attr(&#x27;flagClicked&#x27;, &#x27;true&#x27;);
 				selectedExhib.css({ &#x27;background-color&#x27;: &#x27;white&#x27;, &#x27;color&#x27;: &#x27;black&#x27; });
                 if(selectedExhib[0].firstChild) {
