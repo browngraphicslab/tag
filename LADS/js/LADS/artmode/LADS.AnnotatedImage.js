@@ -1054,11 +1054,11 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
 
         // media-specific
         var controlPanel = $(document.createElement('div')),
-            play, vol, seekBar, timeContainer, currentTimeDisplay, playHolder, volHolder;
+            play, vol, seekBar, timeContainer, currentTimeDisplay, playHolder, volHolder, sliderContainer, sliderPoint;
 
         controlPanel.addClass('media-control-panel-' + info.assetDoqID);
         controlPanel.css({
-            'height': '40px',
+            'height': '60px',
             'position': 'relative',
             'display': 'block',
             'left': '2.5%',
@@ -1135,13 +1135,40 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                         'display': 'inline-block',
                     });
                     playHolder.css({
-                        'position': 'relative',
+                        'position': 'absolute',
                         'height': '20px',
                         'width': '20px',
-                        'display': 'inline-block',
+                        //'display': 'inline-block',
                         'margin': '0px 1% 0px 1%',
+
                     });
                     playHolder.append(play);
+
+                   
+                    var sliderContainer = $(document.createElement('div'));
+                    sliderContainer.css({
+                        'position': 'absolute',
+                        'height': '7px',
+                        'width': '100%',
+                        //'display': 'inline-block',
+                        'left': '0px',
+                        'bottom': '0px',
+                        //'margin': '0px 1% 0px 1%',
+                    });
+
+                    var sliderPoint = $(document.createElement('div'));
+        
+                    sliderPoint.css({
+                        'position': 'absolute',
+                        'height': '100%',
+                        'background-color': '#3cf',
+                        'width': '0%',
+                        //'display': 'inline-block',
+                        'left': '0%',
+                    });
+
+                    sliderContainer.append(sliderPoint);
+
 
                     volHolder = $(document.createElement('div'));
                     vol = document.createElement('img');
@@ -1157,9 +1184,11 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                     volHolder.css({
                         'height': '20px',
                         'width': '20px',
-                        'position': 'relative',
-                        'display': 'inline-block',
-                        'margin': '0px 1% 0px 1%',
+                        'position': 'absolute',
+                        //'display': 'inline-block',
+                        'right': '5px',
+                        'top': '0px',
+                        //'margin': '0px 1% 0px 1%',
                     });
                     volHolder.append(vol);
                     this.initVideoPlayHandlers = function () {
@@ -1192,6 +1221,67 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                     };
                     this.initVideoPlayHandlers();
 
+                    sliderContainer.on('mousedown', function(evt) {
+                        var time = video.duration * (evt.offsetX / sliderContainer.width());    
+                        if (!isNaN(time)) {
+                            video.currentTime = time;
+                        }
+                         });
+
+
+                    sliderContainer.on('mousedown', function(e){
+                        e.stopPropagation();
+                        console.log('mousedown');
+                        var origPoint = e.pageX,
+                            origTime = video.currentTime,
+                            timePxRatio = video.duration / sliderContainer.width(),
+                            currPx,
+                            minutes,
+                            seconds;
+            
+                        var currTime = Math.max(0, Math.min(video.duration, origTime));
+                        var currPx   = currTime / timePxRatio;
+                        var minutes  = Math.floor(currTime / 60);
+                        var seconds  = Math.floor(currTime % 60);
+
+                            if((""+minutes).length < 2) {
+                                minutes = "0" + minutes;
+                            }
+
+                            // set up mousemove handler now that mousedown has happened
+                            $(sliderContainer).on('mousemove.seek', function(evt) {
+                                var currPoint = evt.pageX,
+                                    timeDiff = (currPoint - origPoint) * timePxRatio;
+
+                                currTime = Math.max(0, Math.min(video.duration, origTime + timeDiff));
+                                currPx   = currTime / timePxRatio;
+                                minutes  = Math.floor(currTime / 60);
+                                seconds  = Math.floor(currTime % 60);
+
+                                if((""+minutes).length < 2) {
+                                    minutes = "0" + minutes;
+                                }
+
+                                // Update the video time and slider values
+                                if (!isNaN(currTime)) {
+                                    $(currentTimeDisplay).text(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
+                                    video.currentTime = currTime;
+                                    sliderPoint.css('width', currPx);
+                                }
+                        sliderContainer.on('mouseup.seek mouseleave.seek', function() {
+                            console.log('moueup');
+                            sliderContainer.off('mousemove.seek');
+                            sliderContainer.off('mouseup.seek');
+                            sliderContainer.off('mouseleave.seek');
+                            $(currentTimeDisplay).text(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
+                            video.currentTime = currTime;
+                            sliderPoint.css('width', currPx);
+                        });
+                            });
+    
+                    });
+
+/*
                     seekBar = document.createElement('input');
                     $(seekBar).addClass('videoControls');
                     seekBar.type = 'range';
@@ -1215,6 +1305,8 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                         }
                     });
 
+                    
+
                     $(seekBar).mouseover(function (evt) {
                         var percent = evt.offsetX / $(seekBar).width();
                         var hoverTime = video.duration * percent;
@@ -1235,11 +1327,15 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                         evt.stopPropagation();
                     });
 
+*/
                     timeContainer = document.createElement('div');
                     $(timeContainer).css({
                         'height': '20px',
                         'width': '40px',
-                        'margin': '0px 1% 0px 1%',
+                        'right': volHolder.width()+25+'px',
+                        'position': 'absolute',
+                        //'margin': '0px 1% 0px 1%',
+                        'vertical-align': 'top',
                         'padding': '0',
                         'display': 'inline-block',
                         'overflow': 'hidden',
@@ -1254,16 +1350,23 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                         // Calculate the slider value
                         var value = (100 / video.duration) * video.currentTime;
                         // Update the slider value
-                        seekBar.value = value;
+                        //seekBar.value = value;
                         var minutes = Math.floor(video.currentTime / 60);
                         var seconds = Math.floor(video.currentTime % 60);
                         var adjMin;
+                        var timePxRatio = video.duration /sliderContainer.width();
+                        var currPx = video.currentTime / timePxRatio;
+
+                        if(!isNaN(video.currentTime)){
+                            sliderPoint.css('width', currPx);
+                        }
                         if (String(minutes).length < 2) {
                             adjMin = String('0' + minutes);
                         } else {
                             adjMin = String(minutes);
                         }
                         $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
+
                     });
 
                     // if(!imgadded) {
@@ -1271,11 +1374,18 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                     mediaContainer.append(controlPanel[0]);
                     //    imgadded = true;
                     //}
+                    controlPanel.css({
+                        'height': '47px',
+                        'background-color': '#3f3735',
+                        'width': '100%',
+                    });
                     controlPanel.append(playHolder);
-                    controlPanel.append(seekBar);
+                    
+                    //controlPanel.append(seekBar);
                     $(timeContainer).append(currentTimeDisplay);
                     controlPanel.append(timeContainer);
                     controlPanel.append(volHolder);
+                    controlPanel.append(sliderContainer);
                 }
 
                 
@@ -1305,7 +1415,9 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                         'height': '20px',
                         'width': '20px',
                         'display': 'inline-block',
-                        'margin': '0px 1% 0px 1%',
+                        'left': '0px',
+                        'top': '0px',
+                        //'margin': '0px 1% 0px 1%',
                     });
 
                     play.style.width = "32px";
@@ -1378,6 +1490,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                         left: '30px',
                     });
 
+                   
                     // Event listener for the seek bar
                     seekBar.addEventListener("change", function (evt) {
                         evt.stopPropagation();
@@ -1485,21 +1598,37 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         //Resize and scale control panel, buttons, etc.
         function resizeControlElements() {
             // scale control panel
+            console.log("resizing elements");
             var cpSize = LADS.Util.constrainAndPosition(
                 $(innerContainer).width()-20, $(innerContainer).height(),
                 {
                     width: 1,
                     height: 1,
-                    max_height: 40,
+                    max_height: 60,
                     center_h: true,
                 }
             );
             controlPanel.css({
-                width: cpSize.width + 'px',
-                height: cpSize.height + 'px',
+                width: '100%',
+                //width: cpSize.width + 'px',
+                height: '47px',
                 left: cpSize.x + 'px',
                 'margin-top': '-1%',
             });
+            
+            var oldWidth = $(sliderPoint).width;
+
+            $(sliderPoint).css({
+                width: oldWidth * $(controlPanel).width/$(sliderContainer).width
+            });
+
+            console.log($(sliderPoint).width);
+
+            //sliderContainer.css({
+            //    width: '100%',
+            //});
+
+
 
             // scale play button
             var playSize = LADS.Util.constrainAndPosition(
@@ -1518,9 +1647,10 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 height: playSize.height + 'px',
             });
             playHolder.css({
-                top: playSize.y + 2 + 'px',
+                top: playSize.y -1 + 'px',
                 width: playSize.width + 'px',
                 height: playSize.height + 'px',
+                center_v: true,
             });
 
             // scale seek slider
