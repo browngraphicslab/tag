@@ -254,7 +254,7 @@
   margin-top: 5%;
   height: 78%;
 }
-#artmodeRoot .assetHolder {
+#artmodeRoot .mediaButton {
   float: left;
   margin: 1%;
   width: 46%;
@@ -262,7 +262,7 @@
   border: 1px solid rgba(255,255,255,0.4);
   color: #fff;
 }
-#artmodeRoot .assetHolderImage {
+#artmodeRoot .thumbnailImage {
   max-width: 100%;
   max-height: 100%;
 }
@@ -275,13 +275,13 @@
   width: 100%;
   height: 100%;
 }
-#artmodeRoot .holderContainer {
+#artmodeRoot .thumbnailButtonContainer {
   display: table;
   position: relative;
   width: 100%;
   height: 100%;
 }
-#artmodeRoot .holderInnerContainer {
+#artmodeRoot .thumbnailButtonInnerContainer {
   display: table-cell;
   max-height: 100%;
   max-width: 100%;
@@ -292,8 +292,8 @@
   font-size: 22px;
   color: #fff;
   width: 100%;
-  max-height: 4.5em;
-  overflow-y: visible;
+  max-height: 5em;
+  overflow-y: scroll;
   white-space: nowrap;
   padding-right: 7%;
 }
@@ -304,11 +304,10 @@
   text-overflow: ellipsis;
 }
 #artmodeRoot .infoCustom {
-  font-size: 147%;
-  margin-top: 5px;
-  text-overflow: ellipsis;
+  font-size: 110%;
   overflow: hidden;
   white-space: nowrap;
+  text-overflow: ellipsis;
 }
 #artmodeRoot #infoTitle {
   font-size: 160%;
@@ -324,9 +323,10 @@
   text-overflow: ellipsis;
 }
 #artmodeRoot #locationHistory {
+  color: #fff;
+  display: inline;
   font-size: 133%;
   position: relative;
-  display: inline;
   vertical-align: middle;
 }
 #artmodeRoot #locationHistoryContainer {
@@ -368,7 +368,7 @@
   top: 35%;
   font-size: 22pt;
 }
-#artmodeRoot .mediaHolderDiv {
+#artmodeRoot .thumbnailHolderDiv {
   height: 70%;
   position: relative;
   width: 92%;
@@ -377,7 +377,7 @@
 #artmodeRoot .mediaHolderImg {
   max-width: 100%;
 }
-#artmodeRoot .mediaHolderTitle {
+#artmodeRoot .thumbnailButtonTitle {
   margin: 1% 2% 0% 2%;
   top: 80%;
   height: 20%;
@@ -441,22 +441,32 @@
 }
 #artmodeRoot #seadragonManipSlideButton {
   background-color: rgba(0,0,0,0.85);
-  position: absolute;
-  top: 100px;
-  text-align: center;
-  height: 30px;
-  width: 160px;
-  z-index: 10000000;
   border-radius: 10px;
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
+  cursor: pointer;
+  height: 30px;
+  left: 0px;
+  padding-top: 10px;
+  position: absolute;
+  text-align: center;
+  top: 100px;
+  width: 160px;
+  z-index: 10000000;
+}
+#artmodeRoot #seadragonManipSlideImg {
+  width: 23px;
+  height: 40px;
+  transform: rotate(180deg);
+  margin-top: -10px;
 }
 #artmodeRoot #sideBar {
-  position: absolute;
-  display: block;
-  top: 0px;
   background-color: rgba(0,0,0,0.7);
+  display: block;
   height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
   width: 22% !important;
   z-index: 100;
 }
@@ -472,11 +482,14 @@
   position: relative;
 }
 #artmodeRoot #toggler {
+  background-color: rgba(0,0,0,0.7);
+  border-top-right-radius: 10px;
+  border-top-right-radius: 10px;
   position: absolute;
+  right: -12%;
   top: 45%;
   width: 12%;
   height: 12%;
-  background-color: rgba(0,0,0,0.7);
   z-index: 100;
 }
 #artmodeRoot #togglerImage {
@@ -486,13 +499,19 @@
   width: 72%;
   height: 42%;
 }
-#artmodeRoot .tourHolder {
+#artmodeRoot .tourButton {
   float: left;
   margin: 1%;
   width: 46%;
   position: relative;
   border: 1px solid rgba(255,255,255,0.4);
   color: #fff;
+}
+#artmodeRoot #zinControl {
+  width: 25px;
+}
+#artmodeRoot #zoutControl {
+  width: 25px;
 }
 #artmodeRoot .lpContents {
   position: relative;
@@ -563,21 +582,24 @@
   width: 100%;
   float: left;
 }
-#artmodeRoot .label {
-  font-size: 133%;
-  width: 50%;
+#artmodeRoot .drawerLabel {
+  color: #fff;
   float: left;
+  font-size: 133%;
   height: 30%;
+  width: 85%;
 }
-#artmodeRoot .toggleContainer {
-  width: 26%;
-  position: relative;
+#artmodeRoot .drawerToggleContainer {
   float: right;
   padding-top: 2%;
+  position: relative;
+  width: 10%;
 }
-#artmodeRoot .plusToggle {
-  width: 40%;
-  height: 40%;
+#artmodeRoot .drawerPlusToggle {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
 }
 #artmodeRoot .drawerContents {
   display: none;
@@ -1274,6 +1296,55 @@
   -webkit-user-select: none;
   -o-user-select: none;
   user-select: none;
+}
+#tagRoot #annotatedImageAssetCanvas {
+  overflow-x: hidden;
+  overflow-y: hidden;
+  pointer-events: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 50;
+}
+#tagRoot .annotatedImageHotspotCircle {
+  display: inline-block;
+  height: 60px;
+  position: absolute;
+  visibility: hidden;
+  width: 60px;
+  z-index: 100000;
+}
+#tagRoot .annotatedImageMediaControlPanel {
+  height: 40px;
+  position: relative;
+  display: block;
+  left: 2.5%;
+  margin-bottom: 2.5%;
+}
+#tagRoot .annotatedImageMediaDescription {
+  position: relative;
+  left: 5%;
+  width: 90%;
+  color: #fff;
+  bottom: 5px;
+  word-wrap: break-word;
+}
+#tagRoot .annotatedImageMediaTitle {
+  position: relative;
+  left: 5%;
+  width: 90%;
+  color: #fff;
+  top: 5px;
+  padding-bottom: 2%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 700;
+}
+#tagRoot #annotatedImageViewer {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  z-index: 0;
 }
 
 .dialogBoxOverlay {

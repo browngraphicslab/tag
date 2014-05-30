@@ -7,13 +7,11 @@ LADS.Util.makeNamespace("LADS.Layout.TourPlayer");
  * @param prevInfo   object containing previous page info 
  *    artworkPrev      value is 'artmode' when we arrive here from the art viewer
  *    prevScroll       value of scrollbar from new catalog page
- * @param artwork      options to pass into LADS.Layout.Artmode
+ * @param artmodeOptions      options to pass into LADS.Layout.Artmode
  * @param tourObj      the tour doq object, so we can return to the proper tour in the collections screen
  */
-LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj) {
+LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, tourObj) {
     "use strict";
-
-    debugger; // for prevInfo
 
     var artworkPrev;
     var prevScroll = 0;
@@ -57,8 +55,8 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
 
         backButton.off('click'); // prevent user from clicking twice
 
-        if (artworkPrev && artwork) {
-            artmode = new LADS.Layout.Artmode(prevInfo, artwork, exhibition);
+        if (artmodeOptions) {
+            artmode = new LADS.Layout.Artmode(artmodeOptions);
             LADS.Util.UI.slidePageRightSplit(root, artmode.getRoot());
 
             var selectedExhib = $('#collection-' + prevExhib.Identifier);

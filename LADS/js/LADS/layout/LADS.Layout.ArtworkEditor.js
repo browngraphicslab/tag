@@ -98,7 +98,7 @@ LADS.Layout.ArtworkEditor = function (artwork) {
         //creates deep zoom image
         if (artwork) {
             zoomimage = new LADS.AnnotatedImage(root, artwork, false, function () {
-                if (!(zoomimage.loadDoq(artwork))) {
+                if (!(zoomimage.openArtwork(artwork))) {
                     var popup = LADS.Util.UI.popUpMessage(function () {
                         LADS.Authoring.NewSettingsView("Artworks", function (settingsView) {
                             LADS.Util.UI.slidePageRight(settingsView.getRoot());
@@ -1018,7 +1018,7 @@ LADS.Layout.ArtworkEditor = function (artwork) {
                     pixel_adj = new Seadragon.Point(pixel.x + 50, pixel.y + 50),
                     point_adj = zoomimage.viewer.viewport.pointFromPixel(pixel_adj),
                     hotspotCircle = $hotspotAnchor.get(0);
-                zoomimage.addOverlayToDZ(hotspotCircle, point_adj, Seadragon.OverlayPlacement.TOP_LEFT);
+                zoomimage.addOverlay(hotspotCircle, point_adj, Seadragon.OverlayPlacement.TOP_LEFT);
                 zoomimage.viewer.viewport.panTo(new Seadragon.Point(point.x, point.y), false);
                 $hotspotAnchor.fadeIn(100);
             }

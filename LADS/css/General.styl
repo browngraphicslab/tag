@@ -26,7 +26,6 @@
 	color #eeeeee
 
 #tagRoot a
-	// color #26e
 	color white
 	cursor pointer
 	text-decoration none
@@ -37,3 +36,51 @@
 	-webkit-user-select none
 	-o-user-select none
 	user-select none
+
+#tagRoot #annotatedImageAssetCanvas
+	overflow-x hidden
+	overflow-y hidden
+	pointer-events none
+	position absolute
+	wh 100%
+	z-index 50
+
+#tagRoot .annotatedImageHotspotCircle
+	display inline-block
+	height 60px
+	position absolute
+	visibility hidden
+	width 60px
+	z-index 100000
+
+#tagRoot .annotatedImageMediaControlPanel
+	height 40px
+	position relative
+	display block
+	left 2.5%
+	margin-bottom 2.5%
+
+#tagRoot .annotatedImageMediaDescription
+	position relative
+	left 5%
+	width 90%
+	color white
+	bottom 5px
+	word-wrap break-word
+
+#tagRoot .annotatedImageMediaTitle
+	position relative
+	left 5%
+	width 90%
+	color white
+	top 5px
+	padding-bottom 2%
+	overflow hidden
+	text-overflow ellipsis
+	font-weight 700
+
+#tagRoot #annotatedImageViewer
+	height 100%
+	width 100%
+	position absolute
+	z-index 0

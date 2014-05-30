@@ -3,8 +3,8 @@
 LADS.Util.Splitscreen = (function () {
     "use strict";
     var on = false,
-            viewerL = null,
-            viewerR = null;
+        viewerL = null,
+        viewerR = null;
 
     return {
         init: init,

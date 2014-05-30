@@ -1,56 +1,93 @@
 ﻿LADS.Util.makeNamespace("LADS.AnnotatedImage");
 
+/**
+ * Representation of deepzoom image with associated media. Contains
+ * touch handlers. This is a constructor function, so it adds properties
+ * to 'this' rather than returning an object.
+ *
+ * @class LADS.AnnotatedImage
+ * @constructor
+ * @param {Object} options         some options for the artwork and assoc media
+ * @return {Object}                some public methods and variables
+ */
 
-LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHotspots) {
+LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shouldNotLoadHotspots) {
     "use strict";
-    var artworkName = doq.Name;
-    var artworkGuid = doq.Identifier;
 
-    //LADS.Worktop.Database.getDoqByGuid(artworkGuid);
 
-    this.viewer = null;
-    var imageLocation = null;
-    var rootElement = rootElt;
-    var height = null;
-    var width = null;
-    var aspectRatio;
-    var that = this;
-    var hotspots = [];
-    var assets = [];
-    var assetCanvas;
-    var tempDoq; // temp hack to make hotspots function // do we keep doing this way?\
-    var dragBar = false;
+    var // input options
+        root     = options.root,           // root of the artwork viewing page
+        doq      = options.doq,            // doq for the artwork
+        callback = options.callback,       // called after associated media are retrieved from server
+        noMedia  = options.noMedia,        // should we not have assoc media? (set to true in artwork editor)
 
-    // load hotspots
-    this.getHotspots = function (fromServer, callback) {
-        if (fromServer) {
-            loadHotspots(callback);
-        }
-        return hotspots;
-    };
+        // constants
+        FIX_PATH = LADS.Worktop.Database.fixPath,   // prepend server address to given path
 
-    this.getAssets = function (fromServer, callback) {
-        if (fromServer) {
-            loadHotspots(callback);
-        }
-        return assets;
-    };
+        // misc initialized variables
+        that            = {},              // the object to be returned
+        artworkName     = doq.Name,        // artwork's title
+        associatedMedia = { guids: [] },   // object of associated media objects for this artwork, keyed by media GUID;
+                                           //   also contains an array of GUIDs for cleaner iteration
 
-    this.loadImage = function (url) {
-        var xmlhttp = LADS.Util.makeXmlRequest(url);
-        var response = xmlhttp ? xmlhttp.responseXML : null;
+        // misc uninitialized variables
+        assetCanvas;
 
-        if (response === null) {
+    // set up some properties of that
+    that.viewer = null;
+
+    init();
+
+    return {
+        getAssociatedMedia: getAssociatedMedia,
+        unload: unload,
+        dzManip: dzManip,
+        dzScroll: dzScroll,
+        openArtwork: openArtwork,
+        addAnimateHandler: addAnimateHandler
+    }
+
+    
+
+    /**
+     * Return list of associatedMedia
+     * @method getAssociatedMedia
+     * @return {Object}     associated media object
+     */
+    function getAssociatedMedia() {
+        return associatedMedia;
+    }
+
+    /**
+     * Open the deepzoom image
+     * @method openArtwork
+     * @param {doq} doq           artwork doq to open
+     * @return {Boolean}          whether opening was successful
+     */
+    function openArtwork(doq) {
+        // var xmlhttp = LADS.Util.makeXmlRequest(url);
+        // var response = xmlhttp ? xmlhttp.responseXML : null;
+
+        //if (false && response === null) {
+        //    return false;
+        //} else {
+            // var node = response.documentElement.querySelectorAll("Image, Size")[0];
+            // width = node.getAttribute("Width");
+            // height = node.getAttribute("Height");
+            // aspectRatio = width / height;
+
+        if(!that.viewer || !doq || !doq.Metadata || !doq.Metadata.DeepZoom) {
+            debugger;
+            console.log("ERROR IN openDZI");
             return false;
-        } else {
-            var node = response.documentElement.querySelectorAll("Image, Size")[0];
-            width = node.getAttribute("Width");
-            height = node.getAttribute("Height");
-            aspectRatio = width / height;
-            that.viewer.openDzi(url);
-            return true;
         }
-    };
+
+        that.viewer.openDzi(FIX_PATH(doq.Metadata.DeepZoom));
+        return true;
+        //return true;
+        //}
+    }
+
     //what does 'doq' refer to?
     // bmost: 'doq' refers to document,
     // which is basically everything on the server (that isn't a linq).
@@ -59,247 +96,935 @@ LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHots
     // take in the artwork (doq) in the constructor?  Then it doesn't need
     // parameters for name and id because you can call doq.Name, doq.Identifier,
     // and doq.Metadata.DeepZoom
-    this.loadDoq = function (doq) {
-        tempDoq = doq;
-        return this.loadImage(LADS.Worktop.Database.fixPath(doq.Metadata.DeepZoom));
-    };
+    // this.loadDoq = function (doq) {
+    //    return this.loadImage(LADS.Worktop.Database.fixPath(doq.Metadata.DeepZoom));
+    //};
 
-    this.updateOverlay = function (element, placement) {
-        var top = parseFloat($(element).css('top'));
-        var left = parseFloat($(element).css('left'));
-        if (top && left)
+
+
+    /**
+     * Wrapper around Seadragon.Drawer.updateOverlay; moves an HTML element "overlay."
+     * Used mostly in conjunction with hotspot circles (this function is currently
+     * only called from ArtworkEditor.js)
+     * @method updateOverlay
+     * @param {HTML element} element                   the overlay element to move
+     * @param {Seadragon.OverlayPlacement} placement   the new placement of the overlay
+     */
+    function updateOverlay(element, placement) {
+        var $elt = $(element),
+            top  = parseFloat($elt.css('top')),
+            left = parseFloat($elt.css('left'));
+        if (top && left) { // TODO is this check necessary?
             that.viewer.drawer.updateOverlay(element, that.viewer.viewport.pointFromPixel(new Seadragon.Point(left, top)), placement);
-    };
+        } else {
+            debugger;
+        }
+    }
 
-    this.addOverlayToDZ = function (element, point, placement) {
+    /**
+     * Wrapper around Seadragon.Drawer.addOverlay; adds an HTML overlay to the seadragon
+     * canvas. Currently only used in ArtworkEditor.js.
+     * @method addOverlay
+     * @param {HTML element} element                   the overlay element to add
+     * @param {Seadragon.Point} point                  the point at which to add the overlay
+     * @param {Seadragon.OverlayPlacement} placement   the placement at the given point
+     */
+    function addOverlay(element, point, placement) {
         if (!that.viewer.isOpen()) {
             that.viewer.addEventListener('open', function () {
                 that.viewer.drawer.addOverlay(element, point, placement);
+                that.viewer.drawer.updateOverlay(element, point, placement);
             });
-        }
-        else {
+        } else {
             that.viewer.drawer.addOverlay(element, point, placement);
+            that.viewer.drawer.updateOverlay(element, point, placement);
         }
-        that.viewer.drawer.updateOverlay(element, point, placement);
-    };
+    }
 
-    this.removeOverlay = function (element) {
+    /**
+     * Wrapper around Seadragon.Drawer.removeOverlay. Removes an HTML overlay from the seadragon
+     * canvas.
+     * @method removeOverlay
+     * @param {HTML element}       the ovlerlay element to remove
+     */
+    function removeOverlay(element) {
         if (!that.viewer.isOpen()) {
             that.viewer.addEventListener('open', function () {
                 that.viewer.drawer.removeOverlay(element);
             });
+        } else {
+            that.viewer.drawer.removeOverlay(element);
         }
-        else that.viewer.drawer.removeOverlay(element);
     };
 
-    this.unload = function () {
-        if (this.viewer) this.viewer.unload();
-    };
-
-    //deprecated? //what does this mean? // it's outdated and should be phased out
-    //function addAsset(htmlelement, info) {
-    //    $(htmlelement).css({ "white-space": "normal", "margin": "5px", "border": "solid grey 4px", "border-radius": "10px", "background-color": "black", width: "200px", });
-
-    //    function onManip(res) {
-    //        var t = $(htmlelement).css('top');
-    //        var l = $(htmlelement).css('left');
-    //        var w = $(htmlelement).css('width');
-    //        var neww = parseFloat(w) * res.scale;
-    //        neww = Math.min(Math.max(neww, 200), 800);
-    //        $(htmlelement).css("top", (parseFloat(t) + res.translation.y) + "px");
-    //        $(htmlelement).css("left", (parseFloat(l) + res.translation.x) + "px");
-    //        $(htmlelement).css("width", neww + "px");
-    //        updateOverlay(htmlelement);
-    //    }
-
-    //    function onScroll(res, pivot) {
-    //        var w = $(htmlelement).css('width');
-    //        var neww = parseFloat(w) * res;
-    //        neww = Math.min(Math.max(neww, 200), 800);
-    //        $(htmlelement).css("width", neww + "px");
-    //        updateOverlay(htmlelement);
-    //    }
-
-    //    var gr = LADS.Util.makeManipulatableWin(htmlelement, {
-    //        onManipulate: onManip,
-    //        onScroll: onScroll
-    //    });
-
-    //    gr.gestureSettings = Windows.UI.Input.GestureSettings.manipulationRotate |
-    //        Windows.UI.Input.GestureSettings.manipulationTranslateX |
-    //        Windows.UI.Input.GestureSettings.manipulationTranslateY |
-    //        Windows.UI.Input.GestureSettings.manipulationScale |
-    //        Windows.UI.Input.GestureSettings.manipulationRotateInertia |
-    //        Windows.UI.Input.GestureSettings.manipulationScaleInertia |
-    //        Windows.UI.Input.GestureSettings.manipulationTranslateInertia |
-    //        Windows.UI.Input.GestureSettings.Hold |
-    //        Windows.UI.Input.GestureSettings.HoldWithMouse |
-    //        Windows.UI.Input.GestureSettings.tap;
-
-    //    //indicator variables
-    //    var isInfoShowing = false;
-    //    var isOn = false;
-    //    var title = title;
-
-    //    function toggle() {
-    //        if (isInfoShowing) {
-    //            $(htmlelement).remove();
-    //            isInfoShowing = false;
-    //        }
-    //        else {
-    //            var t = Math.min(Math.max(20, Math.random() * 100), 80);
-    //            var l = Math.min(Math.max(20, Math.random() * 100), 80);
-    //            $(htmlelement).css({ top: t + "%", left: l + "%" });
-    //            assetCanvas.append(htmlelement);
-    //            isInfoShowing = true;
-    //        }
-    //    }
-    //}
-
-    function getCoordinatePoint(x, y) {
-        return new Seadragon.Point(x / width, y / height);
+    /**
+     * Unloads the seadragon viewer
+     * @method unload
+     */
+    function unload() {
+        that.viewer && that.viewer.unload();
     }
 
+    /**
+     * Manipulation/drag handler for makeManipulatable on the deepzoom image
+     * @method dzManip
+     * @param {Object} pivot           location of the event (x,y)
+     * @param {Object} translation     distance translated in x and y
+     * @oaram {Number} scale           scale factor
+     */
     function dzManip(pivot, translation, scale) {
-
         that.viewer.viewport.zoomBy(scale, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)), false);
         that.viewer.viewport.panBy(that.viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-translation.x, -translation.y)), false);
-
         that.viewer.viewport.applyConstraints();
     }
-    this.dzManip = dzManip;
-
-    function dzScroll(delta, pivot) {
-        that.viewer.viewport.zoomBy(delta, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
+    
+    /**
+     * Scroll/pinch-zoom handler for makeManipulatable on the deepzoom image
+     * @method dzScroll
+     * @param {Number} scale          scale factor
+     * @param {Object} pivot          location of event (x,y)
+     */
+    function dzScroll(scale, pivot) {
+        that.viewer.viewport.zoomBy(scale, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
         that.viewer.viewport.applyConstraints();
     }
 
-    this.dzScroll = dzScroll;
-
+    /**
+     * Initialize seadragon, set up handlers for the deepzoom image, load assoc media if necessary
+     * @method init
+     */
     function init() {
+        var viewerelt,
+            canvas;
+
         if(Seadragon.Config) {
             Seadragon.Config.visibilityRatio = 0.8; // TODO see why Seadragon.Config isn't defined; should it be?
         }
 
-        var viewerelt = $(document.createElement('div'));
-
+        viewerelt = $(document.createElement('div'));
+        viewerelt.attr('id', 'annotatedImageViewer');
         viewerelt.on('mousedown scroll click mousemove resize', function(evt) {
             evt.preventDefault();
         });
-        viewerelt.css({ height: "100%", width: "100%", position: "absolute", 'z-index': 0 });
-
-        $(rootElement).append(viewerelt);
+        root.append(viewerelt);
 
         that.viewer = new Seadragon.Viewer(viewerelt[0]);
         that.viewer.setMouseNavEnabled(false);
         that.viewer.clearControls();
 
-        var canvas = that.viewer.canvas;
-        $(canvas).addClass('artworkCanvasTesting');
-        LADS.Util.makeManipulatable(canvas, {
+        canvas = $(that.viewer.canvas);
+        canvas.addClass('artworkCanvasTesting');
+
+        LADS.Util.makeManipulatable(canvas[0], {
             onScroll: function (delta, pivot) {
                 dzScroll(delta, pivot);
             },
             onManipulate: function (res) {
-                // debugger;
                 dzManip(res.pivot, res.translation, res.scale);
             }
         }, null, true); // NO ACCELERATION FOR NOW
 
         assetCanvas = $(document.createElement('div'));
-        assetCanvas.css({
-            height: "100%", width: "100%",
-            position: "absolute",
-            "overflow-x": "hidden", "overflow-y": "hidden", 'z-index': 50, 'pointer-events':'none'
-        });
-        $(rootElement).append(assetCanvas);
+        assetCanvas.attr('id', 'annotatedImageAssetCanvas');
+        root.append(assetCanvas);
 
         // this is stupid, but it seems to work (for being able to reference zoomimage in artmode)
-        if (callback) {
-            shouldNotLoadHotspots ? setTimeout(callback, 1) : loadHotspots(callback);
-        }
+        noMedia ? setTimeout(function() { callback && callback() }, 1) : loadAssociatedMedia(callback);
     }
 
-    this.addAnimateHandler = function (handler) {
+    /**
+     * Adds an animation handler to the annotated image. This is used to allow the image to move
+     * when the minimap is manipulated.
+     * @method addAnimationHandler
+     * @param {Function} handler      the handler to add
+     */
+    function addAnimateHandler(handler) {
         that.viewer.addEventListener("animation", handler);
-    };
+    }
 
-    init();
+    
 
 
+    /**
+     * Retrieves associated media from server and stores them in the
+     * associatedMedia array.
+     * @method {Function} callback    function to call after loading associated media
+     */
+    function loadAssociatedMedia(callback) {
+        var done = 0,
+            total;
 
-function loadHotspots(callback) {
-        // retrieve linqs from server
-        hotspots = [];
-        assets = [];
-        //var linqs = LADS.Worktop.Database.getDoqLinqs(artworkGuid);
-        // TODO: Make work properly with async
-        var done = 0;
-        var total;
-        LADS.Worktop.Database.getAssocMediaTo(artworkGuid, loadAssocMedia, null, null);
-        function loadAssocMedia(doqs) {
-            total = doqs && doqs.length || 0;
-            if (doqs && doqs.length > 0) {
-                var assocMedia;
-                for (var i = 0; i < doqs.length; i++) {
-                    LADS.Worktop.Database.getLinq(artworkGuid, doqs[i].Identifier, loadLinqHelper(doqs[i]), null, loadLinqHelper(doqs[i]));
+        LADS.Worktop.Database.getAssocMediaTo(doq.Identifier, mediaSuccess, null, mediaSuccess);
+
+        /**
+         * Success callback frunction for .getAssocMediaTo call above. If the list of media is
+         * non-null and non-empty, it gets the linq between each doq and the artwork 
+         * @method mediaSuccess
+         * @param {Array} doqs        the media doqs
+         */
+        function mediaSuccess(doqs) {
+            var i;
+            total = doqs ? doqs.length : 0;
+            if (total > 0) {
+                for (i = 0; i < doqs.length; i++) {
+                    LADS.Worktop.Database.getLinq(doq.Identifier, doqs[i].Identifier, createLinqSuccess(doqs[i]), null, createLinqSuccess(doqs[i]));
                 }
             } else {
-                callback && callback(hotspots,assets);
+                callback && callback(associatedMedia);
             }
         }
 
-        function loadLinqHelper(assocMedia) {
+        /**
+         * Helper function for the calls to .getLinq above. It accepts an assoc media doc and returns
+         * a success callback function that accepts a linq. Using this information, it creates a new
+         * hotspot from the doq and linq
+         * @method createLinqSuccess
+         * @param {doq} assocMedia        the relevant associated media doq
+         */
+        function createLinqSuccess(assocMedia) {
             return function (linq) {
-                if (linq) {
-                    var position_x = linq.Offset._x;
-                    var position_y = linq.Offset._y;
-                    var info = {
-                        assetType: linq.Metadata.Type,
-                        title: assocMedia.Name,
-                        contentType: assocMedia.Metadata.ContentType,
-                        source: assocMedia.Metadata.Source,
-                        thumbnail: assocMedia.Metadata.Thumbnail,
-                        description: assocMedia.Metadata.Description,
-                        x: parseFloat(position_x),
-                        y: parseFloat(position_y),
-                        assetDoqID: assocMedia.Identifier,
-                        assetLinqID: linq.Identifier
-                    };
-                    createNewHotspot(info, linq.Metadata.Type ? (info.assetType === "Hotspot") : false);
-                    done++;
-                    if (done >= total && callback)
-                        callback(hotspots, assets);
+                associatedMedia[assocMedia.Identifier] = createMediaObject(assocMedia, linq);
+                associatedMedia.guids.push(assocMedia.Identifier);
+
+                if (++done >= total && callback) {
+                    callback(associatedMedia);
                 }
+
+                // if (linq) {
+                //     assocMedia
+                //     var position_x = linq.Offset._x;
+                //     var position_y = linq.Offset._y;
+                //     var info = {
+                //         assetType: linq.Metadata.Type,
+                //         title: assocMedia.Name,
+                //         contentType: assocMedia.Metadata.ContentType,
+                //         source: assocMedia.Metadata.Source,
+                //         thumbnail: assocMedia.Metadata.Thumbnail,
+                //         description: assocMedia.Metadata.Description,
+                //         x: parseFloat(position_x),
+                //         y: parseFloat(position_y),
+                //         assetDoqID: assocMedia.Identifier,
+                //         assetLinqID: linq.Identifier
+                //     };
+                //     createNewHotspot(info, linq.Metadata.Type ? (info.assetType === "Hotspot") : false);
+                //     done++;
+                //     if (done >= total && callback)
+                //         callback(hotspots, assets);
+                // }
             }
         }
-        //if (linqs) {
-        //    for (var i = 0; i < linqs.length; i++) {
-        //        //get the hotspot doc
-        //        var hotspotDoqID = linqs[i].Targets.BubbleRef[1].BubbleContentID;
-        //        var hotspotDoq = LADS.Worktop.Database.getDoqByGuid(hotspotDoqID);
-
-        //        //in seadragon coordinates [0,1]*[0,height/width]
-        //        var position_x = linqs[i].Offset._x;
-        //        var position_y = linqs[i].Offset._y;
-
-        //        var info = {
-        //            assetType: linqs[i].Metadata.Type,
-        //            title: hotspotDoq.Name,
-        //            contentType: hotspotDoq.Metadata.ContentType,
-        //            source: hotspotDoq.Metadata.Source,
-        //            description: hotspotDoq.Metadata.Description,
-        //            x: parseFloat(position_x),
-        //            y: parseFloat(position_y),
-        //            assetDoqID: hotspotDoqID,
-        //            assetLinqID: linqs[i].Identifier
-        //        };
-        //        createNewHotspot(info, (linqs[i].Metadata.Type.text === "Hotspot"));
-        //    }
-        //}
     }
 
-    this.loadHotspots = loadHotspots;
+    /**
+     * Creates an associated media object to be added to associatedMedia.
+     * This object contains methods that could be called in Artmode.js or
+     * ArtworkEditor.js. This could be in its own file.
+     * @method createMediaObject
+     * @param {doq} doq       the media doq
+     * @param {linq} linq     the linq between the media doq and the artwork doq
+     * @return {Object}       some public methods to be used in other files
+     */
+    function createMediaObject(doq, linq) {
+        var // DOM-related
+            outerContainer = $(document.createElement('div')).addClass('mediaOuterContainer'),
+            innerContainer = $(document.createElement('div')).addClass('mediaInnerContainer'),
+            mediaContainer = $(document.createElement('div')).addClass('mediaMediaContainer'),
+            rootHeight     = $('#tagRoot').height(),
+            rootWidth      = $('#tagRoot').width(),
+
+            // constants
+            IS_HOTSPOT      = linq.Metadata.Type ? (linq.Metadata.Type === "Hotspot") : false,
+            X               = parseFloat(linq.Offset._x),
+            Y               = parseFloat(linq.Offset._y),
+            TITLE           = LADS.Util.htmlEntityDecode(doq.Name),
+            CONTENT_TYPE    = doq.Metadata.ContentType,
+            SOURCE          = doq.Metadata.Source,
+            DESCRIPTION     = LADS.Util.htmlEntityDecode(doq.Metadata.Description),
+            THUMBNAIL       = doq.Metadata.Thumbnail,
+            RELATED_ARTWORK = false,
+
+            // misc initialized variables
+            mediaHidden      = true,
+            currentlySeeking = false,
+
+
+            // misc uninitialized variables
+            circle,
+            position,
+            mediaLoaded,
+            mediaHidden,
+            audioElt,
+            videoElt,
+            titleDiv,
+            descDiv,
+            thumbnailButton;
+
+        initMediaObject();
+
+        /**
+         * Initialize various parts of the media object: UI, manipulation handlers
+         * @method initMediaObject
+         */
+        function initMediaObject() {
+            // set up divs for the associated media
+            outerContainer.css('width', Math.min(Math.max(250, (rootWidth / 5)), 450) + 'px');
+            innerContainer.css('backgroundColor', 'rgba(0,0,0,0.65)');
+
+            if (TITLE) {
+                titleDiv = $(document.createElement('div'));
+                titleDiv.addClass('annotatedImageMediaTitle');
+                titleDiv.text(TITLE);
+
+                innerContainer.append(titleDiv);
+            }
+
+            innerContainer.append(mediaContainer);
+
+            if (DESCRIPTION) {
+                descDiv = $(document.createElement('div'));
+                descDiv.addClass('annotatedImageMediaDescription');
+                descDiv.html(Autolinker.link(DESCRIPTION, {email: false, twitter: false}));
+                
+                innerContainer.append(descDiv);
+            }
+
+            if (RELATED_ARTWORK) {
+                // TODO append related artwork button here
+            }
+
+            outerContainer.append(innerContainer);
+            assetCanvas.append(outerContainer);
+            outerContainer.hide();
+
+            // create hotspot circle if need be
+            if (IS_HOTSPOT) {
+                circle = $(document.createElement("img"));
+                position = new Seadragon.Point(X, Y);
+                circle.attr('src', tagPath + 'images/icons/hotspot_circle.svg');
+                circle.addClass('annotatedImageHotspotCircle');
+                root.append(circle); // TODO check this
+            }
+
+            // disable dragging on the outer container (TODO why is this necessary?)
+            LADS.Util.disableDrag(outerContainer);
+
+            // register handlers
+            LADS.Util.makeManipulatable(outerContainer[0], {
+                onManipulate: mediaManip,
+                onScroll:     mediaScroll
+            }, null, true); // NO ACCELERATION FOR NOW
+        }
+
+        /**
+         * Initialize any media controls
+         * @method initMediaControls
+         */
+        function initMediaControls() {
+            if(CONTENT_TYPE === 'Image') {
+                return;
+            }
+
+            var controlPanel,
+                play,
+                vol,
+                seekBar,
+                timeContainer,
+                currentTimeDisplay,
+                playHolder,
+                volHolder;
+
+            controlPanel = $(document.createElement('div'));
+            controlPanel.attr('id', 'media-control-panel-' + doq.Identifier);
+            controlPanel.addClass('annotatedImageMediaControlPanel');
+
+
+
+
+        }
+
+        /**
+         * Load the actual image/video/audio; this can take a while if there are
+         * a lot of media, so just do it when the thumbnail button is clicked
+         * @method createMediaElements
+         */
+        function createMediaElements() {
+            var elt;
+
+            if(!mediaLoaded) {
+                mediaLoaded = true;
+            } else {
+                return;
+            }
+
+            if (CONTENT_TYPE === 'Image') {
+                elt = document.createElement('img');
+                elt.src = FIX_PATH(SOURCE);
+                $(elt).css({
+                    position: 'relative',
+                    width:    '100%',
+                    height:   'auto'
+                });
+                mediaContainer.append(elt);
+                mediaLoaded = true;
+            } else if (CONTENT_TYPE === 'Video') {
+                videoElt = $(document.createElement('video'));
+
+                videoElt.attr({
+                    preload:  'none',
+                    poster:   (THUMBNAIL && !THUMBNAIL.match(/.mp4/)) ? FIX_PATH(THUMBNAIL) : '',
+                    src:      FIX_PATH(SOURCE),
+                    type:     'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
+                    controls: false
+                });
+
+                // TODO need to use <source> tags rather than setting the source and type of the
+                //      video in the <video> tag's attributes; see video player code
+                
+                videoElt.css({
+                    position: 'relative',
+                    width:    '100%'
+                });
+                
+
+                playHolder = $(document.createElement('div'));
+                play = document.createElement('img');
+                $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                $(play).addClass('videoControls');
+                $(play).css({
+                    'position': 'relative',
+                    'height': '20px',
+                    'width': '20px',
+                    'display': 'inline-block',
+                });
+                playHolder.css({
+                    'position': 'relative',
+                    'height': '20px',
+                    'width': '20px',
+                    'display': 'inline-block',
+                    'margin': '0px 1% 0px 1%',
+                });
+                playHolder.append(play);
+
+                volHolder = $(document.createElement('div'));
+                vol = document.createElement('img');
+                $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
+                $(vol).addClass('videoControls');
+                $(vol).css({
+                    'height': '20px',
+                    'width': '20px',
+                    'position': 'relative',
+                    'display': 'inline-block',
+                });
+
+                volHolder.css({
+                    'height': '20px',
+                    'width': '20px',
+                    'position': 'relative',
+                    'display': 'inline-block',
+                    'margin': '0px 1% 0px 1%',
+                });
+                volHolder.append(vol);
+                this.initVideoPlayHandlers = function () {
+                    if (video.currentTime !== 0) video.currentTime = 0;
+                    $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                    $(play).on('click', function () {
+                        if (video.paused) {
+                            video.play();
+                            $(play).attr('src', tagPath+'images/icons/PauseWhite.svg');
+                        } else {
+                            video.pause();
+                            $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                        }
+                    });
+
+                    $(vol).on('click', function () {
+                        if (video.muted) {
+                            video.muted = false;
+                            $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
+                        } else {
+                            video.muted = true;
+                            $(vol).attr('src', tagPath+'images/icons/VolumeDownWhite.svg');
+                        }
+                    });
+
+                    $(video).on('ended', function () {
+                        video.pause();
+                        $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                    });
+                };
+                this.initVideoPlayHandlers();
+
+                seekBar = document.createElement('input');
+                $(seekBar).addClass('videoControls');
+                seekBar.type = 'range';
+                $(seekBar).attr('id', "seek-bar");
+                $(seekBar).attr('value', "0");
+                seekBar.style.margin = '0px 1% 0px 1%';
+                seekBar.style.display = 'inline-block';
+                seekBar.style.padding = '0px';
+                $(seekBar).css({
+                    left: '30px',
+                });
+
+                // Event listener for the seek bar
+                seekBar.addEventListener("change", function (evt) {
+                    evt.stopPropagation();
+                    // Calculate the new time
+                    var time = video.duration * (seekBar.value / 100);
+                    // Update the video time
+                    if (!isNaN(time)) {
+                        video.currentTime = time;
+                    }
+                });
+
+                $(seekBar).mouseover(function (evt) {
+                    var percent = evt.offsetX / $(seekBar).width();
+                    var hoverTime = video.duration * percent;
+                    var minutes = Math.floor(hoverTime / 60);
+                    var seconds = Math.floor(hoverTime % 60);
+                    hoverString = String(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
+                    seekBar.title = hoverString;
+                    //console.log("minute "+ minutes+" seconds "+seconds+"hover "+ hoverString+"percent "+percent );
+                });
+
+                $(seekBar).mousedown(function (evt) {
+                    dragBar = true;
+                    evt.stopPropagation();
+                });
+
+                $(seekBar).mouseup(function (evt) {
+                    dragBar = false;
+                    evt.stopPropagation();
+                });
+
+                timeContainer = document.createElement('div');
+                $(timeContainer).css({
+                    'height': '20px',
+                    'width': '40px',
+                    'margin': '0px 1% 0px 1%',
+                    'padding': '0',
+                    'display': 'inline-block',
+                    'overflow': 'hidden',
+                });
+
+                currentTimeDisplay = document.createElement('span');
+                $(currentTimeDisplay).text("00:00");
+                $(currentTimeDisplay).addClass('videoControls');
+
+                // Update the seek bar as the video plays
+                video.addEventListener("timeupdate", function () {
+                    // Calculate the slider value
+                    var value = (100 / video.duration) * video.currentTime;
+                    // Update the slider value
+                    seekBar.value = value;
+                    var minutes = Math.floor(video.currentTime / 60);
+                    var seconds = Math.floor(video.currentTime % 60);
+                    var adjMin;
+                    if (String(minutes).length < 2) {
+                        adjMin = String('0' + minutes);
+                    } else {
+                        adjMin = String(minutes);
+                    }
+                    $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
+                });
+
+                // if(!imgadded) {
+                mediaContainer.append(video);
+                mediaContainer.append(controlPanel[0]);
+                //    imgadded = true;
+                //}
+                controlPanel.append(playHolder);
+                controlPanel.append(seekBar);
+                $(timeContainer).append(currentTimeDisplay);
+                controlPanel.append(timeContainer);
+                controlPanel.append(volHolder);
+            } else if (this.contentType === 'Audio') {
+                // debugger;
+                audio = document.createElement('audio');
+                $(audio).attr({
+                    'preload': 'none'
+                });
+                audio.src = LADS.Worktop.Database.fixPath(this.source);
+                audio.type = 'audio/ogg';
+                audio.type = 'audio/mp3'; // TODO <-- we should be overwriting types!
+                audio.removeAttribute('controls');
+
+                playHolder = $(document.createElement('div'));
+                play = document.createElement('img');
+                $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                $(play).addClass('audioControls');
+                $(play).css({
+                    'position': 'relative',
+                    'height': '20px',
+                    'width': '20px',
+                    'display': 'inline-block',
+                });
+                playHolder.css({
+                    'position': 'relative',
+                    'height': '20px',
+                    'width': '20px',
+                    'display': 'inline-block',
+                    'margin': '0px 1% 0px 1%',
+                });
+
+                play.style.width = "32px";
+                play.style.height = "32px";
+                playHolder.width(32);
+                playHolder.height(32);
+
+                playHolder.append(play);
+
+                volHolder = $(document.createElement('div'));
+                vol = document.createElement('img');
+                $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
+                $(vol).addClass('audioControls');
+                $(vol).css({
+                    'height': '20px',
+                    'width': '20px',
+                    'position': 'relative',
+                    'display': 'inline-block',
+                });
+
+                volHolder.css({
+                    'height': '20px',
+                    'width': '20px',
+                    'position': 'relative',
+                    'display': 'inline-block',
+                    'margin': '0px 1% 0px 1%',
+                });
+                volHolder.append(vol);
+                this.initAudioPlayHandlers = function () {
+                    if (audio.currentTime !== 0) audio.currentTime = 0;
+                    audio.pause();
+                    $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                    $(play).on('click', function () {
+                        if (audio.paused) {
+                            audio.play();
+                            $(play).attr('src', tagPath+'images/icons/PauseWhite.svg');
+                        } else {
+                            audio.pause();
+                            $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                        }
+                    });
+
+                    $(vol).on('click', function () {
+                        if (audio.muted) {
+                            audio.muted = false;
+                            $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
+                        } else {
+                            audio.muted = true;
+                            $(vol).attr('src', tagPath+'images/icons/VolumeDownWhite.svg');
+                        }
+                    });
+
+                    $(audio).on('ended', function () {
+                        audio.pause();
+                        $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
+                    });
+                };
+
+                this.initAudioPlayHandlers();
+
+                seekBar = document.createElement('input');
+                $(seekBar).addClass('audioControls');
+                seekBar.type = 'range';
+                $(seekBar).attr('id', "seek-bar");
+                $(seekBar).attr('value', "0");
+                seekBar.style.margin = '0px 1% 0px 1%';
+                seekBar.style.display = 'inline-block';
+                seekBar.style.padding = '0px';
+                $(seekBar).css({
+                    left: '30px',
+                });
+
+                // Event listener for the seek bar
+                seekBar.addEventListener("change", function (evt) {
+                    evt.stopPropagation();
+                    // Calculate the new time
+                    var time = audio.duration * (seekBar.value / 100);
+                    // Update the audio time
+                    if (!isNaN(time)) {
+                        audio.currentTime = time;
+                    }
+                });
+
+                $(seekBar).mouseover(function (evt) {
+                    var percent = evt.offsetX / $(seekBar).width();
+                    var hoverTime = audio.duration * percent;
+                    var minutes = Math.floor(hoverTime / 60);
+                    var seconds = Math.floor(hoverTime % 60);
+                    hoverString = String(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
+                    seekBar.title = hoverString;
+                    //console.log("minute "+ minutes+" seconds "+seconds+"hover "+ hoverString+"percent "+percent );
+                });
+
+                $(seekBar).mousedown(function (evt) {
+                    dragBar = true;
+                    evt.stopPropagation();
+                });
+
+                $(seekBar).mouseup(function (evt) {
+                    dragBar = false;
+                    evt.stopPropagation();
+                });
+
+                timeContainer = document.createElement('div');
+                $(timeContainer).css({
+                    'height': '20px',
+                    'width': '40px',
+                    'margin': '0px 1% 0px 1%',
+                    'padding': '0',
+                    'display': 'inline-block',
+                    'overflow': 'hidden',
+                });
+
+                currentTimeDisplay = document.createElement('span');
+                $(currentTimeDisplay).text("00:00");
+                $(currentTimeDisplay).addClass('audioControls');
+
+                // Update the seek bar as the audio plays
+                audio.addEventListener("timeupdate", function () {
+                    // Calculate the slider value
+                    var value = (100 / audio.duration) * audio.currentTime;
+                    // Update the slider value
+                    seekBar.value = value;
+                    var minutes = Math.floor(audio.currentTime / 60);
+                    var seconds = Math.floor(audio.currentTime % 60);
+                    var adjMin;
+                    if (String(minutes).length < 2) {
+                        adjMin = String('0' + minutes);
+                    } else {
+                        adjMin = String(minutes);
+                    }
+                    $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
+                });
+
+                // if(!imgadded) {
+                mediaContainer.append(audio);
+                mediaContainer.append(controlPanel[0]);
+                //     imgadded = true;
+                // }
+                
+                controlPanel.append(playHolder);
+                controlPanel.append(seekBar);
+                $(timeContainer).append(currentTimeDisplay);
+                controlPanel.append(timeContainer);
+                controlPanel.append(volHolder);
+            }
+        }
+
+        /**
+         * Drag/manipulation handler for associated media
+         * @method mediaManip
+         * @param {Object} res     object containing hammer event info
+         */
+        function mediaManip(res) {
+            if (currentlySeeking || !res) {
+                return;
+            }
+            
+            var scale = res.scale,
+                trans = res.translation,
+                pivot = res.pivot,
+                t     = parseFloat(outerContainer.css('top')),
+                l     = parseFloat(outerContainer.css('left')),
+                w     = outerContainer.width(),
+                h     = outerContainer.height(),
+                newW  = w * scale,
+                maxW,
+                minW;
+
+            // these values are somewhat arbitrary; TODO determine good values
+            if (CONTENT_TYPE === 'Image') {
+                maxW = 3000;
+                minW = 200;
+            } else if (CONTENT_TYPE === 'Video') {
+                maxW = root.width();
+                minW = 450;
+            } else if (CONTENT_TYPE === 'Audio') {
+                maxW = 800;
+                minW = 450;
+            }
+
+            // constrain new width
+            if(newW < minW || maxW < newW) {
+                scale = 1;
+                newW = Math.min(maxW, Math.max(minW, newW));
+            }
+
+            // zoom from touch point: change left and top of outerContainer
+            if ((0 < t + h) && (t < rootHeight) && (0 < l + w) && (l< rootWidth)) {
+                outerContainer.css("top",  (t + trans.y + (1 - scale) * pivot.y) + "px");
+                outerContainer.css("left", (l + trans.x + (1 - scale) * pivot.x) + "px");
+            } else {
+                hideMediaObject();
+                pauseResetMediaObject();
+                return;
+            }
+
+            // zoom from touch point: change width and height of outerContainer
+            outerContainer.css("width", newW + "px");
+            outerContainer.css("height", "auto");
+
+            // TODO this shouldn't be necessary; style of controls should take care of it
+            if (CONTENT_TYPE === 'Video' || CONTENT_TYPE === 'Audio') {
+                resizeControlElements();
+            }
+        }
+
+        /**
+         * Zoom handler for associated media (e.g., for mousewheel scrolling)
+         * @method onScroll
+         * @param {Number} scale     scale factor
+         * @param {Object} pivot     point of contact
+         */
+        function mediaScroll(scale, pivot) {
+            mediaManip({
+                scale: scale,
+                translation: {
+                    x: 0,
+                    y: 0
+                },
+                pivot: pivot
+            });
+        }
+
+        /**
+         * Show the associated media on the seadragon canvas. If the media is not
+         * a hotspot, show it in a slightly random position.
+         * @method showMediaObject
+         */
+        function showMediaObject() {
+            var t,
+                l,
+                h = outerContainer.height(),
+                w = outerContainer.width();
+
+            if(IS_HOTSPOT) {
+                circle.css('visibility', 'visible');
+                addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
+                that.viewer.viewport.panTo(position, false);
+                t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
+                l = rootWidth/2 + circle.width()*3/4;
+            } else {
+                t = rootHeight * 1/10 + Math.random() * rootHeight * 2/10;
+                l = rootWidth  * 3/10 + Math.random() * rootWidth  * 2/10;
+            }
+            outerContainer.css({
+                top: t + "px",
+                left: l + "px",
+                position: "absolute",
+                'z-index': 1000,
+                'pointer-events': 'all'
+            });
+
+            outerContainer.show();
+            assetCanvas.append(outerContainer);
+
+            if(!thumbnailButton) {
+                thumbnailButton = $('#thumbnailButton-' + doq.Identifier);
+            }
+
+            thumbnailButton.css({
+                'color': 'black',
+                'background-color': 'rgba(255,255,255, 0.3)'
+            });
+
+            // TODO is this necessary?
+            if ((info.contentType === 'Video') || (info.contentType === 'Audio')) {
+                resizeControlElements();
+            }
+
+            mediaHidden = false;
+        }
+
+        /**
+         * Hide the associated media
+         * @method hideMediaObject
+         */
+        function hideMediaObject() {
+            pauseResetMediaObject();
+            IS_HOTSPOT && removeOverlay(circle[0]);
+            outerContainer.hide();   
+            mediaHidden = true;
+
+            if(!thumbnailButton) {
+                thumbnailButton = $('#thumbnailButton-' + doq.Identifier);
+            }
+
+            thumbnailButton.css({
+                'color': 'white',
+                'background-color': ''
+            });
+        }
+
+        /**
+         * Show if hidden, hide if shown
+         * @method toggleMediaObject
+         */
+        function toggleMediaObject() {
+            mediaHidden ? showMediaObject() : hideMediaObject();
+        }
+
+        /**
+         * Returns whether the media object is visible
+         * @method isVisible
+         * @return {Boolean}
+         */
+        function isVisible() {
+            return !mediaHidden;
+        }
+
+        /**
+         * Pauses and resets (to time 0) the media if the content type is video or audio
+         * @pauseResetMediaObject
+         */
+        function pauseResetMediaObject() {
+            if (CONTENT_TYPE === 'Audio' && audioElt) {
+                audio.currentTime = 0;
+                audio.pause();
+                play.attr('src', tagPath + 'images/icons/PlayWhite.svg');
+            } else if (CONTENT_TYPE === 'Video' && videoElt) {
+                video.currentTime = 0;
+                video.pause();
+                play.attr('src', tagPath + 'images/icons/PlayWhite.svg');
+            }
+        }
+
+
+        return {
+            doq:                 doq,
+            linq:                linq,
+            show:                showMediaObject,
+            hide:                hideMediaObject,
+            create:              createMediaElements,
+            pauseReset:          pauseResetMediaObject,
+            toggle:              toggleMediaObject,
+            createMediaElements: createMediaElements,
+            isVisible:           isVisible
+        };
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -340,7 +1065,7 @@ function loadHotspots(callback) {
             'margin-bottom': '2.5%',
         });
 
-        //Add title
+        //Add title   ----------------------------
         this.createTitle = function() {
             if (this.title){
                 var p1 = document.createElement('div');
@@ -731,7 +1456,7 @@ function loadHotspots(callback) {
 
         $(innerContainer).append(mediaContainer);
        
-        //Create description for asset/hotspot
+        //Create description for asset/hotspot --------------------------
         this.createDescription = function() {
             if (this.description) {
                 var p2 = document.createElement('div');
@@ -867,22 +1592,22 @@ function loadHotspots(callback) {
             $(seekBar).width(currSeekWidth + controlPanel.width() - eltWidth);
         }
 
-        this.setRoot = function (newRoot) {
-            var tempInnerContainer = innerContainer;
-            outerContainer = newRoot;
-            outerContainer.appendChild(innerContainer);
-            if (this.contentType === "Video") {
-                this.initVideoPlayHandlers();
-            }
-            if (this.contentType === "Audio") {
-                this.initAudioPlayHandlers();
-            }
-        };
+        // this.setRoot = function (newRoot) {
+        //     var tempInnerContainer = innerContainer;
+        //     outerContainer = newRoot;
+        //     outerContainer.appendChild(innerContainer);
+        //     if (this.contentType === "Video") {
+        //         this.initVideoPlayHandlers();
+        //     }
+        //     if (this.contentType === "Audio") {
+        //         this.initAudioPlayHandlers();
+        //     }
+        // };
 
         $(assetCanvas).append(outerContainer);
         $(outerContainer).hide();
 
-        //Create circle for positioning of hotspot
+        //Create circle for positioning of hotspot -------------------------
         var circle = document.createElement("img");
         var position = new Seadragon.Point(info.x, info.y);
         if (isHotspot){
@@ -900,7 +1625,7 @@ function loadHotspots(callback) {
             document.getElementById('tagContainer').appendChild(circle);
         }
 
-        //To show asset
+        //To show asset ------------------------------
         this.showAsset = function() {
             //If hotspot/asset is an asset, add it to a random position
             var t = Math.min(Math.max(10, Math.random() * 100), 60);
@@ -957,7 +1682,7 @@ function loadHotspots(callback) {
             }
             assetHidden = false;
         };
-
+        // -----------------------------------------
         this.hideAsset = function() {
             this.pauseAsset();
             that.removeOverlay(circle);
@@ -974,6 +1699,7 @@ function loadHotspots(callback) {
             });
         };
 
+        // -------------------------------------------
         this.toggle = function () {
             if (assetHidden) {
                 this.show();
@@ -982,6 +1708,7 @@ function loadHotspots(callback) {
             }
         };
 
+        // ----------------------------------------
         this.pauseAsset = function() {
             if (this.contentType === 'Audio' && audio) {
                 if (audio.currentTime !== 0) audio.currentTime = 0;
