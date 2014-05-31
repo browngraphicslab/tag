@@ -3986,7 +3986,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 87,
+            "line": 88,
             "description": "sets up the entire visual layout and images of the splash screen",
             "itemtype": "method",
             "name": "loadHelper",
@@ -4001,7 +4001,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 119,
+            "line": 120,
             "description": "Checks if TAG is compatible with the current browser.",
             "itemtype": "method",
             "name": "isBrowserCompatible",
@@ -4013,7 +4013,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 188,
+            "line": 189,
             "description": "Finds the current browser version.\nCode from http://stackoverflow.com/questions/5916900/detect-version-of-browser",
             "itemtype": "method",
             "name": "getBrowserVersion",
@@ -4025,7 +4025,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 211,
+            "line": 212,
             "description": "Displays a dialog box indicating that the user is using an\nincompatible browser. Points them to links to download the latest\nversion of supported browsers such as IE, Chrome, Safari and Firefox.",
             "itemtype": "method",
             "name": "handleIncompatibleBrowser",
@@ -4034,7 +4034,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 280,
+            "line": 281,
             "description": "adjusts the text to fit the screen size",
             "itemtype": "method",
             "name": "fixText",
@@ -4042,7 +4042,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 298,
+            "line": 299,
             "description": "initializes the handlers for various 'click' functions including setting up a server",
             "itemtype": "method",
             "name": "initializeHandlers",
@@ -4050,7 +4050,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 323,
+            "line": 324,
             "description": "gets the paths for all the images displayed on the splash screen",
             "itemtype": "method",
             "name": "setImagePaths",
@@ -4065,7 +4065,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 355,
+            "line": 356,
             "description": "Sets up the credits box with its content including text and images. Also includes function for animation of credits.",
             "itemtype": "method",
             "name": "setUpCredits",
@@ -4073,7 +4073,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 393,
+            "line": 394,
             "description": "animation of credits when user clicks",
             "itemtype": "method",
             "name": "expandInfo",
@@ -4088,7 +4088,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 428,
+            "line": 429,
             "description": "sets up the info div which contains all the museum information",
             "itemtype": "method",
             "name": "setUpInfo",
@@ -4103,7 +4103,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 451,
+            "line": 452,
             "description": "Fills in all museum info including name and location",
             "itemtype": "method",
             "name": "setUpMuseumInfo",
@@ -4118,7 +4118,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 504,
+            "line": 505,
             "itemtype": "method",
             "name": "getRoot",
             "return": {

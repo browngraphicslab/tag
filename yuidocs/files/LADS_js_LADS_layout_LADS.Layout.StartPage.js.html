@@ -155,6 +155,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             async: true,
             cache: false,
             success: function () {
+                console.log(&quot;success checking server url&quot;);
                 successConnecting();
             },
             error: function (err) {
