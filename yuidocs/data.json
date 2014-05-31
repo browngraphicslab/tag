@@ -791,7 +791,7 @@
             "namespace": "",
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
             "line": 3,
-            "description": "Representation of deepzoom image with associated media. Contains\ntouch handlers. This is a constructor function, so it adds properties\nto 'this' rather than returning an object.",
+            "description": "Representation of deepzoom image with associated media. Contains\ntouch handlers and a method for creating associated media objects.",
             "is_constructor": 1,
             "params": [
                 {
@@ -2456,7 +2456,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 47,
+            "line": 45,
             "description": "Return list of associatedMedia",
             "itemtype": "method",
             "name": "getAssociatedMedia",
@@ -2468,7 +2468,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 56,
+            "line": 54,
             "description": "Open the deepzoom image",
             "itemtype": "method",
             "name": "openArtwork",
@@ -2487,7 +2487,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 72,
+            "line": 70,
             "description": "Wrapper around Seadragon.Drawer.updateOverlay; moves an HTML element \"overlay.\"\nUsed mostly in conjunction with hotspot circles (this function is currently\nonly called from ArtworkEditor.js)",
             "itemtype": "method",
             "name": "updateOverlay",
@@ -2507,7 +2507,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 89,
+            "line": 87,
             "description": "Wrapper around Seadragon.Drawer.addOverlay; adds an HTML overlay to the seadragon\ncanvas. Currently only used in ArtworkEditor.js.",
             "itemtype": "method",
             "name": "addOverlay",
@@ -2532,7 +2532,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 109,
+            "line": 107,
             "description": "Wrapper around Seadragon.Drawer.removeOverlay. Removes an HTML overlay from the seadragon\ncanvas.",
             "itemtype": "method",
             "name": "removeOverlay",
@@ -2547,7 +2547,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 125,
+            "line": 123,
             "description": "Unloads the seadragon viewer",
             "itemtype": "method",
             "name": "unload",
@@ -2555,7 +2555,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 133,
+            "line": 131,
             "description": "Manipulation/drag handler for makeManipulatable on the deepzoom image",
             "itemtype": "method",
             "name": "dzManip",
@@ -2576,7 +2576,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 146,
+            "line": 144,
             "description": "Scroll/pinch-zoom handler for makeManipulatable on the deepzoom image",
             "itemtype": "method",
             "name": "dzScroll",
@@ -2596,7 +2596,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 157,
+            "line": 155,
             "description": "Initialize seadragon, set up handlers for the deepzoom image, load assoc media if necessary",
             "itemtype": "method",
             "name": "init",
@@ -2604,7 +2604,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 200,
+            "line": 198,
             "description": "Adds an animation handler to the annotated image. This is used to allow the image to move\nwhen the minimap is manipulated.",
             "itemtype": "method",
             "name": "addAnimationHandler",
@@ -2619,7 +2619,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 210,
+            "line": 208,
             "description": "Retrieves associated media from server and stores them in the\nassociatedMedia array.",
             "itemtype": "method",
             "name": "callback    function to call after loading associated media",
@@ -2628,7 +2628,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 221,
+            "line": 219,
             "description": "Success callback frunction for .getAssocMediaTo call above. If the list of media is\nnon-null and non-empty, it gets the linq between each doq and the artwork",
             "itemtype": "method",
             "name": "mediaSuccess",
@@ -2643,7 +2643,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 239,
+            "line": 237,
             "description": "Helper function for the calls to .getLinq above. It accepts an assoc media doc and returns\na success callback function that accepts a linq. Using this information, it creates a new\nhotspot from the doq and linq",
             "itemtype": "method",
             "name": "createLinqSuccess",
@@ -2658,7 +2658,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 258,
+            "line": 256,
             "description": "Creates an associated media object to be added to associatedMedia.\nThis object contains methods that could be called in Artmode.js or\nArtworkEditor.js. This could be in its own file.",
             "itemtype": "method",
             "name": "createMediaObject",
@@ -2682,7 +2682,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 304,
+            "line": 302,
             "description": "Initialize various parts of the media object: UI, manipulation handlers",
             "itemtype": "method",
             "name": "initMediaObject",
@@ -2690,7 +2690,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 358,
+            "line": 356,
             "description": "Initialize any media controls",
             "itemtype": "method",
             "name": "initMediaControls",
@@ -2705,7 +2705,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 544,
+            "line": 542,
             "description": "Load the actual image/video/audio; this can take a while if there are\na lot of media, so just do it when the thumbnail button is clicked",
             "itemtype": "method",
             "name": "createMediaElements",
@@ -2713,7 +2713,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 606,
+            "line": 604,
             "description": "Drag/manipulation handler for associated media",
             "itemtype": "method",
             "name": "mediaManip",
@@ -2728,7 +2728,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 665,
+            "line": 663,
             "description": "Zoom handler for associated media (e.g., for mousewheel scrolling)",
             "itemtype": "method",
             "name": "onScroll",
@@ -2748,7 +2748,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 682,
+            "line": 680,
             "description": "Show the associated media on the seadragon canvas. If the media is not\na hotspot, show it in a slightly random position.",
             "itemtype": "method",
             "name": "showMediaObject",
@@ -2756,7 +2756,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 731,
+            "line": 729,
             "description": "Hide the associated media",
             "itemtype": "method",
             "name": "hideMediaObject",
@@ -2764,7 +2764,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 751,
+            "line": 749,
             "description": "Show if hidden, hide if shown",
             "itemtype": "method",
             "name": "toggleMediaObject",
@@ -2772,7 +2772,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 759,
+            "line": 757,
             "description": "Returns whether the media object is visible",
             "itemtype": "method",
             "name": "isVisible",
@@ -2784,7 +2784,7 @@
         },
         {
             "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
-            "line": 768,
+            "line": 766,
             "description": "Pauses and resets (to time 0) the media if the content type is video or audio",
             "pauseresetmediaobject": "",
             "class": "LADS.AnnotatedImage"
@@ -3082,8 +3082,19 @@
             "line": 426,
             "description": "Creates a thumbnail button for an associated media",
             "itemtype": "method",
-            "name": "{Object} media               an associated media object (from AnnotatedImage)",
-            "type": "JQuery obj",
+            "name": "createMediaButton",
+            "params": [
+                {
+                    "name": "container",
+                    "description": "the element to which we'll append the button",
+                    "type": "JQuery obj"
+                },
+                {
+                    "name": "media",
+                    "description": "an associated media object (from AnnotatedImage)",
+                    "type": "Object"
+                }
+            ],
             "class": "LADS.Layout.Artmode"
         },
         {
@@ -13611,11 +13622,11 @@
         },
         {
             "message": "unknown tag: oaram",
-            "line": " LADS/js/LADS/artmode/LADS.AnnotatedImage.js:133"
+            "line": " LADS/js/LADS/artmode/LADS.AnnotatedImage.js:131"
         },
         {
             "message": "unknown tag: pauseresetmediaobject",
-            "line": " LADS/js/LADS/artmode/LADS.AnnotatedImage.js:768"
+            "line": " LADS/js/LADS/artmode/LADS.AnnotatedImage.js:766"
         },
         {
             "message": "unknown tag: version",
@@ -14531,7 +14542,7 @@
         },
         {
             "message": "Missing item type\nPauses and resets (to time 0) the media if the content type is video or audio",
-            "line": " LADS/js/LADS/artmode/LADS.AnnotatedImage.js:768"
+            "line": " LADS/js/LADS/artmode/LADS.AnnotatedImage.js:766"
         },
         {
             "message": "Missing item type\njscolor, JavaScript Color Picker",

@@ -426,8 +426,8 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         /**
          * Creates a thumbnail button for an associated media
          * @method createMediaButton
-         * @method {jQuery obj} container       the element to which we'll append the button
-         * @method {Object} media               an associated media object (from AnnotatedImage)
+         * @param {jQuery obj} container       the element to which we'll append the button
+         * @param {Object} media               an associated media object (from AnnotatedImage)
          */
         function createMediaButton(container, media) {
             return function() {

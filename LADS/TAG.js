@@ -40444,9 +40444,7 @@ LADS.Util.makeNamespace("LADS.AnnotatedImage");
 
 /**
  * Representation of deepzoom image with associated media. Contains
- * touch handlers. This is a constructor function, so it adds properties
- * to 'this' rather than returning an object.
- *
+ * touch handlers and a method for creating associated media objects.
  * @class LADS.AnnotatedImage
  * @constructor
  * @param {Object} options         some options for the artwork and assoc media
@@ -42494,8 +42492,8 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         /**
          * Creates a thumbnail button for an associated media
          * @method createMediaButton
-         * @method {jQuery obj} container       the element to which we'll append the button
-         * @method {Object} media               an associated media object (from AnnotatedImage)
+         * @param {jQuery obj} container       the element to which we'll append the button
+         * @param {Object} media               an associated media object (from AnnotatedImage)
          */
         function createMediaButton(container, media) {
             return function() {

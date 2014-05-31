@@ -2,9 +2,7 @@
 
 /**
  * Representation of deepzoom image with associated media. Contains
- * touch handlers. This is a constructor function, so it adds properties
- * to 'this' rather than returning an object.
- *
+ * touch handlers and a method for creating associated media objects.
  * @class LADS.AnnotatedImage
  * @constructor
  * @param {Object} options         some options for the artwork and assoc media
