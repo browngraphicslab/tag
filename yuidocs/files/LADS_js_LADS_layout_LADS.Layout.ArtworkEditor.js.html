@@ -45,6 +45,8 @@
             
                 <li><a href="../classes/CryptoJS.html">CryptoJS</a></li>
             
+                <li><a href="../classes/LADS.AnnotatedImage.html">LADS.AnnotatedImage</a></li>
+            
                 <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
             
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
@@ -54,6 +56,8 @@
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
             
                 <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
+            
+                <li><a href="../classes/LADS.Util.Artwork.html">LADS.Util.Artwork</a></li>
             
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
@@ -202,7 +206,7 @@ LADS.Layout.ArtworkEditor = function (artwork) {
         //creates deep zoom image
         if (artwork) {
             zoomimage = new LADS.AnnotatedImage(root, artwork, false, function () {
-                if (!(zoomimage.loadDoq(artwork))) {
+                if (!(zoomimage.openArtwork(artwork))) {
                     var popup = LADS.Util.UI.popUpMessage(function () {
                         LADS.Authoring.NewSettingsView(&quot;Artworks&quot;, function (settingsView) {
                             LADS.Util.UI.slidePageRight(settingsView.getRoot());
@@ -1122,7 +1126,7 @@ LADS.Layout.ArtworkEditor = function (artwork) {
                     pixel_adj = new Seadragon.Point(pixel.x + 50, pixel.y + 50),
                     point_adj = zoomimage.viewer.viewport.pointFromPixel(pixel_adj),
                     hotspotCircle = $hotspotAnchor.get(0);
-                zoomimage.addOverlayToDZ(hotspotCircle, point_adj, Seadragon.OverlayPlacement.TOP_LEFT);
+                zoomimage.addOverlay(hotspotCircle, point_adj, Seadragon.OverlayPlacement.TOP_LEFT);
                 zoomimage.viewer.viewport.panTo(new Seadragon.Point(point.x, point.y), false);
                 $hotspotAnchor.fadeIn(100);
             }

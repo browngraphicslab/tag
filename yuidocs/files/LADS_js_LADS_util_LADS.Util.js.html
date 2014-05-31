@@ -45,6 +45,8 @@
             
                 <li><a href="../classes/CryptoJS.html">CryptoJS</a></li>
             
+                <li><a href="../classes/LADS.AnnotatedImage.html">LADS.AnnotatedImage</a></li>
+            
                 <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
             
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
@@ -54,6 +56,8 @@
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
             
                 <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
+            
+                <li><a href="../classes/LADS.Util.Artwork.html">LADS.Util.Artwork</a></li>
             
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
@@ -3462,6 +3466,105 @@ LADS.Util.UI = (function () {
     //    return container;
     //}
 
+})();
+
+/**
+ * Utils for the artwork viewer and the artwork editor
+ * @class LADS.Util.Artwork
+ */
+LADS.Util.Artwork = (function () {
+    &quot;use strict&quot;;
+
+    return {
+        createThumbnailButton: createThumbnailButton
+    };
+
+    /**
+     * Creates a thumbnail button to be used in a side bar list
+     * @method createThumbnailButton
+     * @param {Object} options      options for creating the thumbnail button:
+     *            title         title of the button, shown under the thumbnail
+     *            handler       a click handler for the button
+     *            buttonClass   an extra class to add to the button
+     *            buttonID      an id to give to the button
+     *            src           thumbnail image source
+     *            width         custom width of button
+     *            height        custom height of button
+     * @return {jQuery obj}      the button
+     */
+    function createThumbnailButton(options) {
+        options = options || {};
+
+        var title       = options.title,
+            handler     = options.handler,
+            buttonClass = options.buttonClass,
+            buttonID    = options.buttonID,
+            src         = options.src,
+            width       = options.width,
+            height      = options.height || 0.15 * $(&#x27;#tagRoot&#x27;).height() + &#x27;px&#x27;,
+            holder               = $(document.createElement(&#x27;div&#x27;)).addClass(&#x27;thumbnailButton&#x27;),
+            thumbHolderDiv       = $(document.createElement(&#x27;div&#x27;)).addClass(&#x27;thumbnailHolderDiv&#x27;),
+            holderContainer      = $(document.createElement(&#x27;div&#x27;)).addClass(&#x27;thumbnailButtonContainer&#x27;),
+            holderInnerContainer = $(document.createElement(&#x27;div&#x27;)).addClass(&#x27;thumbnailButtonInnerContainer&#x27;),
+            thumbnailImage       = $(document.createElement(&#x27;img&#x27;)).addClass(&#x27;thumbnailButtonImage&#x27;),
+            titleDiv             = $(document.createElement(&#x27;div&#x27;)).addClass(&#x27;thumbnailButtonTitle&#x27;);
+
+        /********************************************\
+
+        ----------------------------------------------
+        |                                            |  &lt;--- holder
+        | ------------------------------------------ |
+        | |                                        | |
+        | |                                        | |
+        | |                                        | &lt;------ thumbHolderDiv
+        | |                                        | |
+        | |              THUMBNAIL                 | |
+        | |                IMAGE                   | |
+        | |                 HERE                  &lt;--------- thumbnailImage
+        | |                                        | |
+        | |                                        | |
+        | |                                        | |
+        | |                                        | |
+        | |                                        | |
+        | |                                        | |
+        | |                                        | |
+        | ------------------------------------------ |
+        | ------------------------------------------ |
+        | |             NAME OF DOQ                | &lt;--- titleDiv
+        | |                                        | |
+        | ------------------------------------------ |
+        ----------------------------------------------
+
+        \********************************************/
+
+        
+        buttonClass &amp;&amp; holder.addClass(buttonClass);
+        holder.css(&#x27;height&#x27;, height);
+        buttonID &amp;&amp; holder.attr(&#x27;id&#x27;, buttonID);
+
+        holder.on(&quot;click&quot;, handler);
+
+        holder.append(thumbHolderDiv);
+        thumbHolderDiv.append(holderContainer);
+        holderContainer.append(holderInnerContainer);
+
+        thumbnailImage.attr(&#x27;src&#x27;, src);
+
+        thumbnailImage.removeAttr(&#x27;width&#x27;);
+        thumbnailImage.removeAttr(&#x27;height&#x27;);
+
+        thumbnailImage.css({ // TODO fix this
+            &#x27;max-height&#x27;: 0.15 * 0.7 * $(&quot;#tagRoot&quot;).height() + &quot;px&quot;,
+            &#x27;max-width&#x27;: 0.22 * 0.89 * 0.95 * 0.40 * 0.92 * $(&quot;#tagRoot&quot;).width() + &quot;px&quot;
+        });
+
+        holderInnerContainer.append(thumbnailImage);
+
+        titleDiv.text(title);
+        holder.append(titleDiv);
+
+        return holder;
+    }
 })();
 
 /**

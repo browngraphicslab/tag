@@ -445,6 +445,7 @@
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
   cursor: pointer;
+  font-size: 16px;
   height: 30px;
   left: 0px;
   padding-top: 10px;
@@ -483,7 +484,7 @@
 }
 #artmodeRoot #toggler {
   background-color: rgba(0,0,0,0.7);
-  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
   border-top-right-radius: 10px;
   position: absolute;
   right: -12%;
@@ -1315,11 +1316,10 @@
   z-index: 100000;
 }
 #tagRoot .annotatedImageMediaControlPanel {
+  background-color: #3f3735;
+  display: block;
   height: 40px;
   position: relative;
-  display: block;
-  left: 2.5%;
-  margin-bottom: 2.5%;
 }
 #tagRoot .annotatedImageMediaDescription {
   position: relative;

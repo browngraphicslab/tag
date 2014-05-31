@@ -45,6 +45,8 @@
             
                 <li><a href="../classes/CryptoJS.html">CryptoJS</a></li>
             
+                <li><a href="../classes/LADS.AnnotatedImage.html">LADS.AnnotatedImage</a></li>
+            
                 <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
             
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
@@ -54,6 +56,8 @@
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
             
                 <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
+            
+                <li><a href="../classes/LADS.Util.Artwork.html">LADS.Util.Artwork</a></li>
             
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
@@ -111,13 +115,11 @@ LADS.Util.makeNamespace(&quot;LADS.Layout.TourPlayer&quot;);
  * @param prevInfo   object containing previous page info 
  *    artworkPrev      value is &#x27;artmode&#x27; when we arrive here from the art viewer
  *    prevScroll       value of scrollbar from new catalog page
- * @param artwork      options to pass into LADS.Layout.Artmode
+ * @param artmodeOptions      options to pass into LADS.Layout.Artmode
  * @param tourObj      the tour doq object, so we can return to the proper tour in the collections screen
  */
-LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj) {
+LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, tourObj) {
     &quot;use strict&quot;;
-
-    debugger; // for prevInfo
 
     var artworkPrev;
     var prevScroll = 0;
@@ -161,8 +163,8 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
 
         backButton.off(&#x27;click&#x27;); // prevent user from clicking twice
 
-        if (artworkPrev &amp;&amp; artwork) {
-            artmode = new LADS.Layout.Artmode(prevInfo, artwork, exhibition);
+        if (artmodeOptions) {
+            artmode = new LADS.Layout.Artmode(artmodeOptions);
             LADS.Util.UI.slidePageRightSplit(root, artmode.getRoot());
 
             var selectedExhib = $(&#x27;#collection-&#x27; + prevExhib.Identifier);

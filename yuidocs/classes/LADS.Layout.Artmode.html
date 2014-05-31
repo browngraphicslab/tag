@@ -45,6 +45,8 @@
             
                 <li><a href="../classes/CryptoJS.html">CryptoJS</a></li>
             
+                <li><a href="../classes/LADS.AnnotatedImage.html">LADS.AnnotatedImage</a></li>
+            
                 <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
             
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
@@ -54,6 +56,8 @@
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
             
                 <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
+            
+                <li><a href="../classes/LADS.Util.Artwork.html">LADS.Util.Artwork</a></li>
             
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
@@ -106,7 +110,7 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l7"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:7</code></a>
+            Defined in: <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l3"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:3</code></a>
         </div>
     
 
@@ -118,8 +122,8 @@
 
 
 <div class="box intro">
-    <p>The artwork viewer, which contains a sidebar with tools
-and thumbnails as well as a central area for the deepzoom image.</p>
+    <p>The artwork viewer, which contains a sidebar with tools and thumbnails as well
+as a central area for the deepzoom image.</p>
 
 </div>
 
@@ -135,19 +139,7 @@ and thumbnails as well as a central area for the deepzoom image.</p>
             
                 <li class="arg">
                     
-                        <code>prevInfo</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
                         <code>options</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>exhibition</code>
                     
                 </li>
             
@@ -155,6 +147,10 @@ and thumbnails as well as a central area for the deepzoom image.</p>
         </div>
     
 
+    
+        <span class="returns-inline">
+            <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+        </span>
     
 
     
@@ -180,7 +176,7 @@ and thumbnails as well as a central area for the deepzoom image.</p>
             
         
         
-        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l7"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:7</code></a>
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l3"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:3</code></a>
         
         </p>
 
@@ -202,22 +198,6 @@ and thumbnails as well as a central area for the deepzoom image.</p>
             
                 <li class="param">
                     
-                        <code class="param-name">prevInfo</code>
-                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>contains information about returning to the previous page</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
                         <code class="param-name">options</code>
                         <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
                     
@@ -225,23 +205,7 @@ and thumbnails as well as a central area for the deepzoom image.</p>
                     
 
                     <div class="param-description">
-                        <p>information about current artwork and whether we&#39;re in splitscreen mode</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">exhibition</code>
-                        <span class="type">Doq</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the exhibition we came from (if any)</p>
+                        <p>some options for the artwork viewer page</p>
 
                     </div>
 
@@ -252,6 +216,20 @@ and thumbnails as well as a central area for the deepzoom image.</p>
         </div>
     
 
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>:
+                    
+                    <p>some public methods</p>
+
+                
+            </div>
+        </div>
     
 
     
@@ -268,8 +246,6 @@ and thumbnails as well as a central area for the deepzoom image.</p>
             <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
         
         
-            <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
-        
         
         
     </ul>
@@ -285,14 +261,42 @@ and thumbnails as well as a central area for the deepzoom image.</p>
                     <ul class="index-list methods">
                         
                             <li class="index-item method">
-                                <a href="#method_createSeadragonControls">createSeadragonControls</a>
+                                <a href="#method_init">init</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_init">init</a>
+                                <a href="#method_"></a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_createButton">createButton</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_keyHandler">keyHandler</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_buttonHandler">buttonHandler</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_doManip">doManip</a>
 
                                 
                                 
@@ -306,7 +310,49 @@ and thumbnails as well as a central area for the deepzoom image.</p>
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_"></a>
+                                <a href="#method_createTourButton">createTourButton</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_createSeadragonControls">createSeadragonControls</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_mediaClicked">mediaClicked</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_prepMap">prepMap</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_drawPinHelper">drawPinHelper</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_histOnClick">histOnClick</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_toggleLocationPanel">toggleLocationPanel</a>
 
                                 
                                 
@@ -319,18 +365,8 @@ and thumbnails as well as a central area for the deepzoom image.</p>
                                 
                             </li>
                         
-                    </ul>
-                </div>
-            
-
-            
-                <div class="index-section properties">
-                    <h3>Properties</h3>
-
-                    <ul class="index-list properties">
-                        
-                            <li class="index-item property private">
-                                <a href="#property_matcherRegex!~YUIDOC_LINE~!!~YUIDOC_LINE~!The regular expression that matches URLs, email addresses, and Twitter handles.!~YUIDOC_LINE~!!~YUIDOC_LINE~!Capturing groups:!~YUIDOC_LINE~!!~YUIDOC_LINE~!1. Group that is used to determine if there is a Twitter handle match (i.e. @someTwitterUser). Simply check for its existence!~YUIDOC_LINE~!   to determine if there is a Twitter handle match. The next couple of capturing groups give information about the Twitter !~YUIDOC_LINE~!   handle match.!~YUIDOC_LINE~!2. The whitespace character before the @sign in a Twitter handle. This is needed because there are no lookbehinds in JS regular!~YUIDOC_LINE~!   expressions, and can be used to reconstruct the original string in a replace().!~YUIDOC_LINE~!3. The Twitter handle itself in a Twitter match. If the match is &#x27;@someTwitterUser&#x27;, the handle is &#x27;someTwitterUser&#x27;.!~YUIDOC_LINE~!4. Group that matches an email address. Used to determine if the match is an email address, as well as holding the full address.!~YUIDOC_LINE~!   Ex: &#x27;me@my.com&#x27;!~YUIDOC_LINE~!5. Group that matches a URL in the input text. Ex: &#x27;http://google.com&#x27;, &#x27;www.google.com&#x27;, or just &#x27;google.com&#x27;.!~YUIDOC_LINE~!   This also includes a path, url parameters, or hash anchors. Ex: google.com/path/to/file?q1=1&amp;q2=2#myAnchor">matcherRegex!~YUIDOC_LINE~!!~YUIDOC_LINE~!The regular expression that matches URLs, email addresses, and Twitter handles.!~YUIDOC_LINE~!!~YUIDOC_LINE~!Capturing groups:!~YUIDOC_LINE~!!~YUIDOC_LINE~!1. Group that is used to determine if there is a Twitter handle match (i.e. @someTwitterUser). Simply check for its existence!~YUIDOC_LINE~!   to determine if there is a Twitter handle match. The next couple of capturing groups give information about the Twitter !~YUIDOC_LINE~!   handle match.!~YUIDOC_LINE~!2. The whitespace character before the @sign in a Twitter handle. This is needed because there are no lookbehinds in JS regular!~YUIDOC_LINE~!   expressions, and can be used to reconstruct the original string in a replace().!~YUIDOC_LINE~!3. The Twitter handle itself in a Twitter match. If the match is &#x27;@someTwitterUser&#x27;, the handle is &#x27;someTwitterUser&#x27;.!~YUIDOC_LINE~!4. Group that matches an email address. Used to determine if the match is an email address, as well as holding the full address.!~YUIDOC_LINE~!   Ex: &#x27;me@my.com&#x27;!~YUIDOC_LINE~!5. Group that matches a URL in the input text. Ex: &#x27;http://google.com&#x27;, &#x27;www.google.com&#x27;, or just &#x27;google.com&#x27;.!~YUIDOC_LINE~!   This also includes a path, url parameters, or hash anchors. Ex: google.com/path/to/file?q1=1&amp;q2=2#myAnchor</a>
+                            <li class="index-item method">
+                                <a href="#method_{Object} media               an associated media object (from AnnotatedImage)">{Object} media               an associated media object (from AnnotatedImage)</a>
 
                                 
                                 
@@ -343,68 +379,13 @@ and thumbnails as well as a central area for the deepzoom image.</p>
             
 
             
+
+            
         </div>
 
         
             <div id="methods" class="api-class-tabpanel">
                 <h2 class="off-left">Methods</h2>
-
-                
-                    <div id="method_createSeadragonControls" class="method item">
-    <h3 class="name"><code>createSeadragonControls</code></h3>
-
-    
-        <span class="paren">()</span>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l98"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:98</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Add controls for manual Seadragon manipulation
-This was written for testing purposes and was not carefully written
-DO NOT KEEP THIS AS IS!!!!!!</p>
-
-    </div>
-
-    
-
-    
-
-    
-</div>
 
                 
                     <div id="method_init" class="method item">
@@ -439,7 +420,7 @@ DO NOT KEEP THIS AS IS!!!!!!</p>
             
         
         
-        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l53"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:53</code></a>
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l52"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:52</code></a>
         
         </p>
 
@@ -450,140 +431,12 @@ DO NOT KEEP THIS AS IS!!!!!!</p>
     </div>
 
     <div class="description">
-        <p>Initiate artmode with a root, artwork image and a sidebar on the left.</p>
+        <p>Initiate artmode with a root, artwork image and a sidebar on the left</p>
 
     </div>
 
     
 
-    
-
-    
-</div>
-
-                
-                    <div id="method_makeSidebar" class="method item">
-    <h3 class="name"><code>makeSidebar</code></h3>
-
-    
-        <span class="paren">()</span>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l326"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:326</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Makes the artwork viewer sidebar</p>
-
-    </div>
-
-    
-
-    
-
-    
-</div>
-
-                
-                    <div id="method_" class="method item">
-    <h3 class="name"><code></code></h3>
-
-    
-        <span class="paren">()</span>
-    
-
-    
-        <span class="returns-inline">
-            <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
-        </span>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l1510"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:1510</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Return art viewer root element</p>
-
-    </div>
-
-    
-
-    
-        <div class="returns">
-            <h4>Returns:</h4>
-
-            <div class="returns-description">
-                
-                    
-                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>:
-                    
-                    <p>root jquery object</p>
-
-                
-            </div>
-        </div>
     
 
     
@@ -632,7 +485,7 @@ DO NOT KEEP THIS AS IS!!!!!!</p>
             
         
         
-        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l1519"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:1519</code></a>
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l947"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:947</code></a>
         
         </p>
 
@@ -679,22 +532,53 @@ DO NOT KEEP THIS AS IS!!!!!!</p>
 </div>
 
                 
-            </div>
-        
+                    <div id="method_createButton" class="method item">
+    <h3 class="name"><code>createButton</code></h3>
 
-        
-            <div id="properties" class="api-class-tabpanel">
-                <h2 class="off-left">Properties</h2>
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>id</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>imgPath</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>left</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>top</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
 
-                
-                    <div id="property_matcherRegex!~YUIDOC_LINE~!!~YUIDOC_LINE~!The regular expression that matches URLs, email addresses, and Twitter handles.!~YUIDOC_LINE~!!~YUIDOC_LINE~!Capturing groups:!~YUIDOC_LINE~!!~YUIDOC_LINE~!1. Group that is used to determine if there is a Twitter handle match (i.e. @someTwitterUser). Simply check for its existence!~YUIDOC_LINE~!   to determine if there is a Twitter handle match. The next couple of capturing groups give information about the Twitter !~YUIDOC_LINE~!   handle match.!~YUIDOC_LINE~!2. The whitespace character before the @sign in a Twitter handle. This is needed because there are no lookbehinds in JS regular!~YUIDOC_LINE~!   expressions, and can be used to reconstruct the original string in a replace().!~YUIDOC_LINE~!3. The Twitter handle itself in a Twitter match. If the match is &#x27;@someTwitterUser&#x27;, the handle is &#x27;someTwitterUser&#x27;.!~YUIDOC_LINE~!4. Group that matches an email address. Used to determine if the match is an email address, as well as holding the full address.!~YUIDOC_LINE~!   Ex: &#x27;me@my.com&#x27;!~YUIDOC_LINE~!5. Group that matches a URL in the input text. Ex: &#x27;http://google.com&#x27;, &#x27;www.google.com&#x27;, or just &#x27;google.com&#x27;.!~YUIDOC_LINE~!   This also includes a path, url parameters, or hash anchors. Ex: google.com/path/to/file?q1=1&amp;q2=2#myAnchor" class="property item private">
-    <h3 class="name"><code>matcherRegex!~YUIDOC_LINE~!!~YUIDOC_LINE~!The regular expression that matches URLs, email addresses, and Twitter handles.!~YUIDOC_LINE~!!~YUIDOC_LINE~!Capturing groups:!~YUIDOC_LINE~!!~YUIDOC_LINE~!1. Group that is used to determine if there is a Twitter handle match (i.e. @someTwitterUser). Simply check for its existence!~YUIDOC_LINE~!   to determine if there is a Twitter handle match. The next couple of capturing groups give information about the Twitter !~YUIDOC_LINE~!   handle match.!~YUIDOC_LINE~!2. The whitespace character before the @sign in a Twitter handle. This is needed because there are no lookbehinds in JS regular!~YUIDOC_LINE~!   expressions, and can be used to reconstruct the original string in a replace().!~YUIDOC_LINE~!3. The Twitter handle itself in a Twitter match. If the match is &#x27;@someTwitterUser&#x27;, the handle is &#x27;someTwitterUser&#x27;.!~YUIDOC_LINE~!4. Group that matches an email address. Used to determine if the match is an email address, as well as holding the full address.!~YUIDOC_LINE~!   Ex: &#x27;me@my.com&#x27;!~YUIDOC_LINE~!5. Group that matches a URL in the input text. Ex: &#x27;http://google.com&#x27;, &#x27;www.google.com&#x27;, or just &#x27;google.com&#x27;.!~YUIDOC_LINE~!   This also includes a path, url parameters, or hash anchors. Ex: google.com/path/to/file?q1=1&amp;q2=2#myAnchor</code></h3>
-    <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/RegExp" class="crosslink external" target="_blank">RegExp</a></span>
+    
+        <span class="returns-inline">
+            <span class="type">JQuery obj</span>
+        </span>
+    
+
+    
 
     
 
     
-        <span class="flag private">private</span>
+
     
 
     
@@ -712,9 +596,10 @@ DO NOT KEEP THIS AS IS!!!!!!</p>
             
         
         
-        <a href="../files/LADS_js_Autolinker.js-master_src_matcherRegexSource.js.html#l1"><code>LADS&#x2F;js&#x2F;Autolinker.js-master&#x2F;src&#x2F;matcherRegexSource.js:1</code></a>
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l141"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:141</code></a>
         
         </p>
+
 
         
 
@@ -722,7 +607,1122 @@ DO NOT KEEP THIS AS IS!!!!!!</p>
     </div>
 
     <div class="description">
+        <p>Create a seadragon control button</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">id</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the id for the new button</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">imgPath</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the path to the button&#39;s image</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">left</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>css left property for button</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">top</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>css top property for button</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">JQuery obj</span>:
+                    
+                    <p>the button</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_keyHandler" class="method item">
+    <h3 class="name"><code>keyHandler</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>evt</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>direction</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
         
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l175"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:175</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Keydown handler for artwork manipulation; wrapper around doManip that first
+prevents default key behaviors</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">evt</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the event object</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">direction</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the direction in which to move the artwork</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_buttonHandler" class="method item">
+    <h3 class="name"><code>buttonHandler</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>evt</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>direction</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l188"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:188</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Click handler for button in given direction; a wrapper around doManip that also
+executes doManip in an interval if the user is holding down a button</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">evt</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the event object</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">direction</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the direction in which to move the artwork</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_doManip" class="method item">
+    <h3 class="name"><code>doManip</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>evt</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>direction</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l203"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:203</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Do fixed manipulation in response to seadragon controls or key presses</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">evt</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the event object</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">direction</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the direction in which to move the artwork</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_makeSidebar" class="method item">
+    <h3 class="name"><code>makeSidebar</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l309"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:309</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Makes the artwork viewer sidebar</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_createTourButton" class="method item">
+    <h3 class="name"><code>createTourButton</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>container</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>tour</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l409"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:409</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Creates a tour thumbnail button</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">container</code>
+                        <span class="type">JQuery obj</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the element to which we&#39;ll append this button</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">tour</code>
+                        <span class="type">Doq</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the tour doq</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_createSeadragonControls" class="method item">
+    <h3 class="name"><code>createSeadragonControls</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l98"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:98</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Add controls and key handlers for manual Seadragon manipulation</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_mediaClicked" class="method item">
+    <h3 class="name"><code>mediaClicked</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>media</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l463"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:463</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Generates a click handler for a specific associated media object</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">media</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the associated media object (from AnnotatedImage)</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_prepMap" class="method item">
+    <h3 class="name"><code>prepMap</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l739"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:739</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A callback function to populate the location history map after it has been created</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_drawPinHelper" class="method item">
+    <h3 class="name"><code>drawPinHelper</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>e</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l759"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:759</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Helper function to draw pushpin on location history map when a location&#39;s info
+box is clicked</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">e</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>event data related to a location</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_histOnClick" class="method item">
+    <h3 class="name"><code>histOnClick</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l833"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:833</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Click handler to expand location history window</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_toggleLocationPanel" class="method item">
+    <h3 class="name"><code>toggleLocationPanel</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l848"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:848</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Toggles location panel when locHistoryContainer or toggler is clicked</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_" class="method item">
+    <h3 class="name"><code></code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">JQuery obj</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l938"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:938</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Return art viewer root element</p>
+
+    </div>
+
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">JQuery obj</span>:
+                    
+                    <p>root jquery object</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_{Object} media               an associated media object (from AnnotatedImage)" class="method item">
+    <h3 class="name"><code>{Object} media               an associated media object (from AnnotatedImage)</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/LADS_js_LADS_layout_LADS.Layout.Artmode.js.html#l426"><code>LADS&#x2F;js&#x2F;LADS&#x2F;layout&#x2F;LADS.Layout.Artmode.js:426</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Creates a thumbnail button for an associated media</p>
+
     </div>
 
     
@@ -734,6 +1734,8 @@ DO NOT KEEP THIS AS IS!!!!!!</p>
 
                 
             </div>
+        
+
         
 
         
