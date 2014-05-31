@@ -37,6 +37,15 @@
             "fors": {},
             "namespaces": {}
         },
+        "LADS/js/LADS/artmode/LADS.AnnotatedImage.js": {
+            "name": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "modules": {},
+            "classes": {
+                "LADS.AnnotatedImage": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
         "LADS/js/LADS/authoring/jscolor/jscolor.js": {
             "name": "LADS/js/LADS/authoring/jscolor/jscolor.js",
             "modules": {},
@@ -309,7 +318,9 @@
         "LADS/js/LADS/util/LADS.Util.js": {
             "name": "LADS/js/LADS/util/LADS.Util.js",
             "modules": {},
-            "classes": {},
+            "classes": {
+                "LADS.Util.Artwork": 1
+            },
             "fors": {},
             "namespaces": {}
         },
@@ -769,6 +780,31 @@
             "extends": "Object",
             "singleton": "Singleton class which exposes the {@link #link} method, used to process a given string of text,\nand wrap the URLs, email addresses, and Twitter handles in the appropriate anchor (&lt;a&gt;) tags."
         },
+        "LADS.AnnotatedImage": {
+            "name": "LADS.AnnotatedImage",
+            "shortname": "LADS.AnnotatedImage",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "namespace": "",
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 3,
+            "description": "Representation of deepzoom image with associated media. Contains\ntouch handlers. This is a constructor function, so it adds properties\nto 'this' rather than returning an object.",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "options",
+                    "description": "some options for the artwork and assoc media",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "some public methods and variables",
+                "type": "Object"
+            }
+        },
         "LADS.Layout.Artmode": {
             "name": "LADS.Layout.Artmode",
             "shortname": "LADS.Layout.Artmode",
@@ -779,26 +815,20 @@
             "extension_for": [],
             "namespace": "",
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 7,
-            "description": "The artwork viewer, which contains a sidebar with tools\nand thumbnails as well as a central area for the deepzoom image.",
+            "line": 3,
+            "description": "The artwork viewer, which contains a sidebar with tools and thumbnails as well\nas a central area for the deepzoom image.",
             "is_constructor": 1,
             "params": [
                 {
-                    "name": "prevInfo",
-                    "description": "contains information about returning to the previous page",
-                    "type": "Object"
-                },
-                {
                     "name": "options",
-                    "description": "information about current artwork and whether we're in splitscreen mode",
+                    "description": "some options for the artwork viewer page",
                     "type": "Object"
-                },
-                {
-                    "name": "exhibition",
-                    "description": "the exhibition we came from (if any)",
-                    "type": "Doq"
                 }
-            ]
+            ],
+            "return": {
+                "description": "some public methods",
+                "type": "Object"
+            }
         },
         "LADS.Layout.InternetFailurePage.js": {
             "name": "LADS.Layout.InternetFailurePage.js",
@@ -845,7 +875,11 @@
                     "description": "some options for the collections page",
                     "type": "Object"
                 }
-            ]
+            ],
+            "return": {
+                "description": "some public methods",
+                "type": "Object"
+            }
         },
         "LADS.Layout.StartPage": {
             "name": "LADS.Layout.StartPage",
@@ -911,6 +945,19 @@
                 "description": "the object representing public information about the video page\n                          (at the moment, just the root of the DOM)",
                 "type": "Object"
             }
+        },
+        "LADS.Util.Artwork": {
+            "name": "LADS.Util.Artwork",
+            "shortname": "LADS.Util.Artwork",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "namespace": "",
+            "file": "LADS/js/LADS/util/LADS.Util.js",
+            "line": 3363,
+            "description": "Utils for the artwork viewer and the artwork editor"
         },
         "CryptoJS": {
             "name": "CryptoJS",
@@ -1191,20 +1238,20 @@
             "access": "private",
             "tagname": "",
             "type": "RegExp",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 3,
             "description": "Top level namespace for Jasmine, a lightweight JavaScript BDD/spec/testing framework.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 10,
             "access": "private",
             "tagname": "",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1212,37 +1259,37 @@
             "description": "Use <code>jasmine.undefined</code> instead of <code>undefined</code>, since <code>undefined</code> is just\na plain old variable and may be redefined by somebody else.",
             "access": "private",
             "tagname": "",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 25,
             "description": "Show diagnostic messages in the console if set to true",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 31,
             "description": "Default interval in milliseconds for event loop yields (e.g. to allow network activity or to refresh the screen with the HTML-based runner). Small values here may result in slow test running. Zero means no updates until all tests have completed.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 37,
             "description": "Maximum levels of nesting that will be included when an object is pretty-printed",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 42,
             "description": "Default timeout interval in milliseconds for waitsFor() blocks.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 47,
             "description": "By default exceptions thrown in the context of a test are caught by jasmine so that it can run the remaining tests in the suite.\nSet to false to let the exception bubble up in the browser.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1263,13 +1310,13 @@
                     "type": "Function"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 126,
             "description": "Getter for the Jasmine environment. Ensures one gets created",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1287,7 +1334,7 @@
                 "description": "",
                 "type": "Boolean"
             },
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1305,7 +1352,7 @@
                 "description": "",
                 "type": "Boolean"
             },
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1323,7 +1370,7 @@
                 "description": "",
                 "type": "Boolean"
             },
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1346,7 +1393,7 @@
                 "description": "",
                 "type": "Boolean"
             },
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1363,7 +1410,7 @@
                 "description": "",
                 "type": "String"
             },
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1380,7 +1427,7 @@
                 "description": "",
                 "type": "Boolean"
             },
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1399,7 +1446,7 @@
             "return": {
                 "description": "matchable object of the type clazz"
             },
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1418,7 +1465,7 @@
             "return": {
                 "description": "matchable object for the sample"
             },
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1440,25 +1487,25 @@
                     "type": "String"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 271,
             "description": "The name of the spy, if provided.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 275,
             "description": "Is this Object a spy?",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 279,
             "description": "The actual function this spy stubs.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1467,7 +1514,7 @@
             "example": [
                 "\nvar mySpy = jasmine.createSpy('foo');\nmySpy(1, 2);\nmySpy.mostRecentCall.args = [1, 2];"
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1476,7 +1523,7 @@
             "example": [
                 "\nvar mySpy = jasmine.createSpy('foo');\nmySpy(1, 2);\nmySpy(7, 8);\nmySpy.mostRecentCall.args = [7, 8];\nmySpy.argsForCall[0] = [1, 2];\nmySpy.argsForCall[1] = [7, 8];"
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1485,7 +1532,7 @@
             "example": [
                 "\nvar foo = {\n  bar: function() { // do some stuff }\n}\n\n// defining a spy on an existing property: foo.bar\nspyOn(foo, 'bar').andCallThrough();"
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1501,7 +1548,7 @@
                     "type": "Object"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1517,7 +1564,7 @@
                     "type": "String"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1533,7 +1580,7 @@
                     "type": "Function"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1542,7 +1589,7 @@
             "example": [
                 "\nspyOn(foo, 'bar');\n\nfoo.bar();\n\nexpect(foo.bar.callCount).toEqual(1);\n\nfoo.bar.reset();\n\nexpect(foo.bar.callCount).toEqual(0);"
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1559,7 +1606,7 @@
                 "description": "",
                 "type": "Boolean"
             },
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1577,13 +1624,13 @@
                     "type": "Array"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 455,
             "description": "All parameters are pretty-printed and concatenated together, then written to the current spec's output.\n\nBe careful not to leave calls to <code>jasmine.log</code> in production code.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1609,7 +1656,7 @@
                 "description": "a Jasmine spy that can be chained with all spy methods",
                 "type": "jasmine.Spy"
             },
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1630,7 +1677,7 @@
                     "type": "Function"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1648,7 +1695,7 @@
                     "type": "Function"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1665,7 +1712,7 @@
                 "description": "",
                 "type": "jasmine.Matchers"
             },
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1678,7 +1725,7 @@
                     "type": "Function"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1693,7 +1740,7 @@
                     "type": "Number"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1716,7 +1763,7 @@
                     "type": "Number"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1729,7 +1776,7 @@
                     "type": "Function"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1742,7 +1789,7 @@
                     "type": "Function"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1763,7 +1810,7 @@
                     "type": "Function"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1781,12 +1828,12 @@
                     "type": "Function"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 646,
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1806,21 +1853,21 @@
                     "type": "Function"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 659,
             "access": "private",
             "tagname": "",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 713,
             "description": "Environment for Jasmine",
             "is_constructor": 1,
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1828,7 +1875,7 @@
             "return": {
                 "description": "an object containing jasmine version build info, if set."
             },
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1836,7 +1883,7 @@
             "return": {
                 "description": "string containing jasmine version build info, if set."
             },
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1844,7 +1891,7 @@
             "return": {
                 "description": "a sequential integer starting at 0"
             },
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1852,7 +1899,7 @@
             "return": {
                 "description": "a sequential integer starting at 0"
             },
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1865,13 +1912,13 @@
                     "type": "jasmine.Reporter"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1013,
             "is_constructor": 1,
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1895,13 +1942,13 @@
                     "type": "jasmine.Spec"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1071,
             "is_constructor": 1,
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1923,7 +1970,7 @@
                     "type": "jasmine.Spec"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1935,7 +1982,7 @@
                     "description": ""
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1949,7 +1996,7 @@
             ],
             "deprecated": true,
             "deprecationMessage": "as of 1.0. Use not.toBe() instead.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1961,7 +2008,7 @@
                     "description": ""
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1975,7 +2022,7 @@
             ],
             "deprecated": true,
             "deprecationMessage": "as of 1.0. Use not.toEqual() instead.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -1987,7 +2034,7 @@
                     "description": ""
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2001,54 +2048,54 @@
             ],
             "deprecated": true,
             "deprecationMessage": "as of 1.0. Use not.toMatch() instead.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1304,
             "description": "Matcher that compares the actual to jasmine.undefined.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1311,
             "description": "Matcher that compares the actual to jasmine.undefined.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1318,
             "description": "Matcher that compares the actual to null.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1325,
             "description": "Matcher that compares the actual to NaN.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1336,
             "description": "Matcher that boolean not-nots the actual.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1344,
             "description": "Matcher that boolean nots the actual.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1352,
             "description": "Matcher that checks to see if the actual, a Jasmine spy, was called.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1374,
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2056,7 +2103,7 @@
             "description": "Matcher that checks to see if the actual, a Jasmine spy, was not called.",
             "deprecated": true,
             "deprecationMessage": "Use expect(xxx).not.toHaveBeenCalled() instead",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2065,17 +2112,17 @@
             "example": [
                 "\n"
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1426,
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1429,
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2088,7 +2135,7 @@
                     "type": "Object"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2103,7 +2150,7 @@
             ],
             "deprecated": true,
             "deprecationMessage": "as of 1.0. Use not.toContain() instead.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2121,7 +2168,7 @@
                     "type": "Number"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2135,55 +2182,55 @@
                     "optional": true
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1664,
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1760,
             "is_constructor": 1,
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1795,
             "description": "Holds results for a set of Jasmine spec. Allows for the results array to hold another jasmine.NestedResults",
             "is_constructor": 1,
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1801,
             "description": "The total count of results",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1805,
             "description": "Number of passed results",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1809,
             "description": "Number of failed results",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1813,
             "description": "Was this suite/spec skipped?",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1817,
             "ignore": "",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2195,7 +2242,7 @@
                     "description": ""
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2207,13 +2254,13 @@
                     "description": "Array of message parts which will be concatenated later."
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1842,
             "description": "Getter for the results: message & results.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2226,7 +2273,7 @@
                     "type": "jasmine.ExpectationResult|jasmine.NestedResults"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2235,13 +2282,13 @@
                 "description": "True if <b>everything</b> below passed",
                 "type": "Boolean"
             },
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 1875,
             "description": "Base class for pretty printing for expectation results.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2253,7 +2300,7 @@
                     "description": ""
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2267,7 +2314,7 @@
                     "type": "jasmine.Env"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2291,13 +2338,13 @@
                     "type": "String"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
             "line": 2239,
             "description": "All parameters are pretty-printed and concatenated together, then written to the spec's output.\n\nBe careful not to leave calls to <code>jasmine.log</code> in production code.",
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2309,7 +2356,7 @@
                     "type": "jasmine.ExpectationResult"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2324,7 +2371,7 @@
                     "type": "Number"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2347,7 +2394,7 @@
                     "type": "Number"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2376,7 +2423,7 @@
                     "type": "jasmine.Suite"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js",
@@ -2411,7 +2458,342 @@
                     "type": "jasmine.Spec"
                 }
             ],
-            "class": "LADS.Layout.Artmode"
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 47,
+            "description": "Return list of associatedMedia",
+            "itemtype": "method",
+            "name": "getAssociatedMedia",
+            "return": {
+                "description": "associated media object",
+                "type": "Object"
+            },
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 56,
+            "description": "Open the deepzoom image",
+            "itemtype": "method",
+            "name": "openArtwork",
+            "params": [
+                {
+                    "name": "doq",
+                    "description": "artwork doq to open",
+                    "type": "Doq"
+                }
+            ],
+            "return": {
+                "description": "whether opening was successful",
+                "type": "Boolean"
+            },
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 72,
+            "description": "Wrapper around Seadragon.Drawer.updateOverlay; moves an HTML element \"overlay.\"\nUsed mostly in conjunction with hotspot circles (this function is currently\nonly called from ArtworkEditor.js)",
+            "itemtype": "method",
+            "name": "updateOverlay",
+            "params": [
+                {
+                    "name": "element",
+                    "description": "the overlay element to move",
+                    "type": "HTML element"
+                },
+                {
+                    "name": "placement",
+                    "description": "the new placement of the overlay",
+                    "type": "Seadragon.OverlayPlacement"
+                }
+            ],
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 89,
+            "description": "Wrapper around Seadragon.Drawer.addOverlay; adds an HTML overlay to the seadragon\ncanvas. Currently only used in ArtworkEditor.js.",
+            "itemtype": "method",
+            "name": "addOverlay",
+            "params": [
+                {
+                    "name": "element",
+                    "description": "the overlay element to add",
+                    "type": "HTML element"
+                },
+                {
+                    "name": "point",
+                    "description": "the point at which to add the overlay",
+                    "type": "Seadragon.Point"
+                },
+                {
+                    "name": "placement",
+                    "description": "the placement at the given point",
+                    "type": "Seadragon.OverlayPlacement"
+                }
+            ],
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 109,
+            "description": "Wrapper around Seadragon.Drawer.removeOverlay. Removes an HTML overlay from the seadragon\ncanvas.",
+            "itemtype": "method",
+            "name": "removeOverlay",
+            "params": [
+                {
+                    "name": "the",
+                    "description": "ovlerlay element to remove",
+                    "type": "HTML element"
+                }
+            ],
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 125,
+            "description": "Unloads the seadragon viewer",
+            "itemtype": "method",
+            "name": "unload",
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 133,
+            "description": "Manipulation/drag handler for makeManipulatable on the deepzoom image",
+            "itemtype": "method",
+            "name": "dzManip",
+            "params": [
+                {
+                    "name": "pivot",
+                    "description": "location of the event (x,y)",
+                    "type": "Object"
+                },
+                {
+                    "name": "translation",
+                    "description": "distance translated in x and y",
+                    "type": "Object"
+                }
+            ],
+            "oaram": "{Number} scale           scale factor",
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 146,
+            "description": "Scroll/pinch-zoom handler for makeManipulatable on the deepzoom image",
+            "itemtype": "method",
+            "name": "dzScroll",
+            "params": [
+                {
+                    "name": "scale",
+                    "description": "scale factor",
+                    "type": "Number"
+                },
+                {
+                    "name": "pivot",
+                    "description": "location of event (x,y)",
+                    "type": "Object"
+                }
+            ],
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 157,
+            "description": "Initialize seadragon, set up handlers for the deepzoom image, load assoc media if necessary",
+            "itemtype": "method",
+            "name": "init",
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 200,
+            "description": "Adds an animation handler to the annotated image. This is used to allow the image to move\nwhen the minimap is manipulated.",
+            "itemtype": "method",
+            "name": "addAnimationHandler",
+            "params": [
+                {
+                    "name": "handler",
+                    "description": "the handler to add",
+                    "type": "Function"
+                }
+            ],
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 210,
+            "description": "Retrieves associated media from server and stores them in the\nassociatedMedia array.",
+            "itemtype": "method",
+            "name": "callback    function to call after loading associated media",
+            "type": "Function",
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 221,
+            "description": "Success callback frunction for .getAssocMediaTo call above. If the list of media is\nnon-null and non-empty, it gets the linq between each doq and the artwork",
+            "itemtype": "method",
+            "name": "mediaSuccess",
+            "params": [
+                {
+                    "name": "doqs",
+                    "description": "the media doqs",
+                    "type": "Array"
+                }
+            ],
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 239,
+            "description": "Helper function for the calls to .getLinq above. It accepts an assoc media doc and returns\na success callback function that accepts a linq. Using this information, it creates a new\nhotspot from the doq and linq",
+            "itemtype": "method",
+            "name": "createLinqSuccess",
+            "params": [
+                {
+                    "name": "assocMedia",
+                    "description": "the relevant associated media doq",
+                    "type": "Doq"
+                }
+            ],
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 258,
+            "description": "Creates an associated media object to be added to associatedMedia.\nThis object contains methods that could be called in Artmode.js or\nArtworkEditor.js. This could be in its own file.",
+            "itemtype": "method",
+            "name": "createMediaObject",
+            "params": [
+                {
+                    "name": "doq",
+                    "description": "the media doq",
+                    "type": "Mdoq"
+                },
+                {
+                    "name": "linq",
+                    "description": "the linq between the media doq and the artwork doq",
+                    "type": "Linq"
+                }
+            ],
+            "return": {
+                "description": "some public methods to be used in other files",
+                "type": "Object"
+            },
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 304,
+            "description": "Initialize various parts of the media object: UI, manipulation handlers",
+            "itemtype": "method",
+            "name": "initMediaObject",
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 358,
+            "description": "Initialize any media controls",
+            "itemtype": "method",
+            "name": "initMediaControls",
+            "params": [
+                {
+                    "name": "elt",
+                    "description": "video or audio element",
+                    "type": "HTML element"
+                }
+            ],
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 544,
+            "description": "Load the actual image/video/audio; this can take a while if there are\na lot of media, so just do it when the thumbnail button is clicked",
+            "itemtype": "method",
+            "name": "createMediaElements",
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 606,
+            "description": "Drag/manipulation handler for associated media",
+            "itemtype": "method",
+            "name": "mediaManip",
+            "params": [
+                {
+                    "name": "res",
+                    "description": "object containing hammer event info",
+                    "type": "Object"
+                }
+            ],
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 665,
+            "description": "Zoom handler for associated media (e.g., for mousewheel scrolling)",
+            "itemtype": "method",
+            "name": "onScroll",
+            "params": [
+                {
+                    "name": "scale",
+                    "description": "scale factor",
+                    "type": "Number"
+                },
+                {
+                    "name": "pivot",
+                    "description": "point of contact",
+                    "type": "Object"
+                }
+            ],
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 682,
+            "description": "Show the associated media on the seadragon canvas. If the media is not\na hotspot, show it in a slightly random position.",
+            "itemtype": "method",
+            "name": "showMediaObject",
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 731,
+            "description": "Hide the associated media",
+            "itemtype": "method",
+            "name": "hideMediaObject",
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 751,
+            "description": "Show if hidden, hide if shown",
+            "itemtype": "method",
+            "name": "toggleMediaObject",
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 759,
+            "description": "Returns whether the media object is visible",
+            "itemtype": "method",
+            "name": "isVisible",
+            "return": {
+                "description": "",
+                "type": "Boolean"
+            },
+            "class": "LADS.AnnotatedImage"
+        },
+        {
+            "file": "LADS/js/LADS/artmode/LADS.AnnotatedImage.js",
+            "line": 768,
+            "description": "Pauses and resets (to time 0) the media if the content type is video or audio",
+            "pauseresetmediaobject": "",
+            "class": "LADS.AnnotatedImage"
         },
         {
             "file": "LADS/js/LADS/authoring/jscolor/jscolor.js",
@@ -2565,8 +2947,8 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 53,
-            "description": "Initiate artmode with a root, artwork image and a sidebar on the left.",
+            "line": 52,
+            "description": "Initiate artmode with a root, artwork image and a sidebar on the left",
             "itemtype": "method",
             "name": "init",
             "class": "LADS.Layout.Artmode"
@@ -2574,14 +2956,108 @@
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
             "line": 98,
-            "description": "Add controls for manual Seadragon manipulation\nThis was written for testing purposes and was not carefully written\nDO NOT KEEP THIS AS IS!!!!!!",
+            "description": "Add controls and key handlers for manual Seadragon manipulation",
             "itemtype": "method",
             "name": "createSeadragonControls",
             "class": "LADS.Layout.Artmode"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 326,
+            "line": 141,
+            "description": "Create a seadragon control button",
+            "itemtype": "method",
+            "name": "createButton",
+            "params": [
+                {
+                    "name": "id",
+                    "description": "the id for the new button",
+                    "type": "String"
+                },
+                {
+                    "name": "imgPath",
+                    "description": "the path to the button's image",
+                    "type": "String"
+                },
+                {
+                    "name": "left",
+                    "description": "css left property for button",
+                    "type": "Number"
+                },
+                {
+                    "name": "top",
+                    "description": "css top property for button",
+                    "type": "Number"
+                }
+            ],
+            "return": {
+                "description": "the button",
+                "type": "JQuery obj"
+            },
+            "class": "LADS.Layout.Artmode"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
+            "line": 175,
+            "description": "Keydown handler for artwork manipulation; wrapper around doManip that first\nprevents default key behaviors",
+            "itemtype": "method",
+            "name": "keyHandler",
+            "params": [
+                {
+                    "name": "evt",
+                    "description": "the event object",
+                    "type": "Object"
+                },
+                {
+                    "name": "direction",
+                    "description": "the direction in which to move the artwork",
+                    "type": "String"
+                }
+            ],
+            "class": "LADS.Layout.Artmode"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
+            "line": 188,
+            "description": "Click handler for button in given direction; a wrapper around doManip that also\nexecutes doManip in an interval if the user is holding down a button",
+            "itemtype": "method",
+            "name": "buttonHandler",
+            "params": [
+                {
+                    "name": "evt",
+                    "description": "the event object",
+                    "type": "Object"
+                },
+                {
+                    "name": "direction",
+                    "description": "the direction in which to move the artwork",
+                    "type": "String"
+                }
+            ],
+            "class": "LADS.Layout.Artmode"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
+            "line": 203,
+            "description": "Do fixed manipulation in response to seadragon controls or key presses",
+            "itemtype": "method",
+            "name": "doManip",
+            "params": [
+                {
+                    "name": "evt",
+                    "description": "the event object",
+                    "type": "Object"
+                },
+                {
+                    "name": "direction",
+                    "description": "the direction in which to move the artwork",
+                    "type": "String"
+                }
+            ],
+            "class": "LADS.Layout.Artmode"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
+            "line": 309,
             "description": "Makes the artwork viewer sidebar",
             "itemtype": "method",
             "name": "makeSidebar",
@@ -2589,17 +3065,67 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 801,
+            "line": 409,
+            "description": "Creates a tour thumbnail button",
+            "itemtype": "method",
+            "name": "createTourButton",
+            "params": [
+                {
+                    "name": "container",
+                    "description": "the element to which we'll append this button",
+                    "type": "JQuery obj"
+                },
+                {
+                    "name": "tour",
+                    "description": "the tour doq",
+                    "type": "Doq"
+                }
+            ],
             "class": "LADS.Layout.Artmode"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 814,
+            "line": 426,
+            "description": "Creates a thumbnail button for an associated media",
+            "itemtype": "method",
+            "name": "{Object} media               an associated media object (from AnnotatedImage)",
+            "type": "JQuery obj",
             "class": "LADS.Layout.Artmode"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 897,
+            "line": 463,
+            "description": "Generates a click handler for a specific associated media object",
+            "itemtype": "method",
+            "name": "mediaClicked",
+            "params": [
+                {
+                    "name": "media",
+                    "description": "the associated media object (from AnnotatedImage)",
+                    "type": "Object"
+                }
+            ],
+            "class": "LADS.Layout.Artmode"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
+            "line": 528,
+            "description": "MINIMAP CODE. bleveque: didn't rewrite this; separate issue\n                        if some variable names are off now, let me know",
+            "class": "LADS.Layout.Artmode"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
+            "line": 585,
+            "class": "LADS.Layout.Artmode"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
+            "line": 598,
+            "class": "LADS.Layout.Artmode"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
+            "line": 684,
             "description": "Create a drawer with a disclosure button used to display\nhotspots, assets, tours. The returned jQuery object has\na property called \"contents\" which should be used to add\nbuttons or messages to the contents of the drawer.",
             "params": [
                 {
@@ -2612,25 +3138,75 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 1015,
-            "description": "This is the click function LocationHistoryContainer.",
+            "line": 739,
+            "description": "A callback function to populate the location history map after it has been created",
+            "itemtype": "method",
+            "name": "prepMap",
             "class": "LADS.Layout.Artmode"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 1510,
-            "description": "Return art viewer root element",
+            "line": 759,
+            "description": "Helper function to draw pushpin on location history map when a location's info\nbox is clicked",
             "itemtype": "method",
-            "name": "",
+            "name": "drawPinHelper",
+            "params": [
+                {
+                    "name": "e",
+                    "description": "event data related to a location",
+                    "type": "Object"
+                }
+            ],
+            "class": "LADS.Layout.Artmode"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
+            "line": 833,
+            "description": "Click handler to expand location history window",
+            "itemtype": "method",
+            "name": "histOnClick",
+            "class": "LADS.Layout.Artmode"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
+            "line": 848,
+            "description": "Toggles location panel when locHistoryContainer or toggler is clicked",
+            "itemtype": "method",
+            "name": "toggleLocationPanel",
+            "class": "LADS.Layout.Artmode"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
+            "line": 880,
+            "description": "Create a drawer (e.g., for list of related tours or the artwork's description)",
+            "params": [
+                {
+                    "name": "title",
+                    "description": "title of the drawer",
+                    "type": "String"
+                }
+            ],
             "return": {
-                "description": "root jquery object",
-                "type": "Object"
+                "description": "the drawer",
+                "type": "JQuery obj"
             },
             "class": "LADS.Layout.Artmode"
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
-            "line": 1519,
+            "line": 938,
+            "description": "Return art viewer root element",
+            "itemtype": "method",
+            "name": "",
+            "return": {
+                "description": "root jquery object",
+                "type": "JQuery obj"
+            },
+            "class": "LADS.Layout.Artmode"
+        },
+        {
+            "file": "LADS/js/LADS/layout/LADS.Layout.Artmode.js",
+            "line": 947,
             "description": "Make the map for location History.",
             "itemtype": "method",
             "name": "",
@@ -3005,7 +3581,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 69,
+            "line": 68,
             "description": "Sets up the collections page UI",
             "itemtype": "method",
             "name": "init",
@@ -3013,7 +3589,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 109,
+            "line": 108,
             "description": "Helper function to add collections to left bar",
             "itemtype": "method",
             "name": "getCollectionsHelper",
@@ -3021,7 +3597,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 146,
+            "line": 147,
             "description": "When only a single collection exists, this function modifies\nthe CSS to hide the list of collections and expand the\ndescription area.",
             "itemtype": "method",
             "name": "enableSingleCollectionUI",
@@ -3030,7 +3606,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 178,
+            "line": 179,
             "description": "Add a collection to the left bar",
             "itemtype": "method",
             "name": "addCollection",
@@ -3045,7 +3621,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 225,
+            "line": 226,
             "description": "Click handler for collection title in left bar",
             "itemtype": "method",
             "name": "clickCollection",
@@ -3070,7 +3646,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 251,
+            "line": 252,
             "description": "When a collection is selected in the left bar, load its image and description\nin the display area",
             "itemtype": "method",
             "name": "loadCollection",
@@ -3090,7 +3666,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 391,
+            "line": 392,
             "description": "Get contents (artworks, videos, tours) in the specified collection and make catalog",
             "itemtype": "method",
             "name": "getCollectionContents",
@@ -3110,7 +3686,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 400,
+            "line": 401,
             "description": "Helper function to process collection contents",
             "itemtype": "method",
             "name": "contentsHelper",
@@ -3125,7 +3701,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 420,
+            "line": 421,
             "description": "Store the search strings for each artwork/tour",
             "itemtype": "method",
             "name": "initSearch",
@@ -3140,7 +3716,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 446,
+            "line": 447,
             "description": "Search collection using string in search input box",
             "itemtype": "method",
             "name": "doSearch",
@@ -3148,7 +3724,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 476,
+            "line": 477,
             "description": "Create tiles for each artwork/tour in a collection",
             "itemtype": "method",
             "name": "createArtTiles",
@@ -3163,7 +3739,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 488,
+            "line": 489,
             "description": "Draw the collection catalog",
             "itemtype": "method",
             "name": "drawCatalog",
@@ -3193,7 +3769,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 543,
+            "line": 544,
             "description": "Creates an artwork tile in a collection's catalog",
             "itemtype": "method",
             "name": "drawArtworkTile",
@@ -3233,7 +3809,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 622,
+            "line": 623,
             "description": "Shows an artwork in the upper section; sets the current thumbnail to be the artwork's\nand shows name, description, etc",
             "itemtype": "method",
             "name": "showArtwork",
@@ -3248,7 +3824,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 672,
+            "line": 673,
             "description": "Generates a comparator function for catalog sorting",
             "itemtype": "method",
             "name": "sortComparator",
@@ -3268,7 +3844,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 702,
+            "line": 703,
             "description": "Generates a valuation function for catalog sorting",
             "itemtype": "method",
             "name": "sortValuation",
@@ -3283,7 +3859,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 721,
+            "line": 722,
             "description": "Sort the catalog by the given criterium",
             "itemtype": "method",
             "name": "sortCatalog",
@@ -3307,7 +3883,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 794,
+            "line": 795,
             "description": "Set the colors of the sort tags",
             "itemtype": "method",
             "name": "colorSortTags",
@@ -3322,7 +3898,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 804,
+            "line": 805,
             "description": "Changes the selected tag and re-sorts",
             "itemtype": "method",
             "name": "changeDisplayTag",
@@ -3342,7 +3918,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 845,
+            "line": 846,
             "description": "Switch to the tour player",
             "itemtype": "method",
             "name": "switchPageTour",
@@ -3357,7 +3933,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 886,
+            "line": 887,
             "description": "Switch to the artwork viewer or tour player",
             "itemtype": "method",
             "name": "switchPage",
@@ -3365,7 +3941,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 943,
+            "line": 945,
             "description": "Show collection contents and display current artwork if there is one",
             "itemtype": "method",
             "name": "showCollection",
@@ -3380,7 +3956,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 952,
+            "line": 954,
             "description": "Gets the current state of the collections page",
             "itemtype": "method",
             "name": "getState",
@@ -3392,7 +3968,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.NewCatalog.js",
-            "line": 965,
+            "line": 967,
             "description": "Returns the root of the collections page",
             "itemtype": "method",
             "name": "getRoot",
@@ -3416,7 +3992,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 87,
+            "line": 88,
             "description": "sets up the entire visual layout and images of the splash screen",
             "itemtype": "method",
             "name": "loadHelper",
@@ -3431,7 +4007,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 119,
+            "line": 120,
             "description": "Checks if TAG is compatible with the current browser.",
             "itemtype": "method",
             "name": "isBrowserCompatible",
@@ -3443,7 +4019,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 188,
+            "line": 189,
             "description": "Finds the current browser version.\nCode from http://stackoverflow.com/questions/5916900/detect-version-of-browser",
             "itemtype": "method",
             "name": "getBrowserVersion",
@@ -3455,7 +4031,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 211,
+            "line": 212,
             "description": "Displays a dialog box indicating that the user is using an\nincompatible browser. Points them to links to download the latest\nversion of supported browsers such as IE, Chrome, Safari and Firefox.",
             "itemtype": "method",
             "name": "handleIncompatibleBrowser",
@@ -3464,7 +4040,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 280,
+            "line": 281,
             "description": "adjusts the text to fit the screen size",
             "itemtype": "method",
             "name": "fixText",
@@ -3472,7 +4048,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 298,
+            "line": 299,
             "description": "initializes the handlers for various 'click' functions including setting up a server",
             "itemtype": "method",
             "name": "initializeHandlers",
@@ -3480,7 +4056,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 323,
+            "line": 324,
             "description": "gets the paths for all the images displayed on the splash screen",
             "itemtype": "method",
             "name": "setImagePaths",
@@ -3495,7 +4071,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 355,
+            "line": 356,
             "description": "Sets up the credits box with its content including text and images. Also includes function for animation of credits.",
             "itemtype": "method",
             "name": "setUpCredits",
@@ -3503,7 +4079,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 393,
+            "line": 394,
             "description": "animation of credits when user clicks",
             "itemtype": "method",
             "name": "expandInfo",
@@ -3518,7 +4094,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 428,
+            "line": 429,
             "description": "sets up the info div which contains all the museum information",
             "itemtype": "method",
             "name": "setUpInfo",
@@ -3533,7 +4109,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 451,
+            "line": 452,
             "description": "Fills in all museum info including name and location",
             "itemtype": "method",
             "name": "setUpMuseumInfo",
@@ -3548,7 +4124,7 @@
         },
         {
             "file": "LADS/js/LADS/layout/LADS.Layout.StartPage.js",
-            "line": 504,
+            "line": 505,
             "itemtype": "method",
             "name": "getRoot",
             "return": {
@@ -3602,7 +4178,7 @@
                     "description": "object containing previous page info \n   artworkPrev      value is 'artmode' when we arrive here from the art viewer\n   prevScroll       value of scrollbar from new catalog page"
                 },
                 {
-                    "name": "artwork",
+                    "name": "artmodeOptions",
                     "description": "options to pass into LADS.Layout.Artmode"
                 },
                 {
@@ -3708,7 +4284,7 @@
                     "description": "After superclass is called, will contain displays and keyframes arrays\n             Don't pass in unless you are subclassing this"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.AudioTrack.js",
@@ -3724,7 +4300,7 @@
                     "description": "After superclass is called, will contain displays and keyframes arrays\n             Don't pass in unless you are subclassing this"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Command.js",
@@ -3736,7 +4312,7 @@
                     "description": "An object with the following keys:\n                     execute: Function to execute the command\n                     unexecute: Function to undo the command"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
@@ -3752,7 +4328,7 @@
                     "description": "not used"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
@@ -3764,7 +4340,7 @@
                     "description": "String describing error (to be displayed)"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
@@ -3780,7 +4356,7 @@
                     "description": "the track's ink datastring (see InkController.js for format)"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
@@ -3800,7 +4376,7 @@
                     "description": "'isolate' or 'block'"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
@@ -3816,25 +4392,25 @@
                     "description": "the track's ink datastring"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 936,
             "description": "Modified By: Hak",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 944,
             "description": "Add parts of function panel",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 1045,
             "description": "Opens the correct file picker based on the file type",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
@@ -3853,37 +4429,37 @@
             "return": {
                 "description": "addComponentButton     the button created."
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 1539,
             "description": "Called when all artworks/images are deleted; disables ink functionality by graying out \"Ink\" button",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 1570,
             "description": "\"Add Component\" button click handler.\nAllows user to drop menus and exit out of menus by clicking elsewhere.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 1658,
             "description": "Hover colors for \"Add Component\" menu items",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 1666,
             "description": "Creates catalog picker for associated media related to the artwork already imported into the tour (Jessica Fu)",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 1742,
             "description": "Get associated media for all artworks in the tour from the server.\nCreates the media picker dom elements.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
@@ -3895,7 +4471,7 @@
                     "description": "the list of media to appear in the panel"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
@@ -3904,61 +4480,61 @@
             "return": {
                 "description": "artwork id"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 2873,
             "description": "Detach catalog dom elements",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 2885,
             "description": "Below are the ink UI controls. They are separated into draw, text, and transparency controls.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 2891,
             "description": "Ink text UI controls (initial text creation, not edit mode)",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 3191,
             "description": "Edit ink text UI controls -- we can probably compress some of this by reusing the inkTextControls",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 3516,
             "description": "Ink draw UI controls (for initial draw authoring, not editing mode)",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 3845,
             "description": "Edit draw controls (edit mode)",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 4162,
             "description": "Ink transparency controls (initial authoring, not editing mode)",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 4337,
             "description": "Edit transparency controls (edit mode)",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 4496,
             "description": "Below are some helper function for the creation of ink controls above",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
@@ -3974,7 +4550,7 @@
                     "description": "the control we are clicking on -- we toggle it to be shown or hidden"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
@@ -3986,43 +4562,43 @@
                     "description": "this is the array of controls to collapse (e.g. drawArray)"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 4539,
             "description": "Initialize the text controls with default values",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 4554,
             "description": "Initialize the transparency controls with default values",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 4569,
             "description": "Initialize the draw controls with default values",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 4599,
             "description": "Create attach and create as unlinked buttons for ink creation",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 4709,
             "description": "Sets display:none for each of the ink control panels",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
             "line": 4722,
             "description": "Removes the current ink canvas if there is one",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
@@ -4031,7 +4607,7 @@
             "return": {
                 "description": "a div on which we'll create a Raphael paper"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
@@ -4043,7 +4619,7 @@
                     "description": "element to which we'll append the functions panel"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ComponentControls.js",
@@ -4055,13 +4631,13 @@
                     "description": "element to which we'll append the functions panel"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Constants.js",
             "line": 4,
             "description": "List of constants used across multiple files and locations",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
@@ -4077,7 +4653,7 @@
                     "description": "Update currentDisplay for touch handling, contains timeManager, undoManager, svg, update"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
@@ -4093,7 +4669,7 @@
                     "description": "LADS.TourAuthoring.DisplayParts enum type specifying which part of display was clicked"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
@@ -4109,13 +4685,13 @@
                     "description": "LADS.TourAuthoring.DisplayParts enum type specifying which part of display was clicked"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 739,
             "description": "Sets up menu with correct inputs and buttons",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
@@ -4127,7 +4703,7 @@
                     "description": "whether the user directly removed the display / if a command should be logged."
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
@@ -4135,7 +4711,7 @@
             "return": {
                 "description": "Start of display block in sec"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
@@ -4143,24 +4719,24 @@
             "return": {
                 "description": "End of display block in sec"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 1174,
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 1223,
             "description": "these are helper methods for msMove to reset the graphic info.\ncalled when you are changing the fadein",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 1296,
             "description": "Special setter that sets new start but preserves lengths",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
@@ -4168,7 +4744,7 @@
             "return": {
                 "description": "Numerical ID of display"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
@@ -4176,7 +4752,7 @@
             "return": {
                 "description": "Track that the display is in"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
@@ -4204,35 +4780,35 @@
                     "description": "the position of a nearby display in the next track"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 1532,
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 1556,
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 1588,
             "description": "Returns the length of the longest total collection of subdisplays",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 1604,
             "description": "Gets the attached ink displays residing within the bounds of the current display",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 1879,
             "description": "Gets the art display enclosing an attached ink track display.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
@@ -4244,18 +4820,18 @@
                     "description": "the display to clamp"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 2017,
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 2164,
             "description": "Used to debug move from command line\nFlips internal state to simulate clicks\nResets state when finished\nUse only in test code or functions inside display",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
@@ -4267,13 +4843,13 @@
                     "description": "Amount (in time) to move keyframes by"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 2202,
             "description": "Resets positioning and size of display\nCalled after zoom or scaling",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
@@ -4296,37 +4872,37 @@
             "return": {
                 "description": "keyframe%A"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 2311,
             "description": "Function to remove keyframe from keyframe array",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 2331,
             "description": "Sorts the keyframe array\nMust be called after a keyframe is moved, as keyframes can change order",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 2345,
             "description": "Used for passing last state of display on to next display",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 2353,
             "description": "Get keyframes belonging to display\nUsed for finding bounds of keyframe movement",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 2362,
             "description": "Helper function for keeping keyframes sorted\nSorted in ascending order by x position (in time)",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
@@ -4350,19 +4926,19 @@
                     "description": "final keyframe from previous display, defines start state for this display"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 2449,
             "description": "Helper function for collecting RIN data of associated keyframes",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Display.js",
             "line": 2522,
             "description": "Constructs Screenplay entry from display\nReturns object with begin, xml params so entries can be sorted",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.EditorMenu.js",
@@ -4378,7 +4954,7 @@
                     "description": "track's shared my object"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.EditorMenu.js",
@@ -4402,13 +4978,13 @@
                     "description": "Function for updating value of linked variable"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.EditorMenu.js",
             "line": 45,
             "description": "Initializes menu html",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.EditorMenu.js",
@@ -4420,19 +4996,19 @@
                     "description": "evt from interaction event, used to reposition menu"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.EditorMenu.js",
             "line": 219,
             "description": "Close menu\nDoesn't fire if menuCloseable is set\nCall only from my.root close handler",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.EditorMenu.js",
             "line": 229,
             "description": "Actually closes menu, no menuCloseable check\nCall everywhere except my.root handler",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.EditorMenu.js",
@@ -4456,7 +5032,7 @@
                     "description": "Function for updating value of linked variable"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.EditorMenu.js",
@@ -4468,7 +5044,7 @@
                     "description": "Text to appear"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.EditorMenu.js",
@@ -4488,7 +5064,7 @@
                     "description": "Function to fire when clicked"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.EditorMenu.js",
@@ -4500,13 +5076,13 @@
                     "description": "Input to update"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.EditorMenu.js",
             "line": 470,
             "description": "Resets inputs to match current state of associated variables",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.EditorMenu.js",
@@ -4518,7 +5094,7 @@
                     "description": "Interaction event object"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.EditorMenu.js",
@@ -4530,7 +5106,7 @@
                     "description": "string to check"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.EditorMenu.js",
@@ -4546,7 +5122,7 @@
                     "description": "MenuInputFormat value specifying input format"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.EditorMenu.js",
@@ -4562,7 +5138,7 @@
                     "description": "MenuInputFormat type specifying format to parse number to"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.EditorMenu.js",
@@ -4574,7 +5150,7 @@
                     "description": "number to round"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.ImageTrack.js",
@@ -4596,7 +5172,7 @@
                     "description": "After superclass is called, will contain displays and keyframes arrays\n             Don't pass in unless you are subclassing this"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4620,13 +5196,13 @@
                     "description": "if the calling file is ComponentControls, we make use of the undoManager etc, so just pass\n                     in the spec variable from ComponentControls."
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 150,
             "description": "Sets ink params to defaults",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4645,7 +5221,7 @@
             "return": {
                 "description": "the absolute coordinate"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4661,7 +5237,7 @@
                     "description": "styling to apply to elt"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4677,19 +5253,19 @@
                     "description": "ry    the radii of the ellipse"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 1046,
             "description": "DEPRECATED\nUsed to give style and drag functionality to old marquees (such as is currently in the Final\nGaribaldi Demo). Once all old marquees have been deleted from tours, this method can be tossed.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 1052,
             "description": "analogous to add_attributes(...), but for marquees. The difference is that a marquee\nis a collection of five rectangles, and the center rectangle is the only one that gets\nthe drag handler, while the others have the color attributes.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4701,7 +5277,7 @@
                     "description": "y    the coordinates of the top left corner of the rectangle"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4717,7 +5293,7 @@
                     "description": "any text that should be loaded into the text box (i.e. for editing inks)"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4729,7 +5305,7 @@
                     "description": "the current dimensions of our artwork in absolute coordinates"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4741,7 +5317,7 @@
                     "description": "the current dimensions of our artwork in absolute coordinates"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4756,7 +5332,7 @@
             "return": {
                 "description": "reversed path (with outer path)"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4772,19 +5348,19 @@
                     "description": "another path (in the scheme of things, we are building this path up by adding new_paths)"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 1700,
             "description": "Uses the arrays ml, xy, and pa to draw paths with the correct properties.\nFirst clears the canvas of existing paths, then draws new ones.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 1753,
             "description": "A helper function to draw transparencies. Takes the arrays transLetters (representing the\nsvg path commands in the transparency string) and transCoords (corresponding locations on the\ncanvas in relative coordinates) and draws the appropriate type of transparency to the canvas.\nIf the type is 'isolate,' calls block_to_isol, which reverses the path and adds an outer path\naround the canvas to fill the in-between space.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4796,7 +5372,7 @@
                     "description": "the locaton of the drag event"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4819,19 +5395,19 @@
             "return": {
                 "description": "the value of the attribute in the correct format"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 1859,
             "description": "Returns the isolate/block bounding shapes.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 1867,
             "description": "Returns the current datastring.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4843,7 +5419,7 @@
                     "description": "array of path strings representing ellipses/rects"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4852,25 +5428,25 @@
             "return": {
                 "description": "an object containing relative coordinates x, y, w, h"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 1920,
             "description": "Helper function to get the svg element created by Raphael.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 1928,
             "description": "Searches the current datastring for ellipses and rectangles, stores their information in bounding_shapes.\nAlso stores their coordinates and types in an array shapes and calls shapes_to_paths on shapes\nto transform them to path format.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 1978,
             "description": "Returns true if the text box containing an ink being edited/authored is empty",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4885,7 +5461,7 @@
             "return": {
                 "description": "whether or not there are no inks on the canvas (i.e. the datastring does not represent anything useful)"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4897,7 +5473,7 @@
                     "description": "String describing error (to be displayed)"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4906,7 +5482,7 @@
             "return": {
                 "description": "true if in display, false otherwise"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4915,7 +5491,7 @@
             "return": {
                 "description": "true if we should proceed to linking, false if there are warning messages"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4924,7 +5500,7 @@
             "return": {
                 "description": "true if no warnings and we should create, false otherwise"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4933,7 +5509,7 @@
             "return": {
                 "description": "true if no warnings, false otherwise (see link_text for description of warnings)"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4942,19 +5518,19 @@
             "return": {
                 "description": "true if no warnings, false otherwise"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 2152,
             "description": "Function to link an ink to an artwork. Called for all types of inks (possibly after preprocessing, in\nthe cases of texts and transparencies).\nreturn     true if linking was successful, false if warnings",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 2259,
             "description": "Function to create an unattached ink. Called for all types of inks (possibly after preprocessing, in\nthe cases of texts and transparencies).\nreturn     true if creation was successful, false if warnings",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4966,7 +5542,7 @@
                     "description": "datastring to be loaded (see update_datastring for datastring format)"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4978,7 +5554,7 @@
                     "description": "the path representing the transparency to be loaded in"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -4990,13 +5566,13 @@
                     "description": "the datastring containing the transparency path and its bounding shapes"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 2600,
             "description": "DEPRECATED -- constructor for old marquees",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -5015,13 +5591,13 @@
             "return": {
                 "description": "the incoming bezier anchor coordinates to next"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 2647,
             "description": "Helper function to determine whether p1 and p2 are effectively the same point. Returns true if so.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -5040,7 +5616,7 @@
             "return": {
                 "description": "the outgoing bezier anchor coordinates from pt"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -5056,7 +5632,7 @@
                     "description": "should we take time to draw the objects?"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -5072,7 +5648,7 @@
                     "description": "should we take time to draw the objects?"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -5091,7 +5667,7 @@
             "return": {
                 "description": "1 if enough points are inside, 0 otherwise"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -5107,19 +5683,19 @@
                     "description": "the relevant canvas dimension to scale by"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 2826,
             "description": "Returns 1 if any points in order_added match pt.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 2839,
             "description": "Removes all Raphael elements from the canvas and clears arrays",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -5135,67 +5711,67 @@
                     "description": "should we take the time to draw the result?"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 2943,
             "description": "Set the variables related to adjustViewBox (original artwork location) using the art proxy,\nwhich keeps track of its dimensions",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 2967,
             "description": "-     * Checks whether two points are effectively the same\n     * @param pt1, pt2   the points in question\n     * @param err        how close the points have to be to be considered the same\n     * @return    whether or not the points are the same (true/false)",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 2980,
             "description": "Helper function to convert a textbox to a Raphael text element. //========== should be deprecated",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 3004,
             "description": "Setter for the artname of a linked ink's associated artwork",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 3012,
             "description": "Set the svg element to handle all pointer events so we can draw on it\n(and also to prevent manipulation of artwork during ink creation)",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 3024,
             "description": "Setter (sets experience id of ink)",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 3032,
             "description": "Sets the initial artwork keyframe",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 3040,
             "description": "Sets the ink mode",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 3049,
             "description": "Sets the internal reference to the old opacity of the ink track",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 3057,
             "description": "Similar to the retrieveOrigDims function, but uses a proxy variable.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -5207,7 +5783,7 @@
                     "description": "the text box in question"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -5222,13 +5798,13 @@
             "return": {
                 "description": "array of corresponding paths"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 3255,
             "description": "Debugging function; prints out the ink path in our ink track",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -5251,7 +5827,7 @@
             "return": {
                 "description": "scaled path"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -5260,7 +5836,7 @@
             "return": {
                 "description": "up to date datastring"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -5272,7 +5848,7 @@
                     "description": "the datastring loaded"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -5284,13 +5860,13 @@
                     "description": "the value to be set to the corresponding ink parameter"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
             "line": 3485,
             "description": "The following are getters for different ink parameters.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkAuthoring.js",
@@ -5302,19 +5878,19 @@
                     "description": "the id of the dom element whose value we want to use"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkController.js",
             "line": 20,
             "description": "definition of the inkAuthoring class members:\n  paper -- a Raphael object (a canvas to draw on) fit to the div specified by canvasId\n  loadInk -- loads an Ink to the canvas using the string format specified in update_datastring() below\n  getters and setters for different Ink attributes\n  update functions which take in DOM element IDs and use the settings stored in their values",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkController.js",
             "line": 165,
             "description": "analogous to add_attributes(...), but for marquees. The difference is that a marquee\nis a collection of five rectangles, and the center rectangle is the only one that gets\nthe drag handler, while the others have the color attributes.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkTrack.js",
@@ -5330,7 +5906,7 @@
                     "description": "After superclass is called, will contain displays and keyframes arrays\n             Don't pass in unless you are subclassing this"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.InkablePart.js",
@@ -5346,7 +5922,7 @@
                     "description": "shared & protected variables\n                 'assets' parameter (array) will be added"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Keyframe.js",
@@ -5362,19 +5938,19 @@
                     "description": "Update currentKeyframe param for touch handling, contains timeManager, undoManager, and svg"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Keyframe.js",
             "line": 213,
             "description": "Helper function to set currentKeyframe and other vars in prep for movement",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Keyframe.js",
             "line": 388,
             "description": "functions for changing keyframe style based on selected status",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Keyframe.js",
@@ -5386,7 +5962,7 @@
                     "description": "new volume in percent"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Keyframe.js",
@@ -5406,13 +5982,13 @@
                     "description": "rightmost position keyframe can move to (not required)"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Keyframe.js",
             "line": 575,
             "description": "Used to debug move from command line\nFlips internal state to simulate clicks\nResets state when finished\nUse only in test code or functions inside display",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Keyframe.js",
@@ -5424,25 +6000,25 @@
                     "description": "amount of translation"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Keyframe.js",
             "line": 617,
             "description": "Called when ratio of time to pixels is changed\nJust resets positioning of keyframes",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Keyframe.js",
             "line": 632,
             "description": "Converts the y location of the keyframe onto scale from 0 to 1\n0 is bottom of timeline, 1 is top\nScale is linear\nUsed for audio keyframes only",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Keyframe.js",
             "line": 642,
             "description": "Maps keyframe to RIN keyframe",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Keyframe.js",
@@ -5454,7 +6030,7 @@
                     "description": "keyframe in RIN xml format"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.PlaybackControl.js",
@@ -5470,25 +6046,25 @@
                     "description": "not used"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.PlaybackControl.js",
             "line": 632,
             "description": "HK25: Wrote this function for updating the slider box as it is moved.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Tests.js",
             "line": 3,
             "description": "UI Tests:\nDrag playhead and playback location fader TODO: test ensuring RIN and playhead are synced\nClick \"Play\" button twice (start and stop)",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Tests.js",
             "line": 9,
             "description": "Automated tests module for TourAuthoring",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Tests.js",
@@ -5500,19 +6076,19 @@
                     "description": ""
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Tests.js",
             "line": 83,
             "description": "Makes two tracks w/ alternating display regions and calls onUpdate on the timeline",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Tests.js",
             "line": 104,
             "description": "Material for demo",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Tests.js",
@@ -5524,37 +6100,37 @@
                     "description": ""
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Tests.js",
             "line": 165,
             "description": "Testing JSON RINdata + server send/recieve",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Tests.js",
             "line": 182,
             "description": "Test creating tours",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Tests.js",
             "line": 191,
             "description": "Test modification of Name, Content, and Thumbnail fields\nThese are the only fields Tour Authoring needs to worry about",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Tests.js",
             "line": 209,
             "description": "Test deletion",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Tests.js",
             "line": 216,
             "description": "Hack to get audio loaded for editing",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
@@ -5570,13 +6146,13 @@
                     "description": "not used"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
             "line": 43,
             "description": "Generally should use setTime once everything has been initialized:\nSpec object contains any of start, end, scale properties\nAll time-dependent text in DOM is updated as well to reflect changes",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
@@ -5588,25 +6164,25 @@
                     "description": "whether the tour can play"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
             "line": 158,
             "description": "Drives forward current time to mimic playback",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
             "line": 201,
             "description": "Stops playback if time manager is playing",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
             "line": 214,
             "description": "Functions for converting btw pixel space and time space",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
@@ -5615,7 +6191,7 @@
             "return": {
                 "description": "Current time (in time-space)"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
@@ -5624,7 +6200,7 @@
             "return": {
                 "description": "Current time (as percentage)"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
@@ -5633,7 +6209,7 @@
             "return": {
                 "description": "Object w/ start, end, scale parameters"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
@@ -5645,7 +6221,7 @@
                     "description": "Event handler to be called whenever current time is updated"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
@@ -5657,7 +6233,7 @@
                     "description": "The event: current, percent parameters"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
@@ -5669,7 +6245,7 @@
                     "description": "Event handler to be called whenever start, end, or scale is updated"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
@@ -5681,7 +6257,7 @@
                     "description": "The event: start, end, scale parameters (for easy access)"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
@@ -5693,7 +6269,7 @@
                     "description": "Event handler"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
@@ -5705,7 +6281,7 @@
                     "description": "The event: current, percent parameters"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
@@ -5717,7 +6293,7 @@
                     "description": "Event handler"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
@@ -5729,7 +6305,7 @@
                     "description": "The event: current, percent parameters"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
@@ -5741,7 +6317,7 @@
                     "description": "Event Handler to be called whenever stop() is called"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
@@ -5753,7 +6329,7 @@
                     "description": "The event: no use at the moment"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
@@ -5765,7 +6341,7 @@
                     "description": "Event handler to be called whenever play() or seek() is called"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TimeManager.js",
@@ -5777,7 +6353,7 @@
                     "description": "The event: current, percent parameters"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
@@ -5789,17 +6365,17 @@
                     "description": "timeManager, undoManager, viewer params"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
             "line": 324,
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
             "line": 443,
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
@@ -5808,34 +6384,34 @@
             "return": {
                 "description": "bound: the array of the smallest distances"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
             "line": 912,
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
             "line": 913,
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
             "line": 932,
             "description": "turn of the button for multi select",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
             "line": 950,
             "description": "update the olddata for each selected displays when the mouse goes up\nthis is used in undo/redo to store the previous positions of all of the selected displays",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
             "line": 955,
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
@@ -5851,18 +6427,18 @@
                     "description": "currentDisplay: the one user is dragging."
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
             "line": 1003,
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
             "line": 1053,
             "description": "deselect all displays when the user clicks white space in track or right clicks on the menu",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
@@ -5878,13 +6454,13 @@
                     "description": "Associated track (for ink)"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
             "line": 1142,
             "description": "Utility to get track object from title\nUsed to load ink",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
@@ -5893,7 +6469,7 @@
             "return": {
                 "description": "allDisplaysEnd, the highest end time of all displays"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
@@ -5909,7 +6485,7 @@
                     "description": "id of the track whose title is being changed"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
@@ -5918,7 +6494,7 @@
             "return": {
                 "description": "GUIDs of all artworks loaded into tracks"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
@@ -5927,13 +6503,13 @@
             "return": {
                 "description": "true if there are artworks loaded"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
             "line": 1645,
             "description": "Call when tour has been fully initialized\nRIN reloads fired by edits are blocked until this is called!",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
@@ -5953,13 +6529,13 @@
                     "description": "whether receiving keyframe should be selected"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
             "line": 1681,
             "description": "Deselects selected keyframes on all tracks",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
@@ -5968,7 +6544,7 @@
             "return": {
                 "description": "Keyframe data in xml"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
@@ -5976,7 +6552,7 @@
             "return": {
                 "description": "JSON object representing current state of timeline in RIN format"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
@@ -5985,7 +6561,7 @@
             "return": {
                 "description": "JSON object table of resources"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
@@ -5994,7 +6570,7 @@
             "return": {
                 "description": "JSON object table of ESs"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
@@ -6003,25 +6579,25 @@
             "return": {
                 "description": "XML screenplay string"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
             "line": 1842,
             "description": "Function passed into tracks to be called on track changes to update RIN data",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
             "line": 1879,
             "description": "Loads tour file and initializes timeline UI accordingly",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
             "line": 2115,
             "description": "function deleteAttachedInkDisplays(data) {\n    var i;\n    for (i = 0; i < data.attachedInks.length; i++) {\n        data.attachedInks[i].clearDisplays();\n    }\n}",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Timeline.js",
@@ -6037,7 +6613,7 @@
                     "description": "track position of eobj"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TopMenu.js",
@@ -6053,7 +6629,7 @@
                     "description": "not used"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TourOptions.js",
@@ -6065,13 +6641,13 @@
                     "description": "timeManager attr, url (url of tour if loading existing tour for editing)"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TourOptions.js",
             "line": 42,
             "description": "Drop Down icon\nModified By: Hak",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.TourOptions.js",
@@ -6091,7 +6667,7 @@
                     "description": "id to the element"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
@@ -6127,31 +6703,31 @@
                     "description": "Object that will hold keyframes and displays (for accessing by subclasses w/o making public)\n                         Will be returned w/ 'displays', 'resource', 'type', 'timeManager', 'undoManager', 'track', 'svg' parameters\n                         Also used to track currentDisplay, currentKeyframe on mousedown, selectedKeyframe for keyframe capture (set in displays and keyframes)"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
             "line": 1076,
             "description": "set a display selected when in multi select mode",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
             "line": 1087,
             "description": "set a display deselected in multi select mode",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
             "line": 1176,
             "description": "Functions for track ID\nCorresponds to ordering of tracks in timeline array\nMaps to z-layering in RIN\nEach track ID should be unique, but might change on track switch\nUse updatePos to update id",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
             "line": 1714,
             "description": "set current display deselected when user clicks it again",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
@@ -6164,54 +6740,54 @@
                 }
             ],
             "keepdisplays": ":if we want to keep the displays",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
             "line": 1765,
             "description": "Handles drag on track\nPan timeline view\nIf a display or keyframe is selected, move that",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
             "line": 1879,
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
             "line": 2054,
             "description": "Gets the art display enclosing an attached ink track display.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
             "line": 2081,
             "description": "helper function that loops through the array of displays \nreturns the start of a display if there's a display nearby\nreturns 1 fadein, 0 fadeout and -1 otherwise",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
             "line": 2102,
             "description": "helper function for finding a certain track using it's id\nparam trackNum - the track's id\nreturns the track",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
             "line": 2118,
             "description": "moves the track and the left and right",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
             "line": 2128,
             "description": "moves the track up and down",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
             "line": 2295,
             "description": "Because loadRIN calls display.addKeyframe directly,\nwe need to pass it back into the track's list of allKeyframes manually for lines to draw",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
@@ -6222,7 +6798,7 @@
                     "description": "Object w/ two properties: 'title', the title container, and 'track', the track container"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
@@ -6241,19 +6817,19 @@
             "return": {
                 "description": "command for adding/undoing addition"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
             "line": 2518,
             "description": "Helper function for inserting display into array\nKeeps displays sorted by start",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
             "line": 2527,
             "description": "For testing purposes only!!!",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
@@ -6269,7 +6845,7 @@
                     "description": "whether the keyframe receiving data should be selected"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
@@ -6281,7 +6857,7 @@
                     "description": "RIN resource table object to add entry to"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
@@ -6293,7 +6869,7 @@
                     "description": "\"ExperienceStreams\" object to add named track ES object to"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
@@ -6302,7 +6878,7 @@
             "return": {
                 "description": "\"keyframeSequences\" object"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Track.js",
@@ -6318,7 +6894,7 @@
                     "description": "If true, output screenplay entries regardless of internal settings"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.UndoManager.js",
@@ -6334,7 +6910,7 @@
                     "description": "not used"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.UndoManager.js",
@@ -6346,31 +6922,31 @@
                     "description": "LADS.TourAuthoring.Command that was just run"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.UndoManager.js",
             "line": 47,
             "description": "function returns the savedState of the element in the top of the stack, which determines if timeline is dirty or not",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.UndoManager.js",
             "line": 92,
             "description": "Undo",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.UndoManager.js",
             "line": 108,
             "description": "Redo",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.UndoManager.js",
             "line": 124,
             "description": "Clears undo / redo stack\nCalled on save or after loading",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.UndoManager.js",
@@ -6382,7 +6958,7 @@
                     "description": "Number of commands to tie together"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.VideoTrack.js",
@@ -6398,7 +6974,7 @@
                     "description": "After superclass is called, will contain displays and keyframes arrays\n             Don't pass in unless you are subclassing this"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Viewer.js",
@@ -6414,7 +6990,7 @@
                     "description": "not used"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Viewer.js",
@@ -6426,19 +7002,19 @@
                     "description": "sender, eventId, ? (RIN)"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Viewer.js",
             "line": 126,
             "description": "Turn capturing off on update",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Viewer.js",
             "line": 135,
             "description": "Get state of keyframe disable switch.",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Viewer.js",
@@ -6450,7 +7026,7 @@
                     "description": "true if RIN is ready to play"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Viewer.js",
@@ -6458,7 +7034,7 @@
             "return": {
                 "description": "current keyframe state data"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Viewer.js",
@@ -6467,31 +7043,31 @@
             "return": {
                 "description": "current time in player"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Viewer.js",
             "line": 217,
             "description": "Get JQuery object containing rin player",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Viewer.js",
             "line": 225,
             "description": "Updates size of viewer area on resize",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Viewer.js",
             "line": 255,
             "description": "Play viewer (should only be called from timeManager)",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Viewer.js",
             "line": 267,
             "description": "Stop viewer (should only be called from timeManager)",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Viewer.js",
@@ -6503,7 +7079,7 @@
                     "description": "location to seek to in units of seconds"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Viewer.js",
@@ -6515,13 +7091,13 @@
                     "description": "volume, between 0 and 1"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Viewer.js",
             "line": 308,
             "description": "Set reference to Timeline for keyframe passing",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Viewer.js",
@@ -6533,7 +7109,7 @@
                     "description": "URL of json tour"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Viewer.js",
@@ -6545,13 +7121,13 @@
                     "description": "Segment portion of RIN tour"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/tourauthoring/LADS.TourAuthoring.Viewer.js",
             "line": 415,
             "description": "Unloads RIN player\ncall when exiting Authoring",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.Splitscreen.js",
@@ -6567,7 +7143,7 @@
                     "description": "DOM root element (as JQuery obj) to go in right screen"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.Splitscreen.js",
@@ -6579,7 +7155,7 @@
                     "description": "Mouse event"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.Splitscreen.js",
@@ -6591,7 +7167,7 @@
                     "description": "The side the button is going to go on"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.Splitscreen.js",
@@ -6603,19 +7179,19 @@
                     "description": "The side to be made fullscreen, either 'R' or 'L'"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.Splitscreen.js",
             "line": 270,
             "description": "All the layout specific edits that need to be made upon exit\nTheoretically, all of this should get wrapped into layout classes\nbut not sure the class pattern used allows for it",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.Splitscreen.js",
             "line": 392,
             "description": "More layout specific fixes\nExhibition fit-texting, called on exit and splitbar move",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
@@ -6627,7 +7203,7 @@
                     "description": "the path to the html file within the html directory"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
@@ -6643,30 +7219,30 @@
                     "type": "Visible: true"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
             "line": 1400,
             "description": "Utils for Animation, splitscreen, colors and the like",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
             "line": 1862,
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
             "line": 2200,
             "description": "Following functions transition between pages while in splitscreen mode",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
             "line": 2203,
             "description": "Use _Split fn's for transitions that need to preserve splitscreen\nNote: pages passed in to this function should have a top-level root node\n(true of exhibition, catalog and artmode)",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
@@ -6686,13 +7262,13 @@
                     "type": "Function"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
             "line": 2324,
             "description": "Use for any page transition that does not need to preserve splitscreen",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
@@ -6728,7 +7304,7 @@
                     "description": "function: function to be called when import is clicked or a component is double clicked"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
@@ -6744,17 +7320,42 @@
                     "description": "function to add handlers to each holder element"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 3363,
+            "line": 3374,
+            "description": "Creates a thumbnail button to be used in a side bar list",
+            "itemtype": "method",
+            "name": "createThumbnailButton",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "options for creating the thumbnail button:\n           title         title of the button, shown under the thumbnail\n           handler       a click handler for the button\n           buttonClass   an extra class to add to the button\n           buttonID      an id to give to the button\n           src           thumbnail image source\n           width         custom width of button\n           height        custom height of button",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "the button",
+                "type": "JQuery obj"
+            },
+            "class": "LADS.Util.Artwork"
+        },
+        {
+            "file": "LADS/js/LADS/util/LADS.Util.js",
+            "line": 3404,
+            "description": "----------------------------------------------\n        |                                            |  <--- holder\n        | ------------------------------------------ |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | <------ thumbHolderDiv\n        | |                                        | |\n        | |              THUMBNAIL                 | |\n        | |                IMAGE                   | |\n        | |                 HERE                  <--------- thumbnailImage\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | ------------------------------------------ |\n        | ------------------------------------------ |\n        | |             NAME OF DOQ                | <--- titleDiv\n        | |                                        | |\n        | ------------------------------------------ |\n        ----------------------------------------------",
+            "class": "LADS.Util.Artwork"
+        },
+        {
+            "file": "LADS/js/LADS/util/LADS.Util.js",
+            "line": 3462,
             "description": "Built-in object extensions",
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 3386,
+            "line": 3485,
             "description": "If specified object is in the array, remove it",
             "params": [
                 {
@@ -6762,11 +7363,11 @@
                     "description": "object to be removed"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 3400,
+            "line": 3499,
             "description": "Insert object into array based on comparator fn given\nAssumes array is already sorted!",
             "params": [
                 {
@@ -6781,11 +7382,11 @@
             "return": {
                 "description": "Index of obj in array after insertion"
             },
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/util/LADS.Util.js",
-            "line": 3419,
+            "line": 3518,
             "description": "Constrain a number to given range",
             "params": [
                 {
@@ -6801,7 +7402,7 @@
                     "description": "maximum limit"
                 }
             ],
-            "class": "CryptoJS"
+            "class": "LADS.Util.Artwork"
         },
         {
             "file": "LADS/js/LADS/worktop/LADS.Worktop.Database.js",
@@ -13015,6 +13616,14 @@
             "line": " LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js:1869"
         },
         {
+            "message": "unknown tag: oaram",
+            "line": " LADS/js/LADS/artmode/LADS.AnnotatedImage.js:133"
+        },
+        {
+            "message": "unknown tag: pauseresetmediaobject",
+            "line": " LADS/js/LADS/artmode/LADS.AnnotatedImage.js:768"
+        },
+        {
             "message": "unknown tag: version",
             "line": " LADS/js/LADS/authoring/jscolor/jscolor.js:1"
         },
@@ -13124,7 +13733,7 @@
         },
         {
             "message": "replacing incorrect tag: returns with return",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3400"
+            "line": " LADS/js/LADS/util/LADS.Util.js:3499"
         },
         {
             "message": "replacing incorrect tag: returns with return",
@@ -13927,6 +14536,10 @@
             "line": " LADS/js/Autolinker.js-master/vendor/jasmine/jasmine.js:2540"
         },
         {
+            "message": "Missing item type\nPauses and resets (to time 0) the media if the content type is video or audio",
+            "line": " LADS/js/LADS/artmode/LADS.AnnotatedImage.js:768"
+        },
+        {
             "message": "Missing item type\njscolor, JavaScript Color Picker",
             "line": " LADS/js/LADS/authoring/jscolor/jscolor.js:1"
         },
@@ -13979,20 +14592,24 @@
             "line": " LADS/js/LADS/authoring/LADS.Authoring.NewSettingsView.js:2069"
         },
         {
-            "message": "Missing item type",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:801"
+            "message": "Missing item type\nMINIMAP CODE. bleveque: didn't rewrite this; separate issue\n                        if some variable names are off now, let me know",
+            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:528"
         },
         {
             "message": "Missing item type",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:814"
+            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:585"
+        },
+        {
+            "message": "Missing item type",
+            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:598"
         },
         {
             "message": "Missing item type\nCreate a drawer with a disclosure button used to display\nhotspots, assets, tours. The returned jQuery object has\na property called \"contents\" which should be used to add\nbuttons or messages to the contents of the drawer.",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:897"
+            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:684"
         },
         {
-            "message": "Missing item type\nThis is the click function LocationHistoryContainer.",
-            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:1015"
+            "message": "Missing item type\nCreate a drawer (e.g., for list of related tours or the artwork's description)",
+            "line": " LADS/js/LADS/layout/LADS.Layout.Artmode.js:880"
         },
         {
             "message": "Missing item type\nCreate a new right panel for editing Associated Media and append it to the dom (just offscreen)",
@@ -15355,20 +15972,24 @@
             "line": " LADS/js/LADS/util/LADS.Util.js:2965"
         },
         {
+            "message": "Missing item type\n----------------------------------------------\n        |                                            |  <--- holder\n        | ------------------------------------------ |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | <------ thumbHolderDiv\n        | |                                        | |\n        | |              THUMBNAIL                 | |\n        | |                IMAGE                   | |\n        | |                 HERE                  <--------- thumbnailImage\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | ------------------------------------------ |\n        | ------------------------------------------ |\n        | |             NAME OF DOQ                | <--- titleDiv\n        | |                                        | |\n        | ------------------------------------------ |\n        ----------------------------------------------",
+            "line": " LADS/js/LADS/util/LADS.Util.js:3404"
+        },
+        {
             "message": "Missing item type\nBuilt-in object extensions",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3363"
+            "line": " LADS/js/LADS/util/LADS.Util.js:3462"
         },
         {
             "message": "Missing item type\nIf specified object is in the array, remove it",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3386"
+            "line": " LADS/js/LADS/util/LADS.Util.js:3485"
         },
         {
             "message": "Missing item type\nInsert object into array based on comparator fn given\nAssumes array is already sorted!",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3400"
+            "line": " LADS/js/LADS/util/LADS.Util.js:3499"
         },
         {
             "message": "Missing item type\nConstrain a number to given range",
-            "line": " LADS/js/LADS/util/LADS.Util.js:3419"
+            "line": " LADS/js/LADS/util/LADS.Util.js:3518"
         },
         {
             "message": "Missing item type\nSoft delete a hotspot by deleting both the hotspot linq and doq files",

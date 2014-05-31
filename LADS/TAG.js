@@ -33988,6 +33988,105 @@ LADS.Util.UI = (function () {
 })();
 
 /**
+ * Utils for the artwork viewer and the artwork editor
+ * @class LADS.Util.Artwork
+ */
+LADS.Util.Artwork = (function () {
+    "use strict";
+
+    return {
+        createThumbnailButton: createThumbnailButton
+    };
+
+    /**
+     * Creates a thumbnail button to be used in a side bar list
+     * @method createThumbnailButton
+     * @param {Object} options      options for creating the thumbnail button:
+     *            title         title of the button, shown under the thumbnail
+     *            handler       a click handler for the button
+     *            buttonClass   an extra class to add to the button
+     *            buttonID      an id to give to the button
+     *            src           thumbnail image source
+     *            width         custom width of button
+     *            height        custom height of button
+     * @return {jQuery obj}      the button
+     */
+    function createThumbnailButton(options) {
+        options = options || {};
+
+        var title       = options.title,
+            handler     = options.handler,
+            buttonClass = options.buttonClass,
+            buttonID    = options.buttonID,
+            src         = options.src,
+            width       = options.width,
+            height      = options.height || 0.15 * $('#tagRoot').height() + 'px',
+            holder               = $(document.createElement('div')).addClass('thumbnailButton'),
+            thumbHolderDiv       = $(document.createElement('div')).addClass('thumbnailHolderDiv'),
+            holderContainer      = $(document.createElement('div')).addClass('thumbnailButtonContainer'),
+            holderInnerContainer = $(document.createElement('div')).addClass('thumbnailButtonInnerContainer'),
+            thumbnailImage       = $(document.createElement('img')).addClass('thumbnailButtonImage'),
+            titleDiv             = $(document.createElement('div')).addClass('thumbnailButtonTitle');
+
+        /********************************************\
+
+        ----------------------------------------------
+        |                                            |  <--- holder
+        | ------------------------------------------ |
+        | |                                        | |
+        | |                                        | |
+        | |                                        | <------ thumbHolderDiv
+        | |                                        | |
+        | |              THUMBNAIL                 | |
+        | |                IMAGE                   | |
+        | |                 HERE                  <--------- thumbnailImage
+        | |                                        | |
+        | |                                        | |
+        | |                                        | |
+        | |                                        | |
+        | |                                        | |
+        | |                                        | |
+        | |                                        | |
+        | ------------------------------------------ |
+        | ------------------------------------------ |
+        | |             NAME OF DOQ                | <--- titleDiv
+        | |                                        | |
+        | ------------------------------------------ |
+        ----------------------------------------------
+
+        \********************************************/
+
+        
+        buttonClass && holder.addClass(buttonClass);
+        holder.css('height', height);
+        buttonID && holder.attr('id', buttonID);
+
+        holder.on("click", handler);
+
+        holder.append(thumbHolderDiv);
+        thumbHolderDiv.append(holderContainer);
+        holderContainer.append(holderInnerContainer);
+
+        thumbnailImage.attr('src', src);
+
+        thumbnailImage.removeAttr('width');
+        thumbnailImage.removeAttr('height');
+
+        thumbnailImage.css({ // TODO fix this
+            'max-height': 0.15 * 0.7 * $("#tagRoot").height() + "px",
+            'max-width': 0.22 * 0.89 * 0.95 * 0.40 * 0.92 * $("#tagRoot").width() + "px"
+        });
+
+        holderInnerContainer.append(thumbnailImage);
+
+        titleDiv.text(title);
+        holder.append(titleDiv);
+
+        return holder;
+    }
+})();
+
+/**
  * Built-in object extensions
  */
 
@@ -37229,8 +37328,8 @@ LADS.Util.makeNamespace("LADS.Util.Splitscreen");
 LADS.Util.Splitscreen = (function () {
     "use strict";
     var on = false,
-            viewerL = null,
-            viewerR = null;
+        viewerL = null,
+        viewerR = null;
 
     return {
         init: init,
@@ -40343,1170 +40442,798 @@ LADS.Worktop.Database = (function () {
 ;
 LADS.Util.makeNamespace("LADS.AnnotatedImage");
 
+/**
+ * Representation of deepzoom image with associated media. Contains
+ * touch handlers. This is a constructor function, so it adds properties
+ * to 'this' rather than returning an object.
+ *
+ * @class LADS.AnnotatedImage
+ * @constructor
+ * @param {Object} options         some options for the artwork and assoc media
+ * @return {Object}                some public methods and variables
+ */
 
-LADS.AnnotatedImage = function (rootElt, doq, split, callback, shouldNotLoadHotspots) {
+LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shouldNotLoadHotspots) {
     "use strict";
-    var artworkName = doq.Name;
-    var artworkGuid = doq.Identifier;
 
-    //LADS.Worktop.Database.getDoqByGuid(artworkGuid);
 
-    this.viewer = null;
-    var imageLocation = null;
-    var rootElement = rootElt;
-    var height = null;
-    var width = null;
-    var aspectRatio;
-    var that = this;
-    var hotspots = [];
-    var assets = [];
-    var assetCanvas;
-    var tempDoq; // temp hack to make hotspots function // do we keep doing this way?\
-    var dragBar = false;
+    var // input options
+        root     = options.root,           // root of the artwork viewing page
+        doq      = options.doq,            // doq for the artwork
+        callback = options.callback,       // called after associated media are retrieved from server
+        noMedia  = options.noMedia,        // should we not have assoc media? (set to true in artwork editor)
 
-    // load hotspots
-    this.getHotspots = function (fromServer, callback) {
-        if (fromServer) {
-            loadHotspots(callback);
-        }
-        return hotspots;
-    };
+        // constants
+        FIX_PATH = LADS.Worktop.Database.fixPath,   // prepend server address to given path
 
-    this.getAssets = function (fromServer, callback) {
-        if (fromServer) {
-            loadHotspots(callback);
-        }
-        return assets;
-    };
+        // misc initialized variables
+        that            = {},              // the object to be returned
+        artworkName     = doq.Name,        // artwork's title
+        associatedMedia = { guids: [] },   // object of associated media objects for this artwork, keyed by media GUID;
+                                           //   also contains an array of GUIDs for cleaner iteration
+        // misc uninitialized variables
+        assetCanvas;
 
-    this.loadImage = function (url) {
-        var xmlhttp = LADS.Util.makeXmlRequest(url);
-        var response = xmlhttp ? xmlhttp.responseXML : null;
+    // get things rolling
+    init();
 
-        if (response === null) {
+    return {
+        getAssociatedMedia: getAssociatedMedia,
+        unload: unload,
+        dzManip: dzManip,
+        dzScroll: dzScroll,
+        openArtwork: openArtwork,
+        addAnimateHandler: addAnimateHandler
+    }
+
+    /**
+     * Return list of associatedMedia
+     * @method getAssociatedMedia
+     * @return {Object}     associated media object
+     */
+    function getAssociatedMedia() {
+        return associatedMedia;
+    }
+
+    /**
+     * Open the deepzoom image
+     * @method openArtwork
+     * @param {doq} doq           artwork doq to open
+     * @return {Boolean}          whether opening was successful
+     */
+    function openArtwork(doq) {
+        if(!that.viewer || !doq || !doq.Metadata || !doq.Metadata.DeepZoom) {
+            debugger;
+            console.log("ERROR IN openDZI");
             return false;
-        } else {
-            var node = response.documentElement.querySelectorAll("Image, Size")[0];
-            width = node.getAttribute("Width");
-            height = node.getAttribute("Height");
-            aspectRatio = width / height;
-            that.viewer.openDzi(url);
-            return true;
         }
-    };
-    //what does 'doq' refer to?
-    // bmost: 'doq' refers to document,
-    // which is basically everything on the server (that isn't a linq).
-    // They are in XML format.
-    // I don't think this function should be necessary, why can't it just
-    // take in the artwork (doq) in the constructor?  Then it doesn't need
-    // parameters for name and id because you can call doq.Name, doq.Identifier,
-    // and doq.Metadata.DeepZoom
-    this.loadDoq = function (doq) {
-        tempDoq = doq;
-        return this.loadImage(LADS.Worktop.Database.fixPath(doq.Metadata.DeepZoom));
-    };
+        that.viewer.openDzi(FIX_PATH(doq.Metadata.DeepZoom));
+        return true;
+    }
 
-    this.updateOverlay = function (element, placement) {
-        var top = parseFloat($(element).css('top'));
-        var left = parseFloat($(element).css('left'));
-        if (top && left)
+    /**
+     * Wrapper around Seadragon.Drawer.updateOverlay; moves an HTML element "overlay."
+     * Used mostly in conjunction with hotspot circles (this function is currently
+     * only called from ArtworkEditor.js)
+     * @method updateOverlay
+     * @param {HTML element} element                   the overlay element to move
+     * @param {Seadragon.OverlayPlacement} placement   the new placement of the overlay
+     */
+    function updateOverlay(element, placement) {
+        var $elt = $(element),
+            top  = parseFloat($elt.css('top')),
+            left = parseFloat($elt.css('left'));
+        if (top && left) { // TODO is this check necessary?
             that.viewer.drawer.updateOverlay(element, that.viewer.viewport.pointFromPixel(new Seadragon.Point(left, top)), placement);
-    };
+        }
+    }
 
-    this.addOverlayToDZ = function (element, point, placement) {
+    /**
+     * Wrapper around Seadragon.Drawer.addOverlay; adds an HTML overlay to the seadragon
+     * canvas. Currently only used in ArtworkEditor.js.
+     * @method addOverlay
+     * @param {HTML element} element                   the overlay element to add
+     * @param {Seadragon.Point} point                  the point at which to add the overlay
+     * @param {Seadragon.OverlayPlacement} placement   the placement at the given point
+     */
+    function addOverlay(element, point, placement) {
         if (!that.viewer.isOpen()) {
             that.viewer.addEventListener('open', function () {
                 that.viewer.drawer.addOverlay(element, point, placement);
+                that.viewer.drawer.updateOverlay(element, point, placement);
             });
-        }
-        else {
+        } else {
             that.viewer.drawer.addOverlay(element, point, placement);
+            that.viewer.drawer.updateOverlay(element, point, placement);
         }
-        that.viewer.drawer.updateOverlay(element, point, placement);
-    };
+    }
 
-    this.removeOverlay = function (element) {
+    /**
+     * Wrapper around Seadragon.Drawer.removeOverlay. Removes an HTML overlay from the seadragon
+     * canvas.
+     * @method removeOverlay
+     * @param {HTML element}       the ovlerlay element to remove
+     */
+    function removeOverlay(element) {
         if (!that.viewer.isOpen()) {
             that.viewer.addEventListener('open', function () {
                 that.viewer.drawer.removeOverlay(element);
             });
+        } else {
+            that.viewer.drawer.removeOverlay(element);
         }
-        else that.viewer.drawer.removeOverlay(element);
     };
 
-    this.unload = function () {
-        if (this.viewer) this.viewer.unload();
-    };
-
-    //deprecated? //what does this mean? // it's outdated and should be phased out
-    //function addAsset(htmlelement, info) {
-    //    $(htmlelement).css({ "white-space": "normal", "margin": "5px", "border": "solid grey 4px", "border-radius": "10px", "background-color": "black", width: "200px", });
-
-    //    function onManip(res) {
-    //        var t = $(htmlelement).css('top');
-    //        var l = $(htmlelement).css('left');
-    //        var w = $(htmlelement).css('width');
-    //        var neww = parseFloat(w) * res.scale;
-    //        neww = Math.min(Math.max(neww, 200), 800);
-    //        $(htmlelement).css("top", (parseFloat(t) + res.translation.y) + "px");
-    //        $(htmlelement).css("left", (parseFloat(l) + res.translation.x) + "px");
-    //        $(htmlelement).css("width", neww + "px");
-    //        updateOverlay(htmlelement);
-    //    }
-
-    //    function onScroll(res, pivot) {
-    //        var w = $(htmlelement).css('width');
-    //        var neww = parseFloat(w) * res;
-    //        neww = Math.min(Math.max(neww, 200), 800);
-    //        $(htmlelement).css("width", neww + "px");
-    //        updateOverlay(htmlelement);
-    //    }
-
-    //    var gr = LADS.Util.makeManipulatableWin(htmlelement, {
-    //        onManipulate: onManip,
-    //        onScroll: onScroll
-    //    });
-
-    //    gr.gestureSettings = Windows.UI.Input.GestureSettings.manipulationRotate |
-    //        Windows.UI.Input.GestureSettings.manipulationTranslateX |
-    //        Windows.UI.Input.GestureSettings.manipulationTranslateY |
-    //        Windows.UI.Input.GestureSettings.manipulationScale |
-    //        Windows.UI.Input.GestureSettings.manipulationRotateInertia |
-    //        Windows.UI.Input.GestureSettings.manipulationScaleInertia |
-    //        Windows.UI.Input.GestureSettings.manipulationTranslateInertia |
-    //        Windows.UI.Input.GestureSettings.Hold |
-    //        Windows.UI.Input.GestureSettings.HoldWithMouse |
-    //        Windows.UI.Input.GestureSettings.tap;
-
-    //    //indicator variables
-    //    var isInfoShowing = false;
-    //    var isOn = false;
-    //    var title = title;
-
-    //    function toggle() {
-    //        if (isInfoShowing) {
-    //            $(htmlelement).remove();
-    //            isInfoShowing = false;
-    //        }
-    //        else {
-    //            var t = Math.min(Math.max(20, Math.random() * 100), 80);
-    //            var l = Math.min(Math.max(20, Math.random() * 100), 80);
-    //            $(htmlelement).css({ top: t + "%", left: l + "%" });
-    //            assetCanvas.append(htmlelement);
-    //            isInfoShowing = true;
-    //        }
-    //    }
-    //}
-
-    function getCoordinatePoint(x, y) {
-        return new Seadragon.Point(x / width, y / height);
+    /**
+     * Unloads the seadragon viewer
+     * @method unload
+     */
+    function unload() {
+        that.viewer && that.viewer.unload();
     }
 
+    /**
+     * Manipulation/drag handler for makeManipulatable on the deepzoom image
+     * @method dzManip
+     * @param {Object} pivot           location of the event (x,y)
+     * @param {Object} translation     distance translated in x and y
+     * @oaram {Number} scale           scale factor
+     */
     function dzManip(pivot, translation, scale) {
-
         that.viewer.viewport.zoomBy(scale, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)), false);
         that.viewer.viewport.panBy(that.viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-translation.x, -translation.y)), false);
-
         that.viewer.viewport.applyConstraints();
     }
-    this.dzManip = dzManip;
-
-    function dzScroll(delta, pivot) {
-        that.viewer.viewport.zoomBy(delta, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
+    
+    /**
+     * Scroll/pinch-zoom handler for makeManipulatable on the deepzoom image
+     * @method dzScroll
+     * @param {Number} scale          scale factor
+     * @param {Object} pivot          location of event (x,y)
+     */
+    function dzScroll(scale, pivot) {
+        that.viewer.viewport.zoomBy(scale, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
         that.viewer.viewport.applyConstraints();
     }
 
-    this.dzScroll = dzScroll;
-
+    /**
+     * Initialize seadragon, set up handlers for the deepzoom image, load assoc media if necessary
+     * @method init
+     */
     function init() {
+        var viewerelt,
+            canvas;
+
         if(Seadragon.Config) {
             Seadragon.Config.visibilityRatio = 0.8; // TODO see why Seadragon.Config isn't defined; should it be?
         }
 
-        var viewerelt = $(document.createElement('div'));
-
+        viewerelt = $(document.createElement('div'));
+        viewerelt.attr('id', 'annotatedImageViewer');
         viewerelt.on('mousedown scroll click mousemove resize', function(evt) {
             evt.preventDefault();
         });
-        viewerelt.css({ height: "100%", width: "100%", position: "absolute", 'z-index': 0 });
-
-        $(rootElement).append(viewerelt);
+        root.append(viewerelt);
 
         that.viewer = new Seadragon.Viewer(viewerelt[0]);
         that.viewer.setMouseNavEnabled(false);
         that.viewer.clearControls();
 
-        var canvas = that.viewer.canvas;
-        $(canvas).addClass('artworkCanvasTesting');
-        LADS.Util.makeManipulatable(canvas, {
+        canvas = $(that.viewer.canvas);
+        canvas.addClass('artworkCanvasTesting');
+
+        LADS.Util.makeManipulatable(canvas[0], {
             onScroll: function (delta, pivot) {
                 dzScroll(delta, pivot);
             },
             onManipulate: function (res) {
-                // debugger;
-                dzManip(res.pivot, res.translation, res.scale);
+                dzManip(res.pivot, res.translation, res.scale); // TODO change dzManip to just accept res
             }
         }, null, true); // NO ACCELERATION FOR NOW
 
         assetCanvas = $(document.createElement('div'));
-        assetCanvas.css({
-            height: "100%", width: "100%",
-            position: "absolute",
-            "overflow-x": "hidden", "overflow-y": "hidden", 'z-index': 50, 'pointer-events':'none'
-        });
-        $(rootElement).append(assetCanvas);
+        assetCanvas.attr('id', 'annotatedImageAssetCanvas');
+        root.append(assetCanvas);
 
         // this is stupid, but it seems to work (for being able to reference zoomimage in artmode)
-        if (callback) {
-            shouldNotLoadHotspots ? setTimeout(callback, 1) : loadHotspots(callback);
-        }
+        noMedia ? setTimeout(function() { callback && callback() }, 1) : loadAssociatedMedia(callback);
     }
 
-    this.addAnimateHandler = function (handler) {
+    /**
+     * Adds an animation handler to the annotated image. This is used to allow the image to move
+     * when the minimap is manipulated.
+     * @method addAnimationHandler
+     * @param {Function} handler      the handler to add
+     */
+    function addAnimateHandler(handler) {
         that.viewer.addEventListener("animation", handler);
-    };
+    }
 
-    init();
+    /**
+     * Retrieves associated media from server and stores them in the
+     * associatedMedia array.
+     * @method {Function} callback    function to call after loading associated media
+     */
+    function loadAssociatedMedia(callback) {
+        var done = 0,
+            total;
 
+        LADS.Worktop.Database.getAssocMediaTo(doq.Identifier, mediaSuccess, null, mediaSuccess);
 
-
-function loadHotspots(callback) {
-        // retrieve linqs from server
-        hotspots = [];
-        assets = [];
-        //var linqs = LADS.Worktop.Database.getDoqLinqs(artworkGuid);
-        // TODO: Make work properly with async
-        var done = 0;
-        var total;
-        LADS.Worktop.Database.getAssocMediaTo(artworkGuid, loadAssocMedia, null, null);
-        function loadAssocMedia(doqs) {
-            total = doqs && doqs.length || 0;
-            if (doqs && doqs.length > 0) {
-                var assocMedia;
-                for (var i = 0; i < doqs.length; i++) {
-                    LADS.Worktop.Database.getLinq(artworkGuid, doqs[i].Identifier, loadLinqHelper(doqs[i]), null, loadLinqHelper(doqs[i]));
+        /**
+         * Success callback frunction for .getAssocMediaTo call above. If the list of media is
+         * non-null and non-empty, it gets the linq between each doq and the artwork 
+         * @method mediaSuccess
+         * @param {Array} doqs        the media doqs
+         */
+        function mediaSuccess(doqs) {
+            var i;
+            total = doqs ? doqs.length : 0;
+            if (total > 0) {
+                for (i = 0; i < doqs.length; i++) {
+                    LADS.Worktop.Database.getLinq(doq.Identifier, doqs[i].Identifier, createLinqSuccess(doqs[i]), null, createLinqSuccess(doqs[i]));
                 }
             } else {
-                callback && callback(hotspots,assets);
+                callback && callback(associatedMedia);
             }
         }
 
-        function loadLinqHelper(assocMedia) {
+        /**
+         * Helper function for the calls to .getLinq above. It accepts an assoc media doc and returns
+         * a success callback function that accepts a linq. Using this information, it creates a new
+         * hotspot from the doq and linq
+         * @method createLinqSuccess
+         * @param {doq} assocMedia        the relevant associated media doq
+         */
+        function createLinqSuccess(assocMedia) {
             return function (linq) {
-                if (linq) {
-                    var position_x = linq.Offset._x;
-                    var position_y = linq.Offset._y;
-                    var info = {
-                        assetType: linq.Metadata.Type,
-                        title: assocMedia.Name,
-                        contentType: assocMedia.Metadata.ContentType,
-                        source: assocMedia.Metadata.Source,
-                        thumbnail: assocMedia.Metadata.Thumbnail,
-                        description: assocMedia.Metadata.Description,
-                        x: parseFloat(position_x),
-                        y: parseFloat(position_y),
-                        assetDoqID: assocMedia.Identifier,
-                        assetLinqID: linq.Identifier
-                    };
-                    createNewHotspot(info, linq.Metadata.Type ? (info.assetType === "Hotspot") : false);
-                    done++;
-                    if (done >= total && callback)
-                        callback(hotspots, assets);
+                associatedMedia[assocMedia.Identifier] = createMediaObject(assocMedia, linq);
+                associatedMedia.guids.push(assocMedia.Identifier);
+
+                if (++done >= total && callback) {
+                    callback(associatedMedia);
                 }
             }
         }
-        //if (linqs) {
-        //    for (var i = 0; i < linqs.length; i++) {
-        //        //get the hotspot doc
-        //        var hotspotDoqID = linqs[i].Targets.BubbleRef[1].BubbleContentID;
-        //        var hotspotDoq = LADS.Worktop.Database.getDoqByGuid(hotspotDoqID);
-
-        //        //in seadragon coordinates [0,1]*[0,height/width]
-        //        var position_x = linqs[i].Offset._x;
-        //        var position_y = linqs[i].Offset._y;
-
-        //        var info = {
-        //            assetType: linqs[i].Metadata.Type,
-        //            title: hotspotDoq.Name,
-        //            contentType: hotspotDoq.Metadata.ContentType,
-        //            source: hotspotDoq.Metadata.Source,
-        //            description: hotspotDoq.Metadata.Description,
-        //            x: parseFloat(position_x),
-        //            y: parseFloat(position_y),
-        //            assetDoqID: hotspotDoqID,
-        //            assetLinqID: linqs[i].Identifier
-        //        };
-        //        createNewHotspot(info, (linqs[i].Metadata.Type.text === "Hotspot"));
-        //    }
-        //}
     }
 
-    this.loadHotspots = loadHotspots;
+    /**
+     * Creates an associated media object to be added to associatedMedia.
+     * This object contains methods that could be called in Artmode.js or
+     * ArtworkEditor.js. This could be in its own file.
+     * @method createMediaObject
+     * @param {mdoq} doq       the media doq
+     * @param {linq} linq     the linq between the media doq and the artwork doq
+     * @return {Object}       some public methods to be used in other files
+     */
+    function createMediaObject(mdoq, linq) {
+        var // DOM-related
+            outerContainer = $(document.createElement('div')).addClass('mediaOuterContainer'),
+            innerContainer = $(document.createElement('div')).addClass('mediaInnerContainer'),
+            mediaContainer = $(document.createElement('div')).addClass('mediaMediaContainer'),
+            rootHeight     = $('#tagRoot').height(),
+            rootWidth      = $('#tagRoot').width(),
 
+            // constants
+            IS_HOTSPOT      = linq.Metadata.Type ? (linq.Metadata.Type === "Hotspot") : false,
+            X               = parseFloat(linq.Offset._x),
+            Y               = parseFloat(linq.Offset._y),
+            TITLE           = LADS.Util.htmlEntityDecode(mdoq.Name),
+            CONTENT_TYPE    = mdoq.Metadata.ContentType,
+            SOURCE          = mdoq.Metadata.Source,
+            DESCRIPTION     = LADS.Util.htmlEntityDecode(mdoq.Metadata.Description),
+            THUMBNAIL       = mdoq.Metadata.Thumbnail,
+            RELATED_ARTWORK = false,
 
+            // misc initialized variables
+            mediaHidden      = true,
+            currentlySeeking = false,
 
+            // misc uninitialized variables
+            circle,
+            position,
+            mediaLoaded,
+            mediaHidden,
+            mediaElt,
+            titleDiv,
+            descDiv,
+            thumbnailButton,
+            play;
 
-    //new hotspot function
-    function hotspot(info, isHotspot) {
-        //Hotspot info
-        var imgadded = false;
-        this.title = info.title;
-        this.contentType = info.contentType;
-        this.source = info.source;
-        this.description = info.description;
-        this.thumbnail = info.thumbnail;
-        var assetHidden = true;
-        var audio, video;
+        // get things rolling
+        initMediaObject();
 
-        //Create and append asset/hotspot containerscontainers
-        var outerContainer = document.createElement('div');
-        var containerHeight = $("#artmodeRoot").height();
-        var containerWidth = $("#artmodeRoot").width();
-        outerContainer.style.width = Math.min(Math.max(250, (containerWidth / 5)), 450)+'px';
+        /**
+         * Initialize various parts of the media object: UI, manipulation handlers
+         * @method initMediaObject
+         */
+        function initMediaObject() {
+            // set up divs for the associated media
+            outerContainer.css('width', Math.min(Math.max(250, (rootWidth / 5)), 450) + 'px');
+            innerContainer.css('backgroundColor', 'rgba(0,0,0,0.65)');
 
-        var innerContainer = document.createElement('div');
-        innerContainer.style.backgroundColor = 'rgba(0,0,0,0.65)';
-        var mediaContainer = $(document.createElement('div')).addClass('mediaContainer');
-        outerContainer.appendChild(innerContainer);
+            if (TITLE) {
+                titleDiv = $(document.createElement('div'));
+                titleDiv.addClass('annotatedImageMediaTitle');
+                titleDiv.text(TITLE);
 
-        // media-specific
-        var controlPanel = $(document.createElement('div')),
-            play, vol, seekBar, timeContainer, currentTimeDisplay, playHolder, volHolder;
+                innerContainer.append(titleDiv);
+            }
 
-        controlPanel.addClass('media-control-panel-' + info.assetDoqID);
-        controlPanel.css({
-            'height': '40px',
-            'position': 'relative',
-            'display': 'block',
-            'left': '2.5%',
-            'margin-bottom': '2.5%',
-        });
+            innerContainer.append(mediaContainer);
 
-        //Add title
-        this.createTitle = function() {
-            if (this.title){
-                var p1 = document.createElement('div');
+            if (DESCRIPTION) {
+                descDiv = $(document.createElement('div'));
+                descDiv.addClass('annotatedImageMediaDescription');
+                descDiv.html(Autolinker.link(DESCRIPTION, {email: false, twitter: false}));
+                
+                innerContainer.append(descDiv);
+            }
 
-                $(p1).text(LADS.Util.htmlEntityDecode(this.title)).css({
-                    'position': 'relative',
-                    'left': '5%',
-                    'width': '90%',
-                    'color': 'white',
-                    'top': '5px',
-                    'padding-bottom': '2%',
-                    'overflow': 'hidden',
-                    'text-overflow': 'ellipsis',
-                    'font-weight': '700'
+            if (RELATED_ARTWORK) {
+                // TODO append related artwork button here
+            }
+
+            outerContainer.append(innerContainer);
+            assetCanvas.append(outerContainer);
+            outerContainer.hide();
+
+            // create hotspot circle if need be
+            if (IS_HOTSPOT) {
+                circle = $(document.createElement("img"));
+                position = new Seadragon.Point(X, Y);
+                circle.attr('src', tagPath + 'images/icons/hotspot_circle.svg');
+                circle.addClass('annotatedImageHotspotCircle');
+                root.append(circle);
+            }
+
+            // allows asset to be dragged, despite the name
+            LADS.Util.disableDrag(outerContainer);
+
+            // register handlers
+            LADS.Util.makeManipulatable(outerContainer[0], {
+                onManipulate: mediaManip,
+                onScroll:     mediaScroll
+            }, null, true); // NO ACCELERATION FOR NOW
+        }
+
+        /**
+         * Initialize any media controls
+         * @method initMediaControls
+         * @param {HTML element} elt      video or audio element
+         */
+        function initMediaControls() {
+            var elt = mediaElt,
+                $elt = $(elt),
+                controlPanel = $(document.createElement('div')).addClass('annotatedImageMediaControlPanel'),
+                vol = $(document.createElement('img')).addClass('mediaControls'),
+                seekBar,
+                timeContainer = $(document.createElement('div')),
+                currentTimeDisplay = $(document.createElement('span')).addClass('mediaControls'),
+                playHolder = $(document.createElement('div')),
+                volHolder = $(document.createElement('div')),
+                sliderContainer = $(document.createElement('div')),
+                sliderPoint = $(document.createElement('div'));
+
+            controlPanel.attr('id', 'media-control-panel-' + mdoq.Identifier);
+
+            play = $(document.createElement('img')).addClass('mediaControls');
+
+            play.attr('src', tagPath + 'images/icons/PlayWhite.svg');
+            vol.attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
+            currentTimeDisplay.text("00:00");
+
+            // TODO move this css to styl file
+            play.css({
+                'position': 'relative',
+                'height':   '20px',
+                'width':    '20px',
+                'display':  'inline-block',
+            });
+
+            playHolder.css({
+                'position': 'relative',
+                'height':   '20px',
+                'width':    '20px',
+                'display':  'inline-block',
+                'margin':   '0px 1% 0px 1%',
+            });
+
+            sliderContainer.css({
+                'position': 'absolute',
+                'height':   '7px',
+                'width':    '100%',
+                'left':     '0px',
+                'bottom':   '0px'
+            });
+
+            sliderPoint.css({
+                'position': 'absolute',
+                'height':   '100%',
+                'background-color': '#3cf',
+                'width':    '0%',
+                'left':     '0%'
+            });
+
+            vol.css({
+                'height':   '20px',
+                'width':    '20px',
+                'position': 'relative',
+                'display':  'inline-block',
+            });
+
+            volHolder.css({
+                'height':   '20px',
+                'width':    '20px',
+                'position': 'absolute',
+                'right':    '5px',
+                'top':      '0px'
+            });
+
+            timeContainer.css({
+                'height':   '20px',
+                'width':    '40px',
+                'right':    volHolder.width() + 25 + 'px',
+                'position': 'absolute',
+                'vertical-align': 'top',
+                'padding':  '0',
+                'display':  'inline-block',
+                'overflow': 'hidden',
+            });
+
+            playHolder.append(play);
+            sliderContainer.append(sliderPoint);
+            volHolder.append(vol);
+            
+            // set up handlers
+            play.on('click', function () {
+                if (elt.paused) {
+                    elt.play();
+                    play.attr('src', tagPath + 'images/icons/PauseWhite.svg');
+                } else {
+                    elt.pause();
+                    play.attr('src', tagPath + 'images/icons/PlayWhite.svg');
+                }
+            });
+
+            vol.on('click', function () {
+                if (elt.muted) {
+                    elt.muted = false;
+                    vol.attr('src', tagPath + 'images/icons/VolumeUpWhite.svg');
+                } else {
+                    elt.muted = true;
+                    vol.attr('src', tagPath + 'images/icons/VolumeDownWhite.svg');
+                }
+            });
+
+            $elt.on('ended', function () {
+                elt.pause();
+                play.attr('src', tagPath + 'images/icons/PlayWhite.svg');
+            });
+
+            sliderContainer.on('mousedown', function(evt) {
+                var time = elt.duration * (evt.offsetX / sliderContainer.width()),
+                    origPoint = evt.pageX,
+                    origTime = elt.currentTime,
+                    timePxRatio = elt.duration / sliderContainer.width(),
+                    currTime = Math.max(0, Math.min(elt.duration, origTime)),
+                    currPx   = currTime / timePxRatio,
+                    minutes = Math.floor(currTime / 60),
+                    seconds = Math.floor(currTime % 60),
+                    adjMin = (minutes < 10) ? '0'+minutes : minutes,
+                    adjSec = (seconds < 10) ? '0'+seconds : seconds;
+
+                evt.stopPropagation();
+
+                if(!isNaN(time)) {
+                    elt.currentTime = time;
+                }
+
+                $('body').on('mousemove.seek', function(e) {
+                    var currPoint = e.pageX,
+                        timeDiff = (currPoint - origPoint) * timePxRatio;
+
+                    currTime = Math.max(0, Math.min(video.duration, origTime + timeDiff));
+                    currPx   = currTime / timePxRatio;
+                    minutes  = Math.floor(currTime / 60);
+                    seconds  = Math.floor(currTime % 60);
+                    adjMin   = (minutes < 10) ? '0'+minutes : minutes;
+                    adjSec   = (seconds < 10) ? '0'+seconds : seconds;
+
+                    if(!isNaN(currTime)) {
+                        currentTimeDisplay.text(adjMin + ":" + adjSec);
+                        elt.currentTime = currTime;
+                        sliderPoint.css('width', 100*(currPx / sliderContainer.width()) + '%');
+                    }
                 });
 
-                innerContainer.appendChild(p1);
-                var hoverString, setHoverValue;
-            }
+                $('body').on('mouseup.seek mouseleave.seek', function() {
+                    $('body').off('mouseup.seek mouseleave.seek mousemove.seek');
+                    if(!isNaN(currTime)) {
+                        currentTimeDisplay.text(adjMin + ":" + adjSec);
+                        elt.currentTime = currTime;
+                        sliderPoint.css('width', 100*(currPx / sliderContainer.width()) + '%');
+                    }
+                });
+            });
+
+            // Update the seek bar as the video plays
+            $elt.on("timeupdate", function () {
+                var value = 100 * elt.currentTime / elt.duration,
+                    timePxRatio = elt.duration / sliderContainer.width(),
+                    currPx = elt.currentTime / timePxRatio,
+                    minutes = Math.floor(elt.currentTime / 60),
+                    seconds = Math.floor(elt.currentTime % 60),
+                    adjMin = (minutes < 10) ? '0' + minutes : minutes,
+                    adjSec = (seconds < 10) ? '0' + seconds : seconds;
+
+                if(!isNaN(elt.currentTime)) {
+                    currentTimeDisplay.text(adjMin + ":" + adjSec);
+                    sliderPoint.css('width', 100*(currPx / sliderContainer.width()) + '%');
+                }
+            });
+
+            mediaContainer.append(elt);
+            mediaContainer.append(controlPanel);
+
+            controlPanel.append(playHolder);
+            controlPanel.append(sliderContainer);
+            timeContainer.append(currentTimeDisplay);
+            controlPanel.append(timeContainer);
+            controlPanel.append(volHolder);
         }
-        this.createTitle();
-        
-        //Load media
-        this.mediaload = function(){
-            if(!imgadded) {
-                imgadded = true;
+
+        /**
+         * Load the actual image/video/audio; this can take a while if there are
+         * a lot of media, so just do it when the thumbnail button is clicked
+         * @method createMediaElements
+         */
+        function createMediaElements() {
+            var $mediaElt,
+                img;
+
+            if(!mediaLoaded) {
+                mediaLoaded = true;
             } else {
                 return;
             }
 
-            //IMAGE
-            if (this.contentType === 'Image') {
-                
-                
-                var img = document.createElement('img');
-                img.src = LADS.Worktop.Database.fixPath(this.source);
+            if (CONTENT_TYPE === 'Image') {
+                img = document.createElement('img');
+                img.src = FIX_PATH(SOURCE);
                 $(img).css({
-                    'position': 'relative',
-                    width: '100%',
-                    height: 'auto'
+                    position: 'relative',
+                    width:    '100%',
+                    height:   'auto'
                 });
                 mediaContainer.append(img);
-                imgadded = true;
-            }
+                mediaLoaded = true;
+            } else if (CONTENT_TYPE === 'Video') {
+                mediaElt = document.createElement('video');
+                $mediaElt = $(mediaElt);
 
-            if (this.contentType === 'Video') {
-                
-                    video = document.createElement('video');
-                    $(video).attr('preload', 'none');
-                    $(video).attr('poster', (this.thumbnail && !this.thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(this.thumbnail) : '');
-                    video.src = LADS.Worktop.Database.fixPath(this.source);
-                    video.type = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';//'video/mp4';
-                    video.type = 'video/ogg; codecs="theora, vorbis"';//'video/ogg';
-                    video.type = 'video/webm; codecs="vp8, vorbis"';//'video/webm'; // TODO this doesn't make any sense. why are we overwriting this twice?
-                    video.style.position = 'relative';
-                    video.style.width = '100%';
-                    video.controls = false;
-
-                    playHolder = $(document.createElement('div'));
-                    play = document.createElement('img');
-                    $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
-                    $(play).addClass('videoControls');
-                    $(play).css({
-                        'position': 'relative',
-                        'height': '20px',
-                        'width': '20px',
-                        'display': 'inline-block',
-                    });
-                    playHolder.css({
-                        'position': 'relative',
-                        'height': '20px',
-                        'width': '20px',
-                        'display': 'inline-block',
-                        'margin': '0px 1% 0px 1%',
-                    });
-                    playHolder.append(play);
-
-                    volHolder = $(document.createElement('div'));
-                    vol = document.createElement('img');
-                    $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
-                    $(vol).addClass('videoControls');
-                    $(vol).css({
-                        'height': '20px',
-                        'width': '20px',
-                        'position': 'relative',
-                        'display': 'inline-block',
-                    });
-
-                    volHolder.css({
-                        'height': '20px',
-                        'width': '20px',
-                        'position': 'relative',
-                        'display': 'inline-block',
-                        'margin': '0px 1% 0px 1%',
-                    });
-                    volHolder.append(vol);
-                    this.initVideoPlayHandlers = function () {
-                        if (video.currentTime !== 0) video.currentTime = 0;
-                        $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
-                        $(play).on('click', function () {
-                            if (video.paused) {
-                                video.play();
-                                $(play).attr('src', tagPath+'images/icons/PauseWhite.svg');
-                            } else {
-                                video.pause();
-                                $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
-                            }
-                        });
-
-                        $(vol).on('click', function () {
-                            if (video.muted) {
-                                video.muted = false;
-                                $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
-                            } else {
-                                video.muted = true;
-                                $(vol).attr('src', tagPath+'images/icons/VolumeDownWhite.svg');
-                            }
-                        });
-
-                        $(video).on('ended', function () {
-                            video.pause();
-                            $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
-                        });
-                    };
-                    this.initVideoPlayHandlers();
-
-                    seekBar = document.createElement('input');
-                    $(seekBar).addClass('videoControls');
-                    seekBar.type = 'range';
-                    $(seekBar).attr('id', "seek-bar");
-                    $(seekBar).attr('value', "0");
-                    seekBar.style.margin = '0px 1% 0px 1%';
-                    seekBar.style.display = 'inline-block';
-                    seekBar.style.padding = '0px';
-                    $(seekBar).css({
-                        left: '30px',
-                    });
-
-                    // Event listener for the seek bar
-                    seekBar.addEventListener("change", function (evt) {
-                        evt.stopPropagation();
-                        // Calculate the new time
-                        var time = video.duration * (seekBar.value / 100);
-                        // Update the video time
-                        if (!isNaN(time)) {
-                            video.currentTime = time;
-                        }
-                    });
-
-                    $(seekBar).mouseover(function (evt) {
-                        var percent = evt.offsetX / $(seekBar).width();
-                        var hoverTime = video.duration * percent;
-                        var minutes = Math.floor(hoverTime / 60);
-                        var seconds = Math.floor(hoverTime % 60);
-                        hoverString = String(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
-                        seekBar.title = hoverString;
-                        //console.log("minute "+ minutes+" seconds "+seconds+"hover "+ hoverString+"percent "+percent );
-                    });
-
-                    $(seekBar).mousedown(function (evt) {
-                        dragBar = true;
-                        evt.stopPropagation();
-                    });
-
-                    $(seekBar).mouseup(function (evt) {
-                        dragBar = false;
-                        evt.stopPropagation();
-                    });
-
-                    timeContainer = document.createElement('div');
-                    $(timeContainer).css({
-                        'height': '20px',
-                        'width': '40px',
-                        'margin': '0px 1% 0px 1%',
-                        'padding': '0',
-                        'display': 'inline-block',
-                        'overflow': 'hidden',
-                    });
-
-                    currentTimeDisplay = document.createElement('span');
-                    $(currentTimeDisplay).text("00:00");
-                    $(currentTimeDisplay).addClass('videoControls');
-
-                    // Update the seek bar as the video plays
-                    video.addEventListener("timeupdate", function () {
-                        // Calculate the slider value
-                        var value = (100 / video.duration) * video.currentTime;
-                        // Update the slider value
-                        seekBar.value = value;
-                        var minutes = Math.floor(video.currentTime / 60);
-                        var seconds = Math.floor(video.currentTime % 60);
-                        var adjMin;
-                        if (String(minutes).length < 2) {
-                            adjMin = String('0' + minutes);
-                        } else {
-                            adjMin = String(minutes);
-                        }
-                        $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
-                    });
-
-                    // if(!imgadded) {
-                    mediaContainer.append(video);
-                    mediaContainer.append(controlPanel[0]);
-                    //    imgadded = true;
-                    //}
-                    controlPanel.append(playHolder);
-                    controlPanel.append(seekBar);
-                    $(timeContainer).append(currentTimeDisplay);
-                    controlPanel.append(timeContainer);
-                    controlPanel.append(volHolder);
-                }
-
-                
-                if (this.contentType === 'Audio') {
-                    // debugger;
-                    audio = document.createElement('audio');
-                    $(audio).attr({
-                        'preload': 'none'
-                    });
-                    audio.src = LADS.Worktop.Database.fixPath(this.source);
-                    audio.type = 'audio/ogg';
-                    audio.type = 'audio/mp3'; // TODO <-- we should be overwriting types!
-                    audio.removeAttribute('controls');
-
-                    playHolder = $(document.createElement('div'));
-                    play = document.createElement('img');
-                    $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
-                    $(play).addClass('audioControls');
-                    $(play).css({
-                        'position': 'relative',
-                        'height': '20px',
-                        'width': '20px',
-                        'display': 'inline-block',
-                    });
-                    playHolder.css({
-                        'position': 'relative',
-                        'height': '20px',
-                        'width': '20px',
-                        'display': 'inline-block',
-                        'margin': '0px 1% 0px 1%',
-                    });
-
-                    play.style.width = "32px";
-                    play.style.height = "32px";
-                    playHolder.width(32);
-                    playHolder.height(32);
-
-                    playHolder.append(play);
-
-                    volHolder = $(document.createElement('div'));
-                    vol = document.createElement('img');
-                    $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
-                    $(vol).addClass('audioControls');
-                    $(vol).css({
-                        'height': '20px',
-                        'width': '20px',
-                        'position': 'relative',
-                        'display': 'inline-block',
-                    });
-
-                    volHolder.css({
-                        'height': '20px',
-                        'width': '20px',
-                        'position': 'relative',
-                        'display': 'inline-block',
-                        'margin': '0px 1% 0px 1%',
-                    });
-                    volHolder.append(vol);
-                    this.initAudioPlayHandlers = function () {
-                        if (audio.currentTime !== 0) audio.currentTime = 0;
-                        audio.pause();
-                        $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
-                        $(play).on('click', function () {
-                            if (audio.paused) {
-                                audio.play();
-                                $(play).attr('src', tagPath+'images/icons/PauseWhite.svg');
-                            } else {
-                                audio.pause();
-                                $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
-                            }
-                        });
-
-                        $(vol).on('click', function () {
-                            if (audio.muted) {
-                                audio.muted = false;
-                                $(vol).attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
-                            } else {
-                                audio.muted = true;
-                                $(vol).attr('src', tagPath+'images/icons/VolumeDownWhite.svg');
-                            }
-                        });
-
-                        $(audio).on('ended', function () {
-                            audio.pause();
-                            $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
-                        });
-                    };
-
-                    this.initAudioPlayHandlers();
-
-                    seekBar = document.createElement('input');
-                    $(seekBar).addClass('audioControls');
-                    seekBar.type = 'range';
-                    $(seekBar).attr('id', "seek-bar");
-                    $(seekBar).attr('value', "0");
-                    seekBar.style.margin = '0px 1% 0px 1%';
-                    seekBar.style.display = 'inline-block';
-                    seekBar.style.padding = '0px';
-                    $(seekBar).css({
-                        left: '30px',
-                    });
-
-                    // Event listener for the seek bar
-                    seekBar.addEventListener("change", function (evt) {
-                        evt.stopPropagation();
-                        // Calculate the new time
-                        var time = audio.duration * (seekBar.value / 100);
-                        // Update the audio time
-                        if (!isNaN(time)) {
-                            audio.currentTime = time;
-                        }
-                    });
-
-                    $(seekBar).mouseover(function (evt) {
-                        var percent = evt.offsetX / $(seekBar).width();
-                        var hoverTime = audio.duration * percent;
-                        var minutes = Math.floor(hoverTime / 60);
-                        var seconds = Math.floor(hoverTime % 60);
-                        hoverString = String(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
-                        seekBar.title = hoverString;
-                        //console.log("minute "+ minutes+" seconds "+seconds+"hover "+ hoverString+"percent "+percent );
-                    });
-
-                    $(seekBar).mousedown(function (evt) {
-                        dragBar = true;
-                        evt.stopPropagation();
-                    });
-
-                    $(seekBar).mouseup(function (evt) {
-                        dragBar = false;
-                        evt.stopPropagation();
-                    });
-
-                    timeContainer = document.createElement('div');
-                    $(timeContainer).css({
-                        'height': '20px',
-                        'width': '40px',
-                        'margin': '0px 1% 0px 1%',
-                        'padding': '0',
-                        'display': 'inline-block',
-                        'overflow': 'hidden',
-                    });
-
-                    currentTimeDisplay = document.createElement('span');
-                    $(currentTimeDisplay).text("00:00");
-                    $(currentTimeDisplay).addClass('audioControls');
-
-                    // Update the seek bar as the audio plays
-                    audio.addEventListener("timeupdate", function () {
-                        // Calculate the slider value
-                        var value = (100 / audio.duration) * audio.currentTime;
-                        // Update the slider value
-                        seekBar.value = value;
-                        var minutes = Math.floor(audio.currentTime / 60);
-                        var seconds = Math.floor(audio.currentTime % 60);
-                        var adjMin;
-                        if (String(minutes).length < 2) {
-                            adjMin = String('0' + minutes);
-                        } else {
-                            adjMin = String(minutes);
-                        }
-                        $(currentTimeDisplay).text(adjMin + String(":" + (seconds < 10 ? "0" : "") + seconds));
-                    });
-
-                    // if(!imgadded) {
-                    mediaContainer.append(audio);
-                    mediaContainer.append(controlPanel[0]);
-                    //     imgadded = true;
-                    // }
-                    
-                    controlPanel.append(playHolder);
-                    controlPanel.append(seekBar);
-                    $(timeContainer).append(currentTimeDisplay);
-                    controlPanel.append(timeContainer);
-                    controlPanel.append(volHolder);
-            }
-        }
-
-        $(innerContainer).append(mediaContainer);
-       
-        //Create description for asset/hotspot
-        this.createDescription = function() {
-            if (this.description) {
-                var p2 = document.createElement('div');
-                if (typeof Windows != "undefined") {
-                    // running in Win8 app
-                    $(p2).html(LADS.Util.htmlEntityDecode(this.description));
-                } else {  
-                    // running in browser
-                    $(p2).html(Autolinker.link(LADS.Util.htmlEntityDecode(this.description), {email: false, twitter: false}));
-                }
-                
-                //CSS for description
-                $(p2).css({
-                    'position': 'relative',
-                    'left': '5%',
-                    'width': '90%',
-                    'color': 'white',
-                    'bottom': '5px',
-                    'word-wrap': 'break-word'
+                $mediaElt.attr({
+                    preload:  'none',
+                    poster:   (THUMBNAIL && !THUMBNAIL.match(/.mp4/)) ? FIX_PATH(THUMBNAIL) : '',
+                    src:      FIX_PATH(SOURCE),
+                    type:     'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
+                    controls: false
                 });
-                innerContainer.appendChild(p2);
-            }
-        }
-        this.createDescription();
 
-        //Resize and scale control panel, buttons, etc.
-        function resizeControlElements() {
-            // scale control panel
-            var cpSize = LADS.Util.constrainAndPosition(
-                $(innerContainer).width()-20, $(innerContainer).height(),
-                {
-                    width: 1,
-                    height: 1,
-                    max_height: 40,
-                    center_h: true,
-                }
-            );
-            controlPanel.css({
-                width: cpSize.width + 'px',
-                height: cpSize.height + 'px',
-                left: cpSize.x + 'px',
-                'margin-top': '-1%',
-            });
-
-            // scale play button
-            var playSize = LADS.Util.constrainAndPosition(
-                controlPanel.width(), controlPanel.height(),
-                {
-                    width: 0.8 * (controlPanel.height() / controlPanel.width()),
-                    height: 0.8,
-                    max_height: 35,
-                    max_width: 35,
-                    center_v: true,
-                }
-            );
-
-            $(play).css({
-                width: playSize.width + 'px',
-                height: playSize.height + 'px',
-            });
-            playHolder.css({
-                top: playSize.y + 2 + 'px',
-                width: playSize.width + 'px',
-                height: playSize.height + 'px',
-            });
-
-            // scale seek slider
-            var seekSize = LADS.Util.constrainAndPosition(
-                controlPanel.width(), controlPanel.height(),
-                {
-                    width: 0.7,
-                    height: 1,
-                    max_width: 620,
-                    max_height: 20,
-                    center_v: true,
-                }
-            );
-
-            $(seekBar).css({
-                width: seekSize.width + 'px',
-                height: seekSize.height + 'px',
-                top: seekSize.y - 7 + 'px',
-            });
-
-            // scale text element and text size
-            var textEltSize = LADS.Util.constrainAndPosition(
-                controlPanel.width(), controlPanel.height(),
-                {
-                    width: 0.09,
-                    height: 0.5,
-                    max_width: 40,
-                    max_height: 35,
-                    center_v: true,
-                }
-            );
-
-            var textFontSize = LADS.Util.getMaxFontSizeEM("99:99", 0, textEltSize.width, textEltSize.height, 0.05);
-
-            $(timeContainer).css({
-                width: (textEltSize.width + 5) + 'px',
-                height: textEltSize.height + 'px',
-                top: textEltSize.y + 'px',
-            });
-            currentTimeDisplay.style.fontSize = textFontSize;
-
-            // scale mute button
-            var volSize = LADS.Util.constrainAndPosition(
-                controlPanel.width(), controlPanel.height(),
-                {
-                    width: 0.65 * (controlPanel.height() / controlPanel.width()),
-                    height: 0.65,
-                    max_height: 30,
-                    max_width: 30,
-                    center_v: true,
-                }
-            );
-
-            $(vol).css({
-                height: volSize.height + 'px',
-                width: volSize.width + 'px',
-            });
-            vol.style.height = volSize.height;
-            vol.style.width = volSize.width;
-
-            volHolder.css({
-                top: volSize.y - 3 + 'px',
-                height: volSize.height + 'px',
-                width: volSize.width + 'px',
-            });
-
-            var eltWidth = volHolder.width() + $(timeContainer).width() + $(seekBar).width() + playHolder.width() + (0.08 * controlPanel.width());
-            var currSeekWidth = $(seekBar).width();
-            $(seekBar).width(currSeekWidth + controlPanel.width() - eltWidth);
-        }
-
-        this.setRoot = function (newRoot) {
-            var tempInnerContainer = innerContainer;
-            outerContainer = newRoot;
-            outerContainer.appendChild(innerContainer);
-            if (this.contentType === "Video") {
-                this.initVideoPlayHandlers();
-            }
-            if (this.contentType === "Audio") {
-                this.initAudioPlayHandlers();
-            }
-        };
-
-        $(assetCanvas).append(outerContainer);
-        $(outerContainer).hide();
-
-        //Create circle for positioning of hotspot
-        var circle = document.createElement("img");
-        var position = new Seadragon.Point(info.x, info.y);
-        if (isHotspot){
-            circle.src = tagPath+'images/icons/hotspot_circle.svg'
-            $(circle).css({
-                'height': '60px',
-                'width': '60px',
-                position: 'absolute',
-                //top: y +'px',
-                //left: x + 'px',
-                'display': 'inline-block',
-                'z-index': '100000',
-                'visibility': 'hidden'
-            });
-            document.getElementById('tagContainer').appendChild(circle);
-        }
-
-        //To show asset
-        this.showAsset = function() {
-            //If hotspot/asset is an asset, add it to a random position
-            var t = Math.min(Math.max(10, Math.random() * 100), 60);
-            var h = Math.min(Math.max(30, Math.random() * 100), 70);
-            if (!isHotspot){
-                $(outerContainer).css({
-                    top: t + "%",
-                    left: h + "%",
-                    position: 'absolute',
-                    'z-index': 1000,
-                    'pointer-events': 'all'
+                // TODO need to use <source> tags rather than setting the source and type of the
+                //      video in the <video> tag's attributes; see video player code
+                
+                $mediaElt.css({
+                    position: 'relative',
+                    width:    '100%'
                 });
-            }
-            //If it's a hotspot, add it to the area with which it is associated, and show circle
-            else{
-                $(circle).css({
-                    'visibility':'visible'
+
+                initMediaControls(mediaElt);
+
+            } else if (CONTENT_TYPE === 'Audio') {
+                mediaElt = document.createElement('audio');
+                $mediaElt = $(mediaElt);
+
+                $mediaElt.attr({
+                    preload:  'none',
+                    type:     'audio/mp3',
+                    src:      FIX_PATH(SOURCE),
+                    controls: false
                 });
-                if (!that.viewer.isOpen()) {
-                    that.viewer.addEventListener('open', function () {
-                        that.viewer.drawer.addOverlay(circle, position, Seadragon.OverlayPlacement.TOP_LEFT);
-                    });
-                }
-                else {
-                    that.viewer.drawer.addOverlay(circle, position, Seadragon.OverlayPlacement.TOP_LEFT);
-                }
-                that.viewer.drawer.updateOverlay(circle, position, Seadragon.OverlayPlacement.TOP_LEFT);
+
+                initMediaControls(mediaElt);
+            }
+        }
+
+        /**
+         * Drag/manipulation handler for associated media
+         * @method mediaManip
+         * @param {Object} res     object containing hammer event info
+         */
+        function mediaManip(res) {
+            if (currentlySeeking || !res) {
+                return;
+            }
+            
+            var scale = res.scale,
+                trans = res.translation,
+                pivot = res.pivot,
+                t     = parseFloat(outerContainer.css('top')),
+                l     = parseFloat(outerContainer.css('left')),
+                w     = outerContainer.width(),
+                h     = outerContainer.height(),
+                newW  = w * scale,
+                maxW,
+                minW;
+
+            // these values are somewhat arbitrary; TODO determine good values
+            if (CONTENT_TYPE === 'Image') {
+                maxW = 3000;
+                minW = 200;
+            } else if (CONTENT_TYPE === 'Video') {
+                maxW = 1000;
+                minW = 250;
+            } else if (CONTENT_TYPE === 'Audio') {
+                maxW = 800;
+                minW = 250;
+            }
+
+            // constrain new width
+            if(newW < minW || maxW < newW) {
+                scale = 1;
+                newW = Math.min(maxW, Math.max(minW, newW));
+            }
+
+            // zoom from touch point: change left and top of outerContainer
+            if ((0 < t + h) && (t < rootHeight) && (0 < l + w) && (l< rootWidth)) {
+                outerContainer.css("top",  (t + trans.y + (1 - scale) * pivot.y) + "px");
+                outerContainer.css("left", (l + trans.x + (1 - scale) * pivot.x) + "px");
+            } else {
+                hideMediaObject();
+                pauseResetMediaObject();
+                return;
+            }
+
+            // zoom from touch point: change width and height of outerContainer
+            outerContainer.css("width", newW + "px");
+            outerContainer.css("height", "auto");
+
+            // TODO this shouldn't be necessary; style of controls should take care of it
+            // if ((CONTENT_TYPE === 'Video' || CONTENT_TYPE === 'Audio') && scale !== 1) {
+            //     resizeControlElements();
+            // }
+        }
+
+        /**
+         * Zoom handler for associated media (e.g., for mousewheel scrolling)
+         * @method onScroll
+         * @param {Number} scale     scale factor
+         * @param {Object} pivot     point of contact
+         */
+        function mediaScroll(scale, pivot) {
+            mediaManip({
+                scale: scale,
+                translation: {
+                    x: 0,
+                    y: 0
+                },
+                pivot: pivot
+            });
+        }
+
+        /**
+         * Show the associated media on the seadragon canvas. If the media is not
+         * a hotspot, show it in a slightly random position.
+         * @method showMediaObject
+         */
+        function showMediaObject() {
+            var t,
+                l,
+                h = outerContainer.height(),
+                w = outerContainer.width();
+
+            if(IS_HOTSPOT) {
+                circle.css('visibility', 'visible');
+                addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
                 that.viewer.viewport.panTo(position, false);
-
-                var top = containerHeight/2 + $(circle).height()*3/4;
-                var left = containerWidth/2 + $(circle).width()*3/4;
-
-                $(outerContainer).css({
-                    top: top+'px',
-                    left: left+'px',
-                    position: 'absolute',
-                    'z-index': 1000,
-                    'pointer-events': 'all'
-                });
+                t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
+                l = rootWidth/2 + circle.width()*3/4;
+            } else {
+                t = rootHeight * 1/10 + Math.random() * rootHeight * 2/10;
+                l = rootWidth  * 3/10 + Math.random() * rootWidth  * 2/10;
             }
+            outerContainer.css({
+                'top':            t + "px",
+                'left':           l + "px",
+                'position':       "absolute",
+                'z-index':        1000,
+                'pointer-events': 'all'
+            });
 
-            //Show hotspot
-            $(outerContainer).show();
+            outerContainer.show();
             assetCanvas.append(outerContainer);
 
-            //Show button
-            this.button.css({
+            if(!thumbnailButton) {
+                thumbnailButton = $('#thumbnailButton-' + mdoq.Identifier);
+            }
+
+            thumbnailButton.css({
                 'color': 'black',
-                'background-color': 'rgba(255,255,255, 0.3)',
+                'background-color': 'rgba(255,255,255, 0.3)'
             });
 
-            if ((info.contentType === 'Video') || (info.contentType === 'Audio')) {
-                resizeControlElements();
-            }
-            assetHidden = false;
-        };
+            // TODO is this necessary?
+            // if ((info.contentType === 'Video') || (info.contentType === 'Audio')) {
+            //     resizeControlElements();
+            // }
 
-        this.hideAsset = function() {
-            this.pauseAsset();
-            that.removeOverlay(circle);
-            $(outerContainer).hide();   
-            assetHidden = true;
+            mediaHidden = false;
+        }
 
-            //Make button grayed-out
-            if (this.button == undefined){
-                this.button = $("#" + info.assetLinqID);
+        /**
+         * Hide the associated media
+         * @method hideMediaObject
+         */
+        function hideMediaObject() {
+            pauseResetMediaObject();
+            IS_HOTSPOT && removeOverlay(circle[0]);
+            outerContainer.hide();   
+            mediaHidden = true;
+
+            if(!thumbnailButton) {
+                thumbnailButton = $('#thumbnailButton-' + mdoq.Identifier);
             }
-            this.button.css({
+
+            thumbnailButton.css({
                 'color': 'white',
                 'background-color': ''
             });
-        };
-
-        this.toggle = function () {
-            if (assetHidden) {
-                this.show();
-            } else {
-                this.hide();
-            }
-        };
-
-        this.pauseAsset = function() {
-            if (this.contentType === 'Audio' && audio) {
-                if (audio.currentTime !== 0) audio.currentTime = 0;
-                audio.pause();
-                $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
-            }
-            else if (this.contentType === 'Video' && video) {
-                if (video.currentTime > 0.1) video.currentTime = 0;
-                if (!video.paused) video.pause();
-                $(play).attr('src', tagPath+'images/icons/PlayWhite.svg');
-            }
         }
 
-        this.close = function () {
-            document.body.removeChild(outerContainer);
-        };
+        /**
+         * Show if hidden, hide if shown
+         * @method toggleMediaObject
+         */
+        function toggleMediaObject() {
+            mediaHidden ? showMediaObject() : hideMediaObject();
+        }
 
-        //Push asset or hotspot into asset/hotspot array
-        this.resizeControlElements = resizeControlElements;
-        var assetInfo = {
-                title: info.title,
-                assetType: info.assetType,
-                contentType: info.contentType,
-                description: info.description,
-                x: info.x,
-                y: info.y,
-                assetDoqID: info.assetDoqID,
-                assetLinqID: info.assetLinqID,
-                source: info.source,
-                thumbnail: info.thumbnail,
-                toggle: this.toggle,
-                hide: this.hideAsset,
-                show: this.showAsset,
-                resize: resizeControlElements,
-                pauseAsset: this.pauseAsset,
-                mediaload: this.mediaload
-            };
+        /**
+         * Returns whether the media object is visible
+         * @method isVisible
+         * @return {Boolean}
+         */
+        function isVisible() {
+            return !mediaHidden;
+        }
 
-        if (info.assetType === 'Hotspot') {
-            hotspots.push(assetInfo);
-        } else {
-            assets.push(assetInfo);
+        /**
+         * Pauses and resets (to time 0) the media if the content type is video or audio
+         * @pauseResetMediaObject
+         */
+        function pauseResetMediaObject() {
+            if(!mediaElt || mediaElt.readyState < 4) { // see https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement
+                return;
+            }
+            mediaElt.currentTime = 0;
+            mediaElt.pause();
+            play.attr('src', tagPath + 'images/icons/PlayWhite.svg');
         }
 
 
-        //Drag/mouse interaction controls (except click, which is in LADS.Layout.Artmode.js)
-        LADS.Util.disableDrag($(outerContainer));
-        var hotspotAsset = this;
-        function setHandlers(currRoot) {
-
-            //see makeManipulatable() in LADS.Util.js for what res is
-            function onManip(res) {
-                if (dragBar) return;
-                if (this) {
-                    var hotspotroot = $(currRoot);
-                    var t = hotspotroot.css('top');
-                    var l = hotspotroot.css('left');
-                    var w = hotspotroot.css('width');
-                    var h = hotspotroot.css('height');
-                    var neww = parseFloat(w) * res.scale;
-                    var that = this;
-                    var maxConstraint = 800;
-                    var minConstraint;
-                    if (this.contentType === 'Video' || this.contentType === 'Audio') {
-                        minConstraint = 450;
-                    } else {
-                        minConstraint = 200;
-                    }
-                    //if the new width is in the right range, scale from the point of contact and translate properly; otherwise, just translate and clamp
-                    //var newClone;
-                    if ((neww >= minConstraint) && (neww <= maxConstraint)) {                        
-                        if (0 < parseFloat(t) + parseFloat(h) && parseFloat(t) < containerHeight && 0 < parseFloat(l) + parseFloat(w) && parseFloat(l)< containerWidth && res) {
-                            hotspotroot.css("top", (parseFloat(t) + res.translation.y + (1.0 - res.scale) * (res.pivot.y)) + "px");
-                            hotspotroot.css("left", (parseFloat(l) + res.translation.x + (1.0 - res.scale) * (res.pivot.x)) + "px");
-                        }
-                        else {
-                            hotspotAsset.hideAsset();
-                            that.pauseAsset;
-                        }
-                    } else {
-                        if (0 < parseFloat(t) + parseFloat(h) && parseFloat(t) < containerHeight && 0 < parseFloat(l) + parseFloat(w) && parseFloat(l)< containerWidth && res) {
-                            hotspotroot.css("top", (parseFloat(t) + res.translation.y) + "px");
-                            hotspotroot.css("left", (parseFloat(l) + res.translation.x) + "px");
-                            neww = Math.min(Math.max(neww, minConstraint), 800);                
-                        } else {
-                            hotspotAsset.hideAsset();
-                            that.pauseAsset;
-                            }
-                    }
-
-                    hotspotroot.css("width", neww + "px");
-                    hotspotroot.css("height", "auto");
-
-                    if (this.contentType === 'Video' || this.contentType === 'Audio') {
-                        this.resizeControlElements();
-                    }
-                }
-            }
-
-            function onScroll(res, pivot) {
-                // check if dragging the seekbar
-                if (dragBar) return;
-
-                //here, res is the scale factor
-                var t = $(currRoot).css('top');
-                var l = $(currRoot).css('left');
-                var w = $(currRoot).css('width');
-                var neww = parseFloat(w) * res;
-                $(currRoot).css("width", neww + "px");
-
-                var minConstraint;
-                if (this.contentType === 'Video' || this.contentType === 'Audio') {
-                    minConstraint = 450;
-                } else {
-                    minConstraint = 200;
-                }
-
-                if ((neww >= minConstraint) && (neww <= 800)) {
-                    $(currRoot).css("top", (parseFloat(t) + (1.0 - res) * (pivot.y)) + "px");
-                    $(currRoot).css("left", (parseFloat(l) + (1.0 - res) * (pivot.x)) + "px");
-                }
-                else {
-                    neww = Math.min(Math.max(neww, minConstraint), 800);
-                }
-
-                $(currRoot).css("width", neww + "px");
-                $(currRoot).css("height", "auto");
-
-                if (this.contentType === 'Video' || this.contentType === 'Audio') {
-                    this.resizeControlElements();
-                }
-            }
-            // debugger;
-            var gr = LADS.Util.makeManipulatable(currRoot, {
-                onManipulate: onManip,
-                onScroll: onScroll
-            }, null, true); // NO ACCELERATION FOR NOW
-        }
-                setHandlers(outerContainer);
+        return {
+            doq:                 mdoq,
+            linq:                linq,
+            show:                showMediaObject,
+            hide:                hideMediaObject,
+            create:              createMediaElements,
+            pauseReset:          pauseResetMediaObject,
+            toggle:              toggleMediaObject,
+            createMediaElements: createMediaElements,
+            isVisible:           isVisible
+        };
     }
-
-    function createNewHotspot(info, isHotspot) {//if isHotspot is false, it's just an asset, don't add to hotspots list
-        var newhotspot = new hotspot(info, isHotspot);
-    }
-
-    //Don't think it works -- ria: how can we check?
-    // bmost: Doesn't appear to be used and saving hotspots
-    // looks like it works without it?
-    //function createHotspotInServer(title, contentType, description, url) {
-    //    var newDoq = LADS.Worktop.Database.createEmptyDoq();
-    //    var newDoqGuid = newDoq.childNodes[0].childNodes[2].textContent;
-
-    //    if (contentType === "Video" || contentType === "Image") {
-    //        LADS.Worktop.Database.pushXML(newDoq, newDoqGuid);
-    //    }
-    //    var linq = LADS.Worktop.Database.createLinq(artworkGuid, newDoqGuid);
-    //}
-    //createHotspotInServer("the title", "Video", "This is the description", "http://helios.gsfc.nasa.gov/image_euv_press.jpg");
-
-    //function addMetadataToXML(xml, key, value) {
-
-    //    var dictsNode = xml.childNodes[0].childNodes[3].childNodes[0].childNodes[0].childNodes[1].childNodes[0];
-    //    dictsNode.appendChild(xml.createElement("d3p1:KeyValueOfstringanyType"));
-    //    dictsNode.getElementsByTagName("d3p1:KeyValueOfstringanyType")[dictsNode.childElementCount - 1].appendChild(xml.createElement("d3p1:Key"));
-    //    dictsNode.getElementsByTagName("d3p1:KeyValueOfstringanyType")[dictsNode.childElementCount - 1].getElementsByTagName("d3p1:Key")[0].textContent = key;
-    //    dictsNode.getElementsByTagName("d3p1:KeyValueOfstringanyType")[dictsNode.childElementCount - 1].appendChild(xml.createElement("d3p1:Value"));
-
-    //    dictsNode.getElementsByTagName("d3p1:KeyValueOfstringanyType")[dictsNode.childElementCount - 1].getElementsByTagName("d3p1:Value")[0].textContent = value;
-    //    dictsNode.getElementsByTagName("d3p1:KeyValueOfstringanyType")[dictsNode.childElementCount - 1].getElementsByTagName("d3p1:Value")[0].setAttribute("xmlns:d8p1", "http://www.w3.org/2001/XMLSchema");
-    //    dictsNode.getElementsByTagName("d3p1:KeyValueOfstringanyType")[dictsNode.childElementCount - 1].getElementsByTagName("d3p1:Value")[0].setAttribute("i:type", "d8p1:string");
-
-    //}
-
-    // bmost: Consider making things asynchronous by using callbacks
-    // Worktop.Database might not support asynchronous requests
-    // for getDoqLinqs so that might have to be added.
-    
-
-    // bmost: Consider renaming?  Its called createNewHostspot but has a paremeter 'isHotspot'.
-
 };
-
 ;
 var LADS = LADS || {};
 
@@ -41867,6 +41594,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             async: true,
             cache: false,
             success: function () {
+                console.log("success checking server url");
                 successConnecting();
             },
             error: function (err) {
@@ -42340,66 +42068,65 @@ LADS.Layout.StartPage.default_options = {
 ;
 LADS.Util.makeNamespace("LADS.Layout.Artmode");
 
-//Constructor. Takes in prevInfo object {prevPage: [string (currently "catalog" or "exhibitions")], prevScroll: [int value of scrollbar
-// on NewCatalog page, used for backbutton]}, {previousState, doq, split}, exhibition
-//TODO: Adjust this so the back button can go to any arbitrary layout, not just Timeline
-
 /**
- * The artwork viewer, which contains a sidebar with tools
- * and thumbnails as well as a central area for the deepzoom image.
+ * The artwork viewer, which contains a sidebar with tools and thumbnails as well
+ * as a central area for the deepzoom image.
  * @class LADS.Layout.Artmode
  * @constructor
- * @param {Object} prevInfo      contains information about returning to the previous page
- * @param {Object} options       information about current artwork and whether we're in splitscreen mode
- * @param {Doq} exhibition       the exhibition we came from (if any)
+ * @param {Object} options        some options for the artwork viewer page
+ * @return {Object}               some public methods
  */
-LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
+LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
     "use strict";
 
-    var prevPage,
-        prevScroll,
-        prevExhib = exhibition,
-        locationList = LADS.Util.UI.getLocationList(options.doq.Metadata),
-        initialized = false,
-        root, doq, map, splitscreen, locsize, backButton,
-        sideBar, toggler, togglerImage, locationHistoryDiv, info, //Need to be instance vars for splitscreen
-        zoomimage = null,
-        locationHistoryToggle,
-        locationHistoryContainer,
-        locationHistory,
-        direction, //direction for location history panel
-        mapMade = false,
-        locationHistoryActive = false,//have the location history panel hidden as default.
-        drawers = [],
-        hotspotsHolderArray = [],
-        hotspotsArray = [],
-        assets, hotspots,
-        loadQueue = LADS.Util.createQueue(),
-        switching = false,
-        confirmationBox,
-        tagContainer = $('#tagRoot') || $('body'),
-        NUM_DRAWERS = 0;
+    options = options || {}; // cut down on null checks later
 
-    if (prevInfo) {
-        prevPage = prevInfo.prevPage,
-        prevScroll = prevInfo.prevScroll || 0;
-    }
+    var // DOM-related
+        root                = LADS.Util.getHtmlAjax('Artmode.html'),
+        sideBar             = root.find('#sideBar'),
+        toggler             = root.find('#toggler'),
+        togglerImage        = root.find('#togglerImage'),
+        backButton          = root.find('#backButton'),
+        locHistoryDiv       = root.find('#locationHistoryDiv'),
+        info                = root.find('#info'),
+        locHistoryToggle    = root.find('#locationHistoryToggle'),
+        locHistory          = root.find('#locationHistory'),
+        locHistoryContainer = root.find('#locationHistoryContainer'),
+
+        // constants
+        FIX_PATH            = LADS.Worktop.Database.fixPath,
+
+        // input options
+        doq            = options.doq,              // the artwork doq
+        prevPage       = options.prevPage,         // the page we came from (string)
+        prevScroll     = options.prevScroll || 0,  // scroll position where we came from
+        prevCollection = options.prevCollection,   // collection we came from, if any
+
+        // misc initialized vars
+        locHistoryActive = false,                   // whether location history is open
+        drawers          = [],                      // the expandable sections for assoc media, tours, description, etc...
+        mediaHolders     = [],                      // array of thumbnail buttons
+        loadQueue        = LADS.Util.createQueue(), // async queue for thumbnail button creation, etc
+
+        // misc uninitialized vars
+        locationList,                      // location history data
+        map,                               // Bing Maps map for location history
+        annotatedImage,                    // an AnnotatedImage object
+        associatedMedia;                   // object of associated media objects generated by AnnotatedImage
         
-    options = LADS.Util.setToDefaults(options, LADS.Layout.Artmode.default_options);
-    doq = options.doq;
-
-    init();
+    // get things rolling if doq is defined (it better be)
+    doq && init();
 
     /**
-     * Initiate artmode with a root, artwork image and a sidebar on the left.
+     * Initiate artmode with a root, artwork image and a sidebar on the left
      * @method init
      */
     function init() {
-        // add elements to the header for displaying bing maps
         var head,
             script,
             meta;
 
+        // add script for displaying bing maps
         head = document.getElementsByTagName('head').item(0);
         script = document.createElement("script");
         script.charset = "UTF-8";
@@ -42412,244 +42139,228 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
         meta.content = "text/html; charset=utf-8";
         head.appendChild(meta);
 
-        root = LADS.Util.getHtmlAjax('Artmode.html');
-        root.data('split', options.split);
+        locationList = LADS.Util.UI.getLocationList(doq.Metadata);
 
-        //get the artwork
-        if (doq) {
-            zoomimage = new LADS.AnnotatedImage(root, doq, options.split, function () {
-                hotspots = zoomimage.getHotspots();
-                assets = zoomimage.getAssets();
-                hotspots.sort(function (a, b) { return a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1; });
-                assets.sort(function (a, b) { return a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1; });
+        annotatedImage = LADS.AnnotatedImage({
+            root: root,
+            doq:  doq,
+            callback: function () {
+                associatedMedia = annotatedImage.getAssociatedMedia();
+                associatedMedia.guids.sort(function (a, b) {
+                    return associatedMedia[a].doq.Name.toLowerCase() < associatedMedia[b].doq.Name.toLowerCase() ? -1 : 1;
+                });
                 try { // TODO figure out why loadDoq sometimes causes a NetworkError (still happening?)
-                    zoomimage.loadDoq(doq);
+                    annotatedImage.openArtwork(doq);
                 } catch(err) {
+                    debugger;
                     console.log(err); // TODO if we hit a network error, show an error message
                 }
-                LADS.Util.Splitscreen.setViewers(root, zoomimage); // TODO should we get rid of all splitscreen stuff?
+                LADS.Util.Splitscreen.setViewers(root, annotatedImage); // TODO should we get rid of all splitscreen stuff?
                 makeSidebar();
                 createSeadragonControls();
-                initialized = true;
-            });
-        }
+            },
+            noMedia: false
+        });
     }
 
     /**
-     * Add controls for manual Seadragon manipulation
-     * This was written for testing purposes and was not carefully written
-     * DO NOT KEEP THIS AS IS!!!!!!
+     * Add controls and key handlers for manual Seadragon manipulation
      * @method createSeadragonControls
      */
     function createSeadragonControls() {
-        var container = root.find('#seadragonManipContainer');
-        container.css({
-            'left': ($('#tagRoot').width()-160) + "px"
-        });
-        root.append(container);
-        
-        var slidebutton = root.find('#seadragonManipSlideButton');
-        slidebutton.css({
-            'left': 0 + "px",
-            'padding-top': '10px'
-        });
-        var slideimg = $(document.createElement('img'));
-        slideimg.attr("src",tagPath+ 'images/icons/Close_expand.svg');
-        slideimg.css({
-            'width':'23px',
-            'height': '40px',
-            'transform': 'rotate(180deg)',
-            'margin-top':'-10px'
-        });
-        
-        var D_PAD_LEFT = 60;
-        var D_PAD_TOP = 26;
+        var container        = root.find('#seadragonManipContainer'),
+            slideButton      = root.find('#seadragonManipSlideButton'),
+            tagRoot          = $('#tagRoot'),
+            CENTER_X         = tagRoot.width()/2,
+            CENTER_Y         = tagRoot.height()/2,
+            D_PAD_TOP        = 26,
+            D_PAD_LEFT       = 60,
+            top              = 0,
+            count            = 0,
+            panDelta         = 20,
+            zoomScale        = 0.1,
+            containerFocused = true,
+            interval;
 
-        document.getElementById("seadragonManipSlideButton").innerHTML="Show Controls";
-        var top = 0;
-        var count = 0;
-        slidebutton.on('click', function () {
-            count = count + 1
-            container.animate({top:top});
-            if (count%2===0){
-                top = 0;
-                document.getElementById("seadragonManipSlideButton").innerHTML="Show Controls";
-            }
-            if(count%2===1){
-                top = -100;
-                document.getElementById("seadragonManipSlideButton").innerHTML = '';
-                slidebutton.append(slideimg);
-            }
-                
-        });
-        
-        container.append(slidebutton);
-        container.append(createButton('leftControl', tagPath+ 'images/icons/zoom_left.svg', 60, D_PAD_TOP + 14));
-        container.append(createButton('upControl', tagPath+'images/icons/zoom_up.svg', D_PAD_LEFT + 12, D_PAD_TOP + 2));
-        container.append(createButton('rightControl', tagPath+'images/icons/zoom_right.svg', D_PAD_LEFT+41, D_PAD_TOP + 14));
-        container.append(createButton('downControl', tagPath+'images/icons/zoom_down.svg', D_PAD_LEFT+12, D_PAD_TOP+43));
-        container.append(createButton('zinControl', tagPath+'images/icons/zoom_plus.svg', D_PAD_LEFT-40, D_PAD_TOP-6));
-        container.append(createButton('zoutControl', tagPath+'images/icons/zoom_minus.svg', D_PAD_LEFT-40, D_PAD_TOP+34));
+        container.css('left', ($('#tagRoot').width() - 160) + "px"); // do this with 'right' instead
 
-        function createButton(id, imgPath, left, top) {
-            
-            var img = $(document.createElement('img'));
-            img.attr("src",imgPath);
-            img.attr('id',id);
-            img.css({
-                left : left,
+        slideButton.on('click', function () {
+            count = 1 - count;
+            container.animate({
                 top: top
             });
-            if (id==='leftControl' || id ==='rightControl'){
+            if (count === 0){
+                top = 0;
+                slideButton.html("Show Controls");
+            } else {
+                top = -100;
+                slideButton.html('Hide Controls');
+            }   
+        });
+        
+        container.append(slideButton);
+        container.append(createButton('leftControl',  tagPath+'images/icons/zoom_left.svg',  D_PAD_LEFT,    D_PAD_TOP+14));
+        container.append(createButton('upControl',    tagPath+'images/icons/zoom_up.svg',    D_PAD_LEFT+12, D_PAD_TOP+2));
+        container.append(createButton('rightControl', tagPath+'images/icons/zoom_right.svg', D_PAD_LEFT+41, D_PAD_TOP+14));
+        container.append(createButton('downControl',  tagPath+'images/icons/zoom_down.svg',  D_PAD_LEFT+12, D_PAD_TOP+43));
+        container.append(createButton('zinControl',   tagPath+'images/icons/zoom_plus.svg',  D_PAD_LEFT-40, D_PAD_TOP-6));
+        container.append(createButton('zoutControl',  tagPath+'images/icons/zoom_minus.svg', D_PAD_LEFT-40, D_PAD_TOP+34));
+
+        /**
+         * Create a seadragon control button
+         * @method createButton
+         * @param {String} id        the id for the new button
+         * @param {String} imgPath   the path to the button's image
+         * @param {Number} left      css left property for button
+         * @param {Number} top       css top property for button
+         * @return {jQuery obj}      the button
+         */
+        function createButton(id, imgPath, left, top) {
+            var img = $(document.createElement('img'));
+
+            img.attr({
+                src: imgPath,
+                id:  id
+            });
+            
+            img.css({
+                left: left + "px",
+                top:  top  + "px"
+            });
+
+            if (id === 'leftControl' || id === 'rightControl'){
                 img.addClass('seadragonManipButtonLR');
-            }
-            if (id==='upControl'|| id==='downControl'){
+            } else if (id === 'upControl'|| id === 'downControl'){
                 img.addClass('seadragonManipButtonUD');
-            }
-            if (id==='zinControl'|| id==='zoutControl'){
+            } else if (id === 'zinControl'|| id === 'zoutControl'){
                 img.addClass('seadragonManipButtoninout');
             }
-             container.append(img);
 
-            // TODO should do the following by id in the .styl file
-            if (id==='zinControl' || id ==='zoutControl'){
-                img.css({
-                    'width':'25px'
-                 });
-            } 
             return img;
         }
+    
         
+        /**
+         * Keydown handler for artwork manipulation; wrapper around doManip that first
+         * prevents default key behaviors
+         * @method keyHandler
+         * @param {Object} evt         the event object
+         * @param {String} direction   the direction in which to move the artwork
+         */
+        function keyHandler(evt, direction) {
+            evt.preventDefault();
+            clearInterval(interval);
+            doManip(evt, direction);
+        }
 
-        var delt = 40,
-            scrollDelt = 0.1;
+        /**
+         * Click handler for button in given direction; a wrapper around doManip that also
+         * executes doManip in an interval if the user is holding down a button
+         * @method buttonHandler
+         * @param {Object} evt         the event object
+         * @param {String} direction   the direction in which to move the artwork
+         */
+        function buttonHandler(evt, direction) {
+            doManip(evt, direction);
+            clearInterval(interval);
+            interval = setInterval(function() {
+                doManip(evt, direction);
+            }, 100);
+        }
 
-        var interval;
-        
-        /* TODO factor some repeated code out */
+        /**
+         * Do fixed manipulation in response to seadragon controls or key presses
+         * @method doManip
+         * @param {Object} evt         the event object
+         * @param {String} direction   the direction in which to move the artwork
+         */
+        function doManip(evt, direction) {
+            var pivot = {
+                x: CENTER_X,
+                y: CENTER_Y
+            };
+
+            if (direction === 'left') {
+                annotatedImage.dzManip(pivot, {x: panDelta, y: 0}, 1);
+            } else if (direction === 'up') {
+                annotatedImage.dzManip(pivot, {x: 0, y: panDelta}, 1);
+            } else if (direction === 'right') {
+                annotatedImage.dzManip(pivot, {x: -panDelta, y: 0}, 1);
+            } else if (direction === 'down') {
+                annotatedImage.dzManip(pivot, {x: 0, y: -panDelta}, 1);
+            } else if (direction === 'in') {
+                annotatedImage.dzScroll(1 + zoomScale, pivot);
+            } else if (direction === 'out') {
+                annotatedImage.dzScroll(1 - zoomScale, pivot);
+            }
+        }
 
 
-        /*Key press controls */
-        var containerFocused = true;
-
+        // tabindex code is to allow key press controls (focus needs to be on the TAG container)
         $('#tagContainer').attr("tabindex", -1);
         $("[tabindex='-1']").focus();
         $("[tabindex='-1']").css('outline', 'none');
-        $("[tabindex='-1']").click(function() {
+        $("[tabindex='-1']").on('click', function() {
             $("[tabindex='-1']").focus();
             containerFocused = true;
         });
         $("[tabindex='-1']").focus(function() {
             containerFocused = true;
-
         });
         $("[tabindex='-1']").focusout(function() {
             containerFocused = false;
         });
-        $(document).keydown(function(event){
+
+        $(document).on('keydown', function(evt) {
             if(containerFocused) {
-                switch(event.which) {
-    
-                    case 37: 
-                        event.preventDefault();
-                        clearInterval(interval);
-                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
-                        interval = setInterval(function() {
-                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
-                        }, 100);
-                    
-                    break;
+                switch(evt.which) {
+                    case 37:
+                        keyHandler(evt, 'left');
+                        break;
                     case 38:
-                        event.preventDefault();
-                        clearInterval(interval);
-                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
-                        interval = setInterval(function() {
-                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
-                        }, 100);
-                    break;
+                        keyHandler(evt, 'up');
+                        break;
                     case 39:
-                        event.preventDefault();
-                        clearInterval(interval);
-                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
-                        interval = setInterval(function() {
-                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
-                        }, 100);
-                    break;
+                        keyHandler(evt, 'right');
+                        break;
                     case 40:
-                        event.preventDefault();
-                        clearInterval(interval);
-                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
-                        interval = setInterval(function() {
-                        zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
-                        }, 100);
-                    break;
+                        keyHandler(evt, 'down');
+                        break;
                     case 187:
                     case 61:
-                        event.preventDefault();
-                        clearInterval(interval);
-                        zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
-                        interval = setInterval(function() {
-                        zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
-                        }, 100);
-                    break;
+                        keyHandler(evt, 'in');
+                        break;
                     case 189:
                     case 173:
-                        event.preventDefault();
-                        clearInterval(interval);
-                        zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
-                        interval = setInterval(function() {
-                        zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
-                        }, 100);
-                    break;
+                        keyHandler(evt, 'out');
+                        break;
                 }
             }
         });
+
+        $(document).keyup(function(evt){
+            clearInterval(interval);
+        });
         
-        $(document).keyup(function(event){
-            clearInterval(interval);
+        $('#leftControl').on('mousedown', function(evt) {
+            buttonHandler(evt, 'left');
         });
-        $('#leftControl').on('mousedown', function() {
-            clearInterval(interval);
-            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
-            interval = setInterval(function() {
-                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: delt, y: 0}, 1);
-            }, 100);
+        $('#upControl').on('mousedown', function(evt) {
+            buttonHandler(evt, 'up');
         });
-        $('#upControl').on('mousedown', function() {
-            clearInterval(interval);
-            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
-            interval = setInterval(function() {
-                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: delt}, 1);
-            }, 100);
+        $('#rightControl').on('mousedown', function(evt) {
+            buttonHandler(evt, 'right');
         });
-        $('#rightControl').on('mousedown', function() {
-            clearInterval(interval);
-            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
-            interval = setInterval(function() {
-                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: -delt, y: 0}, 1);
-            }, 100);
+        $('#downControl').on('mousedown', function(evt) {
+            buttonHandler(evt, 'down');
         });
-        $('#downControl').on('mousedown', function() {
-            clearInterval(interval);
-            zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
-            interval = setInterval(function() {
-                zoomimage.dzManip({x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2}, {x: 0, y: -delt}, 1);
-            }, 100);
+        $('#zinControl').on('mousedown', function(evt) {
+            buttonHandler(evt, 'in');
         });
-        $('#zinControl').on('mousedown', function() {
-            clearInterval(interval);
-            zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
-            interval = setInterval(function() {
-                zoomimage.dzScroll(1+scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
-            }, 100);
+        $('#zoutControl').on('mousedown', function(evt) {
+            buttonHandler(evt, 'out');
         });
-        $('#zoutControl').on('mousedown', function() {
-            clearInterval(interval);
-            zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
-            interval = setInterval(function() {
-                zoomimage.dzScroll(1-scrollDelt, {x: $('#tagRoot').width()/2, y: $('#tagRoot').height()/2});
-            }, 100);
-        });
+
         $('.seadragonManipButtonLR').on('mouseup mouseleave', function() {
             clearInterval(interval);
         });
@@ -42668,428 +42379,229 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
      * @method makeSidebar
      */
     function makeSidebar() {
-        var i;
-        var button;
-        //sideBar is the outermost container for sidebar
-        //Sets entire sidebar to this...
-        var sideBarWidth = window.innerWidth * 0.20; //innerWidth Define width in absolute terms to work with split screen
-		sideBar = root.find('#sideBar');
+        var backBttnContainer = root.find("#backBttnContainer"),
+            sideBarSections   = root.find('#sideBarSections'),
+            sideBarInfo       = root.find('#sideBarInfo'),
+            infoTitle         = root.find('#infoTitle'),
+            infoArtist        = root.find('#infoArtist'),
+            infoYear          = root.find('#infoYear'),
+            assetContainer    = root.find('#assetContainer'),
+            isBarOpen         = true,
+            currBottom        = 0,
+            item,
+            fieldTitle,
+            fieldValue,
+            infoCustom,
+            i,
+            curr,
+            button,
+            descriptionDrawer,
+            tourDrawer,
+            locHistoryButton,
+            mediaDrawer;
 
-		toggler = root.find('#toggler');
-		togglerImage = root.find('#togglerImage');
 
-        //Switch side based on splitscreen state, if it is the right half screen, move the sidebar to right.
-        if (root.data('split') === 'R' && prevPage !== "artmode") {//if user doesn't go back from the tourplayer too.
-            sideBar.css({ right: '0px'});
-            toggler.css({
-                left: '-12%',
-                borderTopLeftRadius: "10px",
-                borderBottomLeftRadius: "10px"
-            });
-            togglerImage.attr("src", tagPath+'images/icons/Open.svg');
-
-        }
-        else {
-            sideBar.css({ left: '0px', });
-            toggler.css({
-                right: '-12%',
-                borderTopRightRadius: "10px",
-                borderBottomRightRadius: "10px"
-            });
-				togglerImage.attr("src", tagPath+'images/icons/Close.svg');
-        }
+		
+        backButton.attr('src',tagPath+'images/icons/Back.svg');
+		togglerImage.attr("src", tagPath+'images/icons/Close.svg');
+        infoTitle.text(doq.Name);
+        infoArtist.text(doq.Metadata.Artist);
+        infoYear.text(doq.Metadata.Year);
         
-        //set sidebar open as default.
-        var isBarOpen = true;
-        //click toggler to hide/show sidebar
-        toggler.click(function () {
-            var opts = {};
-	    
-            //when the bar is open, set the sidebar position according to splitscreen states.
-            if (root.data('split') === 'R') {
-                opts.right = isBarOpen ? '-22%' : '0%';
-            } else {
-                opts.left = isBarOpen ? '-22%' : '0%';
-            }
-            isBarOpen = !isBarOpen;
 
-            //when click the toggler, the arrow will rotate 180 degree to change direction.
-            $(sideBar).animate(opts, 1000, function () {
+        // toggler to hide/show sidebar
+        toggler.on('click', function () {
+            var opts = {};
+            opts.left = isBarOpen ? '-22%' : '0%'
+            isBarOpen = !isBarOpen;
+            sideBar.animate(opts, 1000, function () {
                 togglerImage.attr('src', tagPath + 'images/icons/' + (isBarOpen ? 'Close.svg' : 'Open.svg'));
             });
         });
 
+        LADS.Util.UI.setUpBackButton(backButton, goBack)
 
-        //Create back button TODO: See todo in constructor
-		var backBttnContainer = root.find("#backBttnContainer");
-		backButton = root.find('#backButton');
-        $(backButton).attr('src',tagPath+'images/icons/Back.svg');
-
-        //change the backColor to show the button is being clicked
-        //mouseleave for lifting the finger from the back button
-        backButton.on('mouseleave mouseup', function () {
-            LADS.Util.UI.cgBackColor("backButton", backButton, true);
-        });
-        //mousedown for pressing the back button
-        backButton.on('mousedown', function () {
-            LADS.Util.UI.cgBackColor("backButton", backButton, false);
-        });
-
-        //click function for back button based on previous page.
-        //this is called when the user entered the artmode from catalog, 
-		// have the "artmode" case because if user goes back to artmode from tourplayer, the prevpage will stay as artmode. 
-		backButton.on('click', function () {
-			backButton.off('click'); // prevent user from clicking twice
-			zoomimage && zoomimage.unload();
-			var backInfo = { backArtwork: doq, backScroll: prevScroll };
-			var catalog = new LADS.Layout.NewCatalog({
-                backScroll: prevScroll,
-                backArtwork: doq,
-                backCollection: exhibition
+        function goBack() {
+            var catalog;
+            backButton.off('click');
+            annotatedImage && annotatedImage.unload();
+            catalog = new LADS.Layout.NewCatalog({
+                backScroll:     prevScroll,
+                backArtwork:    doq,
+                backCollection: prevCollection
             });
-			catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO this line shouldn't be necessary -- do in styl file
-			LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
-                if(prevExhib && prevExhib.Identifier) {
-    				var selectedExhib = $('#exhib-' + prevExhib.Identifier);
-    				selectedExhib.attr('flagClicked', 'true');
-    				selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
-                    if(selectedExhib[0] && selectedExhib[0].firstChild) {
-    	       			$(selectedExhib[0].firstChild).css({'color': 'black'});
-                    }
-                }
-			});
-		});
+            catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO this line shouldn't be necessary -- do in styl file
+            LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {});
+        }
 
-        //second outermost div to contain contents in sidebar.
-		var sideBarSections = root.find('#sideBarSections');
 
-        //div for artinfo info and other stuff except for minimapContainer
-		var sideBarInfo = root.find('#sideBarInfo');
-
-        //this contains basic info about the artwork
-		info = root.find('#info');
-
-        //The title of artwork. Currently, we have the text overflow as ellipsis, may implement auto scroll later...
-		var infoTitle = root.find('#infoTitle');
-        infoTitle.text(doq.Name);
-
-        //The artist of artwork
-		var infoArtist = root.find('#infoArtist');
-        infoArtist.text(doq.Metadata.Artist);
-		
-        //The year of artwork
-		var infoYear = root.find('#infoYear');
-        infoYear.text(doq.Metadata.Year);
-
-        //add more information for the artwork if curator add in the authoring mode
-        for (var item in doq.Metadata.InfoFields) {
-            var fieldTitle = item;
-            var fieldValue = doq.Metadata.InfoFields[item];
-
-                var infoCustom = $(document.createElement('div'));
+        // add more information for the artwork if curator added in the authoring mode
+        for (item in doq.Metadata.InfoFields) {
+            if(doq.Metadata.InfoFields.hasOwnProperty(item)) {
+                fieldTitle = item;
+                fieldValue = doq.Metadata.InfoFields[item];
+                infoCustom = $(document.createElement('div'));
 				infoCustom.addClass('infoCustom');
                 infoCustom.text(fieldTitle + ': ' + fieldValue);
                 infoCustom.appendTo(info);
-
-        }
-        //make sure the info text fits in the div
-        LADS.Util.fitText(info, 1.1);
-        
-        /*var splitscreenContainer = initSplitscreen();
-        if (LADS.Util.Splitscreen.on()) {
-            splitscreenContainer.hide();
-        }*/
-
-		var assetContainer = root.find('#assetContainer');
-
-        //Descriptions, Hotspots, Assets and Tours drawers
-        var existsDescription = !!doq.Metadata.Description;
-        
-        if (existsDescription) {
-            NUM_DRAWERS++;
-            var descriptionDrawer = createDrawer("Description", !existsDescription);
-            if (doq.Metadata.Description) {
-                var descrip = doq.Metadata.Description.replace(/\n/g, "<br />");
-                
-                if (typeof Windows != "undefined") {
-                    // running in Win8 app
-                    descriptionDrawer.contents.html(descrip);
-                } else {  
-                    // running in browser
-                    descriptionDrawer.contents.html(Autolinker.link(descrip, {email: false, twitter: false}));
-                }
             }
-            var test = doq;
+        }
+
+        // make sure the info text fits in the div (TODO is this necessary?)
+        LADS.Util.fitText(info, 1.1);
+
+        // create drawers
+        if (doq.Metadata.Description) {
+            descriptionDrawer = createDrawer("Description");
+            descriptionDrawer.contents.html(Autolinker.link(doq.Metadata.Description.replace(/\n/g, "<br />"), {email: false, twitter: false}));
             assetContainer.append(descriptionDrawer);
+            currBottom = descriptionDrawer.height();
+        }
+ 
+        if (locationList.length > 0) {
+            locHistoryButton = initlocationHistory();
+            assetContainer.append(locHistoryButton);
+            currBottom += locHistoryButton.height();
         }
 
-        //location history
-        locationList = LADS.Util.UI.getLocationList(options.doq.Metadata); 
-        if (locationList.length !== 0) {
-            NUM_DRAWERS++;
-            var locationHistorysec = initlocationHistory();
-            assetContainer.append(locationHistorysec);
+        if (associatedMedia.guids.length > 0) {
+            mediaDrawer = createDrawer('Associated Media');
+            for(i=0; i<associatedMedia.guids.length; i++) {
+                curr = associatedMedia[associatedMedia.guids[i]];
+                loadQueue.add(createMediaButton(mediaDrawer.contents, curr));
+            }
+            assetContainer.append(mediaDrawer);
+            currBottom += mediaDrawer.height();
         }
 
-        
-
-        ///////////////////////////////////////
-        function downhelper(elt) {
-            return function () {
-                //elt.css('background-color', 'rgba(255,255,255,0.75');
-            };
+        /**
+         * Creates a tour thumbnail button
+         * @method createTourButton
+         * @param {jQuery obj} container     the element to which we'll append this button
+         * @param {doq} tour                 the tour doq
+         */
+        function createTourButton(container, tour) {
+            return function() {
+                container.append(LADS.Util.Artwork.createThumbnailButton({
+                    title:       LADS.Util.htmlEntityDecode(tour.Name),
+                    handler:     tourClicked(tour),
+                    buttonClass: 'tourButton',
+                    src:         (tour.Metadata.Thumbnail ? FIX_PATH(tour.Metadata.Thumbnail) : tagPath+'images/tour_icon.svg')
+                }));
+            }
         }
 
-        function uphelper(elt) {
-            return function () {
-                elt.css('background-color', '');
-                elt.css('color', 'rgb(255, 255, 255)');
-            };
-        }
+        /**
+         * Creates a thumbnail button for an associated media
+         * @method createMediaButton
+         * @method {jQuery obj} container       the element to which we'll append the button
+         * @method {Object} media               an associated media object (from AnnotatedImage)
+         */
+        function createMediaButton(container, media) {
+            return function() {
+                var src = '',
+                    metadata = media.doq.Metadata,
+                    thumb = metadata.Thumbnail;
 
-        function createTourHolder(container, tour) { // after release, make this more general, combine with createMediaHolder TODO
-            return function () {
-                var holder = $(document.createElement('div'));
-                holder.addClass("tourHolder");
-                holder.css({
-                    'height': 0.15 * $("#tagRoot").height() + "px"
-                });
-
-                holder.on("click", tourClicked(tour));
-                holder.on("mousedown", downhelper(holder));
-                holder.on("mouseup", uphelper(holder));
-                container.append(holder);
-
-                var mediaHolderDiv = $(document.createElement('div'));
-                mediaHolderDiv.addClass('mediaHolderDiv');
-                holder.append(mediaHolderDiv);
-
-                var holderContainer = $(document.createElement('div')).addClass('holderContainer');
-                mediaHolderDiv.append(holderContainer);
-
-                var holderInnerContainer = $(document.createElement('div')).addClass('holderInnerContainer');
-                holderContainer.append(holderInnerContainer);
-
-                var mediaHolderImage = $(document.createElement('img'));
-                mediaHolderImage.addClass('assetHolderImage');
-                mediaHolderImage.attr('src', (tour.Metadata.Thumbnail ? LADS.Worktop.Database.fixPath(tour.Metadata.Thumbnail) : tagPath+'images/tour_icon.svg'));
-                mediaHolderImage.removeAttr('width');
-                mediaHolderImage.removeAttr('height');
-
-                mediaHolderImage.css({ // TODO do this the right way... this isn't flexible at all, but it will probably do for the release
-                    'max-height': 0.15 * 0.7 * $("#tagRoot").height() + "px",
-                    'max-width': 0.22 * 0.89 * 0.95 * 0.40 * 0.92 * $("#tagRoot").width() + "px" // these are all the % widths propagating down from the tag root
-                });
-
-                holderInnerContainer.append(mediaHolderImage);
-
-                var title = $(document.createElement('div'));
-				title.addClass('mediaHolderTitle');
-                title.text(LADS.Util.htmlEntityDecode(tour.Name));
-                holder.append(title);
-            };
-        }
-
-        function createMediaHolder(container, media, isHotspot) {
-            return function () {
-                var holder = $(document.createElement('div'));
-                holder.addClass("assetHolder");
-                holder.css({
-                    'height': 0.15 * $("#tagRoot").height() + "px"
-                });
-                holder.attr("id", media.assetLinqID);
-                holder.data("assetHidden", true);
-                holder.data("ishotspot", isHotspot);
-
-                holder.data('info', media);
-                media.button = holder;
-                holder.on("click", hotspotAssetClick(media));
-                holder.on("mousedown", downhelper(holder));
-                holder.on("mouseup", uphelper(holder));
-                container.append(holder);
-                hotspotsHolderArray.push(holder);
-                hotspotsArray.push(media);
-
-                var mediaHolderDiv = $(document.createElement('div'));
-                mediaHolderDiv.addClass('mediaHolderDiv');
-                holder.append(mediaHolderDiv);
-
-                var holderContainer = $(document.createElement('div')).addClass('holderContainer');
-                mediaHolderDiv.append(holderContainer);
-
-                var holderInnerContainer = $(document.createElement('div')).addClass('holderInnerContainer');
-                holderContainer.append(holderInnerContainer);
-
-                var mediaHolderImage = $(document.createElement('img'));
-                mediaHolderImage.addClass('assetHolderImage');
-                switch (media.contentType) {
+                switch (metadata.ContentType) {
                     case 'Audio':
-                        mediaHolderImage.attr('src', tagPath+'images/audio_icon.svg');
+                        src = tagPath+'images/audio_icon.svg';
                         break;
                     case 'Video':
-                        mediaHolderImage.attr('src', (media.thumbnail && !media.thumbnail.match(/.mp4/)) ? LADS.Worktop.Database.fixPath(media.thumbnail) : 'images/video_icon.svg');
+                        src = (thumb && !thumb.match(/.mp4/)) ? FIX_PATH(thumb) : 'images/video_icon.svg';
                         break;
                     case 'Image':
-                        mediaHolderImage.attr('src', media.thumbnail ?  LADS.Worktop.Database.fixPath(media.thumbnail) :LADS.Worktop.Database.fixPath(media.source));
+                        src = thumb ? FIX_PATH(thumb) : FIX_PATH(metadata.Source);
                         break;
                     default:
-                        mediaHolderImage.attr('src', tagPath+'images/text_icon.svg');
+                        src = tagPath + 'images/text_icon.svg';
                         break;
                 }
 
-                mediaHolderImage.removeAttr('width');
-                mediaHolderImage.removeAttr('height');
-
-                mediaHolderImage.css({
-                    'max-height': 0.15 * 0.7 * $("#tagRoot").height() + "px",
-                    'max-width': 0.22 * 0.89 * 0.95 * 0.40 * 0.92 * $("#tagRoot").width() + "px"
-                });
-
-                holderInnerContainer.append(mediaHolderImage);
-
-                var title = $(document.createElement('div'));
-				title.addClass('mediaHolderTitle');
-                title.text(LADS.Util.htmlEntityDecode(media.title));
-                holder.append(title);
-            };
-        }
-        ///////////////////////////////////////
-        
-        //get the hotspots for the artwork
-        if (hotspots.length != 0) {
-            NUM_DRAWERS++;
-            var hotspotsDrawer = createDrawer('Hotspots', (hotspots.length === 0));
-            for (var k = 0; k < hotspots.length; k++) {
-                loadQueue.add(createMediaHolder(hotspotsDrawer.contents, hotspots[k], true));
+                container.append(LADS.Util.Artwork.createThumbnailButton({
+                    title:       LADS.Util.htmlEntityDecode(media.doq.Name),
+                    handler:     mediaClicked(media),
+                    buttonClass: 'mediaButton',
+                    buttonID:    'thumbnailButton-'+media.doq.Identifier,
+                    src:         src
+                }));
             }
-            assetContainer.append(hotspotsDrawer);
         }
 
-        if (assets.length != 0) {
-            NUM_DRAWERS++;
-            var assetsDrawer = createDrawer('Assets', (assets.length===0));
-            for (var j = 0; j< assets.length; j++) {
-                loadQueue.add(createMediaHolder(assetsDrawer.contents, assets[j], false));
-            }
-            assetContainer.append(assetsDrawer);
-        }
-
-        //Called when hotspots or assets are clicked
-        function hotspotAssetClick(hotspotsAsset) {//check if the location history is open before you click the button, if so, close it
+        /**
+         * Generates a click handler for a specific associated media object
+         * @method mediaClicked
+         * @param {Object} media       the associated media object (from AnnotatedImage)
+         */
+        function mediaClicked(media) {
             return function () {
-                hotspotsAsset.mediaload();
-                if (locationHistoryActive) {
-                    locationHistoryActive = false;
-                    locationHistory.css({
-                        'color': locationList.length ? 'white' : "rgb(136, 136, 136)",
-                        "font-size": "25px",
-                    });
-                    locationHistoryToggle.hide();
-                    locationHistoryToggle.hide("slide", { direction: direction }, 500);
-                    locationHistoryDiv.hide("slide", { direction: direction }, 500);
-                    setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
-                }
-                hotspotsAsset.toggle();
-                hotspotsAsset.pauseAsset();
+                locHistoryActive && toggleLocationPanel();
+                media.create(); // returns if already created
+                media.toggle();
+                media.pauseReset();
             };
         }
-        var toursDrawer;
 
         // Load tours and filter for tours associated with this artwork
         LADS.Worktop.Database.getTours(function (tours) {
-            var relatedTours = tours.filter(function (tour) {
-                if (!tour.Metadata || !tour.Metadata.RelatedArtworks || tour.Metadata.Private === "true")
+            var relatedTours,
+                maxHeight;
+
+            relatedTours = tours.filter(function (tour) {
+                var relatedArtworks;
+                if (!tour.Metadata || !tour.Metadata.RelatedArtworks || tour.Metadata.Private === "true") {
                     return false;
-                var relatedArtworks = JSON.parse(tour.Metadata.RelatedArtworks);
-                return relatedArtworks instanceof Array && relatedArtworks.indexOf(doq.Identifier) > -1;
+                }
+                relatedArtworks = JSON.parse(tour.Metadata.RelatedArtworks);
+                if(!relatedArtworks || !relatedArtworks.length) {
+                    return false;
+                }
+                return relatedArtworks.indexOf(doq.Identifier) >= 0;
             });
 
-            if (relatedTours.length != 0) {
-                NUM_DRAWERS++;
-                toursDrawer = createDrawer('Tours', relatedTours.length === 0);
-                assetContainer.append(toursDrawer);
-                if (relatedTours.length > 0) {
-                    toursDrawer.contents.text('');
-                    $.each(relatedTours, function (index, tour) {
-                        loadQueue.add(createTourHolder(toursDrawer.contents, tour));
-                    });
+            if (relatedTours.length > 0) {
+                tourDrawer = createDrawer('Tours');
+                assetContainer.append(tourDrawer);
+                currBottom += tourDrawer.height();
+
+                tourDrawer.contents.text('');
+                for(i=0; i<relatedTours.length; i++) {
+                    loadQueue.add(createTourButton(tourDrawer.contents, relatedTours[i]));
                 }
             }
 
-            var maxHeight= $("#assetContainer").height() - $('.drawerHeader').height() * NUM_DRAWERS - 10;
-            if (maxHeight<=0)
-                maxHeight=1;
+            // set max height of drawers to avoid expanding into minimap area
+            maxHeight = Math.max(1, assetContainer.height() - currBottom);
             root.find(".drawerContents").css({
-                "max-height": maxHeight +"px",
+                "max-height": maxHeight + "px",
             });
         });
 
         function tourClicked(tour) {
             return function () {
-                if (LADS.Util.Splitscreen.on()) {
-                    confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
-                        if (!switching) {
-                            switching = true;
-                            zoomimage.unload();
-                            /* nbowditch _editted 2/13/2014 : added prevInfo */
-                            prevInfo = { artworkPrev: "artmode", prevScroll: prevScroll };
-                            var rinData = JSON.parse(unescape(tour.Metadata.Content)),
-                            rinPlayer = new LADS.Layout.TourPlayer(rinData, exhibition, prevInfo, options);
-                            /* end nbowditch edit */
-                            //check if the screen split is on, exit the other one if splitscreen is on to play the tour on full screen.
-                            if (LADS.Util.Splitscreen.on()) {
-                                var parentid = $(root).parent().attr('id');
-                                LADS.Util.Splitscreen.exit(parentid[parentid.length - 1]);
-                            }
-                            LADS.Util.UI.slidePageLeftSplit(root, rinPlayer.getRoot(), rinPlayer.startPlayback);
-                        }
-                    },
-                    "By opening this tour, you will exit split screen mode. Would you like to continue?",
-                    "Continue",
-                    false,
-                    function () {
-                        $(confirmationBox).remove();
-                    },
-                    root);
-                    $(confirmationBox).css('z-index', 10001);
-                    root.append($(confirmationBox));
-                    $(confirmationBox).show();
-                } else {
-                    if (!switching) {
-                        switching = true;
-                        zoomimage.unload();
-                        /* nbowditch _editted 2/13/2014 */
-                        prevInfo = { artworkPrev: "artmode", prevScroll: prevScroll };
-                        var rinData = JSON.parse(unescape(tour.Metadata.Content)),
-                        rinPlayer = new LADS.Layout.TourPlayer(rinData, exhibition, prevInfo, options);
-                        /* end nbowditch edit */
-                        //check if the screen split is on, exit the other one if splitscreen is on to play the tour on full screen.
-                        if (LADS.Util.Splitscreen.on()) {
-                            var parentid = $(root).parent().attr('id');
-                            LADS.Util.Splitscreen.exit(parentid[parentid.length - 1]);
-                        }
-                        LADS.Util.UI.slidePageLeftSplit(root, rinPlayer.getRoot(), rinPlayer.startPlayback);
-                    }
-                }
+                var rinData,
+                    parentid,
+                    prevInfo,
+                    rinPlayer;
+                
+                annotatedImage.unload();
+                prevInfo = { artworkPrev: "artmode", prevScroll: prevScroll };
+                rinData = JSON.parse(unescape(tour.Metadata.Content)),
+                rinPlayer = new LADS.Layout.TourPlayer(rinData, prevCollection, prevInfo, options);
+            
+                LADS.Util.UI.slidePageLeftSplit(root, rinPlayer.getRoot(), rinPlayer.startPlayback);
             };
         }
-        
 
-        
-
-        //Send Feedback (bleveque: commented it out for Curtis, need to put it back in)
-        var feedbackContainer = $('notmatchinganything'); // TODO initFeedback();
+        /*************************************************************************
+         * MINIMAP CODE. bleveque: didn't rewrite this; separate issue
+         *                         if some variable names are off now, let me know
+         */
 
         //Create minimapContainer...
 		var minimapContainer = root.find('#minimapContainer');
-        // minimapContainer.on('scroll', function(evt){
-        //     evt.preventDefault();
-        // });
 
         sideBarSections.append(minimapContainer);
-
-        feedbackContainer.css("top", (minimapContainer.position().top - 0.05 * $(document).height()) + "px");//set feedback location
-
 
         //A white rectangle for minimap to show the current shown area for artwork
 		var minimaprect = root.find('#minimaprect');
@@ -43175,9 +42687,9 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
             x = Math.max(0, Math.min(x, 1));
             y = Math.max(0, Math.min(y, 1 / AR));
             var s = 1 + (1 - evt.scale);
-            if (s) zoomimage.viewer.viewport.zoomBy(s, false);
-            zoomimage.viewer.viewport.panTo(new Seadragon.Point(x, y), true);
-            zoomimage.viewer.viewport.applyConstraints();
+            if (s) annotatedImage.viewer.viewport.zoomBy(s, false);
+            annotatedImage.viewer.viewport.panTo(new Seadragon.Point(x, y), true);
+            annotatedImage.viewer.viewport.applyConstraints();
         }
         function onMinimapScroll(res, pivot) {
             var a = 0;
@@ -43230,8 +42742,11 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
                 left: (x-1) + "px"
             });
         }
-        zoomimage.addAnimateHandler(dzMoveHandler);
+        annotatedImage.addAnimateHandler(dzMoveHandler);
 
+        /*
+         * END MINIMAP CODE
+         ******************/
     }
 
     /**
@@ -43244,613 +42759,254 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
      * @author jastern
      */
     function initlocationHistory() {
-        //create container div for locationhistory
-		locationHistoryContainer = root.find('#locationHistoryContainer');
-		
-        //have the container clickable. check histOnClick for more details.
-        locationHistoryContainer.click(histOnClick);
-        //create the icon for location history
-        //create the div for text
-		locationHistory = root.find('#locationHistory');
-
-        locationHistory.text('Location History');
-        locationHistory.css({
-            'color': locationList.length ? 'white' : 'rgb(136,136,136)'
-        });
-
-        //panel that slides out when location history is clicked
-		locationHistoryDiv = root.find('#locationHistoryDiv');
-        var offsetSide = window.innerWidth * 0.22,
-		locwidth = (!LADS.Util.Splitscreen.on()) ?//if the splitscreen is not on, set the width as 78% of current window width.
-					window.innerWidth * 0.78 ://else set the width based on the side of screen. 
-					((root.data('split') === 'L') ?
-						$('#metascreen-L').width() - window.innerWidth * 0.22 :
-						$('#metascreen-R').width() - window.innerWidth * 0.22);
-
-        //create the panel for location history.
-		var locationHistoryPanel = root.find('#locationHistoryPanel');
-
-        //set the position of outtermost div and panel for locationhistory based on the which splitscreen
-        if (root.data('split') === 'R') {
-            var locpaneloffset = locwidth * 0.125;
-            locationHistoryPanel.css({
-                position: 'relative',
-                left: locpaneloffset + 'px'
-            });
-        } else {
-            //locationHistoryDiv.css({ left: offsetSide });
+        if(locationList.length === 0) {
+            locHistoryContainer.remove();
+            return;
         }
 
-        var mapOverlay = $(LADS.Util.UI.blockInteractionOverlay());//overlay for when 'edit ink' component option is selected while playhead is not over the art track
-        $(mapOverlay).addClass('mapOverlay');
-        var overlayLabel = $('<label>').text("Map has no location history to display.");
-        overlayLabel.attr("id", "mapOverlayLabel");
+        var locHistoryPanel      = root.find('#locationHistoryPanel'),
+            locHistoryToggleIcon = root.find('#locationHistoryToggleIcon'),
+            mapOverlay           = $(LADS.Util.UI.blockInteractionOverlay()).addClass('mapOverlay'),
+            overlayLabel         = $(document.createElement('label')),
+            lpContents           = $(document.createElement('div')).addClass('lpContents'),
+            lpTitle              = $(document.createElement('div')),
+            lpMapDiv             = $(document.createElement('div')).addClass('lpMapDiv'),
+            lpTextInfoDiv        = $(document.createElement('div')).addClass('lpTextInfoDiv'),
+            lpTextDiv            = $(document.createElement('div')).addClass("lpTextDiv"),
+            lpInfoDiv            = $(document.createElement('div')).addClass('lpInfoDiv');
+
+        overlayLabel.text('Map has no location history to display.');
+        overlayLabel.attr('id', 'mapOverlayLabel');
         mapOverlay.append(overlayLabel);
 
-        var lpContents = $(document.createElement('div'));
-        lpContents.addClass('lpContents');
-
         lpContents.append(mapOverlay);
-        //
-        locationHistoryPanel.append(lpContents);
+        locHistoryPanel.append(lpContents);
 
-        //create a div for title
-        var lpTitle = $(document.createElement('div'));
-        lpTitle.attr("id", "lpTitle");
+        lpTitle.attr('id', 'lpTitle');
         lpTitle.text('Location History');
-
         lpContents.append(lpTitle);
-        //create a div for map
-        var lpMapDiv = $(document.createElement('div'));
-        
-        //set the id of map div according to the splitscreen position.
-        if (root.data('split') === 'R') {
-            lpMapDiv.attr('id', 'lpMapDivR');
-        } else {
-            lpMapDiv.attr('id', 'lpMapDiv');
-        }
-        lpMapDiv.addClass('lpMapDiv');
 
+        lpMapDiv.attr('id', 'lpMapDiv');
         lpContents.append(lpMapDiv);
-        //this div contains all text information about the artwork's location history.
-        var lpTextInfoDiv = $(document.createElement('div'));
-        lpTextInfoDiv.addClass('lpTextInfoDiv');
 
         lpContents.append(lpTextInfoDiv);
-        //this div contains a list of locations for the artwork.
-        var lpTextDiv = $(document.createElement('div'));
-        lpTextDiv.addClass("lpTextDiv");
-
         lpTextInfoDiv.append(lpTextDiv);
-        //this div gives details about one specific location history when one location is clicked.
-        var lpInfoDiv = $(document.createElement('div'));
-        lpInfoDiv.addClass('lpInfoDiv');
-
         lpTextInfoDiv.append(lpInfoDiv);
 
-        //create the toggler to close the location history. Same arrow as sidebar toggler. 
-        locationHistoryToggle = root.find('#locationHistoryToggle');
+        locHistoryToggle.css({
+            left: '87.5%',
+            'border-bottom-right-radius': '10px',
+            'border-top-right-radius': '10px'
+        });
+        locHistoryToggleIcon.attr('src', tagPath+'images/icons/Close.svg');
 
-        var locationHistoryToggleIcon = root.find('#locationHistoryToggleIcon');
 
-        //set the toggler based on the splitscreen.
-        if (root.data('split') === 'R') {
-            locationHistoryToggle.css({
-                right: '87.5%',
-                'border-bottom-left-radius': '10px',
-                'border-top-left-radius': '10px'
-            });
-            locationHistoryToggleIcon.attr('src', tagPath+'images/icons/Open.svg');
-        } else {
-            locationHistoryToggle.css({
-                left: '87.5%',
-                'border-bottom-right-radius': '10px',
-                'border-top-right-radius': '10px'
-            });
-            locationHistoryToggleIcon.attr('src', tagPath+'images/icons/Close.svg');
-        }
-
-        locationHistoryToggle.click(toggleLocationPanel);
+        locHistoryToggle.on('click', toggleLocationPanel);
+        locHistoryContainer.on('click', histOnClick);
 
         /**
-         * This is the click function LocationHistoryContainer. 
+         * A callback function to populate the location history map after it has been created
+         * @method prepMap
+         */
+        function prepMap () {
+            var unselectedCSS = {
+                    'background-color': 'transparent',
+                    'color': 'white'
+                },
+                selectedCSS = {
+                    'background-color': 'white',
+                    'color': 'black',
+                },
+                address,
+                date,
+                year,
+                i,
+                locBox,
+                pushpinOptions;
+
+            /**
+             * Helper function to draw pushpin on location history map when a location's info
+             * box is clicked
+             * @method drawPinHelper
+             * @param {Object} e    event data related to a location
+             */
+            function drawPinHelper(e) {
+                var $this = $(this),
+                    latitude,
+                    longitude,
+                    location,
+                    viewOptions;
+
+                LADS.Util.UI.drawPushpins(locationList, map);
+
+                lpInfoDiv.html($this.html() + "<br/>" + (e.data.info ? e.data.info : ''));
+
+                $('img.removeButton').attr('src', tagPath+'images/icons/minus.svg');
+                $('img.editButton').attr('src', tagPath+'images/icons/edit.png');
+                $('div.locations').css(unselectedCSS);
+
+                $this.find('img.removeButton').attr('src', tagPath+'images/icons/minusB.svg');
+                $this.find('img.editButton').attr('src', tagPath+'images/icons/editB.png');
+                $this.css(selectedCSS);
+
+                if (e.data.resource.latitude) {
+                    location  = e.data.resource;
+                } else {
+                    latitude  = e.data.resource.point.coordinates[0];
+                    longitude = e.data.resource.point.coordinates[1];
+                    location  = new Microsoft.Maps.Location(latitude, longitude);
+                }
+                viewOptions = {
+                    center: location,
+                    zoom: 4,
+                };
+                map.setView(viewOptions);
+            }
+
+            for (i = 0; i < locationList.length; i++) {
+                pushpinOptions = {
+                    text: '' + (i + 1),
+                    icon: tagPath+'images/icons/locationPin.png',
+                    width: 20,
+                    height: 30
+                };
+                address = locationList[i].address;
+                date = '';
+                if (locationList[i].date && locationList[i].date.year) {
+                    year = locationList[i].date.year;
+                    if (year < 0) { // add BC to years that are less than 0
+                        year = Math.abs(year) + ' BC';
+                    }
+                    date = year;
+                } else {
+                    date = '<i>Date Unspecified</i>';
+                }
+
+                // create a box in the lower pane for each location
+                locBox = $(document.createElement('div'));
+                locBox.addClass('locations');
+                locBox.html((i + 1) + '. ' + address + ' - ' + date + '<br>');
+
+                lpTextDiv.append(locBox);
+
+                // display more information about the location when locBox is clicked
+                locBox.click(locationList[i], drawPinHelper);
+                locBox.fadeIn();
+            }
+
+            LADS.Util.UI.drawPushpins(locationList, map);
+            toggleLocationPanel();
+        };
+
+        /**
+         * Click handler to expand location history window
+         * @method histOnClick 
          */
         function histOnClick() {
-            console.log("clicking on location history");
-
-            locationList = LADS.Util.UI.getLocationList(options.doq.Metadata); //Location List is LOADED HERE
-
             if (locationList.length === 0) {
                 mapOverlay.show();
             }
-            if (!mapMade || !map) {
-                console.log("in if");
-                var prepMap = function () {
-                    console.log("in prepMap");
-                    //make location pushpins show up on map
-                    locationList = LADS.Util.UI.getLocationList(options.doq.Metadata); //Location List is LOADED HERE
-                    LADS.Util.UI.drawPushpins(locationList, map);
-
-
-                    //traverse locationList and populate the location list
-                    //lptext.information contains further information to be displayed when clicked
-                    function drawPinHelper(e) {
-                        LADS.Util.UI.drawPushpins(locationList, map);
-
-                        //display location information
-                        if (e.data.info !== undefined)
-                            lpInfoDiv.html($(this).html() + "<br/>" + e.data.info);
-                        else
-                            lpInfoDiv.html($(this).html() + "<br/>");
-
-                        $('div.locations').css(unselectedCSS);
-                        $('img.removeButton').attr('src', tagPath+'images/icons/minus.svg');
-                        $('img.editButton').attr('src', tagPath+'images/icons/edit.png');
-                        $(this).find('img.removeButton').attr('src', tagPath+'images/icons/minusB.svg');
-                        $(this).find('img.editButton').attr('src', tagPath+'images/icons/editB.png');
-                        $(this).css(selectedCSS);
-                        var lat, long, location;
-                        if (e.data.resource.latitude) {
-                            location = e.data.resource;
-                        } else {
-                            lat = e.data.resource.point.coordinates[0];
-                            long = e.data.resource.point.coordinates[1];
-                            location = new Microsoft.Maps.Location(lat, long);
-                        }
-                        var viewOptions = {
-                            center: location,
-                            zoom: 4,
-                        };
-                        map.setView(viewOptions);
-                    }
-
-                    for (var i = 0; i < locationList.length; i++) {
-
-                        var unselectedCSS = {
-                            'background-color': 'transparent',
-                            'color': 'white'
-                        };
-                        var selectedCSS = {
-                            'background-color': 'white',
-                            'color': 'black',
-                        };
-                        var pushpinOptions = {
-                            text: String(i + 1),
-                            icon: tagPath+'images/icons/locationPin.png',
-                            width: 20,
-                            height: 30
-                        };
-                        var address = locationList[i].address;
-                        var date = '';
-                        if (locationList[i].date && locationList[i].date.year) {
-                            var year = locationList[i].date.year;
-                            if (year < 0) {
-                                //add BC to years that are less than 0
-                                year = Math.abs(year) + ' BC';
-                            }
-                            date = " - " + year;
-                        } else {
-                            date = ' - <i>Date Unspecified</i>';
-                        }
-                        //create a div for each location.
-                        var newDiv = $(document.createElement('div'));
-                        newDiv.addClass('locations');
-                        newDiv.html((i + 1) + '. ' + address + date + '<br>');
-
-                        lpTextDiv.append(newDiv);
-
-                        LADS.Util.UI.drawPushpins(locationList, map);
-
-                        //display more information about the location when newdiv is clicked
-                        newDiv.click(locationList[i], drawPinHelper);
-                        newDiv.fadeIn();
-                    }
-
-                    console.log("here 1");
-                    toggleLocationPanel();
-                };
-
-                console.log("here 2");
+            if (!map) {
                 makeMap(prepMap);
             } else {
-                console.log("in else");
                 toggleLocationPanel();
             }
         }
-        /*
-        **toggles location panel when LocationHistoryContainer or toggler is clicked.
-        **@return: locationHistoryContainer
+
+        /**
+         * Toggles location panel when locHistoryContainer or toggler is clicked
+         * @method toggleLocationPanel
         */
         function toggleLocationPanel() {
-            console.log("toggle location panel");
-            if (locationList.length === 0) return;
-            if (LADS.Util.Splitscreen.on()) {
+            if (locationList.length === 0) {
                 return;
             }
-            //set the direction based on the splitscreen position
-            if (root.data('split') === 'R') {
-                direction = 'right';
+
+            if (locHistoryActive) {
+                locHistory.text('Location History');
+                locHistory.css('color', 'white');
+                locHistoryToggle.hide("slide", { direction: 'left' }, 500);
+                locHistoryDiv.hide("slide", { direction: 'left' }, 500);
+                setTimeout(toggler.show, 500);
             } else {
-                direction = 'left';
-            }
-            //if the panel is currently shown, hide it.
-            if (locationHistoryActive) {
-                locationHistory.text('Location History');
-                locationHistory.css({ 'color': 'white' });
-                locationHistoryToggle.hide();
-                locationHistoryToggle.hide("slide", { direction: direction }, 500);
-                locationHistoryDiv.hide("slide", { direction: direction }, 500);
-                setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
-                locationHistoryActive = false;
-            }
-            else {//show the panel if it is hidden when clicked
-                locationHistory.text('Location History');
-                locationHistoryToggle.hide();
-                locationHistoryDiv.show("slide", { direction: direction }, 500, function () {
-                    locationHistoryToggle.show();
+                locHistory.text('Location History');
+                locHistoryToggle.hide();
+                locHistoryDiv.show("slide", { direction: 'left' }, 500, function () {
+                    locHistoryToggle.show();
                 });
-                locationHistoryDiv.css({ display: 'inline' });
+                locHistoryDiv.css('display', 'inline');
                 toggler.hide();
-                locationHistoryActive = true;
             }
+            locHistoryActive = !locHistoryActive;
         }
 
-        locationHistoryContainer.append(locationHistory);
+        locHistoryContainer.append(locHistory);
 
-        if (LADS.Util.Splitscreen.on()) {
-            locationHistory.css('opacity', '0.5');
-        }
-
-        return locationHistoryContainer;
+        return locHistoryContainer;
     }
 
-    /*
-    **this function create drawer for hotspots, assets and tour. 
-    **@para: title of the drawer
-    */
-    function createDrawer(title, grayOut) {
-        //here goes the basic UI elements for drawer: Outtermost div, header, iconContainer, icon and etc
-        var drawer = $(document.createElement('div'));
+    /**
+     * Create a drawer (e.g., for list of related tours or the artwork's description) 
+     * @param {String} title        title of the drawer
+     * @return {jQuery obj}         the drawer
+     */
+    function createDrawer(title) {
+        var drawer          = $(document.createElement('div')).addClass('drawer'),
+            drawerHeader    = $(document.createElement('div')).addClass('drawerHeader'),
+            label           = $(document.createElement('div')).addClass('drawerLabel'),
+            toggleContainer = $(document.createElement('div')).addClass('drawerToggleContainer'),
+            toggle          = $(document.createElement('img')).addClass("drawerPlusToggle"),
+            drawerContents  = $(document.createElement('div')).addClass("drawerContents"),
+            i;
 
-        drawer.addClass('drawer');
-
-        var drawerHeader = $(document.createElement('div'));
-        drawerHeader.addClass('drawerHeader');
-        drawerHeader.appendTo(drawer);
-
-        var label = $(document.createElement('div'));
-        label.addClass('label');
         label.text(title);
-        label.css({
-            'color': grayOut ? '#888888' : 'white'
+        toggle.attr({
+            src: tagPath+'images/icons/plus.svg',
+            expanded: false
         });
-        label.appendTo(drawerHeader);
 
-        if (!grayOut) {
-            var toggleContainer = $(document.createElement('div'));
-            toggleContainer.addClass('toggleContainer');
-            toggleContainer.appendTo(drawerHeader);
+        drawer.append(drawerHeader);
+        drawerHeader.append(label);
+        drawerHeader.append(toggleContainer);
+        toggleContainer.append(toggle);
+        drawer.append(drawerContents);
 
-            var toggle = $(document.createElement('img'));
-            toggle.addClass("plusToggle");
-            toggle.attr('src', tagPath+'images/icons/plus.svg');
-
-            toggle.appendTo(toggleContainer);
-            drawer.isslided = false;
-            var drawerContents = $(document.createElement('div'));
-            drawerContents.addClass("drawerContents");
-            // var maxHeight= $("#assetContainer").height() - $('.drawerHeader').height() * NUM_DRAWERS - 15; // 165;
-            // if (maxHeight<=0)
-            //     maxHeight=1;
-            // drawerContents.css({
-            //     "max-height": maxHeight +"px",
-            // });
-            drawerContents.appendTo(drawer);
-
-            //have the toggler icon minus when is is expanded, plus otherwise.
-            drawerHeader.on('click', function (evt) {
-                if (drawer.isslided === false) {
-                    root.find(".plusToggle").attr('src', tagPath+'images/icons/plus.svg');//ensure only one shows.
-                    root.find(".drawerContents").slideUp();
-
-                    $.each(drawers, function () {
-                        this.isslided = false;
-                    });
-                    toggle.attr('src', tagPath+'images/icons/minus.svg');
-                    drawer.isslided = true;
-                }
-                else {
-                    toggle.attr('src', tagPath+'images/icons/plus.svg');
-                    $.each(hotspotsHolderArray, function () {
-                        if (!this.data("assetHidden")) {
-                            this.css({
-                                'color': 'white',
-                                'background-color': ''
-                            });
-
-                            this.data("assetHidden", true);
-                        }
-                    });
-                    $.each(hotspotsArray, function () {
-                        this.hide();
-                    });
-                    drawer.isslided = false;
-                }
-                drawerContents.slideToggle();
-            });
-
-            drawer.contents = drawerContents;
-        }
-        drawers.push(drawer);
-
-        return drawer;
-    }
-
-    function splitscreenAdjustments() {
-        splitscreen.text('Exit Split Screen');
-    }
-
-    // exhibition picker
-    function createExhibitionPicker(artworkObj) {
-        // debugger; // this shouldn't be called in the web app...
-        var exhibitionPicker = $(document.createElement('div'));
-        exhibitionPicker.addClass("exhibitionPicker");
-
-        var infoLabel = $(document.createElement('div'));
-        infoLabel.addClass("infoLabel");
-
-        infoLabel.text('Choose an exhibition in which to view the artwork.');
-        exhibitionPicker.append(infoLabel);
-
-        var exhibitionsList = $(document.createElement('div'));
-        exhibitionsList.addClass("exhibitionsList");
-
-        exhibitionPicker.append(exhibitionsList);
-
-        var cancelButton = $(document.createElement('button'));
-        cancelButton.attr('type', 'button');
-        cancelButton.addClass("cancelButton");
-
-        cancelButton.text('Cancel');
-
-        cancelButton.click(function () {
-            exhibitionPicker.detach();
-        });
-        exhibitionPicker.append(cancelButton);
-
-        root.append(exhibitionPicker);
-
-        exhibitionSelect(artworkObj);
-
-        function exhibitionSelect(artwork) {
-            var i;
-            var xml = LADS.Worktop.Database.getDoqXML(artwork.Identifier);
-            var parser = new DOMParser();
-            var artworkXML = parser.parseFromString(xml, 'text/xml');
-            var selected;
-            var currentExhibitions = [];
-            var exhibitionLabelArray = [];
-
-            for (i = 0; i < artworkXML.getElementsByTagName('FolderId').length; i++) {
-                var exhib_id = artworkXML.getElementsByTagName('FolderId')[i].textContent;
-                currentExhibitions.push(exhib_id);
-            }
-
-            for (i = 0; i < currentExhibitions.length; i++) {
-                var exhibitionLabelWrapper = document.createElement('div');
-                var exhibitionLabel = $(document.createElement('div'));
-                exhibitionLabel.addClass(".exhibitionLabel");
-                exhibitionLabel.css({
-                    width: '80%',
-                    color: 'white',
-                    'font-size': '180%',
+        //have the toggler icon minus when is is expanded, plus otherwise.
+        drawerHeader.on('click', function (evt) {
+            if (toggle.attr('expanded') !== 'true') {
+                $(".plusToggle").attr({
+                    src: tagPath+'images/icons/plus.svg',
+                    expanded: false
                 });
-                exhibitionLabel.text(currentExhibitions[i].Name);
-                var exhibitionObject = currentExhibitions[i];
-                $(exhibitionLabelWrapper).append(exhibitionLabel);
-                exhibitionLabelArray.push(exhibitionLabelWrapper);
-            }
+                $(".drawerContents").slideUp();
 
-            $.each(currentExhibitions, function (i, exhibition) {
-                var toAdd = LADS.Worktop.Database.getDoq(exhibition);
-                if (toAdd.Metadata.Private === "true" || toAdd.Metadata.Type !== "Exhibit" || toAdd.Metadata.Deleted) { return; }
-                else {
-                    var name = toAdd.Name;
-                    var preview = LADS.Worktop.Database.fixPath(toAdd.Metadata.BackgroundImage);
-                    var listCell = $(document.createElement('div'));
-                    listCell.addClass("exhibitions-list-cell");
-
-                    listCell.on('mousedown', function () {
-                        listCell.css({
-                            'background-color': 'white',
-                            'color': 'black',
-                        });
-                        listCell.on('mouseleave', function () {
-                            listCell.css({
-                                'background-color': 'black',
-                                'color': 'white',
-                            });
-                        });
-                    });
-                    listCell.on('mouseup', function () {
-                        listCell.css({
-                            'background-color': 'black',
-                            'color': 'white',
-                        });
-                        listCell.off('mouseleave');
-                    });
-                    
-
-                    var textBox = $(document.createElement('div'));
-                    textBox.addClass("textbox");
-
-                    textBox.text(name);
-
-                    // Create an img element to load the image
-                    var img = $(document.createElement('img'));
-                    img.addClass("imgLoader");
-                    img.attr('src', preview);
-
-                    listCell.append(img);
-                    listCell.append(textBox);
-
-                    // Create a progress circle
-                    var progressCircCSS = {
-                        'position': 'absolute',
-                        'left': '40%',
-                        'top': '40%',
-                        'z-index': '50',
-                        'height': 'auto',
-                        'width': '20%'
-                    };
-
-                    var circle = LADS.Util.showProgressCircle(img, progressCircCSS, '0px', '0px', true);
-
-                    img.load(function () {
-                        LADS.Util.removeProgressCircle(circle);
-                    });
-
-                    exhibitionsList.append(listCell);
-                    listCell.click(function () {
-
-                        /* nbowditch _editted 2/14/2013 : added backInfo */
-                        var backInfo = { backArtwork: null, backScroll: prevScroll };
-                        var newSplit = new LADS.Layout.NewCatalog(backInfo, toAdd);
-                        /* end nbowditch edit */
-                        LADS.Util.Splitscreen.init(root, newSplit.getRoot());
-                        splitscreen.text('Exit Split Screen');
-                        locsize = $('#metascreen-L').width() - window.innerWidth * 0.2;
-                        $('.exhibitionPicker').remove();
-
-                        newSplit.loadInteraction();
-
-                        backButton.off('click');
-                        backButton.on('click', function () {
-                            backButton.off('click');
-                            zoomimage && zoomimage.unload();
-                            /* nbowditch _editted 2/13/2014 */
-                            var backInfo = { backArtwork: doq, backScroll: prevScroll };
-                            var catalog = new LADS.Layout.NewCatalog(backInfo, toAdd);
-                            /* end nbowditch edit */
-
-                            catalog.getRoot().css({ 'overflow-x': 'hidden' });
-                            LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
-                                catalog.getRoot().css({ 'overflow-x': 'hidden' });
-                                var newState = {};
-                                newState.currentSort = "Title";
-                                newState.exhibition = toAdd;
-                                newState.tag = "Title";
-                                newState.currentImage = artwork;
-                                //catalog.setState;  //commented out due to jshint error and unknown purpose
-                            });
-                        });
-                    });
-                }
-            });
-        }
-    }
-
-    function initFeedback() {
-
-        var feedbackContainer = root.find('#feedbackContainer');
-
-        var feedback = root.find('#feedback-text');
-        feedback.text('Send Feedback');
-
-         var feedbackIcon = root.find('#feedback-icon');
-
-        feedbackIcon.attr('src', tagPath+'images/icons/FeedbackIcon.svg');
-
-        var feedbackBox = LADS.Util.UI.FeedbackBox("Artwork", doq.Identifier);//initiate the send feedback box
-        setTimeout(function () {
-           tagContainer.append(feedbackBox);
-        }, 750);
-        //pop up the feedback editing box when Send Feedback is clicked.
-        // disable for now
-        feedbackContainer.click(makeFeedback);
-        function makeFeedback() {
-            $(feedbackBox).css({ 'display': 'block' });
-        }
-
-        return feedbackContainer;
-    }
-
-    function initSplitscreen() {
-
-        //Split screen sidebar button
-        var splitscreenContainer = root.find('#splitscreenContainer');
-        //create splitscreen Icon
-        var splitscreenIcon = root.find('#splitscreenIcon');
-
-        splitscreenIcon.attr('src', tagPath+'images/icons/SplitW.svg');
-
-        splitscreenContainer.click(function () {
-            if (locationHistoryActive) {
-                locationHistory.text('Location History');
-                locationHistory.css({ 'color': 'white' });
-                locationHistoryToggle.hide();
-                locationHistoryToggle.hide("slide", { direction: direction }, 500);
-                locationHistoryDiv.hide("slide", { direction: direction }, 500);
-                setTimeout(function(){toggler.show()}, 500);//show the toggler for sidebar and hide the locationhistory toggler.
-                locationHistoryActive = false;
-            }
-            if (prevPage === "catalog" && initialized === true) {
-                enterSplitScreen(true);
+                toggle.attr({
+                    src: tagPath+'images/icons/minus.svg',
+                    expanded: true
+                });
             } else {
-                enterSplitScreen();
+                toggle.attr({
+                    src: tagPath+'images/icons/plus.svg',
+                    expanded: false
+                });
+
+                for(i=0; i<associatedMedia.guids.length; i++) {
+                    if(associatedMedia[associatedMedia.guids[i]].isVisible()) {
+                        associatedMedia[associatedMedia.guids[i]].hide();
+                    }
+                }
             }
+            drawerContents.slideToggle();
         });
-        function enterSplitScreen(fromTour) {//click function for splitscreenContainer
-            fromTour = fromTour || 0;
-            $('.locations').css({
-                display: 'block',
-                'white-space': 'nowrap',
-                'text-overflow': 'ellipsis',
-                '-o-text-overflow': 'ellipsis',
-                '-ms-text-overflow': 'ellipsis',
-                overflow: 'hidden'
-            });
 
-            if (!LADS.Util.Splitscreen.on()) {
-                locationHistory.css('opacity', '0.5');
-                //if the user enter artmode from tour tab in exhibition
-                var newSplit;
-                if (exhibition) {
-                    /* nbowditch _editted 2/13/2014 : added backInfo */
-                    var backInfo = { backArtwork: doq, backScroll: prevScroll };
-                    newSplit = new LADS.Layout.NewCatalog(backInfo, exhibition, null, true);
-                    /* end nbowditch edit */
-                    (function () {
-                        splitscreenContainer.hide();
-                        LADS.Util.Splitscreen.init(root, newSplit.getRoot());
-                        zoomimage.viewer.scheduleUpdate();
-
-                        LADS.Util.Splitscreen.setViewers(root, zoomimage);
-                        locsize = $('#metascreen-L').width() - window.innerWidth * 0.2;
-                    })();
-
-                }
-                else if (fromTour !== 0) {
-                    createExhibitionPicker(doq);
-                }
-            }
-            else {//if the splitscreen is on, exit it.
-                var parentid = $(root).parent().attr('id');
-                splitscreenContainer.show();
-                var parentSide = parentid[parentid.length - 1];
-                zoomimage.viewer.scheduleUpdate();
-                LADS.Util.Splitscreen.exit(parentSide);
-                locationHistory.css('opacity', '1');
-            }
-        }
-
-        return splitscreenContainer;
+        drawer.contents = drawerContents;
+        return drawer;
     }
 
     /**
      * Return art viewer root element
      * @method
-     * @return {Object}    root jquery object
+     * @return {jQuery obj}    root jquery object
      */
     this.getRoot = function () {
         return root;
@@ -43862,37 +43018,29 @@ LADS.Layout.Artmode = function (prevInfo, options, exhibition) {
      * @param {Function} callback     function to be called when map making is complete
     */
     function makeMap(callback) {
-        console.log("in make map");
-        var initMap = function () {
-            console.log("making map");
-            var mapOptions =
-            {
-                credentials: "AkNHkEEn3eGC3msbfyjikl4yNwuy5Qt9oHKEnqh4BSqo5zGiMGOURNJALWUfhbmj",
-                mapTypeID: Microsoft.Maps.MapTypeId.road,
-                showScalebar: true,
-                enableClickableLogo: false,
-                enableSearchLogo: false,
-                showDashboard: true,
-                showMapTypeSelector: false,
-                zoom: 2,
-                center: new Microsoft.Maps.Location(20, 0),
-            };
-            var viewOptions = {
-                mapTypeId: Microsoft.Maps.MapTypeId.road,
-            };
-            //create the map based on splitscreen position.
-            if (root.data('split') === 'R') {
-                map = new Microsoft.Maps.Map(document.getElementById('lpMapDivR'), mapOptions);
-            } else {
-                map = new Microsoft.Maps.Map(document.getElementById('lpMapDiv'), mapOptions);
-            }
-            map.setView(viewOptions);
+        var mapOptions,
+            viewOptions;
 
-            mapMade = true;
-            callback();
+        mapOptions = {
+            credentials:         "AkNHkEEn3eGC3msbfyjikl4yNwuy5Qt9oHKEnqh4BSqo5zGiMGOURNJALWUfhbmj",
+            mapTypeID:           Microsoft.Maps.MapTypeId.road,
+            showScalebar:        true,
+            enableClickableLogo: false,
+            enableSearchLogo:    false,
+            showDashboard:       true,
+            showMapTypeSelector: false,
+            zoom:                2,
+            center:              new Microsoft.Maps.Location(20, 0)
         };
+        
+        viewOptions = {
+            mapTypeId: Microsoft.Maps.MapTypeId.road,
+        };
+        
+        map = new Microsoft.Maps.Map(document.getElementById('lpMapDiv'), mapOptions);
+        map.setView(viewOptions);
 
-        initMap();
+        callback && callback();
     }
 
 };
@@ -43911,7 +43059,7 @@ LADS.Util.makeNamespace("LADS.Layout.NewCatalog");
  * @class LADS.Layout.NewCatalog
  * @constructor
  * @param {Object} options         some options for the collections page
- * 
+ * @return {Object}                some public methods
  */
 LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, container, forSplitscreen) {
     "use strict";
@@ -43950,12 +43098,11 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         firstLoad        = true,                        // TODO is this necessary? what is it doing?
         currentArtworks  = [],                          // array of artworks in current collection
         infoSource       = [],                          // array to hold sorting/searching information
-        //inSearch         = false,                       // in the midst of a search?
 
         // constants
         DEFAULT_TAG      = "Title",                                 // default sort tag
         BASE_FONT_SIZE   = LADS.Worktop.Database.getBaseFontSize(), // base font size for current font
-        FIX_PATH         = LADS.Worktop.Database.fixPath,
+        FIX_PATH         = LADS.Worktop.Database.fixPath,           // prepend server address to given path
 
         // misc uninitialized vars
         toursIn,                        // tours in current collection
@@ -44838,11 +43985,12 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         }
         else { // artwork
             scrollPos = catalogDiv.scrollLeft();
-            prevInfo = {
-                prevPage: "catalog",
-                prevScroll: scrollPos
-            };
-            artworkViewer = new LADS.Layout.Artmode(prevInfo, curOpts, currCollection);
+            artworkViewer = new LADS.Layout.Artmode({
+                doq: currentArtwork,
+                prevScroll: scrollPos,
+                prevCollection: currCollection,
+                prevPage: 'catalog'
+            });
             LADS.Util.UI.slidePageLeftSplit(root, artworkViewer.getRoot());
         }
         root.css({ 'overflow-x': 'hidden' });
@@ -45126,13 +44274,11 @@ LADS.Util.makeNamespace("LADS.Layout.TourPlayer");
  * @param prevInfo   object containing previous page info 
  *    artworkPrev      value is 'artmode' when we arrive here from the art viewer
  *    prevScroll       value of scrollbar from new catalog page
- * @param artwork      options to pass into LADS.Layout.Artmode
+ * @param artmodeOptions      options to pass into LADS.Layout.Artmode
  * @param tourObj      the tour doq object, so we can return to the proper tour in the collections screen
  */
-LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj) {
+LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, tourObj) {
     "use strict";
-
-    debugger; // for prevInfo
 
     var artworkPrev;
     var prevScroll = 0;
@@ -45176,8 +44322,8 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artwork, tourObj)
 
         backButton.off('click'); // prevent user from clicking twice
 
-        if (artworkPrev && artwork) {
-            artmode = new LADS.Layout.Artmode(prevInfo, artwork, exhibition);
+        if (artmodeOptions) {
+            artmode = new LADS.Layout.Artmode(artmodeOptions);
             LADS.Util.UI.slidePageRightSplit(root, artmode.getRoot());
 
             var selectedExhib = $('#collection-' + prevExhib.Identifier);

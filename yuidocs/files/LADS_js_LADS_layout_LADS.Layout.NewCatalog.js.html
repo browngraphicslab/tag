@@ -45,6 +45,8 @@
             
                 <li><a href="../classes/CryptoJS.html">CryptoJS</a></li>
             
+                <li><a href="../classes/LADS.AnnotatedImage.html">LADS.AnnotatedImage</a></li>
+            
                 <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
             
                 <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
@@ -54,6 +56,8 @@
                 <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
             
                 <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
+            
+                <li><a href="../classes/LADS.Util.Artwork.html">LADS.Util.Artwork</a></li>
             
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
@@ -109,7 +113,7 @@ LADS.Util.makeNamespace(&quot;LADS.Layout.NewCatalog&quot;);
  * @class LADS.Layout.NewCatalog
  * @constructor
  * @param {Object} options         some options for the collections page
- * 
+ * @return {Object}                some public methods
  */
 LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, container, forSplitscreen) {
     &quot;use strict&quot;;
@@ -148,12 +152,11 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         firstLoad        = true,                        // TODO is this necessary? what is it doing?
         currentArtworks  = [],                          // array of artworks in current collection
         infoSource       = [],                          // array to hold sorting/searching information
-        //inSearch         = false,                       // in the midst of a search?
 
         // constants
         DEFAULT_TAG      = &quot;Title&quot;,                                 // default sort tag
         BASE_FONT_SIZE   = LADS.Worktop.Database.getBaseFontSize(), // base font size for current font
-        FIX_PATH         = LADS.Worktop.Database.fixPath,
+        FIX_PATH         = LADS.Worktop.Database.fixPath,           // prepend server address to given path
 
         // misc uninitialized vars
         toursIn,                        // tours in current collection
@@ -218,7 +221,8 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         var i,
             privateState,
             c,
-            artwrk;
+            artwrk,
+            toShowFirst;
 
         numVisibleCollections = 0;
 
@@ -229,6 +233,7 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
                 if(numVisibleCollections) {
                     bgimage.css(&#x27;background-image&#x27;, &quot;url(&quot; + FIX_PATH(c.Metadata.BackgroundImage) + &quot;)&quot;);
                 }
+                toShowFirst = toShowFirst || c;
                 addCollection(c);
                 numVisibleCollections++;
             }
@@ -241,20 +246,20 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
 
         if (currCollection) {
             clickCollection(currCollection, scrollPos, currentArtwork)();
-        } else {
-            clickCollection(collections[0])(); // first collection selected by default
+        } else if(toShowFirst) {
+            clickCollection(toShowFirst)(); // first collection selected by default
         }
         loadingArea.hide();
     }
 
     /**
-    * When only a single collection exists, this function modifies
-    * the CSS to hide the list of collections and expand the
-    * description area.
-    *
-    * @method enableSingleCollectionUI
-    * @author Athyuttam Eleti
-    */
+     * When only a single collection exists, this function modifies
+     * the CSS to hide the list of collections and expand the
+     * description area.
+     *
+     * @method enableSingleCollectionUI
+     * @author Athyuttam Eleti
+     */
     function enableSingleCollectionUI() {
         collectionArea.css(&quot;display&quot;, &quot;none&quot;);
         collectionHeader.css(&quot;display&quot;, &quot;none&quot;);
@@ -1034,11 +1039,12 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         }
         else { // artwork
             scrollPos = catalogDiv.scrollLeft();
-            prevInfo = {
-                prevPage: &quot;catalog&quot;,
-                prevScroll: scrollPos
-            };
-            artworkViewer = new LADS.Layout.Artmode(prevInfo, curOpts, currCollection);
+            artworkViewer = new LADS.Layout.Artmode({
+                doq: currentArtwork,
+                prevScroll: scrollPos,
+                prevCollection: currCollection,
+                prevPage: &#x27;catalog&#x27;
+            });
             LADS.Util.UI.slidePageLeftSplit(root, artworkViewer.getRoot());
         }
         root.css({ &#x27;overflow-x&#x27;: &#x27;hidden&#x27; });

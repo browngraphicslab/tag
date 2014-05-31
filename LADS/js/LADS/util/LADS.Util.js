@@ -3361,6 +3361,105 @@ LADS.Util.UI = (function () {
 })();
 
 /**
+ * Utils for the artwork viewer and the artwork editor
+ * @class LADS.Util.Artwork
+ */
+LADS.Util.Artwork = (function () {
+    "use strict";
+
+    return {
+        createThumbnailButton: createThumbnailButton
+    };
+
+    /**
+     * Creates a thumbnail button to be used in a side bar list
+     * @method createThumbnailButton
+     * @param {Object} options      options for creating the thumbnail button:
+     *            title         title of the button, shown under the thumbnail
+     *            handler       a click handler for the button
+     *            buttonClass   an extra class to add to the button
+     *            buttonID      an id to give to the button
+     *            src           thumbnail image source
+     *            width         custom width of button
+     *            height        custom height of button
+     * @return {jQuery obj}      the button
+     */
+    function createThumbnailButton(options) {
+        options = options || {};
+
+        var title       = options.title,
+            handler     = options.handler,
+            buttonClass = options.buttonClass,
+            buttonID    = options.buttonID,
+            src         = options.src,
+            width       = options.width,
+            height      = options.height || 0.15 * $('#tagRoot').height() + 'px',
+            holder               = $(document.createElement('div')).addClass('thumbnailButton'),
+            thumbHolderDiv       = $(document.createElement('div')).addClass('thumbnailHolderDiv'),
+            holderContainer      = $(document.createElement('div')).addClass('thumbnailButtonContainer'),
+            holderInnerContainer = $(document.createElement('div')).addClass('thumbnailButtonInnerContainer'),
+            thumbnailImage       = $(document.createElement('img')).addClass('thumbnailButtonImage'),
+            titleDiv             = $(document.createElement('div')).addClass('thumbnailButtonTitle');
+
+        /********************************************\
+
+        ----------------------------------------------
+        |                                            |  <--- holder
+        | ------------------------------------------ |
+        | |                                        | |
+        | |                                        | |
+        | |                                        | <------ thumbHolderDiv
+        | |                                        | |
+        | |              THUMBNAIL                 | |
+        | |                IMAGE                   | |
+        | |                 HERE                  <--------- thumbnailImage
+        | |                                        | |
+        | |                                        | |
+        | |                                        | |
+        | |                                        | |
+        | |                                        | |
+        | |                                        | |
+        | |                                        | |
+        | ------------------------------------------ |
+        | ------------------------------------------ |
+        | |             NAME OF DOQ                | <--- titleDiv
+        | |                                        | |
+        | ------------------------------------------ |
+        ----------------------------------------------
+
+        \********************************************/
+
+        
+        buttonClass && holder.addClass(buttonClass);
+        holder.css('height', height);
+        buttonID && holder.attr('id', buttonID);
+
+        holder.on("click", handler);
+
+        holder.append(thumbHolderDiv);
+        thumbHolderDiv.append(holderContainer);
+        holderContainer.append(holderInnerContainer);
+
+        thumbnailImage.attr('src', src);
+
+        thumbnailImage.removeAttr('width');
+        thumbnailImage.removeAttr('height');
+
+        thumbnailImage.css({ // TODO fix this
+            'max-height': 0.15 * 0.7 * $("#tagRoot").height() + "px",
+            'max-width': 0.22 * 0.89 * 0.95 * 0.40 * 0.92 * $("#tagRoot").width() + "px"
+        });
+
+        holderInnerContainer.append(thumbnailImage);
+
+        titleDiv.text(title);
+        holder.append(titleDiv);
+
+        return holder;
+    }
+})();
+
+/**
  * Built-in object extensions
  */
 

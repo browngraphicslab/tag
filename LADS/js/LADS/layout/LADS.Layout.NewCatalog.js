@@ -5,7 +5,7 @@ LADS.Util.makeNamespace("LADS.Layout.NewCatalog");
  * @class LADS.Layout.NewCatalog
  * @constructor
  * @param {Object} options         some options for the collections page
- * 
+ * @return {Object}                some public methods
  */
 LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, container, forSplitscreen) {
     "use strict";
@@ -44,12 +44,11 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         firstLoad        = true,                        // TODO is this necessary? what is it doing?
         currentArtworks  = [],                          // array of artworks in current collection
         infoSource       = [],                          // array to hold sorting/searching information
-        //inSearch         = false,                       // in the midst of a search?
 
         // constants
         DEFAULT_TAG      = "Title",                                 // default sort tag
         BASE_FONT_SIZE   = LADS.Worktop.Database.getBaseFontSize(), // base font size for current font
-        FIX_PATH         = LADS.Worktop.Database.fixPath,
+        FIX_PATH         = LADS.Worktop.Database.fixPath,           // prepend server address to given path
 
         // misc uninitialized vars
         toursIn,                        // tours in current collection
@@ -932,11 +931,12 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         }
         else { // artwork
             scrollPos = catalogDiv.scrollLeft();
-            prevInfo = {
-                prevPage: "catalog",
-                prevScroll: scrollPos
-            };
-            artworkViewer = new LADS.Layout.Artmode(prevInfo, curOpts, currCollection);
+            artworkViewer = new LADS.Layout.Artmode({
+                doq: currentArtwork,
+                prevScroll: scrollPos,
+                prevCollection: currCollection,
+                prevPage: 'catalog'
+            });
             LADS.Util.UI.slidePageLeftSplit(root, artworkViewer.getRoot());
         }
         root.css({ 'overflow-x': 'hidden' });

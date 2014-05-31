@@ -3,11 +3,13 @@ YUI.add("yuidoc-meta", function(Y) {
     "classes": [
         "Autolinker",
         "CryptoJS",
+        "LADS.AnnotatedImage",
         "LADS.Layout.Artmode",
         "LADS.Layout.InternetFailurePage.js",
         "LADS.Layout.NewCatalog",
         "LADS.Layout.StartPage",
         "LADS.Layout.VideoPlayer",
+        "LADS.Util.Artwork",
         "TAG_embed",
         "Telemetry"
     ],
