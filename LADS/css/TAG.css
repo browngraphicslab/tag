@@ -1106,22 +1106,6 @@
   top: 17.6%;
   margin-left: 75%;
 }
-#VideoPlayerRoot #loopButton {
-  position: relative;
-  height: 100%;
-  width: auto;
-  padding-left: 2%;
-  display: inline-block;
-}
-#VideoPlayerRoot #loopHolder {
-  position: relative;
-  height: 70%;
-  width: 10%;
-  display: inline-block;
-  margin: 0 1%;
-  top: 4%;
-  margin-left: 1%;
-}
 #VideoPlayerRoot #overlayOnRoot {
   position: absolute;
   left: 0px;
