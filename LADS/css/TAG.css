@@ -29,7 +29,7 @@
   width: 20%;
 }
 #startPageRoot #brownPeople {
-  color: #fff;
+  color: #000;
   font-size: 0%;
   height: 40%;
   left: 100%;
@@ -1284,7 +1284,7 @@
 }
 #tagRoot div,
 #tagRoot span {
-  color: #eee;
+  color: rgba(238,238,238,0.933) e;
 }
 #tagRoot a {
   color: #fff;

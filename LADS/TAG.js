@@ -42102,6 +42102,8 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
 
         // misc initialized vars
         locHistoryActive = false,                   // whether location history is open
+        locClosing = false,                         // wheter location history is closing
+        locOpening = false,                         // whether location history is opening
         drawers          = [],                      // the expandable sections for assoc media, tours, description, etc...
         mediaHolders     = [],                      // array of thumbnail buttons
         loadQueue        = LADS.Util.createQueue(), // async queue for thumbnail button creation, etc
@@ -42919,18 +42921,25 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
             if (locationList.length === 0) {
                 return;
             }
-
+            if (locOpening||locClosing){
+                return;
+            }
             if (locHistoryActive) {
                 locHistory.text('Location History');
                 locHistory.css('color', 'white');
+                locClosing = true;
                 locHistoryToggle.hide("slide", { direction: 'left' }, 500);
-                locHistoryDiv.hide("slide", { direction: 'left' }, 500);
-                setTimeout(toggler.show, 500);
+                locHistoryDiv.hide("slide", { direction: 'left' }, 500, function(){
+                    toggler.show();
+                    locClosing = false;
+                });
             } else {
                 locHistory.text('Location History');
                 locHistoryToggle.hide();
+                locOpening = true;
                 locHistoryDiv.show("slide", { direction: 'left' }, 500, function () {
                     locHistoryToggle.show();
+                    locOpening = false;
                 });
                 locHistoryDiv.css('display', 'inline');
                 toggler.hide();
