@@ -32192,6 +32192,7 @@ LADS.Util.UI = (function () {
 
     function ChangeServerDialog() {
         var serverDialogOverlay = $(document.createElement('div'));
+        var old_ip = localStorage.ip;
         var tagContainer = $('#tagRoot');
         serverDialogOverlay.attr('id', 'serverDialogOverlay');
         // debugger;
@@ -32380,6 +32381,10 @@ LADS.Util.UI = (function () {
 
         serverSaveButton.on('click', saveClick);
 
+        LADS.Telemetry.register(serverSaveButton, 'click', 'change_server', {
+            start_ip: localStorage
+        });
+
         var serverCircle = $(document.createElement('img'));
         serverCircle.css({
             'width': '20px',
@@ -32405,7 +32410,6 @@ LADS.Util.UI = (function () {
 
         tagContainer.append(serverDialogOverlay);
         serverDialogInput.focus();
-
     }
 
 
@@ -41569,6 +41573,8 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         serverURL,
         tagContainer;
 
+    LADS.Telemetry.register(overlay, 'click', 'start_to_collections');
+
     if (localStorage.ip && localStorage.ip.indexOf(':') !== -1) {
         localStorage.ip = localStorage.ip.split(':')[0];
     }
@@ -41619,9 +41625,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             tagContainer.empty();
             tagContainer.append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
         });
-        if (startPageCallback) {
-            startPageCallback(root);
-        }
     }
 
     var that = {};    
@@ -41636,6 +41639,10 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     * @param {Object} main     contains all image paths and museum info
     */
     function loadHelper(main) {
+        if (startPageCallback) {
+            startPageCallback(root);
+        }
+
         LADS.Util.Constants.set("START_PAGE_SPLASH", tagPath+"images/birdtextile.jpg");
         if(!allowServerChange) {
             $('#serverTagBuffer').remove();
@@ -41648,11 +41655,14 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         setUpInfo(main);
         initializeHandlers();
         
-        handGif.onclick = switchPage;
-        //opens the exhibitions page on touch/click
+        // handGif.on('click', switchPage);
+
+        //opens the collections page on touch/click
         function switchPage() {
-            var newCatalog = LADS.Layout.NewCatalog();
-            overlay.on('click', function(){});
+            var newCatalog;
+
+            overlay.off('click');
+            newCatalog = LADS.Layout.NewCatalog();
             LADS.Util.UI.slidePageLeft(newCatalog.getRoot());
         }
 
@@ -41851,7 +41861,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         });
 
         serverSetUpContainer.on('click', function() {
-            LADS.Util.UI.ChangeServerDialog();
+            serverSaveButton = LADS.Util.UI.ChangeServerDialog();
         });
 
         serverTagBuffer.on('click', function (evt) {
@@ -43012,7 +43022,7 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
 
     /**
      * Make the map for location History.
-     * @method
+     * @method makeMap
      * @param {Function} callback     function to be called when map making is complete
     */
     function makeMap(callback) {
@@ -44661,6 +44671,90 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
     return that;
 };
 
+;
+
+LADS.Telemetry = (function() {
+
+	var requests  = [],
+		sendFreq  = 1,  // telemetry data is sent once every sendFreq-th log
+	    bversion  = browserVersion(),
+	    platform  = navigator.platform;
+
+
+	/**
+	 * Get the current browser version
+	 * Borrowed from http://stackoverflow.com/questions/5916900/detect-version-of-browser
+	 * @method browserVersion
+	 */
+	function browserVersion() {
+	    var ua= navigator.userAgent, tem, 
+	    M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*([\d\.]+)/i) || [];
+	    if(/trident/i.test(M[1])){
+	        tem=  /\brv[ :]+(\d+(\.\d+)?)/g.exec(ua) || [];
+	        return 'IE '+(tem[1] || '');
+	    }
+	    M= M[2]? [M[1], M[2]]:[navigator.appName, navigator.appVersion, '-?'];
+	    if((tem= ua.match(/version\/([\.\d]+)/i))!= null) M[2]= tem[1];
+	    return M.join(' ');
+	}
+
+	/**
+	 * Register an element with the telemetry module
+	 * @method registerTelemetry
+	 * @param {jQuery Obj} element    the element to which we'll attach a telemetry event handler
+	 * @param {String} etype          the type of event (e.g., 'mousedown') for which we'll create the handler
+	 * @param {String} ttype          the type of telemetry request to log
+	 * @param {Object} additional     additional data to push
+	 */
+	function register(element, etype, ttype, additional) {
+		element = $(element); // ensure we are using a jQuery object
+
+		element.on(etype+'.tag_telemetry', function() {
+			var date = new Date();
+
+			requests.push({
+				ttype:      ttype,
+				tagserver:  localStorage.ip || '',
+				browser:    bversion,
+				platform:   platform,
+				time_stamp: date.getTime(),
+				time_human: date.toString(),
+				additional: additional
+			});
+
+			if(requests.length % sendFreq === 0) { // tweak this later
+				postTelemetryRequests();
+			} 
+		});
+	}
+
+	/**
+	 * Make a request to the telemetry server using the requests variable
+	 * @method telemetryRequests
+	 */
+	function postTelemetryRequests() {
+		var data = JSON.stringify(requests);
+
+		requests.length = 0;
+
+		$.ajax({
+			type: 'POST',
+			url: 'http://127.0.0.1:9999/',
+			data: data,
+			async: true, // this is the default, but just make it explicit
+			success: function() {
+				console.log('POST request to server worked');
+			},
+			error: function(e) {
+				console.log('telemetry error! look at node output...');
+			}
+		});
+	}
+
+	return {
+		register: register
+	}
+})();
 ;
 LADS.Util.makeNamespace("LADS.TESTS");
 

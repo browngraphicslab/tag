@@ -47,6 +47,8 @@
 			printData,
 			tdata; // telemetry data
 
+		console.log("HANDLING POST REQUEST");
+
 		// read in data from request as it becomes available
 		request.on('data', function(dataChunk) {
 			requestBody += dataChunk;
@@ -59,20 +61,27 @@
 
 		// when all data is read
 		request.on('end', function() {
-			parsedBody = qs.parse(requestBody); // parse body to js object
+			var i,
+				tobj;
 
-			// telemetry data object
-			tdata = {
-				time_stamp: date.getTime(),                         // milliseconds since 1970
-				type: parsedBody.ttype || NOT_AVAIL,                // type of telemetry request
-				ip: request.connection.remoteAddress || NOT_AVAIL,  // ip of computer that generated request
-				tagserver: parsedBody.tagserver || NOT_AVAIL,       // TAG server to which computer is connected
-				browser: parsedBody.browser || NOT_AVAIL,           // browser
-				platform: parsedBody.platform || NOT_AVAIL,         // platform (e.g., Mac)
-				time_human: date.toString()                         // human-readable time
-			};
+			parsedBody = JSON.parse(requestBody); // parse body to js object
 
-			WRITE_DATA(tdata);
+			for(i=0; i<parsedBody.length; i++) {
+				// telemetry data object
+				tobj = parsedBody[i];
+				tdata = {
+					time_stamp: tobj.time_stamp || NOT_AVAIL,                         // milliseconds since 1970
+					type: tobj.ttype || NOT_AVAIL,                // type of telemetry request
+					ip: request.connection.remoteAddress || NOT_AVAIL,  // ip of computer that generated request
+					tagserver: tobj.tagserver || NOT_AVAIL,       // TAG server to which computer is connected
+					browser: tobj.browser || NOT_AVAIL,           // browser
+					platform: tobj.platform || NOT_AVAIL,         // platform (e.g., Mac)
+					time_human: tobj.time_human || NOT_AVAIL,                         // human-readable time
+					additional: tobj.additional ? JSON.stringify(tobj.additional) : NOT_AVAIL
+				};
+
+				WRITE_DATA(tdata);
+			}
 
 			response.writeHead(200, {
 				'Content-Type': 'text/plain',

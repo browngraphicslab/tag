@@ -1,7 +1,8 @@
-var LADS.Telemetry = (function() {
+
+LADS.Telemetry = (function() {
 
 	var requests  = [],
-		sendFreq  = 5,  // telemetry data is sent once every sendFreq-th log
+		sendFreq  = 1,  // telemetry data is sent once every sendFreq-th log
 	    bversion  = browserVersion(),
 	    platform  = navigator.platform;
 
@@ -29,19 +30,25 @@ var LADS.Telemetry = (function() {
 	 * @param {jQuery Obj} element    the element to which we'll attach a telemetry event handler
 	 * @param {String} etype          the type of event (e.g., 'mousedown') for which we'll create the handler
 	 * @param {String} ttype          the type of telemetry request to log
+	 * @param {Object} additional     additional data to push
 	 */
-	function registerTelemetry(element, etype, ttype) {
+	function register(element, etype, ttype, additional) {
 		element = $(element); // ensure we are using a jQuery object
 
 		element.on(etype+'.tag_telemetry', function() {
+			var date = new Date();
+
 			requests.push({
 				ttype:      ttype,
 				tagserver:  localStorage.ip || '',
 				browser:    bversion,
-				platform:   platform
+				platform:   platform,
+				time_stamp: date.getTime(),
+				time_human: date.toString(),
+				additional: additional
 			});
 
-			if(requests.length % sendFreq == 0) { // tweak this later
+			if(requests.length % sendFreq === 0) { // tweak this later
 				postTelemetryRequests();
 			} 
 		});
@@ -71,6 +78,6 @@ var LADS.Telemetry = (function() {
 	}
 
 	return {
-		registerTelemetry: registerTelemetry
+		register: register
 	}
 })();

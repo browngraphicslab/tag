@@ -1565,6 +1565,7 @@ LADS.Util.UI = (function () {
 
     function ChangeServerDialog() {
         var serverDialogOverlay = $(document.createElement('div'));
+        var old_ip = localStorage.ip;
         var tagContainer = $('#tagRoot');
         serverDialogOverlay.attr('id', 'serverDialogOverlay');
         // debugger;
@@ -1753,6 +1754,10 @@ LADS.Util.UI = (function () {
 
         serverSaveButton.on('click', saveClick);
 
+        LADS.Telemetry.register(serverSaveButton, 'click', 'change_server', {
+            start_ip: localStorage
+        });
+
         var serverCircle = $(document.createElement('img'));
         serverCircle.css({
             'width': '20px',
@@ -1778,7 +1783,6 @@ LADS.Util.UI = (function () {
 
         tagContainer.append(serverDialogOverlay);
         serverDialogInput.focus();
-
     }
 
 

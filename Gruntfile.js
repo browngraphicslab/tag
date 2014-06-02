@@ -80,6 +80,8 @@ module.exports = function(grunt) {
 					'LADS/js/LADS/layout/LADS.Layout.MetroSplitscreenMessage.js',
 					'LADS/js/LADS/layout/LADS.Layout.TourPlayer.js',
 					'LADS/js/LADS/layout/LADS.Layout.VideoPlayer.js',
+
+					'LADS/telemetry/telemetry.js',
 					
 					'LADS/tests.js',
 					
