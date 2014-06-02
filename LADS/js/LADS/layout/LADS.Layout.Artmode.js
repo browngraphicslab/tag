@@ -946,7 +946,7 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
 
     /**
      * Make the map for location History.
-     * @method
+     * @method makeMap
      * @param {Function} callback     function to be called when map making is complete
     */
     function makeMap(callback) {
