@@ -342,6 +342,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 circle.attr('src', tagPath + 'images/icons/hotspot_circle.svg');
                 circle.addClass('annotatedImageHotspotCircle');
                 root.append(circle);
+                console.log("position: " + position);
             }
 
             // allows asset to be dragged, despite the name
@@ -692,7 +693,16 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
             if(IS_HOTSPOT) {
                 circle.css('visibility', 'visible');
                 addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
+                
                 viewer.viewport.panTo(position, false);
+
+                console.log("h: " + h);
+                console.log("rootHeight: " + rootHeight);
+
+                if (rootHeight - h > rootHeight*.9) {
+                    t = rootHeight*.9;
+                }
+
                 t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
                 l = rootWidth/2 + circle.width()*3/4;
             } else {

@@ -40789,6 +40789,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 circle.attr('src', tagPath + 'images/icons/hotspot_circle.svg');
                 circle.addClass('annotatedImageHotspotCircle');
                 root.append(circle);
+                console.log("position: " + position);
             }
 
             // allows asset to be dragged, despite the name
@@ -41139,7 +41140,16 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
             if(IS_HOTSPOT) {
                 circle.css('visibility', 'visible');
                 addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
+                
                 viewer.viewport.panTo(position, false);
+
+                console.log("h: " + h);
+                console.log("rootHeight: " + rootHeight);
+
+                if (rootHeight - h > rootHeight*.9) {
+                    t = rootHeight*.9;
+                }
+
                 t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
                 l = rootWidth/2 + circle.width()*3/4;
             } else {
@@ -42114,6 +42124,8 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
 
         // misc initialized vars
         locHistoryActive = false,                   // whether location history is open
+        locClosing = false,                         // wheter location history is closing
+        locOpening = false,                         // whether location history is opening
         drawers          = [],                      // the expandable sections for assoc media, tours, description, etc...
         mediaHolders     = [],                      // array of thumbnail buttons
         loadQueue        = LADS.Util.createQueue(), // async queue for thumbnail button creation, etc
@@ -42931,18 +42943,25 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
             if (locationList.length === 0) {
                 return;
             }
-
+            if (locOpening||locClosing){
+                return;
+            }
             if (locHistoryActive) {
                 locHistory.text('Location History');
                 locHistory.css('color', 'white');
+                locClosing = true;
                 locHistoryToggle.hide("slide", { direction: 'left' }, 500);
-                locHistoryDiv.hide("slide", { direction: 'left' }, 500);
-                setTimeout(toggler.show, 500);
+                locHistoryDiv.hide("slide", { direction: 'left' }, 500, function(){
+                    toggler.show();
+                    locClosing = false;
+                });
             } else {
                 locHistory.text('Location History');
                 locHistoryToggle.hide();
+                locOpening = true;
                 locHistoryDiv.show("slide", { direction: 'left' }, 500, function () {
                     locHistoryToggle.show();
+                    locOpening = false;
                 });
                 locHistoryDiv.css('display', 'inline');
                 toggler.hide();
