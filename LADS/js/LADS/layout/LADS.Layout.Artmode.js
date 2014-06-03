@@ -92,6 +92,7 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
                 LADS.Util.Splitscreen.setViewers(root, annotatedImage); // TODO should we get rid of all splitscreen stuff?
                 makeSidebar();
                 createSeadragonControls();
+                console.log("viewer" + annotatedImage.viewer);
             },
             noMedia: false
         });
@@ -629,7 +630,24 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
             var a = 0;
         }
         function onMinimapTapped(evt) {
-            var a = 0;
+
+            console.log("tapped");
+
+            var minimaph = minimap.height();
+            var minimapw = minimap.width();
+            var minimapt = minimap.position().top;
+            var minimapl = parseFloat(minimap.css('marginLeft'));
+
+            var xPos = evt.position.x;
+            var yPos = evt.position.y;
+            var x =(xPos-minimapl)/ minimapw;
+            var y = (yPos-minimapt)/minimaph;
+            y = y / AR;
+            x = Math.max(0, Math.min(x, 1));
+            y = Math.max(0, Math.min(y, 1 / AR));
+            
+            annotatedImage.viewer.viewport.panTo(new Seadragon.Point(x, y), true);
+            annotatedImage.viewer.viewport.applyConstraints();
         }
 
         img.onload = minimapLoaded;
