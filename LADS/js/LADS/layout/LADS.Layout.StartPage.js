@@ -24,6 +24,8 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         serverURL,
         tagContainer;
 
+    LADS.Telemetry.register(overlay, 'click', 'start_to_collections');
+
     if (localStorage.ip && localStorage.ip.indexOf(':') !== -1) {
         localStorage.ip = localStorage.ip.split(':')[0];
     }
@@ -74,9 +76,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             tagContainer.empty();
             tagContainer.append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
         });
-        if (startPageCallback) {
-            startPageCallback(root);
-        }
     }
 
     var that = {};    
@@ -91,6 +90,10 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     * @param {Object} main     contains all image paths and museum info
     */
     function loadHelper(main) {
+        if (startPageCallback) {
+            startPageCallback(root);
+        }
+
         LADS.Util.Constants.set("START_PAGE_SPLASH", tagPath+"images/birdtextile.jpg");
         if(!allowServerChange) {
             $('#serverTagBuffer').remove();
@@ -103,11 +106,14 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         setUpInfo(main);
         initializeHandlers();
         
-        handGif.onclick = switchPage;
-        //opens the exhibitions page on touch/click
+        // handGif.on('click', switchPage);
+
+        //opens the collections page on touch/click
         function switchPage() {
-            var newCatalog = LADS.Layout.NewCatalog();
-            overlay.on('click', function(){});
+            var newCatalog;
+
+            overlay.off('click');
+            newCatalog = LADS.Layout.NewCatalog();
             LADS.Util.UI.slidePageLeft(newCatalog.getRoot());
         }
 
@@ -306,7 +312,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         });
 
         serverSetUpContainer.on('click', function() {
-            LADS.Util.UI.ChangeServerDialog();
+            serverSaveButton = LADS.Util.UI.ChangeServerDialog();
         });
 
         serverTagBuffer.on('click', function (evt) {

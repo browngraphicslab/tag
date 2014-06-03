@@ -32192,6 +32192,7 @@ LADS.Util.UI = (function () {
 
     function ChangeServerDialog() {
         var serverDialogOverlay = $(document.createElement('div'));
+        var old_ip = localStorage.ip;
         var tagContainer = $('#tagRoot');
         serverDialogOverlay.attr('id', 'serverDialogOverlay');
         // debugger;
@@ -32380,6 +32381,11 @@ LADS.Util.UI = (function () {
 
         serverSaveButton.on('click', saveClick);
 
+        LADS.Telemetry.register(serverSaveButton, 'click', 'change_server', function(tobj) {
+            tobj.start_ip = localStorage.ip;
+            tobj.new_ip   = serverDialogInput.val();
+        });
+
         var serverCircle = $(document.createElement('img'));
         serverCircle.css({
             'width': '20px',
@@ -32405,7 +32411,6 @@ LADS.Util.UI = (function () {
 
         tagContainer.append(serverDialogOverlay);
         serverDialogInput.focus();
-
     }
 
 
@@ -40465,12 +40470,12 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         FIX_PATH = LADS.Worktop.Database.fixPath,   // prepend server address to given path
 
         // misc initialized variables
-        that            = {},              // the object to be returned
         artworkName     = doq.Name,        // artwork's title
         associatedMedia = { guids: [] },   // object of associated media objects for this artwork, keyed by media GUID;
                                            //   also contains an array of GUIDs for cleaner iteration
         // misc uninitialized variables
-        assetCanvas;
+        assetCanvas,
+        viewer;
 
     // get things rolling
     init();
@@ -40481,7 +40486,8 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         dzManip: dzManip,
         dzScroll: dzScroll,
         openArtwork: openArtwork,
-        addAnimateHandler: addAnimateHandler
+        addAnimateHandler: addAnimateHandler,
+        viewer: viewer
     }
 
     /**
@@ -40500,12 +40506,12 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @return {Boolean}          whether opening was successful
      */
     function openArtwork(doq) {
-        if(!that.viewer || !doq || !doq.Metadata || !doq.Metadata.DeepZoom) {
+        if(!viewer || !doq || !doq.Metadata || !doq.Metadata.DeepZoom) {
             debugger;
             console.log("ERROR IN openDZI");
             return false;
         }
-        that.viewer.openDzi(FIX_PATH(doq.Metadata.DeepZoom));
+        viewer.openDzi(FIX_PATH(doq.Metadata.DeepZoom));
         return true;
     }
 
@@ -40522,7 +40528,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
             top  = parseFloat($elt.css('top')),
             left = parseFloat($elt.css('left'));
         if (top && left) { // TODO is this check necessary?
-            that.viewer.drawer.updateOverlay(element, that.viewer.viewport.pointFromPixel(new Seadragon.Point(left, top)), placement);
+            viewer.drawer.updateOverlay(element, viewer.viewport.pointFromPixel(new Seadragon.Point(left, top)), placement);
         }
     }
 
@@ -40535,14 +40541,14 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @param {Seadragon.OverlayPlacement} placement   the placement at the given point
      */
     function addOverlay(element, point, placement) {
-        if (!that.viewer.isOpen()) {
-            that.viewer.addEventListener('open', function () {
-                that.viewer.drawer.addOverlay(element, point, placement);
-                that.viewer.drawer.updateOverlay(element, point, placement);
+        if (!viewer.isOpen()) {
+            viewer.addEventListener('open', function () {
+                viewer.drawer.addOverlay(element, point, placement);
+                viewer.drawer.updateOverlay(element, point, placement);
             });
         } else {
-            that.viewer.drawer.addOverlay(element, point, placement);
-            that.viewer.drawer.updateOverlay(element, point, placement);
+            viewer.drawer.addOverlay(element, point, placement);
+            viewer.drawer.updateOverlay(element, point, placement);
         }
     }
 
@@ -40553,12 +40559,12 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @param {HTML element}       the ovlerlay element to remove
      */
     function removeOverlay(element) {
-        if (!that.viewer.isOpen()) {
-            that.viewer.addEventListener('open', function () {
-                that.viewer.drawer.removeOverlay(element);
+        if (!viewer.isOpen()) {
+            viewer.addEventListener('open', function () {
+                viewer.drawer.removeOverlay(element);
             });
         } else {
-            that.viewer.drawer.removeOverlay(element);
+            viewer.drawer.removeOverlay(element);
         }
     };
 
@@ -40567,7 +40573,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @method unload
      */
     function unload() {
-        that.viewer && that.viewer.unload();
+        viewer && viewer.unload();
     }
 
     /**
@@ -40578,9 +40584,9 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @oaram {Number} scale           scale factor
      */
     function dzManip(pivot, translation, scale) {
-        that.viewer.viewport.zoomBy(scale, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)), false);
-        that.viewer.viewport.panBy(that.viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-translation.x, -translation.y)), false);
-        that.viewer.viewport.applyConstraints();
+        viewer.viewport.zoomBy(scale, viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)), false);
+        viewer.viewport.panBy(viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-translation.x, -translation.y)), false);
+        viewer.viewport.applyConstraints();
     }
     
     /**
@@ -40590,8 +40596,8 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @param {Object} pivot          location of event (x,y)
      */
     function dzScroll(scale, pivot) {
-        that.viewer.viewport.zoomBy(scale, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
-        that.viewer.viewport.applyConstraints();
+        viewer.viewport.zoomBy(scale, viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
+        viewer.viewport.applyConstraints();
     }
 
     /**
@@ -40613,11 +40619,11 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         });
         root.append(viewerelt);
 
-        that.viewer = new Seadragon.Viewer(viewerelt[0]);
-        that.viewer.setMouseNavEnabled(false);
-        that.viewer.clearControls();
+        viewer = new Seadragon.Viewer(viewerelt[0]);
+        viewer.setMouseNavEnabled(false);
+        viewer.clearControls();
 
-        canvas = $(that.viewer.canvas);
+        canvas = $(viewer.canvas);
         canvas.addClass('artworkCanvasTesting');
 
         LADS.Util.makeManipulatable(canvas[0], {
@@ -40644,7 +40650,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @param {Function} handler      the handler to add
      */
     function addAnimateHandler(handler) {
-        that.viewer.addEventListener("animation", handler);
+        viewer.addEventListener("animation", handler);
     }
 
     /**
@@ -41134,7 +41140,8 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
             if(IS_HOTSPOT) {
                 circle.css('visibility', 'visible');
                 addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
-                that.viewer.viewport.panTo(position, false);
+                
+                viewer.viewport.panTo(position, false);
 
                 console.log("h: " + h);
                 console.log("rootHeight: " + rootHeight);
@@ -41142,6 +41149,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 if (rootHeight - h > rootHeight*.9) {
                     t = rootHeight*.9;
                 }
+
                 t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
                 l = rootWidth/2 + circle.width()*3/4;
             } else {
@@ -41577,6 +41585,8 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         serverURL,
         tagContainer;
 
+    LADS.Telemetry.register(overlay, 'click', 'start_to_collections');
+
     if (localStorage.ip && localStorage.ip.indexOf(':') !== -1) {
         localStorage.ip = localStorage.ip.split(':')[0];
     }
@@ -41627,9 +41637,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
             tagContainer.empty();
             tagContainer.append((new LADS.Layout.InternetFailurePage("Server Down")).getRoot());
         });
-        if (startPageCallback) {
-            startPageCallback(root);
-        }
     }
 
     var that = {};    
@@ -41644,6 +41651,10 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
     * @param {Object} main     contains all image paths and museum info
     */
     function loadHelper(main) {
+        if (startPageCallback) {
+            startPageCallback(root);
+        }
+
         LADS.Util.Constants.set("START_PAGE_SPLASH", tagPath+"images/birdtextile.jpg");
         if(!allowServerChange) {
             $('#serverTagBuffer').remove();
@@ -41656,11 +41667,14 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         setUpInfo(main);
         initializeHandlers();
         
-        handGif.onclick = switchPage;
-        //opens the exhibitions page on touch/click
+        // handGif.on('click', switchPage);
+
+        //opens the collections page on touch/click
         function switchPage() {
-            var newCatalog = LADS.Layout.NewCatalog();
-            overlay.on('click', function(){});
+            var newCatalog;
+
+            overlay.off('click');
+            newCatalog = LADS.Layout.NewCatalog();
             LADS.Util.UI.slidePageLeft(newCatalog.getRoot());
         }
 
@@ -41859,7 +41873,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         });
 
         serverSetUpContainer.on('click', function() {
-            LADS.Util.UI.ChangeServerDialog();
+            serverSaveButton = LADS.Util.UI.ChangeServerDialog();
         });
 
         serverTagBuffer.on('click', function (evt) {
@@ -43060,7 +43074,7 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
 
     /**
      * Make the map for location History.
-     * @method
+     * @method makeMap
      * @param {Function} callback     function to be called when map making is complete
     */
     function makeMap(callback) {
@@ -43162,6 +43176,9 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         yearInfo,                       // year tombstone info div
         currentTag;                     // current sort tag
 
+    // register different actions with the telemetry service
+    LADS.Telemetry.register(backbuttonIcon, 'click', 'collections_to_start');
+
     // get things rolling
     init();
 
@@ -43203,6 +43220,21 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         });
 
         LADS.Worktop.Database.getExhibitions(getCollectionsHelper, null, getCollectionsHelper);
+    }
+
+    /**
+     * Return the type of work
+     * @method getWorkType
+     * @param {doq} work       the doq representing the current work
+     * @return {String}        a string describing type of work ('artwork', 'video', or 'tour')
+     */
+    function getWorkType(work) {
+        if (currentArtwork.Type === 'Empty') {
+            return 'tour';
+        } else if (currentArtwork.Metadata.Type === 'VideoArtwork') {
+            return 'video';
+        }
+        return 'artwork';
     }
 
     /**
@@ -43312,6 +43344,10 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         });
     
         toAdd.on('click', clickCollection(collection));
+        LADS.Telemetry.register(toAdd, 'click', 'collection_title', function(tobj) {
+            tobj.collection_name = title;
+            tobj.collection_guid = collection.Identifier;
+        });
 
         titleBox.attr('id' ,'collection-title-'+collection.Identifier);
         titleBox.addClass('collection-title');
@@ -43414,7 +43450,16 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         currentThumbnail.attr('id', 'currentThumbnail');
         currentThumbnail.attr('src', FIX_PATH(collection.Metadata.DescriptionImage1));
         currentThumbnail.attr('thumbnail', FIX_PATH(collection.Metadata.DescriptionImage1));
-        currentThumbnail.on('click', switchPage);      
+        currentThumbnail.on('click', switchPage);
+
+        LADS.Telemetry.register(currentThumbnail, 'click', '', function() {
+            if (!currentArtwork || !artworkSelected) {
+                return true; // abort
+            }
+            tobj.work_name = currentArtwork.Name;
+            tobj.work_guid = currentArtwork.Identifier;
+            tobj.ttype     = 'collection_to_' + getWorkType(currentArtwork); 
+        });
         
         exploreTabText = $(document.createElement('div'));
         exploreTabText.attr('id','explore-text');
@@ -43676,6 +43721,17 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
                 } else {
                     showArtwork(currentWork)();
                 }
+            });
+
+            LADS.Telemetry.register(main, 'click', '', function(tobj) {
+                var type;
+                if (currentThumbnail.attr('guid') === currentWork.Identifier) {
+                    tobj.ttype = 'collections_to_' + getWorkType(currentWork);
+                } else {
+                    tobj.ttype = 'artwork_tile';
+                }
+                tobj.artwork_name = currentWork.Name;
+                tobj.artwork_guid = currentWork.Identifier;
             });
 
             if(currentWork.Metadata.Thumbnail) {
@@ -44709,6 +44765,96 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
     return that;
 };
 
+;
+
+LADS.Telemetry = (function() {
+
+	var requests  = [],
+		sendFreq  = 1,  // telemetry data is sent once every sendFreq-th log
+	    bversion  = browserVersion(),
+	    platform  = navigator.platform;
+
+
+	/**
+	 * Get the current browser version
+	 * Borrowed from http://stackoverflow.com/questions/5916900/detect-version-of-browser
+	 * @method browserVersion
+	 */
+	function browserVersion() {
+	    var ua= navigator.userAgent, tem, 
+	    M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*([\d\.]+)/i) || [];
+	    if(/trident/i.test(M[1])){
+	        tem=  /\brv[ :]+(\d+(\.\d+)?)/g.exec(ua) || [];
+	        return 'IE '+(tem[1] || '');
+	    }
+	    M= M[2]? [M[1], M[2]]:[navigator.appName, navigator.appVersion, '-?'];
+	    if((tem= ua.match(/version\/([\.\d]+)/i))!= null) M[2]= tem[1];
+	    return M.join(' ');
+	}
+
+	/**
+	 * Register an element with the telemetry module
+	 * @method registerTelemetry
+	 * @param {jQuery Obj} element      the element to which we'll attach a telemetry event handler
+	 * @param {String} etype            the type of event (e.g., 'mousedown') for which we'll create the handler
+	 * @param {String} ttype            the type of telemetry request to log
+	 * @param {Function} preHandler     do any pre-handling based on current state of TAG, add any additional
+	 *                                     properties to the eventual telemetry object. Accepts the telemetry
+	 *                                     object to augment, returns true if we should abort further handling.
+	 */
+	function register(element, etype, ttype, preHandler) {
+		$(element).on(etype + '.tag_telemetry', function() {
+			var date = new Date(),
+				tobj = {
+					ttype:      ttype,
+					tagserver:  localStorage.ip || '',
+					browser:    bversion,
+					platform:   platform,
+					time_stamp: date.getTime(),
+					time_human: date.toString(),
+				},
+				ret = true;
+
+			// if preHandler returns true, return
+			if(preHandler && preHandler(tobj)) {
+				return;
+			}
+
+			requests.push(tobj);
+
+			if(requests.length % sendFreq === 0) { // tweak this later
+				postTelemetryRequests();
+			} 
+		});
+	}
+
+	/**
+	 * Make a request to the telemetry server using the requests variable
+	 * @method telemetryRequests
+	 */
+	function postTelemetryRequests() {
+		var data = JSON.stringify(requests);
+
+		requests.length = 0;
+
+		$.ajax({
+			type: 'POST',
+			url: 'http://127.0.0.1:9999/',
+			data: data,
+			async: true, // this is the default, but just make it explicit
+			success: function() {
+				console.log('POST request to server worked');
+			},
+			error: function(e) {
+				console.log('telemetry error! look at node output...');
+			}
+		});
+	}
+
+	return {
+		register: register
+	}
+})();
 ;
 LADS.Util.makeNamespace("LADS.TESTS");
 
