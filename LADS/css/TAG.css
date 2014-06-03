@@ -1267,7 +1267,7 @@
 }
 #tagRoot div,
 #tagRoot span {
-  color: rgba(238,238,238,0.933) e;
+  color: #eee;
 }
 #tagRoot a {
   color: #fff;
