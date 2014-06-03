@@ -42180,7 +42180,6 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
                 LADS.Util.Splitscreen.setViewers(root, annotatedImage); // TODO should we get rid of all splitscreen stuff?
                 makeSidebar();
                 createSeadragonControls();
-                console.log("viewer" + annotatedImage.viewer);
             },
             noMedia: false
         });
@@ -42650,6 +42649,9 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
             minimap.mousedown(function () {
                 return false;
             });
+
+            LADS.Util.disableDrag(minimapContainer);
+            
             AR = img.naturalWidth / img.naturalHeight;
             var heightR = img.naturalHeight / $(minimapContainer).height();//the ratio between the height of image and the container.
             var widthR = img.naturalWidth / $(minimapContainer).width();//ratio between the width of image and the container.
@@ -42728,27 +42730,15 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
 
             var xPos = evt.position.x;
             var yPos = evt.position.y;
-            console.log("xPos" + xPos);
-            console.log("yPos" + yPos);
             var x =(xPos-minimapl)/ minimapw;
             var y = (yPos-minimapt)/minimaph;
-            console.log("x1"+x);
-            console.log("y1"+y);
             y = y / AR;
-            console.log("y2"+y);
             x = Math.max(0, Math.min(x, 1));
             y = Math.max(0, Math.min(y, 1 / AR));
-            console.log("x3"+x);
-            console.log("y3"+y);
-            var s = 1 + (1 - evt.scale);
-            console.log("s"+s);
-            console.log ("viewer" + annotatedImage.viewer);
-            console.log("viewport" + annotatedImage.viewport);
+            var s = 1;
             if (s) annotatedImage.viewer.viewport.zoomBy(s, false);
             annotatedImage.viewer.viewport.panTo(new Seadragon.Point(x, y), true);
             annotatedImage.viewer.viewport.applyConstraints();
-            //annotatedImage.viewer.viewport.panTo(new Seadragon.Point(x, y), true);
-            //annotatedImage.viewer.viewport.applyConstraints();
         }
 
         img.onload = minimapLoaded;

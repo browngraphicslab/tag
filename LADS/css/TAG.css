@@ -410,6 +410,7 @@
   border: solid #fff 1px;
   width: 100%;
   z-index: 50;
+  pointer-events: none;
 }
 #artmodeRoot .seadragonManipButtoninout {
   cursor: pointer;
