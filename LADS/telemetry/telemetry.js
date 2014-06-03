@@ -27,26 +27,32 @@ LADS.Telemetry = (function() {
 	/**
 	 * Register an element with the telemetry module
 	 * @method registerTelemetry
-	 * @param {jQuery Obj} element    the element to which we'll attach a telemetry event handler
-	 * @param {String} etype          the type of event (e.g., 'mousedown') for which we'll create the handler
-	 * @param {String} ttype          the type of telemetry request to log
-	 * @param {Object} additional     additional data to push
+	 * @param {jQuery Obj} element      the element to which we'll attach a telemetry event handler
+	 * @param {String} etype            the type of event (e.g., 'mousedown') for which we'll create the handler
+	 * @param {String} ttype            the type of telemetry request to log
+	 * @param {Function} preHandler     do any pre-handling based on current state of TAG, add any additional
+	 *                                     properties to the eventual telemetry object. Accepts the telemetry
+	 *                                     object to augment, returns true if we should abort further handling.
 	 */
-	function register(element, etype, ttype, additional) {
-		element = $(element); // ensure we are using a jQuery object
+	function register(element, etype, ttype, preHandler) {
+		$(element).on(etype + '.tag_telemetry', function() {
+			var date = new Date(),
+				tobj = {
+					ttype:      ttype,
+					tagserver:  localStorage.ip || '',
+					browser:    bversion,
+					platform:   platform,
+					time_stamp: date.getTime(),
+					time_human: date.toString(),
+				},
+				ret = true;
 
-		element.on(etype+'.tag_telemetry', function() {
-			var date = new Date();
+			// if preHandler returns true, return
+			if(preHandler && preHandler(tobj)) {
+				return;
+			}
 
-			requests.push({
-				ttype:      ttype,
-				tagserver:  localStorage.ip || '',
-				browser:    bversion,
-				platform:   platform,
-				time_stamp: date.getTime(),
-				time_human: date.toString(),
-				additional: additional
-			});
+			requests.push(tobj);
 
 			if(requests.length % sendFreq === 0) { // tweak this later
 				postTelemetryRequests();

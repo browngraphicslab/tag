@@ -62,6 +62,9 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         yearInfo,                       // year tombstone info div
         currentTag;                     // current sort tag
 
+    // register different actions with the telemetry service
+    LADS.Telemetry.register(backbuttonIcon, 'click', 'collections_to_start');
+
     // get things rolling
     init();
 
@@ -103,6 +106,21 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         });
 
         LADS.Worktop.Database.getExhibitions(getCollectionsHelper, null, getCollectionsHelper);
+    }
+
+    /**
+     * Return the type of work
+     * @method getWorkType
+     * @param {doq} work       the doq representing the current work
+     * @return {String}        a string describing type of work ('artwork', 'video', or 'tour')
+     */
+    function getWorkType(work) {
+        if (currentArtwork.Type === 'Empty') {
+            return 'tour';
+        } else if (currentArtwork.Metadata.Type === 'VideoArtwork') {
+            return 'video';
+        }
+        return 'artwork';
     }
 
     /**
@@ -212,6 +230,10 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         });
     
         toAdd.on('click', clickCollection(collection));
+        LADS.Telemetry.register(toAdd, 'click', 'collection_title', function(tobj) {
+            tobj.collection_name = title;
+            tobj.collection_guid = collection.Identifier;
+        });
 
         titleBox.attr('id' ,'collection-title-'+collection.Identifier);
         titleBox.addClass('collection-title');
@@ -314,7 +336,16 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         currentThumbnail.attr('id', 'currentThumbnail');
         currentThumbnail.attr('src', FIX_PATH(collection.Metadata.DescriptionImage1));
         currentThumbnail.attr('thumbnail', FIX_PATH(collection.Metadata.DescriptionImage1));
-        currentThumbnail.on('click', switchPage);      
+        currentThumbnail.on('click', switchPage);
+
+        LADS.Telemetry.register(currentThumbnail, 'click', '', function() {
+            if (!currentArtwork || !artworkSelected) {
+                return true; // abort
+            }
+            tobj.work_name = currentArtwork.Name;
+            tobj.work_guid = currentArtwork.Identifier;
+            tobj.ttype     = 'collection_to_' + getWorkType(currentArtwork); 
+        });
         
         exploreTabText = $(document.createElement('div'));
         exploreTabText.attr('id','explore-text');
@@ -576,6 +607,17 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
                 } else {
                     showArtwork(currentWork)();
                 }
+            });
+
+            LADS.Telemetry.register(main, 'click', '', function(tobj) {
+                var type;
+                if (currentThumbnail.attr('guid') === currentWork.Identifier) {
+                    tobj.ttype = 'collections_to_' + getWorkType(currentWork);
+                } else {
+                    tobj.ttype = 'artwork_tile';
+                }
+                tobj.artwork_name = currentWork.Name;
+                tobj.artwork_guid = currentWork.Identifier;
             });
 
             if(currentWork.Metadata.Thumbnail) {

@@ -1754,8 +1754,9 @@ LADS.Util.UI = (function () {
 
         serverSaveButton.on('click', saveClick);
 
-        LADS.Telemetry.register(serverSaveButton, 'click', 'change_server', {
-            start_ip: localStorage
+        LADS.Telemetry.register(serverSaveButton, 'click', 'change_server', function(tobj) {
+            tobj.start_ip = localStorage.ip;
+            tobj.new_ip   = serverDialogInput.val();
         });
 
         var serverCircle = $(document.createElement('img'));

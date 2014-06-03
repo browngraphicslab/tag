@@ -47,8 +47,6 @@
 			printData,
 			tdata; // telemetry data
 
-		console.log("HANDLING POST REQUEST");
-
 		// read in data from request as it becomes available
 		request.on('data', function(dataChunk) {
 			requestBody += dataChunk;
@@ -62,23 +60,28 @@
 		// when all data is read
 		request.on('end', function() {
 			var i,
+				key,
 				tobj;
 
 			parsedBody = JSON.parse(requestBody); // parse body to js object
 
 			for(i=0; i<parsedBody.length; i++) {
-				// telemetry data object
 				tobj = parsedBody[i];
-				tdata = {
-					time_stamp: tobj.time_stamp || NOT_AVAIL,                         // milliseconds since 1970
-					type: tobj.ttype || NOT_AVAIL,                // type of telemetry request
-					ip: request.connection.remoteAddress || NOT_AVAIL,  // ip of computer that generated request
-					tagserver: tobj.tagserver || NOT_AVAIL,       // TAG server to which computer is connected
-					browser: tobj.browser || NOT_AVAIL,           // browser
-					platform: tobj.platform || NOT_AVAIL,         // platform (e.g., Mac)
-					time_human: tobj.time_human || NOT_AVAIL,                         // human-readable time
-					additional: tobj.additional ? JSON.stringify(tobj.additional) : NOT_AVAIL
-				};
+				tdata = {};
+				for(key in tobj) {
+					if(tobj.hasOwnProperty(key)) {
+						tdata[key] = tobj[key] || NOT_AVAIL;
+					}
+				}
+				// tdata = {
+				// 	time_stamp: tobj.time_stamp || NOT_AVAIL,                   // milliseconds since 1970
+				// 	type:       tobj.ttype      || NOT_AVAIL,                   // type of telemetry request
+				// 	tagserver:  tobj.tagserver  || NOT_AVAIL,                   // TAG server to which computer is connected
+				// 	browser:    tobj.browser    || NOT_AVAIL,                   // browser
+				// 	platform:   tobj.platform   || NOT_AVAIL,                   // platform (e.g., Mac)
+				// 	time_human: tobj.time_human || NOT_AVAIL,                   // human-readable time
+				// 	additional: tobj.additional ? JSON.stringify(tobj.additional) : NOT_AVAIL // any additional info
+				// };
 
 				WRITE_DATA(tdata);
 			}
@@ -135,7 +138,7 @@
 			} else {
 				console.log('interaction successfully written to log:');
 				console.log('       time: '+tdata.time_human);
-				console.log('       type: '+tdata.type);
+				console.log('       type: '+tdata.ttype);
 				console.log('');
 			}
 		});
