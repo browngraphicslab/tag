@@ -207,13 +207,12 @@
   top: 0px;
   z-index: 1000000000;
 }
-#InternetFailureroot #mainPanel,
-#InternetFailureroot #sadFace {
+#sadFace {
   font-size: 100%;
   color: #fff;
   position: absolute;
 }
-#InternetFailureroot #noticeBox {
+#noticeBox {
   width: 70%;
   height: 21%;
   top: 30%;
@@ -221,19 +220,19 @@
   position: absolute;
   background-color: #324b6b;
 }
-#InternetFailureroot #noticeLabel {
+#noticeLabel {
   color: #fff;
   font-size: 200%;
   left-margin: 4%;
   width: 96%;
 }
-#InternetFailureroot #reconnectButton {
+#reconnectButton {
   font-size: 150%;
   position: relative;
   left: 53%;
   top: 5%;
 }
-#InternetFailureroot #changeServerButton {
+#changeServerButton {
   font-size: 150%;
   position: relative;
   left: 50%;
