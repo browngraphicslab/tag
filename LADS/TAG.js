@@ -41390,17 +41390,6 @@ LADS.Auth = (function () {
     function generateOverlay(onSuccess, onCancel) {
         var overlay = $(document.createElement('div'));
         overlay.attr('id', 'loginOverlay');
-        overlay.css({
-            display: 'none',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            'background-color': 'rgba(0,0,0,0.6)',
-            'z-index': 100000002,
-        });
-
         var loginDialog = $(document.createElement('div'));
         loginDialog.attr('id', 'loginDialog');
 
@@ -41418,13 +41407,10 @@ LADS.Auth = (function () {
             max_height: 210,
         });
         loginDialog.css({
-            position: 'absolute',
             left: loginDialogSpecs.x + 'px',
             top: loginDialogSpecs.y + 'px',
             width: loginDialogSpecs.width + 'px',
             height: loginDialogSpecs.height + 'px',
-            border: '3px double white',
-            'background-color': 'black',
         });
 
         ///
@@ -41442,18 +41428,6 @@ LADS.Auth = (function () {
         overlay.append(loginDialog);
         var dialogTitle = $(document.createElement('div'));
         dialogTitle.attr('id', 'dialogTitle');
-        dialogTitle.css({
-
-            color: 'white',
-            'width': '80%',
-            'height': '15%',
-            'left': '10%',
-            'top': '12.5%',
-            //'font-size': '1.25em',
-            'position': 'relative',
-            'text-align': 'center',
-            //'overflow': 'hidden',
-        });
         dialogTitle.text('Please enter authoring mode password.');
 
         var passwdInput = $(document.createElement('input'));
@@ -41502,8 +41476,8 @@ LADS.Auth = (function () {
             'width': 'auto',
             'position': 'relative',
             'margin-top': '1%',
-           'margin-left': '-2%',
-        'display': 'inline-block',
+            'margin-left': '-2%',
+            'display': 'inline-block',
         });
         var circle = $(document.createElement('img'));
         circle.css({
