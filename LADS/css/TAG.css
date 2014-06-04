@@ -207,12 +207,12 @@
   top: 0px;
   z-index: 1000000000;
 }
-#sadFace {
+#InternetFailureroot #sadFace {
   font-size: 100%;
   color: #fff;
   position: absolute;
 }
-#noticeBox {
+#InternetFailureroot #noticeBox {
   width: 70%;
   height: 21%;
   top: 30%;
@@ -220,19 +220,19 @@
   position: absolute;
   background-color: #324b6b;
 }
-#noticeLabel {
+#InternetFailureroot #noticeLabel {
   color: #fff;
   font-size: 200%;
   left-margin: 4%;
   width: 96%;
 }
-#reconnectButton {
+#InternetFailureroot #reconnectButton {
   font-size: 150%;
   position: relative;
   left: 53%;
   top: 5%;
 }
-#changeServerButton {
+#InternetFailureroot #changeServerButton {
   font-size: 150%;
   position: relative;
   left: 50%;
@@ -410,6 +410,7 @@
   border: solid #fff 1px;
   width: 100%;
   z-index: 50;
+  pointer-events: none;
 }
 #artmodeRoot .seadragonManipButtoninout {
   cursor: pointer;
@@ -1340,6 +1341,16 @@
   background-color: rgba(0,0,0,0.6);
   z-index: 1000000005;
 }
+#loginOverlay {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  z-index: 100000002;
+}
 .dialogBoxContainer {
   display: table-cell;
   text-align: center;
@@ -1356,12 +1367,26 @@
   background-color: #000;
   padding: 3%;
 }
+#loginOverlay #loginDialog {
+  position: absolute;
+  border: 3px double #fff;
+  background-color: #000;
+}
 .dialogBoxTitle {
   color: #fff;
   font-size: 1.3em;
   position: relative;
   text-align: center;
   margin: 0.3em auto;
+}
+#loginOVerlay #dialogTitle {
+  color: #fff;
+  width: 80%;
+  height: 15%;
+  left: 10%;
+  top: 12.5%;
+  position: relative;
+  text-align: center;
 }
 .dialogBox > p {
   color: #fff;

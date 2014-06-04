@@ -41397,17 +41397,6 @@ LADS.Auth = (function () {
     function generateOverlay(onSuccess, onCancel) {
         var overlay = $(document.createElement('div'));
         overlay.attr('id', 'loginOverlay');
-        overlay.css({
-            display: 'none',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            'background-color': 'rgba(0,0,0,0.6)',
-            'z-index': 100000002,
-        });
-
         var loginDialog = $(document.createElement('div'));
         loginDialog.attr('id', 'loginDialog');
 
@@ -41425,13 +41414,10 @@ LADS.Auth = (function () {
             max_height: 210,
         });
         loginDialog.css({
-            position: 'absolute',
             left: loginDialogSpecs.x + 'px',
             top: loginDialogSpecs.y + 'px',
             width: loginDialogSpecs.width + 'px',
             height: loginDialogSpecs.height + 'px',
-            border: '3px double white',
-            'background-color': 'black',
         });
 
         ///
@@ -41449,18 +41435,6 @@ LADS.Auth = (function () {
         overlay.append(loginDialog);
         var dialogTitle = $(document.createElement('div'));
         dialogTitle.attr('id', 'dialogTitle');
-        dialogTitle.css({
-
-            color: 'white',
-            'width': '80%',
-            'height': '15%',
-            'left': '10%',
-            'top': '12.5%',
-            //'font-size': '1.25em',
-            'position': 'relative',
-            'text-align': 'center',
-            //'overflow': 'hidden',
-        });
         dialogTitle.text('Please enter authoring mode password.');
 
         var passwdInput = $(document.createElement('input'));
@@ -41509,8 +41483,8 @@ LADS.Auth = (function () {
             'width': 'auto',
             'position': 'relative',
             'margin-top': '1%',
-           'margin-left': '-2%',
-        'display': 'inline-block',
+            'margin-left': '-2%',
+            'display': 'inline-block',
         });
         var circle = $(document.createElement('img'));
         circle.css({
@@ -42656,6 +42630,9 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
             minimap.mousedown(function () {
                 return false;
             });
+
+            LADS.Util.disableDrag(minimapContainer);
+            
             AR = img.naturalWidth / img.naturalHeight;
             var heightR = img.naturalHeight / $(minimapContainer).height();//the ratio between the height of image and the container.
             var widthR = img.naturalWidth / $(minimapContainer).width();//ratio between the width of image and the container.
@@ -42724,7 +42701,25 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
             var a = 0;
         }
         function onMinimapTapped(evt) {
-            var a = 0;
+
+            console.log("tapped");
+
+            var minimaph = minimap.height();
+            var minimapw = minimap.width();
+            var minimapt = minimap.position().top;
+            var minimapl = parseFloat(minimap.css('marginLeft'));
+
+            var xPos = evt.position.x;
+            var yPos = evt.position.y;
+            var x =(xPos-minimapl)/ minimapw;
+            var y = (yPos-minimapt)/minimaph;
+            y = y / AR;
+            x = Math.max(0, Math.min(x, 1));
+            y = Math.max(0, Math.min(y, 1 / AR));
+            var s = 1;
+            if (s) annotatedImage.viewer.viewport.zoomBy(s, false);
+            annotatedImage.viewer.viewport.panTo(new Seadragon.Point(x, y), true);
+            annotatedImage.viewer.viewport.applyConstraints();
         }
 
         img.onload = minimapLoaded;
