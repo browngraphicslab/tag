@@ -45368,22 +45368,22 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         NAVBAR_HEIGHT = '92%',
         //NAVBAR_HEIGHT = '76px',
         //NAVBAR_FONTSIZE = '200%',
-        NAVBAR_FONTSIZE = '215%',
-        NAVBAR_SUBFONTSIZE = '120%',
+        NAVBAR_FONTSIZE = '100%',
+        NAVBAR_SUBFONTSIZE = '70%',
         HIGHLIGHT = 'white',
         //CONTENT_HEIGHT = '89',
         CONTENT_HEIGHT = '92',
         //LEFT_WIDTH = '25',
         LEFT_WIDTH = '22',
         LEFT_FONTSIZE = '160%',
-        LEFT_LABEL_HEIGHT = '40',
+        //LEFT_LABEL_HEIGHT = '20',
         BUTTON_HEIGHT = '40',
         //RIGHT_WIDTH = '75',
         RIGHT_WIDTH = '54',
         NAV_WIDTH = '23',
-        SETTING_FONTSIZE = '150%',
+        //SETTING_FONTSIZE = '150%',
         INPUT_FONTSIZE = '120%',
-        SETTING_HEIGHT = '40',
+        //SETTING_HEIGHT = '40',
         INPUT_BORDER = 'rgb(167, 180, 174)',
         // Use the apps's aspect ratio for the viewer
         VIEWER_ASPECTRATIO = $(window).width() / $(window).height(),
@@ -45519,7 +45519,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     }
     **/
 
-    debugger;
+    //debugger;
     loadHelper();
     if (callback) {
         callback(that);
@@ -45590,7 +45590,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         });
         //Do some of this in the jade ''file?
         searchbar.attr('placeholder', 'Search...');
-        debugger;
+        //debugger;
         newButton.text('New');
         secondaryButton.text('Video');
         label.text('Loading...');
@@ -45879,6 +45879,9 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
                 settingsContainer.append(new1);
                 settingsContainer.append(new2);
                 settingsContainer.append(msg);
+
+                //Hide or else unused div covers 'Old Password' line
+                buttonContainer.css('display', 'none');
 
                 var saveButton = createButton('Update Password', function () {
                     savePassword({
@@ -48283,7 +48286,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             label.children('div').css('white-space', '');
 
             if (prevSelectedLeftLabel) {
-                prevSelectedLeftLabel.css('height', LEFT_LABEL_HEIGHT + 'px');
+                //prevSelectedLeftLabel.css('height', LEFT_LABEL_HEIGHT + 'px');
                 prevSelectedLeftLabel.children('div').css('white-space', 'nowrap');
             }
         }
@@ -48412,7 +48415,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         container.css({
             //'width': 100/Object.keys(NAV_TEXT).length + '%',
             //'height': '100%',
-            'height': '80px',
+            //'height': '80px',
             //'display': 'inline-block',
             'background': 'transparent',
             'color': TEXT_COLOR,
@@ -48486,15 +48489,14 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     // Holds the left bar for scrolling
     /**
     function createLeftBar() {
-        var container = $(document.createElement('div'));
-        container.css({
+        leftbar.css({
             // Set the height to CONTENT_HEIGHT percent of the window height, but subtract
             // LEFT_LABEL_HEIGHT for the search bar which goes above it and the margin for the
             // search bar
             //Dont delete:
             'height': ($(window).height() * CONTENT_HEIGHT / 100 - (LEFT_LABEL_HEIGHT * 1 + $(window).width() * 0.22 * 0.05)) + 'px',
-            'width': '100%',
-            'overflow': 'auto',
+            //'width': '100%',
+            //'overflow': 'auto',
         });
 
         return container;
@@ -48627,17 +48629,17 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         if (id) {
             container.attr('id', id);
         }
-        container.css({
-            'height': LEFT_LABEL_HEIGHT + 'px',
-            'min-height': LEFT_LABEL_HEIGHT + 'px',
-            'padding-left': '2%',
-            'padding-top': '2%',
-            'padding-bottom': '2%',
-            'margin-right': '3.2%',
-            'margin-bottom': '3%',
-            'overflow': 'hidden',
-            'position': 'relative',
-        });
+       // container.css({
+            //'height': LEFT_LABEL_HEIGHT + 'px',
+            //'min-height': LEFT_LABEL_HEIGHT + 'px',
+            //'padding-left': '2%',
+            //'padding-top': '2%',
+            //'padding-bottom': '2%',
+            //'margin-right': '3.2%',
+            //'margin-bottom': '3%',
+            //'overflow': 'hidden',
+            //'position': 'relative',
+        //});
 
         if (inArtMode) {
             if(extension.match(/mp4/)) {
@@ -48665,6 +48667,9 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         container.click(function () {
             if (prevSelectedLeftLabel == container)
                 return;
+            if (prevSelectedLeftLabel.attr('id') === 'password'){
+                buttonContainer.css('display','block');
+            }
             resetLabels('.leftLabel');
             selectLabel(container, !noexpand);
             if (onclick)
@@ -48706,13 +48711,13 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         var label = $(document.createElement('div'));
         label.attr('class', 'labelText');
         label.css({
-            'font-size': LEFT_FONTSIZE,
-            'display': 'inline-block',
-            'white-space': 'nowrap',
+            //'font-size': LEFT_FONTSIZE,
+            //'display': 'inline-block',
+            //'white-space': 'nowrap',
             'width': width,
-            'overflow': 'hidden',
-            'text-overflow': 'ellipsis',
-            'vertical-align': 'top',
+            //'overflow': 'hidden',
+            //'text-overflow': 'ellipsis',
+            //'vertical-align': 'top',
             //'word-wrap': 'break-word',
         });
 
@@ -48828,6 +48833,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     //  width: if not-falsey then assumed to be a number (ex. 75) representing the pecent, must be less than 95
     function createSetting(text, input, width) {
         var container = $(document.createElement('div'));
+        container.attr('class', 'settingLine');
         container.css({
             'width': '100%',
             'margin-bottom': '4%',
@@ -48835,7 +48841,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
 
         var label = $(document.createElement('div'));
         label.css({
-            'font-size': SETTING_FONTSIZE,
+            //'font-size': SETTING_FONTSIZE,
             'width': width ? 45 - (width - 50) + '%' : '45%',
             'overflow': 'hidden',
             'text-overflow': 'ellipsis',
@@ -48843,6 +48849,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             'display': 'inline-block',
         });
         label.text(text);
+        label.attr('class', 'labelText');
 
         if (width) {
             width = width + '%';
@@ -48884,10 +48891,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     function createButton(text, onclick, css) {
         var button = $(document.createElement('button')).text(text);
         button.attr('type', 'button');
-        button.css({
-            'color': TEXT_COLOR,
-            'border-color': TEXT_COLOR,
-        });
         if (css) {
             button.css(css);
         }
@@ -49649,8 +49652,11 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         return container;
     }
 
+//as far as I can tell this method is never called and isn't related to the slider itself...
     function verticalSlider(input, min, max) {
-        var sliderdiv = $(document.createElement('div'));
+        //var sliderdiv = $(document.createElement('div'));
+        var sliderdiv = root.find('#setViewSlider');
+        console.log("slider's here");
         sliderdiv.css({
             'height': '200px',
             'position': 'absolute',
@@ -49682,7 +49688,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             input.focus();
         });
 
-        root.append(sliderdiv);
+        //root.append(sliderdiv);
         input.focus(function () {
             sliderdiv.css({
                 'left': input.offset().left - 15 + 'px',
