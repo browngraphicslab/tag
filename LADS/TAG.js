@@ -42721,8 +42721,6 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         }
         function onMinimapTapped(evt) {
 
-            console.log("tapped");
-
             var minimaph = minimap.height();
             var minimapw = minimap.width();
             var minimapt = minimap.position().top;
