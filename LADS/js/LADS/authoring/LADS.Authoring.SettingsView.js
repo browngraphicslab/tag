@@ -57,45 +57,7 @@
 LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabelID) {
     "use strict";
 
-/*
-   //TODO: figure out if i need to instantiate all these, delete ones from root
-    var that = {
-        getRoot: getRoot,
-    },
-        //root,
-       // leftLabelContainer,
-        //leftLoading,
-       // leftbar,
-        //rightbar,
-        prevSelectedSetting,
-        prevSelectedLeftLabel,
-        //viewer,
-        searchbar,
-        settingsContainer,
-        settings,
-        searchContainer,
-        buttonContainer,
-        newButton,
-        secondaryButton,
-        // These are 'asynchronous' queues to perform tasks
-        leftQueue = LADS.Util.createQueue(),
-        rightQueue = LADS.Util.createQueue(),
-        cancelLastSetting,
-        artPickerOpen = false,
-        nav = [],
-        artworks = [],
-        assetUploader,
-        mediaMetadata = [],
-        numFiles = 0,
-        isUploading = false,
-        isCreatingMedia = false,
-        artworkAssociations = [], // entry i contains the artwork info for the ith associated media
-        artworkList = [], // save artworks retrieved from the database
-        mediaCheckedIDs = [], // artworks checked in associated media uploading
-        mediaUncheckedIDs = [], // artworks unchecked in associated media uploading
-        editArt; // 
-
-*/
+//get all of the ui elements from the jade file and save them in variables
     var root = LADS.Util.getHtmlAjax('SettingsView.html'), //Get html from html file
         leftLoading = root.find('#setViewLoadingCircle'),
         settingsContainer = root.find('#setViewSettingsContainer'),
@@ -113,14 +75,12 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         label = root.find('#setViewLoadingLabel'),
         circle = root.find('#setViewLoadingCircle'),
         VIEWER_ASPECTRATIO = $(window).width() / $(window).height(),
+        
+    // Constants
+
+    //TODO: Should be able to go through and delete unneccesary constants after factoring:
         RIGHT_WIDTH = '54',
         CONTENT_HEIGHT = '92',
-    // Constants
-    // Stuff that's commented here is used to put the nav bar on top
-    // under the top bar instead of putting it on the left.
-
-    //TODO: Should be able to delete constants after factoring:
-    
         ROOT_BGCOLOR = 'rgb(219,217,204)',
         ROOT_COLOR = 'black',
         TEXT_COLOR = 'black',
@@ -184,21 +144,9 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     that = {
         getRoot: getRoot,
     },
-        //root,
-       // leftLabelContainer,
-        //leftLoading,
-       // leftbar,
-        //rightbar,
+    
         prevSelectedSetting,
         prevSelectedLeftLabel,
-        //viewer,
-        //searchbar,
-        //settingsContainer,
-        //settings,
-        //searchContainer,
-        //buttonContainer,
-        //newButton,
-        //secondaryButton,
         // These are 'asynchronous' queues to perform tasks
         leftQueue = LADS.Util.createQueue(),
         rightQueue = LADS.Util.createQueue(),
@@ -217,71 +165,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         mediaUncheckedIDs = [], // artworks unchecked in associated media uploading
         editArt; // enter artwork editor button
 
-    // TODO: Should be able to delete when factored: 
-    /**
-    function init() {
-        root = $(document.createElement('div'));
-        root.css({
-            'background-color': ROOT_BGCOLOR,
-            'color': TEXT_COLOR,
-            'width': '100%',
-            'height': '100%',
-        });
-
-        // Sets up the structure of settings view and assigns
-        // necessary variables
-        // dz - modified as necessary to work with documentFragment
-        var rootDocfrag = document.createDocumentFragment();
-
-        // creating elements for instance vars
-        searchContainer = createSearch();
-        leftbar = createLeftBar();
-        leftLabelContainer = createLeftLabelContainer();
-        leftLoading = createLeftLoading();
-        rightbar = createRightBar();
-        viewer = createViewer();
-        buttonContainer = createButtonContainer();
-        settings = createSettings();
-        settingsContainer = createSettingsContainer();
-
-        // one-use var for docfrag
-        var leftBarContainer = createLeftBarContainer();
-
-        // Add the top bar (back button and 'Authoring Mode' label) - needs html element (i.e. not the jQuery object) for docfrag, thus the [0]
-        rootDocfrag.appendChild(createTopBar()[0]);
-        // Add the nav bar (General Settings, Exhibitions, etc...) - needs html element (i.e. not the jQuery object) for docfrag, thus the [0]
-        rootDocfrag.appendChild(createNavBar()[0]);
-        // Create a container for the 'left' bar - needs html element (i.e. not the jQuery object) for docfrag, thus the [0]
-        rootDocfrag.appendChild(leftBarContainer[0]);
-        // Add the search bar/button to the left container
-        leftBarContainer.append(searchContainer);
-        // The left bar holds the label container  so it can scroll.
-        leftBarContainer.append(leftbar);
-        // Add the label container to the left bar.
-        // The label container holds all of the labels
-        leftbar.append(leftLabelContainer);
-        // Add the loading (Loading... with spinning circle) label.
-        leftLabelContainer.append(leftLoading);
-        // Add the right bar to the root - needs html element (i.e. not the jQuery object) for docfrag, thus the [0]
-        rootDocfrag.appendChild(rightbar[0]);
-        // Add the viewer to the right bar
-        rightbar.append(viewer);
-        // Add the button container to the right bar (for save, delete, etc)
-        rightbar.append(buttonContainer);
-        // Add the settings bar
-        rightbar.append(settings);
-        // Add the container that holds all of the settings to the settings bar
-        settings.append(settingsContainer);
-
-        // finally, append the docfrag to root
-        root.append(rootDocfrag);
-        switchView(startView, startLabelID);
-        if (callback)
-            callback(that);
-    }
-    **/
-
-    //debugger;
     loadHelper();
     if (callback) {
         callback(that);
@@ -359,7 +242,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         circle.attr('src', 'images/icons/progress-circle.gif');
 
         viewer.css({
-            'width': $(window).width() * RIGHT_WIDTH / 100 + 'px', // 100% should work, need to figure out height though
+            //'width': $(window).width() * RIGHT_WIDTH / 100 + 'px', // 100% should work, need to figure out height though
             'height': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
         });
 
@@ -410,11 +293,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }
     }
 
-    //TODO->see if I needed this. 
-    /**
-    init();
-    return that;
-    **/
+   
 
     // Functions that can be called from external sources
 
@@ -3065,124 +2944,14 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     }
 
 
-    // Helper functions for creating and managing the UI
-
-    // Creates the top bar where the back button and 'Authoring Mode' label are
-    //TODO- delete all these when done factoring, move all the dynamic parts to loadingHelper
-
-    //Moved to helper method: 
-    /**
-   // function createTopBar() {
-        //var topBar = $(document.createElement('div'));
-        //topBar.css({
-           // 'background-color': TOPBAR_BGCOLOR,
-            //'width': '100%',
-            //'height': TOPBAR_HEIGHT + '%',
-       // });
-
-        var backButton = $(document.createElement('img'));
-        backButton.attr('src', 'images/icons/Back.svg');
-        //backButton.css({
-            //'height': '63%',
-            //'margin-left': '1.2%',
-          //  'width': 'auto',
-          //  'top': '18.5%',
-          //  'position': 'relative',
-       // });
-
-        backButton.mousedown(function () {
-            LADS.Util.UI.cgBackColor("backButton", backButton, false);
-        });
-
-        backButton.mouseleave(function () {
-            LADS.Util.UI.cgBackColor("backButton", backButton, true);
-        });
-
-        backButton.click(function () {
-            LADS.Auth.clearToken();
-            rightQueue.clear();
-            leftQueue.clear();
-            backButton.off('click');
-            if (backPage) {
-                var bpage = backPage();
-                LADS.Util.UI.slidePageRight(bpage);
-            } else {
-                LADS.Layout.StartPage(null, function (page) {
-                    LADS.Util.UI.slidePageRight(page);
-                });
-            }
-        });
-
-        var topBarLabel = $(document.createElement('div'));
-        var topBarLabelSpecs = LADS.Util.constrainAndPosition($(window).width(), $(window).height() * 0.08,
-        {
-            width: 0.4,
-            height: 0.9,
-        });
-        //topBarLabel.css({
-           // 'margin-right': '2%',
-           // 'margin-top': 8 * 0.045 + '%',
-           // 'color': 'white',
-           // 'position': 'absolute',
-           // 'text-align': 'right',
-           // 'right': '0px',
-            //'top': '0px',
-            //Dont delete:
-            'height': topBarLabelSpecs.height + 'px',
-            'width': topBarLabelSpecs.width + 'px',
-       // });
-
-        var fontsize = LADS.Util.getMaxFontSizeEM('Tour Authoring', 0.5, topBarLabelSpecs.width, topBarLabelSpecs.height * 0.8, 0.1);
-        topBarLabel.css({ 'font-size': fontsize });
-
-        topBarLabel.text('Authoring Mode');
-
-        //topBar.append(backButton);
-       // topBar.append(topBarLabel);
-
-        //return topBar;
-   // }
-    **/
-    //Moved to helper method:
-    // Creates the nav bar
-    /**
-    //function createNavBar() {
-        //var navBar = $(document.createElement('div'));
-        //navBar.css({
-            //'height': NAVBAR_HEIGHT,
-            //'float': 'left',
-            //'width': NAV_WIDTH + '%',
-        //});
-
-        // Assing the nav labels to a nav object with their name as the key
-        navBar.append(nav[NAV_TEXT.general.text] = createNavLabel(NAV_TEXT.general, loadGeneralView));
-        navBar.append(nav[NAV_TEXT.exhib.text] = createNavLabel(NAV_TEXT.exhib, loadExhibitionsView));
-        navBar.append(nav[NAV_TEXT.art.text] = createNavLabel(NAV_TEXT.art, loadArtView));
-        navBar.append(nav[NAV_TEXT.media.text] = createNavLabel(NAV_TEXT.media, loadAssocMediaView)); // COMMENT!!!!!!!!
-        navBar.append(nav[NAV_TEXT.tour.text] = createNavLabel(NAV_TEXT.tour, loadTourView));
-        navBar.append(nav[NAV_TEXT.feedback.text] = createNavLabel(NAV_TEXT.feedback, loadFeedbackView));
-
-       // return navBar;
-   // }
-        **/
-    // Creates a single nav label.  text is an object
-    // with keys 'text' and 'subtext' and onclick is called
-    // when the label is clicked
-
-    //TODO-> make it so nav labels aren't created dynamically...
     function createNavLabel(text, onclick) {
         var container = $(document.createElement('div'));
         container.attr('class', 'navContainer');
         container.attr('id', 'nav-' + text.text);
         container.css({
-            //'width': 100/Object.keys(NAV_TEXT).length + '%',
-            //'height': '100%',
-            //'height': '80px',
-            //'display': 'inline-block',
             'background': 'transparent',
             'color': TEXT_COLOR,
             'margin-top': '2%',
-            //'margin-bottom': '5%',
             'padding-top': '4%',
             'padding-bottom': '4%',
         });
@@ -3237,148 +3006,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         return container;
     }
 
-    // Create the left bar container where the search bar and left bar are placed
-    /**
-    function createLeftBarContainer() {
-        var container = $(document.createElement('div'));
-        container.css({
-            'width': LEFT_WIDTH + '%',
-            'float': 'left',
-        });
-        return container;
-    }
-    **/
-    // Holds the left bar for scrolling
-    /**
-    function createLeftBar() {
-        leftbar.css({
-            // Set the height to CONTENT_HEIGHT percent of the window height, but subtract
-            // LEFT_LABEL_HEIGHT for the search bar which goes above it and the margin for the
-            // search bar
-            //Dont delete:
-            'height': ($(window).height() * CONTENT_HEIGHT / 100 - (LEFT_LABEL_HEIGHT * 1 + $(window).width() * 0.22 * 0.05)) + 'px',
-            //'width': '100%',
-            //'overflow': 'auto',
-        });
-
-        return container;
-    }
-    **/
-//WHERE I STOPPED WITH THE MOVING AROUND ON 4-17 LUCYvK
-    // Create the label container where labels are added
-    /**
-    function createLeftLabelContainer() {
-        var container = $(document.createElement('div'));
-        container.css({
-            'padding-left': '3.5%',
-            // So it doesn't go under scroll bar
-            'padding-right': '20px',
-            'padding-bottom': '5%',
-            'padding-top': '2%',
-        });
-        return container;
-    }
-        **/
-    // Create the search bar with the new button
-   // function createSearch() {
-        //var container = $(document.createElement('div'));
-        //container.css({
-           // 'height': LEFT_LABEL_HEIGHT + 'px',
-           // 'width': '100%',
-            //'margin-top': '2.5%',
-            //'margin-bottom': '2.5%',
-        //});
-/**
-        searchbar = $(document.createElement('input'));
-        searchbar.attr('type', 'text');
-       // searchbar.attr('id', 'searchbar');
-        //searchbar.css({
-        //    //'float': 'left',
-         //   'width': '55%',
-           // 'border-color': INPUT_BORDER,
-            //'margin-top': '2%',
-            //'margin-left': '3.5%',
-     //   });
-        searchbar.keyup(function () {
-            search(searchbar.val(), '.leftLabel', 'div');
-        });
-        searchbar.change(function () {
-            search(searchbar.val(), '.leftLabel', 'div');
-        });
-        // Workaround for clear button (doesn't fire a change event...)
-        searchbar.mouseup(function () {
-            setTimeout(function () {
-                search(searchbar.val(), '.leftLabel', 'div');
-            }, 1);
-        });
-        searchbar.attr('placeholder', DEFAULT_SEARCH_TEXT);
-
-        newButton = $(document.createElement('button'));
-        newButton.attr('type', 'button');
-        //newButton.css({
-           // 'float': 'right',
-            //'height': '100%',
-           // 'color': TEXT_COLOR,
-           // 'border-color': TEXT_COLOR,
-            //'margin-top': '1%',
-            //'padding-bottom': '1%',
-        //});
-        newButton.text('New');
-
-        secondaryButton = $(document.createElement('button'));
-        secondaryButton.attr('type', 'button');
-       // secondaryButton.css({
-            //'float': 'right',
-           // 'height': '100%',
-            //'color': TEXT_COLOR,
-           // 'border-color': TEXT_COLOR,
-            //'margin-top': '1%',
-            //'padding-bottom': '1%',
-            //'margin-right': '15px',
-            //'display': 'none'
-        //});
-        secondaryButton.text('Video');
-
-        //container.append(searchbar);
-       // container.append(newButton);
-       // container.append(secondaryButton);
-
-        return container;
-    }
-    **/
-
-    // Create the left loading label which has a spinning circle
-    // Ideally this should always be at the bottom, so use jquery
-    // .before to add elements before it
-   // function createLeftLoading() {
-        //var container = $(document.createElement('div'));
-       // container.attr('id', 'leftLoading');
-        //container.css({
-            //'padding': '2%',
-            //'height': LEFT_LABEL_HEIGHT + 'px',
-            //'margin-right': '3%',
-       // });
-
-        //var label = $(document.createElement('label'));
-       // label.css({
-            //'font-size': LEFT_FONTSIZE,
-       // });
-      //  label.text('Loading...');
-
-       // var circle = $(document.createElement('img'));
-      //  circle.attr('src', 'images/icons/progress-circle.gif');
-        //circle.css({
-           // 'height': LEFT_LABEL_HEIGHT * 0.96 + 'px',
-           // 'width': 'auto',
-           // 'float': 'right',
-       // });
-
-       // container.append(label);
-        //container.append(circle);
-
-        //return container;
-    //}
-
+   
     // Creates a left label with
     //      text:       the text of the label
     //      imagesrc:   src for the image.  If not specified then no image is added
@@ -3496,76 +3124,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         return container;
     }
 
-    // Creates the right bar which holds the viewer
-    // button container and settings container]
-    /**
-    function createRightBar() {
-        var container = $(document.createElement('div'));
-        container.css({
-            'height': CONTENT_HEIGHT + '%',
-            'width': RIGHT_WIDTH + '%',
-            'float': 'right',
-            'position': 'relative',
-        });
-
-        return container;
-    }
-        **/
-    // Creates the viewer
-    /**
-    function createViewer() {
-        var container = $(document.createElement('div'));
-        container.attr('id', 'previewContainer');
-        container.css({
-            //dont Delete:
-            'width': $(window).width() * RIGHT_WIDTH / 100 + 'px', // 100% should work, need to figure out height though
-            'height': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
-            'color': 'white',
-            'position': 'absolute',
-            'font-size': '6pt',
-            'background': 'black',
-            'top': '0%',
-            'right': '0px',
-            'z-index': '5',
-            'overflow': 'hidden',
-        });
-        return container;
-    }
-        **/
-    /**
-    // Creates the button container
-    function createButtonContainer() {
-        var container = $(document.createElement('div'));
-        container.css({
-            //'width': '100%',
-            //'position': 'absolute',
-            //Dont delete:
-            'top': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
-            //'height': BUTTON_HEIGHT + 'px',
-            //'z-index': '5',
-            //'background': ROOT_BGCOLOR,
-            //'margin-top': '0.35%',
-            //margin-bottom': '2.5%',
-        });
-       // return container;
-    }
-        **/
-    // Creates the settings bar which holds the settings container
-    /**
-    function createSettings() {
-        var container = $(document.createElement('div'));
-        container.css({
-            // Be careful with this height--
-            //Dont delete:
-            'height': getSettingsHeight() + 'px',
-            //'width': '100%',
-            //'position': 'absolute',
-            //'bottom': '0px',
-            //'overflow': 'auto',
-        });
-        return container;
-    }
-    **/
     // Gets the height of the settings section
     // Since the viewer has to be positioned absolutely,
     // the entire right bar needs to be position absolutely.
@@ -4414,6 +3972,8 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         return container;
     }
 
+/**
+
 //as far as I can tell this method is never called and isn't related to the slider itself...
     function verticalSlider(input, min, max) {
         //var sliderdiv = $(document.createElement('div'));
@@ -4472,7 +4032,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             sliderdiv.slider('value', input.val());
         });
     }
-
+*/
     // Creates an overlay over the whole settings view with
     // a spinning circle and centered text.  Text defaults
     // to 'Loading...' if not specified.  This overlay is intended
@@ -4527,7 +4087,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         label.text(text);
         overlay.append(label);
     }
-
+    
     function authError() {
         var popup = LADS.Util.UI.popUpMessage(function () {
             LADS.Auth.clearToken();
