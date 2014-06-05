@@ -13300,7 +13300,8 @@ var SeadragonViewport = Seadragon.Viewport = function(containerSize, contentSize
                 width,
                 height
             ), immediately);
-        }
+            return true; // returns whether or not constraints were applied
+        } else {return false};
     };
     
     this.ensureVisible = function(immediately) {
@@ -40789,8 +40790,8 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 circle.attr('src', tagPath + 'images/icons/hotspot_circle.svg');
                 circle.addClass('annotatedImageHotspotCircle');
                 root.append(circle);
-                console.log("position: " + position);
-            }
+                addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);                
+                }
 
             // allows asset to be dragged, despite the name
             LADS.Util.disableDrag(outerContainer);
@@ -41079,8 +41080,8 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 maxW = 1000;
                 minW = 250;
             } else if (CONTENT_TYPE === 'Audio') {
-                maxW = 800;
-                minW = 250;
+                maxW = w*.85;
+                minW = w*.15;
             }
 
             // constrain new width
@@ -41138,21 +41139,29 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 w = outerContainer.width();
 
             if(IS_HOTSPOT) {
-                circle.css('visibility', 'visible');
-                addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
-                
                 viewer.viewport.panTo(position, false);
 
-                console.log("h: " + h);
-                console.log("rootHeight: " + rootHeight);
+                console.log("position: " + position);
+                console.log("X, Y: " + X + ", " + Y);
+
+                var constraintsApplied = viewer.viewport.applyConstraints();
+                circle.css('visibility', 'visible');
+                addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);                
 
                 if (rootHeight - h > rootHeight*.9) {
                     t = rootHeight*.9;
                 }
 
-                t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
-                l = rootWidth/2 + circle.width()*3/4;
-            } else {
+                if (!constraintsApplied){
+                    t = (rootHeight - h)/2 + circle.height()/2;
+                    l = (rootWidth)/2 + circle.height();
+
+                } else {
+                    t = circle.position().top - h/2 + circle.height()/2;
+                    l = circle.position().left + circle.height();
+                }
+
+           } else {
                 t = rootHeight * 1/10 + Math.random() * rootHeight * 2/10;
                 l = rootWidth  * 3/10 + Math.random() * rootWidth  * 2/10;
             }
@@ -41190,14 +41199,12 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
          */
         function hideMediaObject() {
             pauseResetMediaObject();
-            IS_HOTSPOT && removeOverlay(circle[0]);
+            IS_HOTSPOT && circle.css('visibility', 'hidden');
             outerContainer.hide();   
             mediaHidden = true;
-
             if(!thumbnailButton) {
                 thumbnailButton = $('#thumbnailButton-' + mdoq.Identifier);
             }
-
             thumbnailButton.css({
                 'color': 'white',
                 'background-color': ''
@@ -41390,17 +41397,6 @@ LADS.Auth = (function () {
     function generateOverlay(onSuccess, onCancel) {
         var overlay = $(document.createElement('div'));
         overlay.attr('id', 'loginOverlay');
-        overlay.css({
-            display: 'none',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            'background-color': 'rgba(0,0,0,0.6)',
-            'z-index': 100000002,
-        });
-
         var loginDialog = $(document.createElement('div'));
         loginDialog.attr('id', 'loginDialog');
 
@@ -41418,13 +41414,10 @@ LADS.Auth = (function () {
             max_height: 210,
         });
         loginDialog.css({
-            position: 'absolute',
             left: loginDialogSpecs.x + 'px',
             top: loginDialogSpecs.y + 'px',
             width: loginDialogSpecs.width + 'px',
             height: loginDialogSpecs.height + 'px',
-            border: '3px double white',
-            'background-color': 'black',
         });
 
         ///
@@ -41442,18 +41435,6 @@ LADS.Auth = (function () {
         overlay.append(loginDialog);
         var dialogTitle = $(document.createElement('div'));
         dialogTitle.attr('id', 'dialogTitle');
-        dialogTitle.css({
-
-            color: 'white',
-            'width': '80%',
-            'height': '15%',
-            'left': '10%',
-            'top': '12.5%',
-            //'font-size': '1.25em',
-            'position': 'relative',
-            'text-align': 'center',
-            //'overflow': 'hidden',
-        });
         dialogTitle.text('Please enter authoring mode password.');
 
         var passwdInput = $(document.createElement('input'));
@@ -41502,8 +41483,8 @@ LADS.Auth = (function () {
             'width': 'auto',
             'position': 'relative',
             'margin-top': '1%',
-           'margin-left': '-2%',
-        'display': 'inline-block',
+            'margin-left': '-2%',
+            'display': 'inline-block',
         });
         var circle = $(document.createElement('img'));
         circle.css({
