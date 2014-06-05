@@ -42058,7 +42058,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
 LADS.Layout.StartPage.default_options = {
     repository: "http://cs.brown.edu/research/lads/LADS2.0Data/repository.xml",
 };
-
 ;
 LADS.Util.makeNamespace("LADS.Layout.Artmode");
 
