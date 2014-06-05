@@ -235,7 +235,8 @@ var SeadragonViewport = Seadragon.Viewport = function(containerSize, contentSize
                 width,
                 height
             ), immediately);
-        }
+            return true; // returns whether or not constraints were applied
+        } else {return false};
     };
     
     this.ensureVisible = function(immediately) {
