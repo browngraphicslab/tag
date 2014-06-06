@@ -45,7 +45,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         getToManip: getToManip,
         getClicked: getClicked,
         setArtworkClicked: setArtworkClicked
-    }
+    };
 
 
     function setArtworkClicked() {
@@ -635,11 +635,24 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
             }
         }
 
+        /**
+         * Repeated functionality in the outerContainer click handler and
+         * media manip.
+         * @method mediaManipPreprocessing
+         */
+        function mediaManipPreprocessing() {
+            toManip = mediaManip;
+            clickedMedia = 'media';
+            $('.mediaOuterContainer').css('z-index', 1000);
+            outerContainer.css('z-index', 1001);
+        }
+
         outerContainer.on('click', function (event) {
             event.stopPropagation();            //Prevent the click going through to the main container
             event.preventDefault();
-            toManip = mediaManip;              //When you click on any media, use the manipulation method for media
-            clickedMedia = 'media'; 
+            mediaManipPreprocessing();
+            // toManip = mediaManip;              //When you click on any media, use the manipulation method for media
+            // clickedMedia = 'media'; 
         });
 
      
@@ -663,6 +676,8 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 newW  = w * scale,
                 maxW,
                 minW;
+
+            mediaManipPreprocessing();
 
             // these values are somewhat arbitrary; TODO determine good values
             if (CONTENT_TYPE === 'Image') {
