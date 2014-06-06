@@ -30634,11 +30634,11 @@ LADS.Util = (function () {
     //var applicationData = Windows.Storage.ApplicationData.current;
 
     //Hilarious that this is necessary.
-    var alphabet = new Array(
-    '#',
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
-    'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
-    'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
+    // var alphabet = new Array(
+    // '#',
+    // 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
+    // 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
+    // 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
 
     var tagContainerId = 'tagRoot';
 
@@ -30650,7 +30650,7 @@ LADS.Util = (function () {
         makeXmlRequest: makeXmlRequest,
         makeManipulatable: makeManipulatable,
         makeManipulatableWin: makeManipulatableWin,
-        alphabet: alphabet,
+        // alphabet: alphabet,
         applyD3DataRec: applyD3DataRec,
         elementInDocument: elementInDocument,
         fitText: fitText,
@@ -32272,6 +32272,14 @@ LADS.Util.UI = (function () {
             }
         });
 
+        LADS.Telemetry.register(serverDialogInput, 'keydown', 'change_server', function(tobj, evt) {
+            if(evt.which !== 13) {
+                return true;
+            }
+            tobj.old_address = localStorage.ip;
+            tobj.new_address = serverDialogInput.val();
+        });
+
         var serverDialogContact = $(document.createElement('div'));
         serverDialogContact.css({ 'margin-top': '10%' , 'color':'white','text-align': 'center'  });
         serverDialogContact.html(
@@ -32381,9 +32389,9 @@ LADS.Util.UI = (function () {
 
         serverSaveButton.on('click', saveClick);
 
-        LADS.Telemetry.register(serverSaveButton, 'click', 'change_server', function(tobj) {
-            tobj.start_ip = localStorage.ip;
-            tobj.new_ip   = serverDialogInput.val();
+        LADS.Telemetry.register(serverSaveButton, 'click', 'change_server', function(tobj, evt) {
+            tobj.old_address = localStorage.ip;
+            tobj.new_address = serverDialogInput.val();
         });
 
         var serverCircle = $(document.createElement('img'));
@@ -32396,8 +32404,6 @@ LADS.Util.UI = (function () {
             'float': 'right'
         });
         serverCircle.attr('src', tagPath+'images/icons/progress-circle.gif');
-
-        
 
         var serverPasswordErrorMessage = $(document.createElement('div'));
         serverPasswordErrorMessage.attr('id', 'serverPasswordErrorMessage');
@@ -42415,7 +42421,11 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
             });
         });
 
-        LADS.Util.UI.setUpBackButton(backButton, goBack)
+        LADS.Util.UI.setUpBackButton(backButton, goBack);
+        LADS.Telemetry.register(backButton, 'click', 'artwork_to_collections', function(tobj) {
+            tobj.work_name = doq.Name;
+            tobj.work_guid = doq.Identifier;
+        });
 
         function goBack() {
             var catalog;
@@ -43100,9 +43110,6 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         collectionHeader = root.find('#collectionHeader'),
         bgimage          = root.find('#bgimage'),
         catalogDiv       = root.find('#catalogDiv'),
-        artistButton     = root.find('#artistButton'),
-        yearButton       = root.find('#yearButton'),
-        titleButton      = root.find('#titleButton'),
         typeButton       = root.find('#typeButton'),
         sortRow          = root.find('#sortRow'),
         searchInput      = root.find('#searchInput'),
@@ -43138,6 +43145,7 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         moreInfo,                       // div holding tombstone information for current artwork
         artistInfo,                     // artist tombstone info div
         yearInfo,                       // year tombstone info div
+        justShowedArtwork,              // for telemetry; helps keep track of artwork tile clicks
         currentTag;                     // current sort tag
 
     // register different actions with the telemetry service
@@ -43170,6 +43178,22 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
 
         root.find('.rowButton').on('click', function() {
             changeDisplayTag(currentArtworks, $(this).attr('tagName'));
+        });
+
+        LADS.Telemetry.register(root.find('#artistButton'), 'click', '', function(tobj) {
+            tobj.ttype = 'sort_by_artist';
+        });
+
+        LADS.Telemetry.register(root.find('#titleButton'), 'click', '', function(tobj) {
+            tobj.ttype = 'sort_by_title';
+        });
+
+        LADS.Telemetry.register(root.find('#yearButton'), 'click', '', function(tobj) {
+            tobj.ttype = 'sort_by_year';
+        });
+
+        LADS.Telemetry.register(root.find('#typeButton'), 'click', '', function(tobj) {
+            tobj.ttype = 'sort_by_type';
         });
 
         // search on keyup
@@ -43684,18 +43708,21 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
                     switchPage();
                 } else {
                     showArtwork(currentWork)();
+                    justShowedArtwork = true;
                 }
             });
 
             LADS.Telemetry.register(main, 'click', '', function(tobj) {
                 var type;
-                if (currentThumbnail.attr('guid') === currentWork.Identifier) {
+                if (currentThumbnail.attr('guid') === currentWork.Identifier && !justShowedArtwork) {
                     tobj.ttype = 'collections_to_' + getWorkType(currentWork);
                 } else {
                     tobj.ttype = 'artwork_tile';
                 }
                 tobj.artwork_name = currentWork.Name;
                 tobj.artwork_guid = currentWork.Identifier;
+
+                justShowedArtwork = false;
             });
 
             if(currentWork.Metadata.Thumbnail) {
@@ -43761,16 +43788,18 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
             $('#explore-tab').css('display', 'inline-block');
 
             if (artwork.Type !== "Empty") {
-                artistInfo.text("Artist: " + (artwork.Metadata.Artist ? artwork.Metadata.Artist : "Unknown"));
-                yearInfo.text(artwork.Metadata.Year ? artwork.Metadata.Year : " ");
+                artistInfo.text("Artist: " + (artwork.Metadata.Artist || "Unknown"));
+                yearInfo.text(artwork.Metadata.Year || " ");
             } else {
                 artistInfo.text("(Interactive Tour)" );
                 yearInfo.text(" " );
             }
                 
-            currentThumbnail.attr("src", artwork.Metadata.Thumbnail ? FIX_PATH(artwork.Metadata.Thumbnail) : (tagPath+'images/no_thumbnail.svg'))
-                .css('border', '1px solid rgba(0,0,0,0.5)')
-                .attr('guid', artwork.Identifier);
+            currentThumbnail.css('border', '1px solid rgba(0,0,0,0.5)')
+                .attr({
+                    src:  artwork.Metadata.Thumbnail ? FIX_PATH(artwork.Metadata.Thumbnail) : (tagPath+'images/no_thumbnail.svg'),
+                    guid: artwork.Identifier
+                });
 
             setTimeout(function() {
                 currentThumbnail.attr('guid', '');
@@ -44764,10 +44793,11 @@ LADS.Telemetry = (function() {
 	 * @param {String} ttype            the type of telemetry request to log
 	 * @param {Function} preHandler     do any pre-handling based on current state of TAG, add any additional
 	 *                                     properties to the eventual telemetry object. Accepts the telemetry
-	 *                                     object to augment, returns true if we should abort further handling.
+	 *                                     object to augment and the event, and returns true if we should abort
+	 *                                     further handling.
 	 */
 	function register(element, etype, ttype, preHandler) {
-		$(element).on(etype + '.tag_telemetry', function() {
+		$(element).on(etype + '.tag_telemetry', function(evt) {
 			var date = new Date(),
 				tobj = {
 					ttype:      ttype,
@@ -44780,13 +44810,13 @@ LADS.Telemetry = (function() {
 				ret = true;
 
 			// if preHandler returns true, return
-			if(preHandler && preHandler(tobj)) {
+			if(preHandler && preHandler(tobj, evt)) {
 				return;
 			}
 
 			requests.push(tobj);
 
-			if(requests.length % sendFreq === 0) { // tweak this later
+			if(requests.length % sendFreq === sendFreq - 1) { // tweak this later
 				postTelemetryRequests();
 			} 
 		});
@@ -44794,7 +44824,7 @@ LADS.Telemetry = (function() {
 
 	/**
 	 * Make a request to the telemetry server using the requests variable
-	 * @method telemetryRequests
+	 * @method postTelemetryRequests
 	 */
 	function postTelemetryRequests() {
 		var data = JSON.stringify(requests);

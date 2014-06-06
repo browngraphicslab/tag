@@ -353,7 +353,11 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
             });
         });
 
-        LADS.Util.UI.setUpBackButton(backButton, goBack)
+        LADS.Util.UI.setUpBackButton(backButton, goBack);
+        LADS.Telemetry.register(backButton, 'click', 'artwork_to_collections', function(tobj) {
+            tobj.work_name = doq.Name;
+            tobj.work_guid = doq.Identifier;
+        });
 
         function goBack() {
             var catalog;
