@@ -23,12 +23,14 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         FIX_PATH = LADS.Worktop.Database.fixPath,   // prepend server address to given path
 
         // misc initialized variables
+        that            = {},              // the object to be returned
         artworkName     = doq.Name,        // artwork's title
         associatedMedia = { guids: [] },   // object of associated media objects for this artwork, keyed by media GUID;
                                            //   also contains an array of GUIDs for cleaner iteration
+        toManip = dzManip,                 // media to manipulate, i.e. artwork or associated media
+        clickedMedia = 'artwork',
         // misc uninitialized variables
-        assetCanvas,
-        viewer;
+        assetCanvas;
 
     // get things rolling
     init();
@@ -40,8 +42,38 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         dzScroll: dzScroll,
         openArtwork: openArtwork,
         addAnimateHandler: addAnimateHandler,
-        viewer: viewer
+        getToManip: getToManip,
+        getClicked: getClicked,
+        setArtworkClicked: setArtworkClicked
     }
+
+
+    function setArtworkClicked() {
+        toManip = dzManip;                  //When the main artwork is clicked, use the Deep Zoom manipulation method
+        clickedMedia = 'artwork';
+    }
+
+    
+
+    /**
+     * Return applicable manipulation method
+     * @method getToManip
+     * @return {Object}     manipulation method object
+     */
+    function getToManip() {
+        return toManip;   
+    }
+
+    /**
+     * Return active media to be manipulated so applicable manipulation method can be called
+     * @method clickedMedia
+     * @return {String}     manipulation method object
+     */
+
+    function getClicked() {
+        return clickedMedia;
+    }
+
 
     /**
      * Return list of associatedMedia
@@ -59,12 +91,12 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @return {Boolean}          whether opening was successful
      */
     function openArtwork(doq) {
-        if(!viewer || !doq || !doq.Metadata || !doq.Metadata.DeepZoom) {
+        if(!that.viewer || !doq || !doq.Metadata || !doq.Metadata.DeepZoom) {
             debugger;
             console.log("ERROR IN openDZI");
             return false;
         }
-        viewer.openDzi(FIX_PATH(doq.Metadata.DeepZoom));
+        that.viewer.openDzi(FIX_PATH(doq.Metadata.DeepZoom));
         return true;
     }
 
@@ -81,7 +113,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
             top  = parseFloat($elt.css('top')),
             left = parseFloat($elt.css('left'));
         if (top && left) { // TODO is this check necessary?
-            viewer.drawer.updateOverlay(element, viewer.viewport.pointFromPixel(new Seadragon.Point(left, top)), placement);
+            that.viewer.drawer.updateOverlay(element, that.viewer.viewport.pointFromPixel(new Seadragon.Point(left, top)), placement);
         }
     }
 
@@ -94,14 +126,14 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @param {Seadragon.OverlayPlacement} placement   the placement at the given point
      */
     function addOverlay(element, point, placement) {
-        if (!viewer.isOpen()) {
-            viewer.addEventListener('open', function () {
-                viewer.drawer.addOverlay(element, point, placement);
-                viewer.drawer.updateOverlay(element, point, placement);
+        if (!that.viewer.isOpen()) {
+            that.viewer.addEventListener('open', function () {
+                that.viewer.drawer.addOverlay(element, point, placement);
+                that.viewer.drawer.updateOverlay(element, point, placement);
             });
         } else {
-            viewer.drawer.addOverlay(element, point, placement);
-            viewer.drawer.updateOverlay(element, point, placement);
+            that.viewer.drawer.addOverlay(element, point, placement);
+            that.viewer.drawer.updateOverlay(element, point, placement);
         }
     }
 
@@ -112,12 +144,12 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @param {HTML element}       the ovlerlay element to remove
      */
     function removeOverlay(element) {
-        if (!viewer.isOpen()) {
-            viewer.addEventListener('open', function () {
-                viewer.drawer.removeOverlay(element);
+        if (!that.viewer.isOpen()) {
+            that.viewer.addEventListener('open', function () {
+                that.viewer.drawer.removeOverlay(element);
             });
         } else {
-            viewer.drawer.removeOverlay(element);
+            that.viewer.drawer.removeOverlay(element);
         }
     };
 
@@ -126,7 +158,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @method unload
      */
     function unload() {
-        viewer && viewer.unload();
+        that.viewer && that.viewer.unload();
     }
 
     /**
@@ -137,9 +169,9 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @oaram {Number} scale           scale factor
      */
     function dzManip(pivot, translation, scale) {
-        viewer.viewport.zoomBy(scale, viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)), false);
-        viewer.viewport.panBy(viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-translation.x, -translation.y)), false);
-        viewer.viewport.applyConstraints();
+        that.viewer.viewport.zoomBy(scale, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)), false);
+        that.viewer.viewport.panBy(that.viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-translation.x, -translation.y)), false);
+        that.viewer.viewport.applyConstraints();
     }
     
     /**
@@ -149,8 +181,8 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @param {Object} pivot          location of event (x,y)
      */
     function dzScroll(scale, pivot) {
-        viewer.viewport.zoomBy(scale, viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
-        viewer.viewport.applyConstraints();
+        that.viewer.viewport.zoomBy(scale, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
+        that.viewer.viewport.applyConstraints();
     }
 
     /**
@@ -172,11 +204,11 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         });
         root.append(viewerelt);
 
-        viewer = new Seadragon.Viewer(viewerelt[0]);
-        viewer.setMouseNavEnabled(false);
-        viewer.clearControls();
+        that.viewer = new Seadragon.Viewer(viewerelt[0]);
+        that.viewer.setMouseNavEnabled(false);
+        that.viewer.clearControls();
 
-        canvas = $(viewer.canvas);
+        canvas = $(that.viewer.canvas);
         canvas.addClass('artworkCanvasTesting');
 
         LADS.Util.makeManipulatable(canvas[0], {
@@ -203,7 +235,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @param {Function} handler      the handler to add
      */
     function addAnimateHandler(handler) {
-        viewer.addEventListener("animation", handler);
+        that.viewer.addEventListener("animation", handler);
     }
 
     /**
@@ -253,6 +285,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
             }
         }
     }
+
 
     /**
      * Creates an associated media object to be added to associatedMedia.
@@ -342,8 +375,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 circle.attr('src', tagPath + 'images/icons/hotspot_circle.svg');
                 circle.addClass('annotatedImageHotspotCircle');
                 root.append(circle);
-                addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);                
-                }
+            }
 
             // allows asset to be dragged, despite the name
             LADS.Util.disableDrag(outerContainer);
@@ -603,6 +635,14 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
             }
         }
 
+        outerContainer.on('click', function (event) {
+            event.stopPropagation();            //Prevent the click going through to the main container
+            event.preventDefault();
+            toManip = mediaManip;              //When you click on any media, use the manipulation method for media
+            clickedMedia = 'media'; 
+        });
+
+     
         /**
          * Drag/manipulation handler for associated media
          * @method mediaManip
@@ -632,8 +672,8 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 maxW = 1000;
                 minW = 250;
             } else if (CONTENT_TYPE === 'Audio') {
-                maxW = w*.85;
-                minW = w*.15;
+                maxW = 800;
+                minW = 250;
             }
 
             // constrain new width
@@ -691,29 +731,12 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 w = outerContainer.width();
 
             if(IS_HOTSPOT) {
-                viewer.viewport.panTo(position, false);
-
-                console.log("position: " + position);
-                console.log("X, Y: " + X + ", " + Y);
-
-                var constraintsApplied = viewer.viewport.applyConstraints();
                 circle.css('visibility', 'visible');
-                addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);                
-
-                if (rootHeight - h > rootHeight*.9) {
-                    t = rootHeight*.9;
-                }
-
-                if (!constraintsApplied){
-                    t = (rootHeight - h)/2 + circle.height()/2;
-                    l = (rootWidth)/2 + circle.height();
-
-                } else {
-                    t = circle.position().top - h/2 + circle.height()/2;
-                    l = circle.position().left + circle.height();
-                }
-
-           } else {
+                addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
+                that.viewer.viewport.panTo(position, false);
+                t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
+                l = rootWidth/2 + circle.width()*3/4;
+            } else {
                 t = rootHeight * 1/10 + Math.random() * rootHeight * 2/10;
                 l = rootWidth  * 3/10 + Math.random() * rootWidth  * 2/10;
             }
@@ -751,12 +774,14 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
          */
         function hideMediaObject() {
             pauseResetMediaObject();
-            IS_HOTSPOT && circle.css('visibility', 'hidden');
+            IS_HOTSPOT && removeOverlay(circle[0]);
             outerContainer.hide();   
             mediaHidden = true;
+
             if(!thumbnailButton) {
                 thumbnailButton = $('#thumbnailButton-' + mdoq.Identifier);
             }
+
             thumbnailButton.css({
                 'color': 'white',
                 'background-color': ''
