@@ -1274,6 +1274,9 @@
   cursor: pointer;
   text-decoration: none;
 }
+#tagRoot a:hover {
+  text-decoration: underline;
+}
 #tagRoot img {
   -moz-user-select: -moz-none;
   -khtml-user-select: none;
