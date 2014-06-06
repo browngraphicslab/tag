@@ -45,7 +45,8 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         addAnimateHandler: addAnimateHandler,
         getToManip: getToManip,
         getClicked: getClicked,
-        setArtworkClicked: setArtworkClicked
+        setArtworkClicked: setArtworkClicked,
+        viewer: viewer
     };
 
 
@@ -92,12 +93,12 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @return {Boolean}          whether opening was successful
      */
     function openArtwork(doq) {
-        if(!that.viewer || !doq || !doq.Metadata || !doq.Metadata.DeepZoom) {
+        if(!viewer || !doq || !doq.Metadata || !doq.Metadata.DeepZoom) {
             debugger;
             console.log("ERROR IN openDZI");
             return false;
         }
-        that.viewer.openDzi(FIX_PATH(doq.Metadata.DeepZoom));
+        viewer.openDzi(FIX_PATH(doq.Metadata.DeepZoom));
         return true;
     }
 
@@ -114,7 +115,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
             top  = parseFloat($elt.css('top')),
             left = parseFloat($elt.css('left'));
         if (top && left) { // TODO is this check necessary?
-            that.viewer.drawer.updateOverlay(element, that.viewer.viewport.pointFromPixel(new Seadragon.Point(left, top)), placement);
+            viewer.drawer.updateOverlay(element, viewer.viewport.pointFromPixel(new Seadragon.Point(left, top)), placement);
         }
     }
 
@@ -127,14 +128,14 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @param {Seadragon.OverlayPlacement} placement   the placement at the given point
      */
     function addOverlay(element, point, placement) {
-        if (!that.viewer.isOpen()) {
-            that.viewer.addEventListener('open', function () {
-                that.viewer.drawer.addOverlay(element, point, placement);
-                that.viewer.drawer.updateOverlay(element, point, placement);
+        if (!viewer.isOpen()) {
+            viewer.addEventListener('open', function () {
+                viewer.drawer.addOverlay(element, point, placement);
+                viewer.drawer.updateOverlay(element, point, placement);
             });
         } else {
-            that.viewer.drawer.addOverlay(element, point, placement);
-            that.viewer.drawer.updateOverlay(element, point, placement);
+            viewer.drawer.addOverlay(element, point, placement);
+            viewer.drawer.updateOverlay(element, point, placement);
         }
     }
 
@@ -145,12 +146,12 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @param {HTML element}       the ovlerlay element to remove
      */
     function removeOverlay(element) {
-        if (!that.viewer.isOpen()) {
-            that.viewer.addEventListener('open', function () {
-                that.viewer.drawer.removeOverlay(element);
+        if (!viewer.isOpen()) {
+            viewer.addEventListener('open', function () {
+                viewer.drawer.removeOverlay(element);
             });
         } else {
-            that.viewer.drawer.removeOverlay(element);
+            viewer.drawer.removeOverlay(element);
         }
     };
 
@@ -159,7 +160,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @method unload
      */
     function unload() {
-        that.viewer && that.viewer.unload();
+        viewer && viewer.unload();
     }
 
 
@@ -177,9 +178,9 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      */
     function dzManip(pivot, translation, scale) {
         dzManipPreprocessing();
-        that.viewer.viewport.zoomBy(scale, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)), false);
-        that.viewer.viewport.panBy(that.viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-translation.x, -translation.y)), false);
-        that.viewer.viewport.applyConstraints();
+        viewer.viewport.zoomBy(scale, viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)), false);
+        viewer.viewport.panBy(viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-translation.x, -translation.y)), false);
+        viewer.viewport.applyConstraints();
     }
     
     /**
@@ -211,11 +212,11 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         });
         root.append(viewerelt);
 
-        that.viewer = new Seadragon.Viewer(viewerelt[0]);
-        that.viewer.setMouseNavEnabled(false);
-        that.viewer.clearControls();
+        viewer = new Seadragon.Viewer(viewerelt[0]);
+        viewer.setMouseNavEnabled(false);
+        viewer.clearControls();
 
-        canvas = $(that.viewer.canvas);
+        canvas = $(viewer.canvas);
         canvas.addClass('artworkCanvasTesting');
 
         LADS.Util.makeManipulatable(canvas[0], {
@@ -242,7 +243,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @param {Function} handler      the handler to add
      */
     function addAnimateHandler(handler) {
-        that.viewer.addEventListener("animation", handler);
+        viewer.addEventListener("animation", handler);
     }
 
     /**
@@ -755,7 +756,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
             if(IS_HOTSPOT) {
                 circle.css('visibility', 'visible');
                 addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
-                that.viewer.viewport.panTo(position, false);
+                viewer.viewport.panTo(position, false);
                 t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
                 l = rootWidth/2 + circle.width()*3/4;
             } else {
