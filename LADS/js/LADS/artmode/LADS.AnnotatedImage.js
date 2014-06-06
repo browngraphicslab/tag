@@ -258,7 +258,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         LADS.Worktop.Database.getAssocMediaTo(doq.Identifier, mediaSuccess, null, mediaSuccess);
 
         /**
-         * Success callback frunction for .getAssocMediaTo call above. If the list of media is
+         * Success callback function for .getAssocMediaTo call above. If the list of media is
          * non-null and non-empty, it gets the linq between each doq and the artwork 
          * @method mediaSuccess
          * @param {Array} doqs        the media doqs
@@ -588,7 +588,13 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
          */
         function createMediaElements() {
             var $mediaElt,
-                img;
+                img,
+                closeButton = createCloseButton();
+
+            mediaContainer.append(closeButton[0]);
+            closeButton.on('click', function() {
+                hideMediaObject();
+            });
 
             if(!mediaLoaded) {
                 mediaLoaded = true;
@@ -741,7 +747,32 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 pivot: pivot
             });
         }
-
+		
+		/**
+		 * Create a closeButton for associated media
+		 * @method createCloseButton
+		 * @return {HTML element} the button as a 'div'
+		 */
+		function createCloseButton() {
+			var closeButton = $(document.createElement('div'));
+			closeButton.text('X');
+			closeButton.css({
+				'position': 'absolute',
+				'top': '-2.5em',
+				'left': '-2.5em',
+				'width': '1em',
+				'height': '1em',
+				'text-align': 'center',
+				'color': 'black',
+				'line-height': '1em',
+				'border': '10px solid black',
+				'border-radius': '2em',
+				'background-color': 'white',
+				'margin-left': '107%'
+			});
+			return closeButton;
+		}
+		 
         /**
          * Show the associated media on the seadragon canvas. If the media is not
          * a hotspot, show it in a slightly random position.
@@ -752,7 +783,8 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 l,
                 h = outerContainer.height(),
                 w = outerContainer.width();
-
+				//closeButton = createCloseButton();
+				
             if(IS_HOTSPOT) {
                 circle.css('visibility', 'visible');
                 addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
@@ -770,7 +802,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 'z-index':        1000,
                 'pointer-events': 'all'
             });
-
+			//outerContainer.appendChild(closeButton[0]);
             outerContainer.show();
             assetCanvas.append(outerContainer);
 
@@ -782,7 +814,12 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 'color': 'black',
                 'background-color': 'rgba(255,255,255, 0.3)'
             });
-
+			
+			//closeButton.on('click', function() {
+			//	if(!mediaHidden) {
+			//		hideMediaObject();
+			//	}
+			//});
             // TODO is this necessary?
             // if ((info.contentType === 'Video') || (info.contentType === 'Audio')) {
             //     resizeControlElements();
