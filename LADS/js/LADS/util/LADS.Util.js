@@ -7,11 +7,11 @@ LADS.Util = (function () {
     //var applicationData = Windows.Storage.ApplicationData.current;
 
     //Hilarious that this is necessary.
-    var alphabet = new Array(
-    '#',
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
-    'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
-    'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
+    // var alphabet = new Array(
+    // '#',
+    // 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
+    // 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
+    // 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
 
     var tagContainerId = 'tagRoot';
 
@@ -23,7 +23,7 @@ LADS.Util = (function () {
         makeXmlRequest: makeXmlRequest,
         makeManipulatable: makeManipulatable,
         makeManipulatableWin: makeManipulatableWin,
-        alphabet: alphabet,
+        // alphabet: alphabet,
         applyD3DataRec: applyD3DataRec,
         elementInDocument: elementInDocument,
         fitText: fitText,
@@ -1645,6 +1645,14 @@ LADS.Util.UI = (function () {
             }
         });
 
+        LADS.Telemetry.register(serverDialogInput, 'keydown', 'change_server', function(tobj, evt) {
+            if(evt.which !== 13) {
+                return true;
+            }
+            tobj.old_address = localStorage.ip;
+            tobj.new_address = serverDialogInput.val();
+        });
+
         var serverDialogContact = $(document.createElement('div'));
         serverDialogContact.css({ 'margin-top': '10%' , 'color':'white','text-align': 'center'  });
         serverDialogContact.html(
@@ -1754,9 +1762,9 @@ LADS.Util.UI = (function () {
 
         serverSaveButton.on('click', saveClick);
 
-        LADS.Telemetry.register(serverSaveButton, 'click', 'change_server', function(tobj) {
-            tobj.start_ip = localStorage.ip;
-            tobj.new_ip   = serverDialogInput.val();
+        LADS.Telemetry.register(serverSaveButton, 'click', 'change_server', function(tobj, evt) {
+            tobj.old_address = localStorage.ip;
+            tobj.new_address = serverDialogInput.val();
         });
 
         var serverCircle = $(document.createElement('img'));
@@ -1769,8 +1777,6 @@ LADS.Util.UI = (function () {
             'float': 'right'
         });
         serverCircle.attr('src', tagPath+'images/icons/progress-circle.gif');
-
-        
 
         var serverPasswordErrorMessage = $(document.createElement('div'));
         serverPasswordErrorMessage.attr('id', 'serverPasswordErrorMessage');

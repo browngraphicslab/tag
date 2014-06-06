@@ -22,9 +22,6 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         collectionHeader = root.find('#collectionHeader'),
         bgimage          = root.find('#bgimage'),
         catalogDiv       = root.find('#catalogDiv'),
-        artistButton     = root.find('#artistButton'),
-        yearButton       = root.find('#yearButton'),
-        titleButton      = root.find('#titleButton'),
         typeButton       = root.find('#typeButton'),
         sortRow          = root.find('#sortRow'),
         searchInput      = root.find('#searchInput'),
@@ -60,6 +57,7 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         moreInfo,                       // div holding tombstone information for current artwork
         artistInfo,                     // artist tombstone info div
         yearInfo,                       // year tombstone info div
+        justShowedArtwork,              // for telemetry; helps keep track of artwork tile clicks
         currentTag;                     // current sort tag
 
     // register different actions with the telemetry service
@@ -92,6 +90,22 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
 
         root.find('.rowButton').on('click', function() {
             changeDisplayTag(currentArtworks, $(this).attr('tagName'));
+        });
+
+        LADS.Telemetry.register(root.find('#artistButton'), 'click', '', function(tobj) {
+            tobj.ttype = 'sort_by_artist';
+        });
+
+        LADS.Telemetry.register(root.find('#titleButton'), 'click', '', function(tobj) {
+            tobj.ttype = 'sort_by_title';
+        });
+
+        LADS.Telemetry.register(root.find('#yearButton'), 'click', '', function(tobj) {
+            tobj.ttype = 'sort_by_year';
+        });
+
+        LADS.Telemetry.register(root.find('#typeButton'), 'click', '', function(tobj) {
+            tobj.ttype = 'sort_by_type';
         });
 
         // search on keyup
@@ -606,18 +620,21 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
                     switchPage();
                 } else {
                     showArtwork(currentWork)();
+                    justShowedArtwork = true;
                 }
             });
 
             LADS.Telemetry.register(main, 'click', '', function(tobj) {
                 var type;
-                if (currentThumbnail.attr('guid') === currentWork.Identifier) {
+                if (currentThumbnail.attr('guid') === currentWork.Identifier && !justShowedArtwork) {
                     tobj.ttype = 'collections_to_' + getWorkType(currentWork);
                 } else {
                     tobj.ttype = 'artwork_tile';
                 }
                 tobj.artwork_name = currentWork.Name;
                 tobj.artwork_guid = currentWork.Identifier;
+
+                justShowedArtwork = false;
             });
 
             if(currentWork.Metadata.Thumbnail) {
@@ -683,16 +700,18 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
             $('#explore-tab').css('display', 'inline-block');
 
             if (artwork.Type !== "Empty") {
-                artistInfo.text("Artist: " + (artwork.Metadata.Artist ? artwork.Metadata.Artist : "Unknown"));
-                yearInfo.text(artwork.Metadata.Year ? artwork.Metadata.Year : " ");
+                artistInfo.text("Artist: " + (artwork.Metadata.Artist || "Unknown"));
+                yearInfo.text(artwork.Metadata.Year || " ");
             } else {
                 artistInfo.text("(Interactive Tour)" );
                 yearInfo.text(" " );
             }
                 
-            currentThumbnail.attr("src", artwork.Metadata.Thumbnail ? FIX_PATH(artwork.Metadata.Thumbnail) : (tagPath+'images/no_thumbnail.svg'))
-                .css('border', '1px solid rgba(0,0,0,0.5)')
-                .attr('guid', artwork.Identifier);
+            currentThumbnail.css('border', '1px solid rgba(0,0,0,0.5)')
+                .attr({
+                    src:  artwork.Metadata.Thumbnail ? FIX_PATH(artwork.Metadata.Thumbnail) : (tagPath+'images/no_thumbnail.svg'),
+                    guid: artwork.Identifier
+                });
 
             setTimeout(function() {
                 currentThumbnail.attr('guid', '');

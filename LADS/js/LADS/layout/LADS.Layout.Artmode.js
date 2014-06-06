@@ -209,24 +209,47 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
          * @param {String} direction   the direction in which to move the artwork
          */
         function doManip(evt, direction) {
-            var pivot = {
-                x: CENTER_X,
-                y: CENTER_Y
-            };
+            if(annotatedImage.getClicked() == 'artwork') {
+                var pivot = {
+                    x: CENTER_X,
+                    y: CENTER_Y
+                };
 
-            if (direction === 'left') {
-                annotatedImage.dzManip(pivot, {x: panDelta, y: 0}, 1);
-            } else if (direction === 'up') {
-                annotatedImage.dzManip(pivot, {x: 0, y: panDelta}, 1);
-            } else if (direction === 'right') {
-                annotatedImage.dzManip(pivot, {x: -panDelta, y: 0}, 1);
-            } else if (direction === 'down') {
-                annotatedImage.dzManip(pivot, {x: 0, y: -panDelta}, 1);
-            } else if (direction === 'in') {
-                annotatedImage.dzScroll(1 + zoomScale, pivot);
-            } else if (direction === 'out') {
-                annotatedImage.dzScroll(1 - zoomScale, pivot);
+                if (direction === 'left') {
+                    annotatedImage.getToManip()(pivot, {x: panDelta, y: 0}, 1);
+                } else if (direction === 'up') {
+                    annotatedImage.getToManip()(pivot, {x: 0, y: panDelta}, 1);
+                } else if (direction === 'right') {
+                    annotatedImage.getToManip()(pivot, {x: -panDelta, y: 0}, 1);
+                } else if (direction === 'down') {
+                    annotatedImage.getToManip()(pivot, {x: 0, y: -panDelta}, 1);
+                } else if (direction === 'in') {
+                    annotatedImage.getToManip()(pivot, {x: 0, y: 0}, 1 + zoomScale);
+                } else if (direction === 'out') {
+                    annotatedImage.getToManip()(pivot, {x: 0, y: 0}, 1 - zoomScale);
+                }
             }
+            else if(annotatedImage.getClicked() == 'media') {
+                var pivot = {
+                    x: 30,
+                    y: 30
+                };
+                if (direction === 'left') {
+                    annotatedImage.getToManip()({pivot: pivot, translation: {x: -panDelta, y: 0}, scale: 1});
+                } else if (direction === 'up') {
+                    annotatedImage.getToManip()({pivot: pivot, translation: {x: 0, y: -panDelta}, scale: 1});
+                } else if (direction === 'right') {
+                    annotatedImage.getToManip()({pivot: pivot, translation: {x: panDelta, y: 0}, scale: 1});
+                } else if (direction === 'down') {
+                    annotatedImage.getToManip()({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
+                } else if (direction === 'in') {
+                    annotatedImage.getToManip()({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 + zoomScale});
+                } else if (direction === 'out') {
+                    annotatedImage.getToManip()({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
+                }
+            }
+
+            
         }
 
 
@@ -237,6 +260,7 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         $("[tabindex='-1']").on('click', function() {
             $("[tabindex='-1']").focus();
             containerFocused = true;
+            annotatedImage.setArtworkClicked();     //Tell AnnotatedImage that the main artwork is active
         });
         $("[tabindex='-1']").focus(function() {
             containerFocused = true;
@@ -244,6 +268,8 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         $("[tabindex='-1']").focusout(function() {
             containerFocused = false;
         });
+
+
 
         $(document).on('keydown', function(evt) {
             if(containerFocused) {
@@ -275,7 +301,11 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         $(document).keyup(function(evt){
             clearInterval(interval);
         });
-        
+        $('#seadragonManipContainer').on('click', function(evt) {
+            evt.stopPropagation();            //Prevent the click going through to the main container
+            evt.preventDefault();
+
+        });
         $('#leftControl').on('mousedown', function(evt) {
             buttonHandler(evt, 'left');
         });
@@ -335,9 +365,9 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
             mediaDrawer;
 
 
-		
+        
         backButton.attr('src',tagPath+'images/icons/Back.svg');
-		togglerImage.attr("src", tagPath+'images/icons/Close.svg');
+        togglerImage.attr("src", tagPath+'images/icons/Close.svg');
         infoTitle.text(doq.Name);
         infoArtist.text(doq.Metadata.Artist);
         infoYear.text(doq.Metadata.Year);
@@ -353,7 +383,11 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
             });
         });
 
-        LADS.Util.UI.setUpBackButton(backButton, goBack)
+        LADS.Util.UI.setUpBackButton(backButton, goBack);
+        LADS.Telemetry.register(backButton, 'click', 'artwork_to_collections', function(tobj) {
+            tobj.work_name = doq.Name;
+            tobj.work_guid = doq.Identifier;
+        });
 
         function goBack() {
             var catalog;
@@ -375,7 +409,7 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
                 fieldTitle = item;
                 fieldValue = doq.Metadata.InfoFields[item];
                 infoCustom = $(document.createElement('div'));
-				infoCustom.addClass('infoCustom');
+                infoCustom.addClass('infoCustom');
                 infoCustom.text(fieldTitle + ': ' + fieldValue);
                 infoCustom.appendTo(info);
             }
@@ -533,12 +567,12 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
          */
 
         //Create minimapContainer...
-		var minimapContainer = root.find('#minimapContainer');
+        var minimapContainer = root.find('#minimapContainer');
 
         sideBarSections.append(minimapContainer);
 
         //A white rectangle for minimap to show the current shown area for artwork
-		var minimaprect = root.find('#minimaprect');
+        var minimaprect = root.find('#minimaprect');
 
         //Load deepzoom thumbnail. 
         var img = new Image();
@@ -554,7 +588,7 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
             if (loaded) return;
             loaded = true;
             //load the artwork image
-			minimap = root.find('#minimap');
+            minimap = root.find('#minimap');
             minimap.attr('src', LADS.Worktop.Database.fixPath(doq.URL));
 
             //make the minimap not moveable. 
