@@ -342,6 +342,7 @@
   width: 77%;
   position: absolute;
   overflow-x: hidden;
+  overflow-y: auto;
 }
 #artmodeRoot #locationHistoryPanel {
   width: 87.5%;

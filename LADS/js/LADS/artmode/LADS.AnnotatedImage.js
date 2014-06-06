@@ -30,6 +30,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         toManip = dzManip,                 // media to manipulate, i.e. artwork or associated media
         clickedMedia = 'artwork',
         // misc uninitialized variables
+        viewer,
         assetCanvas;
 
     // get things rolling
@@ -161,6 +162,12 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         that.viewer && that.viewer.unload();
     }
 
+
+    function dzManipPreprocessing() {
+        toManip = dzManip;
+        clickedMedia = 'artwork';
+    }
+
     /**
      * Manipulation/drag handler for makeManipulatable on the deepzoom image
      * @method dzManip
@@ -169,6 +176,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @oaram {Number} scale           scale factor
      */
     function dzManip(pivot, translation, scale) {
+        dzManipPreprocessing();
         that.viewer.viewport.zoomBy(scale, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)), false);
         that.viewer.viewport.panBy(that.viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-translation.x, -translation.y)), false);
         that.viewer.viewport.applyConstraints();
