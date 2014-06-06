@@ -7,8 +7,7 @@ module.exports = function(grunt) {
 					        \n    var tagPath           = tagInput.path, \
 					        \n        containerId       = tagInput.containerId, \
 					        \n        ip                = tagInput.serverIp, \
-					        \n        allowServerChange = tagInput.allowServerChange, \
-					        \n        idleTimer;\n\n',
+					        \n        allowServerChange = tagInput.allowServerChange;\n\n',
 				footer: '};'
 			},
 			dist: {

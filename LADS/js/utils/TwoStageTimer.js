@@ -27,66 +27,61 @@ LADS.IdleTimer = (function() {
         stageOne = stageOne || defaultStageOne(); // defaults
         stageTwo = stageTwo || defaultStageTwo();
 
-        this._s1d = stageOne.duration;     // duration of stage one timer
-        this._s1p = stageOne.callback;     // stage one callback
-        this._s2d = stageTwo.duration;     // duration of stage two timer
-        this._s2p = stageTwo.callback;     // stage two callback
-        this._s1TimeoutID = null;          // stage one timeout
-        this._s2TimeoutID = null;          // stage two timeout
-
-        this._started = false;             // whether the TwoStageTimer has started
+        var s1d = stageOne.duration,     // duration of stage one timer
+            s1c = stageOne.callback,     // stage one callback
+            s2d = stageTwo.duration,     // duration of stage two timer
+            s2c = stageTwo.callback,     // stage two callback
+            s1TimeoutID = null,          // stage one timeout
+            s2TimeoutID = null,          // stage two timeout
+            started     = false;         // whether the TwoStageTimer has started
 
         /**
          * Start the timer (the first stage)
          * @method start
          */
-        this.start = function() {
-            this._s1TimeoutID = setTimeout(fireS1, this._s1d);
-            this._started = true;
-        };
+        function start() {
+            s1TimeoutID = setTimeout(fireS1, s1d);
+            started = true;
+        }
 
         /**
          * Kill the timer by stopping both timeouts and setting _started to false
          * @method kill
          */
-        this.kill = function() {
-            if (this._started) {
-                clearTimeout(this._s1TimeoutID);
-                clearTimeout(this._s2TimeoutID);
-                this._started = false;
+        function kill() {
+            if (started) {
+                clearTimeout(s1TimeoutID);
+                clearTimeout(s2TimeoutID);
+                started = false;
             }
-        };
+        }
 
         /**
          * Returns whether or not the timer is stopped
          * @method isStopped
          * @return {Boolean}       this._started
          */
-        this.isStopped = function () {
-            return this._started;
-        };
+        function isStopped() {
+            return started;
+        }
 
         /**
          * Restarts the stage one timer
          * @method restartS1
          */
-        this.restartS1 = function() {
-            if (this._started) {
-                clearTimeout(this._s1TimeoutID);
-                this._s1TimeoutID = setTimeout(fireS1, this._s1d);
-            }
-        };
+        function restartS1() {
+            started && clearTimeout(s1TimeoutID);
+            s1TimeoutID = setTimeout(fireS1, s1d);
+        }
 
         /**
          * Kills the stage two timer and restarts the stage one timer
          * @method restartS2
          */
-        this.restartS2 = function() {
-            if (this._started) {
-                clearTimeout(this._s2TimeoutID);
-                this._s1TimeoutID = setTimeout(fireS1, this._s1d);
-            }
-        };
+        function restartS2() {
+            started && clearTimeout(s2TimeoutID);
+            s1TimeoutID = setTimeout(fireS1, s1d);
+        }
 
         /**
          * Reinitialize the timer with new timerPairs
@@ -94,17 +89,17 @@ LADS.IdleTimer = (function() {
          * @param {timerPair} newS1         new stage one timerPair
          * @param {timerPair} newS2         new stage two timerPair
          */
-        this.reinitialize = function() {
-            clearTimeout(this._s1TimeoutID);
-            clearTimeout(this._s2TimeoutID);
-            this._s1d = stageOne.duration;
-            this._s1p = stageOne.callback;
-            this._s2d = stageTwo.duration;
-            this._s2p = stageTwo.callback;
-            this._s1TimeoutID = null;
-            this._s2TimeoutID = null;
+        function reinitialize(newS1, newS2) {
+            clearTimeout(s1TimeoutID);
+            clearTimeout(s2TimeoutID);
+            s1d = newS1.duration;
+            s1c = newS1.callback;
+            s2d = newS2.duration;
+            s2c = newS2.callback;
+            s1TimeoutID = null;
+            s2TimeoutID = null;
 
-            this._started = false;
+            started = false;
         }
 
         /**
@@ -112,8 +107,8 @@ LADS.IdleTimer = (function() {
          * @method fireS1
          */
         function fireS1() {
-            this._s1p();
-            this._s2TimeoutID = setTimeout(fireS2, this._s2d);
+            s1c();
+            s2TimeoutID = setTimeout(fireS2, s2d);
         }
 
         /**
@@ -121,9 +116,18 @@ LADS.IdleTimer = (function() {
          * @method fireS2
          */
         function fireS2() {
-            this._s2p();
-            this._started = false;
-        } 
+            s2c();
+            started = false;
+        }
+
+        return {
+            start:        start,
+            kill:         kill,
+            isStopped:    isStopped,
+            restartS1:    restartS1,
+            restartS2:    restartS2,
+            reinitialize: reinitialize,
+        };
     }
 
     /**
@@ -145,7 +149,7 @@ LADS.IdleTimer = (function() {
      * @return {Object}               default stage one pair
      */
     function defaultStageOne() {
-        var dur = 120000; // two minutes
+        var dur = 5000; // two minutes
 
         return timerPair(dur, createIdleOverlay);
     }
@@ -156,7 +160,7 @@ LADS.IdleTimer = (function() {
      * @return {Object}               default stage two pair
      */
     function defaultStageTwo() {
-        var dur = 2000; // two seconds
+        var dur = 10000; // ten seconds
 
         return timerPair(dur, returnHome);
     }
@@ -167,6 +171,13 @@ LADS.IdleTimer = (function() {
      * @method createIdleOverlay
      */
     function createIdleOverlay() {
+        overlay = $(LADS.Util.UI.blockInteractionOverlay());
+
+
+
+        $('#tagRoot').append(overlay);
+        overlay.fadeIn();
+        
 
     }
 
@@ -175,7 +186,7 @@ LADS.IdleTimer = (function() {
      * @method removeIdleOverlay
      */
     function removeIdleOverlay() {
-        overlay && overlay.remove();
+        overlay && overlay.fadeOut(overlay.remove);
     }
 
     /**
@@ -183,7 +194,8 @@ LADS.IdleTimer = (function() {
      * @method returnHome
      */
     function returnHome() {
-
+        var catalog = new LADS.Layout.NewCatalog();
+        LADS.Util.UI.slidePageRight(catalog.getRoot());
     }
 
     return {

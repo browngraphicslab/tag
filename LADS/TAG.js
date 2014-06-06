@@ -2,8 +2,7 @@ var TAG = function(tagInput) {
     var tagPath           = tagInput.path, 					        
         containerId       = tagInput.containerId, 					        
         ip                = tagInput.serverIp, 					        
-        allowServerChange = tagInput.allowServerChange, 					        
-        idleTimer;
+        allowServerChange = tagInput.allowServerChange;
 
 /*!
  * jQuery JavaScript Library v1.7.1
@@ -20882,66 +20881,61 @@ LADS.IdleTimer = (function() {
         stageOne = stageOne || defaultStageOne(); // defaults
         stageTwo = stageTwo || defaultStageTwo();
 
-        this._s1d = stageOne.duration;     // duration of stage one timer
-        this._s1p = stageOne.callback;     // stage one callback
-        this._s2d = stageTwo.duration;     // duration of stage two timer
-        this._s2p = stageTwo.callback;     // stage two callback
-        this._s1TimeoutID = null;          // stage one timeout
-        this._s2TimeoutID = null;          // stage two timeout
-
-        this._started = false;             // whether the TwoStageTimer has started
+        var s1d = stageOne.duration,     // duration of stage one timer
+            s1c = stageOne.callback,     // stage one callback
+            s2d = stageTwo.duration,     // duration of stage two timer
+            s2c = stageTwo.callback,     // stage two callback
+            s1TimeoutID = null,          // stage one timeout
+            s2TimeoutID = null,          // stage two timeout
+            started     = false;         // whether the TwoStageTimer has started
 
         /**
          * Start the timer (the first stage)
          * @method start
          */
-        this.start = function() {
-            this._s1TimeoutID = setTimeout(fireS1, this._s1d);
-            this._started = true;
-        };
+        function start() {
+            s1TimeoutID = setTimeout(fireS1, s1d);
+            started = true;
+        }
 
         /**
          * Kill the timer by stopping both timeouts and setting _started to false
          * @method kill
          */
-        this.kill = function() {
-            if (this._started) {
-                clearTimeout(this._s1TimeoutID);
-                clearTimeout(this._s2TimeoutID);
-                this._started = false;
+        function kill() {
+            if (started) {
+                clearTimeout(s1TimeoutID);
+                clearTimeout(s2TimeoutID);
+                started = false;
             }
-        };
+        }
 
         /**
          * Returns whether or not the timer is stopped
          * @method isStopped
          * @return {Boolean}       this._started
          */
-        this.isStopped = function () {
-            return this._started;
-        };
+        function isStopped() {
+            return started;
+        }
 
         /**
          * Restarts the stage one timer
          * @method restartS1
          */
-        this.restartS1 = function() {
-            if (this._started) {
-                clearTimeout(this._s1TimeoutID);
-                this._s1TimeoutID = setTimeout(fireS1, this._s1d);
-            }
-        };
+        function restartS1() {
+            started && clearTimeout(s1TimeoutID);
+            s1TimeoutID = setTimeout(fireS1, s1d);
+        }
 
         /**
          * Kills the stage two timer and restarts the stage one timer
          * @method restartS2
          */
-        this.restartS2 = function() {
-            if (this._started) {
-                clearTimeout(this._s2TimeoutID);
-                this._s1TimeoutID = setTimeout(fireS1, this._s1d);
-            }
-        };
+        function restartS2() {
+            started && clearTimeout(s2TimeoutID);
+            s1TimeoutID = setTimeout(fireS1, s1d);
+        }
 
         /**
          * Reinitialize the timer with new timerPairs
@@ -20949,17 +20943,17 @@ LADS.IdleTimer = (function() {
          * @param {timerPair} newS1         new stage one timerPair
          * @param {timerPair} newS2         new stage two timerPair
          */
-        this.reinitialize = function() {
-            clearTimeout(this._s1TimeoutID);
-            clearTimeout(this._s2TimeoutID);
-            this._s1d = stageOne.duration;
-            this._s1p = stageOne.callback;
-            this._s2d = stageTwo.duration;
-            this._s2p = stageTwo.callback;
-            this._s1TimeoutID = null;
-            this._s2TimeoutID = null;
+        function reinitialize(newS1, newS2) {
+            clearTimeout(s1TimeoutID);
+            clearTimeout(s2TimeoutID);
+            s1d = newS1.duration;
+            s1c = newS1.callback;
+            s2d = newS2.duration;
+            s2c = newS2.callback;
+            s1TimeoutID = null;
+            s2TimeoutID = null;
 
-            this._started = false;
+            started = false;
         }
 
         /**
@@ -20967,8 +20961,8 @@ LADS.IdleTimer = (function() {
          * @method fireS1
          */
         function fireS1() {
-            this._s1p();
-            this._s2TimeoutID = setTimeout(fireS2, this._s2d);
+            s1c();
+            s2TimeoutID = setTimeout(fireS2, s2d);
         }
 
         /**
@@ -20976,9 +20970,18 @@ LADS.IdleTimer = (function() {
          * @method fireS2
          */
         function fireS2() {
-            this._s2p();
-            this._started = false;
-        } 
+            s2c();
+            started = false;
+        }
+
+        return {
+            start:        start,
+            kill:         kill,
+            isStopped:    isStopped,
+            restartS1:    restartS1,
+            restartS2:    restartS2,
+            reinitialize: reinitialize,
+        };
     }
 
     /**
@@ -21000,7 +21003,7 @@ LADS.IdleTimer = (function() {
      * @return {Object}               default stage one pair
      */
     function defaultStageOne() {
-        var dur = 120000; // two minutes
+        var dur = 5000; // two minutes
 
         return timerPair(dur, createIdleOverlay);
     }
@@ -21011,7 +21014,7 @@ LADS.IdleTimer = (function() {
      * @return {Object}               default stage two pair
      */
     function defaultStageTwo() {
-        var dur = 2000; // two seconds
+        var dur = 10000; // ten seconds
 
         return timerPair(dur, returnHome);
     }
@@ -21022,6 +21025,13 @@ LADS.IdleTimer = (function() {
      * @method createIdleOverlay
      */
     function createIdleOverlay() {
+        overlay = $(LADS.Util.UI.blockInteractionOverlay());
+
+
+
+        $('#tagRoot').append(overlay);
+        overlay.fadeIn();
+        
 
     }
 
@@ -21030,7 +21040,7 @@ LADS.IdleTimer = (function() {
      * @method removeIdleOverlay
      */
     function removeIdleOverlay() {
-        overlay && overlay.remove();
+        overlay && overlay.fadeOut(overlay.remove);
     }
 
     /**
@@ -21038,7 +21048,8 @@ LADS.IdleTimer = (function() {
      * @method returnHome
      */
     function returnHome() {
-
+        var catalog = new LADS.Layout.NewCatalog();
+        LADS.Util.UI.slidePageRight(catalog.getRoot());
     }
 
     return {
@@ -40567,6 +40578,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         toManip = dzManip,                 // media to manipulate, i.e. artwork or associated media
         clickedMedia = 'artwork',
         // misc uninitialized variables
+        viewer,
         assetCanvas;
 
     // get things rolling
@@ -40698,6 +40710,12 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         that.viewer && that.viewer.unload();
     }
 
+
+    function dzManipPreprocessing() {
+        toManip = dzManip;
+        clickedMedia = 'artwork';
+    }
+
     /**
      * Manipulation/drag handler for makeManipulatable on the deepzoom image
      * @method dzManip
@@ -40706,6 +40724,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @oaram {Number} scale           scale factor
      */
     function dzManip(pivot, translation, scale) {
+        dzManipPreprocessing();
         that.viewer.viewport.zoomBy(scale, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)), false);
         that.viewer.viewport.panBy(that.viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-translation.x, -translation.y)), false);
         that.viewer.viewport.applyConstraints();
@@ -42224,7 +42243,7 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         locHistoryContainer = root.find('#locationHistoryContainer'),
 
         // constants
-        FIX_PATH            = LADS.Worktop.Database.fixPath,
+        FIX_PATH = LADS.Worktop.Database.fixPath,
 
         // input options
         doq            = options.doq,              // the artwork doq
@@ -42241,10 +42260,10 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         loadQueue        = LADS.Util.createQueue(), // async queue for thumbnail button creation, etc
 
         // misc uninitialized vars
-        locationList,                      // location history data
-        map,                               // Bing Maps map for location history
-        annotatedImage,                    // an AnnotatedImage object
-        associatedMedia;                   // object of associated media objects generated by AnnotatedImage
+        locationList,                               // location history data
+        map,                                        // Bing Maps map for location history
+        annotatedImage,                             // an AnnotatedImage object
+        associatedMedia;                            // object of associated media objects generated by AnnotatedImage
         
     // get things rolling if doq is defined (it better be)
     doq && init();
@@ -42596,7 +42615,7 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
                 backArtwork:    doq,
                 backCollection: prevCollection
             });
-            catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO this line shouldn't be necessary -- do in styl file
+            // catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO this line shouldn't be necessary -- do in styl file
             LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {});
         }
 
@@ -43113,8 +43132,7 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
                 locHistory.text('Location History');
                 locHistory.css('color', 'white');
                 locClosing = true;
-                //locHistoryToggle.hide();
-                locHistoryToggle.hide("slide", { direction: 'left' }, 500);
+                locHistoryToggle.hide();
                 locHistoryDiv.hide("slide", { direction: 'left' }, 500, function(){
                     toggler.show();
                     locClosing = false;
@@ -43283,12 +43301,13 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         currentArtwork   = options.backArtwork,         // the currently selected artwork
 
         // misc initialized vars
-        loadQueue        = LADS.Util.createQueue(),     // an async queue for artwork tile creation, etc
-        artworkSelected  = false,                       // whether an artwork is selected
-        collectionTitles = [],                          // array of collection title DOM elements
-        firstLoad        = true,                        // TODO is this necessary? what is it doing?
-        currentArtworks  = [],                          // array of artworks in current collection
-        infoSource       = [],                          // array to hold sorting/searching information
+        idleTimer        = LADS.IdleTimer.TwoStageTimer(),  //
+        loadQueue        = LADS.Util.createQueue(),          // an async queue for artwork tile creation, etc
+        artworkSelected  = false,                            // whether an artwork is selected
+        collectionTitles = [],                               // array of collection title DOM elements
+        firstLoad        = true,                             // TODO is this necessary? what is it doing?
+        currentArtworks  = [],                               // array of artworks in current collection
+        infoSource       = [],                               // array to hold sorting/searching information
 
         // constants
         DEFAULT_TAG      = "Title",                                 // default sort tag
@@ -43324,6 +43343,7 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
             oldSearchTerm;
 
         backbuttonIcon.attr('src', tagPath+'images/icons/Back.svg');
+        idleTimer.start();
 
         progressCircCSS = {
             'position': 'absolute',
@@ -43364,6 +43384,7 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         //handles changing the color when clicking/mousing over on the backButton
         LADS.Util.UI.setUpBackButton(backbuttonIcon, function () {
             backbuttonIcon.off('click');
+            idleTimer.kill();
             LADS.Layout.StartPage(null, LADS.Util.UI.slidePageRight, true);
         });
 
@@ -44209,6 +44230,8 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         if (!currentArtwork || !artworkSelected) {
             return;
         }
+
+        idleTimer.kill();
 
         curOpts = {
             catalogState: opts,

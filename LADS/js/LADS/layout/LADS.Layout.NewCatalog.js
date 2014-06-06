@@ -35,12 +35,13 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         currentArtwork   = options.backArtwork,         // the currently selected artwork
 
         // misc initialized vars
-        loadQueue        = LADS.Util.createQueue(),     // an async queue for artwork tile creation, etc
-        artworkSelected  = false,                       // whether an artwork is selected
-        collectionTitles = [],                          // array of collection title DOM elements
-        firstLoad        = true,                        // TODO is this necessary? what is it doing?
-        currentArtworks  = [],                          // array of artworks in current collection
-        infoSource       = [],                          // array to hold sorting/searching information
+        idleTimer        = LADS.IdleTimer.TwoStageTimer(),  //
+        loadQueue        = LADS.Util.createQueue(),          // an async queue for artwork tile creation, etc
+        artworkSelected  = false,                            // whether an artwork is selected
+        collectionTitles = [],                               // array of collection title DOM elements
+        firstLoad        = true,                             // TODO is this necessary? what is it doing?
+        currentArtworks  = [],                               // array of artworks in current collection
+        infoSource       = [],                               // array to hold sorting/searching information
 
         // constants
         DEFAULT_TAG      = "Title",                                 // default sort tag
@@ -76,6 +77,7 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
             oldSearchTerm;
 
         backbuttonIcon.attr('src', tagPath+'images/icons/Back.svg');
+        idleTimer.start();
 
         progressCircCSS = {
             'position': 'absolute',
@@ -116,6 +118,7 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         //handles changing the color when clicking/mousing over on the backButton
         LADS.Util.UI.setUpBackButton(backbuttonIcon, function () {
             backbuttonIcon.off('click');
+            idleTimer.kill();
             LADS.Layout.StartPage(null, LADS.Util.UI.slidePageRight, true);
         });
 
@@ -961,6 +964,8 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         if (!currentArtwork || !artworkSelected) {
             return;
         }
+
+        idleTimer.kill();
 
         curOpts = {
             catalogState: opts,
