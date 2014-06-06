@@ -86,6 +86,9 @@ module.exports = function(grunt) {
 					'LADS/js/LADS/authoring/LADS.Authoring.ButtonGroup.js',
 					'LADS/js/LADS/authoring/LADS.Authoring.FileUploader.js',
 					'LADS/js/LADS/authoring/jscolor/jscolor.js',
+
+					'LADS/js/popcorn.min.js',
+					'LADS/js/popcorn.capture.js',
 					
 					'LADS/tests.js',
 					

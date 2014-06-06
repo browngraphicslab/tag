@@ -635,6 +635,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             'margin-right': '4%',
             'width': '48%',
         });
+        privateInput.attr('class', 'settingButton');
         var publicInput = createButton('Publish', function () {
             privateState = false;
             publicInput.css('background-color', 'white');
@@ -643,6 +644,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             'min-height': '0px',
             'width': '48%',
         });
+        publicInput.attr('class', 'settingButton');
         if (privateState) {
             privateInput.css('background-color', 'white');
         } else {
@@ -726,42 +728,8 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             'margin-bottom': '3%',
         });
 
-
         var catalogNext = true;
-        // Creates the button to toggle between views
-        /**
-        var switchViewButton = createButton('Preview Catalog', function () {
-            viewer.empty();
-            if (catalogNext) {
-                // If there is no art the program crashes when entering catalog mode
-                // Show a message and return if thats the case (would prefer not having
-                // to request all the artwork)
-                LADS.Worktop.Database.getArtworksIn(exhibition.Identifier, function (artworks) {
-                    if (!artworks || !artworks[0]) {
-                        var messageBox = LADS.Util.UI.popUpMessage(null, "Cannot view in catalog mode because there is no artwork in this exhibit.", null, true);
-                        root.append(messageBox);
-                        $(messageBox).show();
-                        exhibitionView();
-                    } else {
-                        switchViewButton.text('Preview Collection');
-                        catalogView();
-                        catalogNext = !catalogNext;
-                    }
-                });
 
-                return;
-            } else {
-                switchViewButton.text('Preview Catalog');
-                exhibitionView();
-            }
-            catalogNext = !catalogNext;
-        }, {
-            'margin-left': '2%',
-            'margin-top': '1%',
-            'margin-right': '0%',
-            'margin-bottom': '3%',
-        });
-        */
         var artPickerButton = createButton('Manage Collection', function () {
             LADS.Util.UI.createAssociationPicker(root, "Add and Remove Artworks in this Collection",
                 { comp: exhibition, type: 'exhib' },
@@ -812,19 +780,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
                 $(exroot).css('z-index','-1'); // otherwise, you can use the search box and sorting tabs!
                 viewer.append(exroot);
                 preventClickthrough(viewer);
-                //var exhibView = new LADS.Layout.Exhibitions(null, function (exhib) {
-                //    if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
-                //        return;
-                //    }
-                //    viewer.append(exhib.getRoot());
-                //    var exhibButton = $('#exhib-' + exhibition.Identifier);
-                //    if (exhibButton.length)
-                //        clickWhenReady(exhibButton);
-                //    else {
-                //        exhibView.loadExhibit(exhibition, true);
-                //    }
-                //    preventClickthrough(viewer);
-                //});
             });
         }
 
@@ -865,8 +820,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         prepareViewer(true);
 
         var name = inputs.nameInput.val();
-        //var sub1 = inputs.sub1Input.val();
-        //var sub2 = inputs.sub2Input.val();
         var desc = inputs.descInput.val();
         var bg = inputs.bgInput.val();
         var preview = inputs.previewInput.val();
@@ -874,8 +827,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
 
         var options = {
             Name: name,
-            //Sub1: sub1,
-            //Sub2: sub2,
             Private: priv,
             Description: desc,
         }
@@ -1325,7 +1276,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     function saveAssocMedia(media, inputs) {
         var name = inputs.titleInput.val();
         var desc = inputs.descInput.val();
-        //desc = desc === "Description" ? "" : desc; // TODO do this using placeholders instead of this hacky thing
 
         prepareNextView(false, null, null, "Saving...");
         clearRight();
@@ -2483,7 +2433,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
                 }
             }
 
-            //////////
             if (files.length > 0) {
                 durationHelper(0);
             }
@@ -2501,7 +2450,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
                     updateDoq(j);
                 }
             }
-            ///////////
 
             function updateDoq(j) {
                 var newDoq;
@@ -2519,9 +2467,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
                 LADS.Worktop.Database.changeArtwork(newDoq.Identifier, ops, incrDone, LADS.Util.multiFnHandler(authError, incrDone), LADS.Util.multiFnHandler(conflict(newDoq, "Update", incrDone)), error(incrDone));
             }
 
-            //for (i = 0; i < urls.length; i++) {
-            //    updateDoq(i);
-            //}
         }, true, ['.jpg', '.png', '.gif', '.tif', '.tiff', '.mp4']);
     }
 
@@ -2565,7 +2510,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         var artist = inputs.artistInput.val();
         var year = inputs.yearInput.val();
         var description = inputs.descInput.val();
-        //description = (description === 'Description') ? "" : description;
 
         var infoFields = {};
         $.each(inputs.customInputs, function (key, val) {
@@ -2884,7 +2828,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             label.children('div').css('white-space', '');
 
             if (prevSelectedLeftLabel) {
-                //prevSelectedLeftLabel.css('height', LEFT_LABEL_HEIGHT + 'px');
                 prevSelectedLeftLabel.children('div').css('white-space', 'nowrap');
             }
         }
@@ -2900,18 +2843,10 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         return label;
     }
 
-
     function createNavLabel(text, onclick) {
         var container = $(document.createElement('div'));
         container.attr('class', 'navContainer');
         container.attr('id', 'nav-' + text.text);
-        container.css({
-            //'background': 'transparent',
-            //'color': TEXT_COLOR,
-            //'margin-top': '2%',
-            //'padding-top': '4%',
-            //'padding-bottom': '4%',
-        });
         container.mousedown(function () {
             container.css({
                 'background': HIGHLIGHT
@@ -2942,22 +2877,10 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
 
         var navtext = $(document.createElement('label'));
         navtext.attr('class','navtext');
-        navtext.css({
-            //'font-size': NAVBAR_FONTSIZE,
-            //'display': 'block',
-            //'margin-left': '6.95%',
-            //'margin-top': '0.372%',
-        });
         navtext.text(text.text);
 
         var navsubtext = $(document.createElement('label'));
         navsubtext.attr('class','navsubtext');
-        navsubtext.css({
-            //'font-size': NAVBAR_SUBFONTSIZE,
-            //'display': 'block',
-            //'margin-left': '7.65%',
-            //'margin-top': '0.372%',
-        });
         navsubtext.text(text.subtext);
 
         container.append(navtext);
@@ -2978,17 +2901,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         if (id) {
             container.attr('id', id);
         }
-       // container.css({
-            //'height': LEFT_LABEL_HEIGHT + 'px',
-            //'min-height': LEFT_LABEL_HEIGHT + 'px',
-            //'padding-left': '2%',
-            //'padding-top': '2%',
-            //'padding-bottom': '2%',
-            //'margin-right': '3.2%',
-            //'margin-bottom': '3%',
-            //'overflow': 'hidden',
-            //'position': 'relative',
-        //});
 
         if (inArtMode) {
             if(extension.match(/mp4/)) {
@@ -3059,16 +2971,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
 
         var label = $(document.createElement('div'));
         label.attr('class', 'labelText');
-        label.css({
-            //'font-size': LEFT_FONTSIZE,
-            //'display': 'inline-block',
-            //'white-space': 'nowrap',
-            'width': width,
-            //'overflow': 'hidden',
-            //'text-overflow': 'ellipsis',
-            //'vertical-align': 'top',
-            //'word-wrap': 'break-word',
-        });
+        label.css({'width': width});
 
         if (!imagesrc) {
             label.css({
@@ -3120,12 +3023,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
 
         var label = $(document.createElement('div'));
         label.css({
-            //'font-size': SETTING_FONTSIZE,
             'width': width ? 45 - (width - 50) + '%' : '45%',
-            //'overflow': 'hidden',
-            //'text-overflow': 'ellipsis',
-            //'font-style': 'italic',
-            //'display': 'inline-block',
         });
         label.text(text);
         label.attr('class', 'labelText');
@@ -3138,10 +3036,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         input.attr('class', 'settingInput');
         input.css({
             'width': width,
-            //'font-size': INPUT_FONTSIZE,
-            //'float': 'right',
-            //'margin-right': '3%',
-            //'box-sizing': 'border-box',
         });
 
         var clear = $(document.createElement('div'));
@@ -3171,6 +3065,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     function createButton(text, onclick, css) {
         var button = $(document.createElement('button')).text(text);
         button.attr('type', 'button');
+        button.attr('class','button');
         if (css) {
             button.css(css);
         }
@@ -3189,14 +3084,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     //  maxlength:  max length of the input in characters
     function createTextInput(text, defaultval, maxlength, hideOnClick) {
         var input = $(document.createElement('input')).val(text);
-        //if (defaultval) {
-        //    defaultVal(text, input, !!hideOnClick);
-        //}
-        input.css({
-            //'color': TEXT_COLOR,
-            //'border-color': INPUT_BORDER,
-            //'padding': '.5%',
-        });
         input.attr({
             'type': 'text',
             'maxlength': maxlength
@@ -3209,14 +3096,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         if (typeof text === 'string')
             text = text.replace(/<br \/>/g, '\n').replace(/<br>/g, '\n').replace(/<br\/>/g, '\n');
         var input = $(document.createElement('textarea')).val(text);
-        //if (defaultval) {
-        //    defaultVal(text, input, !!hideOnClick);
-        //}
-        input.css({
-            //'color': TEXT_COLOR,
-            //'border-color': INPUT_BORDER,
-            'padding': '.5%'
-        });
         //input.attr('placeholder', text);
         input.autoSize();
         doWhenReady(input, function (elem) {
@@ -3743,8 +3622,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     // Note: Artworks keep track of the exhibitions they are in, so we
     // need to go through every artwork and add the exhibition to it.
     function saveArtAssosciation(exhibition, checkedIDs, uncheckedIDs, success, unauth, error) {
-        // Keep track of how many saves have finished
-        //var savesdone = 0;
         if (checkedIDs.length + uncheckedIDs.length === 0) {
             success();
             return;
@@ -3929,67 +3806,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         return container;
     }
 
-/**
-
-//as far as I can tell this method is never called and isn't related to the slider itself...
-    function verticalSlider(input, min, max) {
-        //var sliderdiv = $(document.createElement('div'));
-        var sliderdiv = root.find('#setViewSlider');
-        console.log("slider's here");
-        sliderdiv.css({
-            'height': '200px',
-            'position': 'absolute',
-            'display': 'none',
-        });
-        sliderdiv.slider({
-            orientation: 'horizontal',
-            min: min,
-            max: max,
-            value: input.val(),
-            slide: function (event, ui) {
-                input.val(ui.value);
-                input.trigger('change');
-                input.focus();
-            }
-        });
-
-        settings.scroll(function () {
-            sliderdiv.css({
-                'left': input.offset().left - 17 + 'px',
-                'top': input.offset().top - 100 + 'px',
-            });
-        });
-
-        sliderdiv.mousedown(function () {
-            input.focus();
-        });
-        sliderdiv.children().focus(function () {
-            input.focus();
-        });
-
-        //root.append(sliderdiv);
-        input.focus(function () {
-            sliderdiv.css({
-                'left': input.offset().left - 15 + 'px',
-                'top': input.offset().top - 75 + 'px',
-            });
-            sliderdiv.show();
-        });
-        input.blur(function () {
-            sliderdiv.hide();
-        });
-
-        input.keydown(function () {
-            sliderdiv.slider('value', input.val());
-        });
-        input.keyup(function () {
-            sliderdiv.slider('value', input.val());
-        });
-        input.change(function () {
-            sliderdiv.slider('value', input.val());
-        });
-    }
-*/
     // Creates an overlay over the whole settings view with
     // a spinning circle and centered text.  Text defaults
     // to 'Loading...' if not specified.  This overlay is intended
