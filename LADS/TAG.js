@@ -42950,6 +42950,7 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
                 locHistory.text('Location History');
                 locHistory.css('color', 'white');
                 locClosing = true;
+                //locHistoryToggle.hide();
                 locHistoryToggle.hide("slide", { direction: 'left' }, 500);
                 locHistoryDiv.hide("slide", { direction: 'left' }, 500, function(){
                     toggler.show();
@@ -43003,10 +43004,11 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         //have the toggler icon minus when is is expanded, plus otherwise.
         drawerHeader.on('click', function (evt) {
             if (toggle.attr('expanded') !== 'true') {
-                $(".plusToggle").attr({
-                    src: tagPath+'images/icons/plus.svg',
+                $(".drawerPlusToggle").attr({
+                   src: tagPath+'images/icons/plus.svg',
                     expanded: false
                 });
+
                 $(".drawerContents").slideUp();
 
                 toggle.attr({
