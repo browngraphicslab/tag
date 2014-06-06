@@ -189,8 +189,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @param {Object} pivot          location of event (x,y)
      */
     function dzScroll(scale, pivot) {
-        that.viewer.viewport.zoomBy(scale, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
-        that.viewer.viewport.applyConstraints();
+        dzManip(pivot, {x: 0, y: 0}, scale);
     }
 
     /**
