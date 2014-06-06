@@ -708,9 +708,26 @@ left: 50% {
   width: 23%;
   float: left;
 }
-.navContainer {
+#setViewRoot .navContainer {
   min-height: 40px;
   height: 10%;
+  background: transparent;
+  color: #000;
+  margin-top: 2%;
+  padding-top: 4%;
+  padding-bottom: 4%;
+}
+#setViewRoot .navtext {
+  font-size: 100%;
+  display: block;
+  margin-left: 6.95%;
+  margin-top: 0.372%;
+}
+#setViewRoot .navsubtext {
+  font-size: 70%;
+  display: block;
+  margin-left: 6.95%;
+  margin-top: 0.372%;
 }
 #setViewLeftBarContainer {
   width: 22%;
@@ -773,6 +790,9 @@ left: 50% {
 }
 #setViewRoot input[type='text'] {
   border-style: solid;
+  color: #000;
+  border-color: #a7b4ae;
+  padding: 0.5%;
 }
 #setViewRoot input[type='password'] {
   border-style: solid;
@@ -819,6 +839,10 @@ left: 50% {
   overflow: hidden;
   width: 100%;
 }
+#setViewRoot textarea {
+  color: #000;
+  border-color: #a7b4ae;
+}
 #setViewButtonContainer {
   width: 100%;
   position: absolute;
@@ -843,14 +867,22 @@ left: 50% {
 }
 #setViewRoot .settingLine {
   height: 20px;
+  width: 100%;
+  margin-bottom: 4%;
 }
 #setViewRoot .settingLine .labelText {
   color: #000;
   font-size: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-style: italic;
+  display: inline-block;
 }
-#setViewSlider {
-  height: 100%;
-  position: absolute;
+#setViewRoot .settingInput {
+  font-size: 120%;
+  float: right;
+  margin-right: 3%;
+  box-sizing: border-box;
 }
 
 @font-face {

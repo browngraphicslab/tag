@@ -57,8 +57,10 @@
 LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabelID) {
     "use strict";
 
-//get all of the ui elements from the jade file and save them in variables
+        
     var root = LADS.Util.getHtmlAjax('SettingsView.html'), //Get html from html file
+
+        //get all of the ui elements from the root and save them in variables
         leftLoading = root.find('#setViewLoadingCircle'),
         settingsContainer = root.find('#setViewSettingsContainer'),
         searchContainer = root.find('#setViewSearchContainer'),
@@ -74,45 +76,18 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         settings = root.find('#setViewSettingsBar'),
         label = root.find('#setViewLoadingLabel'),
         circle = root.find('#setViewLoadingCircle'),
-        VIEWER_ASPECTRATIO = $(window).width() / $(window).height(),
-        
-    // Constants
 
-    //TODO: Should be able to go through and delete unneccesary constants after factoring:
-        RIGHT_WIDTH = '54',
-        CONTENT_HEIGHT = '92',
-        ROOT_BGCOLOR = 'rgb(219,217,204)',
-        ROOT_COLOR = 'black',
-        TEXT_COLOR = 'black',
-        TOPBAR_HEIGHT = '8',
-        TOPBAR_BGCOLOR = 'rgb(63,55,53)',
-        //NAVBAR_HEIGHT = '6%',
-        NAVBAR_HEIGHT = '92%',
-        //NAVBAR_HEIGHT = '76px',
-        //NAVBAR_FONTSIZE = '200%',
-        NAVBAR_FONTSIZE = '100%',
-        NAVBAR_SUBFONTSIZE = '70%',
-        HIGHLIGHT = 'white',
-        //CONTENT_HEIGHT = '89',
-        CONTENT_HEIGHT = '92',
-        //LEFT_WIDTH = '25',
-        LEFT_WIDTH = '22',
-        LEFT_FONTSIZE = '160%',
-        //LEFT_LABEL_HEIGHT = '20',
-        BUTTON_HEIGHT = '40',
-        //RIGHT_WIDTH = '75',
-        RIGHT_WIDTH = '54',
-        NAV_WIDTH = '23',
-        //SETTING_FONTSIZE = '150%',
-        INPUT_FONTSIZE = '120%',
-        //SETTING_HEIGHT = '40',
-        INPUT_BORDER = 'rgb(167, 180, 174)',
-        // Use the apps's aspect ratio for the viewer
+        // Constants
         VIEWER_ASPECTRATIO = $(window).width() / $(window).height(),
+        //Should probably get rid of any hard-coded values here:
+        RIGHT_WIDTH = '54', 
+        CONTENT_HEIGHT = '92',
+        HIGHLIGHT = 'white',
+        BUTTON_HEIGHT = '40',
         DEFAULT_SEARCH_TEXT = 'Search...',
         PICKER_SEARCH_TEXT = 'Search by Name, Artist, or Year...',
 
-    // Text for Navagation labels
+        // Text for Navagation labels
         NAV_TEXT = {
         general: {
             text: 'General Settings',
@@ -140,7 +115,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         },
     },
 
-    //TODO: figure out if i need to instantiate all these, delete ones from root
     that = {
         getRoot: getRoot,
     },
@@ -227,22 +201,21 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         searchbar.change(function () {
             search(searchbar.val(), '.leftLabel', 'div');
         });
+
         // Workaround for clear button (doesn't fire a change event...)
         searchbar.mouseup(function () {
             setTimeout(function () {
                 search(searchbar.val(), '.leftLabel', 'div');
             }, 1);
         });
-        //Do some of this in the jade ''file?
+
         searchbar.attr('placeholder', 'Search...');
-        //debugger;
         newButton.text('New');
         secondaryButton.text('Video');
         label.text('Loading...');
         circle.attr('src', 'images/icons/progress-circle.gif');
 
         viewer.css({
-            //'width': $(window).width() * RIGHT_WIDTH / 100 + 'px', // 100% should work, need to figure out height though
             'height': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
         });
 
@@ -250,11 +223,11 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             'top': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
         });
         settings.css({
-            // Be careful with this height--
             'height': getSettingsHeight() + 'px',
         });
         switchView(startView, startLabelID);
     }
+    
     // Programatically switch view
     function switchView(view, id) {
         resetLabels('.navContainer');
@@ -679,8 +652,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         pubPrivDiv.append(privateInput).append(publicInput);
 
         var nameInput = createTextInput(LADS.Util.htmlEntityDecode(exhibition.Name), 'Collection name', 40);
-        //var sub1Input = createTextInput(LADS.Util.htmlEntityDecode(exhibition.Metadata.Subheading1), 'Subheading 1', 60);
-        //var sub2Input = createTextInput(LADS.Util.htmlEntityDecode(exhibition.Metadata.Subheading2), 'Subheading 2', 80);
         var descInput = createTextAreaInput(LADS.Util.htmlEntityDecode(exhibition.Metadata.Description), false);
         var bgInput = createButton('Change Background Image', function () {
             uploadFile(LADS.Authoring.FileUploadTypes.Standard, function (urls) {
@@ -704,14 +675,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             if (nameInput.val() === 'Collection')
                 nameInput.select();
         });
-        //sub1Input.focus(function () {
-        //    if (sub1Input.val() === 'First Subheading')
-        //        sub1Input.select();
-        //});
-        //sub2Input.focus(function () {
-        //    if (sub2Input.val() === 'Second Subheading')
-        //        sub2Input.select();
-        //});
+
         descInput.focus(function () {
             if (descInput.val() === 'Description')
                 descInput.select();
@@ -719,22 +683,16 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
 
         // Handle Changes
         onChangeUpdateText(nameInput, '#exhibition-title', 40);
-        //onChangeUpdateText(sub1Input, '#exhibition-subtitle-1', 53);
-        //onChangeUpdateText(sub2Input, '#exhibition-subtitle-2', 70);
         onChangeUpdateText(descInput, '#description-text', 1790);
 
         var privateSetting = createSetting('Change Publish Setting', pubPrivDiv);
         var name = createSetting('Collection Name', nameInput);
-        //var sub1 = createSetting('Subheading 1', sub1Input);
-        //var sub2 = createSetting('Subheading 2', sub2Input);
         var desc = createSetting('Collection Description', descInput);
         var bg = createSetting('Collection Background Image', bgInput);
         var preview = createSetting('Collection Preview Image', previewInput);
 
         settingsContainer.append(privateSetting);
         settingsContainer.append(name);
-        //settingsContainer.append(sub1);
-        //settingsContainer.append(sub2);
         settingsContainer.append(desc);
         settingsContainer.append(bg);
         settingsContainer.append(preview);
@@ -2845,8 +2803,8 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
                     text = text.replace(/<br \/>/g, '\n').replace(/<br>/g, '\n').replace(/<br\/>/g, '\n');
                 textbox.val(text);
                 textbox.css({
-                    'color': TEXT_COLOR,
-                    'border-color': INPUT_BORDER,
+                    //'color': TEXT_COLOR,
+                    //'border-color': INPUT_BORDER,
                     'padding': '.5%',
                     'width': '100%',
                     'height': '100%',
@@ -2949,11 +2907,11 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         container.attr('class', 'navContainer');
         container.attr('id', 'nav-' + text.text);
         container.css({
-            'background': 'transparent',
-            'color': TEXT_COLOR,
-            'margin-top': '2%',
-            'padding-top': '4%',
-            'padding-bottom': '4%',
+            //'background': 'transparent',
+            //'color': TEXT_COLOR,
+            //'margin-top': '2%',
+            //'padding-top': '4%',
+            //'padding-bottom': '4%',
         });
         container.mousedown(function () {
             container.css({
@@ -2984,20 +2942,22 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         });
 
         var navtext = $(document.createElement('label'));
+        navtext.attr('class','navtext');
         navtext.css({
-            'font-size': NAVBAR_FONTSIZE,
-            'display': 'block',
-            'margin-left': '6.95%',
-            'margin-top': '0.372%',
+            //'font-size': NAVBAR_FONTSIZE,
+            //'display': 'block',
+            //'margin-left': '6.95%',
+            //'margin-top': '0.372%',
         });
         navtext.text(text.text);
 
         var navsubtext = $(document.createElement('label'));
+        navsubtext.attr('class','navsubtext');
         navsubtext.css({
-            'font-size': NAVBAR_SUBFONTSIZE,
-            'display': 'block',
-            'margin-left': '7.65%',
-            'margin-top': '0.372%',
+            //'font-size': NAVBAR_SUBFONTSIZE,
+            //'display': 'block',
+            //'margin-left': '7.65%',
+            //'margin-top': '0.372%',
         });
         navsubtext.text(text.subtext);
 
@@ -3155,18 +3115,18 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         var container = $(document.createElement('div'));
         container.attr('class', 'settingLine');
         container.css({
-            'width': '100%',
-            'margin-bottom': '4%',
+            //'width': '100%',
+            //'margin-bottom': '4%',
         });
 
         var label = $(document.createElement('div'));
         label.css({
             //'font-size': SETTING_FONTSIZE,
             'width': width ? 45 - (width - 50) + '%' : '45%',
-            'overflow': 'hidden',
-            'text-overflow': 'ellipsis',
-            'font-style': 'italic',
-            'display': 'inline-block',
+            //'overflow': 'hidden',
+            //'text-overflow': 'ellipsis',
+            //'font-style': 'italic',
+            //'display': 'inline-block',
         });
         label.text(text);
         label.attr('class', 'labelText');
@@ -3176,12 +3136,13 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         } else {
             width = '50%';
         }
+        input.attr('class', 'settingInput');
         input.css({
             'width': width,
-            'font-size': INPUT_FONTSIZE,
-            'float': 'right',
-            'margin-right': '3%',
-            'box-sizing': 'border-box',
+            //'font-size': INPUT_FONTSIZE,
+            //'float': 'right',
+            //'margin-right': '3%',
+            //'box-sizing': 'border-box',
         });
 
         var clear = $(document.createElement('div'));
@@ -3233,9 +3194,9 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         //    defaultVal(text, input, !!hideOnClick);
         //}
         input.css({
-            'color': TEXT_COLOR,
-            'border-color': INPUT_BORDER,
-            'padding': '.5%',
+            //'color': TEXT_COLOR,
+            //'border-color': INPUT_BORDER,
+            //'padding': '.5%',
         });
         input.attr({
             'type': 'text',
@@ -3253,8 +3214,8 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         //    defaultVal(text, input, !!hideOnClick);
         //}
         input.css({
-            'color': TEXT_COLOR,
-            'border-color': INPUT_BORDER,
+            //'color': TEXT_COLOR,
+            //'border-color': INPUT_BORDER,
             'padding': '.5%'
         });
         //input.attr('placeholder', text);
@@ -3275,9 +3236,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }
         var container = $(document.createElement('input'));
         container.attr('type', 'text');
-        container.css({
-            'border-color': INPUT_BORDER,
-        });
         var picker = new jscolor.color(container[0], {});
         var hex = LADS.Util.UI.colorToHex(color);
         container.val(color);
