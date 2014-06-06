@@ -4,15 +4,6 @@ var LADS = LADS || {},
 LADS.Util = (function () {
     "use strict";
 
-    //var applicationData = Windows.Storage.ApplicationData.current;
-
-    //Hilarious that this is necessary.
-    // var alphabet = new Array(
-    // '#',
-    // 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
-    // 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
-    // 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
-
     var tagContainerId = 'tagRoot';
 
     //LADS.Util public methods and members
@@ -23,7 +14,6 @@ LADS.Util = (function () {
         makeXmlRequest: makeXmlRequest,
         makeManipulatable: makeManipulatable,
         makeManipulatableWin: makeManipulatableWin,
-        // alphabet: alphabet,
         applyD3DataRec: applyD3DataRec,
         elementInDocument: elementInDocument,
         fitText: fitText,

@@ -135,7 +135,6 @@ var TAG_embed = function(tagInput) {
 
         scrollTop = $(document).scrollTop();
         scrollLeft = $(document).scrollLeft();
-        console.log('scrollTop = '+scrollTop);
 
         bodyLeft = parseFloat($('body').css('margin-left'));
 

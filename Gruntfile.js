@@ -4,10 +4,11 @@ module.exports = function(grunt) {
 			options: {
 				separator: '\n;\n',
 				banner: 'var TAG = function(tagInput) { \
-					        \n    tagPath = tagInput.path; \
-					        \n    containerId = tagInput.containerId; \
-					        \n    ip = tagInput.serverIp; \
-					        \n    allowServerChange = tagInput.allowServerChange;\n\n',
+					        \n    var tagPath           = tagInput.path, \
+					        \n        containerId       = tagInput.containerId, \
+					        \n        ip                = tagInput.serverIp, \
+					        \n        allowServerChange = tagInput.allowServerChange, \
+					        \n        idleTimer;\n\n',
 				footer: '};'
 			},
 			dist: {
