@@ -30,7 +30,6 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         toManip = dzManip,                 // media to manipulate, i.e. artwork or associated media
         clickedMedia = 'artwork',
         // misc uninitialized variables
-        viewer,
         assetCanvas;
 
     // get things rolling
