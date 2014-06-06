@@ -705,8 +705,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             saveExhibition(exhibition, {
                 privateInput: privateState,
                 nameInput: nameInput,
-                //sub1Input: sub1Input,
-                //sub2Input: sub2Input,
                 descInput: descInput,
                 bgInput: bgInput,
                 previewInput: previewInput,
@@ -731,6 +729,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
 
         var catalogNext = true;
         // Creates the button to toggle between views
+        /**
         var switchViewButton = createButton('Preview Catalog', function () {
             viewer.empty();
             if (catalogNext) {
@@ -762,7 +761,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             'margin-right': '0%',
             'margin-bottom': '3%',
         });
-
+        */
         var artPickerButton = createButton('Manage Collection', function () {
             LADS.Util.UI.createAssociationPicker(root, "Add and Remove Artworks in this Collection",
                 { comp: exhibition, type: 'exhib' },
