@@ -32,10 +32,11 @@ LADS.Telemetry = (function() {
 	 * @param {String} ttype            the type of telemetry request to log
 	 * @param {Function} preHandler     do any pre-handling based on current state of TAG, add any additional
 	 *                                     properties to the eventual telemetry object. Accepts the telemetry
-	 *                                     object to augment, returns true if we should abort further handling.
+	 *                                     object to augment and the event, and returns true if we should abort
+	 *                                     further handling.
 	 */
 	function register(element, etype, ttype, preHandler) {
-		$(element).on(etype + '.tag_telemetry', function() {
+		$(element).on(etype + '.tag_telemetry', function(evt) {
 			var date = new Date(),
 				tobj = {
 					ttype:      ttype,
@@ -48,13 +49,13 @@ LADS.Telemetry = (function() {
 				ret = true;
 
 			// if preHandler returns true, return
-			if(preHandler && preHandler(tobj)) {
+			if(preHandler && preHandler(tobj, evt)) {
 				return;
 			}
 
 			requests.push(tobj);
 
-			if(requests.length % sendFreq === 0) { // tweak this later
+			if(requests.length % sendFreq === sendFreq - 1) { // tweak this later
 				postTelemetryRequests();
 			} 
 		});
@@ -62,7 +63,7 @@ LADS.Telemetry = (function() {
 
 	/**
 	 * Make a request to the telemetry server using the requests variable
-	 * @method telemetryRequests
+	 * @method postTelemetryRequests
 	 */
 	function postTelemetryRequests() {
 		var data = JSON.stringify(requests);

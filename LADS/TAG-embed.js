@@ -12,6 +12,7 @@
  * @param {property} height              the desired height of TAG
  * @param {property} allowServerChange   should a button be shown on the splash screen that allows server change?
  * @param {property} hiddenCollections   a list of collection IDs for published collections to be hidden
+ * @param {property} idleDuration        the duration of TAG's idle timer
  * 
  */
 
@@ -30,6 +31,7 @@ var TAG_embed = function(tagInput) {
         allowServerChange = tagInput.allowServerChange,
         width = tagInput.width,
         height = tagInput.height,
+        idleDuration = tagInput.idleDuration || 0,
         container,
         frame,
         frameDoc,
@@ -99,7 +101,8 @@ var TAG_embed = function(tagInput) {
                                 path:"'+tagPath+'", \
                                 containerId:"tagContainer", \
                                 serverIp:"'+ip+'", \
-                                allowServerChange:'+allowServerChange+' \
+                                allowServerChange:'+allowServerChange+', \
+                                idleDuration:'+idleDuration+' \
                             }); \
                         }; \
                     </script> \
@@ -135,7 +138,6 @@ var TAG_embed = function(tagInput) {
 
         scrollTop = $(document).scrollTop();
         scrollLeft = $(document).scrollLeft();
-        console.log('scrollTop = '+scrollTop);
 
         bodyLeft = parseFloat($('body').css('margin-left'));
 

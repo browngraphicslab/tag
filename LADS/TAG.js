@@ -1,8 +1,11 @@
 var TAG = function(tagInput) { 					        
-    tagPath = tagInput.path; 					        
-    containerId = tagInput.containerId; 					        
-    ip = tagInput.serverIp; 					        
-    allowServerChange = tagInput.allowServerChange;
+    var tagPath           = tagInput.path, 					        
+        containerId       = tagInput.containerId, 					        
+        ip                = tagInput.serverIp, 					        
+        allowServerChange = tagInput.allowServerChange, 					        
+        idleDuration      = tagInput.idleDuration, 					        
+        currentPage, 					        
+        idleTimer; 
 
 /*!
  * jQuery JavaScript Library v1.7.1
@@ -20852,107 +20855,281 @@ DataHolder.prototype.getKeyframes = function (display) {
     return display.keyframes;
 };
 ;
-/* 
- * dz - Two-Stage Timer
- *
- * This two-stage timer takes in two duration-payload pairs. The stage one 
- * payload is put on a timeout configured to the pre-specified duration
- * which will tick down until the payload executes or until it is restarted. 
- * Upon the stage one payload's execution, the stage two payload's timeout
- * is then started. However, if the second payload's timeout is reset, it will 
- * restart the entire timer back to stage one. Upon the second payload's 
- * execution, the timer will sit idle until the reset method is invoked.
- * 
- * The payload-duration pairs should be passed in as objects in the below
- * format:
- * var durationPayloadPair = {
- *      duration: <seconds>,
- *      payload: <payload function>
- * }
- * 
+/**
+ * TAG idle timer class. Wraps idle timer-related
+ * functions in a contained scope.
+ * @class LADS.IdleTimer
+ * @constructor
+ * @return {Object}      a couple public methods
  */
 
-// constructor
-function TwoStageTimer(stageOne, stageTwo) {
-    this._s1d = stageOne.duration;
-    this._s1p = stageOne.payload;
-    this._s2d = stageTwo.duration;
-    this._s2p = stageTwo.payload;
-    this._s1TimeoutID = null;
-    this._s2TimeoutID = null;
+var LADS = LADS || {};
+LADS.IdleTimer = (function() {
+    var overlay ,
+        stageTwoDuration,
+        overlayInterval;
 
-    this._started = false;
-}
+     /**
+      * This two-stage timer takes in two duration-callback pairs. The stage one 
+      * callback is put on a timeout configured to the pre-specified duration
+      * which will tick down until the callback executes or until it is restarted. 
+      * Upon the stage one callback's execution, the stage two callback's timeout
+      * is then started. However, if the second callback's timeout is reset, it will 
+      * restart the entire timer back to stage one. Upon the second callback's 
+      * execution, the timer will sit idle until the reset method is invoked.
+      * @class TwoStageTimer
+      * @constructor
+      * @param {Object} stageOne         the stage one timer pair (see timerPair helper function below)
+      * @param {Object} stageTwo         the stage two timer pair
+      */
+    function TwoStageTimer(stageOne, stageTwo) {
+        stageOne = stageOne || {};
+        stageTwo = stageTwo || {};
 
-////////////////////
-// Public methods //
-////////////////////
+        var s1d = stageOne.duration || idleDuration || 120000,   // duration of stage one timer
+            s1c = stageOne.callback || defaultStageOne,          // stage one callback
+            s2d = stageTwo.duration || 10000,                    // duration of stage two timer
+            s2c = stageTwo.callback || defaultStageTwo,          // stage two callback
+            s1TimeoutID = null,          // stage one timeout
+            s2TimeoutID = null,          // stage two timeout
+            started     = false;         // whether the TwoStageTimer has started
 
-// start the timer
-TwoStageTimer.prototype.start = function () {
-    this._s1TimeoutID = setTimeout(this._fireS1, this._s1d);
-    this._started = true;
-};
+        stageTwoDuration = s2d;
 
-// killswitch
-TwoStageTimer.prototype.kill = function () {
-    if (this._started) {
-        clearTimeout(this._s1TimeoutID);
-        clearTimeout(this._s2TimeoutID);
-        this._started = false;
+        /**
+         * Start the timer (the first stage)
+         * @method start
+         */
+        function start() {
+            s1TimeoutID = setTimeout(fireS1, s1d);
+            started = true;
+        }
+
+        /**
+         * Kill the timer by stopping both timeouts and setting started to false
+         * @method kill
+         */
+        function kill() {
+            s1TimeoutID && clearTimeout(s1TimeoutID);
+            s2TimeoutID && clearTimeout(s2TimeoutID);
+            overlayInterval && clearInterval(overlayInterval);
+            started = false;
+        }
+
+        /**
+         * Returns whether or not the timer is stopped
+         * @method isStopped
+         * @return {Boolean}       this._started
+         */
+        function isStopped() {
+            return started;
+        }
+
+        /**
+         * A general restart method -- clears timeouts and intervals and
+         * restarts stage one timeout
+         * @method restart
+         */
+        function restart() {
+            s1TimeoutID && clearTimeout(s1TimeoutID);
+            s2TimeoutID && clearTimeout(s2TimeoutID);
+            overlayInterval && clearInterval(overlayInterval);
+
+            s1TimeoutID = setTimeout(fireS1, s1d);
+
+            started = true;
+        }
+
+        /**
+         * Reinitialize the timer with new timerPairs
+         * method reinitialize
+         * @param {timerPair} newS1         new stage one timerPair
+         * @param {timerPair} newS2         new stage two timerPair
+         */
+        function reinitialize(newS1, newS2) {
+            clearTimeout(s1TimeoutID);
+            clearTimeout(s2TimeoutID);
+            s1d = newS1.duration;
+            s1c = newS1.callback;
+            s2d = newS2.duration;
+            s2c = newS2.callback;
+            s1TimeoutID = null;
+            s2TimeoutID = null;
+
+            stageTwoDuration = s2d;
+
+            started = false;
+
+            overlayInterval && clearInterval(overlayInterval);
+        }
+
+        /**
+         * Private method to fire stage one timer
+         * @method fireS1
+         */
+        function fireS1() {
+            s1c();
+            s2TimeoutID = setTimeout(fireS2, s2d);
+        }
+
+        /**
+         * Private method to fire stage two timer
+         * @method fireS2
+         */
+        function fireS2() {
+            s2c();
+            started = false;
+        }
+
+        return {
+            start:        start,
+            kill:         kill,
+            isStopped:    isStopped,
+            restart:      restart,
+            reinitialize: reinitialize
+        };
     }
-};
 
-// indicates whether timer is stopped or started
-TwoStageTimer.prototype.isStopped = function () {
-    return this._started;
-};
-
-// restarts the stage one timer
-TwoStageTimer.prototype.restartS1 = function () {
-    if (this._started) {
-        clearTimeout(this._s1TimeoutID);
-        this._s1TimeoutID = setTimeout(this._fireS1, this._s1d);
+    /**
+     * Create a timerPair object
+     * @method timerPair
+     * @param {Number} duration       length of timer
+     * @param {Function} callback     function to be called when timer expires
+     */
+    function timerPair(duration, callback) {
+        return {
+            duration: duration,
+            callback: callback
+        }
     }
-};
 
-// kills the stage two timer and restarts the s1 timer
-TwoStageTimer.prototype.restartS2 = function () {
-    if (this._started) {
-        clearTimeout(this._s2TimeoutID);
-        this._s1TimeoutID = setTimeout(this._fireS1, this._s1d);
+    /**
+     * Create default stage one timerPair
+     * @method defaultStageOne
+     * @return {Object}               default stage one pair
+     */
+    function defaultStageOne() {
+        return createIdleOverlay();
     }
-};
 
-// reinitialize the timer with new payload-duration pairs
-TwoStageTimer.prototype.reinitialize = function (stageOne, stageTwo) {
-    clearTimeout(this._s1TimeoutID);
-    clearTimeout(this._s2TimeoutID);
-    this._s1d = stageOne.duration;
-    this._s1p = stageOne.payload;
-    this._s2d = stageTwo.duration;
-    this._s2p = stageTwo.payload;
-    this._s1TimeoutID = null;
-    this._s2TimeoutID = null;
+    /**
+     * Create default stage two timerPair
+     * @method defaultStageTwo
+     * @return {Object}               default stage two pair
+     */
+    function defaultStageTwo() {
+        return returnHome();
+    }
 
-    this._started = false;
-}
+    /**
+     * Create default idle timer warning overlay -- default
+     * stage one callback
+     * @method createIdleOverlay
+     */
+    function createIdleOverlay() {
+        var textRegion    = $(document.createElement('div')).addClass('idleTimerTextRegion'),
+            clock         = $(document.createElement('div')).addClass('idleTimerClock'),
+            time          = 0,
+            origDate      = new Date(),
+            origTime      = origDate.getTime(),
+            width;
 
-/////////////////////
-// Private methods //
-/////////////////////
+        overlay = $(LADS.Util.UI.blockInteractionOverlay(0.8));
+        
+        // do this in styl file
+        overlay.css({
+            'text-align': 'center'
+        });
 
-// fire the stage one timeout
-TwoStageTimer.prototype._fireS1 = function () {  
-    this._s1p();
-    this._s2TimeoutID = setTimeout(this._fireS2, this._s2d);
-};
+        textRegion.css({
+            'font-size': '2em',
+            'left':  '10%',
+            'position': 'absolute',
+            'text-align': 'center',
+            'top':   '30%',
+            'width': '80%'
+        });
 
-// fire the stage two timeout
-TwoStageTimer.prototype._fireS2 = function () {
-    this._s2p();
-    this._started = false;
-};
+        clock.css({
+            'background-color': 'white',
+            'border': '2px solid #ffffff',
+            'border-radius': '50%',
+            'display': 'block',
+            'left': '45%',
+            'position': 'absolute',
+            'top': '50%',
+            'width': '10%'
+        });
+
+        textRegion.html('Starting a new session when the timer below expires.<br />Tap anywhere to continue exploring.');
+
+        overlay.append(textRegion);
+        overlay.append(clock);
+
+        $('#tagRoot').append(overlay);
+        overlay.fadeIn();
+
+        width = clock.width();
+        clock.css('height', width + 'px');
+
+        // when overlay is clicked, restart timer and remove overlay
+        overlay.on('click', function() {
+            overlay.off('click');
+            idleTimer && idleTimer.restart(); // uses the global idleTimer (declared in Gruntfile.js)
+            removeIdleOverlay();
+        });
+
+        overlayInterval = setInterval(function() {
+            var percentDone,
+                gradString,
+                date = new Date();
+
+            time        = date.getTime() - origTime;
+            percentDone = Math.min(time / stageTwoDuration, 1);
+            gradString  = percentDone <= 0.5 ?
+                            'linear-gradient('+(90+360*percentDone)+'deg, transparent 50%, black 50%), linear-gradient(90deg, black 50%, transparent 50%)' :
+                            'linear-gradient('+(90+360*(percentDone - 0.5))+'deg, transparent 50%, white 50%), linear-gradient(90deg, black 50%, transparent 50%)'
+
+            clock.css('background-image', gradString);
+
+            if(percentDone >= 1) {
+                clearInterval(overlayInterval);
+            }
+        }, 10);
+    }
+
+    /**
+     * Remove the default warning overlay
+     * @method removeIdleOverlay
+     */
+    function removeIdleOverlay() {
+        overlay && overlay.fadeOut(overlay.remove);
+    }
+
+    /**
+     * Returns to home page -- default stage two callback
+     * @method returnHome
+     */
+    function returnHome() {
+        catalog = new LADS.Layout.NewCatalog();
+        LADS.Util.UI.slidePageRight(catalog.getRoot());
+    }
+
+    /**
+     * Restart the idle timer; this is a utility function and could be defined elsewhere
+     * @method restartIdleTimer
+     */
+    function restartTimer() {
+        idleTimer && idleTimer.restart();
+    }
+
+    return {
+        TwoStageTimer:     TwoStageTimer,
+        timerPair:         timerPair,
+        restartTimer:      restartTimer,
+        removeIdleOverlay: removeIdleOverlay
+    }
+})();
 
 ;
 function DoublyLinkedList() {
@@ -30628,18 +30805,10 @@ d3.time.scale.utc = function() {
 ;
 var LADS = LADS || {},
     Worktop = Worktop || {};
+
 //LADS Utilities
 LADS.Util = (function () {
     "use strict";
-
-    //var applicationData = Windows.Storage.ApplicationData.current;
-
-    //Hilarious that this is necessary.
-    var alphabet = new Array(
-    '#',
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
-    'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
-    'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
 
     var tagContainerId = 'tagRoot';
 
@@ -30651,7 +30820,6 @@ LADS.Util = (function () {
         makeXmlRequest: makeXmlRequest,
         makeManipulatable: makeManipulatable,
         makeManipulatableWin: makeManipulatableWin,
-        alphabet: alphabet,
         applyD3DataRec: applyD3DataRec,
         elementInDocument: elementInDocument,
         fitText: fitText,
@@ -32273,6 +32441,14 @@ LADS.Util.UI = (function () {
             }
         });
 
+        LADS.Telemetry.register(serverDialogInput, 'keydown', 'change_server', function(tobj, evt) {
+            if(evt.which !== 13) {
+                return true;
+            }
+            tobj.old_address = localStorage.ip;
+            tobj.new_address = serverDialogInput.val();
+        });
+
         var serverDialogContact = $(document.createElement('div'));
         serverDialogContact.css({ 'margin-top': '10%' , 'color':'white','text-align': 'center'  });
         serverDialogContact.html(
@@ -32382,9 +32558,9 @@ LADS.Util.UI = (function () {
 
         serverSaveButton.on('click', saveClick);
 
-        LADS.Telemetry.register(serverSaveButton, 'click', 'change_server', function(tobj) {
-            tobj.start_ip = localStorage.ip;
-            tobj.new_ip   = serverDialogInput.val();
+        LADS.Telemetry.register(serverSaveButton, 'click', 'change_server', function(tobj, evt) {
+            tobj.old_address = localStorage.ip;
+            tobj.new_address = serverDialogInput.val();
         });
 
         var serverCircle = $(document.createElement('img'));
@@ -32397,8 +32573,6 @@ LADS.Util.UI = (function () {
             'float': 'right'
         });
         serverCircle.attr('src', tagPath+'images/icons/progress-circle.gif');
-
-        
 
         var serverPasswordErrorMessage = $(document.createElement('div'));
         serverPasswordErrorMessage.attr('id', 'serverPasswordErrorMessage');
@@ -32555,9 +32729,10 @@ LADS.Util.UI = (function () {
     }
 
     // overlay that "absorbs" interactions with elements below it, used to isolate popup forms etc.
-    function blockInteractionOverlay() {
+    function blockInteractionOverlay(opac) {
+        opac = opac ? Math.max(Math.min(parseFloat(opac), 1), 0) : 0.6;
         var overlay = document.createElement('div');
-        $(overlay).attr('id', 'overlay');
+        $(overlay).attr('id', 'blockInteractionOverlay');
         $(overlay).css({
             display: 'none',
             position: 'absolute',
@@ -32565,8 +32740,8 @@ LADS.Util.UI = (function () {
             left: 0,
             width: '100%',
             height: '100%',
-            'background-color': 'rgba(0,0,0,0.6)',
-            'z-index': '10000000',
+            'background-color': 'rgba(0,0,0,'+opac+')',
+            'z-index': '10000000'
         });
         return overlay;
     }
@@ -37311,12 +37486,25 @@ LADS.Util.makeNamespace("LADS.Util.Constants");
 
 LADS.Util.Constants = (function (options) {
     "use strict";
-    
-    //StartPage
 
-    var constants = {};
+    var constants = {
+
+    };
+
+    var pages = {
+        START_PAGE:       0,
+        COLLECTIONS_PAGE: 1,
+        ARTWORK_VIEWER:   2,
+        VIDEO_PLAYER:     3,
+        TOUR_PLAYER:      4,
+        AUTHORING_HUB:    5,
+        ARTWORK_EDITOR:   6,
+        TOUR_AUTHORING:   7
+    };
+
 
     return{
+        pages: pages,
         get: getConstant,
         set: setConstant
     };
@@ -40474,9 +40662,12 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         artworkName     = doq.Name,        // artwork's title
         associatedMedia = { guids: [] },   // object of associated media objects for this artwork, keyed by media GUID;
                                            //   also contains an array of GUIDs for cleaner iteration
+        toManip         = dzManip,         // media to manipulate, i.e. artwork or associated media
+        clickedMedia    = 'artwork',       // artwork or media
+
         // misc uninitialized variables
-        assetCanvas,
-        viewer;
+        viewer,
+        assetCanvas;
 
     // get things rolling
     init();
@@ -40488,8 +40679,37 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         dzScroll: dzScroll,
         openArtwork: openArtwork,
         addAnimateHandler: addAnimateHandler,
+        getToManip: getToManip,
+        getClicked: getClicked,
+        setArtworkClicked: setArtworkClicked,
         viewer: viewer
+    };
+
+
+    function setArtworkClicked() {
+        toManip = dzManip;                  //When the main artwork is clicked, use the Deep Zoom manipulation method
+        clickedMedia = 'artwork';
     }
+
+    /**
+     * Return applicable manipulation method
+     * @method getToManip
+     * @return {Object}     manipulation method object
+     */
+    function getToManip() {
+        return toManip;   
+    }
+
+    /**
+     * Return active media to be manipulated so applicable manipulation method can be called
+     * @method clickedMedia
+     * @return {String}     manipulation method object
+     */
+
+    function getClicked() {
+        return clickedMedia;
+    }
+
 
     /**
      * Return list of associatedMedia
@@ -40577,6 +40797,12 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         viewer && viewer.unload();
     }
 
+
+    function dzManipPreprocessing() {
+        toManip = dzManip;
+        clickedMedia = 'artwork';
+    }
+
     /**
      * Manipulation/drag handler for makeManipulatable on the deepzoom image
      * @method dzManip
@@ -40585,6 +40811,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @oaram {Number} scale           scale factor
      */
     function dzManip(pivot, translation, scale) {
+        dzManipPreprocessing();
         viewer.viewport.zoomBy(scale, viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)), false);
         viewer.viewport.panBy(viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-translation.x, -translation.y)), false);
         viewer.viewport.applyConstraints();
@@ -40666,7 +40893,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         LADS.Worktop.Database.getAssocMediaTo(doq.Identifier, mediaSuccess, null, mediaSuccess);
 
         /**
-         * Success callback frunction for .getAssocMediaTo call above. If the list of media is
+         * Success callback function for .getAssocMediaTo call above. If the list of media is
          * non-null and non-empty, it gets the linq between each doq and the artwork 
          * @method mediaSuccess
          * @param {Array} doqs        the media doqs
@@ -40701,6 +40928,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
             }
         }
     }
+
 
     /**
      * Creates an associated media object to be added to associatedMedia.
@@ -40790,8 +41018,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 circle.attr('src', tagPath + 'images/icons/hotspot_circle.svg');
                 circle.addClass('annotatedImageHotspotCircle');
                 root.append(circle);
-                addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);                
-                }
+            }
 
             // allows asset to be dragged, despite the name
             LADS.Util.disableDrag(outerContainer);
@@ -40996,7 +41223,13 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
          */
         function createMediaElements() {
             var $mediaElt,
-                img;
+                img,
+                closeButton = createCloseButton();
+
+            mediaContainer.append(closeButton[0]);
+            closeButton.on('click', function() {
+                hideMediaObject();
+            });
 
             if(!mediaLoaded) {
                 mediaLoaded = true;
@@ -41052,6 +41285,28 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         }
 
         /**
+         * Repeated functionality in the outerContainer click handler and
+         * media manip.
+         * @method mediaManipPreprocessing
+         */
+        function mediaManipPreprocessing() {
+            toManip = mediaManip;
+            clickedMedia = 'media';
+            $('.mediaOuterContainer').css('z-index', 1000);
+            outerContainer.css('z-index', 1001);
+        }
+
+        outerContainer.on('click', function (event) {
+            event.stopPropagation();            //Prevent the click going through to the main container
+            event.preventDefault();
+            LADS.IdleTimer.restartTimer();
+            mediaManipPreprocessing();
+            // toManip = mediaManip;              //When you click on any media, use the manipulation method for media
+            // clickedMedia = 'media'; 
+        });
+
+     
+        /**
          * Drag/manipulation handler for associated media
          * @method mediaManip
          * @param {Object} res     object containing hammer event info
@@ -41072,6 +41327,8 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 maxW,
                 minW;
 
+            mediaManipPreprocessing();
+
             // these values are somewhat arbitrary; TODO determine good values
             if (CONTENT_TYPE === 'Image') {
                 maxW = 3000;
@@ -41080,8 +41337,8 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 maxW = 1000;
                 minW = 250;
             } else if (CONTENT_TYPE === 'Audio') {
-                maxW = w*.85;
-                minW = w*.15;
+                maxW = 800;
+                minW = 250;
             }
 
             // constrain new width
@@ -41126,7 +41383,32 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 pivot: pivot
             });
         }
-
+		
+		/**
+		 * Create a closeButton for associated media
+		 * @method createCloseButton
+		 * @return {HTML element} the button as a 'div'
+		 */
+		function createCloseButton() {
+			var closeButton = $(document.createElement('div'));
+			closeButton.text('X');
+			closeButton.css({
+				'position': 'absolute',
+				'top': '-2.5em',
+				'left': '-2.5em',
+				'width': '1em',
+				'height': '1em',
+				'text-align': 'center',
+				'color': 'black',
+				'line-height': '1em',
+				'border': '10px solid black',
+				'border-radius': '2em',
+				'background-color': 'white',
+				'margin-left': '107%'
+			});
+			return closeButton;
+		}
+		 
         /**
          * Show the associated media on the seadragon canvas. If the media is not
          * a hotspot, show it in a slightly random position.
@@ -41137,31 +41419,14 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 l,
                 h = outerContainer.height(),
                 w = outerContainer.width();
-
+				
             if(IS_HOTSPOT) {
-                viewer.viewport.panTo(position, false);
-
-                console.log("position: " + position);
-                console.log("X, Y: " + X + ", " + Y);
-
-                var constraintsApplied = viewer.viewport.applyConstraints();
                 circle.css('visibility', 'visible');
-                addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);                
-
-                if (rootHeight - h > rootHeight*.9) {
-                    t = rootHeight*.9;
-                }
-
-                if (!constraintsApplied){
-                    t = (rootHeight - h)/2 + circle.height()/2;
-                    l = (rootWidth)/2 + circle.height();
-
-                } else {
-                    t = circle.position().top - h/2 + circle.height()/2;
-                    l = circle.position().left + circle.height();
-                }
-
-           } else {
+                addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
+                viewer.viewport.panTo(position, false);
+                t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
+                l = rootWidth/2 + circle.width()*3/4;
+            } else {
                 t = rootHeight * 1/10 + Math.random() * rootHeight * 2/10;
                 l = rootWidth  * 3/10 + Math.random() * rootWidth  * 2/10;
             }
@@ -41184,7 +41449,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 'color': 'black',
                 'background-color': 'rgba(255,255,255, 0.3)'
             });
-
+			
             // TODO is this necessary?
             // if ((info.contentType === 'Video') || (info.contentType === 'Audio')) {
             //     resizeControlElements();
@@ -41199,12 +41464,14 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
          */
         function hideMediaObject() {
             pauseResetMediaObject();
-            IS_HOTSPOT && circle.css('visibility', 'hidden');
+            IS_HOTSPOT && removeOverlay(circle[0]);
             outerContainer.hide();   
             mediaHidden = true;
+
             if(!thumbnailButton) {
                 thumbnailButton = $('#thumbnailButton-' + mdoq.Identifier);
             }
+
             thumbnailButton.css({
                 'color': 'white',
                 'background-color': ''
@@ -41255,6 +41522,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         };
     }
 };
+
 ;
 var LADS = LADS || {};
 
@@ -41567,6 +41835,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         tagContainer;
 
     LADS.Telemetry.register(overlay, 'click', 'start_to_collections');
+    currentPage = LADS.Util.Constants.pages.START_PAGE;
 
     if (localStorage.ip && localStorage.ip.indexOf(':') !== -1) {
         localStorage.ip = localStorage.ip.split(':')[0];
@@ -41647,8 +41916,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         setUpCredits();
         setUpInfo(main);
         initializeHandlers();
-        
-        // handGif.on('click', switchPage);
 
         //opens the collections page on touch/click
         function switchPage() {
@@ -41862,7 +42129,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         });
 
         overlay.on('click', 'a', function (evt) {
-            //this == the link that was clicked
+            // this === the link that was clicked
             var href = $(this).attr("href");
             evt.stopPropagation();
         });
@@ -42094,7 +42361,7 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         locHistoryContainer = root.find('#locationHistoryContainer'),
 
         // constants
-        FIX_PATH            = LADS.Worktop.Database.fixPath,
+        FIX_PATH = LADS.Worktop.Database.fixPath,
 
         // input options
         doq            = options.doq,              // the artwork doq
@@ -42102,19 +42369,19 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         prevScroll     = options.prevScroll || 0,  // scroll position where we came from
         prevCollection = options.prevCollection,   // collection we came from, if any
 
-        // misc initialized vars
+        // misc initialized vars  
         locHistoryActive = false,                   // whether location history is open
-        locClosing = false,                         // wheter location history is closing
-        locOpening = false,                         // whether location history is opening
+        locClosing       = false,                   // wheter location history is closing
+        locOpening       = false,                   // whether location history is opening
         drawers          = [],                      // the expandable sections for assoc media, tours, description, etc...
         mediaHolders     = [],                      // array of thumbnail buttons
         loadQueue        = LADS.Util.createQueue(), // async queue for thumbnail button creation, etc
 
         // misc uninitialized vars
-        locationList,                      // location history data
-        map,                               // Bing Maps map for location history
-        annotatedImage,                    // an AnnotatedImage object
-        associatedMedia;                   // object of associated media objects generated by AnnotatedImage
+        locationList,                               // location history data
+        map,                                        // Bing Maps map for location history
+        annotatedImage,                             // an AnnotatedImage object
+        associatedMedia;                            // object of associated media objects generated by AnnotatedImage
         
     // get things rolling if doq is defined (it better be)
     doq && init();
@@ -42127,6 +42394,11 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         var head,
             script,
             meta;
+
+        currentPage = LADS.Util.Constants.pages.ARTWORK_VIEWER;
+
+        idleTimer = LADS.IdleTimer.TwoStageTimer();
+        idleTimer.start();
 
         // add script for displaying bing maps
         head = document.getElementsByTagName('head').item(0);
@@ -42277,23 +42549,44 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
          * @param {String} direction   the direction in which to move the artwork
          */
         function doManip(evt, direction) {
-            var pivot = {
-                x: CENTER_X,
-                y: CENTER_Y
-            };
+            if(annotatedImage.getClicked() == 'artwork') {
+                var pivot = {
+                    x: CENTER_X,
+                    y: CENTER_Y
+                };
 
-            if (direction === 'left') {
-                annotatedImage.dzManip(pivot, {x: panDelta, y: 0}, 1);
-            } else if (direction === 'up') {
-                annotatedImage.dzManip(pivot, {x: 0, y: panDelta}, 1);
-            } else if (direction === 'right') {
-                annotatedImage.dzManip(pivot, {x: -panDelta, y: 0}, 1);
-            } else if (direction === 'down') {
-                annotatedImage.dzManip(pivot, {x: 0, y: -panDelta}, 1);
-            } else if (direction === 'in') {
-                annotatedImage.dzScroll(1 + zoomScale, pivot);
-            } else if (direction === 'out') {
-                annotatedImage.dzScroll(1 - zoomScale, pivot);
+                if (direction === 'left') {
+                    annotatedImage.getToManip()(pivot, {x: panDelta, y: 0}, 1);
+                } else if (direction === 'up') {
+                    annotatedImage.getToManip()(pivot, {x: 0, y: panDelta}, 1);
+                } else if (direction === 'right') {
+                    annotatedImage.getToManip()(pivot, {x: -panDelta, y: 0}, 1);
+                } else if (direction === 'down') {
+                    annotatedImage.getToManip()(pivot, {x: 0, y: -panDelta}, 1);
+                } else if (direction === 'in') {
+                    annotatedImage.getToManip()(pivot, {x: 0, y: 0}, 1 + zoomScale);
+                } else if (direction === 'out') {
+                    annotatedImage.getToManip()(pivot, {x: 0, y: 0}, 1 - zoomScale);
+                }
+            }
+            else if(annotatedImage.getClicked() == 'media') {
+                var pivot = {
+                    x: 30,
+                    y: 30
+                };
+                if (direction === 'left') {
+                    annotatedImage.getToManip()({pivot: pivot, translation: {x: -panDelta, y: 0}, scale: 1});
+                } else if (direction === 'up') {
+                    annotatedImage.getToManip()({pivot: pivot, translation: {x: 0, y: -panDelta}, scale: 1});
+                } else if (direction === 'right') {
+                    annotatedImage.getToManip()({pivot: pivot, translation: {x: panDelta, y: 0}, scale: 1});
+                } else if (direction === 'down') {
+                    annotatedImage.getToManip()({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
+                } else if (direction === 'in') {
+                    annotatedImage.getToManip()({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 + zoomScale});
+                } else if (direction === 'out') {
+                    annotatedImage.getToManip()({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
+                }
             }
         }
 
@@ -42305,6 +42598,7 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         $("[tabindex='-1']").on('click', function() {
             $("[tabindex='-1']").focus();
             containerFocused = true;
+            annotatedImage.setArtworkClicked();     //Tell AnnotatedImage that the main artwork is active
         });
         $("[tabindex='-1']").focus(function() {
             containerFocused = true;
@@ -42312,6 +42606,8 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         $("[tabindex='-1']").focusout(function() {
             containerFocused = false;
         });
+
+
 
         $(document).on('keydown', function(evt) {
             if(containerFocused) {
@@ -42343,7 +42639,13 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         $(document).keyup(function(evt){
             clearInterval(interval);
         });
-        
+
+        $('#seadragonManipContainer').on('click', function(evt) {
+            evt.stopPropagation(); //Prevent the click going through to the main container
+            evt.preventDefault();
+            LADS.IdleTimer.restartTimer();
+        });
+
         $('#leftControl').on('mousedown', function(evt) {
             buttonHandler(evt, 'left');
         });
@@ -42403,9 +42705,9 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
             mediaDrawer;
 
 
-		
+        
         backButton.attr('src',tagPath+'images/icons/Back.svg');
-		togglerImage.attr("src", tagPath+'images/icons/Close.svg');
+        togglerImage.attr("src", tagPath+'images/icons/Close.svg');
         infoTitle.text(doq.Name);
         infoArtist.text(doq.Metadata.Artist);
         infoYear.text(doq.Metadata.Year);
@@ -42429,18 +42731,23 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
             });
         });
 
-        LADS.Util.UI.setUpBackButton(backButton, goBack)
+        LADS.Util.UI.setUpBackButton(backButton, goBack);
+        LADS.Telemetry.register(backButton, 'click', 'artwork_to_collections', function(tobj) {
+            tobj.work_name = doq.Name;
+            tobj.work_guid = doq.Identifier;
+        });
 
         function goBack() {
             var catalog;
             backButton.off('click');
+            idleTimer.kill();
+            idleTimer = null;
             annotatedImage && annotatedImage.unload();
             catalog = new LADS.Layout.NewCatalog({
                 backScroll:     prevScroll,
                 backArtwork:    doq,
                 backCollection: prevCollection
             });
-            catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO this line shouldn't be necessary -- do in styl file
             LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {});
         }
 
@@ -42451,7 +42758,7 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
                 fieldTitle = item;
                 fieldValue = doq.Metadata.InfoFields[item];
                 infoCustom = $(document.createElement('div'));
-				infoCustom.addClass('infoCustom');
+                infoCustom.addClass('infoCustom');
                 infoCustom.text(fieldTitle + ': ' + fieldValue);
                 infoCustom.appendTo(info);
             }
@@ -42594,9 +42901,12 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
                     prevInfo,
                     rinPlayer;
                 
+                idleTimer.kill();
+                idleTimer = null;
+
                 annotatedImage.unload();
                 prevInfo = { artworkPrev: "artmode", prevScroll: prevScroll };
-                rinData = JSON.parse(unescape(tour.Metadata.Content)),
+                rinData = JSON.parse(unescape(tour.Metadata.Content));
                 rinPlayer = new LADS.Layout.TourPlayer(rinData, prevCollection, prevInfo, options);
             
                 LADS.Util.UI.slidePageLeftSplit(root, rinPlayer.getRoot(), rinPlayer.startPlayback);
@@ -42609,12 +42919,12 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
          */
 
         //Create minimapContainer...
-		var minimapContainer = root.find('#minimapContainer');
+        var minimapContainer = root.find('#minimapContainer');
 
         sideBarSections.append(minimapContainer);
 
         //A white rectangle for minimap to show the current shown area for artwork
-		var minimaprect = root.find('#minimaprect');
+        var minimaprect = root.find('#minimaprect');
 
         //Load deepzoom thumbnail. 
         var img = new Image();
@@ -42630,7 +42940,7 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
             if (loaded) return;
             loaded = true;
             //load the artwork image
-			minimap = root.find('#minimap');
+            minimap = root.find('#minimap');
             minimap.attr('src', LADS.Worktop.Database.fixPath(doq.URL));
 
             //make the minimap not moveable. 
@@ -42708,8 +43018,6 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
             var a = 0;
         }
         function onMinimapTapped(evt) {
-
-            console.log("tapped");
 
             var minimaph = minimap.height();
             var minimapw = minimap.width();
@@ -42959,7 +43267,7 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
                 locHistory.text('Location History');
                 locHistory.css('color', 'white');
                 locClosing = true;
-                locHistoryToggle.hide("slide", { direction: 'left' }, 500);
+                locHistoryToggle.hide();
                 locHistoryDiv.hide("slide", { direction: 'left' }, 500, function(){
                     toggler.show();
                     locClosing = false;
@@ -43012,10 +43320,11 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         //have the toggler icon minus when is is expanded, plus otherwise.
         drawerHeader.on('click', function (evt) {
             if (toggle.attr('expanded') !== 'true') {
-                $(".plusToggle").attr({
-                    src: tagPath+'images/icons/plus.svg',
+                $(".drawerPlusToggle").attr({
+                   src: tagPath+'images/icons/plus.svg',
                     expanded: false
                 });
+
                 $(".drawerContents").slideUp();
 
                 toggle.attr({
@@ -43114,9 +43423,6 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         collectionHeader = root.find('#collectionHeader'),
         bgimage          = root.find('#bgimage'),
         catalogDiv       = root.find('#catalogDiv'),
-        artistButton     = root.find('#artistButton'),
-        yearButton       = root.find('#yearButton'),
-        titleButton      = root.find('#titleButton'),
         typeButton       = root.find('#typeButton'),
         sortRow          = root.find('#sortRow'),
         searchInput      = root.find('#searchInput'),
@@ -43130,12 +43436,12 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         currentArtwork   = options.backArtwork,         // the currently selected artwork
 
         // misc initialized vars
-        loadQueue        = LADS.Util.createQueue(),     // an async queue for artwork tile creation, etc
-        artworkSelected  = false,                       // whether an artwork is selected
-        collectionTitles = [],                          // array of collection title DOM elements
-        firstLoad        = true,                        // TODO is this necessary? what is it doing?
-        currentArtworks  = [],                          // array of artworks in current collection
-        infoSource       = [],                          // array to hold sorting/searching information
+        loadQueue        = LADS.Util.createQueue(),          // an async queue for artwork tile creation, etc
+        artworkSelected  = false,                            // whether an artwork is selected
+        collectionTitles = [],                               // array of collection title DOM elements
+        firstLoad        = true,                             // TODO is this necessary? what is it doing?
+        currentArtworks  = [],                               // array of artworks in current collection
+        infoSource       = [],                               // array to hold sorting/searching information
 
         // constants
         DEFAULT_TAG      = "Title",                                 // default sort tag
@@ -43152,10 +43458,8 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         moreInfo,                       // div holding tombstone information for current artwork
         artistInfo,                     // artist tombstone info div
         yearInfo,                       // year tombstone info div
+        justShowedArtwork,              // for telemetry; helps keep track of artwork tile clicks
         currentTag;                     // current sort tag
-
-    // register different actions with the telemetry service
-    LADS.Telemetry.register(backbuttonIcon, 'click', 'collections_to_start');
 
     // get things rolling
     init();
@@ -43169,7 +43473,15 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
             circle,
             oldSearchTerm;
 
+        currentPage = LADS.Util.Constants.pages.COLLECTIONS_PAGE;
+
+        // register back button with the telemetry service
+        LADS.Telemetry.register(backbuttonIcon, 'click', 'collections_to_start');
+
         backbuttonIcon.attr('src', tagPath+'images/icons/Back.svg');
+
+        idleTimer = LADS.IdleTimer.TwoStageTimer();
+        idleTimer.start();
 
         progressCircCSS = {
             'position': 'absolute',
@@ -43186,6 +43498,22 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
             changeDisplayTag(currentArtworks, $(this).attr('tagName'));
         });
 
+        LADS.Telemetry.register(root.find('#artistButton'), 'click', '', function(tobj) {
+            tobj.ttype = 'sort_by_artist';
+        });
+
+        LADS.Telemetry.register(root.find('#titleButton'), 'click', '', function(tobj) {
+            tobj.ttype = 'sort_by_title';
+        });
+
+        LADS.Telemetry.register(root.find('#yearButton'), 'click', '', function(tobj) {
+            tobj.ttype = 'sort_by_year';
+        });
+
+        LADS.Telemetry.register(root.find('#typeButton'), 'click', '', function(tobj) {
+            tobj.ttype = 'sort_by_type';
+        });
+
         // search on keyup
         searchInput.on('keyup', function (e) {
             doSearch();
@@ -43194,6 +43522,8 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         //handles changing the color when clicking/mousing over on the backButton
         LADS.Util.UI.setUpBackButton(backbuttonIcon, function () {
             backbuttonIcon.off('click');
+            idleTimer.kill();
+            idleTimer = null;
             LADS.Layout.StartPage(null, LADS.Util.UI.slidePageRight, true);
         });
 
@@ -43698,18 +44028,21 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
                     switchPage();
                 } else {
                     showArtwork(currentWork)();
+                    justShowedArtwork = true;
                 }
             });
 
             LADS.Telemetry.register(main, 'click', '', function(tobj) {
                 var type;
-                if (currentThumbnail.attr('guid') === currentWork.Identifier) {
+                if (currentThumbnail.attr('guid') === currentWork.Identifier && !justShowedArtwork) {
                     tobj.ttype = 'collections_to_' + getWorkType(currentWork);
                 } else {
                     tobj.ttype = 'artwork_tile';
                 }
                 tobj.artwork_name = currentWork.Name;
                 tobj.artwork_guid = currentWork.Identifier;
+
+                justShowedArtwork = false;
             });
 
             if(currentWork.Metadata.Thumbnail) {
@@ -43775,16 +44108,18 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
             $('#explore-tab').css('display', 'inline-block');
 
             if (artwork.Type !== "Empty") {
-                artistInfo.text("Artist: " + (artwork.Metadata.Artist ? artwork.Metadata.Artist : "Unknown"));
-                yearInfo.text(artwork.Metadata.Year ? artwork.Metadata.Year : " ");
+                artistInfo.text("Artist: " + (artwork.Metadata.Artist || "Unknown"));
+                yearInfo.text(artwork.Metadata.Year || " ");
             } else {
                 artistInfo.text("(Interactive Tour)" );
                 yearInfo.text(" " );
             }
                 
-            currentThumbnail.attr("src", artwork.Metadata.Thumbnail ? FIX_PATH(artwork.Metadata.Thumbnail) : (tagPath+'images/no_thumbnail.svg'))
-                .css('border', '1px solid rgba(0,0,0,0.5)')
-                .attr('guid', artwork.Identifier);
+            currentThumbnail.css('border', '1px solid rgba(0,0,0,0.5)')
+                .attr({
+                    src:  artwork.Metadata.Thumbnail ? FIX_PATH(artwork.Metadata.Thumbnail) : (tagPath+'images/no_thumbnail.svg'),
+                    guid: artwork.Identifier
+                });
 
             setTimeout(function() {
                 currentThumbnail.attr('guid', '');
@@ -44034,6 +44369,9 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         if (!currentArtwork || !artworkSelected) {
             return;
         }
+
+        idleTimer.kill();
+        idleTimer = null;
 
         curOpts = {
             catalogState: opts,
@@ -44372,6 +44710,12 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, t
         backButton = root.find('#backButton'),
         overlayOnRoot = root.find('#overlayOnRoot');
 
+    currentPage = LADS.Util.Constants.pages.TOUR_PLAYER;
+
+    // UNCOMMENT IF WE WANT IDLE TIMER IN TOUR PLAYER
+    // idleTimer = LADS.IdleTimer.TwoStageTimer();
+    // idleTimer.start();
+
     backButton.attr('src', tagPath+'images/icons/Back.svg');
     //clicked effect for back button
     backButton.on('mousedown', function(){
@@ -44387,6 +44731,10 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, t
         console.log('player: '+player);
 
         var artmode, catalog;
+
+        // UNCOMMENT IF WE WANT IDLE TIMER IN TOUR PLAYER
+        // idleTimer.kill();
+        // idleTimer = null;
         
         if(player) {
             player.pause();
@@ -44505,6 +44853,12 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         currentTimeDisplay = root.find('#currentTimeDisplay'),
         backButton = root.find('#backButton');
 
+    currentPage = LADS.Util.Constants.pages.VIDEO_PLAYER;
+
+    // UNCOMMENT IF WE WANT IDLE TIMER IN Video PLAYER
+    // idleTimer = LADS.IdleTimer.TwoStageTimer();
+    // idleTimer.start();
+
     // init the video player status
     initPage();
     timeToZero();
@@ -44517,6 +44871,10 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
     function goBack() {
         videoElt.pause();
         video.attr('src', "");
+
+        // UNCOMMENT IF WE WANT IDLE TIMER IN TOUR PLAYER
+        // idleTimer.kill();
+        // idleTimer = null;
 
         var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
         var catalog = new LADS.Layout.NewCatalog({
@@ -44778,10 +45136,11 @@ LADS.Telemetry = (function() {
 	 * @param {String} ttype            the type of telemetry request to log
 	 * @param {Function} preHandler     do any pre-handling based on current state of TAG, add any additional
 	 *                                     properties to the eventual telemetry object. Accepts the telemetry
-	 *                                     object to augment, returns true if we should abort further handling.
+	 *                                     object to augment and the event, and returns true if we should abort
+	 *                                     further handling.
 	 */
 	function register(element, etype, ttype, preHandler) {
-		$(element).on(etype + '.tag_telemetry', function() {
+		$(element).on(etype + '.tag_telemetry', function(evt) {
 			var date = new Date(),
 				tobj = {
 					ttype:      ttype,
@@ -44794,13 +45153,13 @@ LADS.Telemetry = (function() {
 				ret = true;
 
 			// if preHandler returns true, return
-			if(preHandler && preHandler(tobj)) {
+			if(preHandler && preHandler(tobj, evt)) {
 				return;
 			}
 
 			requests.push(tobj);
 
-			if(requests.length % sendFreq === 0) { // tweak this later
+			if(requests.length % sendFreq === sendFreq - 1) { // tweak this later
 				postTelemetryRequests();
 			} 
 		});
@@ -44808,7 +45167,7 @@ LADS.Telemetry = (function() {
 
 	/**
 	 * Make a request to the telemetry server using the requests variable
-	 * @method telemetryRequests
+	 * @method postTelemetryRequests
 	 */
 	function postTelemetryRequests() {
 		var data = JSON.stringify(requests);
@@ -45470,7 +45829,6 @@ LADS.TESTS = (function () {
             container.css('position', 'relative');
         }
 
-
         var tagRootContainer = $(document.createElement('div')).attr('id', 'tagRootContainer');
         container.append(tagRootContainer);
 
@@ -45490,7 +45848,7 @@ LADS.TESTS = (function () {
 
         // debugger;
         tagRoot.css({
-            'font-size': w/9.6 + '%', // so font-size percentages for descendents work well
+            'font-size': (w/9.6) + '%', // so font-size percentages for descendents work well
             height: h + "px",
             left: l + "px",
             'max-width': w + "px",
@@ -45502,10 +45860,7 @@ LADS.TESTS = (function () {
             container.empty();
             var w = $(this).attr('value');
             $('#tagWidth').text(w);
-            container.css({
-                width: w + 'px',
-                // 'font-size': w/9.6 +'%'
-            });
+            container.css('width', w + 'px');
         });
 
         $('#heightSlider').on('change', function(evt) {
@@ -45611,13 +45966,15 @@ LADS.TESTS = (function () {
         oCss.href = tagPath+"css/TAG.css";
         oHead.appendChild(oCss);
 
-        
 
-
-        var tagContainer = $('#tagRoot'); // TODO more general?
-
+        var tagContainer = $('#tagRoot');
 
         $("body").css("-ms-touch-action","none");
+
+        // set up idle timer restarting
+        $('body').on('click.idleTimer', function() {
+            LADS.IdleTimer.restartTimer();
+        });
 
        // if (checkInternetConnectivity())
         //     checkServerConnectivity();

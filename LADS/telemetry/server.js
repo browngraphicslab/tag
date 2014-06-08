@@ -6,9 +6,10 @@
 
 (function Telemetry() {
 	// node modules
-	var http = require('http'),
-	    fs   = require('fs'),
-	    qs   = require('querystring');
+	var http  = require('http'),
+	    fs    = require('fs'),
+	    // mysql = require('db-mysql'),
+	    qs    = require('querystring');
 
 	// some constants
 	var PORT = 9999,
@@ -133,12 +134,16 @@
 	 */
 	function writeTDataToFile(tdata) {
 		fs.writeFile(LOG_FILE_PATH, JSON.stringify(tdata)+',', {flag: 'a'}, function(err){
+			var key;
 			if(err) {
 				console.log('err: '+err);
 			} else {
 				console.log('interaction successfully written to log:');
-				console.log('       time: '+tdata.time_human);
-				console.log('       type: '+tdata.ttype);
+				for(key in tdata) {
+					if(tdata.hasOwnProperty(key) && key !== 'platform' && key !== 'browser' && key !== 'time_stamp') {
+						console.log('      '+key+': '+tdata[key]);
+					}
+				}
 				console.log('');
 			}
 		});

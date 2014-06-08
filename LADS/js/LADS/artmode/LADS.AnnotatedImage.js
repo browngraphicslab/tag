@@ -1,4 +1,4 @@
-﻿LADS.Util.makeNamespace("LADS.AnnotatedImage");
+LADS.Util.makeNamespace("LADS.AnnotatedImage");
 
 /**
  * Representation of deepzoom image with associated media. Contains
@@ -26,9 +26,12 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         artworkName     = doq.Name,        // artwork's title
         associatedMedia = { guids: [] },   // object of associated media objects for this artwork, keyed by media GUID;
                                            //   also contains an array of GUIDs for cleaner iteration
+        toManip         = dzManip,         // media to manipulate, i.e. artwork or associated media
+        clickedMedia    = 'artwork',       // artwork or media
+
         // misc uninitialized variables
-        assetCanvas,
-        viewer;
+        viewer,
+        assetCanvas;
 
     // get things rolling
     init();
@@ -40,8 +43,37 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         dzScroll: dzScroll,
         openArtwork: openArtwork,
         addAnimateHandler: addAnimateHandler,
+        getToManip: getToManip,
+        getClicked: getClicked,
+        setArtworkClicked: setArtworkClicked,
         viewer: viewer
+    };
+
+
+    function setArtworkClicked() {
+        toManip = dzManip;                  //When the main artwork is clicked, use the Deep Zoom manipulation method
+        clickedMedia = 'artwork';
     }
+
+    /**
+     * Return applicable manipulation method
+     * @method getToManip
+     * @return {Object}     manipulation method object
+     */
+    function getToManip() {
+        return toManip;   
+    }
+
+    /**
+     * Return active media to be manipulated so applicable manipulation method can be called
+     * @method clickedMedia
+     * @return {String}     manipulation method object
+     */
+
+    function getClicked() {
+        return clickedMedia;
+    }
+
 
     /**
      * Return list of associatedMedia
@@ -129,6 +161,12 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         viewer && viewer.unload();
     }
 
+
+    function dzManipPreprocessing() {
+        toManip = dzManip;
+        clickedMedia = 'artwork';
+    }
+
     /**
      * Manipulation/drag handler for makeManipulatable on the deepzoom image
      * @method dzManip
@@ -137,6 +175,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @oaram {Number} scale           scale factor
      */
     function dzManip(pivot, translation, scale) {
+        dzManipPreprocessing();
         viewer.viewport.zoomBy(scale, viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)), false);
         viewer.viewport.panBy(viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-translation.x, -translation.y)), false);
         viewer.viewport.applyConstraints();
@@ -218,7 +257,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         LADS.Worktop.Database.getAssocMediaTo(doq.Identifier, mediaSuccess, null, mediaSuccess);
 
         /**
-         * Success callback frunction for .getAssocMediaTo call above. If the list of media is
+         * Success callback function for .getAssocMediaTo call above. If the list of media is
          * non-null and non-empty, it gets the linq between each doq and the artwork 
          * @method mediaSuccess
          * @param {Array} doqs        the media doqs
@@ -253,6 +292,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
             }
         }
     }
+
 
     /**
      * Creates an associated media object to be added to associatedMedia.
@@ -342,8 +382,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 circle.attr('src', tagPath + 'images/icons/hotspot_circle.svg');
                 circle.addClass('annotatedImageHotspotCircle');
                 root.append(circle);
-                addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);                
-                }
+            }
 
             // allows asset to be dragged, despite the name
             LADS.Util.disableDrag(outerContainer);
@@ -548,7 +587,13 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
          */
         function createMediaElements() {
             var $mediaElt,
-                img;
+                img,
+                closeButton = createCloseButton();
+
+            mediaContainer.append(closeButton[0]);
+            closeButton.on('click', function() {
+                hideMediaObject();
+            });
 
             if(!mediaLoaded) {
                 mediaLoaded = true;
@@ -604,6 +649,28 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         }
 
         /**
+         * Repeated functionality in the outerContainer click handler and
+         * media manip.
+         * @method mediaManipPreprocessing
+         */
+        function mediaManipPreprocessing() {
+            toManip = mediaManip;
+            clickedMedia = 'media';
+            $('.mediaOuterContainer').css('z-index', 1000);
+            outerContainer.css('z-index', 1001);
+        }
+
+        outerContainer.on('click', function (event) {
+            event.stopPropagation();            //Prevent the click going through to the main container
+            event.preventDefault();
+            LADS.IdleTimer.restartTimer();
+            mediaManipPreprocessing();
+            // toManip = mediaManip;              //When you click on any media, use the manipulation method for media
+            // clickedMedia = 'media'; 
+        });
+
+     
+        /**
          * Drag/manipulation handler for associated media
          * @method mediaManip
          * @param {Object} res     object containing hammer event info
@@ -624,6 +691,8 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 maxW,
                 minW;
 
+            mediaManipPreprocessing();
+
             // these values are somewhat arbitrary; TODO determine good values
             if (CONTENT_TYPE === 'Image') {
                 maxW = 3000;
@@ -632,8 +701,8 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 maxW = 1000;
                 minW = 250;
             } else if (CONTENT_TYPE === 'Audio') {
-                maxW = w*.85;
-                minW = w*.15;
+                maxW = 800;
+                minW = 250;
             }
 
             // constrain new width
@@ -678,7 +747,32 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 pivot: pivot
             });
         }
-
+		
+		/**
+		 * Create a closeButton for associated media
+		 * @method createCloseButton
+		 * @return {HTML element} the button as a 'div'
+		 */
+		function createCloseButton() {
+			var closeButton = $(document.createElement('div'));
+			closeButton.text('X');
+			closeButton.css({
+				'position': 'absolute',
+				'top': '-2.5em',
+				'left': '-2.5em',
+				'width': '1em',
+				'height': '1em',
+				'text-align': 'center',
+				'color': 'black',
+				'line-height': '1em',
+				'border': '10px solid black',
+				'border-radius': '2em',
+				'background-color': 'white',
+				'margin-left': '107%'
+			});
+			return closeButton;
+		}
+		 
         /**
          * Show the associated media on the seadragon canvas. If the media is not
          * a hotspot, show it in a slightly random position.
@@ -689,31 +783,14 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 l,
                 h = outerContainer.height(),
                 w = outerContainer.width();
-
+				
             if(IS_HOTSPOT) {
-                viewer.viewport.panTo(position, false);
-
-                console.log("position: " + position);
-                console.log("X, Y: " + X + ", " + Y);
-
-                var constraintsApplied = viewer.viewport.applyConstraints();
                 circle.css('visibility', 'visible');
-                addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);                
-
-                if (rootHeight - h > rootHeight*.9) {
-                    t = rootHeight*.9;
-                }
-
-                if (!constraintsApplied){
-                    t = (rootHeight - h)/2 + circle.height()/2;
-                    l = (rootWidth)/2 + circle.height();
-
-                } else {
-                    t = circle.position().top - h/2 + circle.height()/2;
-                    l = circle.position().left + circle.height();
-                }
-
-           } else {
+                addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
+                viewer.viewport.panTo(position, false);
+                t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
+                l = rootWidth/2 + circle.width()*3/4;
+            } else {
                 t = rootHeight * 1/10 + Math.random() * rootHeight * 2/10;
                 l = rootWidth  * 3/10 + Math.random() * rootWidth  * 2/10;
             }
@@ -736,7 +813,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
                 'color': 'black',
                 'background-color': 'rgba(255,255,255, 0.3)'
             });
-
+			
             // TODO is this necessary?
             // if ((info.contentType === 'Video') || (info.contentType === 'Audio')) {
             //     resizeControlElements();
@@ -751,12 +828,14 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
          */
         function hideMediaObject() {
             pauseResetMediaObject();
-            IS_HOTSPOT && circle.css('visibility', 'hidden');
+            IS_HOTSPOT && removeOverlay(circle[0]);
             outerContainer.hide();   
             mediaHidden = true;
+
             if(!thumbnailButton) {
                 thumbnailButton = $('#thumbnailButton-' + mdoq.Identifier);
             }
+
             thumbnailButton.css({
                 'color': 'white',
                 'background-color': ''

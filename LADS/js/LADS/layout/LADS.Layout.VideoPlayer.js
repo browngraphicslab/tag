@@ -44,6 +44,12 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         currentTimeDisplay = root.find('#currentTimeDisplay'),
         backButton = root.find('#backButton');
 
+    currentPage = LADS.Util.Constants.pages.VIDEO_PLAYER;
+
+    // UNCOMMENT IF WE WANT IDLE TIMER IN Video PLAYER
+    // idleTimer = LADS.IdleTimer.TwoStageTimer();
+    // idleTimer.start();
+
     // init the video player status
     initPage();
     timeToZero();
@@ -56,6 +62,10 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
     function goBack() {
         videoElt.pause();
         video.attr('src', "");
+
+        // UNCOMMENT IF WE WANT IDLE TIMER IN TOUR PLAYER
+        // idleTimer.kill();
+        // idleTimer = null;
 
         var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
         var catalog = new LADS.Layout.NewCatalog({
