@@ -663,6 +663,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         outerContainer.on('click', function (event) {
             event.stopPropagation();            //Prevent the click going through to the main container
             event.preventDefault();
+            LADS.IdleTimer.restartTimer();
             mediaManipPreprocessing();
             // toManip = mediaManip;              //When you click on any media, use the manipulation method for media
             // clickedMedia = 'media'; 
