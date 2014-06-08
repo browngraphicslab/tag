@@ -376,7 +376,9 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         infoTitle.text(doq.Name);
         infoArtist.text(doq.Metadata.Artist);
         infoYear.text(doq.Metadata.Year);
-
+        
+        //condition to check if the height of the info div is greater than or equal to half the lenght of the side bar, 
+        //in which case the scroll property of the div is enabled and its max height set to a 3rd of the info div height
         if (info.height()>=sideBar.height()/2){
             info.css({
                 'overflow-y' : 'scroll',
