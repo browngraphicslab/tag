@@ -291,9 +291,7 @@
   font-size: 22px;
   color: #fff;
   width: 100%;
-  max-height: 5em;
-  overflow-y: scroll;
-  white-space: nowrap;
+  white-space: normal;
   padding-right: 7%;
 }
 #artmodeRoot #infoArtist {
@@ -301,25 +299,28 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  white-space: normal;
 }
 #artmodeRoot .infoCustom {
   font-size: 110%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  white-space: normal;
 }
 #artmodeRoot #infoTitle {
   font-size: 160%;
   clear: both;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
 }
 #artmodeRoot #infoYear {
   font-size: 110%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  white-space: normal;
 }
 #artmodeRoot #locationHistory {
   color: #fff;

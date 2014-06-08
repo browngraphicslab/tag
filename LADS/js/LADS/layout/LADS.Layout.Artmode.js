@@ -341,6 +341,14 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         infoTitle.text(doq.Name);
         infoArtist.text(doq.Metadata.Artist);
         infoYear.text(doq.Metadata.Year);
+
+        if (info.height()>=sideBar.height()/2){
+            info.css({
+                'overflow-y' : 'scroll',
+                'max-height' : sideBar.height()/3 + 'px',
+
+            });
+        }
         
 
         // toggler to hide/show sidebar
