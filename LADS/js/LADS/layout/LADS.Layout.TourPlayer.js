@@ -26,6 +26,12 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, t
         backButton = root.find('#backButton'),
         overlayOnRoot = root.find('#overlayOnRoot');
 
+    currentPage = LADS.Util.Constants.pages.TOUR_PLAYER;
+
+    // UNCOMMENT IF WE WANT IDLE TIMER IN TOUR PLAYER
+    // idleTimer = LADS.IdleTimer.TwoStageTimer();
+    // idleTimer.start();
+
     backButton.attr('src', tagPath+'images/icons/Back.svg');
     //clicked effect for back button
     backButton.on('mousedown', function(){
@@ -41,6 +47,10 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, t
         console.log('player: '+player);
 
         var artmode, catalog;
+
+        // UNCOMMENT IF WE WANT IDLE TIMER IN TOUR PLAYER
+        // idleTimer.kill();
+        // idleTimer = null;
         
         if(player) {
             player.pause();

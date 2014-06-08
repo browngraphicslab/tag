@@ -8,7 +8,9 @@
 
 var LADS = LADS || {};
 LADS.IdleTimer = (function() {
-    var overlay;
+    var overlay ,
+        stageTwoDuration,
+        overlayInterval;
 
      /**
       * This two-stage timer takes in two duration-callback pairs. The stage one 
@@ -24,16 +26,18 @@ LADS.IdleTimer = (function() {
       * @param {Object} stageTwo         the stage two timer pair
       */
     function TwoStageTimer(stageOne, stageTwo) {
-        stageOne = stageOne || defaultStageOne(); // defaults
-        stageTwo = stageTwo || defaultStageTwo();
+        stageOne = stageOne || {};
+        stageTwo = stageTwo || {};
 
-        var s1d = stageOne.duration,     // duration of stage one timer
-            s1c = stageOne.callback,     // stage one callback
-            s2d = stageTwo.duration,     // duration of stage two timer
-            s2c = stageTwo.callback,     // stage two callback
+        var s1d = stageOne.duration || idleDuration || 120000,   // duration of stage one timer
+            s1c = stageOne.callback || defaultStageOne,          // stage one callback
+            s2d = stageTwo.duration || 10000,                    // duration of stage two timer
+            s2c = stageTwo.callback || defaultStageTwo,          // stage two callback
             s1TimeoutID = null,          // stage one timeout
             s2TimeoutID = null,          // stage two timeout
             started     = false;         // whether the TwoStageTimer has started
+
+        stageTwoDuration = s2d;
 
         /**
          * Start the timer (the first stage)
@@ -45,15 +49,14 @@ LADS.IdleTimer = (function() {
         }
 
         /**
-         * Kill the timer by stopping both timeouts and setting _started to false
+         * Kill the timer by stopping both timeouts and setting started to false
          * @method kill
          */
         function kill() {
-            if (started) {
-                clearTimeout(s1TimeoutID);
-                clearTimeout(s2TimeoutID);
-                started = false;
-            }
+            s1TimeoutID && clearTimeout(s1TimeoutID);
+            s2TimeoutID && clearTimeout(s2TimeoutID);
+            overlayInterval && clearInterval(overlayInterval);
+            started = false;
         }
 
         /**
@@ -66,21 +69,18 @@ LADS.IdleTimer = (function() {
         }
 
         /**
-         * Restarts the stage one timer
-         * @method restartS1
+         * A general restart method -- clears timeouts and intervals and
+         * restarts stage one timeout
+         * @method restart
          */
-        function restartS1() {
-            started && clearTimeout(s1TimeoutID);
-            s1TimeoutID = setTimeout(fireS1, s1d);
-        }
+        function restart() {
+            s1TimeoutID && clearTimeout(s1TimeoutID);
+            s2TimeoutID && clearTimeout(s2TimeoutID);
+            overlayInterval && clearInterval(overlayInterval);
 
-        /**
-         * Kills the stage two timer and restarts the stage one timer
-         * @method restartS2
-         */
-        function restartS2() {
-            started && clearTimeout(s2TimeoutID);
             s1TimeoutID = setTimeout(fireS1, s1d);
+
+            started = true;
         }
 
         /**
@@ -99,7 +99,11 @@ LADS.IdleTimer = (function() {
             s1TimeoutID = null;
             s2TimeoutID = null;
 
+            stageTwoDuration = s2d;
+
             started = false;
+
+            overlayInterval && clearInterval(overlayInterval);
         }
 
         /**
@@ -124,9 +128,8 @@ LADS.IdleTimer = (function() {
             start:        start,
             kill:         kill,
             isStopped:    isStopped,
-            restartS1:    restartS1,
-            restartS2:    restartS2,
-            reinitialize: reinitialize,
+            restart:      restart,
+            reinitialize: reinitialize
         };
     }
 
@@ -149,9 +152,7 @@ LADS.IdleTimer = (function() {
      * @return {Object}               default stage one pair
      */
     function defaultStageOne() {
-        var dur = 5000; // two minutes
-
-        return timerPair(dur, createIdleOverlay);
+        return createIdleOverlay();
     }
 
     /**
@@ -160,9 +161,7 @@ LADS.IdleTimer = (function() {
      * @return {Object}               default stage two pair
      */
     function defaultStageTwo() {
-        var dur = 10000; // ten seconds
-
-        return timerPair(dur, returnHome);
+        return returnHome();
     }
 
     /**
@@ -171,14 +170,75 @@ LADS.IdleTimer = (function() {
      * @method createIdleOverlay
      */
     function createIdleOverlay() {
-        overlay = $(LADS.Util.UI.blockInteractionOverlay());
+        var textRegion    = $(document.createElement('div')).addClass('idleTimerTextRegion'),
+            clock         = $(document.createElement('div')).addClass('idleTimerClock'),
+            time          = 0,
+            origDate      = new Date(),
+            origTime      = origDate.getTime(),
+            width;
 
+        overlay = $(LADS.Util.UI.blockInteractionOverlay(0.8));
+        
+        // do this in styl file
+        overlay.css({
+            'text-align': 'center'
+        });
 
+        textRegion.css({
+            'font-size': '2em',
+            'left':  '10%',
+            'position': 'absolute',
+            'text-align': 'center',
+            'top':   '30%',
+            'width': '80%'
+        });
+
+        clock.css({
+            'background-color': 'white',
+            'border': '2px solid #ffffff',
+            'border-radius': '50%',
+            'display': 'block',
+            'left': '45%',
+            'position': 'absolute',
+            'top': '50%',
+            'width': '10%'
+        });
+
+        textRegion.html('Starting a new session when the timer below expires.<br />Tap anywhere to continue exploring.');
+
+        overlay.append(textRegion);
+        overlay.append(clock);
 
         $('#tagRoot').append(overlay);
         overlay.fadeIn();
-        
 
+        width = clock.width();
+        clock.css('height', width + 'px');
+
+        // when overlay is clicked, restart timer and remove overlay
+        overlay.on('click', function() {
+            overlay.off('click');
+            idleTimer && idleTimer.restart(); // uses the global idleTimer (declared in Gruntfile.js)
+            removeIdleOverlay();
+        });
+
+        overlayInterval = setInterval(function() {
+            var percentDone,
+                gradString,
+                date = new Date();
+
+            time        = date.getTime() - origTime;
+            percentDone = Math.min(time / stageTwoDuration, 1);
+            gradString  = percentDone <= 0.5 ?
+                            'linear-gradient('+(90+360*percentDone)+'deg, transparent 50%, black 50%), linear-gradient(90deg, black 50%, transparent 50%)' :
+                            'linear-gradient('+(90+360*(percentDone - 0.5))+'deg, transparent 50%, white 50%), linear-gradient(90deg, black 50%, transparent 50%)'
+
+            clock.css('background-image', gradString);
+
+            if(percentDone >= 1) {
+                clearInterval(overlayInterval);
+            }
+        }, 10);
     }
 
     /**
@@ -194,12 +254,22 @@ LADS.IdleTimer = (function() {
      * @method returnHome
      */
     function returnHome() {
-        var catalog = new LADS.Layout.NewCatalog();
+        catalog = new LADS.Layout.NewCatalog();
         LADS.Util.UI.slidePageRight(catalog.getRoot());
     }
 
+    /**
+     * Restart the idle timer; this is a utility function and could be defined elsewhere
+     * @method restartIdleTimer
+     */
+    function restartTimer() {
+        idleTimer && idleTimer.restart();
+    }
+
     return {
-        TwoStageTimer: TwoStageTimer,
-        timerPair:     timerPair
+        TwoStageTimer:     TwoStageTimer,
+        timerPair:         timerPair,
+        restartTimer:      restartTimer,
+        removeIdleOverlay: removeIdleOverlay
     }
 })();

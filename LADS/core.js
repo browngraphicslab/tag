@@ -25,7 +25,6 @@
             container.css('position', 'relative');
         }
 
-
         var tagRootContainer = $(document.createElement('div')).attr('id', 'tagRootContainer');
         container.append(tagRootContainer);
 
@@ -45,7 +44,7 @@
 
         // debugger;
         tagRoot.css({
-            'font-size': w/9.6 + '%', // so font-size percentages for descendents work well
+            'font-size': (w/9.6) + '%', // so font-size percentages for descendents work well
             height: h + "px",
             left: l + "px",
             'max-width': w + "px",
@@ -57,10 +56,7 @@
             container.empty();
             var w = $(this).attr('value');
             $('#tagWidth').text(w);
-            container.css({
-                width: w + 'px',
-                // 'font-size': w/9.6 +'%'
-            });
+            container.css('width', w + 'px');
         });
 
         $('#heightSlider').on('change', function(evt) {
@@ -166,13 +162,15 @@
         oCss.href = tagPath+"css/TAG.css";
         oHead.appendChild(oCss);
 
-        
 
-
-        var tagContainer = $('#tagRoot'); // TODO more general?
-
+        var tagContainer = $('#tagRoot');
 
         $("body").css("-ms-touch-action","none");
+
+        // set up idle timer restarting
+        $('body').on('click.idleTimer', function() {
+            LADS.IdleTimer.restartTimer();
+        });
 
        // if (checkInternetConnectivity())
         //     checkServerConnectivity();

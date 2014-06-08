@@ -35,7 +35,6 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         currentArtwork   = options.backArtwork,         // the currently selected artwork
 
         // misc initialized vars
-        idleTimer        = LADS.IdleTimer.TwoStageTimer(),  //
         loadQueue        = LADS.Util.createQueue(),          // an async queue for artwork tile creation, etc
         artworkSelected  = false,                            // whether an artwork is selected
         collectionTitles = [],                               // array of collection title DOM elements
@@ -61,9 +60,6 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         justShowedArtwork,              // for telemetry; helps keep track of artwork tile clicks
         currentTag;                     // current sort tag
 
-    // register different actions with the telemetry service
-    LADS.Telemetry.register(backbuttonIcon, 'click', 'collections_to_start');
-
     // get things rolling
     init();
 
@@ -76,7 +72,14 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
             circle,
             oldSearchTerm;
 
+        currentPage = LADS.Util.Constants.pages.COLLECTIONS_PAGE;
+
+        // register back button with the telemetry service
+        LADS.Telemetry.register(backbuttonIcon, 'click', 'collections_to_start');
+
         backbuttonIcon.attr('src', tagPath+'images/icons/Back.svg');
+
+        idleTimer = LADS.IdleTimer.TwoStageTimer();
         idleTimer.start();
 
         progressCircCSS = {
@@ -119,6 +122,7 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         LADS.Util.UI.setUpBackButton(backbuttonIcon, function () {
             backbuttonIcon.off('click');
             idleTimer.kill();
+            idleTimer = null;
             LADS.Layout.StartPage(null, LADS.Util.UI.slidePageRight, true);
         });
 
@@ -966,6 +970,7 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         }
 
         idleTimer.kill();
+        idleTimer = null;
 
         curOpts = {
             catalogState: opts,

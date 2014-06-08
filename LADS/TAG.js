@@ -2,7 +2,10 @@ var TAG = function(tagInput) {
     var tagPath           = tagInput.path, 					        
         containerId       = tagInput.containerId, 					        
         ip                = tagInput.serverIp, 					        
-        allowServerChange = tagInput.allowServerChange;
+        allowServerChange = tagInput.allowServerChange, 					        
+        idleDuration      = tagInput.idleDuration, 					        
+        currentPage, 					        
+        idleTimer; 
 
 /*!
  * jQuery JavaScript Library v1.7.1
@@ -20862,7 +20865,9 @@ DataHolder.prototype.getKeyframes = function (display) {
 
 var LADS = LADS || {};
 LADS.IdleTimer = (function() {
-    var overlay;
+    var overlay ,
+        stageTwoDuration,
+        overlayInterval;
 
      /**
       * This two-stage timer takes in two duration-callback pairs. The stage one 
@@ -20878,16 +20883,18 @@ LADS.IdleTimer = (function() {
       * @param {Object} stageTwo         the stage two timer pair
       */
     function TwoStageTimer(stageOne, stageTwo) {
-        stageOne = stageOne || defaultStageOne(); // defaults
-        stageTwo = stageTwo || defaultStageTwo();
+        stageOne = stageOne || {};
+        stageTwo = stageTwo || {};
 
-        var s1d = stageOne.duration,     // duration of stage one timer
-            s1c = stageOne.callback,     // stage one callback
-            s2d = stageTwo.duration,     // duration of stage two timer
-            s2c = stageTwo.callback,     // stage two callback
+        var s1d = stageOne.duration || idleDuration || 120000,   // duration of stage one timer
+            s1c = stageOne.callback || defaultStageOne,          // stage one callback
+            s2d = stageTwo.duration || 10000,                    // duration of stage two timer
+            s2c = stageTwo.callback || defaultStageTwo,          // stage two callback
             s1TimeoutID = null,          // stage one timeout
             s2TimeoutID = null,          // stage two timeout
             started     = false;         // whether the TwoStageTimer has started
+
+        stageTwoDuration = s2d;
 
         /**
          * Start the timer (the first stage)
@@ -20899,15 +20906,14 @@ LADS.IdleTimer = (function() {
         }
 
         /**
-         * Kill the timer by stopping both timeouts and setting _started to false
+         * Kill the timer by stopping both timeouts and setting started to false
          * @method kill
          */
         function kill() {
-            if (started) {
-                clearTimeout(s1TimeoutID);
-                clearTimeout(s2TimeoutID);
-                started = false;
-            }
+            s1TimeoutID && clearTimeout(s1TimeoutID);
+            s2TimeoutID && clearTimeout(s2TimeoutID);
+            overlayInterval && clearInterval(overlayInterval);
+            started = false;
         }
 
         /**
@@ -20920,21 +20926,18 @@ LADS.IdleTimer = (function() {
         }
 
         /**
-         * Restarts the stage one timer
-         * @method restartS1
+         * A general restart method -- clears timeouts and intervals and
+         * restarts stage one timeout
+         * @method restart
          */
-        function restartS1() {
-            started && clearTimeout(s1TimeoutID);
-            s1TimeoutID = setTimeout(fireS1, s1d);
-        }
+        function restart() {
+            s1TimeoutID && clearTimeout(s1TimeoutID);
+            s2TimeoutID && clearTimeout(s2TimeoutID);
+            overlayInterval && clearInterval(overlayInterval);
 
-        /**
-         * Kills the stage two timer and restarts the stage one timer
-         * @method restartS2
-         */
-        function restartS2() {
-            started && clearTimeout(s2TimeoutID);
             s1TimeoutID = setTimeout(fireS1, s1d);
+
+            started = true;
         }
 
         /**
@@ -20953,7 +20956,11 @@ LADS.IdleTimer = (function() {
             s1TimeoutID = null;
             s2TimeoutID = null;
 
+            stageTwoDuration = s2d;
+
             started = false;
+
+            overlayInterval && clearInterval(overlayInterval);
         }
 
         /**
@@ -20978,9 +20985,8 @@ LADS.IdleTimer = (function() {
             start:        start,
             kill:         kill,
             isStopped:    isStopped,
-            restartS1:    restartS1,
-            restartS2:    restartS2,
-            reinitialize: reinitialize,
+            restart:      restart,
+            reinitialize: reinitialize
         };
     }
 
@@ -21003,9 +21009,7 @@ LADS.IdleTimer = (function() {
      * @return {Object}               default stage one pair
      */
     function defaultStageOne() {
-        var dur = 5000; // two minutes
-
-        return timerPair(dur, createIdleOverlay);
+        return createIdleOverlay();
     }
 
     /**
@@ -21014,9 +21018,7 @@ LADS.IdleTimer = (function() {
      * @return {Object}               default stage two pair
      */
     function defaultStageTwo() {
-        var dur = 10000; // ten seconds
-
-        return timerPair(dur, returnHome);
+        return returnHome();
     }
 
     /**
@@ -21025,14 +21027,75 @@ LADS.IdleTimer = (function() {
      * @method createIdleOverlay
      */
     function createIdleOverlay() {
-        overlay = $(LADS.Util.UI.blockInteractionOverlay());
+        var textRegion    = $(document.createElement('div')).addClass('idleTimerTextRegion'),
+            clock         = $(document.createElement('div')).addClass('idleTimerClock'),
+            time          = 0,
+            origDate      = new Date(),
+            origTime      = origDate.getTime(),
+            width;
 
+        overlay = $(LADS.Util.UI.blockInteractionOverlay(0.8));
+        
+        // do this in styl file
+        overlay.css({
+            'text-align': 'center'
+        });
 
+        textRegion.css({
+            'font-size': '2em',
+            'left':  '10%',
+            'position': 'absolute',
+            'text-align': 'center',
+            'top':   '30%',
+            'width': '80%'
+        });
+
+        clock.css({
+            'background-color': 'white',
+            'border': '2px solid #ffffff',
+            'border-radius': '50%',
+            'display': 'block',
+            'left': '45%',
+            'position': 'absolute',
+            'top': '50%',
+            'width': '10%'
+        });
+
+        textRegion.html('Starting a new session when the timer below expires.<br />Tap anywhere to continue exploring.');
+
+        overlay.append(textRegion);
+        overlay.append(clock);
 
         $('#tagRoot').append(overlay);
         overlay.fadeIn();
-        
 
+        width = clock.width();
+        clock.css('height', width + 'px');
+
+        // when overlay is clicked, restart timer and remove overlay
+        overlay.on('click', function() {
+            overlay.off('click');
+            idleTimer && idleTimer.restart(); // uses the global idleTimer (declared in Gruntfile.js)
+            removeIdleOverlay();
+        });
+
+        overlayInterval = setInterval(function() {
+            var percentDone,
+                gradString,
+                date = new Date();
+
+            time        = date.getTime() - origTime;
+            percentDone = Math.min(time / stageTwoDuration, 1);
+            gradString  = percentDone <= 0.5 ?
+                            'linear-gradient('+(90+360*percentDone)+'deg, transparent 50%, black 50%), linear-gradient(90deg, black 50%, transparent 50%)' :
+                            'linear-gradient('+(90+360*(percentDone - 0.5))+'deg, transparent 50%, white 50%), linear-gradient(90deg, black 50%, transparent 50%)'
+
+            clock.css('background-image', gradString);
+
+            if(percentDone >= 1) {
+                clearInterval(overlayInterval);
+            }
+        }, 10);
     }
 
     /**
@@ -21048,13 +21111,23 @@ LADS.IdleTimer = (function() {
      * @method returnHome
      */
     function returnHome() {
-        var catalog = new LADS.Layout.NewCatalog();
+        catalog = new LADS.Layout.NewCatalog();
         LADS.Util.UI.slidePageRight(catalog.getRoot());
     }
 
+    /**
+     * Restart the idle timer; this is a utility function and could be defined elsewhere
+     * @method restartIdleTimer
+     */
+    function restartTimer() {
+        idleTimer && idleTimer.restart();
+    }
+
     return {
-        TwoStageTimer: TwoStageTimer,
-        timerPair:     timerPair
+        TwoStageTimer:     TwoStageTimer,
+        timerPair:         timerPair,
+        restartTimer:      restartTimer,
+        removeIdleOverlay: removeIdleOverlay
     }
 })();
 
@@ -30732,6 +30805,7 @@ d3.time.scale.utc = function() {
 ;
 var LADS = LADS || {},
     Worktop = Worktop || {};
+
 //LADS Utilities
 LADS.Util = (function () {
     "use strict";
@@ -32655,9 +32729,10 @@ LADS.Util.UI = (function () {
     }
 
     // overlay that "absorbs" interactions with elements below it, used to isolate popup forms etc.
-    function blockInteractionOverlay() {
+    function blockInteractionOverlay(opac) {
+        opac = opac ? Math.max(Math.min(parseFloat(opac), 1), 0) : 0.6;
         var overlay = document.createElement('div');
-        $(overlay).attr('id', 'overlay');
+        $(overlay).attr('id', 'blockInteractionOverlay');
         $(overlay).css({
             display: 'none',
             position: 'absolute',
@@ -32665,8 +32740,8 @@ LADS.Util.UI = (function () {
             left: 0,
             width: '100%',
             height: '100%',
-            'background-color': 'rgba(0,0,0,0.6)',
-            'z-index': '10000000',
+            'background-color': 'rgba(0,0,0,'+opac+')',
+            'z-index': '10000000'
         });
         return overlay;
     }
@@ -37411,12 +37486,25 @@ LADS.Util.makeNamespace("LADS.Util.Constants");
 
 LADS.Util.Constants = (function (options) {
     "use strict";
-    
-    //StartPage
 
-    var constants = {};
+    var constants = {
+
+    };
+
+    var pages = {
+        START_PAGE:       0,
+        COLLECTIONS_PAGE: 1,
+        ARTWORK_VIEWER:   2,
+        VIDEO_PLAYER:     3,
+        TOUR_PLAYER:      4,
+        AUTHORING_HUB:    5,
+        ARTWORK_EDITOR:   6,
+        TOUR_AUTHORING:   7
+    };
+
 
     return{
+        pages: pages,
         get: getConstant,
         set: setConstant
     };
@@ -40737,8 +40825,8 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @param {Object} pivot          location of event (x,y)
      */
     function dzScroll(scale, pivot) {
-        that.viewer.viewport.zoomBy(scale, that.viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
-        that.viewer.viewport.applyConstraints();
+        LADS.IdleTimer.restartTimer();
+        dzManip(pivot, {x: 0, y: 0}, scale);
     }
 
     /**
@@ -41204,8 +41292,8 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         }
 
         outerContainer.on('click', function (event) {
-            event.stopPropagation();            //Prevent the click going through to the main container
-            event.preventDefault();
+            // event.stopPropagation();            //Prevent the click going through to the main container
+            // event.preventDefault();
             mediaManipPreprocessing();
             // toManip = mediaManip;              //When you click on any media, use the manipulation method for media
             // clickedMedia = 'media'; 
@@ -41280,6 +41368,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
          * @param {Object} pivot     point of contact
          */
         function mediaScroll(scale, pivot) {
+            LADS.IdleTimer.restartTimer();
             mediaManip({
                 scale: scale,
                 translation: {
@@ -41715,6 +41804,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         tagContainer;
 
     LADS.Telemetry.register(overlay, 'click', 'start_to_collections');
+    currentPage = LADS.Util.Constants.pages.START_PAGE;
 
     if (localStorage.ip && localStorage.ip.indexOf(':') !== -1) {
         localStorage.ip = localStorage.ip.split(':')[0];
@@ -41795,8 +41885,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         setUpCredits();
         setUpInfo(main);
         initializeHandlers();
-        
-        // handGif.on('click', switchPage);
 
         //opens the collections page on touch/click
         function switchPage() {
@@ -42010,7 +42098,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         });
 
         overlay.on('click', 'a', function (evt) {
-            //this == the link that was clicked
+            // this === the link that was clicked
             var href = $(this).attr("href");
             evt.stopPropagation();
         });
@@ -42251,10 +42339,10 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         prevScroll     = options.prevScroll || 0,  // scroll position where we came from
         prevCollection = options.prevCollection,   // collection we came from, if any
 
-        // misc initialized vars
+        // misc initialized vars  
         locHistoryActive = false,                   // whether location history is open
-        locClosing = false,                         // wheter location history is closing
-        locOpening = false,                         // whether location history is opening
+        locClosing       = false,                   // wheter location history is closing
+        locOpening       = false,                   // whether location history is opening
         drawers          = [],                      // the expandable sections for assoc media, tours, description, etc...
         mediaHolders     = [],                      // array of thumbnail buttons
         loadQueue        = LADS.Util.createQueue(), // async queue for thumbnail button creation, etc
@@ -42276,6 +42364,11 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         var head,
             script,
             meta;
+
+        currentPage = LADS.Util.Constants.pages.ARTWORK_VIEWER;
+
+        idleTimer = LADS.IdleTimer.TwoStageTimer();
+        idleTimer.start();
 
         // add script for displaying bing maps
         head = document.getElementsByTagName('head').item(0);
@@ -42518,11 +42611,7 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         $(document).keyup(function(evt){
             clearInterval(interval);
         });
-        $('#seadragonManipContainer').on('click', function(evt) {
-            evt.stopPropagation();            //Prevent the click going through to the main container
-            evt.preventDefault();
 
-        });
         $('#leftControl').on('mousedown', function(evt) {
             buttonHandler(evt, 'left');
         });
@@ -42609,13 +42698,14 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         function goBack() {
             var catalog;
             backButton.off('click');
+            idleTimer.kill();
+            idleTimer = null;
             annotatedImage && annotatedImage.unload();
             catalog = new LADS.Layout.NewCatalog({
                 backScroll:     prevScroll,
                 backArtwork:    doq,
                 backCollection: prevCollection
             });
-            // catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO this line shouldn't be necessary -- do in styl file
             LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {});
         }
 
@@ -42769,9 +42859,12 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
                     prevInfo,
                     rinPlayer;
                 
+                idleTimer.kill();
+                idleTimer = null;
+
                 annotatedImage.unload();
                 prevInfo = { artworkPrev: "artmode", prevScroll: prevScroll };
-                rinData = JSON.parse(unescape(tour.Metadata.Content)),
+                rinData = JSON.parse(unescape(tour.Metadata.Content));
                 rinPlayer = new LADS.Layout.TourPlayer(rinData, prevCollection, prevInfo, options);
             
                 LADS.Util.UI.slidePageLeftSplit(root, rinPlayer.getRoot(), rinPlayer.startPlayback);
@@ -43301,7 +43394,6 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         currentArtwork   = options.backArtwork,         // the currently selected artwork
 
         // misc initialized vars
-        idleTimer        = LADS.IdleTimer.TwoStageTimer(),  //
         loadQueue        = LADS.Util.createQueue(),          // an async queue for artwork tile creation, etc
         artworkSelected  = false,                            // whether an artwork is selected
         collectionTitles = [],                               // array of collection title DOM elements
@@ -43327,9 +43419,6 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         justShowedArtwork,              // for telemetry; helps keep track of artwork tile clicks
         currentTag;                     // current sort tag
 
-    // register different actions with the telemetry service
-    LADS.Telemetry.register(backbuttonIcon, 'click', 'collections_to_start');
-
     // get things rolling
     init();
 
@@ -43342,7 +43431,14 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
             circle,
             oldSearchTerm;
 
+        currentPage = LADS.Util.Constants.pages.COLLECTIONS_PAGE;
+
+        // register back button with the telemetry service
+        LADS.Telemetry.register(backbuttonIcon, 'click', 'collections_to_start');
+
         backbuttonIcon.attr('src', tagPath+'images/icons/Back.svg');
+
+        idleTimer = LADS.IdleTimer.TwoStageTimer();
         idleTimer.start();
 
         progressCircCSS = {
@@ -43385,6 +43481,7 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         LADS.Util.UI.setUpBackButton(backbuttonIcon, function () {
             backbuttonIcon.off('click');
             idleTimer.kill();
+            idleTimer = null;
             LADS.Layout.StartPage(null, LADS.Util.UI.slidePageRight, true);
         });
 
@@ -44232,6 +44329,7 @@ LADS.Layout.NewCatalog = function (options) { // backInfo, backExhibition, conta
         }
 
         idleTimer.kill();
+        idleTimer = null;
 
         curOpts = {
             catalogState: opts,
@@ -44570,6 +44668,12 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, t
         backButton = root.find('#backButton'),
         overlayOnRoot = root.find('#overlayOnRoot');
 
+    currentPage = LADS.Util.Constants.pages.TOUR_PLAYER;
+
+    // UNCOMMENT IF WE WANT IDLE TIMER IN TOUR PLAYER
+    // idleTimer = LADS.IdleTimer.TwoStageTimer();
+    // idleTimer.start();
+
     backButton.attr('src', tagPath+'images/icons/Back.svg');
     //clicked effect for back button
     backButton.on('mousedown', function(){
@@ -44585,6 +44689,10 @@ LADS.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, t
         console.log('player: '+player);
 
         var artmode, catalog;
+
+        // UNCOMMENT IF WE WANT IDLE TIMER IN TOUR PLAYER
+        // idleTimer.kill();
+        // idleTimer = null;
         
         if(player) {
             player.pause();
@@ -44703,6 +44811,12 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         currentTimeDisplay = root.find('#currentTimeDisplay'),
         backButton = root.find('#backButton');
 
+    currentPage = LADS.Util.Constants.pages.VIDEO_PLAYER;
+
+    // UNCOMMENT IF WE WANT IDLE TIMER IN Video PLAYER
+    // idleTimer = LADS.IdleTimer.TwoStageTimer();
+    // idleTimer.start();
+
     // init the video player status
     initPage();
     timeToZero();
@@ -44715,6 +44829,10 @@ LADS.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
     function goBack() {
         videoElt.pause();
         video.attr('src', "");
+
+        // UNCOMMENT IF WE WANT IDLE TIMER IN TOUR PLAYER
+        // idleTimer.kill();
+        // idleTimer = null;
 
         var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
         var catalog = new LADS.Layout.NewCatalog({
@@ -45669,7 +45787,6 @@ LADS.TESTS = (function () {
             container.css('position', 'relative');
         }
 
-
         var tagRootContainer = $(document.createElement('div')).attr('id', 'tagRootContainer');
         container.append(tagRootContainer);
 
@@ -45689,7 +45806,7 @@ LADS.TESTS = (function () {
 
         // debugger;
         tagRoot.css({
-            'font-size': w/9.6 + '%', // so font-size percentages for descendents work well
+            'font-size': (w/9.6) + '%', // so font-size percentages for descendents work well
             height: h + "px",
             left: l + "px",
             'max-width': w + "px",
@@ -45701,10 +45818,7 @@ LADS.TESTS = (function () {
             container.empty();
             var w = $(this).attr('value');
             $('#tagWidth').text(w);
-            container.css({
-                width: w + 'px',
-                // 'font-size': w/9.6 +'%'
-            });
+            container.css('width', w + 'px');
         });
 
         $('#heightSlider').on('change', function(evt) {
@@ -45810,13 +45924,15 @@ LADS.TESTS = (function () {
         oCss.href = tagPath+"css/TAG.css";
         oHead.appendChild(oCss);
 
-        
 
-
-        var tagContainer = $('#tagRoot'); // TODO more general?
-
+        var tagContainer = $('#tagRoot');
 
         $("body").css("-ms-touch-action","none");
+
+        // set up idle timer restarting
+        $('body').on('click.idleTimer', function() {
+            LADS.IdleTimer.restartTimer();
+        });
 
        // if (checkInternetConnectivity())
         //     checkServerConnectivity();

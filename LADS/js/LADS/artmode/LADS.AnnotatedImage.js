@@ -189,6 +189,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
      * @param {Object} pivot          location of event (x,y)
      */
     function dzScroll(scale, pivot) {
+        LADS.IdleTimer.restartTimer();
         dzManip(pivot, {x: 0, y: 0}, scale);
     }
 
@@ -655,8 +656,8 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
         }
 
         outerContainer.on('click', function (event) {
-            event.stopPropagation();            //Prevent the click going through to the main container
-            event.preventDefault();
+            // event.stopPropagation();            //Prevent the click going through to the main container
+            // event.preventDefault();
             mediaManipPreprocessing();
             // toManip = mediaManip;              //When you click on any media, use the manipulation method for media
             // clickedMedia = 'media'; 
@@ -731,6 +732,7 @@ LADS.AnnotatedImage = function (options) { // rootElt, doq, split, callback, sho
          * @param {Object} pivot     point of contact
          */
         function mediaScroll(scale, pivot) {
+            LADS.IdleTimer.restartTimer();
             mediaManip({
                 scale: scale,
                 translation: {

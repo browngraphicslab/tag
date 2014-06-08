@@ -1,5 +1,6 @@
 var LADS = LADS || {},
     Worktop = Worktop || {};
+
 //LADS Utilities
 LADS.Util = (function () {
     "use strict";
@@ -1923,9 +1924,10 @@ LADS.Util.UI = (function () {
     }
 
     // overlay that "absorbs" interactions with elements below it, used to isolate popup forms etc.
-    function blockInteractionOverlay() {
+    function blockInteractionOverlay(opac) {
+        opac = opac ? Math.max(Math.min(parseFloat(opac), 1), 0) : 0.6;
         var overlay = document.createElement('div');
-        $(overlay).attr('id', 'overlay');
+        $(overlay).attr('id', 'blockInteractionOverlay');
         $(overlay).css({
             display: 'none',
             position: 'absolute',
@@ -1933,8 +1935,8 @@ LADS.Util.UI = (function () {
             left: 0,
             width: '100%',
             height: '100%',
-            'background-color': 'rgba(0,0,0,0.6)',
-            'z-index': '10000000',
+            'background-color': 'rgba(0,0,0,'+opac+')',
+            'z-index': '10000000'
         });
         return overlay;
     }

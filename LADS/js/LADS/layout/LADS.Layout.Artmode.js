@@ -34,10 +34,10 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         prevScroll     = options.prevScroll || 0,  // scroll position where we came from
         prevCollection = options.prevCollection,   // collection we came from, if any
 
-        // misc initialized vars
+        // misc initialized vars  
         locHistoryActive = false,                   // whether location history is open
-        locClosing = false,                         // wheter location history is closing
-        locOpening = false,                         // whether location history is opening
+        locClosing       = false,                   // wheter location history is closing
+        locOpening       = false,                   // whether location history is opening
         drawers          = [],                      // the expandable sections for assoc media, tours, description, etc...
         mediaHolders     = [],                      // array of thumbnail buttons
         loadQueue        = LADS.Util.createQueue(), // async queue for thumbnail button creation, etc
@@ -59,6 +59,11 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         var head,
             script,
             meta;
+
+        currentPage = LADS.Util.Constants.pages.ARTWORK_VIEWER;
+
+        idleTimer = LADS.IdleTimer.TwoStageTimer();
+        idleTimer.start();
 
         // add script for displaying bing maps
         head = document.getElementsByTagName('head').item(0);
@@ -301,11 +306,7 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         $(document).keyup(function(evt){
             clearInterval(interval);
         });
-        $('#seadragonManipContainer').on('click', function(evt) {
-            evt.stopPropagation();            //Prevent the click going through to the main container
-            evt.preventDefault();
 
-        });
         $('#leftControl').on('mousedown', function(evt) {
             buttonHandler(evt, 'left');
         });
@@ -392,13 +393,14 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
         function goBack() {
             var catalog;
             backButton.off('click');
+            idleTimer.kill();
+            idleTimer = null;
             annotatedImage && annotatedImage.unload();
             catalog = new LADS.Layout.NewCatalog({
                 backScroll:     prevScroll,
                 backArtwork:    doq,
                 backCollection: prevCollection
             });
-            // catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO this line shouldn't be necessary -- do in styl file
             LADS.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {});
         }
 
@@ -552,9 +554,12 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
                     prevInfo,
                     rinPlayer;
                 
+                idleTimer.kill();
+                idleTimer = null;
+
                 annotatedImage.unload();
                 prevInfo = { artworkPrev: "artmode", prevScroll: prevScroll };
-                rinData = JSON.parse(unescape(tour.Metadata.Content)),
+                rinData = JSON.parse(unescape(tour.Metadata.Content));
                 rinPlayer = new LADS.Layout.TourPlayer(rinData, prevCollection, prevInfo, options);
             
                 LADS.Util.UI.slidePageLeftSplit(root, rinPlayer.getRoot(), rinPlayer.startPlayback);

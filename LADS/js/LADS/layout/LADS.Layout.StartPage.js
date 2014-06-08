@@ -25,6 +25,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         tagContainer;
 
     LADS.Telemetry.register(overlay, 'click', 'start_to_collections');
+    currentPage = LADS.Util.Constants.pages.START_PAGE;
 
     if (localStorage.ip && localStorage.ip.indexOf(':') !== -1) {
         localStorage.ip = localStorage.ip.split(':')[0];
@@ -105,8 +106,6 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         setUpCredits();
         setUpInfo(main);
         initializeHandlers();
-        
-        // handGif.on('click', switchPage);
 
         //opens the collections page on touch/click
         function switchPage() {
@@ -320,7 +319,7 @@ LADS.Layout.StartPage = function (options, startPageCallback) {
         });
 
         overlay.on('click', 'a', function (evt) {
-            //this == the link that was clicked
+            // this === the link that was clicked
             var href = $(this).attr("href");
             evt.stopPropagation();
         });
