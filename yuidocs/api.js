@@ -2,16 +2,17 @@ YUI.add("yuidoc-meta", function(Y) {
    Y.YUIDoc = { meta: {
     "classes": [
         "Autolinker",
-        "CryptoJS",
-        "LADS.AnnotatedImage",
-        "LADS.Layout.Artmode",
-        "LADS.Layout.InternetFailurePage.js",
-        "LADS.Layout.NewCatalog",
-        "LADS.Layout.StartPage",
-        "LADS.Layout.VideoPlayer",
-        "LADS.Util.Artwork",
+        "TAG.AnnotatedImage",
+        "TAG.IdleTimer",
+        "TAG.Layout.Artmode",
+        "TAG.Layout.InternetFailurePage.js",
+        "TAG.Layout.NewCatalog",
+        "TAG.Layout.StartPage",
+        "TAG.Layout.VideoPlayer",
+        "TAG.Util.Artwork",
         "TAG_embed",
-        "Telemetry"
+        "Telemetry",
+        "TwoStageTimer"
     ],
     "modules": [],
     "allModules": []

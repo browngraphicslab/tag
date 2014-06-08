@@ -15,7 +15,7 @@
     <div id="hd" class="yui3-g header">
         <div class="yui3-u-3-4">
             
-                <h1><img src="../../LADS/images/WideLogo.scale-100.png" title="Touch Art Gallery web application"></h1>
+                <h1><img src="../../TAG/images/WideLogo.scale-100.png" title="Touch Art Gallery web application"></h1>
             
         </div>
         <div class="yui3-u-1-4 version">
@@ -43,25 +43,27 @@
             
                 <li><a href="../classes/Autolinker.html">Autolinker</a></li>
             
-                <li><a href="../classes/CryptoJS.html">CryptoJS</a></li>
+                <li><a href="../classes/TAG.AnnotatedImage.html">TAG.AnnotatedImage</a></li>
             
-                <li><a href="../classes/LADS.AnnotatedImage.html">LADS.AnnotatedImage</a></li>
+                <li><a href="../classes/TAG.IdleTimer.html">TAG.IdleTimer</a></li>
             
-                <li><a href="../classes/LADS.Layout.Artmode.html">LADS.Layout.Artmode</a></li>
+                <li><a href="../classes/TAG.Layout.Artmode.html">TAG.Layout.Artmode</a></li>
             
-                <li><a href="../classes/LADS.Layout.InternetFailurePage.js.html">LADS.Layout.InternetFailurePage.js</a></li>
+                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
             
-                <li><a href="../classes/LADS.Layout.NewCatalog.html">LADS.Layout.NewCatalog</a></li>
+                <li><a href="../classes/TAG.Layout.NewCatalog.html">TAG.Layout.NewCatalog</a></li>
             
-                <li><a href="../classes/LADS.Layout.StartPage.html">LADS.Layout.StartPage</a></li>
+                <li><a href="../classes/TAG.Layout.StartPage.html">TAG.Layout.StartPage</a></li>
             
-                <li><a href="../classes/LADS.Layout.VideoPlayer.html">LADS.Layout.VideoPlayer</a></li>
+                <li><a href="../classes/TAG.Layout.VideoPlayer.html">TAG.Layout.VideoPlayer</a></li>
             
-                <li><a href="../classes/LADS.Util.Artwork.html">LADS.Util.Artwork</a></li>
+                <li><a href="../classes/TAG.Util.Artwork.html">TAG.Util.Artwork</a></li>
             
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
                 <li><a href="../classes/Telemetry.html">Telemetry</a></li>
+            
+                <li><a href="../classes/TwoStageTimer.html">TwoStageTimer</a></li>
             
             </ul>
 
@@ -110,7 +112,7 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/LADS_TAG-embed.js.html#l1"><code>LADS&#x2F;TAG-embed.js:1</code></a>
+            Defined in: <a href="../files/TAG_TAG-embed.js.html#l1"><code>TAG&#x2F;TAG-embed.js:1</code></a>
         </div>
     
 
@@ -186,6 +188,12 @@ the demo.html file as the iframe source.</p>
                     
                 </li>
             
+                <li class="arg">
+                    
+                        <code>idleDuration</code>
+                    
+                </li>
+            
             </ul><span class="paren">)</span>
         </div>
     
@@ -215,7 +223,7 @@ the demo.html file as the iframe source.</p>
             
         
         
-        <a href="../files/LADS_TAG-embed.js.html#l1"><code>LADS&#x2F;TAG-embed.js:1</code></a>
+        <a href="../files/TAG_TAG-embed.js.html#l1"><code>TAG&#x2F;TAG-embed.js:1</code></a>
         
         </p>
 
@@ -363,6 +371,22 @@ the demo.html file as the iframe source.</p>
                     
                 </li>
             
+                <li class="param">
+                    
+                        <code class="param-name">idleDuration</code>
+                        <span class="type">Property</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the duration of TAG&#39;s idle timer</p>
+
+                    </div>
+
+                    
+                </li>
+            
             </ul>
         </div>
     
@@ -405,14 +429,14 @@ the demo.html file as the iframe source.</p>
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_registerTelemetry">registerTelemetry</a>
+                                <a href="#method_postTelemetryRequests">postTelemetryRequests</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_telemetryRequests">telemetryRequests</a>
+                                <a href="#method_registerTelemetry">registerTelemetry</a>
 
                                 
                                 
@@ -466,7 +490,7 @@ the demo.html file as the iframe source.</p>
             
         
         
-        <a href="../files/LADS_telemetry_telemetry.js.html#l9"><code>LADS&#x2F;telemetry&#x2F;telemetry.js:9</code></a>
+        <a href="../files/TAG_telemetry_telemetry.js.html#l10"><code>TAG&#x2F;telemetry&#x2F;telemetry.js:10</code></a>
         
         </p>
 
@@ -479,6 +503,61 @@ the demo.html file as the iframe source.</p>
     <div class="description">
         <p>Get the current browser version
 Borrowed from <a href="http://stackoverflow.com/questions/5916900/detect-version-of-browser">http://stackoverflow.com/questions/5916900/detect-version-of-browser</a></p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_postTelemetryRequests" class="method item">
+    <h3 class="name"><code>postTelemetryRequests</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/TAG_telemetry_telemetry.js.html#l64"><code>TAG&#x2F;telemetry&#x2F;telemetry.js:64</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Make a request to the telemetry server using the requests variable</p>
 
     </div>
 
@@ -515,6 +594,12 @@ Borrowed from <a href="http://stackoverflow.com/questions/5916900/detect-version
                     
                 </li>
             
+                <li class="arg">
+                    
+                        <code>preHandler</code>
+                    
+                </li>
+            
             </ul><span class="paren">)</span>
         </div>
     
@@ -544,7 +629,7 @@ Borrowed from <a href="http://stackoverflow.com/questions/5916900/detect-version
             
         
         
-        <a href="../files/LADS_telemetry_telemetry.js.html#l26"><code>LADS&#x2F;telemetry&#x2F;telemetry.js:26</code></a>
+        <a href="../files/TAG_telemetry_telemetry.js.html#l27"><code>TAG&#x2F;telemetry&#x2F;telemetry.js:27</code></a>
         
         </p>
 
@@ -613,63 +698,27 @@ Borrowed from <a href="http://stackoverflow.com/questions/5916900/detect-version
                     
                 </li>
             
+                <li class="param">
+                    
+                        <code class="param-name">preHandler</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>do any pre-handling based on current state of TAG, add any additional
+                                    properties to the eventual telemetry object. Accepts the telemetry
+                                    object to augment and the event, and returns true if we should abort
+                                    further handling.</p>
+
+                    </div>
+
+                    
+                </li>
+            
             </ul>
         </div>
-    
-
-    
-
-    
-</div>
-
-                
-                    <div id="method_telemetryRequests" class="method item">
-    <h3 class="name"><code>telemetryRequests</code></h3>
-
-    
-        <span class="paren">()</span>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/LADS_telemetry_telemetry.js.html#l50"><code>LADS&#x2F;telemetry&#x2F;telemetry.js:50</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Make a request to the telemetry server using the requests variable</p>
-
-    </div>
-
     
 
     

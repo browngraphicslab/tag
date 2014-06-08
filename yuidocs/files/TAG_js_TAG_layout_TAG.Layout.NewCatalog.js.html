@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>TAG/js/TAG/layout/TAG.Layout.NewCatalog.js - Touch Art Gallery web application</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../../TAG/images/WideLogo.scale-100.png" title="Touch Art Gallery web application"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 1.0.0</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/Autolinker.html">Autolinker</a></li>
+            
+                <li><a href="../classes/TAG.AnnotatedImage.html">TAG.AnnotatedImage</a></li>
+            
+                <li><a href="../classes/TAG.IdleTimer.html">TAG.IdleTimer</a></li>
+            
+                <li><a href="../classes/TAG.Layout.Artmode.html">TAG.Layout.Artmode</a></li>
+            
+                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
+            
+                <li><a href="../classes/TAG.Layout.NewCatalog.html">TAG.Layout.NewCatalog</a></li>
+            
+                <li><a href="../classes/TAG.Layout.StartPage.html">TAG.Layout.StartPage</a></li>
+            
+                <li><a href="../classes/TAG.Layout.VideoPlayer.html">TAG.Layout.VideoPlayer</a></li>
+            
+                <li><a href="../classes/TAG.Util.Artwork.html">TAG.Util.Artwork</a></li>
+            
+                <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
+            
+                <li><a href="../classes/Telemetry.html">Telemetry</a></li>
+            
+                <li><a href="../classes/TwoStageTimer.html">TwoStageTimer</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: TAG/js/TAG/layout/TAG.Layout.NewCatalog.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+TAG.Util.makeNamespace(&quot;TAG.Layout.NewCatalog&quot;);
+
+/**
+ * The collections page
+ * @class TAG.Layout.NewCatalog
+ * @constructor
+ * @param {Object} options         some options for the collections page
+ * @return {Object}                some public methods
+ */
+TAG.Layout.NewCatalog = function (options) { // backInfo, backExhibition, container, forSplitscreen) {
+    &quot;use strict&quot;;
+
+    options = options || {}; // cut down on null checks later
+
+    var // DOM-related
+        root             = TAG.Util.getHtmlAjax(&#x27;NewCatalog.html&#x27;), // use AJAX to load html from .html file
+        leftbar          = root.find(&#x27;#leftbar&#x27;),                    // see .jade file to see where these fit in
+        displayarea      = root.find(&#x27;#displayarea&#x27;),
+        displayareasub   = root.find(&#x27;#displayareasub&#x27;),
+        collectionArea   = root.find(&#x27;#collectionArea&#x27;),
+        leftbarHeader    = root.find(&#x27;#leftbar-header&#x27;),
+        collectionHeader = root.find(&#x27;#collectionHeader&#x27;),
+        bgimage          = root.find(&#x27;#bgimage&#x27;),
+        catalogDiv       = root.find(&#x27;#catalogDiv&#x27;),
+        typeButton       = root.find(&#x27;#typeButton&#x27;),
+        sortRow          = root.find(&#x27;#sortRow&#x27;),
+        searchInput      = root.find(&#x27;#searchInput&#x27;),
+        searchTxt        = root.find(&#x27;#searchTxt&#x27;),
+        loadingArea      = root.find(&#x27;#loadingArea&#x27;),
+        backbuttonIcon   = root.find(&#x27;#catalogBackButton&#x27;),
+
+        // input options
+        scrollPos        = options.backScroll || 0,     // horizontal position within collection&#x27;s catalog
+        currCollection   = options.backCollection,      // the currently selected collection
+        currentArtwork   = options.backArtwork,         // the currently selected artwork
+
+        // misc initialized vars
+        loadQueue        = TAG.Util.createQueue(),          // an async queue for artwork tile creation, etc
+        artworkSelected  = false,                            // whether an artwork is selected
+        collectionTitles = [],                               // array of collection title DOM elements
+        firstLoad        = true,                             // TODO is this necessary? what is it doing?
+        currentArtworks  = [],                               // array of artworks in current collection
+        infoSource       = [],                               // array to hold sorting/searching information
+
+        // constants
+        DEFAULT_TAG      = &quot;Title&quot;,                                 // default sort tag
+        BASE_FONT_SIZE   = TAG.Worktop.Database.getBaseFontSize(), // base font size for current font
+        FIX_PATH         = TAG.Worktop.Database.fixPath,           // prepend server address to given path
+
+        // misc uninitialized vars
+        toursIn,                        // tours in current collection
+        currentThumbnail,               // img tag for current thumbnail image
+        numVisibleCollections,          // number of collections that are both published and visible
+        imgDiv,                         // container for thumbnail image
+        descriptiontext,                // description of current collection or artwork
+        loadingArea,                    // container for progress circle
+        moreInfo,                       // div holding tombstone information for current artwork
+        artistInfo,                     // artist tombstone info div
+        yearInfo,                       // year tombstone info div
+        justShowedArtwork,              // for telemetry; helps keep track of artwork tile clicks
+        currentTag;                     // current sort tag
+
+    // get things rolling
+    init();
+
+    /**
+     * Sets up the collections page UI
+     * @method init
+     */
+    function init() {
+        var progressCircCSS,
+            circle,
+            oldSearchTerm;
+
+        currentPage = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+
+        // register back button with the telemetry service
+        TAG.Telemetry.register(backbuttonIcon, &#x27;click&#x27;, &#x27;collections_to_start&#x27;);
+
+        backbuttonIcon.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/Back.svg&#x27;);
+
+        idleTimer = TAG.IdleTimer.TwoStageTimer();
+        idleTimer.start();
+
+        progressCircCSS = {
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;z-index&#x27;: &#x27;50&#x27;,
+            &#x27;height&#x27;: &#x27;auto&#x27;,
+            &#x27;width&#x27;: &#x27;5%&#x27;,
+            &#x27;left&#x27;: &#x27;47.5%&#x27;,
+            &#x27;top&#x27;: &#x27;42.5%&#x27;
+        };
+        
+        circle = TAG.Util.showProgressCircle(loadingArea, progressCircCSS, &#x27;0px&#x27;, &#x27;0px&#x27;, false);
+
+        root.find(&#x27;.rowButton&#x27;).on(&#x27;click&#x27;, function() {
+            changeDisplayTag(currentArtworks, $(this).attr(&#x27;tagName&#x27;));
+        });
+
+        TAG.Telemetry.register(root.find(&#x27;#artistButton&#x27;), &#x27;click&#x27;, &#x27;&#x27;, function(tobj) {
+            tobj.ttype = &#x27;sort_by_artist&#x27;;
+        });
+
+        TAG.Telemetry.register(root.find(&#x27;#titleButton&#x27;), &#x27;click&#x27;, &#x27;&#x27;, function(tobj) {
+            tobj.ttype = &#x27;sort_by_title&#x27;;
+        });
+
+        TAG.Telemetry.register(root.find(&#x27;#yearButton&#x27;), &#x27;click&#x27;, &#x27;&#x27;, function(tobj) {
+            tobj.ttype = &#x27;sort_by_year&#x27;;
+        });
+
+        TAG.Telemetry.register(root.find(&#x27;#typeButton&#x27;), &#x27;click&#x27;, &#x27;&#x27;, function(tobj) {
+            tobj.ttype = &#x27;sort_by_type&#x27;;
+        });
+
+        // search on keyup
+        searchInput.on(&#x27;keyup&#x27;, function (e) {
+            doSearch();
+        });
+
+        //handles changing the color when clicking/mousing over on the backButton
+        TAG.Util.UI.setUpBackButton(backbuttonIcon, function () {
+            backbuttonIcon.off(&#x27;click&#x27;);
+            idleTimer.kill();
+            idleTimer = null;
+            TAG.Layout.StartPage(null, TAG.Util.UI.slidePageRight, true);
+        });
+
+        TAG.Worktop.Database.getExhibitions(getCollectionsHelper, null, getCollectionsHelper);
+    }
+
+    /**
+     * Return the type of work
+     * @method getWorkType
+     * @param {doq} work       the doq representing the current work
+     * @return {String}        a string describing type of work (&#x27;artwork&#x27;, &#x27;video&#x27;, or &#x27;tour&#x27;)
+     */
+    function getWorkType(work) {
+        if (currentArtwork.Type === &#x27;Empty&#x27;) {
+            return &#x27;tour&#x27;;
+        } else if (currentArtwork.Metadata.Type === &#x27;VideoArtwork&#x27;) {
+            return &#x27;video&#x27;;
+        }
+        return &#x27;artwork&#x27;;
+    }
+
+    /**
+     * Helper function to add collections to left bar
+     * @method getCollectionsHelper
+     */
+    function getCollectionsHelper(collections) {
+        var i,
+            privateState,
+            c,
+            artwrk,
+            toShowFirst;
+
+        numVisibleCollections = 0;
+
+        for(i=0; i&lt;collections.length; i++) {
+            c = collections[i];
+            privateState = c.Metadata.Private ? (/^true$/i).test(c.Metadata.Private) : false;
+            if(!privateState &amp;&amp; TAG.Util.localVisibility(c.Identifier)) {
+                if(numVisibleCollections) {
+                    bgimage.css(&#x27;background-image&#x27;, &quot;url(&quot; + FIX_PATH(c.Metadata.BackgroundImage) + &quot;)&quot;);
+                }
+                toShowFirst = toShowFirst || c;
+                addCollection(c);
+                numVisibleCollections++;
+            }
+        }
+
+        // Single collection UI; CSS modifications for the case when there is only one collection
+        if(numVisibleCollections === 1) {
+            enableSingleCollectionUI()
+        }
+
+        if (currCollection) {
+            clickCollection(currCollection, scrollPos, currentArtwork)();
+        } else if(toShowFirst) {
+            clickCollection(toShowFirst)(); // first collection selected by default
+        }
+        loadingArea.hide();
+    }
+
+    /**
+     * When only a single collection exists, this function modifies
+     * the CSS to hide the list of collections and expand the
+     * description area.
+     *
+     * @method enableSingleCollectionUI
+     * @author Athyuttam Eleti
+     */
+    function enableSingleCollectionUI() {
+        collectionArea.css(&quot;display&quot;, &quot;none&quot;);
+        collectionHeader.css(&quot;display&quot;, &quot;none&quot;);
+        displayarea.css({
+            &quot;left&quot;: &quot;0&quot;,
+            &quot;width&quot;: &quot;100%&quot;
+        });
+
+        // NOT WOKING BECAUSE THESE DIVS AREN&#x27;T YET
+        // CREATED WHEN THIS CODE IS EXECUTED
+
+        // var exhibition_info = root.find(&quot;#collection-info&quot;);
+        // exhibition_info.css(&quot;width&quot;, &quot;100%&quot;);
+
+        // var exhibition_name_div = root.find(&quot;#collection-name-div&quot;);
+        // exhibition_name_div.css(&quot;width&quot;, &quot;100%&quot;);
+
+        // var content_div = root.find(&quot;#content-div&quot;);
+        // content_div.css({
+        //     &quot;left&quot;: &quot;4.5%&quot;,
+        //     &quot;right&quot;: &quot;4.5%&quot;
+        // })
+    }
+
+    /**
+     * Add a collection to the left bar
+     * @method addCollection
+     * @param {doq} collection     the collection to add
+     */
+    function addCollection(collection) {
+        var title    = TAG.Util.htmlEntityDecode(collection.Name),
+            toAdd    = $(document.createElement(&#x27;div&#x27;)),
+            titleBox = $(document.createElement(&#x27;div&#x27;)),
+            text     = collection.Metadata.Description ? TAG.Util.htmlEntityDecode(collection.Metadata.Description) : &quot;&quot;;
+
+        text = text.replace(/&lt;br&gt;/g, &#x27;&#x27;).replace(/&lt;br \/&gt;/g, &#x27;&#x27;);
+
+        toAdd.addClass(&#x27;collectionClickable&#x27;);
+        toAdd.attr({
+            &#x27;flagClicked&#x27;: &#x27;false&#x27;,
+            &#x27;id&#x27;: &#x27;collection-&#x27; + collection.Identifier
+        });
+    
+        toAdd.on(&#x27;mousedown&#x27;, function () {
+            $(this).css(&#x27;background-color&#x27;, &#x27;white&#x27;);
+            titleBox.css(&#x27;color&#x27;, &#x27;black&#x27;);
+        });
+       
+        toAdd.on(&#x27;mouseleave&#x27;, function () {
+            var elt = $(this);
+            if (elt.attr(&#x27;flagClicked&#x27;) === &#x27;false&#x27;) {
+                elt.css({
+                    &#x27;background-color&#x27;: &#x27;transparent&#x27;,
+                    &#x27;color&#x27;: &#x27;white&#x27;
+                });
+                titleBox.css(&#x27;color&#x27;, &#x27;white&#x27;);
+            }             
+        });
+    
+        toAdd.on(&#x27;click&#x27;, clickCollection(collection));
+        TAG.Telemetry.register(toAdd, &#x27;click&#x27;, &#x27;collection_title&#x27;, function(tobj) {
+            tobj.collection_name = title;
+            tobj.collection_guid = collection.Identifier;
+        });
+
+        titleBox.attr(&#x27;id&#x27; ,&#x27;collection-title-&#x27;+collection.Identifier);
+        titleBox.addClass(&#x27;collection-title&#x27;);
+        titleBox.html(title);
+
+        toAdd.append(titleBox);
+        collectionArea.append(toAdd);
+
+        collectionTitles.push(toAdd);
+    }
+
+    /**
+     * Click handler for collection title in left bar
+     * @method clickCollection
+     * @param {jQuery obj} elt       the element we&#x27;re clicking
+     * @param {Number} sPos          if undefined, set scroll position to 0, otherwise, use this
+     * @param {doq} artwrk           if undefined, set currentArtwork to null, otherwise, use this
+     */
+    function clickCollection(collection, sPos, artwrk) {
+        return function() {
+            var i;
+            for (i = 0; i &lt; collectionTitles.length; i++) {
+                collectionTitles[i].css({ &#x27;background-color&#x27;: &#x27;transparent&#x27;, &#x27;color&#x27;: &#x27;white&#x27; });
+                collectionTitles[i].data(&quot;selected&quot;, false);
+                collectionTitles[i].attr(&#x27;flagClicked&#x27;, &#x27;false&#x27;);
+                collectionTitles[i].children().css(&#x27;color&#x27;, &#x27;white&#x27;);
+            }
+            $(&#x27;#collection-&#x27;+collection.Identifier).attr(&#x27;flagClicked&#x27;, &#x27;true&#x27;);
+            $(&#x27;#collection-title-&#x27;+collection.Identifier).css(&#x27;color&#x27;, &#x27;black&#x27;);
+            currCollection = collection;
+            currentArtwork = artwrk || null;
+            loadCollection.call($(&#x27;#collection-&#x27;+currCollection.Identifier), currCollection);
+            scrollPos = sPos || 0;
+            showCollection(currCollection);
+        }
+    }
+
+    /**
+     * When a collection is selected in the left bar, load its image and description
+     * in the display area
+     * @method loadCollection
+     * @param {doq} collection     the collection to load
+     * @param {Boolean} isPrivate  a little bit of a hack to get private exhibits
+     *                             to show in settings view.  When set to true it just ignores anything
+     *                             that relies on &#x27;this&#x27; since &#x27;this&#x27; doesn&#x27;t exist for a private exhibit
+     *                             (it doesn&#x27;t have a label in the exhib list)
+     */
+    function loadCollection(collection, isPrivate) {
+        var display,
+            w,
+            str,
+            fontSize,
+            titlediv,
+            contentdiv,
+            exploreTabText,
+            exploreTab,
+            exploreIcon,
+            progressCircCSS,
+            circle;
+
+        searchTxt.text(&quot;&quot;);
+
+        catalogDiv &amp;&amp; catalogDiv.empty();
+
+        if (collection.Metadata.BackgroundImage) {
+            bgimage.css(&#x27;background-image&#x27;, &quot;url(&quot; + FIX_PATH(collection.Metadata.BackgroundImage) + &quot;)&quot;);
+        }
+
+        !isPrivate &amp;&amp; this.data(&quot;selected&quot;, true);
+
+        // Remove current contents of display area
+        displayareasub.empty();
+
+        // make title
+        titlediv = $(document.createElement(&#x27;div&#x27;));
+        titlediv.attr(&#x27;id&#x27;, &#x27;collection-name-div&#x27;);
+        titlediv.text(TAG.Util.htmlEntityDecode(collection.Name));
+
+        w = $(window).width() * 0.75 * 0.8;
+
+        // display contains description, thumbnails and view button
+        display = $(document.createElement(&#x27;div&#x27;));
+        display.attr(&#x27;id&#x27;, &#x27;collection-info&#x27;);
+        displayareasub.append(display);
+
+        // TODO fix this
+        fontSize = TAG.Util.getMaxFontSizeEM(TAG.Util.htmlEntityDecode(collection.Name), 1.5, w, 0.2 * display.height(),0.2);
+        titlediv.css({ &#x27;font-size&#x27;: fontSize });
+        display.append(titlediv);
+
+        // Contains text
+        contentdiv = $(document.createElement(&#x27;div&#x27;));
+        contentdiv.attr(&#x27;id&#x27;, &#x27;contentdiv&#x27;);
+        display.append(contentdiv);
+
+        imgDiv = $(document.createElement(&#x27;div&#x27;));
+        imgDiv.attr(&#x27;id&#x27;, &#x27;img-container&#x27;);
+
+        currentThumbnail = $(document.createElement(&#x27;img&#x27;));
+        currentThumbnail.attr(&#x27;id&#x27;, &#x27;currentThumbnail&#x27;);
+        currentThumbnail.attr(&#x27;src&#x27;, FIX_PATH(collection.Metadata.DescriptionImage1));
+        currentThumbnail.attr(&#x27;thumbnail&#x27;, FIX_PATH(collection.Metadata.DescriptionImage1));
+        currentThumbnail.on(&#x27;click&#x27;, switchPage);
+
+        TAG.Telemetry.register(currentThumbnail, &#x27;click&#x27;, &#x27;&#x27;, function() {
+            if (!currentArtwork || !artworkSelected) {
+                return true; // abort
+            }
+            tobj.work_name = currentArtwork.Name;
+            tobj.work_guid = currentArtwork.Identifier;
+            tobj.ttype     = &#x27;collection_to_&#x27; + getWorkType(currentArtwork); 
+        });
+        
+        exploreTabText = $(document.createElement(&#x27;div&#x27;));
+        exploreTabText.attr(&#x27;id&#x27;,&#x27;explore-text&#x27;);
+        exploreTabText.css(&quot;font-size&quot;, 20 * BASE_FONT_SIZE / 30 + &#x27;em&#x27;);
+        exploreTabText.text(&quot;Explore&quot;);
+
+        exploreIcon = $(document.createElement(&#x27;img&#x27;));
+        exploreIcon.attr(&#x27;id&#x27;, &#x27;exploreIcon&#x27;);
+        exploreIcon.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/ExploreIcon.svg&#x27;);
+
+        exploreTab = $(document.createElement(&#x27;div&#x27;));
+        exploreTab.attr(&#x27;id&#x27;, &#x27;explore-tab&#x27;);
+        exploreTab.on(&#x27;click&#x27;, switchPage);
+
+        exploreTab.append(exploreIcon);
+        exploreTab.append(exploreTabText);
+
+        imgDiv.append(currentThumbnail);
+        imgDiv.append(exploreTab);
+        contentdiv.append(imgDiv);
+        
+        moreInfo = $(document.createElement(&#x27;div&#x27;));
+        moreInfo.attr(&#x27;id&#x27;, &#x27;info-text&#x27;);
+
+        artistInfo = $(document.createElement(&#x27;div&#x27;));
+        artistInfo.attr(&#x27;id&#x27;, &#x27;artistInfo&#x27;);
+        artistInfo.css(&#x27;font-size&#x27;, 11 * BASE_FONT_SIZE / 30 + &#x27;em&#x27;);
+
+        yearInfo = $(document.createElement(&#x27;div&#x27;));
+        yearInfo.attr(&#x27;id&#x27;, &#x27;yearInfo&#x27;);
+        yearInfo.css(&#x27;font-size&#x27;, 11 * BASE_FONT_SIZE / 30 + &#x27;em&#x27;);
+
+        moreInfo.append(artistInfo);
+        moreInfo.append(yearInfo);
+        imgDiv.append(moreInfo);
+
+        descriptiontext = $(document.createElement(&#x27;div&#x27;));
+        descriptiontext.attr(&#x27;id&#x27;, &#x27;description-text&#x27;);
+
+        str = collection.Metadata.Description ? collection.Metadata.Description.replace(/\n\r?/g, &#x27;&lt;br /&gt;&#x27;) : &quot;&quot;;
+        
+        descriptiontext.css({
+            &#x27;height&#x27;: &#x27;91.5%&#x27;,
+            &#x27;width&#x27;: &#x27;55%&#x27;, 
+            &#x27;font-size&#x27;: 0.2 * TAG.Util.getMaxFontSizeEM(str, 1.5, 0.55 * $(contentdiv).width(), 0.915 * $(contentdiv).height(), 0.1),
+        });
+        
+        descriptiontext.html(Autolinker.link(str, {email: false, twitter: false}));
+
+        contentdiv.append(descriptiontext);
+
+        progressCircCSS = {
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;float&#x27;: &#x27;left&#x27;,
+            &#x27;left&#x27;: &#x27;12%&#x27;,
+            &#x27;z-index&#x27;: &#x27;50&#x27;,
+            &#x27;height&#x27;: &#x27;20%&#x27;,
+            &#x27;width&#x27;: &#x27;auto&#x27;,
+            &#x27;top&#x27;: &#x27;22%&#x27;,
+        };
+        circle = TAG.Util.showProgressCircle(descriptiontext, progressCircCSS, &#x27;0px&#x27;, &#x27;0px&#x27;, false);
+
+        currentThumbnail.on(&#x27;load&#x27;, function () {
+            TAG.Util.removeProgressCircle(circle);
+        });
+
+        if (!isPrivate) {
+            $(this).css({
+                &#x27;background-color&#x27;: &#x27;rgb(255,255,255)&#x27;,
+                &#x27;color&#x27;: &#x27;black&#x27;
+            });
+        }
+    }
+
+    /**
+     * Get contents (artworks, videos, tours) in the specified collection and make catalog
+     * @method getCollectionContents
+     * @param {doq} collecion         the collection whose contents we want
+     * @param {Function} callback     a function to call when the contents have been retrieved
+     */
+    function getCollectionContents(collection, callback) {
+        TAG.Worktop.Database.getArtworksIn(collection.Identifier, contentsHelper, null, contentsHelper);
+
+        /**
+         * Helper function to process collection contents
+         * @method contentsHelper
+         * @param {Array} contents     array of doq objects for each of the contents of this collection
+         */
+        function contentsHelper(contents) {
+            var makeNoArtworksOptionBox;
+
+            if (!contents || !contents[0]) { // pops up box warning user there is no artwork in selected collection
+                noArtworksOptionBox = TAG.Util.UI.makeNoArtworksOptionBox();
+                root.append(noArtworksOptionBox);
+                $(noArtworksOptionBox).fadeIn(500);
+            }
+
+            createArtTiles(contents);
+            initSearch(contents);
+            callback &amp;&amp; callback();
+        }
+    }
+
+    /**
+     * Store the search strings for each artwork/tour
+     * @method initSearch
+     * @param {Array} contents    the contents of this collection (array of doqs)
+     */
+    function initSearch(contents) {
+        var info,
+            i,
+            cts;
+
+        searchInput[0].value = &quot;&quot;;
+        infoSource = [];
+
+        for (i = 0; i &lt; contents.length; i++) {
+            cts = contents[i];
+            if (!cts) {
+                continue;
+            }
+            info = cts.Name + &quot; &quot; + cts.Metadata.Artist + &quot; &quot; + cts.Metadata.Year + &quot; &quot; + cts.Metadata.Type;
+            infoSource.push({
+                &quot;id&quot;: i,
+                &quot;keys&quot;: info.toLowerCase()
+            });
+        }
+    }
+
+    /**
+     * Search collection using string in search input box
+     * @method doSearch
+     */
+    function doSearch() {
+        var content = searchInput.val().toLowerCase(),
+            matchedArts = [],
+            unmatchedArts = [],
+            i;
+
+        if (!content) {
+            searchTxt.text(&quot;&quot;);
+            drawCatalog(currentArtworks, currentTag, 0, false);
+            return;
+        }
+
+        for (i = 0; i &lt; infoSource.length; i++) {
+            if (infoSource[i].keys.indexOf(content) &gt; -1) {
+                matchedArts.push(currentArtworks[i]);
+            } else {
+                unmatchedArts.push(currentArtworks[i]);
+            }
+        }
+
+        searchTxt.text(matchedArts.length &gt; 0 ? &quot;Results Found&quot; : &quot;No Matching Results&quot;);
+
+        drawCatalog(matchedArts, currentTag, 0, true);
+        drawCatalog(unmatchedArts, currentTag, matchedArts.length, false);
+    }
+
+    /**
+     * Create tiles for each artwork/tour in a collection
+     * @method createArtTiles
+     * @param {Array} artworks     an array of doq objects
+     */
+    function createArtTiles(artworks) {
+        currentArtworks = artworks;
+        currentTag = DEFAULT_TAG;
+        colorSortTags(currentTag);
+        drawCatalog(currentArtworks, currentTag, 0);
+    }
+
+    /**
+     * Draw the collection catalog
+     * @method drawCatalog
+     * @param {Array} artworks    the contents of the collection
+     * @param {String} tag        current sorting tag
+     * @param {Number} start      starting at start-th artwork total (note NOT start-th artwork in artworks)
+     * @param {Boolean} onSearch  whether the list of artworks is a list of works matching a search term
+     */
+    function drawCatalog(artworks, tag, start, onSearch) {
+        if (!currCollection) {
+            return;
+        }
+
+        if (start === 0) {
+            loadQueue.clear();
+            catalogDiv.empty();
+            drawHelper();
+            
+        } else {
+            drawHelper();
+        }
+
+        // helper function to perform the actual drawing (to make sure we deal with async correctly)
+        function drawHelper() {
+            var sortedArtworks,
+                minOfSort,
+                currentWork,
+                works,
+                i, h, w, j;
+
+            if (!artworks || artworks.length === 0){
+                return;
+            }
+
+            sortedArtworks = sortCatalog(artworks, tag);
+            minOfSort = sortedArtworks.min();
+            currentWork = minOfSort ? minOfSort.artwork : null;
+            i = start;
+            h = $(catalogDiv).height() * 0.48;
+            w = h * 1.4;
+
+            works = sortedArtworks.getContents();
+            for (j = 0; j &lt; works.length; j++) {
+                loadQueue.add(drawArtworkTile(works[j].artwork, tag, onSearch, i + j, w, h));
+                loadQueue.add(function () {
+                    if(catalogDiv.width() &lt;= scrollPos) {
+                        catalogDiv.animate({
+                            scrollLeft: scrollPos
+                        }, 0);
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     * Creates an artwork tile in a collection&#x27;s catalog
+     * @method drawArtworkTile
+     * @param {doq} currentWork     the artwork/tour for which we&#x27;re creating a tile
+     * @param {String} tag          current sort tag
+     * @param {Boolean} onSearch    whether this work is a match after searching
+     * @param {Number} i            index into list of all works in this collection
+     * @param {Number} w            width of this tile
+     * @param {Number} h            height of this tile
+     */
+    function drawArtworkTile(currentWork, tag, onSearch, i, w, h) {
+        return function () {
+            var main      = $(document.createElement(&#x27;div&#x27;)),
+                artTitle  = $(document.createElement(&#x27;div&#x27;)),
+                artText   = $(document.createElement(&#x27;div&#x27;)),
+                tileImage = $(document.createElement(&#x27;img&#x27;)),
+                tourLabel,
+                videoLabel;
+
+            main.addClass(&quot;tile&quot;);
+            tileImage.addClass(&#x27;tileImage&#x27;);
+            artTitle.addClass(&#x27;artTitle&#x27;);
+            artText.addClass(&#x27;artText&#x27;);
+
+            main.css({
+                &#x27;margin-left&#x27;: Math.floor(i / 2) * 16.5 + 1 + &#x27;%&#x27;, // TODO do this using w rather than 16.5%
+                &#x27;margin-top&#x27;: (i % 2) * 12.25 + &#x27;%&#x27;
+            });
+
+            main.on(&#x27;click&#x27;, function () {
+                if (currentThumbnail.attr(&#x27;guid&#x27;) === currentWork.Identifier) { // click twice to enter viewer
+                    switchPage();
+                } else {
+                    showArtwork(currentWork)();
+                    justShowedArtwork = true;
+                }
+            });
+
+            TAG.Telemetry.register(main, &#x27;click&#x27;, &#x27;&#x27;, function(tobj) {
+                var type;
+                if (currentThumbnail.attr(&#x27;guid&#x27;) === currentWork.Identifier &amp;&amp; !justShowedArtwork) {
+                    tobj.ttype = &#x27;collections_to_&#x27; + getWorkType(currentWork);
+                } else {
+                    tobj.ttype = &#x27;artwork_tile&#x27;;
+                }
+                tobj.artwork_name = currentWork.Name;
+                tobj.artwork_guid = currentWork.Identifier;
+
+                justShowedArtwork = false;
+            });
+
+            if(currentWork.Metadata.Thumbnail) {
+                tileImage.attr(&quot;src&quot;, FIX_PATH(currentWork.Metadata.Thumbnail));
+            } else {
+                tileImage.attr(&quot;src&quot;, tagPath+&#x27;images/no_thumbnail.svg&#x27;);
+            }
+
+            if (tag === &#x27;Title&#x27;) {
+                artText.text(TAG.Util.htmlEntityDecode(currentWork.Name));
+            } else if (tag === &#x27;Artist&#x27;) {
+                artText.text(currentWork.Type === &#x27;Empty&#x27; ? &#x27;(Interactive Tour)&#x27; : currentWork.Metadata.Artist);
+            } else if (tag === &#x27;Year&#x27;) {
+                artText.text(currentWork.Type === &#x27;Empty&#x27; ? &#x27;(Interactive Tour)&#x27; : currentWork.Metadata.Year);
+            } else if (tag === &#x27;Type&#x27;) {
+                artText.text(TAG.Util.htmlEntityDecode(currentWork.Name));
+            }
+            artTitle.append(artText);
+
+            if (!onSearch &amp;&amp; searchInput.val() !== &#x27;&#x27;) {
+                tileImage.css({ &#x27;opacity&#x27;: &#x27;0.3&#x27; });
+                main.css(&#x27;border&#x27;, &#x27;1px solid black&#x27;);
+            } else if (onSearch) {
+                tileImage.css({ &#x27;opacity&#x27;: &#x27;1.0&#x27;});
+                main.css(&#x27;border&#x27;, &#x27;1px solid rgba(255, 255, 255, 0.5)&#x27;);
+            }
+            main.append(tileImage);
+            main.append(artTitle);
+
+            if (currentWork.Type === &quot;Empty&quot;) {
+                tourLabel = $(document.createElement(&#x27;img&#x27;))
+                tourLabel.addClass(&#x27;tourLabel&#x27;);
+                tourLabel.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/catalog_tour_icon.svg&#x27;);
+                main.append(tourLabel);
+            } else if (currentWork.Metadata.Medium === &quot;Video&quot;) {
+                videoLabel = $(document.createElement(&#x27;img&#x27;));
+                videoLabel.addClass(&#x27;videoLabel&#x27;);
+                videoLabel.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/catalog_video_icon.svg&#x27;);
+                main.append(videoLabel);
+            }
+            catalogDiv.append(main);
+        };
+    }
+
+    /**
+     * Shows an artwork in the upper section; sets the current thumbnail to be the artwork&#x27;s
+     * and shows name, description, etc
+     * @method showArtwork
+     * @param {doq} artwork     the artwork doq to be shown
+     * 
+     */
+    function showArtwork(artwork) {
+        return function () {
+            var titleSpan,
+                descSpan;
+
+            if(!artwork) {
+                return;
+            }
+
+            currentArtwork = artwork;
+            artworkSelected = true;
+            $(&#x27;#explore-tab&#x27;).css(&#x27;display&#x27;, &#x27;inline-block&#x27;);
+
+            if (artwork.Type !== &quot;Empty&quot;) {
+                artistInfo.text(&quot;Artist: &quot; + (artwork.Metadata.Artist || &quot;Unknown&quot;));
+                yearInfo.text(artwork.Metadata.Year || &quot; &quot;);
+            } else {
+                artistInfo.text(&quot;(Interactive Tour)&quot; );
+                yearInfo.text(&quot; &quot; );
+            }
+                
+            currentThumbnail.css(&#x27;border&#x27;, &#x27;1px solid rgba(0,0,0,0.5)&#x27;)
+                .attr({
+                    src:  artwork.Metadata.Thumbnail ? FIX_PATH(artwork.Metadata.Thumbnail) : (tagPath+&#x27;images/no_thumbnail.svg&#x27;),
+                    guid: artwork.Identifier
+                });
+
+            setTimeout(function() {
+                currentThumbnail.attr(&#x27;guid&#x27;, &#x27;&#x27;);
+            }, 400); // hack to simulate double-click event
+            
+            titleSpan = $(document.createElement(&#x27;div&#x27;))
+                        .text(TAG.Util.htmlEntityDecode(artwork.Name))
+                        .attr(&#x27;id&#x27;, &#x27;titleSpan&#x27;);
+            
+            descSpan = $(document.createElement(&#x27;div&#x27;))
+                        .attr(&#x27;id&#x27;, &#x27;descSpan&#x27;);
+            
+            descSpan.html(Autolinker.link(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, &#x27;&lt;br /&gt;&#x27;) : &#x27;&#x27;, {email: false, twitter: false}));
+                            
+            descriptiontext.empty();
+            descriptiontext.append(titleSpan).append(descSpan);            
+        };
+    }
+
+    /**
+     * Generates a comparator function for catalog sorting
+     * @method sortComparator
+     * @param {String} primary     the primary sorting property
+     * @param {String} secondary   the secondary sorting property
+     *                                if left undefined, a.artwork.Identifier is used
+     *                                as the secondary property
+     */
+    function sortComparator(primary, secondary) {
+        return function(a, b) {
+            var aSecondary,
+                bSecondary;
+            if (a[primary] &lt; b[primary]) {
+                return -1;
+            } else if (a[primary] &gt; b[primary]) {
+                return 1;
+            } else {
+                aSecondary = secondary ? a[secondary] : a.artwork.Identifier;
+                bSecondary = secondary ? b[secondary] : b.artwork.Identifier;
+                if (aSecondary &lt; bSecondary) {
+                    return -1;
+                } else if (aSecondary &gt; bSecondary) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        }
+    }
+
+    /**
+     * Generates a valuation function for catalog sorting
+     * @method sortValuation
+     * @param {String} property     valuation property name
+     */
+    function sortValuation(property) {
+        return function(value, compareToNode) {
+            if (!compareToNode) {
+                return null;
+            } else if (value &lt; compareToNode[property]) {
+                return -1;
+            } else if (value &gt; compareToNode[property]) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    }
+
+    /**
+     * Sort the catalog by the given criterium
+     * @method sortCatalog
+     * @param {Array} artworks    an array of doq objects to be sorted
+     * @param {String} tag        the sort type
+     * @return {AVLTree}          an avl tree for easy sorting
+     */
+    function sortCatalog(artworks, tag) {
+        var comparator,
+            valuation,
+            avlTree,
+            artNode,
+            i;
+
+        if (tag === &#x27;Title&#x27;) {
+            comparator = sortComparator(&#x27;nameKey&#x27;);
+            valuation  = sortValuation(&#x27;nameKey&#x27;);
+
+            avlTree = new AVLTree(comparator, valuation);
+            avlTree.clear();
+            for (i = 0; i &lt; artworks.length; i++) {
+                artNode = {
+                    artwork: artworks[i],
+                    nameKey: artworks[i].Name,
+                };
+                avlTree.add(artNode);
+            }
+            return avlTree;
+        } else if (tag === &#x27;Artist&#x27;) {
+            comparator = sortComparator(&#x27;artistKey&#x27;);
+            valuation  = sortValuation(&#x27;artistKey&#x27;);
+
+            avlTree = new AVLTree(comparator, valuation);
+            for (i = 0; i &lt; artworks.length; i++) {
+                artNode = {
+                    artwork: artworks[i],
+                    artistKey: artworks[i].Type === &#x27;Empty&#x27; ? &#x27;~~~~&#x27; : artworks[i].Metadata.Artist // tours show up at end
+                };
+                avlTree.add(artNode);
+            }
+            return avlTree;
+        } else if (tag === &#x27;Year&#x27;) {
+            comparator = sortComparator(&#x27;yearKey&#x27;);
+            valuation  = sortValuation(&#x27;yearKey&#x27;);
+
+            avlTree = new AVLTree(comparator, valuation);
+            for (i = 0; i &lt; artworks.length; i++) {
+                artNode = {
+                    artwork: artworks[i],
+                    yearKey: artworks[i].Type === &#x27;Empty&#x27; ? &#x27;~~~~&#x27; : artworks[i].Metadata.Year // tours show up at end
+                };
+                avlTree.add(artNode);
+            }
+            return avlTree;
+        } else if (tag === &#x27;Type&#x27;) {
+            comparator = sortComparator(&#x27;typeKey&#x27;, &#x27;nameKey&#x27;);
+            valuation  = sortValuation(&#x27;nameKey&#x27;);
+
+            avlTree = new AVLTree(comparator, valuation);
+            for (i = 0; i &lt; artworks.length; i++) {
+                artNode = {
+                    artwork: artworks[i],
+                    nameKey: artworks[i].Name,
+                    typeKey: artworks[i].Type === &#x27;Empty&#x27; ? 1 : (artworks[i].Metadata.Type === &#x27;Artwork&#x27; ? 2 : 3)
+                };
+                avlTree.add(artNode);
+            }
+            return avlTree;
+        }
+        
+        return null; // error case: falsy tag
+    }
+
+    /** 
+     * Set the colors of the sort tags
+     * @method colorSortTags
+     * @param {String} tag    the name of the sort tag
+     */
+    function colorSortTags(tag) {
+        $(&#x27;.rowButton&#x27;).css(&#x27;color&#x27;, &#x27;gray&#x27;);
+        $(&#x27;[tagName=&quot;&#x27;+tag+&#x27;&quot;]&#x27;).css(&#x27;color&#x27;, &#x27;white&#x27;);
+    }
+
+    /**
+     * Changes the selected tag and re-sorts
+     * @method changeDisplayTag
+     * @param {Array} artworks     the array of artwork doqs to sort
+     * @param {String} tag         the name of the sort tag
+     */
+    function changeDisplayTag(artworks, tag) {
+        var guidsSeen   = [],
+            toursArray  = [],
+            artsArray   = [],
+            videosArray = [],
+            bigArray    = [],
+            i;
+
+        currentTag = tag;
+        colorSortTags(currentTag);
+        if (tag !== &#x27;Type&#x27;) {
+            drawCatalog(artworks, currentTag, 0, false);
+        } else {
+            for (i = 0; i &lt; artworks.length; i++) {
+                if (guidsSeen.indexOf(artworks[i].Identifier) &lt; 0) {
+                    guidsSeen.push(artworks[i].Identifier);
+                } else {
+                    continue;
+                }
+                if (artworks[i].Type === &quot;Empty&quot;) {
+                    toursArray.push(artworks[i]);
+                } else if (artworks[i].Metadata.Type === &quot;Artwork&quot;) {
+                    artsArray.push(artworks[i]);
+                } else {
+                    videosArray.push(artworks[i]);
+                }
+            }
+
+            // draw tours, artworks, then videos
+            bigArray.concat(toursArray).concat(artsArray).concat(videosArray);
+            drawCatalog(bigArray, &quot;Title&quot;, 0, false);
+        }
+        doSearch(); // search with new tag
+    }
+
+    /**
+     * Switch to the tour player
+     * @method switchPageTour
+     * @param {doq} tour    the relevant tour doq
+     */
+    function switchPageTour(tour) {
+        var rinData,
+            rinPlayer,
+            prevInfo,
+            messageBox,
+            collectionOptions,
+            parentid;
+       
+        rinData = JSON.parse(unescape(tour.Metadata.Content));
+
+        if (!rinData || !rinData.data) {
+            messageBox = $(TAG.Util.UI.popUpMessage(null, &quot;Cannot play empty tour.&quot;, null));
+            messageBox.css(&#x27;z-index&#x27;, TAG.TourAuthoring.Constants.aboveRinZIndex + 7);
+            root.append(messageBox);
+            messageBox.fadeIn(500);
+            return;
+        }
+        
+        scrollPos = catalogDiv.scrollLeft();
+
+        collectionOptions = {
+            backScroll: scrollPos,
+            backCollection: currCollection,
+            backArtwork: currentArtwork
+        }
+
+        rinPlayer = new TAG.Layout.TourPlayer(rinData, currCollection, collectionOptions, null, tour);
+
+        if (TAG.Util.Splitscreen.on()) { // if splitscreen is on, exit it
+            parentid = root.parent().attr(&#x27;id&#x27;);
+            TAG.Util.Splitscreen.exit(parentid[parentid.length - 1]);
+        }
+
+        TAG.Util.UI.slidePageLeftSplit(root, rinPlayer.getRoot(), rinPlayer.startPlayback);
+    }
+
+    /**
+     * Switch to the artwork viewer or tour player
+     * @method switchPage
+     */
+    function switchPage() {
+        var curOpts,
+            artworkViewer,
+            splitopts = &#x27;L&#x27;,
+            opts = getState(),
+            confirmationBox,
+            prevInfo,
+            videoPlayer;
+
+        if (!currentArtwork || !artworkSelected) {
+            return;
+        }
+
+        idleTimer.kill();
+        idleTimer = null;
+
+        curOpts = {
+            catalogState: opts,
+            doq: currentArtwork,
+            split: splitopts
+        };
+
+        if (currentArtwork.Type === &quot;Empty&quot;) { // tour
+            if (TAG.Util.Splitscreen.on()) {
+                confirmationBox = TAG.Util.UI.PopUpConfirmation(function(){
+                    switchPageTour(currentArtwork);
+                }, &quot;By opening this tour, you will exit split screen mode. Would you like to continue?&quot;, &quot;Continue&quot;, false, function () {
+                    $(confirmationBox).remove();
+                }, root);
+                $(confirmationBox).css(&#x27;z-index&#x27;, 10001);
+                root.append($(confirmationBox));
+                $(confirmationBox).show();
+            } else {
+                switchPageTour(currentArtwork);
+            }
+        } else if (currentArtwork.Metadata.Type === &quot;VideoArtwork&quot;) { // video
+            scrollPos = catalogDiv.scrollLeft();
+            prevInfo = {
+                artworkPrev: null,
+                prevScroll: scrollPos
+            };
+            videoPlayer = new TAG.Layout.VideoPlayer(currentArtwork, currCollection, prevInfo);
+            TAG.Util.UI.slidePageLeftSplit(root, videoPlayer.getRoot());
+        }
+        else { // artwork
+            scrollPos = catalogDiv.scrollLeft();
+            artworkViewer = new TAG.Layout.Artmode({
+                doq: currentArtwork,
+                prevScroll: scrollPos,
+                prevCollection: currCollection,
+                prevPage: &#x27;catalog&#x27;
+            });
+            TAG.Util.UI.slidePageLeftSplit(root, artworkViewer.getRoot());
+        }
+        root.css({ &#x27;overflow-x&#x27;: &#x27;hidden&#x27; });
+    }
+
+    /**
+     * Show collection contents and display current artwork if there is one
+     * @method showCollection
+     * @param {doq} c         the relevant collection doq
+     */
+    function showCollection (c) {
+        getCollectionContents(c, showArtwork(currentArtwork));
+    }
+
+    /**
+     * Gets the current state of the collections page
+     * @method getState
+     * @return {Object}    object containing state
+     */
+    function getState() {
+        return {
+            exhibition: currCollection,
+            currentTag: DEFAULT_TAG,
+            currentImage: currentArtwork
+        };
+    }
+
+    /**
+     * Returns the root of the collections page
+     * @method getRoot
+     * @return {jQuery Object}    root of the collections page
+     */
+    function getRoot() {
+        return root;
+    }
+
+    return {
+        getRoot: getRoot,
+        loadCollection: loadCollection
+    };
+};
+
+TAG.Layout.NewCatalog.default_options = {};
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

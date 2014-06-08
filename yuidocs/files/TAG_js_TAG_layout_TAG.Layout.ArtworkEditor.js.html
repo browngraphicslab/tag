@@ -1,0 +1,4396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>TAG/js/TAG/layout/TAG.Layout.ArtworkEditor.js - Touch Art Gallery web application</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../../TAG/images/WideLogo.scale-100.png" title="Touch Art Gallery web application"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 1.0.0</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/Autolinker.html">Autolinker</a></li>
+            
+                <li><a href="../classes/TAG.AnnotatedImage.html">TAG.AnnotatedImage</a></li>
+            
+                <li><a href="../classes/TAG.IdleTimer.html">TAG.IdleTimer</a></li>
+            
+                <li><a href="../classes/TAG.Layout.Artmode.html">TAG.Layout.Artmode</a></li>
+            
+                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
+            
+                <li><a href="../classes/TAG.Layout.NewCatalog.html">TAG.Layout.NewCatalog</a></li>
+            
+                <li><a href="../classes/TAG.Layout.StartPage.html">TAG.Layout.StartPage</a></li>
+            
+                <li><a href="../classes/TAG.Layout.VideoPlayer.html">TAG.Layout.VideoPlayer</a></li>
+            
+                <li><a href="../classes/TAG.Util.Artwork.html">TAG.Util.Artwork</a></li>
+            
+                <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
+            
+                <li><a href="../classes/Telemetry.html">Telemetry</a></li>
+            
+                <li><a href="../classes/TwoStageTimer.html">TwoStageTimer</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: TAG/js/TAG/layout/TAG.Layout.ArtworkEditor.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+﻿TAG.Util.makeNamespace(&quot;TAG.Layout.ArtworkEditor&quot;);
+
+/*
+*   The layout definition for Artwork Editor. 
+*   click &#x27;Edit Artwork Info&#x27; in the Authoring Mode to enter in
+*   Contains info., location, thumnail, and media editors.
+*/
+
+TAG.Layout.ArtworkEditor = function (artwork) {
+    &quot;use strict&quot;;
+
+    this.getRoot = function () {
+        return root;
+    };
+
+    var root = $(document.createElement(&#x27;div&#x27;));
+    var topbar = $(document.createElement(&#x27;div&#x27;));
+    var mainPanel = $(document.createElement(&#x27;div&#x27;));
+    var searchBox;
+    var titleAreaSpecs;
+    var titleArea;
+    var resultsBox;
+    var unsavedDescription;
+    var locationsDiv;
+    var confirmBubble;
+    var mapDiv;
+    var map;
+    var mapAttachClick;
+    var addLocationDiv;
+    var addLocButton;
+    var datePicker;
+    var customInfobox;
+    var yearTextArea, locationTextArea, descriptionTextArea;
+    var mapMade;
+    var helpBox;
+    var helpText = &quot;To select a location, type into the search field or right-click/long-press on the map and drag the pushpin to the desired position, then click on the desired address and click &#x27;Confirm&#x27;.&quot;;
+    var locationInfo; //popup on map that shows the year, location and description of the location
+    var credentials = &quot;AkNHkEEn3eGC3msbfyjikl4yNwuy5Qt9oHKEnqh4BSqo5zGiMGOURNJALWUfhbmj&quot;;
+    var locationList = [];
+    var currentLocation; //The location that is under edit mode (whose information is currently shown in the location info box)
+    var selectedLocResource;
+    var selectedAddress;
+    var selectedDate;
+    var selectedInfo;
+    var locPanelOpen = false;
+    var artworkSettings = {};
+    var artworkXML;
+    var tnBorderWrapper;
+    var topbarHeight;
+    var zoomimage;
+    var mainDoq;
+    var savedLabel;
+    var labelNameToLabel = {};
+    var textFieldContainer;
+    var additionalCustomInfos;
+    var uploadQueue = TAG.Util.createQueue();
+    var numFiles = 0;
+    var mediaMetadata = [];
+    var isUploading = false;
+    var isCreatingMedia = false;
+    var $progressBar, $innerProgressBar;
+    var $topProgressBar, $topInnerProgressBar, $topProgressDiv, $topProgressText;
+    var assetUploader;
+    var hasBeenChanged;
+    var $hotspotAnchor;
+    var editingMediamsg;
+    var descriptionEditor;
+    var editingDescription = false;
+    var addInfoButton = $(document.createElement(&#x27;button&#x27;));
+    var selectedPoint;
+    var textMetadata = {};
+    var loadQueue = TAG.Util.createQueue();
+    var activeAssocMedia;
+    var aefontsize;
+
+    // for toggle hotspot in rightbar
+    var switchEdit = false;
+    var createNew = false;
+    var inEditHotspot = false;
+
+    var yearBox, monthBox, dateBox;
+
+    init();
+
+    function init() {
+        root.css(&quot;background-color&quot;, &quot;rgb(219,217,204)&quot;);
+        root.css(&quot;color&quot;, &quot;black&quot;);
+        root.css(&quot;width&quot;, &quot;100%&quot;);
+        root.css(&quot;height&quot;, &quot;100%&quot;);
+        hasBeenChanged = false;
+        additionalCustomInfos = 0;
+        topbarHeight = 8;
+        createTopBar(topbarHeight);
+
+        mainPanel.css({ width: &#x27;100%&#x27;, height: (100 - topbarHeight) + &#x27;%&#x27; });
+        mainPanel.addClass(&quot;mainPanel&quot;);
+
+        //creates deep zoom image
+        if (artwork) {
+            zoomimage = new TAG.AnnotatedImage(root, artwork, false, function () {
+                if (!(zoomimage.openArtwork(artwork))) {
+                    var popup = TAG.Util.UI.popUpMessage(function () {
+                        TAG.Authoring.NewSettingsView(&quot;Artworks&quot;, function (settingsView) {
+                            TAG.Util.UI.slidePageRight(settingsView.getRoot());
+                        }, null, artwork.Identifier);
+                    }, &quot;There was an error loading the image.&quot;, &quot;Go Back&quot;, true);
+                    root.append(popup);
+                    $(popup).show();
+                }
+
+                //var hotspots = zoomimage.getHotspots();
+
+                makeSidebar();
+                makeEditMediaUI(); // Hidden by default
+                makeUploadTemplate(); // Always hidden
+                makeHotspotAnchor();
+
+                createCustomFields();
+                root.append(topbar);
+                root.append(mainPanel);
+            }, true);
+        } else {
+            //var hotspots = zoomimage.getHotspots();
+
+            makeSidebar();
+            makeEditMediaUI(); // Hidden by default
+            makeUploadTemplate(); // Always hidden
+            makeHotspotAnchor();
+
+            createCustomFields();
+            root.append(topbar);
+            root.append(mainPanel);
+        }
+    }
+
+    /** 
+     * Create a new right panel for editing Associated Media and append it to the dom (just offscreen)
+     */
+    var rightbarLoadingDelete = $(document.createElement(&#x27;div&#x27;));
+
+    function makeEditMediaUI() {
+        var $rightbar = $(document.createElement(&#x27;div&#x27;))
+            .addClass(&quot;rightbar&quot;)
+            .css({
+                &#x27;width&#x27;: &#x27;20%&#x27;,
+                &#x27;height&#x27;: &#x27;100%&#x27;,
+                &#x27;position&#x27;: &#x27;absolute&#x27;,
+                &#x27;background-color&#x27;: &#x27;rgba(0,0,0,0.85)&#x27;,
+                &#x27;top&#x27;: $(&#x27;.topbar&#x27;).css(&#x27;height&#x27;),
+                &#x27;right&#x27;: &#x27;-20%&#x27;,
+                &#x27;float&#x27;: &#x27;right&#x27;,
+                &#x27;z-index&#x27;: 100,
+                &#x27;color&#x27;: &#x27;white&#x27;
+            });
+
+        var $rightbarHeader = $(document.createElement(&#x27;div&#x27;))
+            .css({
+                &#x27;margin&#x27;: &#x27;5% 8%&#x27;,
+                &#x27;color&#x27;: &#x27;white&#x27;,
+                &#x27;font-size&#x27;: &#x27;150%&#x27;,
+                &#x27;float&#x27;: &#x27;left&#x27;,
+                &#x27;position&#x27;: &#x27;relative&#x27;,
+            })
+            .addClass(&#x27;header&#x27;)
+            .appendTo($rightbar);
+
+        var $assocMediaContainer = $(document.createElement(&#x27;div&#x27;))
+            .css({
+                &#x27;position&#x27;: &#x27;relative&#x27;,
+                &#x27;margin&#x27;: &#x27;15% 8%&#x27;,
+                &#x27;margin-top&#x27;: &#x27;20%&#x27;,
+                &#x27;border&#x27;: &#x27;2px solid white&#x27;,
+                &#x27;width&#x27;: &#x27;86%&#x27;,
+                &#x27;height&#x27;: &#x27;30%&#x27;
+            });
+        $assocMediaContainer.addClass(&#x27;assocMediaContainer&#x27;);
+
+        var $assocMediaContent = $(document.createElement(&#x27;div&#x27;))
+            .addClass(&#x27;assocmedia&#x27;)
+            .addClass(&#x27;contentwrapper&#x27;)
+            .css({
+                &#x27;background-color&#x27;: &#x27;rgba(0,0,0,.9)&#x27;,
+                &#x27;height&#x27;: &#x27;100%&#x27;,
+                &#x27;width&#x27;: &#x27;100%&#x27;,
+                &#x27;left&#x27;: &#x27;0&#x27;,
+                &#x27;position&#x27;: &#x27;absolute&#x27;
+            });
+
+        $rightbar.append($assocMediaContainer.append($assocMediaContent));
+
+        var $toggleHotspotContainer = $(document.createElement(&#x27;div&#x27;))
+            .addClass(&#x27;toggleHotspotContainer&#x27;)
+            .css({
+                &#x27;width&#x27;: &#x27;60%&#x27;,
+                &#x27;left&#x27;: &#x27;20%&#x27;,
+                &#x27;position&#x27;: &#x27;relative&#x27;,
+            })
+            .appendTo($rightbar)
+
+        // button used to add/remove hotspot
+        var $toggleHotspot = $(document.createElement(&#x27;button&#x27;))
+            .addClass(&#x27;toggleHotspot&#x27;)
+            .css({
+                &#x27;width&#x27;: &#x27;100%&#x27;,
+                &#x27;height&#x27;: &#x27;auto&#x27;,
+                &#x27;border&#x27;: &#x27;2px solid white&#x27;,
+                &#x27;position&#x27;: &#x27;relative&#x27;
+            })
+            .attr(&#x27;type&#x27;, &#x27;button&#x27;)
+            .appendTo($toggleHotspotContainer)
+            .click(function () {
+                var assetType = $toggleHotspot.text() === &#x27;Associate to Hotspot&#x27; ? &quot;Hotspot&quot; : &quot;Asset&quot;; // shifty
+                switchEdit = true;
+                inEditHotspot = true;
+                if (!$($assocMediaContainer).is(&quot;:visible&quot;)) { //for text media, don&#x27;t show the preview window
+                    showEditMedia(activeAssocMedia, assetType, &#x27;&#x27;, true);
+                } else {
+                    showEditMedia(activeAssocMedia, assetType);
+                }
+            });
+
+        $progressBar = $(document.createElement(&#x27;div&#x27;));
+        $innerProgressBar = $(document.createElement(&#x27;div&#x27;));
+
+        $progressBar.css({
+            &#x27;border-style&#x27;: &#x27;solid&#x27;,
+            &#x27;border-color&#x27;: &#x27;white&#x27;,
+            &#x27;width&#x27;: &#x27;86%&#x27;,
+            &#x27;height&#x27;: &#x27;10px&#x27;,
+            &#x27;visibility&#x27;: &#x27;hidden&#x27;,
+            &#x27;margin&#x27;: &#x27;3% 8%&#x27;
+        });
+
+        $innerProgressBar.css({
+            &#x27;background-color&#x27;: &#x27;white&#x27;, &#x27;width&#x27;: &#x27;0%&#x27;, &#x27;height&#x27;: &#x27;100%&#x27;
+        });
+
+        //$rightbar.append($progressBar.append($innerProgressBar));
+        
+
+        var $titleContainer = $(document.createElement(&#x27;div&#x27;))
+            .addClass(&#x27;textareaContainer&#x27;)
+            .css({
+                &#x27;width&#x27;: &#x27;100%&#x27;,
+                &#x27;padding&#x27;: &#x27;5% 8%&#x27;,
+                &#x27;margin-top&#x27;: &#x27;5%&#x27;,
+            })
+            .appendTo($rightbar);
+
+        var $titleText = $(document.createElement(&#x27;input&#x27;))
+            .addClass(&#x27;title&#x27;)
+            .attr(&#x27;placeholder&#x27;, &#x27;Title&#x27;)
+            .attr(&#x27;title&#x27;, &#x27;Title&#x27;)
+            .css({
+                &#x27;width&#x27;: &#x27;64%&#x27;,
+                &#x27;font-size&#x27;: &#x27;11pt&#x27;
+            })
+            .appendTo($titleContainer);
+        
+        var $descContainer = $(document.createElement(&#x27;div&#x27;))
+            .addClass(&#x27;textareaContainer&#x27;)
+            .css({
+                &#x27;width&#x27;: &#x27;87%&#x27;,
+                &#x27;height&#x27;: &#x27;12%&#x27;,
+                &#x27;position&#x27;: &#x27;relative&#x27;,
+                &#x27;padding&#x27;: &#x27;5% 8%&#x27;
+            })
+            .appendTo($rightbar);
+        var $descArea = $(document.createElement(&#x27;textarea&#x27;))
+            .addClass(&#x27;description&#x27;)
+            .attr(&#x27;placeholder&#x27;, &#x27;Description&#x27;)
+            .css({
+                &#x27;background-color&#x27;: &#x27;white&#x27;,
+                &#x27;width&#x27;: &#x27;92.5%&#x27;, // Ugh how do I CSS
+                &#x27;min-width&#x27;: &#x27;92.5%&#x27;,
+                &#x27;height&#x27;: &#x27;90%&#x27;
+            })
+            .appendTo($descContainer);
+
+        var $assocMediaButtonContainer = $(document.createElement(&#x27;div&#x27;))
+            .addClass(&#x27;buttoncontainer&#x27;)
+            .css({
+                &#x27;width&#x27;: &#x27;87%&#x27;,
+                &#x27;padding&#x27;: &#x27;5% 8%&#x27;,
+                &#x27;position&#x27;: &#x27;relative&#x27;
+            })
+            .appendTo($rightbar);
+
+        var $deleteAssocMediaButton = $(document.createElement(&#x27;button&#x27;))
+            .addClass(&#x27;asscmediabutton deletebutton&#x27;)
+            .text(&#x27;Delete&#x27;)
+            .css({
+                &#x27;float&#x27;: &#x27;left&#x27;,
+                &#x27;border&#x27;: &#x27;2px solid white&#x27;,
+                &#x27;width&#x27;: &#x27;45%&#x27;
+            })
+            .attr(&#x27;type&#x27;, &#x27;button&#x27;)
+            .appendTo($assocMediaButtonContainer)
+            .click(function () {
+                if (isUploading || isCreatingMedia) {
+                    editingMediamsg = $(TAG.Util.UI.popUpMessage(null, &quot;An upload is in progress. Please wait a few moments.&quot;, &quot;OK&quot;, false));
+                    root.append(editingMediamsg);
+                    editingMediamsg.show();
+                    return;
+                }
+                $(&#x27;.assetHolder&#x27;).css(&#x27;background-color&#x27;, &#x27;&#x27;);
+                if (getActiveMediaMetadata(&#x27;contentType&#x27;) === &#x27;Video&#x27;) {
+                    $(&#x27;.rightbar&#x27;).find(&#x27;video&#x27;)[0].pause();
+                    //$(&#x27;.rightbar&#x27;).find(&#x27;video&#x27;).remove();
+                }
+                if (getActiveMediaMetadata(&#x27;contentType&#x27;) === &#x27;Audio&#x27;) {
+                    $(&#x27;.rightbar&#x27;).find(&#x27;audio&#x27;)[0].pause();
+                    //$(&#x27;.rightbar&#x27;).find(&#x27;audio&#x27;).remove();
+                }
+
+                // first, cancel any uploads in progress
+                if (assetUploader) {
+                    assetUploader.cancelPromises();
+                    isUploading = false;
+                    $progressBar.css(&quot;visibility&quot;, &quot;hidden&quot;);
+                    $innerProgressBar.css(&#x27;width&#x27;, &#x27;0%&#x27;);
+                }
+                //add spinning wheel
+                //var rightbarLoadingDelete = $(document.createElement(&#x27;div&#x27;));
+                rightbarLoadingDelete.css({
+                    &#x27;width&#x27;: &#x27;20%&#x27;,
+                    &#x27;height&#x27;: &#x27;100%&#x27;,
+                    &#x27;position&#x27;: &#x27;absolute&#x27;,
+                    &#x27;background-color&#x27;: &#x27;rgba(0,0,0,.85)&#x27;,
+                    &#x27;top&#x27;: $(&#x27;.topbar&#x27;).css(&#x27;height&#x27;),
+                    &#x27;right&#x27;: &#x27;0%&#x27;,
+                    &#x27;z-index&#x27;: 100,
+
+                });
+                mainPanel.append(rightbarLoadingDelete);
+                TAG.Util.showLoading(rightbarLoadingDelete, &#x27;20%&#x27;);
+
+                //if ($(&quot;.rightbar&quot;).find(&#x27;video&#x27;).length) {
+                //    $(&quot;.rightbar&quot;).find(&#x27;video&#x27;).remove();
+                //}
+                //if ($(&quot;.rightbar&quot;).find(&#x27;audio&#x27;).length) {
+                //    $(&quot;.rightbar&quot;).find(&#x27;audio&#x27;).remove();
+                //}
+
+                var assetLinqID = getActiveMediaMetadata(&#x27;assetLinqID&#x27;),
+                    assetDoqID = getActiveMediaMetadata(&#x27;assetDoqID&#x27;);
+                if (assetDoqID) {
+                    TAG.Worktop.Database.changeArtwork(artwork.Identifier, { RemoveIDs: assetDoqID }, function () {
+                        createMediaList();
+                        hideEditMediaUI();
+                        rightbarLoadingDelete.fadeOut();
+                    }, function () {
+                        console.log(&quot;error 1&quot;);
+                    }, function () {
+                        console.log(&quot;error 2&quot;);
+                    }, function () {
+                        console.log(&quot;error 3&quot;);
+                    });
+                    //TAG.Worktop.Database.deleteLinq(assetLinqID, function () {
+                    //    populateHotspotsList();
+                    //    hideEditMediaUI();
+                    //    rightbarLoadingDelete.fadeOut();
+                    //});
+                }
+                else {
+                    createMediaList();
+                    hideEditMediaUI();
+                    rightbarLoadingDelete.fadeOut();
+                }
+
+            });
+
+        var $saveAssocMediaButton = $(document.createElement(&#x27;button&#x27;))
+            .addClass(&#x27;asscmediabutton addbutton&#x27;)
+            .text(&#x27;Save&#x27;)
+            .attr(&#x27;type&#x27;, &#x27;button&#x27;)
+            .css({
+                &#x27;float&#x27;: &#x27;right&#x27;,
+                //&#x27;color&#x27;: &#x27;white&#x27;,
+                &#x27;border&#x27;: &#x27;2px solid white&#x27;,
+                &#x27;width&#x27;: &#x27;45%&#x27;
+            })
+            .appendTo($assocMediaButtonContainer)
+            .click(function () {
+                $(&#x27;.assetHolder&#x27;).css(&#x27;background-color&#x27;, &#x27;&#x27;);
+                inEditHotspot = false;
+                var messageBox, titleTextVal;
+                if (getActiveMediaMetadata(&#x27;ContentType&#x27;) === &#x27;Video&#x27; ) {
+                    $(&#x27;.rightbar&#x27;).find(&#x27;video&#x27;)[0].pause();
+                    //$(&#x27;.rightbar&#x27;).find(&#x27;video&#x27;).remove();
+                }
+                if (getActiveMediaMetadata(&#x27;ContentType&#x27;) === &#x27;Audio&#x27;) {
+                    $(&#x27;.rightbar&#x27;).find(&#x27;audio&#x27;)[0].pause();
+                    //$(&#x27;.rightbar&#x27;).find(&#x27;audio&#x27;).remove();
+                }
+                //if (isUploading) {
+                //    messageBox = TAG.Util.UI.popUpMessage(null, &quot;Asset upload in progress. Please wait a few moments.&quot;, null);
+                //    $(messageBox).css(&#x27;z-index&#x27;, TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
+                //    $(&#x27;body&#x27;).append(messageBox);
+                //    $(messageBox).fadeIn(500);
+                //    return;
+                //}
+                // isCreatingMedia = true;
+                titleTextVal = $titleText.val();
+                if ($titleText.val() === &#x27;&#x27;) {
+                    titleTextVal = &#x27;Untitled&#x27;;
+                }
+
+                //set up metadata for text media
+                if (!$($assocMediaContainer).is(&quot;:visible&quot;)) {
+                    setActiveMediaMetadata(&#x27;contentType&#x27;, &#x27;Text&#x27;);
+                }
+                //check what type of asset it is and set metadata appropriately
+                var assetType = &#x27;Asset&#x27;;
+                if ($toggleHotspot.text() !== &#x27;Associate to Hotspot&#x27;) { // shouldn&#x27;t be comparing strings to do this
+                    assetType = &#x27;Hotspot&#x27;;
+                }
+
+                uploadHotspot({
+                    title: TAG.Util.encodeXML(titleTextVal),
+                    desc: TAG.Util.encodeXML($descArea.val()),
+                    pos: Seadragon.Utils.getElementPosition($hotspotAnchor.children().first().get(0)),
+                    // Quick hack to save the position of the hotspot circle itself
+                    contentType: activeAssocMedia.Metadata.ContentType,
+                    contentUrl: TAG.Worktop.Database.fixPath(activeAssocMedia.Metadata.Source),
+                    assetType: assetType,
+                    metadata: {
+                        //assetLinqID: getActiveMediaMetadata(&#x27;assetLinqID&#x27;),
+                        assetDoqID: activeAssocMedia.Identifier
+                    }
+                });
+            });
+
+        var closeButton = $(document.createElement(&#x27;img&#x27;))
+            .attr(&#x27;src&#x27;, &#x27;images/icons/x.svg&#x27;);
+
+
+        closeButton.css({
+                &#x27;position&#x27;: &#x27;absolute&#x27;,
+                &#x27;top&#x27;: ($(window).height() - ($(window).height() * topbarHeight / 100)) * 0.95 - 15 + &#x27;px&#x27;,
+                &#x27;left&#x27;: &#x27;8%&#x27;,
+                &#x27;width&#x27;: &#x27;11%&#x27;,
+                &#x27;height&#x27;: &#x27;auto&#x27;,
+        })
+        .appendTo($rightbar)
+        .on(&#x27;click&#x27;, function () {
+            if (assetUploader) {
+                assetUploader.cancelPromises();
+                isUploading = false;
+                $progressBar.css(&quot;visibility&quot;, &quot;hidden&quot;);
+                $innerProgressBar.css(&#x27;width&#x27;, &#x27;0%&#x27;);
+            }
+            if (getActiveMediaMetadata(&#x27;contentType&#x27;) === &#x27;Video&#x27;) {
+                $(&#x27;.rightbar&#x27;).find(&#x27;video&#x27;)[0].pause();
+                //$(&#x27;.rightbar&#x27;).find(&#x27;video&#x27;).remove();
+            }
+            if (getActiveMediaMetadata(&#x27;contentType&#x27;) === &#x27;Audio&#x27;) {
+                $(&#x27;.rightbar&#x27;).find(&#x27;audio&#x27;)[0].pause();
+                //$(&#x27;.rightbar&#x27;).find(&#x27;audio&#x27;).remove();
+            }
+            $(&#x27;.assetHolder&#x27;).css(&#x27;background-color&#x27;, &#x27;&#x27;);
+            hideEditMediaUI();
+        });
+
+        var $mainPanel = $(mainPanel);
+        $mainPanel.append($rightbar);
+    }
+
+    /** new populate **/
+    function createMediaList(container) {
+        container = container || $(&#x27;.assetContainer&#x27;);
+        container.empty();
+        zoomimage.loadHotspots();
+        TAG.Worktop.Database.getAssocMediaTo(artwork.Identifier, mediaSuccess, function () {
+            // TODO
+            console.log(&quot;error in createMediaList&quot;);
+        }, function () {
+            // TODO
+            console.log(&quot;error in createMediaList&quot;);
+        });
+
+        function mediaSuccess(mediaList) {
+            console.log(&quot;number of media: &quot; + mediaList.length);
+            mediaList.sort(function (a, b) {
+                return a.Name.toLowerCase() &lt; b.Name.toLowerCase() ? -1 : 1;
+            });
+            for (var i = 0; i &lt; mediaList.length; i++) {
+                loadQueue.add(createMediaHolder(container, mediaList[i]));
+            }
+        }
+    }
+
+    function createMediaHolder(container, asset) {
+        return function () {
+            var $holder = $(document.createElement(&#x27;div&#x27;));
+            $holder.addClass(&quot;assetHolder&quot;);
+            $holder.css({
+                &#x27;float&#x27;: &#x27;left&#x27;,
+                &#x27;margin&#x27;: &#x27;2%&#x27;,
+                &#x27;width&#x27;: &#x27;44%&#x27;,
+                //&#x27;height&#x27;: &#x27;180px&#x27;,
+                &#x27;position&#x27;: &#x27;relative&#x27;,
+                &#x27;text-align&#x27;: &#x27;center&#x27;,
+                &#x27;border&#x27;: &#x27;1px solid white&#x27;
+            });
+            
+
+            $holder.data(&#x27;info&#x27;, asset);
+
+            $holder.on(&quot;click&quot;, clickhelper(asset, $holder));
+            $holder.on(&quot;mousedown&quot;, downhelper($holder));
+            container.append($holder);
+            $holder.css(&#x27;height&#x27;, $holder.width() * 1.20);
+
+            var $mediaHolderDiv = $(document.createElement(&#x27;div&#x27;));
+            $mediaHolderDiv.addClass(&#x27;mediaHolderDiv&#x27;);
+            $mediaHolderDiv.css({
+                &quot;height&quot;: &quot;80%&quot;,
+                &quot;width&quot;: &quot;96%&quot;,
+                &quot;margin&quot;: &quot;2%&quot;
+            });
+            $holder.append($mediaHolderDiv);
+
+            var $mediaHolderImage = $(document.createElement(&#x27;img&#x27;));
+            $mediaHolderImage.addClass(&#x27;assetHolderImage&#x27;);
+            switch (asset.Metadata.ContentType) {
+                case &#x27;Audio&#x27;:
+                    $mediaHolderImage.attr(&#x27;src&#x27;, &#x27;images/audio_icon.svg&#x27;);
+                    break;
+                case &#x27;Video&#x27;:
+                    $mediaHolderImage.attr(&#x27;src&#x27;, (asset.Metadata.Thumbnail &amp;&amp; !asset.Metadata.Thumbnail.match(/.mp4/)) ? TAG.Worktop.Database.fixPath(asset.Metadata.Thumbnail) : &#x27;images/video_icon.svg&#x27;);
+                    break;
+                case &#x27;Image&#x27;:
+                    $mediaHolderImage.attr(&#x27;src&#x27;, asset.Metadata.Thumbnail ? TAG.Worktop.Database.fixPath(asset.Metadata.Thumbnail) : &#x27;images/image_icon.svg&#x27;);
+                    break;
+                default:
+                    $mediaHolderImage.attr(&#x27;src&#x27;, &#x27;images/text_icon.svg&#x27;);
+                    break;
+            }
+            $mediaHolderImage.css({ // TODO fix this so small images still fill the whole space
+                &#x27;max-width&#x27;: &#x27;100%&#x27;,
+                &#x27;max-height&#x27;: &#x27;100%&#x27;
+            });
+            $mediaHolderImage.removeAttr(&#x27;width&#x27;);
+            $mediaHolderImage.removeAttr(&#x27;height&#x27;);
+            $mediaHolderDiv.append($mediaHolderImage);
+
+            var $title = $(document.createElement(&#x27;div&#x27;));
+            $title.text(TAG.Util.htmlEntityDecode(asset.Name));
+            $title.css({
+                &#x27;top&#x27;: &#x27;80%&#x27;,
+                &#x27;height&#x27;: &#x27;20%&#x27;,
+                &#x27;color&#x27;: &#x27;white&#x27;,
+                &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+                &#x27;text-overflow&#x27;: &#x27;ellipsis&#x27;,
+                &#x27;white-space&#x27;: &#x27;nowrap&#x27;,
+                &#x27;margin&#x27;:&#x27;0% 2% 0% 2%&#x27;
+            });
+            $holder.append($title);
+        }
+    }
+
+    /**
+     * Refresh the view of available associated media in the sidebar.
+     * @param $assetContainer (optional)    The container to append associated media buttons to.
+     *      If $assetContainer is not supplied, the container will be selected by the classname 
+     *      &quot;assetContainer&quot;
+     */
+    function populateHotspotsList($assetContainer) {
+        $assetContainer = $assetContainer || $(&#x27;.assetContainer&#x27;);
+        $assetContainer.empty();
+
+        var hotspots = zoomimage.getHotspots();
+        var assets = zoomimage.getAssets();
+        for (var i = 0; i &lt; assets.length; i++) {
+            var $asset = assets[i];
+            var $holder = $(document.createElement(&#x27;div&#x27;));
+            $holder.addClass(&quot;assetHolder&quot;);
+            $holder.css({
+                &#x27;float&#x27;: &#x27;left&#x27;,
+                &#x27;margin&#x27;: &#x27;2%&#x27;,
+                &#x27;width&#x27;: &#x27;44%&#x27;,
+                &#x27;height&#x27;: &#x27;200px&#x27;,
+                &#x27;position&#x27;: &#x27;relative&#x27;,
+                &#x27;text-align&#x27;: &#x27;center&#x27;,
+                &#x27;border&#x27;: &#x27;1px solid white&#x27;
+            });
+            
+            var holderdata = $holder.data(&#x27;info&#x27;, $asset);
+
+            $holder.on(&quot;click&quot;, clickhelper(assets[i], $holder));
+            $holder.on(&quot;mousedown&quot;, downhelper($holder));
+            $holder.on(&quot;mouseup&quot;, uphelper($holder));
+            $assetContainer.append($holder);
+
+            
+
+            ///////////
+            var $mediaHolderDiv = $(document.createElement(&#x27;div&#x27;));
+            $mediaHolderDiv.addClass(&#x27;mediaHolderDiv&#x27;);
+            $mediaHolderDiv.css(&quot;height&quot;, &quot;80%&quot;);
+            $holder.append($mediaHolderDiv);
+
+            var $mediaHolderImage = $(document.createElement(&#x27;img&#x27;));
+            $mediaHolderImage.addClass(&#x27;assetHolderImage&#x27;);
+            switch ($asset.contentType) {
+                case &#x27;Audio&#x27;:
+                    $mediaHolderImage.attr(&#x27;src&#x27;, &#x27;images/audio_icon.svg&#x27;);
+                    break;
+                case &#x27;Video&#x27;:
+                    $mediaHolderImage.attr(&#x27;src&#x27;, &#x27;images/video_icon.svg&#x27;);
+                    break;
+                case &#x27;Image&#x27;:
+                    $mediaHolderImage.attr(&#x27;src&#x27;, asset.thumbnail ? TAG.Worktop.Database.fixPath($asset.thumbnail) : ($asset.source ? TAG.Worktop.Database.fixPath($asset.source) : &#x27;images/image_icon.svg&#x27;));
+                    break;
+                default:
+                    $mediaHolderImage.attr(&#x27;src&#x27;, &#x27;images/text_icon.svg&#x27;);
+                    break;
+            }
+            $mediaHolderImage.css({
+                &#x27;width&#x27;: &#x27;100%&#x27;,
+                &#x27;height&#x27;: &#x27;100%&#x27;,
+                &#x27;max-width&#x27;: &#x27;100%&#x27;,
+                &#x27;max-height&#x27;: &#x27;100%&#x27;
+            });
+            $mediaHolderImage.removeAttr(&#x27;width&#x27;);
+            $mediaHolderImage.removeAttr(&#x27;height&#x27;);
+            $mediaHolderDiv.append($mediaHolderImage);
+
+            var $title = $(document.createElement(&#x27;div&#x27;));
+            $title.text($asset.title);
+            $title.css({
+                &#x27;top&#x27;:&#x27;80%&#x27;,
+                &#x27;height&#x27;:&#x27;20%&#x27;,
+                &#x27;color&#x27;: &#x27;white&#x27;
+            });
+            $holder.append($title);
+        }
+    }
+
+    function clickhelper(asset, holder) {
+        return function () {
+            var assetType;
+            if (hasBeenChanged) {
+                editingMediamsg = $(TAG.Util.UI.popUpMessage(null, &quot;You are currently editing a Hotspot or Media&quot;, &quot;OK&quot;, false));
+                root.append(editingMediamsg);
+                editingMediamsg.show();
+            } else {
+                $(&#x27;.assetHolder&#x27;).css(&#x27;background-color&#x27;, &#x27;&#x27;);
+                holder.css(&#x27;background-color&#x27;, &#x27;rgba(255,255,255,0.75)&#x27;);
+                TAG.Worktop.Database.getLinq(asset.Identifier, artwork.Identifier, function (linq) {
+                    hideMenus();
+                    activeAssocMedia = asset;
+                    assetType = linq.Metadata.Type === &quot;Hotspot&quot; ? &quot;Hotspot&quot; : &quot;Asset&quot;;
+                    showEditMedia(asset, assetType, wrapMedia(asset.Metadata.Source, asset.Metadata.ContentType, (asset.Metadata.Thumbnail &amp;&amp; !asset.Metadata.Thumbnail.match(/.mp4/)) ? TAG.Worktop.Database.fixPath(asset.Metadata.Thumbnail) : &#x27;&#x27;));
+                }, function () {
+                    // TODO
+                }, function () {
+                    // TODO
+                });
+            }
+        };
+    }
+
+    function downhelper(elt) {
+        return function () {
+            elt.css(&#x27;background-color&#x27;, &#x27;rgba(255,255,255,0.75)&#x27;);
+        };
+    }
+
+    
+    /** 
+     * Create a view into the specified media type
+     * @param src   URL for the desired resource
+     * @param type  A string representing the type of file, currently supports &#x27;Image&#x27;, &#x27;Video&#x27;, and &#x27;Audio&#x27;
+     * @return      A jQuery element wrapping a view into the content
+     */
+    function wrapMedia(src, type, thumbnail) {
+        var video, audio, src_webm, src_ogg, src_mp4, src_mp3, errText;
+        var fixedSrc = TAG.Worktop.Database.fixPath(src);
+        if (type === &#x27;Image&#x27;) {
+            return $(document.createElement(&#x27;img&#x27;))
+                .css({
+                    &#x27;width&#x27;: &#x27;100%&#x27;,
+                    &#x27;height&#x27;: &#x27;100%&#x27;,
+                    &#x27;background-image&#x27;: &#x27;url(&#x27; + fixedSrc + &#x27;)&#x27;,
+                    &#x27;background-repeat&#x27;: &#x27;no-repeat&#x27;,
+                    &#x27;background-position&#x27;: &#x27;center center&#x27;,
+                    &#x27;background-size&#x27;: &#x27;contain&#x27;,
+                    &#x27;border&#x27;: &#x27;0&#x27;
+                });
+        } else if (type === &#x27;Video&#x27;) {
+            video = document.createElement(&#x27;video&#x27;);
+            video.onerror = function (err) {
+                var msg = &quot;&quot;;
+                switch (err.target.error.code) {
+                    case err.target.error.MEDIA_ERR_ABORTED:
+                        msg = &quot;Video playback aborted. Please see FAQs on the TAG website.&quot;;
+                        break;
+                    case err.target.error.MEDIA_ERR_NETWORK:
+                        msg = &quot;Network error during video upload. Please see FAQs on the TAG website.&quot;;
+                        break;
+                    case err.target.error.MEDIA_ERR_DECODE:
+                        msg = &quot;Error decoding video. Please see FAQs on the TAG website.&quot;;
+                        break;
+                    case err.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                        msg = &quot;Either the video format is not supported or a network or server error occurred. Please see FAQs on the TAG website.&quot;;
+                        break;
+                    default:
+                        msg = &quot;Error: please see FAQs on the TAG website.&quot;;
+                        break;
+                }
+                console.log(&quot;video error: &quot; + msg);
+                var msgdiv = $(document.createElement(&#x27;div&#x27;));
+                msgdiv.css({
+                    &#x27;width&#x27;: &#x27;80%&#x27;,
+                    &#x27;margin-left&#x27;: &#x27;10%&#x27;,
+                    &#x27;margin-top&#x27;: &#x27;50%&#x27;,
+                    &#x27;color&#x27;: &#x27;white&#x27;,
+                    &#x27;text-align&#x27;: &#x27;center&#x27;
+                });
+                msgdiv.text(msg);
+                var parent = $(&#x27;.rightbar&#x27;).find(&#x27;video&#x27;).parent();
+                $(&#x27;.rightbar&#x27;).find(&#x27;video&#x27;).hide();
+                parent.append(msgdiv);
+                video.onerror = function (err) {  };
+            };
+            $(video).attr(&#x27;preload&#x27;, &#x27;none&#x27;);
+            $(video).attr(&#x27;poster&#x27;, thumbnail);
+            console.log(&quot;video src = &quot;+src+&quot;, fixedSrc = &quot;+fixedSrc);
+
+            src_mp4 = document.createElement(&#x27;source&#x27;);
+            src_mp4.src = fixedSrc;
+            src_mp4.type = &quot;video/mp4&quot;;
+
+            src_webm = document.createElement(&#x27;source&#x27;);
+            src_webm.src = fixedSrc;
+            src_webm.type = &quot;video/webm&quot;;
+
+            src_ogg = document.createElement(&#x27;source&#x27;);
+            src_ogg.src = fixedSrc;
+            src_ogg.type = &quot;video/ogg&quot;;
+            
+            video.appendChild(src_mp4);
+            video.appendChild(src_webm);
+            video.appendChild(src_ogg);
+
+            //errText = $(document.createElement(&#x27;div&#x27;));
+            //errText.text(&quot;Your browser does not support this video&quot;);
+            //errText.css(&quot;color&quot;, &quot;white&quot;);
+            //video.appendChild(errText[0]);
+
+            video.style.color = &quot;white&quot;;
+            video.innerHTML += &quot;Your browser does not support this video.&quot;; // fallback text
+
+            video.controls = &#x27;controls&#x27;;
+            video.style.position = &#x27;relative&#x27;;
+            video.style.width = &#x27;100%&#x27;;
+            video.style.height = &#x27;100%&#x27;;
+            return $(video);
+        } else if (type === &#x27;Audio&#x27;) {
+            audio = document.createElement(&#x27;audio&#x27;);
+            $(audio).attr(&#x27;preload&#x27;, &#x27;none&#x27;);
+            src_mp3 = document.createElement(&#x27;source&#x27;);
+            src_mp3.src = fixedSrc;
+            src_mp3.type = &quot;audio/mp3&quot;;
+
+            src_ogg = document.createElement(&#x27;source&#x27;);
+            src_ogg.src = fixedSrc;
+            src_ogg.type = &quot;audio/ogg&quot;;
+
+            audio.appendChild(src_mp3);
+            audio.appendChild(src_ogg);
+
+            audio.controls = &#x27;controls&#x27;;
+            audio.style.position = &#x27;absolute&#x27;;
+            audio.style.width = &#x27;100%&#x27;;
+           audio.style.bottom = &#x27;0%&#x27;; // ?
+           // audio.style.top = &#x27;84%&#x27;;
+            return $(audio);
+        }
+    }
+
+    /**
+     * Initialize a reusible hotspot div and store it in the module variable $hotspotAnchor
+     */
+    function makeHotspotAnchor() {
+        var $hotspotWrapper = $(document.createElement(&#x27;div&#x27;))
+            .css({
+                &#x27;position&#x27;: &#x27;absolute&#x27;
+            })
+            .addClass(&#x27;hotspotedit&#x27;);
+
+        var $hotspotCircle = $(document.createElement(&#x27;div&#x27;))
+            .css({
+                &#x27;position&#x27;: &#x27;absolute&#x27;,
+                &#x27;display&#x27;: &#x27;block&#x27;,
+                &#x27;width&#x27;: &#x27;40px&#x27;,
+                &#x27;height&#x27;: &#x27;40px&#x27;,
+                &#x27;border&#x27;: &#x27;solid rgba(255,255,255,1) 5px&#x27;,
+                &#x27;border-radius&#x27;: &#x27;50%&#x27;,
+                &#x27;top&#x27;: &#x27;-50px&#x27;,
+                &#x27;left&#x27;: &#x27;-50px&#x27;
+            })
+            .attr(&#x27;on&#x27;, null)
+            .appendTo($hotspotWrapper);
+
+        var $innerCircle = $(document.createElement(&#x27;div&#x27;))
+            .css({
+                &#x27;display&#x27;: &#x27;block&#x27;,
+                &#x27;width&#x27;: &#x27;30px&#x27;,
+                &#x27;height&#x27;: &#x27;30px&#x27;,
+                &#x27;background&#x27;: &#x27;rgba(0,0,0,0.01)&#x27;,
+                &#x27;border&#x27;: &#x27;solid rgba(0,0,0,1) 5px&#x27;,
+                &#x27;border-radius&#x27;: &#x27;50%&#x27;
+            })
+            .appendTo($hotspotCircle);
+
+        var $clickable = $(document.createElement(&#x27;div&#x27;))
+            .css({
+                &#x27;display&#x27;: &#x27;block&#x27;,
+                &#x27;width&#x27;: &#x27;0px&#x27;,
+                &#x27;height&#x27;: &#x27;0px&#x27;,
+                &#x27;background&#x27;: &#x27;rgba(0,0,0,0)&#x27;,
+                &#x27;border&#x27;: &#x27;solid rgba(0,0,0,0.1) 15px&#x27;,
+                &#x27;border-radius&#x27;: &#x27;50%&#x27;
+            })
+            .appendTo($innerCircle);
+
+        var $hotspotHint = $(document.createElement(&#x27;div&#x27;))
+            .text(&#x27;Hotspot anchor (drag to update)&#x27;)
+            .css({
+                &#x27;position&#x27;: &#x27;relative&#x27;,
+                &#x27;left&#x27;: &#x27;-5px&#x27;,
+                &#x27;top&#x27;: &#x27;-5px&#x27;,
+                &#x27;width&#x27;: &#x27;auto&#x27;,
+                &#x27;color&#x27;: &#x27;white&#x27;,
+                &#x27;font-weight&#x27;: &#x27;bold&#x27;,
+                &#x27;font-size&#x27;: &#x27;large&#x27;,
+                &#x27;padding&#x27;: &#x27;8px&#x27;,
+                &#x27;background-color&#x27;: &#x27;rgba(0,0,0,.85)&#x27;
+            })
+            .appendTo($hotspotWrapper);
+
+        TAG.Util.disableDrag(root);
+
+        TAG.Util.makeManipulatableWin($hotspotCircle.get(0), {
+            onManipulate: function (res) {
+                var t = $hotspotWrapper.css(&#x27;top&#x27;);
+                var l = $hotspotWrapper.css(&#x27;left&#x27;);
+                $hotspotWrapper.css(&quot;top&quot;, (parseInt(t, 10) + res.pivot.y - 20) + &quot;px&quot;);
+                $hotspotWrapper.css(&quot;left&quot;, (parseInt(l, 10) + res.pivot.x - 20) + &quot;px&quot;);
+                zoomimage.updateOverlay($hotspotWrapper.get(0), Seadragon.OverlayPlacement.TOP_LEFT);
+            }
+        });
+
+        $hotspotAnchor = $hotspotWrapper.appendTo(root);
+    }
+
+    /**
+     * Initialize the template required for displaying the Associated Media upload picker
+     */
+    function makeUploadTemplate() {
+        var $assocMediaContentPlaceholderImg = $(document.createElement(&#x27;img&#x27;))
+            .attr(&#x27;src&#x27;, &#x27;images/icons/ImportW.png&#x27;)
+            .css({
+                &#x27;width&#x27;: &#x27;15%&#x27;,
+                &#x27;height&#x27;: &#x27;19%&#x27;,
+                &#x27;display&#x27;: &#x27;block&#x27;,
+                &#x27;margin&#x27;: &#x27;0 auto&#x27;
+            });
+        var $assocMediaContentPlaceholder = $(document.createElement(&#x27;div&#x27;))
+            .css({
+                &#x27;padding-top&#x27;: &#x27;30%&#x27;,
+                &#x27;height&#x27;: &#x27;70%&#x27;,
+                &#x27;position&#x27;: &#x27;relative&#x27;,
+                &#x27;font-size&#x27;: &#x27;150%&#x27;,
+                &#x27;text-align&#x27;: &#x27;center&#x27;,
+                &#x27;color&#x27;: &#x27;white&#x27;
+            })
+            .append($assocMediaContentPlaceholderImg)
+            .append($(document.createElement(&#x27;p&#x27;)).text(&#x27;Import Media&#x27;))
+            .addClass(&#x27;uploadtemplate&#x27;)
+            .hide()
+            .appendTo(root)
+            .click(function () {
+                var uniqueUrls = []; // Used to make sure we don&#x27;t override data for the wrong media (not actually airtight but w/e)
+                var mediaMetadata = [];
+                numFiles = 0;
+                isUploading = true;
+                hasBeenChanged=true;
+                assetUploader = TAG.Authoring.FileUploader( // multi-file upload now
+                    $(document),
+                    TAG.Authoring.FileUploadTypes.Standard,
+                    function (files, localURLs) { // localCallback
+                        var file = files[0], localURL = localURLs[0], i;
+                        var img, video, audio;
+                        var contentType;
+                        numFiles = files.length;
+                        if (files.length &gt; 0) {
+                            $progressBar.css(&quot;visibility&quot;, &quot;visible&quot;);
+                        }
+                        else {
+                            isUploading = false;
+                            isCreatingMedia = false;
+                            return;
+                        }
+
+                        // show image/video/audio/text
+                        if (file.contentType.split(&#x27;/&#x27;, 1)[0] === &#x27;image&#x27;) {
+                            img = wrapMedia(localURL, &#x27;Image&#x27;);
+                            img[0].type = file.contentType;
+                            console.log(&quot;image type = &quot; + img[0].type);
+                            contentType = &#x27;Image&#x27;;
+                            updateEditMedia({ &#x27;contentType&#x27;: contentType }, img);
+                        } else if (file.contentType.split(&#x27;/&#x27;, 1)[0] === &#x27;video&#x27;) {
+                            video = wrapMedia(localURL, &#x27;Video&#x27;);
+                            video[0].type = file.contentType;
+                            console.log(&quot;video type = &quot; + video[0].type);
+                            contentType = &#x27;Video&#x27;;
+                            updateEditMedia({ &#x27;contentType&#x27;: contentType }, video);
+
+                        } else if (file.contentType.split(&#x27;/&#x27;, 1)[0] === &#x27;audio&#x27;) {
+                            audio = wrapMedia(localURL, &#x27;Audio&#x27;);
+                            audio[0].type = file.contentType;
+                            contentType = &#x27;Audio&#x27;;
+                            console.log(&quot;audio type = &quot; + audio[0].type);
+                            updateEditMedia({ &#x27;contentType&#x27;: contentType }, audio);
+                        }
+                        uniqueUrls.push(localURL);//uriString;
+                        setActiveMediaMetadata(&#x27;localUrl&#x27;, localURL);
+                        //mediaMetadata.push({&#x27;contentType&#x27;: contentType, &#x27;assetType&#x27;: getActiveMediaMetadata(&#x27;assetType&#x27;), &#x27;assetLinqID&#x27;: getActiveMediaMetadata(&#x27;assetLinqID&#x27;), &#x27;assetDoqID&#x27;: getActiveMediaMetadata(&#x27;assetDoqID&#x27;)});
+                        //setActiveMediaMetadata(&#x27;contentUrl&#x27;, uriString);
+                    },
+                    function (dataReaderLoads) { // finished callback: set proper contentUrls, if not first, save it
+                        var dataReaderLoad = dataReaderLoads[0];
+                        if (uniqueUrls[0] &amp;&amp; uniqueUrls[0] === getActiveMediaMetadata(&#x27;localUrl&#x27;)) {
+                            setActiveMediaMetadata(&#x27;contentUrl&#x27;, dataReaderLoad);
+                        }
+                        isUploading = false;
+
+                        // reset the progress bar
+                        $progressBar.css(&quot;visibility&quot;, &quot;hidden&quot;);
+                        $innerProgressBar.css(&quot;width&quot;, &quot;0%&quot;);
+                    },
+                    [&#x27;.jpg&#x27;, &#x27;.png&#x27;, &#x27;.gif&#x27;, &#x27;.tif&#x27;, &#x27;.tiff&#x27;, &#x27;.mp4&#x27;, &#x27;.mp3&#x27;], // filters
+                    false, // useThumbnail
+                    null, // errorCallback
+                    false, // multiple file upload enabled?,
+                    $innerProgressBar
+                //    function (upload) { // progress function
+                //        var percentComplete = upload.progress.bytesSent / upload.progress.totalBytesToSend;
+                //        console.log(&quot;percent complete: &quot; + percentComplete + &quot;%&quot;);
+                //        $innerProgressBar.width(percentComplete * 99 + &quot;%&quot;); // still a bit to do after this progress is 100%
+                //    }
+                );
+            });
+
+
+
+
+    }
+
+    //Input: none
+    //Output: returns a boolean describing whether or not . 
+    function addInfoButtonDisable(removebutton) {
+        //var customInfos = artworkXML.getElementsByTagName(&quot;Metadata&quot;)[0].childNodes[0].childNodes[0].childNodes[1].childNodes[0].childNodes;
+        //var customInfos = artwork.Metadata.InfoFields;
+        //var length = 0;
+        //if (customInfos &amp;&amp; customInfos.length) length = customInfos.length;
+        return (($(&quot;.additionalField&quot;).length + 4 + (removebutton ? -1 : 0)) &gt;= 6);
+    }
+
+    /**
+     * Display Assoc. Media content in the right bar. The bar will animate out if it is hidden. 
+     * Discards any unsaved properties of the active content.
+     * @param info      Metadata object associated with the new content, including title and description
+     * @param content   A dom element suitable for displaying the content
+     */
+    function showEditMedia(asset, assetType, content, isText) {
+        var info = asset.Metadata;
+        TAG.Worktop.Database.getLinq(artwork.Identifier, asset.Identifier, function (linq) {
+            afterGettingLinq(parseFloat(linq.Offset._x), parseFloat(linq.Offset._y));
+        }, function () {
+            console.log(&quot;error1&quot;);
+        }, function () {
+            console.log(&quot;error2&quot;);
+        });
+        function afterGettingLinq(x,y) {
+            textMetadata = {};
+            $(&#x27;.assocMediaContainer&#x27;).show();
+            if (isText || asset.Metadata.ContentType === &quot;Text&quot;) {
+                $(&#x27;.assocMediaContainer&#x27;).hide();
+            }
+            var title = asset.Name, description = asset.Metadata.Description;
+            var $rightbar = $(&#x27;.rightbar&#x27;);
+            hasBeenChanged = false;
+            var point;
+            if (x &amp;&amp; y) {
+                point = new Seadragon.Point(x, y);
+            }
+            else {
+                point = zoomimage.viewer.viewport.getCenter();
+            }
+
+            // toggleHotspot button should only display when edit
+            if (createNew) {
+                $(&#x27;.toggleHotspot&#x27;).hide();
+                createNew = false;
+            }
+            else {
+                $(&#x27;.toggleHotspot&#x27;).show();
+            }
+            // TAG.Worktop.Database.getLinq(asset.Identifier, artwork.Identifier, success, error, errorCache)
+            if (assetType === &#x27;Hotspot&#x27;) {
+                $(&#x27;.toggleHotspot&#x27;).text(&#x27;Remove Hotspot&#x27;);
+                var pixel = zoomimage.viewer.viewport.pixelFromPoint(point),
+                    pixel_adj = new Seadragon.Point(pixel.x + 50, pixel.y + 50),
+                    point_adj = zoomimage.viewer.viewport.pointFromPixel(pixel_adj),
+                    hotspotCircle = $hotspotAnchor.get(0);
+                zoomimage.addOverlay(hotspotCircle, point_adj, Seadragon.OverlayPlacement.TOP_LEFT);
+                zoomimage.viewer.viewport.panTo(new Seadragon.Point(point.x, point.y), false);
+                $hotspotAnchor.fadeIn(100);
+            }
+            else {
+                $(&#x27;.toggleHotspot&#x27;).text(&#x27;Associate to Hotspot&#x27;);
+                $hotspotAnchor.fadeOut(100);
+            }
+
+            if (typeof assetType === &#x27;string&#x27;)
+                $rightbar.find(&#x27;.header&#x27;).text(&#x27;Edit &#x27; + assetType);
+            else if (assetType !== undefined)
+                $rightbar.find(&#x27;.header&#x27;).text(&#x27;Edit &#x27; + assetType);
+            else
+                $rightbar.find(&#x27;.header&#x27;).text(&#x27;Edit Associated Media&#x27;);
+
+
+            if (!switchEdit) {
+                if (!content) {
+                    content = getUploadDiv();
+                }
+                $rightbar.find(&#x27;.assocmedia&#x27;).html(content);
+                $rightbar.find(&#x27;.title&#x27;).val(TAG.Util.htmlEntityDecode(title));
+                var oldtitle = title;
+                $rightbar.find(&#x27;.title&#x27;).keyup(function () {
+                    if ($(this).val() !== oldtitle) {
+                        hasBeenChanged = true;
+                    }
+                });
+                var oldDescription = description ? TAG.Util.htmlEntityDecode(description).replace(/&lt;br&gt;/g, &#x27;\n&#x27;) : &quot;&quot;;
+
+                $rightbar.find(&#x27;.description&#x27;).val(oldDescription);
+
+                $rightbar.find(&#x27;.description&#x27;).keyup(function () {
+                    if ($(this).val() !== oldDescription) {
+                        hasBeenChanged = true;
+                    }
+                });
+            }
+            switchEdit = false;
+
+            if (!$rightbar.hasClass(&#x27;active&#x27;)) {
+                $rightbar.animate({ &#x27;right&#x27;: 0 }, 600);
+                $rightbar.addClass(&#x27;active&#x27;);
+            }
+
+            for (var key in info) {
+                setActiveMediaMetadata(key, info[key]);
+            }
+            setActiveMediaMetadata(&#x27;assetDoqID&#x27;, asset.Identifier);
+        }
+        setActiveMediaMetadata(&#x27;assetDoqID&#x27;, asset.Identifier);
+    }
+
+    /**
+     * Update the content view in the right bar. Will not overwrite any existing properties for the active content.
+     * @param info      Metadata associated with this content
+     * @param content   A dom element suitable for displaying the new content
+     */
+    function updateEditMedia(info, content) {
+        var $rightbar = $(&#x27;.rightbar&#x27;);
+        var meta = document.createElement(&#x27;meta&#x27;);
+        meta.httpEquiv = &quot;X-UA-Compatible&quot;;
+        meta.content = &quot;IE=Edge&quot;;
+        $rightbar.append($(meta));
+        var key;
+        var current = getActiveMediaMetadata();
+
+        if (info.assetType)
+            $rightbar.find(&#x27;.header&#x27;).text(info.assetType);
+
+        if (info.title)
+            $rightbar.find(&#x27;.title&#x27;).val(info.title);
+        if (info.description)
+            $rightbar.find(&#x27;.description&#x27;).val(description);
+
+        if (content)
+            $rightbar.find(&#x27;.assocmedia&#x27;).html(content);
+
+        for (key in current) {
+            setActiveMediaMetadata(key, current[key]);
+        }
+        for (key in info) {
+            setActiveMediaMetadata(key, info[key]);
+        }
+    }
+
+    /**
+     * Set a metadata value for the active media content.
+     * @param key
+     * @param val
+     */
+    function setActiveMediaMetadata(key, val) {
+        var $media = $(&#x27;.rightbar&#x27;).find(&#x27;.assocmedia&#x27;).children();
+        ($media.length) ? $media.data(key, val) : textMetadata[key] = val;
+    }
+
+    /**
+     * Get metadata values for the active media content.
+     * @param key (optional)   the key to retrieve. If key is not given, retrieve 
+     *     the entire values object. 
+     */
+    function getActiveMediaMetadata(key) {
+        var $media = $(&#x27;.rightbar&#x27;).find(&#x27;.assocmedia&#x27;).children();
+        if (!key) {
+            return false;
+        }
+        else {
+            return $media.data(key) || textMetadata[key];
+        }
+    }
+
+    /**
+     * Generate a jQuery element suitable for use as an Assoc. Media upload picker
+     * Should be called after makeUploadTemplate()
+     * @return  a jQuery element with the class &#x27;upload&#x27;
+     */
+    function getUploadDiv() {
+        return $(&#x27;.uploadtemplate&#x27;)
+            .clone(true)
+            .removeClass(&#x27;uploadtemplate&#x27;)
+            .addClass(&#x27;upload&#x27;)
+            .show();
+    }
+
+    function videoHelper(file, url, mediaMetadata, uniqueUrls, contentType, index) {
+        file.properties.getVideoPropertiesAsync().done(function (VideoProperties) {
+            var duration = VideoProperties.duration / 1000; // get duration in seconds
+            uniqueUrls[index] = url;
+            mediaMetadata[index] = ({
+                &#x27;title&#x27;: file.displayName,
+                &#x27;contentType&#x27;: contentType,
+                &#x27;localUrl&#x27;: url,
+                &#x27;assetType&#x27;: &#x27;Asset&#x27;,
+                &#x27;assetLinqID&#x27;: undefined,
+                &#x27;assetDoqID&#x27;: undefined,
+                &#x27;duration&#x27;: duration,
+            });
+        },
+        function (error) {
+            console.log(error);
+        });
+    }
+
+    function audioHelper(file, url, mediaMetadata, uniqueUrls, contentType, index) {
+        file.properties.getMusicPropertiesAsync().done(function (MusicProperties) {
+            var duration = MusicProperties.duration / 1000; // get duration in seconds
+            uniqueUrls[index] = url;
+            mediaMetadata[index] = ({
+                &#x27;title&#x27;: file.displayName,
+                &#x27;contentType&#x27;: contentType,
+                &#x27;localUrl&#x27;: url,
+                &#x27;assetType&#x27;: &#x27;Asset&#x27;,
+                &#x27;assetLinqID&#x27;: undefined,
+                &#x27;assetDoqID&#x27;: undefined,
+                &#x27;duration&#x27;: duration,
+            });
+        },
+        function (error) {
+            console.log(error);
+        });
+    }
+
+    function batchAssMedia() {
+        var uniqueUrls = []; // Used to make sure we don&#x27;t override data for the wrong media (not actually airtight but w/e)
+        mediaMetadata = [];
+        numFiles = 0;
+        isUploading = true;
+        isCreatingMedia = false;
+        assetUploader = TAG.Authoring.FileUploader( // multi-file upload now
+            $(document),
+            TAG.Authoring.FileUploadTypes.Standard,
+            function (files, localURLs) { // localCallback
+                var file, localURL, i;
+                var img, video, audio;
+                var contentType, duration;
+                if (files.length &gt; 0) {
+                    $topProgressText.text(&quot;uploading&quot;);
+                    $topProgressDiv.css(&quot;visibility&quot;, &quot;visible&quot;);
+                }
+                else {
+                    isUploading = false;
+                    isCreatingMedia = false;
+                    return;
+                }
+
+                
+                numFiles = files.length;
+                for (i = 0; i &lt; files.length; i++) {
+                    file = files[i];
+                    localURL = localURLs[i];
+                    if (file.contentType.split(&#x27;/&#x27;, 1)[0] === &#x27;image&#x27;) {
+                        contentType = &#x27;Image&#x27;;
+                        uniqueUrls[i] = (localURL);
+                        mediaMetadata[i] = ({
+                            &#x27;title&#x27;: file.displayName,
+                            &#x27;contentType&#x27;: contentType,
+                            &#x27;localUrl&#x27;: localURL,
+                            &#x27;assetType&#x27;: &#x27;Asset&#x27;,
+                            &#x27;assetLinqID&#x27;: undefined,
+                            &#x27;assetDoqID&#x27;: undefined,
+                            
+                        });
+                    } else if (file.contentType.split(&#x27;/&#x27;, 1)[0] === &#x27;video&#x27;) {
+                        contentType = &#x27;Video&#x27;;
+                        videoHelper(file, localURL, mediaMetadata, uniqueUrls, contentType, i);
+                    } else if (file.contentType.split(&#x27;/&#x27;, 1)[0] === &#x27;audio&#x27;) {
+                        contentType = &#x27;Audio&#x27;;
+                        audioHelper(file, localURL, mediaMetadata, uniqueUrls, contentType, i);
+                    }
+                    //uniqueUrls.push(localURL);
+                    /*mediaMetadata.push({
+                        &#x27;title&#x27;: file.displayName,
+                        &#x27;contentType&#x27;: contentType,
+                        &#x27;localUrl&#x27;: localURL,
+                        &#x27;assetType&#x27;: &#x27;Asset&#x27;,
+                        &#x27;assetLinqID&#x27;: undefined,
+                        &#x27;assetDoqID&#x27;: undefined,
+                        &#x27;duration&#x27;: duration,
+                    });*/
+                }
+            },
+            function (dataReaderLoads) { // finished callback: set proper contentUrls, if not first, save it
+                var i, dataReaderLoad;
+                for (i = 0; i &lt; dataReaderLoads.length; i++) {
+                    dataReaderLoad = dataReaderLoads[i];
+                    mediaMetadata[i].contentUrl = dataReaderLoad;
+                }
+                isCreatingMedia = true;
+                $topProgressText.text(&quot;adding media&quot;);
+                saveAssMedia(0); // starts the chain going
+            },
+            [&#x27;.jpg&#x27;, &#x27;.png&#x27;, &#x27;.gif&#x27;, &#x27;.tif&#x27;, &#x27;.tiff&#x27;, &#x27;.mp4&#x27;, &#x27;.mp3&#x27;], // filters
+            false, // useThumbnail
+            function () {
+                $topProgressDiv.css(&quot;visibility&quot;, &quot;hidden&quot;);
+                $topInnerProgressBar.css(&quot;width&quot;, &quot;0%&quot;);
+                $topProgressText.text(&quot;uploading&quot;);
+            }, // errorCallback
+            true, // multiple file upload enabled?
+            $topInnerProgressBar
+        );
+    }
+
+    function saveAssMedia(i) { // call this from the finishedCallback in the file uploader for all assets not first in the list
+        var activeMM = mediaMetadata[i];
+        uploadHotspot({
+            title: TAG.Util.encodeXML(activeMM.title || &#x27;Untitled Media&#x27;),
+            desc: TAG.Util.encodeXML(&#x27;&#x27;),
+            pos: Seadragon.Utils.getElementPosition($hotspotAnchor.children().first().get(0)), // bogus entry for now
+            contentType: activeMM.contentType,
+            contentUrl: activeMM.contentUrl,
+            assetType: activeMM.assetType,
+            metadata: {
+                assetLinqID: activeMM.assetLinqID,
+                assetDoqID: activeMM.assetDoqID
+            },
+            duration: activeMM.duration,
+        },
+        true,
+        i);
+    }
+
+    /**
+     * Execute a request to update or upload Hotspot data on the server.
+     * @param info, an object with the following properties: title, desc, pos, contentType, 
+     *      contentUrl, assetType, metadata (optional worktop info object)
+     * @param background   is this upload going on in the background?
+     * @param index        used for batch upload chaining
+     */
+    function uploadHotspot(info, background, index) {
+        var title = info.title,
+            desc = info.desc,
+            pixel = info.pos,
+            contentType = info.contentType,
+            contentUrl = info.contentUrl,
+            duration = info.duration,
+            assetType = info.assetType,
+            worktopInfo = info.metadata || {},
+            dzPos = pixel ? zoomimage.viewer.viewport.pointFromPixel(pixel) : { x: 0, y: 0 }, // make sure this works...
+            pixelAdjusted = zoomimage.viewer.viewport.pixelFromPoint(dzPos),
+            isNewAsset = false,//!worktopInfo.assetDoqID,
+            rightbarLoadingSave;
+        if (!background) {
+            rightbarLoadingSave = $(document.createElement(&#x27;div&#x27;));
+            rightbarLoadingSave.css({
+                &#x27;width&#x27;: &#x27;20%&#x27;,
+                &#x27;height&#x27;: &#x27;100%&#x27;,
+                &#x27;position&#x27;: &#x27;absolute&#x27;,
+                &#x27;background-color&#x27;: &#x27;rgba(0,0,0,.85)&#x27;,
+                &#x27;top&#x27;: $(&#x27;.topbar&#x27;).css(&#x27;height&#x27;),
+                &#x27;right&#x27;: &#x27;0%&#x27;,
+                &#x27;z-index&#x27;: 100
+            });
+            mainPanel.append(rightbarLoadingSave);
+            TAG.Util.showLoading(rightbarLoadingSave, &#x27;20%&#x27;);
+            rightbarLoadingSave.attr(&#x27;class&#x27;, &#x27;rightbarLoadingSave&#x27;);
+        }
+        var options = {
+            Name: title,
+            ContentType: contentType,
+            Duration: duration,
+            Source: contentUrl,
+            LinqTo: artwork.Identifier,
+            X: dzPos.x,
+            Y: dzPos.y,
+            LinqType: assetType,
+            Description: desc
+        };
+        if (isNewAsset) {
+            TAG.Worktop.Database.createHotspot(options, success, unauth, error);
+        }
+        else {
+            TAG.Worktop.Database.changeHotspot(worktopInfo.assetDoqID, options, success, unauth, conflict, error);
+
+        }
+
+        function success() {
+            if (!background) {
+                createMediaList();
+                if (!inEditHotspot) {
+                    hideEditMediaUI();
+                }
+                rightbarLoadingSave.fadeOut();
+                isUploading = false;
+                isCreatingMedia = false;
+            }
+            else {
+                createMediaList(); // asynchronous stuff going on in here. everything below it should be in a callback
+                isUploading = false;
+                isCreatingMedia = false;
+                $topProgressDiv.css(&quot;visibility&quot;, &quot;hidden&quot;);
+                $topInnerProgressBar.css(&quot;width&quot;, &quot;0%&quot;);
+            }
+            inEditHotspot = false;
+        }
+
+        function unauth() {
+        }
+
+        function conflict(jqXHR, ajaxCall) {
+            ajaxCall.force();
+        }
+
+        function error() {
+        }
+
+        function createHotspotHelper(isNewAsset, xmlHotspot) { // currently for creating both hotspots and assoc media
+            //var $xmlHotspot,
+            //    hotspotId,
+            //    hotspotContentId,
+            //    hotspotContentDoq,
+            //    $hotspotContentDoq,
+            //    titleField,
+            //    metadata,
+            //    descField,
+            //    contentTypeField,
+            //    sourceField,
+            //    mediaDuration,
+            //    position;
+            //if (isNewAsset) {
+            //    $xmlHotspot = $(xmlHotspot);
+            //    hotspotId = $xmlHotspot.find(&quot;Identifier&quot;).text();
+            //    hotspotContentId = $xmlHotspot.find(&quot;BubbleContentID:last&quot;).text();
+            //}
+            //else {
+            //    $xmlHotspot = $(xmlHotspot);
+            //    hotspotId = worktopInfo.assetLinqID;
+            //    hotspotContentId = worktopInfo.assetDoqID;
+            //}
+            //var xml = TAG.Worktop.Database.getDoqXML(hotspotContentId);
+            //if (xml) {
+            //    hotspotContentDoq = $.parseXML(xml);
+            //    $hotspotContentDoq = $(hotspotContentDoq);
+            //    // update doq info and send back to server
+            //    titleField = $hotspotContentDoq.find(&#x27;Name&#x27;).text(title);
+            //    metadata = $hotspotContentDoq.find(&#x27;Metadata&#x27;);
+            //    descField = metadata.find(&quot;d3p1\\:Key:contains(&#x27;Description&#x27;) + d3p1\\:Value&quot;).text(desc);
+            //    contentTypeField = metadata.find(&quot;d3p1\\:Key:contains(&#x27;ContentType&#x27;) + d3p1\\:Value&quot;).text(contentType);
+            //    sourceField = metadata.find(&quot;d3p1\\:Key:contains(&#x27;Source&#x27;) + d3p1\\:Value&quot;).text(contentUrl);
+            //    mediaDuration = metadata.find(&quot;d3p1\\:Key:contains(&#x27;Duration&#x27;) + d3p1\\:Value&quot;).text(duration);
+            //    position = $xmlHotspot.find(&#x27;Offset &gt; d2p1\\:_x&#x27;).text(dzPos.x); // why is position getting reset?
+            //    position = $xmlHotspot.find(&#x27;Offset &gt; d2p1\\:_y&#x27;).text(dzPos.y);
+            //    //add linq type : Hotspot vs. Asset
+            //    $xmlHotspot.find(&quot;d3p1\\:Key:contains(&#x27;Type&#x27;) + d3p1\\:Value&quot;).text(assetType);
+            //    TAG.Worktop.Database.pushLinq(xmlHotspot, hotspotId);
+            //    TAG.Worktop.Database.pushXML(hotspotContentDoq, hotspotContentId);
+            //}
+
+            if (background) {
+                if (index &lt; numFiles - 1) {
+                    saveAssMedia(index + 1);
+                }
+            }
+        }
+    }
+
+    /**
+     * Hide the right panel with a slide out animation.
+     */
+    function hideEditMediaUI() {
+        $hotspotAnchor.fadeOut(100);
+        var $rightbar = $(&#x27;.rightbar&#x27;);
+        if ($rightbar.hasClass(&#x27;active&#x27;)) {
+            $rightbar.animate({ &#x27;right&#x27;: &#x27;-20%&#x27; }, 600);
+            $rightbar.removeClass(&#x27;active&#x27;);
+            hasBeenChanged = false;
+        }
+    }
+
+
+    function makeSidebar() {
+        var i,
+            sidebar,
+            buttonContainer,
+            $artworkInfoLabel,
+            buttonCSS, newButtonCSS,
+            $metadataButton;
+
+        sidebar = $(document.createElement(&#x27;div&#x27;));
+        sidebar.addClass(&quot;sidebar&quot;);
+        sidebar.css({
+            &#x27;width&#x27;: &#x27;20%&#x27;,
+            &#x27;height&#x27;: &#x27;100%&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;left&#x27;: &#x27;0%&#x27;,
+            &#x27;float&#x27;: &#x27;left&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(0,0,0,0.85)&#x27;,
+            &#x27;z-index&#x27;: 100,
+        });
+        //mainPanel.append(sidebar);
+
+        buttonContainer = $(document.createElement(&#x27;div&#x27;));
+        buttonContainer.attr(&#x27;class&#x27;, &#x27;buttonContainer&#x27;);
+        buttonContainer.css({
+            position: &#x27;relative&#x27;,
+            &#x27;margin-top&#x27;: &#x27;4%&#x27;,
+            //padding: &#x27;0px 4% 0px 12%&#x27;,
+            &#x27;text-align&#x27;:&#x27;center&#x27;
+        });
+        sidebar.append(buttonContainer);
+
+        /* $metadataButton = $(document.createElement(&#x27;button&#x27;))
+             .text(&#x27;Edit Metadata&#x27;)
+             .attr(&#x27;type&#x27;, &#x27;button&#x27;)
+             .css(buttonCSS)
+             .on(&#x27;click&#x27;, function () {
+                 $metadataForm.toggle();
+             });
+         buttonContainer.append($metadataButton);
+ 
+ 
+         var saveButtonSpecs = TAG.Util.constrainAndPosition($(window).width(), $(window).height() * 0.08,
+             {
+                 width: 0.1,
+                 max_width: 150,
+                 height: 0.45,
+                 max_height: 40,
+                 x_offset: 0.1,
+                 max_x_offset: 225,
+                 center_v: true,
+             });
+         var saveButtonFontSize = TAG.Util.getMaxFontSizeEM(&#x27;Save Changes&#x27;, 0.5, saveButtonSpecs.width * 0.8, saveButtonSpecs.height * 0.8, 0.01);
+         $(saveChangesButton).css({
+             &#x27;width&#x27;: saveButtonSpecs.width + &#x27;px&#x27;,
+             &#x27;height&#x27;: saveButtonSpecs.height + &#x27;px&#x27;,
+             &#x27;left&#x27;: parseInt(titleArea.css(&#x27;left&#x27;), 10) + titleArea.width() + 45 + ($(window).width() * 0.022) + &#x27;px&#x27;,
+             &#x27;top&#x27;: saveButtonSpecs.y - 2 + &#x27;px&#x27;,
+             &#x27;position&#x27;: &#x27;absolute&#x27;,
+             &#x27;font-size&#x27;: saveButtonFontSize,
+             &#x27;padding&#x27;: &#x27;1px&#x27;,
+         });
+         
+         */
+
+        var $metadataForm = $(document.createElement(&#x27;div&#x27;))
+            .attr(&quot;id&quot;, &quot;metadataForm&quot;)
+            .css({
+                &#x27;background&#x27;: &#x27;rgba(0, 0, 0, 0.85)&#x27;,
+                &#x27;border-radius&#x27;: &#x27;0px 10px 10px 0px&#x27;,
+                &#x27;left&#x27;: &#x27;20%&#x27;,
+                &#x27;width&#x27;: &#x27;38%&#x27;,
+                &#x27;position&#x27;: &#x27;absolute&#x27;,
+                &#x27;display&#x27;: &#x27;none&#x27;,
+                &#x27;color&#x27;: &#x27;white&#x27;,
+                &#x27;padding-top&#x27;: &#x27;1%&#x27;,
+                &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+                &#x27;z-index&#x27;: 100000,
+                &#x27;max-height&#x27;: &#x27;70%&#x27;,
+                &#x27;overflow-y&#x27;: &#x27;scroll&#x27;
+            })
+            .appendTo(mainPanel);
+
+        var formTitle = $(document.createElement(&#x27;div&#x27;));
+        formTitle.text(&quot;Metadata Editor&quot;);
+        formTitle.css({
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;text-align&#x27;: &#x27;center&#x27;,
+            &#x27;font-size&#x27;: &#x27;150%&#x27;,
+        });
+        $metadataForm.append(formTitle);
+
+        textFieldContainer = $(document.createElement(&#x27;div&#x27;));
+        textFieldContainer.attr(&quot;id&quot;, &quot;textFieldContainer&quot;);
+        $(textFieldContainer).css({
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;height&#x27;: &#x27;25%&#x27;,
+            &#x27;overflow&#x27;: &#x27;auto&#x27;,
+            &#x27;padding&#x27;: &#x27;0px 4% 0px 0px&#x27;,
+            &#x27;margin-top&#x27;: &#x27;30px&#x27;
+        });
+        $metadataForm.append(textFieldContainer);
+
+        addInfoButton.text(&#x27;Add Information Field&#x27;);
+        addInfoButton.attr(&#x27;type&#x27;, &#x27;button&#x27;);
+        addInfoButton.css({&#x27;left&#x27;: &#x27;10%&#x27;, &#x27;width&#x27;: &#x27;80%&#x27;, &#x27;margin-top&#x27;: &#x27;2%&#x27;, &#x27;margin-bottom&#x27;: &#x27;3%&#x27;, &#x27;position&#x27;: &#x27;relative&#x27;});
+        $metadataForm.append(addInfoButton);
+
+        createSidebarTextArea({field: &#x27;Title&#x27;, entry: artwork.Name });
+        createSidebarTextArea({field: &#x27;Artist&#x27;, entry: artwork.Metadata.Artist});
+        createSidebarTextArea({field: &#x27;Year&#x27;, entry: artwork.Metadata.Year});
+        createSidebarTextArea({field: &#x27;Description&#x27;, entry: artwork.Metadata.Description, isTextarea: true });
+
+        var addInfoDialog = $(document.createElement(&#x27;div&#x27;));
+        addInfoDialog.attr(&#x27;class&#x27;, &#x27;addInfoDialog&#x27;);
+        addInfoDialog.css({
+            &#x27;padding&#x27;: &#x27;4% 4%&#x27;,
+            &#x27;left&#x27;: &#x27;105%&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;2.5%&#x27;,
+            &#x27;top&#x27;: &#x27;46%&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(0, 0, 0, 0.85)&#x27;,
+            &#x27;border-radius&#x27;: &#x27;10px&#x27;,
+            &#x27;z-index&#x27;: &#x27;100&#x27;
+        });
+
+        var addInfoDialogTriangle = $(document.createElement(&#x27;div&#x27;));
+        addInfoDialogTriangle.attr(&#x27;class&#x27;, &#x27;addInfoDialogTriangle&#x27;);
+        addInfoDialogTriangle.css({
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;top&#x27;: &#x27;30%&#x27;,
+            &#x27;left&#x27;: &#x27;-40px&#x27;,
+            &#x27;width&#x27;: 0,
+            &#x27;border-style&#x27;: &#x27;solid&#x27;,
+            &#x27;border-width&#x27;: &#x27;20px&#x27;,
+            &#x27;border-color&#x27;: &#x27;transparent rgba(0, 0, 0, 0.85) transparent transparent&#x27;,
+            &#x27;z-index&#x27;: &#x27;100&#x27;
+        });
+
+
+        var fieldTextArea = $(document.createElement(&#x27;input&#x27;));
+        fieldTextArea.attr(&#x27;placeholder&#x27;, &#x27;Field&#x27;);
+        fieldTextArea.css({
+            &#x27;border&#x27;: &#x27;2px solid white&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;2%&#x27;
+        });
+
+        var entryTextArea = $(document.createElement(&#x27;input&#x27;));
+        entryTextArea.attr(&#x27;placeholder&#x27;, &#x27;Entry&#x27;);
+        entryTextArea.css({
+            &#x27;border&#x27;: &#x27;2px solid white&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;5%&#x27;
+        });
+
+        var addButton = $(document.createElement(&#x27;button&#x27;));
+        addButton.addClass(&#x27;addButton&#x27;);
+        addButton.text(&#x27;Add&#x27;);
+        addButton.css({
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;border&#x27;: &#x27;2px solid white&#x27;,
+            &#x27;right&#x27;: &#x27;1%&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;float&#x27;: &#x27;right&#x27;,
+        });
+
+        var cancelButton1 = $(document.createElement(&#x27;button&#x27;));
+        cancelButton1.addClass(&#x27;cancelButton&#x27;);
+        $(cancelButton1).text(&#x27;Cancel&#x27;);
+        $(cancelButton1).css({
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;border&#x27;: &#x27;2px solid white&#x27;,
+            &#x27;right&#x27;: &#x27;2%&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;float&#x27;: &#x27;right&#x27;,
+        });
+
+        //create transparent div over addbutton div to disable clicking if there are more than 2 info fields.
+        var cover = document.createElement(&#x27;div&#x27;);
+        $(cover).attr(&#x27;id&#x27;, &#x27;cover&#x27;);
+        $(cover).css({
+            &#x27;height&#x27;: &#x27;100%&#x27;,
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;top&#x27;: &#x27;1%&#x27;,
+            &#x27;float&#x27;: &#x27;left&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;background-color&#x27;: &#x27;white&#x27;,
+            &#x27;opacity&#x27;: &#x27;0&#x27;
+        });
+        $(cover).bind(&#x27;click&#x27;, function () { return false; });
+
+
+
+        $(addButton).click(function () {
+            var field = TAG.Util.encodeText(fieldTextArea.val());
+            var entry = TAG.Util.encodeText(entryTextArea.val());
+            var valid = true;
+            // valid only when it starts with number or alphabet
+            if (field &lt; &#x27;0&#x27; || (field.charAt(0) &gt; &#x27;9&#x27; &amp;&amp; field.charAt(0) &lt; &#x27;A&#x27;) ||
+                (field.charAt(0) &gt; &#x27;Z&#x27; &amp;&amp; field.charAt(0) &lt; &#x27;a&#x27;) || field.charAt(0) &gt; &#x27;z&#x27;) {
+                error.text(&#x27;Please enter a valid field name&#x27;);
+                valid = false;
+            }
+            if (valid) {
+                labelNameToLabel[field] = createSidebarTextArea({ field: field, entry: entry, animate: true, isAdditionalField: true });
+                addInfoDialog.fadeOut(100);
+                error.text(&#x27;&#x27;);
+                additionalCustomInfos += 1;
+                if (addInfoButtonDisable()) {
+                    addInfoButton.attr(&#x27;disabled&#x27;, &#x27;disabled&#x27;);
+                }
+            }
+        }
+
+           );
+
+        var error = $(document.createElement(&#x27;div&#x27;));
+        error.css({
+            color: &#x27;red&#x27;,
+            &#x27;font-size&#x27;: &#x27;90%&#x27;,
+        });
+
+        $(cancelButton1)[0].onclick = function () {
+            error.text(&#x27;&#x27;);
+            $(addInfoDialog).fadeOut(100);
+        };
+
+        $(addInfoDialog).append(addInfoDialogTriangle);
+        $(addInfoDialog).append(fieldTextArea);
+        $(addInfoDialog).append(entryTextArea);
+        $(addInfoDialog).append(error);
+        $(addInfoDialog).append(addButton);
+        $(addInfoDialog).append(cancelButton1);
+
+        $(sidebar).append(addInfoDialog);
+        $(addInfoDialog).hide();
+
+        addInfoButton.on(&#x27;click&#x27;, function () {
+            createSidebarTextArea({ field: &quot;new&quot;, entry: &quot;metadata field&quot;, animate: true, isAdditionalField: true });
+            if (addInfoButtonDisable()) {
+                addInfoButton.attr(&#x27;disabled&#x27;, &#x27;disabled&#x27;);
+            }
+            //adds 100px for the new text area that will slide in later
+            //$(&quot;#metadataForm&quot;).scrollTop($(&quot;#metadataForm&quot;)[0].scrollHeight + 100);
+            // $(&quot;#metadataForm&quot;).scrollTop(0);
+
+
+            //fieldTextArea.val(&#x27;&#x27;);
+            //entryTextArea.val(&#x27;&#x27;);
+            //error.text(&#x27;&#x27;);
+            //$(addInfoDialog).fadeToggle(100);
+            //toggleThumbnailPicker(&quot;close&quot;);
+            //$(&#x27;.locationPanelDiv&#x27;).fadeOut();
+        });
+
+        function closeOnOutsideClick(evt) {
+            evt.stopPropagation();
+            var ibox = $(&#x27;#mapDiv_infobox&#x27;);
+            if (evt.target === locationPanelDiv[0] || evt.target === editLocButton[0] || evt.target === ibox[0] || ibox.find(evt.target).length !== 0) {
+                return;
+            } else if (locationPanelDiv.find(evt.target).length === 0) {
+                togglelp();
+                if (customInfobox.visible()) {
+                    customInfobox.hide();
+                }
+            }
+        }
+
+        //function that opens/closes the location panel with animations
+        function togglelp() {
+
+            // close all the other menus
+            toggleThumbnailPicker(&quot;close&quot;);
+            $(addInfoDialog).fadeOut();
+            if (locPanelOpen) {
+                locationPanelDiv.hide(&quot;slide&quot;, { direction: &#x27;left&#x27; }, 500, function () {
+                    sidebarHideButtonContainer.show();
+                });
+                $(&#x27;body&#x27;).off(&#x27;mousedown&#x27;, closeOnOutsideClick);
+                locPanelOpen = false;
+            } else {
+                sidebarHideButtonContainer.hide();
+                locationPanelDiv.show(&quot;slide&quot;, { direction: &#x27;left&#x27; }, 500);
+                locationPanelDiv.css({ display: &#x27;inline&#x27; });
+                locPanelOpen = true;
+
+                // closing loc history on mouse interaction outside of the panel
+                $(&#x27;body&#x27;).on(&#x27;mousedown&#x27;, closeOnOutsideClick);
+            }
+        }
+
+
+       
+
+        buttonCSS = {
+            &#x27;margin-top&#x27;: &#x27;2%&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+            &#x27;width&#x27;: &#x27;81%&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+        };
+
+        //declare buttons
+        var editLocButton, editThumbnailButton;
+
+        //unselect the given button if it is currently selected
+        function refreshButton(button) {
+            if (button.isSelected) {
+                button.toggle();
+            }
+        }
+
+        //refreshes all the buttons
+        function refreshButtons() {
+            refreshButton($metadataButton);
+            refreshButton(editLocButton);
+            refreshButton(editThumbnailButton);
+        }
+
+        newButtonCSS = {
+            &#x27;margin-top&#x27;: &#x27;2%&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;height&#x27;: root.height() * .05,
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;
+        };
+
+        var sidePanelFontSize = TAG.Util.getMaxFontSizeEM(&quot;Edit Location History&quot;, 1, root.width() * .1, .65 * newButtonCSS.height);
+        var titleFontSize = TAG.Util.getMaxFontSizeEM(&quot;Artwork Information&quot;, 1, root.width() * .15, .8 * newButtonCSS.height);
+
+        //artwork info label 
+
+        $artworkInfoLabel = $(document.createElement(&#x27;div&#x27;));
+        $artworkInfoLabel.addClass(&#x27;artworkInfoLabel&#x27;);
+        $artworkInfoLabel.text(&#x27;Artwork Information&#x27;);
+        $artworkInfoLabel.css({
+            color: &#x27;white&#x27;,
+            &#x27;font-size&#x27;: titleFontSize,
+            &#x27;margin-top&#x27;: &#x27;2%&#x27;,
+        });
+        buttonContainer.append($artworkInfoLabel);
+
+        
+
+        var rightArrow = $(document.createElement(&#x27;img&#x27;));
+        rightArrow.attr(&#x27;src&#x27;, &#x27;/images/icons/Right.png&#x27;);
+        rightArrow.css({ &quot;position&quot;: &quot;absolute&quot;, &quot;right&quot;: &quot;5%&quot;, top: &quot;30%&quot;, width: &quot;auto&quot;, height: &quot;40%&quot; });
+
+        var metaDataLabel = $(document.createElement(&#x27;label&#x27;));
+        metaDataLabel.text(&quot;Information&quot;);
+        metaDataLabel.css({ &quot;width&quot;: &quot;100%&quot;, &quot;height&quot;: &quot;100%&quot;, &quot;line-height&quot;: &quot;100%&quot;, &quot;text-align&quot;: &quot;center&quot; });
+
+        $metadataButton = $(document.createElement(&#x27;div&#x27;))
+            //.text(&#x27;Information&#x27;)
+            .css(newButtonCSS)
+            .on(&#x27;click&#x27;, function () {
+                $metadataButton.isSelected = !($metadataButton.isSelected);
+
+                $metadataForm.toggle();
+
+                //toggle when this gets selected
+                if ($metadataButton.isSelected) {
+                    $(this).css({ &#x27;background-color&#x27;: &#x27;white&#x27;, &#x27;color&#x27;: &#x27;black&#x27; });
+                    rightArrow.attr(&#x27;src&#x27;, &#x27;/images/icons/RightB.png&#x27;);
+                    $metadataButton.isSelected = false;
+                    refreshButtons(this);
+                    $metadataButton.isSelected = true;
+                } else {
+                    $(this).css({ &#x27;background-color&#x27;: &#x27;transparent&#x27;, &#x27;color&#x27;: &#x27;white&#x27; });
+                    rightArrow.attr(&#x27;src&#x27;, &#x27;/images/icons/Right.png&#x27;);
+                }
+
+            });
+        $metadataButton.isSelected = false;
+        $metadataButton.toggle = function () {
+            $metadataForm.toggle();
+            $metadataButton.isSelected = false;
+            $metadataButton.css({ &#x27;background-color&#x27;: &#x27;transparent&#x27;, &#x27;color&#x27;: &#x27;white&#x27; });
+            rightArrow.attr(&#x27;src&#x27;, &#x27;/images/icons/Right.png&#x27;);
+        }
+
+        $metadataButton.append(rightArrow);
+        $metadataButton.append(metaDataLabel);
+        buttonContainer.append($metadataButton);
+        metaDataLabel.css({ &quot;line-height&quot;: $metadataButton.height() + &quot;px&quot;, &quot;font-size&quot;: sidePanelFontSize });
+
+        //edit location button
+
+        var rightArrowEditLoc = $(document.createElement(&#x27;img&#x27;));
+        rightArrowEditLoc.attr(&#x27;src&#x27;, &#x27;/images/icons/Right.png&#x27;);
+        rightArrowEditLoc.css({ &quot;position&quot;: &quot;absolute&quot;, &quot;right&quot;: &quot;5%&quot;, top: &quot;30%&quot;, width: &quot;auto&quot;, height: &quot;40%&quot; });
+
+        var editLocLabel = $(document.createElement(&#x27;label&#x27;));
+        editLocLabel.text(&quot;Edit Location History&quot;);
+        editLocLabel.css({ &quot;width&quot;: &quot;100%&quot;, &quot;height&quot;: &quot;100%&quot;, &quot;line-height&quot;: &quot;100%&quot;, &quot;text-align&quot;: &quot;center&quot; });
+
+        editLocButton = $(document.createElement(&#x27;div&#x27;));
+        editLocButton.css(newButtonCSS);
+        editLocButton.click(function (event) {
+            event.stopPropagation();
+            editLocButton.isSelected = !editLocButton.isSelected;
+           
+            
+            hideEditMediaUI();
+            rightbarLoadingDelete.fadeOut();
+
+            //toggle when this gets selected
+            if (editLocButton.isSelected) {
+                $(this).css({ &#x27;background-color&#x27;: &#x27;white&#x27;, &#x27;color&#x27;: &#x27;black&#x27; });
+                rightArrowEditLoc.attr(&#x27;src&#x27;, &#x27;/images/icons/RightB.png&#x27;);
+                togglelp();
+                editLocButton.isSelected = false;
+                refreshButtons();
+                editLocButton.isSelected = true;
+            } else {
+                $(this).css({ &#x27;background-color&#x27;: &#x27;transparent&#x27;, &#x27;color&#x27;: &#x27;white&#x27; });
+                rightArrowEditLoc.attr(&#x27;src&#x27;, &#x27;/images/icons/Right.png&#x27;);
+            }
+
+            drawLocationList();
+
+        });
+        editLocButton.isSelected = false;
+        editLocButton.toggle = function () {
+            editLocButton.isSelected = false;
+            editLocButton.css({ &#x27;background-color&#x27;: &#x27;transparent&#x27;, &#x27;color&#x27;: &#x27;white&#x27; });
+            rightArrowEditLoc.attr(&#x27;src&#x27;, &#x27;/images/icons/Right.png&#x27;);
+        };
+        buttonContainer.append(editLocButton);
+        editLocButton.append(rightArrowEditLoc);
+        editLocButton.append(editLocLabel);
+        editLocLabel.css({ &quot;line-height&quot;: editLocButton.height() + &quot;px&quot;, &quot;font-size&quot;: sidePanelFontSize });
+        
+        //edit thumbnail button
+
+        var editThumbLabel = $(document.createElement(&#x27;label&#x27;));
+        editThumbLabel.text(&quot;Edit Thumbnail&quot;);
+        editThumbLabel.css({ &quot;width&quot;: &quot;100%&quot;, &quot;height&quot;: &quot;100%&quot;, &quot;line-height&quot;: &quot;100%&quot;, &quot;text-align&quot;: &quot;center&quot; });
+
+        var rightArrowEditThumb = $(document.createElement(&#x27;img&#x27;));
+        rightArrowEditThumb.attr(&#x27;src&#x27;, &#x27;/images/icons/Right.png&#x27;);
+        rightArrowEditThumb.css({ &quot;position&quot;: &quot;absolute&quot;, &quot;right&quot;: &quot;5%&quot;, top: &quot;30%&quot;, width: &quot;auto&quot;, height: &quot;40%&quot; });
+
+        editThumbnailButton = $(document.createElement(&#x27;div&#x27;));
+        editThumbnailButton.addClass(&quot;editThumbnailButton&quot;);
+        editThumbnailButton.attr(&#x27;type&#x27;, &#x27;button&#x27;);
+        editThumbnailButton.css(newButtonCSS);
+        editThumbnailButton.click(function () {
+
+            hideEditMediaUI();
+            rightbarLoadingDelete.fadeOut();
+            toggleThumbnailPicker();
+
+            editThumbnailButton.isSelected = !editThumbnailButton.isSelected;
+
+            //toggle when this gets selected
+            if (editThumbnailButton.isSelected) {
+                $(this).css({ &#x27;background-color&#x27;: &#x27;white&#x27;, &#x27;color&#x27;: &#x27;black&#x27; });
+                rightArrowEditThumb.attr(&#x27;src&#x27;, &#x27;/images/icons/RightB.png&#x27;);
+                editThumbnailButton.isSelected = false;
+                refreshButtons();
+                editThumbnailButton.isSelected = true;
+            } else {
+                $(this).css({ &#x27;background-color&#x27;: &#x27;transparent&#x27;, &#x27;color&#x27;: &#x27;white&#x27; });
+                rightArrowEditThumb.attr(&#x27;src&#x27;, &#x27;/images/icons/Right.png&#x27;);
+            }
+            
+        });
+        editThumbnailButton.isSelected = false;
+        editThumbnailButton.toggle = function () {
+            editThumbnailButton.isSelected = false;
+            toggleThumbnailPicker(&quot;close&quot;);
+            editThumbnailButton.css({ &#x27;background-color&#x27;: &#x27;transparent&#x27;, &#x27;color&#x27;: &#x27;white&#x27; });
+            rightArrowEditThumb.attr(&#x27;src&#x27;, &#x27;/images/icons/Right.png&#x27;);
+        };
+        buttonContainer.append(editThumbnailButton);
+        editThumbnailButton.append(rightArrowEditThumb);
+        editThumbnailButton.append(editThumbLabel);
+        editThumbLabel.css({ &quot;line-height&quot;: editLocButton.height() + &quot;px&quot;, &quot;font-size&quot;: sidePanelFontSize });
+
+        /* var editThumbnailButton = $(document.createElement(&#x27;button&#x27;));
+         editThumbnailButton.text(&#x27;Edit Thumbnail&#x27;);
+         editThumbnailButton.attr(&#x27;type&#x27;, &#x27;button&#x27;);
+         editThumbnailButton.css(buttonCSS);
+         editThumbnailButton.click(function () {
+             if (hasBeenChanged) {
+                 editingMediamsg = $(TAG.Util.UI.popUpMessage(null, &quot;You are currently editing a Hotspot or Media&quot;, &quot;OK&quot;, false));
+                 root.append(editingMediamsg);
+                 editingMediamsg.show();
+             } else {
+                 hideEditMediaUI();
+                 rightbarLoadingDelete.fadeOut();
+                 toggleThumbnailPicker();
+             }
+         });
+         buttonContainer.append(editThumbnailButton); */
+
+
+        /* var editLocButton = $(document.createElement(&#x27;button&#x27;));
+         editLocButton.text(&#x27;Edit Location History&#x27;);
+         editLocButton.attr(&#x27;type&#x27;, &#x27;button&#x27;);
+         editLocButton.css(newButtonCSS);
+         editLocButton.click(function () {
+             //hideMenus();
+             if (hasBeenChanged) {
+                 editingMediamsg = $(TAG.Util.UI.popUpMessage(null, &quot;You are currently editing a Hotspot or Media&quot;, &quot;OK&quot;, false));
+                 root.append(editingMediamsg);
+                 editingMediamsg.show();
+             } else {
+                 togglelp();
+                 hideEditMediaUI();
+                 rightbarLoadingDelete.fadeOut();
+                 drawLocationList();
+             }
+         });
+         buttonContainer.append(editLocButton); */
+
+        // =============================start of locationPanelDiv================================
+        //location panel
+        var locationPanelDiv = $(document.createElement(&#x27;div&#x27;));
+        locationPanelDiv.addClass(&#x27;locationPanelDiv&#x27;);
+
+        ///
+        locationPanelDiv.css({
+            position: &#x27;absolute&#x27;,
+            top: &#x27;10%&#x27;,
+            left: &#x27;20%&#x27;,
+            width: &#x27;100%&#x27;,
+            height: &#x27;85%&#x27;,
+            display: &#x27;none&#x27;,
+            &#x27;z-index&#x27;: &#x27;51&#x27;
+        });
+
+        $(root).append(locationPanelDiv);
+
+        var locationPanel = $(document.createElement(&#x27;div&#x27;));
+        locationPanel.addClass(&#x27;locationPanel&#x27;);
+        locationPanel.css({
+            width: &#x27;70%&#x27;,
+            height: &#x27;90%&#x27;,
+            &#x27;z-indez&#x27;: 99,
+            &#x27;background-color&#x27;: &#x27;rgba(0,0,0,0.85);&#x27;,
+            &#x27;padding&#x27;: &#x27;2% 2%&#x27;,
+        });
+        locationPanelDiv.append(locationPanel);
+
+        //little arrow that closes locationpanel
+        var locationPanelToggle = $(document.createElement(&#x27;div&#x27;));
+        locationPanelToggle.addClass(&#x27;locationpanelToggle&#x27;);
+        locationPanelToggle.css({
+            position: &#x27;absolute&#x27;,
+            height: &#x27;11%&#x27;,
+            width: &#x27;2%&#x27;,
+            top: &#x27;48%&#x27;,
+            left: &#x27;74%&#x27;,
+            &#x27;border-radius&#x27;: &#x27;0px 10px 10px 0px&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(0,0,0,0.85)&#x27;,
+        });
+        //locationPanelToggle.click(togglelp);
+        //locationPanelDiv.append(locationPanelToggle);
+
+        var lpToggleimg = $(document.createElement(&#x27;img&#x27;));
+        lpToggleimg.addClass(&#x27;lpToggleimg&#x27;);
+        lpToggleimg.attr(&#x27;src&#x27;, &#x27;/images/icons/Left.png&#x27;);
+        lpToggleimg.css({
+            position: &#x27;relative&#x27;,
+            top: &#x27;30%&#x27;,
+            width: &#x27;auto&#x27;,
+            height: &#x27;30%&#x27;,
+        });
+        locationPanelToggle.append(lpToggleimg);
+
+        //the div where bing maps will show up in
+        mapDiv = $(document.createElement(&#x27;div&#x27;));
+        mapDiv.addClass(&#x27;mapDiv&#x27;);
+        mapDiv.attr(&#x27;id&#x27;, &#x27;mapDiv&#x27;);
+        mapDiv.css({
+            position: &#x27;relative&#x27;,
+            width: &#x27;100%&#x27;,
+            height: &#x27;50%&#x27;,
+        });
+        locationPanel.append(mapDiv);
+
+        //make Bing map when mapDiv loads
+        $(mapDiv).one(&#x27;load&#x27;, makeMap);
+        //set interval to check whether mapDiv is inserted in DOM, then fire onload event
+        //should work but does not...
+        var mapDetectTimer = setInterval(function () {
+            if ($(&#x27;#mapDiv&#x27;).length &gt; 0) {
+                $(mapDiv).trigger(&quot;load&quot;);
+                clearInterval(mapDetectTimer);
+            }
+        }, 300);
+
+
+        //area below the map with all the locations
+        var bottomDiv = $(document.createElement(&#x27;div&#x27;));
+        bottomDiv.addClass(&#x27;bottomDiv&#x27;);
+        bottomDiv.css({
+            position: &#x27;relative&#x27;,
+            height: &#x27;50%&#x27;,
+            width: &#x27;100%&#x27;,
+            &#x27;margin-top&#x27;: &#x27;1.5%&#x27;
+        });
+        locationPanel.append(bottomDiv);
+
+        //left side of the bottom area
+        var leftDiv = $(document.createElement(&#x27;div&#x27;));
+        leftDiv.addClass(&#x27;leftDiv&#x27;);
+        leftDiv.css({
+            position: &#x27;relative&#x27;,
+            height: &#x27;100%&#x27;,
+            width: &#x27;69%&#x27;,
+            &#x27;margin-right&#x27;: &#x27;1%&#x27;,
+        });
+        bottomDiv.append(leftDiv);
+
+        //div where user searches for locations and adds them, hidden until &#x27;add location&#x27; button is pressed
+        var AddLocationDiv = $(document.createElement(&#x27;div&#x27;));
+        AddLocationDiv.addClass(&#x27;addLocationDiv&#x27;);
+        AddLocationDiv.css({
+            position: &#x27;relative&#x27;,
+            height: &#x27;100%&#x27;,
+            width: &#x27;100%&#x27;,
+            display: &#x27;none&#x27;
+        });
+        leftDiv.append(AddLocationDiv);
+
+        //right side of the bottom area, containing all the existing locations of the artwork
+        var rightDiv = $(document.createElement(&#x27;div&#x27;));
+        rightDiv.addClass(&#x27;rightDiv&#x27;);
+        rightDiv.css({
+            position: &#x27;absolute&#x27;,
+            height: &#x27;100%&#x27;,
+            width: &#x27;29%&#x27;,
+            top: 0,
+            right: 0,
+        });
+        bottomDiv.append(rightDiv);
+
+        //search bar and search button
+        var leftRow1 = $(document.createElement(&#x27;div&#x27;));
+        leftRow1.addClass(&#x27;leftRow1&#x27;);
+        AddLocationDiv.append(leftRow1);
+
+        searchBox = $(document.createElement(&#x27;input&#x27;));
+        searchBox.attr(&#x27;type&#x27;, &#x27;text&#x27;);
+        searchBox.attr(&#x27;placeholder&#x27;, &#x27;Search...&#x27;);
+        searchBox.css({
+            width: &#x27;70%&#x27;,
+            &#x27;margin&#x27;: &#x27;0px&#x27;,
+        });
+        leftRow1.append(searchBox);
+
+        var searchButton = $(document.createElement(&#x27;button&#x27;));
+        searchButton.text(&#x27;Search&#x27;);
+        searchButton.css({
+            &#x27;max-width&#x27;: &#x27;25%&#x27;,
+            float: &#x27;right&#x27;,
+        });
+        searchButton.click(function () {
+            if (searchBox[0].value === &#x27;&#x27;) {
+                TAG.Util.UI.drawPushpins(locationList, map);
+                clearResults();
+                helpboxAlert(&#x27;Please type in the search bar&#x27;);
+
+            } else {
+                map.entities.clear();
+                customInfobox.hide();
+                helpBox.fadeOut(&#x27;fast&#x27;);
+                makeGeocodeStringRequest();
+            }
+        });
+        leftRow1.append(searchButton);
+
+        // search results
+        var leftRow2 = $(document.createElement(&#x27;div&#x27;));
+        leftRow2.addClass(&#x27;leftRow2&#x27;);
+        leftRow2.css({
+            position: &#x27;relative&#x27;,
+            height: &#x27;60%&#x27;,
+            &#x27;overflow-y&#x27;: &#x27;hidden&#x27;,
+            &#x27;overflow-x&#x27;: &#x27;hidden&#x27;,
+            margin: &#x27;2% 0%&#x27;
+        });
+        AddLocationDiv.append(leftRow2);
+
+        helpBox = $(document.createElement(&#x27;div&#x27;));
+        helpBox.addClass(&#x27;helpBox&#x27;);
+        helpBox.css({
+            position: &#x27;absolute&#x27;,
+            top: 0,
+            left: 0,
+            height: &#x27;70%&#x27;,
+            &#x27;text-align&#x27;: &#x27;center&#x27;,
+            &#x27;font-size&#x27;: &#x27;100%&#x27;,
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;width&#x27;: &#x27;100%&#x27;
+        });
+        helpBox.text(helpText);
+        leftRow2.append(helpBox);
+
+        resultsBox = $(document.createElement(&#x27;div&#x27;));
+        resultsBox.addClass(&#x27;resultsBox&#x27;);
+        resultsBox.css({
+            position: &#x27;absolute&#x27;,
+            top: 0,
+            left: 0,
+            width: &#x27;100%&#x27;,
+            height: &#x27;90%&#x27;,
+            &#x27;overflow-y&#x27;: &#x27;auto&#x27;,
+            &#x27;overflow-x&#x27;: &#x27;hidden&#x27;,
+        });
+        leftRow2.append(resultsBox);
+
+        //datepicker and confirm/cancel buttons
+        var leftRow3 = $(document.createElement(&#x27;div&#x27;));
+        leftRow3.addClass(&#x27;leftRow3&#x27;);
+        leftRow3.css({
+            position: &#x27;relative&#x27;,
+            bottom: &#x27;7.5%&#x27;,
+            width: &#x27;100%&#x27;
+        });
+        AddLocationDiv.append(leftRow3);
+
+        var dateLabel = $(document.createElement(&#x27;div&#x27;));
+        dateLabel.text(&#x27;Date&#x27;);
+        dateLabel.css({
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;font-size&#x27;: &#x27;100%&#x27;
+        });
+        leftRow3.append(dateLabel);
+
+        var datePickerBox = $(document.createElement(&#x27;div&#x27;));
+
+        //My Own DatePicker
+        datePicker = $(document.createElement(&#x27;div&#x27;));
+        datePicker.css({
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            float: &#x27;left&#x27;
+        });
+        var monthtext = [&#x27;January&#x27;, &#x27;Feburary&#x27;, &#x27;March&#x27;, &#x27;April&#x27;, &#x27;May&#x27;, &#x27;June&#x27;, &#x27;July&#x27;, &#x27;August&#x27;, &#x27;September&#x27;, &#x27;October&#x27;, &#x27;November&#x27;, &#x27;December&#x27;];
+        dateBox = $(document.createElement(&#x27;select&#x27;));
+        monthBox = $(document.createElement(&#x27;select&#x27;));
+        yearBox = $(document.createElement(&#x27;input&#x27;));
+        yearBox.attr(&quot;maxlength&quot;, 15);
+
+        // widths are hardcoded because typical entry lengths are fixed.
+        var datepickerCSS = {
+            &#x27;width&#x27;: &#x27;120px&#x27;,
+            &#x27;margin-right&#x27;: &#x27;0.5%&#x27;,
+            &#x27;font-size&#x27;: &#x27;95%&#x27;
+        };
+        dateBox.css(datepickerCSS);
+        dateBox.css({
+            &#x27;width&#x27;: &#x27;65px&#x27;,
+        });
+        monthBox.css(datepickerCSS);
+
+        // to accomodate &quot;B.C.&quot; pre/post year entry, change to 75px
+        yearBox.css({
+            &#x27;font-size&#x27;: &#x27;95%&#x27;,
+            &#x27;width&#x27;: &#x27;50px&#x27;,
+        });
+
+        var nullOption = $(document.createElement(&#x27;option&#x27;)).html(&#x27;---&#x27;).attr(&#x27;value&#x27;, -1);
+        var spacingCSS = { &#x27;margin-right&#x27;: &#x27;.5%&#x27; };
+
+        dateBox.addClass(&quot;datePicker dateBox&quot;);
+        monthBox.addClass(&quot;datePicker monthBox&quot;);
+        yearBox.addClass(&quot;datePicker yearBox&quot;);
+        yearBox.attr(&#x27;id&#x27;, &#x27;yearBox&#x27;);
+
+        datePicker.append(dateBox).append(monthBox).append(yearBox);
+        datePickerBox.append(datePicker);
+
+        leftRow3.append(datePickerBox);
+
+        dateBox.append(nullOption.clone().attr(&#x27;value&#x27;, 0));
+        monthBox.append(nullOption.clone().attr(&#x27;value&#x27;, 0));
+
+        for (i = 0; i &lt; 31; i++) {
+            var dateOption = $(document.createElement(&#x27;option&#x27;));
+            dateOption.html(i + 1);
+            dateOption.attr(&#x27;value&#x27;, i + 1);
+            dateBox.append(dateOption);
+        }
+        for (i = 0; i &lt; 12; i++) {
+            var monthOption = $(document.createElement(&#x27;option&#x27;));
+            monthOption.html(monthtext[i]);
+            monthOption.attr(&#x27;value&#x27;, i + 1);
+            monthBox.append(monthOption);
+        }
+
+        //triggered everytime the datepicker has changed, resets the selected date
+        function datePickerEvent() {
+            $(&#x27;div.results&#x27;).css({ &#x27;background-color&#x27;: &#x27;transparent&#x27;, &#x27;color&#x27;: &#x27;white&#x27; });
+            var y = parseInt(yearBox[0].value, 10);
+            var m = parseInt(monthBox[0][monthBox[0].selectedIndex].value, 10) - 1;
+            var d = parseInt(dateBox[0][dateBox[0].selectedIndex].value, 10);
+            if (m &lt; 0 || isNaN(m)) {
+                m = undefined;
+            }
+            if (d === 0 || isNaN(d)) {
+                d = undefined;
+            }
+            if (y === &#x27;&#x27; || isNaN(y)) {
+                m = undefined;
+                d = undefined;
+                y = undefined;
+            }
+            selectedDate = {
+                year: y,
+                month: m,
+                day: d,
+            };
+        }
+
+        dateBox.change(datePickerEvent);
+        monthBox.change(datePickerEvent);
+        yearBox.change(datePickerEvent);
+
+        var addDescripButton = $(document.createElement(&#x27;button&#x27;));
+        addDescripButton.css({
+            &#x27;margin-left&#x27;: &#x27;1.5%&#x27;,
+            &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+            &#x27;min-width&#x27;: &#x27;0px&#x27;,
+            &#x27;min-height&#x27;: &#x27;0px&#x27;,
+            &#x27;width&#x27;: &#x27;22%&#x27;,
+            &#x27;font-size&#x27;: &#x27;100%&#x27;
+        });
+        addDescripButton.text(&quot;Edit Description&quot;);
+        datePicker.append(addDescripButton);
+
+        // begin edit description pane code
+        var editDescriptionBox = $(document.createElement(&#x27;div&#x27;));
+        locationPanel.append(editDescriptionBox);
+        editDescriptionBox.css({
+            &#x27;background-color&#x27;: &#x27;rgba(0, 0, 0, 0.85)&#x27;,
+            &#x27;width&#x27;: &#x27;30%&#x27;,
+            &#x27;height&#x27;: &#x27;18%&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;bottom&#x27;: &#x27;16%&#x27;,
+            &#x27;left&#x27;: &#x27;25%&#x27;,
+        });
+
+        var textAreaCSS = {
+            &#x27;border&#x27;: &#x27;2px solid Gray&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;float&#x27;: &#x27;left&#x27;
+        };
+
+        var descriptionText = $(document.createElement(&#x27;textarea&#x27;));
+        editDescriptionBox.append(descriptionText);
+        descriptionText.attr(&#x27;id&#x27;, &#x27;descriptionText&#x27;);
+        descriptionText.attr(&#x27;placeholder&#x27;, &#x27;Description&#x27;);
+        descriptionText.attr(&#x27;rows&#x27;, &#x27;5&#x27;);
+        descriptionText.css(textAreaCSS);
+        descriptionText.css({
+            &#x27;padding&#x27;: &#x27;0px 1px 0px 1px&#x27;,
+            &#x27;margin-top&#x27;: &#x27;0px&#x27;,
+            &#x27;background-color&#x27;: &#x27;white&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;, 
+            &#x27;width&#x27;: &#x27;89%&#x27;,
+            &#x27;left&#x27;: &#x27;5%&#x27;,
+            &#x27;top&#x27;: &#x27;20px&#x27;,
+        });
+
+        var cancelButton = $(document.createElement(&#x27;button&#x27;));
+        cancelButton.addClass(&#x27;cancelEditDescButton&#x27;);
+        cancelButton.text(&#x27;Cancel&#x27;);
+        cancelButton.css({
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;border&#x27;: &#x27;2px solid white&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;width&#x27;: &#x27;15%&#x27;,
+            &#x27;bottom&#x27;: &#x27;9.5%&#x27;,
+            &#x27;left&#x27;: &#x27;5%&#x27;,
+            &#x27;height&#x27;: &#x27;10%&#x27;,
+        });
+        cancelButton.click(function () {
+            if (unsavedDescription &amp;&amp; unsavedDescription !== &quot;&quot;) {
+                descriptionText.val(unsavedDescription);
+            }
+            editingDescription = false;
+            editDescriptionBox.hide();
+        });
+
+        editDescriptionBox.append(cancelButton);
+
+        var saveButton = $(document.createElement(&#x27;button&#x27;));
+        saveButton.addClass(&#x27;saveDescButton&#x27;);
+        saveButton.text(&#x27;Save&#x27;);
+        saveButton.css({
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;border&#x27;: &#x27;2px solid white&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;width&#x27;: &#x27;15%&#x27;,
+            &#x27;bottom&#x27;: &#x27;9.5%&#x27;,
+            &#x27;right&#x27;: &#x27;5%&#x27;,
+            &#x27;height&#x27;: &#x27;10%&#x27;,
+            
+        });
+        saveButton.click(function () {
+            unsavedDescription = descriptionText.val();
+            editingDescription = false;
+            editDescriptionBox.hide();
+        });
+
+        editDescriptionBox.append(saveButton);
+
+        editDescriptionBox.hide();
+        // end description pane 
+
+        addDescripButton.on(&#x27;click&#x27;, function () {
+            editingDescription = !editingDescription;
+            if (editingDescription) {
+
+                var descrBoxConstraints = TAG.Util.constrainAndPosition(locationPanel.width(), locationPanel.height(), {
+                    width: 0.5,
+                    height: 0.35,
+                    max_width: 768,
+                    max_height: 192,
+                });
+
+                editDescriptionBox.css({
+                    &#x27;width&#x27;: descrBoxConstraints.width + &#x27;px&#x27;,
+                    &#x27;height&#x27;: descrBoxConstraints.height + &#x27;px&#x27;,
+
+                });
+
+                var descriptionTextConstraints = TAG.Util.constrainAndPosition(editDescriptionBox.width(), editDescriptionBox.height(), {
+                    center_h: true,
+                    width: 0.9,
+                    x_offset: 0.05,
+                    y_offset: 0.12,
+                    y_max_offset: 25,
+                });
+                descriptionText.css({
+                    &#x27;top&#x27;: descriptionTextConstraints.y + &#x27;px&#x27;,
+                    &#x27;left&#x27;: descriptionTextConstraints.x - 2 + &#x27;px&#x27;,
+                    &#x27;width&#x27;: descriptionTextConstraints.width + &#x27;px&#x27;,
+                });
+                editDescriptionBox.show();
+
+                if (unsavedDescription) {
+                    descriptionText.attr(&#x27;value&#x27;, selectedInfo);
+                } else {
+                    descriptionText.attr(&#x27;value&#x27;, &quot;&quot;);
+                }
+            } else {
+                editDescriptionBox.hide();
+            }
+        });
+
+
+        // cancel button to hide addLocationDiv
+        var cancelNewLocation = $(document.createElement(&#x27;button&#x27;));
+        cancelNewLocation.css({
+            position: &#x27;absolute&#x27;,
+            right: &quot;16.5%&quot;,
+            &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+            &#x27;min-width&#x27;: &#x27;0px&#x27;,
+            &#x27;min-height&#x27;: &#x27;0px&#x27;,
+            &#x27;width&#x27;: &#x27;12%&#x27;,
+            &#x27;font-size&#x27;: &#x27;100%&#x27;
+        });
+        cancelNewLocation.text(&#x27;Cancel&#x27;);
+        cancelNewLocation.click(function (e) {
+            selectedLocResource = undefined;
+            selectedAddress = undefined;
+            unsavedDescription = undefined;
+            selectedDate = undefined;
+            AddLocationDiv.hide(&#x27;blind&#x27;);
+            addLocButton.show();
+            TAG.Util.UI.drawPushpins(locationList, map);
+            Microsoft.Maps.Events.removeHandler(mapAttachClick);
+            clearDatePicker(datePicker);
+        });
+        datePicker.append(cancelNewLocation);
+
+        // confirm button to add selected location
+        var confirmNewLocation = $(document.createElement(&#x27;button&#x27;));
+        confirmNewLocation.css({
+            position: &#x27;absolute&#x27;,
+            right: &#x27;0%&#x27;,
+            &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+            &#x27;min-width&#x27;: &#x27;0px&#x27;,
+            &#x27;min-height&#x27;: &#x27;0px&#x27;,
+            &#x27;width&#x27;: &#x27;15%&#x27;,
+            &#x27;font-size&#x27;: &#x27;100%&#x27;
+        });
+        confirmNewLocation.text(&#x27;Confirm&#x27;);
+        confirmNewLocation.click(function (e) {
+            if (!addLocation()) {
+                return;
+            }
+            editDescriptionBox.hide();
+            AddLocationDiv.hide(&#x27;blind&#x27;);
+            addLocButton.show();
+            TAG.Util.UI.drawPushpins(locationList, map);
+            Microsoft.Maps.Events.removeHandler(mapAttachClick);
+            clearDatePicker(datePicker);
+        });
+        datePicker.append(confirmNewLocation);
+
+        //popup bubble warning the user that a location has not been selected when confirm is pressed
+        confirmBubble = $(document.createElement(&#x27;div&#x27;));
+        confirmBubble.attr(&#x27;class&#x27;, &#x27;confirmBubble&#x27;);
+        confirmBubble.css({
+            &#x27;padding&#x27;: &#x27;4% 4%&#x27;,
+            &#x27;left&#x27;: &#x27;63%&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;4%&#x27;,
+            &#x27;top&#x27;: &#x27;-150%&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(255,255,255,.6)&#x27;,
+            &#x27;border-radius&#x27;: &#x27;10px&#x27;,
+            &#x27;z-index&#x27;: &#x27;2&#x27;,
+            &#x27;font-weight&#x27;: &#x27;bold&#x27;,
+            &#x27;text-align&#x27;: &#x27;center&#x27;
+        });
+        confirmBubble.html(&#x27;Please select a valid location&#x27;);
+
+        var confirmBubbleTriangle = $(document.createElement(&#x27;div&#x27;));
+        confirmBubbleTriangle.attr(&#x27;class&#x27;, &#x27;confirmBubbleTriangle&#x27;);
+        confirmBubbleTriangle.css({
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;top&#x27;: &#x27;100%&#x27;,
+            &#x27;left&#x27;: &#x27;40%&#x27;,
+            &#x27;width&#x27;: 0,
+            &#x27;border-style&#x27;: &#x27;solid&#x27;,
+            &#x27;border-width&#x27;: &#x27;20px&#x27;,
+            &#x27;border-color&#x27;: &#x27;rgba(255,255,255,.6) transparent transparent transparent&#x27;,
+        });
+        confirmBubble.append(confirmBubbleTriangle);
+        leftRow3.append(confirmBubble);
+        confirmBubble.hide();
+
+        // &#x27;Add Location&#x27; button that shows the addLocationDiv
+        addLocButton = $(document.createElement(&#x27;button&#x27;));
+        addLocButton.css({
+            position: &#x27;absolute&#x27;,
+            float: &#x27;left&#x27;,
+            &#x27;min-width&#x27;: &#x27;0px&#x27;,
+            &#x27;min-height&#x27;: &#x27;0px&#x27;
+        });
+
+        addLocButton.text(&#x27;Add Location&#x27;);
+        mapAttachClick = null;
+        addLocButton.click(function (e) {
+            helpBox.show();
+            searchBox.val(&#x27;&#x27;);
+            clearResults();
+            helpBox.fadeIn();
+            TAG.Util.fitText(helpBox, 3.5); ///////////////////
+            AddLocationDiv.show(&#x27;blind&#x27;);
+            mapAttachClick = Microsoft.Maps.Events.addHandler(map, &#x27;rightclick&#x27;, addPushpinOntouch);
+            addLocButton.hide();
+        });
+        leftDiv.append(addLocButton);
+
+        // Locations title
+        var locationsTitle = $(document.createElement(&#x27;div&#x27;));
+        locationsTitle.addClass(&#x27;locationsTitle&#x27;);
+        locationsTitle.text(&#x27;Locations&#x27;);
+        locationsTitle.css({
+            color: &#x27;white&#x27;,
+            &#x27;font-size&#x27;: &#x27;185%&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;top&#x27;: &#x27;-0.75%&#x27;,
+        });
+        rightDiv.append(locationsTitle);
+
+        // Div where all locations will be appended
+        locationsDiv = $(document.createElement(&#x27;div&#x27;));
+        locationsDiv.addClass(&quot;listOfLocations&quot;);
+        locationsDiv.css({
+            position: &#x27;relative&#x27;,
+            height: &#x27;80%&#x27;,
+            &#x27;overflow-y&#x27;: &#x27;auto&#x27;,
+            &#x27;overflow-x&#x27;: &#x27;hidden&#x27;,
+        });
+        rightDiv.append(locationsDiv);
+
+        // =============================end of locationPanelDiv================================
+
+
+       
+
+        var addHotspots = $(document.createElement(&#x27;button&#x27;));
+        $(addHotspots).addClass(&#x27;addHotspots&#x27;);
+        $(addHotspots).text(&#x27;New Hotspot&#x27;);
+        $(addHotspots).css(buttonCSS);
+        //buttonContainer.append(addHotspots);
+
+        var addAssocMedia = $(document.createElement(&#x27;button&#x27;));
+        addAssocMedia.addClass(&#x27;addAssocMedia&#x27;);
+        addAssocMedia.text(&#x27;New Associated Media&#x27;);
+        addAssocMedia.css(buttonCSS);
+        //buttonContainer.append(addAssocMedia);
+
+        //text associated media button
+        var textAssocMedia = $(document.createElement(&#x27;button&#x27;));
+        textAssocMedia.addClass(&#x27;textAssocMedia&#x27;);
+        textAssocMedia.text(&#x27;Add Text Asset&#x27;);
+        textAssocMedia.attr(&#x27;type&#x27;, &#x27;button&#x27;);
+        textAssocMedia.css(buttonCSS);
+        //buttonContainer.append(textAssocMedia);
+
+        // === Associated Media &amp; Hotspots
+        var assocMediaLabel = $(document.createElement(&#x27;div&#x27;));
+        assocMediaLabel.addClass(&#x27;assocMediaLabel&#x27;);
+        assocMediaLabel.text(&#x27;Assets and Media&#x27;);
+        assocMediaLabel.css({
+            color: &#x27;white&#x27;,
+            &#x27;font-size&#x27;: titleFontSize,
+            &#x27;margin-top&#x27;: &#x27;2%&#x27;,
+            &#x27;margin-bottom&#x27;: &quot;2%&quot;
+        });
+        buttonContainer.append(assocMediaLabel);
+
+        var addRemoveMedia = $(document.createElement(&#x27;button&#x27;));
+        addRemoveMedia.addClass(&#x27;addRemoveMedia&#x27;);
+        addRemoveMedia.text(&#x27;Add/Remove Media&#x27;);
+        addRemoveMedia.attr(&#x27;type&#x27;, &#x27;button&#x27;);
+        addRemoveMedia.css(buttonCSS);
+        buttonContainer.append(addRemoveMedia);
+        addRemoveMedia.on(&#x27;click&#x27;, createMediaPicker);
+
+        function createMediaPicker() {
+            TAG.Util.UI.createAssociationPicker(root,
+                &quot;Choose the media you wish to associate with this artwork&quot;,
+                {comp: artwork, type: &#x27;artwork&#x27;},
+                &quot;artwork&quot;,
+                [{
+                    name: &quot;all media&quot;,
+                    getObjs: TAG.Worktop.Database.getAssocMedia,
+                }, {
+                    name: &quot;currently associated&quot;,
+                    getObjs: TAG.Worktop.Database.getAssocMediaTo,
+                    args: [artwork.Identifier]
+                }, {
+                    name: &quot;recently associated&quot;,
+                    getObjs: TAG.Util.UI.getRecentlyAssociated
+                }], {
+                    getObjs: TAG.Worktop.Database.getAssocMediaTo,
+                    args: [artwork.Identifier]
+                }, function () {
+                    $(&#x27;.assetContainer&#x27;).empty();
+                    createMediaList($(&#x27;.assetContainer&#x27;));
+                });
+        }
+
+        var assocMediaEditor = document.createElement(&#x27;div&#x27;);
+        var $assocMediaEditor = $(assocMediaEditor);
+        $assocMediaEditor.addClass(&#x27;assocMediaEditor&#x27;);
+        $assocMediaEditor.css({
+            &#x27;width&#x27;: &#x27;30%&#x27;,
+            &#x27;height&#x27;: &#x27;60%&#x27;,
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(0,0,0,.85)&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;left&#x27;: &#x27;40%&#x27;,
+            &#x27;top&#x27;: &#x27;30%&#x27;
+        });
+
+        var assocMediaTitle = $(document.createElement(&#x27;div&#x27;));
+        $(assocMediaTitle).css({
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;font-size&#x27;: &#x27;175%&#x27;,
+            &#x27;padding&#x27;: &#x27;1%&#x27;,
+            &#x27;margin&#x27;: &#x27;1%&#x27;,
+            &#x27;background&#x27;: &#x27;none&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(0,0,0,.85)&#x27;,
+            &#x27;border&#x27;: &#x27;none&#x27;,
+            &#x27;white-space&#x27;: &#x27;nowrap&#x27;,
+            &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+            &#x27;height&#x27;: &#x27;0px&#x27;,
+        });
+
+        //for creation of edit menu for text media
+        textAssocMedia.on(&#x27;click&#x27;, function () {
+            //default to asset, not hotspot
+            showEditMedia({ assetType: &quot;Asset&quot; },&#x27;&#x27; ,true);
+        });
+
+        // Hotspot/Asset list in edit mode
+        var $assetContainer = $(document.createElement(&#x27;div&#x27;));
+        $assetContainer.attr(&#x27;class&#x27;, &#x27;buttonContainer&#x27;);
+        $assetContainer.css({
+            position: &#x27;relative&#x27;,
+            top: &#x27;0%,&#x27;,
+            &#x27;margin-top&#x27;: &#x27;2%&#x27;,
+            padding: &#x27;0px 4% 0px 12%&#x27;,
+            &#x27;overflow-y&#x27;: &#x27;auto&#x27;,
+            height: &#x27;60%&#x27;
+        });
+        $assetContainer.addClass(&#x27;assetContainer&#x27;);
+        sidebar.append($assetContainer);
+        //$assetContainer.css({ &quot;height&quot;: root.height() - $assetContainer.offset().top });
+
+        createMediaList($assetContainer);
+
+        // === End Associated Media &amp; Hotspots
+
+        var sidebarHideButtonContainer = $(document.createElement(&#x27;div&#x27;));
+        $(sidebarHideButtonContainer).addClass(&#x27;sidebarHideButtonContainer&#x27;);
+        $(sidebarHideButtonContainer).css({
+            &#x27;top&#x27;: &#x27;0%&#x27;,
+            &#x27;right&#x27;: &#x27;0%&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;width&#x27;: &#x27;2%&#x27;,
+            &#x27;height&#x27;: &#x27;100%&#x27;,
+            &#x27;float&#x27;: &#x27;left&#x27;,
+        });
+
+
+        var sidebarHideButton = $(document.createElement(&#x27;div&#x27;));
+        $(sidebarHideButton).css({
+            &#x27;top&#x27;: &#x27;45%&#x27;,
+            &#x27;right&#x27;: &#x27;0%&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;height&#x27;: &#x27;10%&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(0,0,0,.85)&#x27;,
+            &#x27;border-bottom-right-radius&#x27;: &#x27;10px&#x27;,
+            &#x27;border-top-right-radius&#x27;: &#x27;10px&#x27;
+        });
+
+        var sidebarHideIcon = document.createElement(&#x27;img&#x27;);
+        $(sidebarHideIcon).css({ &#x27;top&#x27;: &#x27;39%&#x27;, &#x27;width&#x27;: &#x27;40%&#x27;, &#x27;height&#x27;: &#x27;auto&#x27;, &#x27;position&#x27;: &#x27;relative&#x27;, &#x27;left&#x27;: &#x27;20%&#x27; });
+        $(sidebarHideIcon).attr(&#x27;src&#x27;, &#x27;images/icons/Left.png&#x27;);
+        $(sidebarHideButton).append(sidebarHideIcon);
+
+        $(sidebarHideButtonContainer).append(sidebarHideButton);
+
+        var expanded = true;
+        $(sidebarHideButton)[0].onclick = function () {
+
+            if (expanded) {
+                $(sidebarHideIcon).attr(&#x27;src&#x27;, &#x27;images/icons/Right.png&#x27;);
+                expanded = false;
+                $(sidebar).animate({ &#x27;left&#x27;: &#x27;-20%&#x27; }, 600);
+                $(sidebarHideButtonContainer).animate({ &#x27;left&#x27;: &#x27;-20%&#x27; }, 600);
+
+            }
+            else {
+                $(sidebarHideIcon).attr(&#x27;src&#x27;, &#x27;images/icons/Left.png&#x27;);
+                $(sidebar).animate({ &#x27;left&#x27;: &#x27;0%&#x27; }, 600);
+                $(sidebarHideButtonContainer).animate({ &#x27;left&#x27;: &#x27;0%&#x27; }, 600);
+
+                expanded = true;
+            }
+        };
+
+        mainPanel.append(sidebar);
+        mainPanel.append(sidebarHideButtonContainer);
+    }
+
+    function createBasicDatePicker(loadDay, loadMonth, loadYear) {
+        var bdp = $(document.createElement(&#x27;div&#x27;));
+        bdp.addClass(&quot;basicDatePicker&quot;);
+        bdp.css({
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            float: &#x27;left&#x27;
+        });
+
+        var nullOption = $(document.createElement(&#x27;option&#x27;)).html(&#x27;---&#x27;).attr(&#x27;value&#x27;, -1);
+        var spacingCSS = { &#x27;margin-right&#x27;: &#x27;.5%&#x27; };
+        var monthtext = [&#x27;January&#x27;, &#x27;Feburary&#x27;, &#x27;March&#x27;, &#x27;April&#x27;, &#x27;May&#x27;, &#x27;June&#x27;, &#x27;July&#x27;, &#x27;August&#x27;, &#x27;September&#x27;, &#x27;October&#x27;, &#x27;November&#x27;, &#x27;December&#x27;];
+        var date = $(document.createElement(&#x27;select&#x27;));
+        var month = $(document.createElement(&#x27;select&#x27;));
+        var year = $(document.createElement(&#x27;input&#x27;));
+
+        var dropdownCSS = {
+            &#x27;min-width&#x27;: &#x27;0px&#x27;,
+            &#x27;min-height&#x27;: &#x27;0px&#x27;,
+            &#x27;width&#x27;: &#x27;25%&#x27;,
+            &#x27;margin-right&#x27;: &#x27;1%&#x27;,
+            &#x27;font-size&#x27;: &#x27;95%&#x27;
+        };
+
+        date.css(dropdownCSS);
+        date.css({
+            width: &#x27;15%&#x27;,
+        });
+
+        month.css(dropdownCSS);
+        year.css({
+            &#x27;font-size&#x27;: &#x27;95%&#x27;,
+            &#x27;width&#x27;: &#x27;12.5%&#x27;,
+            &#x27;margin-right&#x27;: &#x27;2.5px&#x27;
+        });
+
+        bdp.append(date).append(month).append(year);
+        var dateNull = nullOption.clone().attr(&#x27;value&#x27;, 0), monthNull = nullOption.clone().attr(&#x27;value&#x27;, 0);
+
+        if (loadDay &amp;&amp; loadDay === 0) {
+            date.append(dateNull.attr(&#x27;selected&#x27;, 1));
+        } else {
+            date.append(dateNull);
+        }
+        if (loadMonth &amp;&amp; loadMonth === 0) {
+            month.append(monthNull).attr(&#x27;selected&#x27;, 1);
+        } else {
+            month.append(monthNull);
+        }
+
+        var i;
+        for (i = 0; i &lt; 31; i++) {
+            var dateOption = $(document.createElement(&#x27;option&#x27;));
+            dateOption.html(i + 1);
+            dateOption.attr(&#x27;value&#x27;, i + 1);
+            if (loadDay &amp;&amp; loadMonth &amp;&amp; loadDay === i + 1) {
+                dateOption.attr(&#x27;selected&#x27;, 1);
+            }
+            date.append(dateOption);
+        }
+        for (i = 0; i &lt; 12; i++) {
+            var monthOption = $(document.createElement(&#x27;option&#x27;));
+            monthOption.html(monthtext[i]);
+            monthOption.attr(&#x27;value&#x27;, i + 1);
+            if (loadMonth &amp;&amp; loadMonth === i) {
+                monthOption.attr(&#x27;selected&#x27;, 1);
+            }
+            month.append(monthOption);
+        }
+        if (loadYear) {
+            year.val(loadYear);
+        }
+
+        //triggered everytime the datepicker has changed, resets the selected date
+        function dateChangedEvent() {
+            $(&#x27;div.results&#x27;).css({ &#x27;background-color&#x27;: &#x27;transparent&#x27;, &#x27;color&#x27;: &#x27;white&#x27; });
+            var y = parseInt(yearBox[0].value, 10);
+            var m = monthBox[0][monthBox[0].selectedIndex].value;
+            var d = dateBox[0][dateBox[0].selectedIndex].value;
+            if (m === 0 || isNaN(m)) {
+                m = undefined;
+            } else {
+                m = m - 1;
+            }
+            if (d === 0 || isNaN(d)) {
+                d = undefined;
+            }
+            if (y === &#x27;&#x27; || isNaN(y)) {
+                m = undefined;
+                d = undefined;
+                y = undefined;
+            }
+            selectedDate = {
+                year: y,
+                month: m,
+                day: d,
+            };
+        }
+
+        date.change(dateChangedEvent);
+        month.change(dateChangedEvent);
+        year.change(dateChangedEvent);
+
+        return bdp;
+    }
+
+    function hideMenus() {
+        $(&#x27;.addInfoDialog&#x27;).fadeOut();
+        if (locPanelOpen) {
+            $(&#x27;.locationPanelDiv&#x27;).hide(&quot;slide&quot;, { direction: &#x27;left&#x27; }, 500, function () {
+                $(&#x27;.sidebarHideButtonContainer&#x27;).show();
+            });
+            locPanelOpen = false;
+        }
+        $(&#x27;.tnBorderWrapper&#x27;).fadeOut();
+    }
+
+    function createSidebarTextArea(options) {
+        var field = options.field,
+            entry = options.entry,
+            animate = options.animate,
+            isTextarea = options.isTextarea,
+            isAdditionalField = options.isAdditionalField;
+        var textareaContainer = $(document.createElement(&#x27;div&#x27;));
+        textareaContainer.addClass(&#x27;textareaContainer&#x27;);
+        textareaContainer.css({
+            &#x27;margin-bottom&#x27;: &#x27;7%&#x27;,
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;text-align&#x27;: &#x27;left&#x27;,
+        });
+
+        var fieldTitle = $(document.createElement(isAdditionalField ? &#x27;input&#x27; : &#x27;div&#x27;));
+        fieldTitle.addClass(&#x27;fieldTitle&#x27;);
+        isAdditionalField &amp;&amp; fieldTitle.addClass(&#x27;additionalField&#x27;);
+        fieldTitle.css({
+            &#x27;display&#x27;: &#x27;inline-block&#x27;,
+            &#x27;color&#x27;: isAdditionalField ? &#x27;black&#x27; : &#x27;white&#x27;,
+            &#x27;margin-right&#x27;:&#x27;14px&#x27;,
+            &#x27;width&#x27;: &#x27;15%&#x27;,
+            &#x27;text-align&#x27;: &#x27;right&#x27;,
+            &#x27;vertical-align&#x27;: isAdditionalField ? &#x27;&#x27; : &#x27;top&#x27;,
+            &#x27;padding-top&#x27;: isAdditionalField ? &#x27;0px&#x27; : &#x27;5px&#x27;,
+            &#x27;overflow&#x27;: &#x27;auto&#x27;,
+            &#x27;border&#x27;: &quot;0px solid black&quot;,
+        });
+        isAdditionalField ? fieldTitle.attr(&#x27;value&#x27;, field) : fieldTitle.text(field);
+
+        var textarea = $(document.createElement(isTextarea ? &#x27;textarea&#x27; : &#x27;input&#x27;));
+        if (isTextarea) {
+            textarea.attr(&#x27;rows&#x27;, 3);
+            textarea.css({
+                &#x27;overflow&#x27;: &#x27;auto&#x27;,
+                &#x27;padding&#x27;: &#x27;0px&#x27;,
+                &#x27;background&#x27;: &#x27;white&#x27;,
+                &#x27;border&#x27;: &quot;0px solid black&quot;,
+            });
+        }
+        textarea.attr(&#x27;placeholder&#x27;, field);
+        textarea.css({
+            &#x27;width&#x27;: &#x27;70%&#x27;,
+            &#x27;font-size&#x27;: &#x27;11pt&#x27;,
+            &#x27;display&#x27;: &#x27;inline-block&#x27;,
+            &#x27;border&#x27;: &quot;0px solid black&quot;,
+        });
+        if (isAdditionalField) {
+            fieldTitle.attr(&#x27;entry&#x27;, entry);
+            textarea.on(&#x27;keyup&#x27;, function () {
+                fieldTitle.attr(&#x27;entry&#x27;, textarea.attr(&#x27;value&#x27;));
+                console.log(&#x27;entry = &#x27;+fieldTitle.attr(&#x27;entry&#x27;));
+            });
+        }
+        artworkSettings[field] = textarea;
+        textarea.val(entry);
+        textarea.attr(&#x27;title&#x27;, field);
+        var deleteFieldIcon = $(document.createElement(&#x27;div&#x27;)).css({ &#x27;margin-left&#x27;: &#x27;15px&#x27;, display: &#x27;inline-block&#x27;, width: &#x27;30px&#x27; });
+        if (field !== &#x27;Title&#x27; &amp;&amp; field !== &#x27;Keywords&#x27; &amp;&amp; field !== &#x27;Artist&#x27; &amp;&amp; field !== &#x27;Year&#x27; &amp;&amp; field !==&#x27;Description&#x27;) {
+            deleteFieldIcon = $(document.createElement(&#x27;img&#x27;));
+            deleteFieldIcon.attr(&#x27;src&#x27;, &#x27;images/icons/minus.svg&#x27;);
+            deleteFieldIcon.css({
+                &#x27;float&#x27;: &#x27;right&#x27;,
+                &#x27;margin-right&#x27;: &#x27;2%&#x27;,
+                &#x27;width&#x27;: &#x27;30px&#x27;,
+                &#x27;height&#x27;: &#x27;30px&#x27;,
+                &#x27;display&#x27;:&#x27;inline-block&#x27;
+            });
+            deleteFieldIcon.bind(&quot;click&quot;, { Param1: field, }, function (event) {
+                additionalCustomInfos -= 1;
+                if (!addInfoButtonDisable(true)) {
+                    addInfoButton.removeAttr(&#x27;disabled&#x27;);
+                }
+                delete labelNameToLabel[event.data.Param1];
+                textareaContainer.remove();
+
+            });
+        }
+        if (animate) {
+            textareaContainer.css(&#x27;display&#x27;, &#x27;none&#x27;);
+        }
+        
+        
+        textareaContainer.append(fieldTitle);
+        textareaContainer.append(textarea);
+        textareaContainer.append(deleteFieldIcon);
+        textFieldContainer.append(textareaContainer);
+        if (animate) {
+            textareaContainer.slideDown(function () {
+                $(&quot;#metadataForm&quot;).animate({ scrollTop: $(&quot;#metadataForm&quot;)[0].scrollHeight }, 1000);
+            });
+        }
+        return textarea;
+    }
+
+
+    function createTopBar(topbarHeight) {
+        // style the topbar
+        topbar.addClass(&quot;topbar&quot;);
+        topbar.css({
+            &quot;background-color&quot;: &quot;rgb(63,55,53)&quot;,
+            &quot;color&quot;: &quot;rgb(175,200,178)&quot;,
+            &quot;width&quot;: &#x27;100%&#x27;,
+            &#x27;height&#x27;: topbarHeight + &#x27;%&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;
+        });
+
+        var backButton = document.createElement(&#x27;img&#x27;);
+        $(backButton).attr(&#x27;src&#x27;, &#x27;images/icons/Back.svg&#x27;);
+        $(backButton).css({
+            &#x27;height&#x27;: &#x27;63%&#x27;,
+            &#x27;margin-left&#x27;: &#x27;1.2%&#x27;,
+            &#x27;float&#x27;: &#x27;left&#x27;,
+            &#x27;width&#x27;: &#x27;auto&#x27;,
+            &#x27;top&#x27;: &#x27;18.5%&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+        });
+        $(topbar).append(backButton);
+
+        backButton.onmousedown = function () {
+            TAG.Util.UI.cgBackColor(&quot;backButton&quot;, backButton, false);
+        };
+
+        backButton.onclick = function () {
+            var messageBox;
+            if (isCreatingMedia) {
+                messageBox = TAG.Util.UI.popUpMessage(null, &quot;Adding media to artwork. Please wait a few moments.&quot;, null);
+                $(messageBox).css(&#x27;z-index&#x27;, TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
+                $(&#x27;body&#x27;).append(messageBox);
+                $(messageBox).fadeIn(500, function () {
+                    TAG.Util.UI.cgBackColor(&quot;backButton&quot;, backButton, true);
+                });
+            }
+            else if (isUploading) {
+                messageBox = TAG.Util.UI.PopUpConfirmation(goBack, &quot;Asset upload in progress. Stop remaining upload and exit?&quot;, &quot;Yes&quot;);
+                $(messageBox).css(&#x27;z-index&#x27;, TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
+                $(&#x27;body&#x27;).append(messageBox);
+                $(messageBox).fadeIn(500, function () {
+                    TAG.Util.UI.cgBackColor(&quot;backButton&quot;, backButton, true);
+                });
+            }
+            else if (hasBeenChanged) {
+                editingMediamsg = $(TAG.Util.UI.popUpMessage(null, &quot;You are currently editing a Hotspot or Media&quot;, &quot;OK&quot;, false));
+                root.append(editingMediamsg);
+                editingMediamsg.show();
+                TAG.Util.UI.cgBackColor(&quot;backButton&quot;, backButton, true);
+            }
+            else {
+                goBack();
+            }
+        };
+
+        function goBack() {
+            if (assetUploader) {
+                assetUploader.cancelPromises();
+            }
+            $(backButton).off(&#x27;click&#x27;);
+            var tempSettings = new TAG.Authoring.NewSettingsView(&quot;Artworks&quot;, null, null, artwork.Identifier);
+            TAG.Util.UI.slidePageRight(tempSettings.getRoot());
+        }
+
+        var topBarLabel = $(document.createElement(&#x27;div&#x27;));
+        var topBarLabelSpecs = TAG.Util.constrainAndPosition($(window).width(), $(window).height() * 0.08,
+        {
+            width: 0.4,
+            height: 0.9,
+        });
+        topBarLabel.css({
+            &#x27;margin-right&#x27;: &#x27;2%&#x27;,
+            &#x27;margin-top&#x27;: 8 * 0.045 + &#x27;%&#x27;, // ?
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;text-align&#x27;: &#x27;right&#x27;,
+            &#x27;right&#x27;: &#x27;0px&#x27;,
+            &#x27;top&#x27;: &#x27;0px&#x27;,
+            &#x27;height&#x27;: topBarLabelSpecs.height + &#x27;px&#x27;,
+            &#x27;width&#x27;: topBarLabelSpecs.width + &#x27;px&#x27;,
+        });
+
+        aefontsize = TAG.Util.getMaxFontSizeEM(&#x27;Artwork Editor&#x27;, 0.5, topBarLabelSpecs.width, topBarLabelSpecs.height * 0.8);
+        topBarLabel.css({ &#x27;font-size&#x27;: aefontsize });
+
+        topBarLabel.text(&#x27;Artwork Editor&#x27;);
+
+        // Title text area, users can retype and redefine title
+        titleArea = $(document.createElement(&#x27;div&#x27;));
+        titleAreaSpecs = TAG.Util.constrainAndPosition($(window).width(), $(window).height() * 0.08, {
+            center_v: true,
+            width: 0.15,
+            height: 0.5,
+            x_offset: 0.05,
+            x_max_offset: 60,
+        });
+        titleArea.text(artwork.Name);
+        var titleAreaFontSize = aefontsize;//aefontsize;TAG.Util.getMaxFontSizeEM(artwork.Name, 0.5, titleAreaSpecs.width * 0.9, titleAreaSpecs.height * 0.95);
+        //if(parseFloat(titleAreaFontSize) &lt; 1) {
+        //    titleAreaFontSize = &#x27;1em&#x27;
+        //}
+        //titleAreaFontSize = &#x27;3em&#x27;;
+        titleArea.css({
+            &#x27;margin-left&#x27;: &#x27;3.25%&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;font-size&#x27;: titleAreaFontSize,
+            &#x27;margin-top&#x27;: 8 * 0.045 + &#x27;%&#x27;, // ?
+            &#x27;left&#x27;: titleAreaSpecs.x + &#x27;px&#x27;,
+            width: titleAreaSpecs.width + &#x27;px&#x27;,
+            height: topBarLabelSpecs.height + &#x27;px&#x27;,
+            overflow: &#x27;hidden&#x27;,
+            &#x27;text-overflow&#x27;: &#x27;ellipsis&#x27;,
+            &#x27;white-space&#x27;: &#x27;nowrap&#x27;
+        });
+        titleArea.attr(&#x27;id&#x27;, &#x27;titleArea&#x27;);
+
+
+        //var textArea = $(document.createElement(&#x27;input&#x27;));
+        //textArea.type = &quot;text&quot;;
+
+        //var textAreaSpecs = TAG.Util.constrainAndPosition($(window).width(), $(window).height() * 0.08,
+        //{
+        //    center_v: true,
+        //    width: 0.2,
+        //    height: 0.5,
+        //    x_offset: 0.05,
+        //    x_max_offset: 60,
+        //});
+        //textArea.css({
+        //    &#x27;margin-left&#x27;: &#x27;3%&#x27;,
+        //    &#x27;position&#x27;: &#x27;absolute&#x27;,
+        //    &#x27;border&#x27;: &#x27;3px solid&#x27;,
+        //    &#x27;border-color&#x27;: &#x27;#666666&#x27;,
+        //    top: textAreaSpecs.y - 7 + &#x27;px&#x27;,
+        //    &#x27;left&#x27;: textAreaSpecs.x + &#x27;px&#x27;,
+        //    width: textAreaSpecs.width + &#x27;px&#x27;,
+        //    height: textAreaSpecs.height + &#x27;px&#x27;,
+        //});
+
+        //textArea.attr({
+        //    display: &#x27;block&#x27;,
+        //    type: &#x27;text&#x27;,
+        //    id: &#x27;textArea&#x27;,
+        //    name: &#x27;textArea&#x27;,
+        //    value: artwork.Name
+        //});
+
+        //textArea.on(&#x27;keydown&#x27;, function (ev) {
+        //    ev.stopImmediatePropagation();
+        //});
+        //textArea.on(&#x27;keypress&#x27;, function (ev) {
+        //    ev.stopImmediatePropagation();
+        //});
+        //textArea.on(&#x27;keyup&#x27;, function (ev) {
+        //    ev.stopImmediatePropagation();
+        //});
+
+        // artworkSettings.Title = textArea;
+
+        $(topbar).append(titleArea);
+
+        // save changes button
+        var saveChangesButton = document.createElement(&#x27;button&#x27;);
+        $(saveChangesButton).attr(&#x27;type&#x27;, &#x27;button&#x27;);
+        $(saveChangesButton).text(&#x27;Save Changes&#x27;);
+        var saveButtonSpecs = TAG.Util.constrainAndPosition($(window).width(), $(window).height() * 0.08,
+            {
+                width: 0.1,
+                max_width: 150,
+                height: 0.45,
+                max_height: 40,
+                x_offset: 0.1,
+                max_x_offset: 275,
+                center_v: true,
+            });
+        var saveButtonFontSize = TAG.Util.getMaxFontSizeEM(&#x27;Save Changes&#x27;, 0.5, saveButtonSpecs.width * 0.8, saveButtonSpecs.height * 0.8, 0.01);
+        $(saveChangesButton).css({
+            &#x27;width&#x27;: saveButtonSpecs.width + &#x27;px&#x27;,
+            &#x27;height&#x27;: saveButtonSpecs.height + &#x27;px&#x27;,
+            &#x27;left&#x27;: parseInt(titleArea.css(&#x27;left&#x27;), 10) + titleArea.width() + 45 + ($(window).width() * 0.022) + &#x27;px&#x27;,
+            &#x27;top&#x27;: saveButtonSpecs.y - 2 + &#x27;px&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;font-size&#x27;: saveButtonFontSize,
+            &#x27;padding&#x27;: &#x27;1px&#x27;,
+        });
+        saveChangesButton.onclick = function () {
+            var $savedLabel, messageBox;
+            $savedLabel = $(savedLabel);
+            //addCustomFields();
+            $savedLabel.text(&#x27;Saving...&#x27;);
+            $savedLabel.show();
+            pushChanges(function () {
+                $savedLabel.text(&#x27;Changes Saved.&#x27;);
+                titleArea.text($(artworkSettings.Title).val());
+                setTimeout(function () {
+                    $savedLabel.hide();
+                }, 3000);
+            }, function () {
+                $savedLabel.hide();
+                var popup = TAG.Util.UI.popUpMessage(null, &quot;Changes have not been saved.  You must log in to save changes.&quot;);
+                $(&#x27;body&#x27;).append(popup);
+                $(popup).show();
+            }, function () {
+                $savedLabel.hide();
+                var popup = TAG.Util.UI.popUpMessage(null, &quot;Changes have not been saved.  There was an error contacting the server.&quot;);
+                $(&#x27;body&#x27;).append(popup);
+                $(popup).show();
+            });
+        };
+        $(topbar).append(saveChangesButton);
+
+        var savedLabel = document.createElement(&#x27;label&#x27;);
+        $(savedLabel).css({
+            &#x27;left&#x27;: saveButtonSpecs.width + (parseInt(titleArea.css(&#x27;left&#x27;), 10) + titleArea.width() + 45 + ($(window).width() * 0.022)) + (0.02 * $(window).width()) + &#x27;px&#x27;,
+            &#x27;top&#x27;: saveButtonSpecs.y + (0.17 * saveButtonSpecs.height) - 2 + &#x27;px&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;font-size&#x27;: saveButtonFontSize,
+        });
+        $(topbar).append(savedLabel);
+        $(savedLabel).hide();
+
+       
+
+        $(topbar).append(topBarLabel);
+
+    }
+
+    // adds custom fields to the XML
+    function addCustomFields() {
+        clearInfoFields();
+        for (var infoName in labelNameToLabel) {
+            // copy the node
+            var node = artworkXML.getElementsByTagName(&quot;Metadata&quot;)[0].childNodes[0].childNodes[0].childNodes[1].childNodes[0].childNodes[0];
+            var newNode = node.cloneNode(true);
+
+            // change value of copied node
+            newNode.childNodes[0].textContent = TAG.Util.encodeXML(&quot;InfoField_&quot; + infoName);
+            newNode.childNodes[1].textContent = TAG.Util.encodeXML(labelNameToLabel[infoName][0].value);
+
+            // add the node to the Metadata of the XML
+            artworkXML.getElementsByTagName(&quot;Metadata&quot;)[0].childNodes[0].childNodes[0].childNodes[1].childNodes[0].appendChild(newNode);
+        }
+    }
+
+    function clearInfoFields() {
+        var metadata = artworkXML.getElementsByTagName(&quot;Metadata&quot;)[0].childNodes[0].childNodes[0].childNodes[1].childNodes[0].childNodes;
+
+        for (var i = metadata.length - 1; i &gt;= 0; i--) {
+            if (metadata[i].childNodes[0].textContent.indexOf(&#x27;InfoField_&#x27;) != -1) {
+                metadata[i].parentNode.removeChild(metadata[i]);
+            }
+        }
+
+    }
+
+    // adds the custom fields from the xml to the GUI
+    function createCustomFields() {
+        var infoFields = artwork.Metadata.InfoFields;
+        infoFields = infoFields || {};
+        $.each(infoFields, function (key, val) {
+            //labelNameToLabel[key] = createSidebarTextArea({ field: key, entry: val, animate: true, isAdditionalField: true });
+            createSidebarTextArea({ field: key, entry: val, animate: true, isAdditionalField: true });
+        });
+    }
+
+    function makeMap() {
+
+        //Microsoft.Maps.registerModule(&quot;CustomInfoboxModule&quot;, &quot;js/utils/BMv7.CustomInfobox/V7CustomInfobox.min.js&quot;);
+        Microsoft.Maps.loadModule(&#x27;Microsoft.Maps.Map&#x27;, {
+            callback: initMap
+        });
+
+
+        //Define custom properties for the pushpin class.
+        //This is an example of one way to assign metadata to a shape.
+        Microsoft.Maps.Pushpin.prototype.date = null;
+        Microsoft.Maps.Pushpin.prototype.location = null;
+        Microsoft.Maps.Pushpin.prototype.description = null;
+
+        function initMap() {
+            var mapOptions =
+            {
+                credentials: credentials,
+                mapTypeID: Microsoft.Maps.MapTypeId.road,
+                showScalebar: true,
+                enableClickableLogo: false,
+                enableSearchLogo: false,
+                showDashboard: false,
+                showMapTypeSelector: false,
+                zoom: 2,
+                center: new Microsoft.Maps.Location(20, 0)
+            };
+            var viewOptions = {
+                mapTypeId: Microsoft.Maps.MapTypeId.road
+            };
+
+            map = new Microsoft.Maps.Map(document.getElementById(&#x27;mapDiv&#x27;), mapOptions);
+
+            customInfobox = new CustomInfobox(map, {
+                color: &#x27;rgba(0,0,0,0.65)&#x27;,
+                arrowColor: &#x27;rgba(0,0,0,0.65)&#x27;,
+                closeButtonStyle: &#x27;position:absolute;right:5px;top:2px;cursor:pointer;font:40px Arial;line-height:24px;color:white;&#x27;
+            });
+
+            map.setView(viewOptions);
+            locationList = TAG.Util.UI.getLocationList(artwork.Metadata);
+            drawLocationList();
+        }
+        mapMade = true;
+    }
+
+    function getFontSize(factor) {
+        return factor * (window.innerWidth / 1920) + &#x27;%&#x27;;
+    }
+
+    //geocode methods
+    //searching with string query
+    function makeGeocodeStringRequest() {
+        clearResults();
+        var geocodeRequest = &quot;http://dev.virtualearth.net/REST/v1/Locations?query=&quot; + encodeURI(searchBox.val()) + &quot;&amp;output=json&amp;key=&quot; + credentials;
+        WinJS.xhr({
+            url: geocodeRequest
+        }).done(function (result) { // was called &#x27;complete&#x27;
+            geocodeStringCallback(result);
+        },
+        function (err) { // was called &#x27;error&#x27;
+        },
+        function (result) { // was called &#x27;progress&#x27;
+            console.log(result.readystate);
+        });
+    }
+    function geocodeStringCallback(result) {
+        result = JSON.parse(result.responseText);
+        //checks if results is undefined
+        if (result &amp;&amp; result.resourceSets &amp;&amp; result.resourceSets.length &gt; 0 &amp;&amp; result.resourceSets[0].resources &amp;&amp; result.resourceSets[0].resources.length &gt; 0) {
+            //sets view to first result
+            var first = result.resourceSets[0].resources[0];
+            //set bounding box
+            var bbox = first.bbox;
+
+            var viewBoundaries = Microsoft.Maps.LocationRect.fromLocations(
+                new Microsoft.Maps.Location(bbox[0], bbox[1]),
+                new Microsoft.Maps.Location(bbox[2], bbox[3])
+            );
+            map.setView({ bounds: viewBoundaries });
+
+            //add a pushpin at the first location
+            var location = new Microsoft.Maps.Location(first.point.coordinates[0], first.point.coordinates[1]);
+            var pushpinOptions = {
+                icon: &#x27;/images/icons/locationPin.png&#x27;,
+                width: 20,
+                height: 30
+            };
+            var pushpin = new Microsoft.Maps.Pushpin(location, pushpinOptions);
+            map.entities.push(pushpin);
+
+            for (var i = 0; i &lt; result.resourceSets[0].resources.length; i++) {
+                addresults(result.resourceSets[0].resources[i]);
+            }
+        } else {
+            helpboxAlert(&#x27;No Results Found&#x27;);
+            TAG.Util.UI.drawPushpins(locationList, map);
+        }
+    }
+    //add pushpin at center of the map
+    function addPushpin() {
+        map.entities.clear();
+        customInfobox.hide();
+        clearResults();
+        var pushpinOptions = {
+            draggable: true,
+            icon: &#x27;/images/icons/locationPin.png&#x27;,
+            width: 20,
+            height: 30
+        };
+        var startLocation = map.getCenter();
+        var pushpin = new Microsoft.Maps.Pushpin(startLocation, pushpinOptions);
+        Microsoft.Maps.Events.addHandler(pushpin, &#x27;dragend&#x27;, function (e) {
+            clearResults();
+            makeGeocodePointRequest(pushpin.getLocation());
+        });
+        map.entities.push(pushpin);
+    }
+
+    //add a pushpin as user clicks the map
+    function addPushpinOntouch(e) {
+        if (e.targetType == &quot;map&quot;) {
+            // hide help text
+            helpBox.hide();
+
+            //Get map unit x,y
+            var point = new Microsoft.Maps.Point(e.getX(), e.getY());
+
+            //Convert map point to location
+            var location = e.target.tryPixelToLocation(point);
+
+            //Print x y
+            map.entities.clear();
+            customInfobox.hide();
+            clearResults();
+            var pushpinOptions = {
+                draggable: true,
+                icon: &#x27;/images/icons/locationPin.png&#x27;,
+                width: 20,
+                height: 30
+            };
+            var startLocation = map.getCenter();
+            var pushpin = new Microsoft.Maps.Pushpin(new Microsoft.Maps.Location(location.latitude, location.longitude), pushpinOptions);
+            Microsoft.Maps.Events.addHandler(pushpin, &#x27;dragend&#x27;, function (e) {
+                makeGeocodePointRequest(pushpin.getLocation());
+            });
+            selectedPoint = new Microsoft.Maps.Location(location.latitude, location.longitude);
+            map.entities.push(pushpin);
+            makeGeocodePointRequest(pushpin.getLocation());
+        }
+    }
+
+    function makeGeocodePointRequest(location) {
+        clearResults();
+        var lat = location.latitude;
+        var long = location.longitude;
+        var geocodeRequest = &quot;http://dev.virtualearth.net/REST/v1/Locations/&quot; + lat + &quot;,&quot; + long + &quot;?&quot; + &quot;output=json&amp;key=&quot; + credentials;
+        WinJS.xhr({
+            url: geocodeRequest
+        }).then(GeocodePointCallback);
+    }
+    function GeocodePointCallback(result) {
+        result = JSON.parse(result.responseText);
+        for (var i = 0; i &lt; result.resourceSets[0].resources.length; i++) {
+            addresults(result.resourceSets[0].resources[i]);
+        }
+        if (result.resourceSets[0].resources.length !== 0) {
+            createCustomAddressButton(result.resourceSets[0].resources[0]);
+        } else {
+            createCustomAddressButton(selectedPoint);
+        }
+    }
+
+    //Search results manipulation methods
+    function clearResults() {
+        $(&#x27;div.results&#x27;).detach();
+        selectedAddress = undefined;
+        selectedLocResource = undefined;
+    }
+
+    function addresults(resource) {
+        helpBox.fadeOut(&#x27;fast&#x27;);
+        var result = $(document.createElement(&#x27;div&#x27;));
+        var text = resource.address.formattedAddress;
+        var unselectedCSS = {
+            &#x27;background-color&#x27;: &#x27;transparent&#x27;,
+            &#x27;color&#x27;: &#x27;white&#x27;,
+        };
+        var selectedCSS = {
+            &#x27;background-color&#x27;: &#x27;white&#x27;,
+            &#x27;color&#x27;: &#x27;black&#x27;,
+        };
+        result.addClass(&#x27;results&#x27;);
+        var resultConstraints = TAG.Util.constrainAndPosition(resultsBox.width(), resultsBox.height(), {
+            width: 1,
+            height: 0.14,
+            max_height: 40,
+        });
+        var resultFontSize = TAG.Util.getMaxFontSizeEM(text, 0.5, resultConstraints.width * 0.95, resultConstraints.height * 0.95, 0.01);
+        result.css({
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            width: resultConstraints.width + &#x27;px&#x27;,
+            height: resultConstraints.height + &#x27;px&#x27;,
+            &#x27;margin&#x27;: &#x27;0 0 0.375% 0&#x27;,
+            &#x27;padding&#x27;: &#x27;1% 1.5%&#x27;,
+            &#x27;font-size&#x27;: resultFontSize,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+        });
+        result.text(text);
+        result.hover(function () {
+            if (result[0].style.color === &#x27;white&#x27;) { // if text is white then box is unselected
+                result.css({
+                    &#x27;background-color&#x27;: &#x27;rgba(50, 50, 50, 0.65)&#x27;,
+                });
+            }
+        }, function () {
+                if (result[0].style.color === &#x27;white&#x27;) {
+                    result.css({
+                        &#x27;background-color&#x27;: &#x27;transparent&#x27;,
+                    });
+                }
+        });
+        result.click(resource, function (e) {
+            $(&#x27;div.results&#x27;).css(unselectedCSS);
+            $(this).css(selectedCSS);
+            var bbox = e.data.bbox;
+            var viewBoundaries = Microsoft.Maps.LocationRect.fromLocations(
+                new Microsoft.Maps.Location(bbox[0], bbox[1]),
+                new Microsoft.Maps.Location(bbox[2], bbox[3])
+            );
+            map.setView({ bounds: viewBoundaries });
+            map.entities.clear();
+
+            var location = new Microsoft.Maps.Location(resource.point.coordinates[0], resource.point.coordinates[1]);
+            var pushpinOptions = {
+                icon: &#x27;/images/icons/locationPin.png&#x27;,
+                width: 20,
+                height: 30
+            };
+            var pushpin = new Microsoft.Maps.Pushpin(location, pushpinOptions);
+            map.entities.push(pushpin);
+
+            selectedLocResource = e.data;
+            selectedAddress = e.data.address.formattedAddress;
+        });        
+        resultsBox.append(result);
+    }
+
+    function createCustomAddressButton(resource) {
+        var customResult = $(document.createElement(&#x27;div&#x27;));
+        var text = $(document.createElement(&#x27;div&#x27;));
+        var save = $(document.createElement(&#x27;button&#x27;));
+        var customInput = $(document.createElement(&#x27;input&#x27;));
+        text.text(&#x27;Add Custom Address&#x27;);
+        save.text(&#x27;Save&#x27;);
+        var unselectedCSS = {
+            &#x27;background-color&#x27;: &#x27;transparent&#x27;,
+            &#x27;color&#x27;: &#x27;white&#x27;,
+        };
+
+        var selectedCSS = {
+            &#x27;background-color&#x27;: &#x27;white&#x27;,
+            &#x27;color&#x27;: &#x27;black&#x27;,
+        };
+        customResult.addClass(&#x27;results&#x27;);
+
+        //var resource;
+        //var lat = location.latitude;
+        //var long = location.longitude;
+        //var geocodeRequest = &quot;http://dev.virtualearth.net/REST/v1/Locations/&quot; + lat + &quot;,&quot; + long + &quot;?&quot; + &quot;output=json&amp;key=&quot; + credentials;
+        //WinJS.xhr({
+        //    url: geocodeRequest
+        //}).then(function (result) {
+        //    result = JSON.parse(result.responseText);
+        //    for (var i = 0; i &lt; result.resourceSets[0].resources.length; i++) {
+        //        // there will only ever be one...
+        //        resource = result.resourceSets[0].resources[i];
+        //    }
+        //});
+
+        var customResultConstraints = TAG.Util.constrainAndPosition(resultsBox.width(), resultsBox.height(), {
+            width: 1,
+            height: 0.14,
+            max_height: 40,
+        });
+        var customResultFontSize = TAG.Util.getMaxFontSizeEM(text.text(), 0.5, customResultConstraints.width * 0.95, customResultConstraints.height * 0.95, 0.01);
+        customResult.css({
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            width: customResultConstraints.width + &#x27;px&#x27;,
+            height: customResultConstraints.height + &#x27;px&#x27;,
+            &#x27;margin&#x27;: &#x27;0 0 0 0&#x27;,
+            &#x27;padding&#x27;: &#x27;1% 1.5%&#x27;,
+            &#x27;font-size&#x27;: customResultFontSize,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+        });
+        customInput.addClass(&#x27;customInput&#x27;);
+        customInput.css({
+            display: &#x27;none&#x27;,
+            &#x27;height&#x27;: &#x27;100%&#x27;,
+            width: &#x27;50%&#x27;,
+            float: &#x27;left&#x27;,
+            border: &#x27;0px&#x27;,
+        });
+        save.css({
+            display: &#x27;none&#x27;,
+            &#x27;margin-left&#x27;: &#x27;2%&#x27;,
+            &#x27;float&#x27;: &#x27;left&#x27;,
+            &#x27;font-size&#x27;: &#x27;85%&#x27;,
+            &#x27;margin-top&#x27;: &#x27;-0.5%&#x27;,
+        });
+        text.click(function () {
+            $(&#x27;div.results&#x27;).css(unselectedCSS);
+            text.hide();
+            customInput.fadeIn();
+            save.fadeIn();
+            selectedLocResource = resource;
+        });
+        customResult.hover(function () {
+            if (customResult[0].style.color === &#x27;white&#x27;) { // if text is white then box is unselected
+                customResult.css({
+                    &#x27;background-color&#x27;: &#x27;rgba(50, 50, 50, 0.65)&#x27;,
+                });
+            }
+        }, function () {
+            if (customResult[0].style.color === &#x27;white&#x27;) {
+                customResult.css({
+                    &#x27;background-color&#x27;: &#x27;transparent&#x27;,
+                });
+            }
+        });
+
+        //make the input box and save button disappear when other results are clicked
+        $(&#x27;div.results&#x27;).click(function (event) {
+            if ($(event.target) !== customResult) {
+                customInput.hide();
+                save.hide();
+                text.fadeIn();
+            }
+        });
+        save.click(resource, function (e) {
+            e.stopPropagation();
+            text.text(customInput.val());
+            customInput.fadeOut(&#x27;fast&#x27;);
+            save.fadeOut(&#x27;fast&#x27;, function () {
+                customResult.append(text);
+            });
+            selectedLocResource = e.data;
+            selectedAddress = customInput.val();
+            customResult.css(selectedCSS);
+            customResult.click(resource, function (evt) {
+                $(&#x27;div.results&#x27;).css(unselectedCSS);
+                customResult.css(selectedCSS);
+                selectedAddress = customInput.val();
+                selectedLocResource = evt.data;
+            });
+            text.fadeIn();
+            text.unbind(&#x27;click&#x27;);
+        });
+        customResult.append(text);
+        customResult.append(customInput);
+        customResult.append(save);
+        resultsBox.append(customResult);
+    }
+
+    //Called when a location is selected to be added to the artwork. Creates and populates an LocObject that is eventually pushed into the locationList object
+    function addLocation() {
+        if (!selectedLocResource) {
+            console.log(&#x27;no location selected&#x27;);
+            //confirmBubble.fadeIn(200, function () {
+            //    setTimeout(function () { confirmBubble.fadeOut(); }, 1000);
+            //});
+            return false;
+        }
+        var newYear = parseInt(yearBox[0].value, 10);
+        var newMonth = parseInt(monthBox[0][monthBox[0].selectedIndex].value, 10) - 1
+        var newDay = parseInt(dateBox[0][dateBox[0].selectedIndex].value, 10);
+        if (newMonth &lt; 0 || isNaN(newMonth)) {
+            newMonth = undefined;
+        }
+        if (newDay === 0 || isNaN(newDay)) {
+            newDay = undefined;
+        }
+        if (newYear === &#x27;&#x27; || isNaN(newYear)) {
+            newYear = undefined;
+            newDay = undefined;
+            newMonth = undefined;
+        }
+        selectedDate = {
+            year: newYear,
+            month: newMonth,
+            day: newDay,
+        }
+        var locs = new LocObject(selectedLocResource, selectedAddress, selectedDate, unsavedDescription);
+
+        var newLocation = TAG.Util.UI.addPushpinToLoc(locs, locationList.length);
+
+        locationList.push(locs);
+        drawLocationList();
+        selectedDate = undefined;
+        selectedLocResource = undefined;
+        selectedAddress = undefined;
+        unsavedDescription = undefined;
+
+        return true;
+    }
+    
+    // date comparison function
+    function compareDates(a, b, phase) {
+        phase = phase || 1;
+        var aComp, bComp;
+        if (!a.date || !b.date) {
+            return 1;
+        }
+        switch (phase) {
+            case 1:
+                aComp = a.date.year;
+                bComp = b.date.year;
+                break;
+
+            case 2:
+                aComp = a.date.month;
+                bComp = b.date.month;
+                break;
+
+            case 3:
+                aComp = a.date.day;
+                bComp = b.date.day;
+                break;
+        }
+        
+        if (aComp) {
+            if (bComp) {
+                if (bComp === aComp) {
+                    if (phase === 3) {
+                        return 0;
+                    } else {
+                        phase++;
+                        return compareDates(a, b, phase);
+                    }
+                } else {
+                    return aComp - bComp;
+                }
+            } else {
+                return 1;
+            }
+        } else if (bComp) {
+            return 1
+        } else {
+            return -1;
+        }
+    }
+
+    //Generates the list of artwork locations in the artwork editor
+    function drawLocationList() {
+        for (var i = 0; i &lt; locationList.length; i++) {
+            if (typeof locationList[i].date == &quot;string&quot;) {
+                var dateParts = locationList[i].date.split(&quot;-&quot;);
+                dateParts[2] = dateParts[2].substring(0, 2);
+                locationList[i].date = {
+                    year: parseInt(dateParts[0], 10),
+                    month: parseInt(dateParts[1], 10),
+                    day: parseInt(dateParts[2], 10),
+                }
+            }
+        }
+        locationList.sort(compareDates);
+        $(&#x27;div.locations&#x27;).detach();
+
+        // prevent crash upon clicking too fast, i.e. before bing map loads
+        if (map) {
+            map.entities.clear();
+        }
+
+        //click handler helpers
+        function removeButtonClicked(e) {
+            e.data.div.slideUp(function() { e.data.div.detach(); });
+            var removed = e.data.locationList.remove(e.data.obj);
+            TAG.Util.UI.drawPushpins(locationList, map);
+            drawLocationList();
+            if (e.data.obj === currentLocation)
+                customInfobox.hide();
+            return false;
+        }
+
+        function editButtonClicked(e) {
+            currentLocation = e.data.obj;
+            setTimeout(function () {displayInfobox(e.data.obj); }, 300);
+        }
+
+        function newDivClicked(e) {
+            TAG.Util.UI.drawPushpins(locationList, map);
+            customInfobox.hide();
+            $(&#x27;div.locations&#x27;).css(unselectedCSS);
+            $(&#x27;img.removeButton&#x27;).attr(&#x27;src&#x27;, &#x27;images/icons/minus.svg&#x27;);
+            $(&#x27;img.editButton&#x27;).attr(&#x27;src&#x27;, &#x27;images/icons/edit.png&#x27;);
+            $(this).find(&#x27;img.removeButton&#x27;).attr(&#x27;src&#x27;, &#x27;images/icons/minusB.svg&#x27;);
+            $(this).find(&#x27;img.editButton&#x27;).attr(&#x27;src&#x27;, &#x27;images/icons/editB.png&#x27;);
+            $(this).css(selectedCSS);
+            var lat, long, location;
+            if (e.data.resource.latitude) {
+                location = e.data.resource;
+            } else {
+                lat = e.data.resource.point.coordinates[0];
+                long = e.data.resource.point.coordinates[1];
+                location = new Microsoft.Maps.Location(lat, long);
+            }
+            var viewOptions = {
+                center: location,
+                zoom: 4,
+            };
+            map.setView(viewOptions);
+        }
+
+        function newDivHoverIn(e) {
+            if (e.data[0].style.color === &#x27;white&#x27;) { // if text is white then box is unselected
+                e.data.css({
+                    &#x27;background-color&#x27;: &#x27;rgba(50, 50, 50, 0.65)&#x27;,
+                });
+            }
+        }
+
+        function newDivHoverOut(e) {
+            if (e.data[0].style.color === &#x27;white&#x27;) {
+                e.data.css({
+                    &#x27;background-color&#x27;: &#x27;transparent&#x27;,
+                });
+            }
+        }
+        
+        
+        var i;
+        for (i = 0; i &lt; locationList.length; i++) {
+            var unselectedCSS = {
+                &#x27;background-color&#x27;: &#x27;transparent&#x27;,
+                &#x27;color&#x27;: &#x27;white&#x27;
+            };
+            var selectedCSS = {
+                &#x27;background-color&#x27;: &#x27;white&#x27;,
+                &#x27;color&#x27;: &#x27;black&#x27;,
+            };
+            var pushpinOptions = {
+                text: String(i + 1),
+                icon: &#x27;/images/icons/locationPin.png&#x27;,
+                width: 20,
+                height: 30
+            };
+            var address = locationList[i].address;
+            var date = &#x27;&#x27;;
+            if (locationList[i].date &amp;&amp; !isNaN(locationList[i].date.year)) {
+                var year = locationList[i].date.year;
+                if (year &lt; 0) {
+                    //add BC to years that are less than 0
+                    year = Math.abs(year) + &#x27; BC&#x27;;
+                }
+                date = &quot; - &quot; + year;
+            } else {
+                date = &#x27; - &lt;i&gt;Date Unspecified&lt;/i&gt;&#x27;;
+            }
+            var newDiv = $(document.createElement(&#x27;div&#x27;));
+            newDiv.addClass(&#x27;locations&#x27;);
+            var entryConstraints = TAG.Util.constrainAndPosition(locationsDiv.width(), locationsDiv.height(), {
+                width: 1,
+                height: 0.16625,
+                max_height: 45,
+            });
+            var infoString = String((i + 1) + &#x27;. &#x27; + address + date);
+            var calibrationLength = infoString.length;
+            if (calibrationLength &gt; 30) {
+                calibrationLength = 30;
+            }
+            var locationFontSize = TAG.Util.getMaxFontSizeEM(infoString.substring(0, calibrationLength), 0.5, 1000, entryConstraints.height * 0.65, 0.01);
+            newDiv.css({
+                &#x27;color&#x27;: &#x27;white&#x27;,
+                &#x27;display&#x27;: &#x27;none&#x27;,
+                width: entryConstraints.width + &#x27;px&#x27;,
+                height: entryConstraints.height + &#x27;px&#x27;,
+                &#x27;margin&#x27;: &#x27;0 0 0.375% 0&#x27;,
+                &#x27;position&#x27;: &#x27;relative&#x27;,
+                &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+            });
+            var locText = $(document.createElement(&#x27;div&#x27;));
+            locText.html((i + 1) + &#x27;. &#x27; + address + date);
+            locText.css({
+                &#x27;width&#x27;: &#x27;60%&#x27;,
+                &#x27;height&#x27;: &#x27;100%&#x27;,
+                &#x27;white-space&#x27;: &#x27;nowrap&#x27;,
+                &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+                &#x27;font-size&#x27;: locationFontSize,
+                &#x27;display&#x27;: &#x27;inline-block&#x27;,
+                &#x27;margin&#x27;: &#x27;1.1% 0 0 3%&#x27;,
+                &#x27;text-overflow&#x27;: &#x27;ellipsis&#x27;,
+            });
+            newDiv.append(locText);
+
+            var removeButton = $(document.createElement(&#x27;img&#x27;));
+            removeButton.on(&#x27;click&#x27;, null, { div: newDiv, locationList: locationList, obj: locationList[i] }, removeButtonClicked); 
+            removeButton.addClass(&#x27;removeButton&#x27;);
+            removeButton.attr(&#x27;src&#x27;, &#x27;images/icons/minus.svg&#x27;);
+            removeButton.css({
+                &#x27;height&#x27;: &#x27;80%&#x27;,
+                &#x27;width&#x27;: &#x27;auto&#x27;,
+                &#x27;margin-right&#x27;: &#x27;5%&#x27;,
+                &#x27;margin-top&#x27;: &#x27;0.825%&#x27;,
+                &#x27;display&#x27;: &#x27;inline-block&#x27;,
+                &#x27;position&#x27;: &#x27;relative&#x27;,
+                &#x27;right&#x27;: &#x27;0px&#x27;,
+                &#x27;float&#x27;: &#x27;right&#x27;,
+            });
+            newDiv.append(removeButton);
+            var editButton = $(document.createElement(&#x27;img&#x27;)); // edit location details button
+            editButton.on(&#x27;click&#x27;, null, { obj: locationList[i] }, editButtonClicked);
+            editButton.addClass(&#x27;editButton&#x27;);
+            editButton.attr(&#x27;src&#x27;, &#x27;images/icons/edit.png&#x27;);
+            editButton.css({
+                &#x27;height&#x27;: &#x27;80%&#x27;,
+                &#x27;width&#x27;: &#x27;auto&#x27;,
+                &#x27;margin-right&#x27;: &#x27;2%&#x27;,
+                &#x27;margin-top&#x27;: &#x27;0.825%&#x27;,
+                &#x27;display&#x27;: &#x27;inline-block&#x27;,
+                &#x27;position&#x27;: &#x27;relative&#x27;,
+                &#x27;float&#x27;: &#x27;right&#x27;,
+            });
+            newDiv.append(editButton);
+            TAG.Util.UI.drawPushpins(locationList, map);
+            newDiv.on(&#x27;click&#x27;, null, locationList[i], newDivClicked);
+            newDiv.on(&#x27;mouseenter&#x27;, null, newDiv, newDivHoverIn).on(&#x27;mouseleave&#x27;, null, newDiv, newDivHoverOut);
+            locationsDiv.append(newDiv);
+            newDiv.fadeIn();
+            if (locationList[i] === currentLocation) //If this location is currently under edition, select it
+                newDiv.click();
+        }
+    }
+
+    function displayInfobox(loc) {
+        var pushpin = loc.pushpin;
+        var latlong = pushpin._location;
+
+        //make locationInfobox, popup that shows location information
+        //This section has to be reproduced every time because dynamic text cannot be passed into the customInfobox.js effectively. 
+        //Only initializing once and passing that object over would result in deletion of the children, 
+        //and passing clones does not pass event handlers, etc.
+        locationInfo = $(document.createElement(&#x27;div&#x27;));
+        locationInfo.attr(&#x27;class&#x27;, &#x27;locationInfo&#x27;);
+        locationInfo.attr(&#x27;id&#x27;, &#x27;locationInfo&#x27;);
+        locationInfo.css({
+            &#x27;padding&#x27;: &#x27;0px&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(255,255,255,0)&#x27;,
+            &#x27;border-radius&#x27;: &#x27;10px&#x27;,
+            &#x27;min-width&#x27;: &#x27;250px&#x27;,
+            &#x27;max-width&#x27;: &#x27;450px&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;float&#x27;: &#x27;left&#x27;
+        });
+
+        var textAreaCSS = {
+            &#x27;border&#x27;: &#x27;2px solid Gray&#x27;,
+            &#x27;margin-bottom&#x27;: &#x27;3%&#x27;,
+            &#x27;width&#x27;: &#x27;100%&#x27;,
+            &#x27;float&#x27;: &#x27;left&#x27;
+        };
+
+        
+        var dateEditor;
+        if (loc.date &amp;&amp; loc.date.year) { //If there is a valid year, initialize the datepicker with those values
+            dateEditor = createBasicDatePicker(loc.date.day, loc.date.month, loc.date.year); //date picker for editing the location&#x27;s date
+        } else {
+            dateEditor = createBasicDatePicker(); //date picker for editing the location&#x27;s date
+        }
+
+        dateEditor.css({ &#x27;margin-bottom&#x27;: &#x27;3%&#x27; });
+
+        locationTextArea = $(document.createElement(&#x27;input&#x27;));
+        locationTextArea.attr(&#x27;placeholder&#x27;, &#x27;Location&#x27;);
+        locationTextArea.attr(&#x27;id&#x27;, &#x27;locationTextArea&#x27;);
+        locationTextArea.css(textAreaCSS);
+
+        descriptionTextArea = $(document.createElement(&#x27;textarea&#x27;));
+        descriptionTextArea.attr(&#x27;id&#x27;, &#x27;descriptionTextArea&#x27;);
+        descriptionTextArea.attr(&#x27;placeholder&#x27;, &#x27;Description&#x27;);
+        descriptionTextArea.attr(&#x27;rows&#x27;, &#x27;4&#x27;);
+        descriptionTextArea.css(textAreaCSS);
+        descriptionTextArea.css({
+            &#x27;padding&#x27;: &#x27;0px 1px 0px 1px&#x27;,
+            &#x27;margin-top&#x27;: &#x27;0px&#x27;,
+            &#x27;background-color&#x27;: &#x27;white&#x27;
+        });
+
+        var saveButton = $(document.createElement(&#x27;button&#x27;));
+        saveButton.addClass(&#x27;addButton&#x27;);
+        saveButton.text(&#x27;Save&#x27;);
+        saveButton.css({
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;border&#x27;: &#x27;2px solid white&#x27;,
+            &#x27;padding&#x27;: &#x27;1%&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;float&#x27;: &#x27;right&#x27;,
+            &#x27;left&#x27;: &#x27;4px&#x27;
+        });
+        saveButton.click(function () {
+            // same logic as datePickerEvent, REFACTORING!!!
+            var y = parseInt(dateEditor[0].childNodes[2].value, 10);
+            var m = parseInt(dateEditor[0].childNodes[1].value, 10) - 1;
+            var d = parseInt(dateEditor[0].childNodes[0].value, 10);
+            if (y === &#x27;&#x27; || isNaN(y)) {
+                y = undefined;
+                m = 0;
+                d = 0;
+            }
+            if (m &lt; 0 || isNaN(m)) {
+                m = undefined;
+            }
+            if (d === 0 || isNaN(d)) {
+                d = undefined;
+            }
+            loc.date = {
+                year: y,
+                month: m,
+                day: d,
+            };
+            currentLocation.date = {
+                year: y,
+                month: m,
+                day: d,
+            };
+            currentLocation.address = locationTextArea.val();
+            currentLocation.info = descriptionTextArea.val();
+            drawLocationList(); //redraw the locations list
+        });
+
+        $(locationInfo).append(dateEditor);
+        $(locationInfo).append(locationTextArea);
+        $(locationInfo).append(descriptionTextArea);
+        $(locationInfo).append(saveButton);
+
+        locationTextArea.attr(&#x27;value&#x27;, currentLocation.address);
+        descriptionTextArea.attr(&#x27;value&#x27;, currentLocation.info);
+
+        //Display Infobox
+        customInfobox.show(latlong, locationInfo);
+        // $(&#x27;#mapDiv_infobox_closeBtn&#x27;).css({&#x27;font&#x27;: &#x27;40px/24px Arial&#x27;, &#x27;color&#x27;:&#x27;white&#x27;});
+    }
+
+    function toggleInfobox(e) {
+        if (!customInfobox.visible()) {
+            displayInfobox(e);
+        } else {
+            customInfobox.hide();
+        }
+    }
+
+    //Function that displays an alert message in the helpbox for half a second and returns to previous state
+    function helpboxAlert(alert) {
+        helpBox.stop(true, true).fadeOut(100, function () {
+            helpBox.text(alert).fadeIn(500, function () {
+                setTimeout(function () {
+                    helpBox.fadeOut(100, function () {
+                        //Only show helptext when there aren&#x27;t new results pushed into the resultsbox
+                        if (resultsBox[0].childNodes.length === 0)
+                            helpBox.text(helpText).fadeIn(500);
+                    });
+                }, 1000);
+            });
+        });
+    }
+
+    //Clears values in the datepicker
+    function clearDatePicker(obj) {
+        obj[0].childNodes[0].selectedIndex = 0; //reset date
+        obj[0].childNodes[1].selectedIndex = 0; //reset month
+        obj[0].childNodes[2].value = &#x27;&#x27;; //reset year
+
+    }
+
+    function pushChanges(onSuccess, onFail, onError, onConflict) {
+
+        //setArtworkName(TAG.Util.encodeXML($(artworkSettings.Title).val()));
+        //setArtworkArtist(TAG.Util.encodeXML($(artworkSettings.Artist).val()));
+        //setArtworkYear(TAG.Util.encodeXML($(artworkSettings.Year).val()));
+        //Render locationList to a json representation and set it to the Location field of the artwork xml
+        //setArtworkLocations(TAG.Util.encodeXML(JSON.stringify(locationList)));
+        var infoFields = {};
+        var i;
+        var additionalFields = $(&#x27;.additionalField&#x27;);
+        for (i = 0; i &lt; additionalFields.length; i++) {
+            infoFields[$(additionalFields[i]).attr(&quot;value&quot;)] = $(additionalFields[i]).attr(&#x27;entry&#x27;);;
+        }
+        //$.each(labelNameToLabel, function (key, val) {
+        //    infoFields[key] = val.val();
+        //});
+
+        TAG.Worktop.Database.changeArtwork(artwork.Identifier, {
+            Name: $(artworkSettings.Title).val(),
+            Artist: $(artworkSettings.Artist).val(),
+            Year: $(artworkSettings.Year).val(),
+            Location: JSON.stringify(locationList),
+            Description: $(artworkSettings.Description).val(),
+            InfoFields: JSON.stringify(infoFields)
+        }, onSuccess, onFail, conflict(artwork, &quot;Change&quot;, onConflict), onError);
+
+        
+    }
+
+    function setArtworkName(name) {
+        if (name &amp;&amp; name.length &gt; 0)
+            artworkXML.getElementsByTagName(&quot;Name&quot;)[0].childNodes[0].textContent = name;
+        else
+            artworkXML.getElementsByTagName(&quot;Name&quot;)[0].childNodes[0].textContent = TAG.Util.encodeXML(artworkXML.getElementsByTagName(&quot;Name&quot;)[0].childNodes[0].data);
+
+    }
+
+    function setArtworkArtist(artist) {
+        //if (artist)// &amp;&amp; artist.length &gt; 0)
+        getFieldValueFromMetadata(artworkXML, &quot;Artist&quot;).textContent = artist || &#x27;Artist&#x27;;
+        //else
+        //    getFieldValueFromMetadata(artworkXML, &quot;Artist&quot;).textContent = &quot; &quot;;
+    }
+
+    function setArtworkYear(year) {
+        //if (year)// &amp;&amp; year.length &gt; 0)
+        getFieldValueFromMetadata(artworkXML, &quot;Year&quot;).textContent = year || &#x27;2013&#x27;;
+        //else
+        //    getFieldValueFromMetadata(artworkXML, &quot;Year&quot;).textContent = &quot; &quot;;
+    }
+
+
+    function getArtworkMetadata(artwork) {
+        return artwork.getElementsByTagName(&quot;Metadata&quot;)[0].childNodes[0].childNodes[0].childNodes[1].childNodes[0].childNodes;
+    }
+
+    function setThumbnail(url) {
+        var metadata = getFieldValueFromMetadata(artworkXML, &quot;Thumbnail&quot;);
+        metadata.data = url;
+    }
+
+    /* This method is called to get the artwork document in XML form */
+    function getArtworkXML() {
+        var xml = TAG.Worktop.Database.getDoqXML(artwork.Identifier);
+        var parser = new DOMParser();
+        artworkXML = parser.parseFromString(xml, &#x27;text/xml&#x27;);
+    }
+
+    function setArtworkLocations(data) {
+        getFieldValueFromMetadata(artworkXML, &quot;Location&quot;).data = data;
+    }
+
+    function getFieldValueFromMetadata(xml, field) {
+        var metadata = getMetaData(xml);
+        for (var i = 0; i &lt; metadata.length; i++) {
+            if (metadata[i].childNodes[0].textContent === field) {
+                var out = metadata[i].childNodes[1].childNodes[0];
+                if (out) return out;
+
+                metadata[i].childNodes[1].appendChild(xml.createTextNode(&#x27;&#x27;));
+                return metadata[i].childNodes[1].childNodes[0];
+            }
+        }
+        return null;
+    }
+    function getMetaData(doq) {
+        return doq.getElementsByTagName(&quot;Metadata&quot;)[0].childNodes[0].childNodes[0].childNodes[1].childNodes[0].childNodes;
+    }
+
+    //Location Object, probably should be replaced with
+    //something from the server //does this comment still apply? - yudi
+    function LocObject(locResource, address, date, info) {
+        this.resource = locResource;
+        this.date = date;
+        this.info = info;
+        this.address = address;
+        this.pushpin = null;
+    }
+
+    function toggleThumbnailPicker(toggle) {
+        if (toggle == &quot;close&quot;) {
+            $(tnBorderWrapper).fadeOut();
+            return;
+        }
+        if (locPanelOpen) {
+            $(&#x27;.locationPanelDiv&#x27;).hide(&quot;slide&quot;, { direction: &#x27;left&#x27; }, 500, function () {
+                $(&#x27;.sidebarHideButtonContainer&#x27;).show();
+            });
+            locPanelOpen = false;
+        }
+        //$(&#x27;.addAssocMediaDialog&#x27;).fadeOut();
+        $(&#x27;.addInfoDialog&#x27;).fadeOut();
+        if ($(tnBorderWrapper)[0] === undefined) {
+            makethumbnailPicker();
+            $(tnBorderWrapper).fadeToggle(200);
+        } else {
+            $(tnBorderWrapper).fadeToggle(200);
+        }
+    }
+
+    function makethumbnailPicker() {
+        var mainPanelHeight = $(&#x27;.mainPanel&#x27;).height();
+        var mainPanelWidth = $(&#x27;.mainPanel&#x27;).width();
+        var ratio = 1.564;
+
+        tnBorderWrapper = document.createElement(&#x27;div&#x27;);
+        $(tnBorderWrapper).addClass(&#x27;tnBorderWrapper&#x27;);
+        //$(tnBorderWrapper).addClass(&#x27;hideMenus&#x27;);
+        $(tnBorderWrapper).css({
+            position: &#x27;relative&#x27;,
+            top: &#x27;0px&#x27;,
+            left: &#x27;0px&#x27;,
+            height: &#x27;100%&#x27;,
+            width: &#x27;100%&#x27;,
+            display: &#x27;none&#x27;,
+        });
+
+        var tnBorderCenter = document.createElement(&#x27;div&#x27;);
+        $(tnBorderCenter).addClass(&quot;tnBorderCenter&quot;);
+        $(tnBorderCenter).css({
+            position: &#x27;absolute&#x27;,
+            top: &#x27;15%&#x27;,
+            left: &#x27;25%&#x27;,
+            height: 50 + &#x27;%&#x27;,
+            width: ((50 * mainPanelHeight * ratio) / mainPanelWidth) + &#x27;%&#x27;,
+            &#x27;background-color&#x27;: &#x27;transparent&#x27;,
+            border: &#x27;2px solid white&#x27;,
+            &#x27;z-index&#x27;: 60,
+        });
+        var tnBorderLeft = document.createElement(&#x27;div&#x27;);
+        $(tnBorderLeft).addClass(&quot;tbBorderLeft&quot;);
+        $(tnBorderLeft).css({
+            position: &#x27;absolute&#x27;,
+            top: &#x27;0%&#x27;,
+            left: 0,
+            height: &#x27;100%&#x27;,
+            width: &#x27;25%&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(0,0,0,.6)&#x27;,
+            &#x27;z-index&#x27;: 50,
+        });
+        var tnBorderTop = document.createElement(&#x27;div&#x27;);
+        $(tnBorderTop).addClass(&quot;tnBorderTop&quot;);
+        $(tnBorderTop).css({
+            position: &#x27;absolute&#x27;,
+            top: &#x27;0%&#x27;,
+            left: &#x27;25%&#x27;,
+            height: &#x27;15%&#x27;,
+            width: $(tnBorderCenter).width() + &#x27;%&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(0,0,0,.6)&#x27;,
+            &#x27;z-index&#x27;: 50,
+        });
+        var tnBorderBottom = document.createElement(&#x27;div&#x27;);
+        $(tnBorderBottom).addClass(&quot;tnBorderBottom&quot;);
+        $(tnBorderBottom).css({
+            position: &#x27;absolute&#x27;,
+            top: (15 + $(tnBorderCenter).height()) + &#x27;%&#x27;,
+            left: &#x27;25%&#x27;,
+            height: (100 - $(tnBorderCenter).height() - $(tnBorderTop).height()) + &#x27;%&#x27;,
+            width: $(tnBorderCenter).width() + &#x27;%&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(0,0,0,.6)&#x27;,
+            &#x27;z-index&#x27;: 55,
+        });
+        var tnBorderRight = document.createElement(&#x27;div&#x27;);
+        $(tnBorderRight).addClass(&quot;tnBorderRight&quot;);
+        $(tnBorderRight).css({
+            position: &#x27;absolute&#x27;,
+            top: &#x27;0%&#x27;,
+            left: (25 + $(tnBorderCenter).width()) + &#x27;%&#x27;,
+            height: &#x27;100%&#x27;,
+            width: (100 - 25 - $(tnBorderCenter).width()) + &#x27;%&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(0,0,0,.6)&#x27;,
+            &#x27;z-index&#x27;: 50,
+        });
+
+        var artWorkInfo = document.createElement(&#x27;div&#x27;);
+        $(artWorkInfo).addClass(&#x27;artworkInfo&#x27;);
+        $(artWorkInfo).css({
+            position: &#x27;relative&#x27;,
+            width: &#x27;100%&#x27;,
+            height: &#x27;15%&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(0,0,0,.6)&#x27;,
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;font-size&#x27;: &#x27;300%&#x27;,
+            &#x27;text-align&#x27;: &#x27;center&#x27;,
+        });
+        //should be replaced by artwork name
+        $(artWorkInfo).text(&quot;Artwork Info&quot;);
+
+        var tnHelp = document.createElement(&#x27;div&#x27;);
+        $(tnHelp).addClass(&#x27;tnHelp&#x27;);
+        $(tnHelp).css({
+            position: &#x27;relative&#x27;,
+            top: &#x27;15%&#x27;,
+            left: &#x27;0%&#x27;,
+            width: &#x27;100%&#x27;,
+            height: &#x27;29%&#x27;,
+            border: &#x27;3px double white&#x27;,
+            padding: &#x27;1%&#x27;,
+            &#x27;font-size&#x27;: &#x27;120%&#x27;,
+            color: &#x27;white&#x27;,
+        });
+        $(tnHelp).text(&quot;Move and resize the artwork within the thumbnail window, and select “Save Thumbnail” when you’re happy with the composition.&quot;);
+        var tnHelpPadding = (parseInt($(tnHelp).css(&#x27;padding&#x27;), 10) / 100) * ($(tnBorderBottom).innerWidth() / 100) * root.width();
+        var tnHelpBorder = parseInt($(tnHelp).css(&#x27;border&#x27;), 10);
+        var tnBottomWidth = ($(tnBorderBottom).innerWidth() / 100) * root.width();
+        $(tnHelp).width(tnBottomWidth - 2 * tnHelpBorder - 2 * tnHelpPadding);
+
+        var tnSave = document.createElement(&#x27;button&#x27;);
+        $(tnSave).text(&quot;Save Thumbnail&quot;);
+        $(tnSave).css({
+            position: &#x27;absolute&#x27;,
+            &#x27;right&#x27;: &#x27;0px&#x27;,
+            &#x27;bottom&#x27;: &#x27;15%&#x27;,
+        });
+        $(tnSave).on(&quot;click&quot;, saveThumbnail);
+
+        $(tnBorderCenter).append(artWorkInfo);
+        $(tnBorderBottom).append(tnHelp);
+        $(tnBorderBottom).append(tnSave);
+
+        $(tnBorderWrapper).append(tnBorderTop);
+        $(tnBorderWrapper).append(tnBorderLeft);
+        $(tnBorderWrapper).append(tnBorderCenter);
+        $(tnBorderWrapper).append(tnBorderBottom);
+        $(tnBorderWrapper).append(tnBorderRight);
+        mainPanel.append(tnBorderWrapper);
+
+    }
+
+    //functions for thumbnail upload
+    function saveThumbnail() {
+        var canvas = $(&quot;canvas&quot;);
+        var ctx = canvas[0].getContext(&quot;2d&quot;);
+
+        //gets position of thumbnail frame
+        var x = $(&quot;.tnBorderCenter&quot;).offset().left;
+        var y = $(&quot;.tnBorderCenter&quot;).offset().top;
+        var width = $(&quot;.tnBorderCenter&quot;).outerWidth();
+        var height = $(&quot;.tnBorderCenter&quot;).outerHeight();
+
+        //gets imagedata from position of thumbnail frame
+        var imgdata = ctx.getImageData(x, y, width, height);
+
+        //creates tmpcanvas to redraw imgdata
+        var tmpCanvas = document.createElement(&quot;canvas&quot;);
+        //Set width of canvas like this not with CSS
+        //CSS canvas size will stretch contents!!!
+        tmpCanvas.width = imgdata.width;
+        tmpCanvas.height = imgdata.height;
+        var tmpCtx = tmpCanvas.getContext(&quot;2d&quot;);
+        tmpCtx.putImageData(imgdata, 0, 0);
+
+        //gets dataurl from tmpcanvas, ready to send to server!
+        var dataurl = tmpCanvas.toDataURL();
+
+        //spit out dataurl into body for testing.
+        /*
+        var link = document.createElement(&#x27;a&#x27;);
+        root.append(link);
+        var downloadURL = dataurl;
+        downloadURL.replace(&quot;image/png&quot;, &quot;image/octet-stream&quot;);
+        link.href = downloadURL;
+        link.download = &quot;1.png&quot;;
+        link.text = &quot;download&quot;;
+        */
+
+        //uploadFile();
+
+        TAG.Worktop.Database.uploadImage(dataurl, function (imageURL) {
+            TAG.Worktop.Database.changeArtwork(artwork.Identifier, { Thumbnail: imageURL }, thumbnailSuccess, thumbnailUnauth, conflict(artwork, &quot;Update&quot;, thumbnailError));
+        }, thumbnailUnauth, thumbnailError);
+
+        function thumbnailSuccess() {
+            //toggleThumbnailPicker();
+            $(&quot;.editThumbnailButton&quot;).click();
+        }
+
+        function thumbnailUnauth() {
+            var popup = TAG.Util.UI.popUpMessage(null, &quot;Thumbnail not saved.  You must log in to save changes.&quot;);
+            $(&#x27;body&#x27;).append(popup);
+            $(popup).show();
+        }
+
+        function thumbnailError() {
+            var popup = TAG.Util.UI.popUpMessage(null, &quot;Thumbnail not saved.  There was an error contacting the server.&quot;);
+            $(&#x27;body&#x27;).append(popup);
+            $(popup).show();
+        }
+    }
+
+    function conflict(doq, text, fail) {
+        return function (jqXHR, ajaxCall) {
+            ajaxCall.force(); // Ignore conflict until we have a better solution
+            return;
+            var confirmationBox = TAG.Util.UI.PopUpConfirmation(function () {
+                ajaxCall.force();
+                // TODO: Text for change/delete
+            }, &quot;Your version of &quot; + doq.Name + &quot; is not up to date.  Are you sure you want to change &quot; + doq.Name + &quot;?&quot;, text, true, fail);
+            root.append(confirmationBox);
+            $(confirmationBox).show();
+        }
+    }
+};
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>TAG Demo</title>
+    <link rel='stylesheet' href='demo_css.css' />
+	<script src="hammer.js"></script>
+    <script src="TAG.js"></script>
+    <script>
+        // set up TAG in the div with id = 'tagContainer'
+        window.onload = load;
+
+        function load() {
+            TAG_GLOBAL({
+                path: '',
+                containerId: 'tagContainer',
+                serverIp: 'browntagserver.com',
+                allowServerChange: true
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>TAG WEB DEMO</h1>
+    
+    <div id="controls">
+        <div id="widthContainer">
+            <div id="currentTAGWidth">
+                <strong>TAG Width:</strong> <span id="tagWidth">960</span>px
+            </div>
+            <div id="widthSliderContainer">
+                400px <input id='widthSlider' type='range' min='400' max='1600' value='960' onchange='widthChanged()'/> 1600px
+            </div>
+        </div>
+
+        <div id="heightContainer">
+            <div id="currentTAGHeight">
+                <strong>TAG Height:</strong> <span id="tagHeight">500</span>px
+            </div>
+            <div id="heightSliderContainer">
+                225px <input id='heightSlider' type='range' min='225' max='900' value='500' onchange='heightChanged()'/> 900px
+            </div>
+        </div>
+
+        <div id="cpContainer">
+            <input id="cpCheckbox" type="checkbox" checked="true" name="proportions" value="Constrain Proportions" onchange='checkboxChanged()'>Constrain Proportions
+        </div>
+
+        <button type="button" id="refreshTAGButton">Refresh TAG</button>
+    </div>
+
+    <div id="tagContainer"></div>
+
+    <div id="testContainer">
+        <button type="button" id="TAG_tb1">Test 1</button>
+        <button type="button" id="TAG_tb2">Test 2</button>
+        <button type="button" id="TAG_tb3">Test 3</button>
+        <button type="button" id="TAG_tb4">Test 4</button>
+        <button type="button" id="TAG_cancelTest">Cancel test</button>
+    </div>
+    <script>
+        var cpCheckbox = document.getElementById('cpCheckbox');
+        var widthSlider = document.getElementById('widthSlider');
+        var heightSlider = document.getElementById('heightSlider');
+        
+        function widthChanged() {
+            if (cpCheckbox.checked) {
+                var newWidth = widthSlider.value;
+                if (heightSlider.value != Math.floor((9 * newWidth) / 16)) {
+                    heightSlider.value = Math.floor((9 * newWidth) / 16);
+                    //Manually fire onchange event for heightSlider
+                    if ("createEvent" in document) {
+                        var evt = document.createEvent("HTMLEvents");
+                        evt.initEvent("change", false, true);
+                        heightSlider.dispatchEvent(evt);
+                    }
+                    else {
+                        heightSlider.fireEvent("onchange");
+                    }
+                }
+            }
+        }
+
+        function heightChanged() {
+            if (cpCheckbox.checked) {
+                var newHeight = heightSlider.value;
+                if (widthSlider.value != Math.floor((16 * newHeight) / 9)) {
+                    widthSlider.value = Math.floor((16 * newHeight) / 9);
+                    //Manually fire onchange event for widhtSlider
+                    if ("createEvent" in document) {
+                        var evt = document.createEvent("HTMLEvents");
+                        evt.initEvent("change", false, true);
+                        widthSlider.dispatchEvent(evt);
+                    }
+                    else {
+                        widthSlider.fireEvent("onchange");
+                    }
+                }
+            }
+        }
+
+        function checkboxChanged() {
+            if(!cpCheckbox.checked) {
+                widthSlider.step = '10';
+                heightSlider.step = '10';
+            }
+            else {
+                widthSlider.removeAttribute('step');
+                heightSlider.removeAttribute('step');
+                widthChanged();
+            }
+        }
+    </script>
+</body>
+</html>

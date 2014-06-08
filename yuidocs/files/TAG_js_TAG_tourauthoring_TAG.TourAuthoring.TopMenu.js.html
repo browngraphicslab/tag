@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>TAG/js/TAG/tourauthoring/TAG.TourAuthoring.TopMenu.js - Touch Art Gallery web application</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../../TAG/images/WideLogo.scale-100.png" title="Touch Art Gallery web application"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 1.0.0</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/Autolinker.html">Autolinker</a></li>
+            
+                <li><a href="../classes/TAG.AnnotatedImage.html">TAG.AnnotatedImage</a></li>
+            
+                <li><a href="../classes/TAG.IdleTimer.html">TAG.IdleTimer</a></li>
+            
+                <li><a href="../classes/TAG.Layout.Artmode.html">TAG.Layout.Artmode</a></li>
+            
+                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
+            
+                <li><a href="../classes/TAG.Layout.NewCatalog.html">TAG.Layout.NewCatalog</a></li>
+            
+                <li><a href="../classes/TAG.Layout.StartPage.html">TAG.Layout.StartPage</a></li>
+            
+                <li><a href="../classes/TAG.Layout.VideoPlayer.html">TAG.Layout.VideoPlayer</a></li>
+            
+                <li><a href="../classes/TAG.Util.Artwork.html">TAG.Util.Artwork</a></li>
+            
+                <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
+            
+                <li><a href="../classes/Telemetry.html">Telemetry</a></li>
+            
+                <li><a href="../classes/TwoStageTimer.html">TwoStageTimer</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: TAG/js/TAG/tourauthoring/TAG.TourAuthoring.TopMenu.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+﻿TAG.Util.makeNamespace(&#x27;TAG.TourAuthoring.TopMenu&#x27;);
+
+/**
+ * Main menu for Tour Authoring
+ * Back button, rename tour controls, save button, tour options
+ * @param spec      not used
+ * @param my        not used
+ */
+TAG.TourAuthoring.TopMenu = function (spec, my) {
+    &quot;use strict&quot;;
+
+    var that = {},
+        viewer = spec.viewer,
+        undoManager = spec.undoManager,
+        timeline = spec.timeline,
+        timeManager = spec.timeManager,
+        tourobj = spec.tourobj,
+        playbackControls = spec.playbackControls,
+        root = spec.root,
+        componentControls = spec.componentControls,
+        topbar = $(document.createElement(&#x27;div&#x27;)),
+        //dialogOverlay = $(document.createElement(&#x27;div&#x27;)), // NOTE: TODO: figure out how to place dialogOverlay inside of topbar to maintain modularity?
+
+        dialogOverlay = $(TAG.Util.UI.blockInteractionOverlay()),
+        //backDialogOverlay = $(document.createElement(&#x27;div&#x27;));
+        backDialogOverlay = $(TAG.Util.UI.blockInteractionOverlay());
+
+    (function _createHTML() {
+        topbar.css({ &quot;background-color&quot;: &quot;rgb(63,55,53)&quot;, &quot;height&quot;: &quot;8%&quot;, &quot;width&quot;: &quot;100%&quot; });
+        topbar.attr(&#x27;id&#x27;, &#x27;topbar&#x27;);
+
+        var buttonHeight = $(window).height() * 0.0504; // matches effective % size from SettingsView
+        var backButtonArea = $(document.createElement(&#x27;div&#x27;));
+        backButtonArea.css({
+            &quot;top&quot;: &quot;18.5%&quot;,
+            &#x27;margin-left&#x27;: &#x27;1.2%&#x27;,
+            &#x27;height&#x27;: &#x27;63%&#x27;,
+            &quot;width&quot;: buttonHeight + &#x27;px&#x27;,
+            &quot;position&quot;: &quot;relative&quot;,
+            &quot;float&quot;: &quot;left&quot;
+        });
+        var backButton = $(document.createElement(&#x27;img&#x27;));
+        backButton.attr(&#x27;src&#x27;, &#x27;images/icons/Back.svg&#x27;);
+        backButton.css({ &#x27;width&#x27;: &#x27;100%&#x27;, &#x27;height&#x27;: &#x27;100%&#x27; });
+
+        backButton.mousedown(function () {
+            TAG.Util.UI.cgBackColor(&quot;backButton&quot;, backButton, false);
+        });
+
+        backButton.mouseleave(function () {
+            TAG.Util.UI.cgBackColor(&quot;backButton&quot;, backButton, true);
+        });
+
+        //save method saves all changes made
+        var saveClicked = false;
+        var nameChanged = false;
+        function save(stayOnPage) {
+            console.log(&quot;isUploading === &quot; + componentControls.getIsUploading());
+            saveClicked = true;
+            nameChanged = false;
+            if ($(&quot;#inkEditText&quot;).css(&#x27;display&#x27;) !== &quot;none&quot;) {
+                componentControls.saveText();
+            }
+            else if ($(&quot;#inkEditDraw&quot;).css(&#x27;display&#x27;) !== &quot;none&quot;) {
+                componentControls.saveDraw();
+            }
+            else if ($(&quot;#inkEditTransparency&quot;).css(&#x27;display&#x27;) !== &quot;none&quot;) {
+                componentControls.saveTrans();
+            }
+            timeline.hideEditorOverlay();
+
+            undoManager.setPrevFalse();//method sets savedState of top element of undoStack to true to indicate further prompt for saving is not required on leaving page
+            //var xml = TAG.Worktop.Database.getDoqXML(tourobj.Identifier);
+            //var parser = new DOMParser();
+            //var tourXML = $(parser.parseFromString(xml, &#x27;text/xml&#x27;));
+
+            var name = textArea.val();
+            var content = JSON.stringify(timeline.toRIN(true));
+            var related = JSON.stringify(timeline.getRelatedArtworks());
+            //var thumbnail = optionsBuffer &amp;&amp; optionsBuffer.thumbnail;
+
+            var options = {
+                Name: name,
+                Content: content,
+                RelatedArtworks: related
+            }
+
+            TAG.Worktop.Database.changeTour(tourobj, options, function () {
+                // success
+                dialogOverlay.fadeOut(500);
+                !stayOnPage &amp;&amp; goBack();
+            }, function () {
+                // unauth
+                dialogOverlay.hide();
+                var popup = TAG.Util.UI.popUpMessage(null, &quot;Tour not saved.  You must log in to save changes.&quot;);
+                $(&#x27;body&#x27;).append(popup);
+                $(popup).show();
+            }, function (jqXHR, ajaxCall) {
+                // conflict
+                // Ignore conflict for now
+                ajaxCall.force();
+            }, function () {
+                // error
+                dialogOverlay.hide();
+                var popup = TAG.Util.UI.popUpMessage(null, &quot;Tour not saved.  There was an error contacting the server.&quot;);
+                $(&#x27;body&#x27;).append(popup);
+                $(popup).show();
+            });   
+        }
+        // Takes you back to the tour authoring menu page
+        function goBack() {
+            var messageBox;
+            // first, make sure that a tour reload isn&#x27;t in progress
+            if (viewer.getIsReloading()) {
+                messageBox = TAG.Util.UI.popUpMessage(null, &quot;Tour reload in progress. Please wait a few moments.&quot;, null);
+                $(messageBox).css(&#x27;z-index&#x27;, TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
+                $(&#x27;body&#x27;).append(messageBox);
+                $(messageBox).fadeIn(500);
+                return;
+            }
+            backButton.off(&#x27;click&#x27;);
+            $(&#x27;.rightClickMenu&#x27;).hide();//shuts the menu that appears on right clicking on a track
+            var tempSettings = new TAG.Authoring.NewSettingsView(&#x27;Tours&#x27;, null, null, tourobj.Identifier);
+            viewer.stop();
+            viewer.unload();
+            TAG.Util.UI.slidePageRight(tempSettings.getRoot());
+        }
+        backDialogOverlay.attr(&#x27;id&#x27;, &#x27;backDialogOverlay&#x27;);
+        backDialogOverlay.css({
+            display: &#x27;none&#x27;,
+            position: &#x27;absolute&#x27;,
+            top: 0,
+            left: 0,
+            width: &#x27;100%&#x27;,
+            height: &#x27;100%&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(0,0,0,0.6)&#x27;,
+            &#x27;z-index&#x27;: TAG.TourAuthoring.Constants.aboveRinZIndex,
+            //&#x27;height&#x27;: &#x27;30%&#x27;,
+            //&#x27;width&#x27;: &#x27;45%&#x27;,
+            //&#x27;position&#x27;: &#x27;fixed&#x27;,
+            //&#x27;top&#x27;: &#x27;50%&#x27;,
+            //&#x27;left&#x27;: &#x27;50%&#x27;,
+            //&#x27;margin-top&#x27;: &#x27;-15%&#x27;,
+            //&#x27;margin-left&#x27;: &#x27;-22.5%&#x27;,
+            //&#x27;background-color&#x27;: &#x27;black&#x27;,
+            //&#x27;z-index&#x27;: TAG.TourAuthoring.aboveRinZIndex+5,
+            //&#x27;border&#x27;: &#x27;3px double white&#x27;,
+        });
+        // Actual dialog container for when back button is pressed
+        var backDialog = $(document.createElement(&#x27;div&#x27;));
+        backDialog.attr(&#x27;id&#x27;, &#x27;backDialog&#x27;);
+
+        ///new css
+        var backDialogSpecs = TAG.Util.constrainAndPosition($(window).width(), $(window).height(),
+           {
+               center_h: true,
+               center_v: true,
+               width: 0.5,
+               height: 0.35,
+               max_width: 560,
+               max_height: 200,
+           });
+        backDialog.css({
+            position: &#x27;absolute&#x27;,
+            left: backDialogSpecs.x + &#x27;px&#x27;,
+            top: backDialogSpecs.y + &#x27;px&#x27;,
+            width: backDialogSpecs.width + &#x27;px&#x27;,
+            height: backDialogSpecs.height + &#x27;px&#x27;,
+            border: &#x27;3px double white&#x27;,
+            &#x27;background-color&#x27;: &#x27;black&#x27;,
+        });
+
+        backDialogOverlay.append(backDialog);
+        var backDialogTitle = $(document.createElement(&#x27;div&#x27;));
+        backDialogTitle.attr(&#x27;id&#x27;, &#x27;backDialogTitle&#x27;);
+        //var fontsize = TAG.Util.getMaxFontSizeEM(&#x27;Entering authoring mode, please enter password.&#x27;, 0.8, 0.8 * loginDialog.width(), 0.2 * loginDialog.height(), 0.05);
+        backDialogTitle.css({
+            color: &#x27;white&#x27;,
+            &#x27;width&#x27;: &#x27;80%&#x27;,
+            &#x27;height&#x27;: &#x27;15%&#x27;,
+            &#x27;left&#x27;: &#x27;10%&#x27;,
+            &#x27;top&#x27;: &#x27;12.5%&#x27;,
+            &#x27;font-size&#x27;: &#x27;1.25em&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;text-align&#x27;: &#x27;center&#x27;,
+           // &#x27;overflow&#x27;: &#x27;hidden&#x27;,
+            &#x27;word-wrap&#x27;:&#x27;break-word&#x27;,
+        });
+
+        backDialog.append(backDialogTitle);
+        backDialog.append(document.createElement(&#x27;br&#x27;));
+         
+        var backButtonRow = $(document.createElement(&#x27;div&#x27;));
+        backButtonRow.css({
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;display&#x27;: &#x27;block&#x27;,
+            &#x27;width&#x27;: &#x27;80%&#x27;,
+            &#x27;left&#x27;: &#x27;10%&#x27;,
+            &#x27;top&#x27;:&#x27;40%&#x27;
+        });
+
+        var backSaveButton = $(document.createElement(&#x27;button&#x27;));
+        backSaveButton.css({
+            &#x27;padding&#x27;: &#x27;1%&#x27;,
+            &#x27;border&#x27;: &#x27;1px solid white&#x27;,
+            &#x27;width&#x27;: &#x27;auto&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+        });
+        backSaveButton.text(&#x27;Save&#x27;);
+
+        $(backSaveButton).click(function () {
+            save();
+        });
+
+        backButtonRow.append(backSaveButton);
+
+        var backDontSaveButton = $(document.createElement(&#x27;button&#x27;));
+        backDontSaveButton.css({
+            &#x27;padding&#x27;: &#x27;1%&#x27;,
+            &#x27;border&#x27;: &#x27;1px solid white&#x27;,
+            &#x27;width&#x27;: &#x27;auto&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+            &#x27;left&#x27;: &#x27;20%&#x27;
+
+        });
+        backDontSaveButton.text(&#x27;Don\&#x27;t Save&#x27;);
+        $(backDontSaveButton).click(function () {
+            goBack();
+        });
+
+        backButtonRow.append(backDontSaveButton);
+
+        var backCancelButton = $(document.createElement(&#x27;button&#x27;));
+        backCancelButton.css({
+            &#x27;padding&#x27;: &#x27;1%&#x27;,
+            &#x27;border&#x27;: &#x27;1px solid white&#x27;,
+            &#x27;width&#x27;: &#x27;auto&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+            &#x27;float&#x27;: &#x27;right&#x27;
+        });
+        backCancelButton.text(&#x27;Cancel&#x27;);
+        backCancelButton.click(function () { backDialogOverlay.fadeOut(500); });
+        backButtonRow.append(backCancelButton);
+
+        backDialog.append(backButtonRow);
+
+        backButton.click(function () {
+            var messageBox;
+
+            $(&#x27;.rightClickMenu&#x27;).hide();//shuts the menu that appears on right clicking on a track
+
+            if (viewer.getIsReloading()) {
+                messageBox = TAG.Util.UI.popUpMessage(null, &quot;Tour reload in progress. Please wait a few moments.&quot;, null);
+                $(messageBox).css(&#x27;z-index&#x27;, TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
+                $(&#x27;body&#x27;).append(messageBox);
+                $(messageBox).fadeIn(500);
+                return;
+            }
+
+            if (nameChanged || (undoManager.dirtyStateGetter() === false) || 
+                (componentControls.getInkUndoManager() &amp;&amp; (componentControls.getInkUndoManager().dirtyStateGetter() === false) /*&amp;&amp; (componentControls.getInkUndoManager().undoStackSize() != 0)*/)) {
+                backDialogOverlay.fadeIn(500);
+                if (textArea.val().length === 0) {
+                    textArea.val(&#x27;Untitled Tour 1&#x27;);
+                }
+                backDialogTitle.text(&#x27;Save changes to &#x27; + $(textArea).val() + &#x27; before leaving?&#x27;);
+            }
+            else {
+                goBack();
+            }
+
+
+       });
+        backButtonArea.append(backButton);
+        topbar.append(backButtonArea);
+
+        // Title text area, users can retype and redefine title name
+        var textArea = $(document.createElement(&#x27;input&#x27;));
+        textArea.type = &quot;text&quot;;
+
+        var textAreaSpecs = TAG.Util.constrainAndPosition($(window).width(), $(window).height() * 0.08,
+        {
+            center_v: true,
+            width: 0.2,
+            height: 0.5,
+            x_offset: 0.05,
+            x_max_offset: 60,
+        });
+        textArea.css({
+            &#x27;margin-left&#x27;: &#x27;3%&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;border&#x27;: &#x27;3px solid&#x27;,
+            &#x27;border-color&#x27;: &#x27;#666666&#x27;,
+            top: textAreaSpecs.y - 7 + &#x27;px&#x27;,
+            &#x27;left&#x27;: textAreaSpecs.x + &#x27;px&#x27;,
+            width: textAreaSpecs.width + &#x27;px&#x27;,
+            height: textAreaSpecs.height + &#x27;px&#x27;,
+        });
+
+        textArea.attr({
+            display: &#x27;block&#x27;,
+            type: &#x27;text&#x27;,
+            id: &#x27;textArea&#x27;,
+            name: &#x27;textArea&#x27;,
+            value: tourobj.Name
+        });
+
+        textArea.on(&#x27;keydown&#x27;, function (ev) {
+            ev.stopImmediatePropagation();
+        });
+        textArea.on(&#x27;keypress&#x27;, function (ev) {
+            ev.stopImmediatePropagation();
+        });
+        textArea.on(&#x27;keyup&#x27;, function (ev) {
+            nameChanged = true;
+            ev.stopImmediatePropagation();
+        });
+
+        topbar.append(textArea);
+
+        // NOTE: save button click event handler is below dialog code
+        var saveButton = $(document.createElement(&quot;button&quot;));
+        saveButton.text(&quot;Save Changes&quot;);
+        saveButton.attr(&#x27;type&#x27;, &#x27;button&#x27;);
+
+        var saveButtonSpecs = TAG.Util.constrainAndPosition($(window).width() * 0.8, $(window).height() * 0.08,
+        {
+            center_v: true,
+            width: 0.1,
+            height: 0.5,
+        });
+        var fontsize = TAG.Util.getMaxFontSizeEM(&#x27;Save Changes&#x27;, 0.2, 0.75 * saveButtonSpecs.width, 0.75 * saveButtonSpecs.height, 0.01);
+        saveButton.css({
+            &quot;color&quot;: &quot;white&quot;,
+            &quot;border-color&quot;: &quot;white&quot;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            width: saveButtonSpecs.width + &#x27;px&#x27;,
+            height: saveButtonSpecs.height + &#x27;px&#x27;,
+            &#x27;top&#x27;: saveButtonSpecs.y + &#x27;px&#x27;,
+            &#x27;font-size&#x27;: fontsize,
+            &#x27;left&#x27;: parseInt(textArea.css(&#x27;left&#x27;),10) + textArea.width() + 45 + ($(window).width() * 0.022) + &#x27;px&#x27;,
+        });
+        
+        topbar.append(saveButton);
+
+
+        /*save button dialog code*/
+        // Overlay to darken out main UI
+        dialogOverlay.attr(&#x27;id&#x27;, &#x27;dialogOverlay&#x27;);
+        dialogOverlay.css({
+            display: &#x27;none&#x27;,
+            position: &#x27;absolute&#x27;,
+            top: 0,
+            left: 0,
+            width: &#x27;100%&#x27;,
+            height: &#x27;100%&#x27;,
+            &#x27;background-color&#x27;: &#x27;rgba(0,0,0,0.6)&#x27;,
+            &#x27;z-index&#x27;: TAG.TourAuthoring.Constants.aboveRinZIndex,
+        });
+
+        // Actual dialog container
+        var saveDialog = $(document.createElement(&#x27;div&#x27;));
+        saveDialog.attr(&#x27;id&#x27;, &#x27;saveDialog&#x27;);
+
+        var saveDialogSpecs = TAG.Util.constrainAndPosition($(window).width(), $(window).height(),
+           {
+               center_h: true,
+               center_v: true,
+               width: 0.5,
+               height: 0.35,
+               max_width: 560,
+               max_height: 200,
+           });
+        saveDialog.css({
+            position: &#x27;absolute&#x27;,
+            left: saveDialogSpecs.x + &#x27;px&#x27;,
+            top: saveDialogSpecs.y + &#x27;px&#x27;,
+            width: saveDialogSpecs.width + &#x27;px&#x27;,
+            height: saveDialogSpecs.height + &#x27;px&#x27;,
+            border: &#x27;3px double white&#x27;,
+            &#x27;background-color&#x27;: &#x27;black&#x27;,
+        });
+        dialogOverlay.append(saveDialog);
+        var dialogTitle = $(document.createElement(&#x27;div&#x27;));
+        dialogTitle.attr(&#x27;id&#x27;, &#x27;dialogTitle&#x27;);
+        //var fontsize = TAG.Util.getMaxFontSizeEM(&#x27;Entering authoring mode, please enter password.&#x27;, 0.8, 0.8 * loginDialog.width(), 0.2 * loginDialog.height(), 0.05);
+        dialogTitle.css({
+            color: &#x27;white&#x27;,
+            &#x27;width&#x27;: &#x27;80%&#x27;,
+            &#x27;height&#x27;: &#x27;15%&#x27;,
+            &#x27;left&#x27;: &#x27;10%&#x27;,
+            &#x27;top&#x27;: &#x27;12.5%&#x27;,
+            &#x27;font-size&#x27;: &#x27;1.25em&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;text-align&#x27;: &#x27;center&#x27;,
+            //&#x27;overflow&#x27;: &#x27;hidden&#x27;,
+            &#x27;word-wrap&#x27;: &#x27;break-word&#x27;,
+        });
+
+        saveDialog.append(dialogTitle);
+        saveDialog.append(document.createElement(&#x27;br&#x27;));
+
+        // Container for &quot;save / cancel&quot; buttons
+        var buttonRow = $(document.createElement(&#x27;div&#x27;));
+        buttonRow.css({
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;display&#x27;: &#x27;block&#x27;,
+            &#x27;width&#x27;: &#x27;80%&#x27;,
+            &#x27;left&#x27;: &#x27;10%&#x27;,
+            &#x27;top&#x27;: &#x27;40%&#x27;
+        });
+        saveDialog.append(buttonRow);
+
+        // TODO: Hook in save-to-server functionality here!
+        var submitButton = $(document.createElement(&#x27;button&#x27;));
+        submitButton.css({
+            &#x27;padding&#x27;: &#x27;1%&#x27;,
+            &#x27;border&#x27;: &#x27;1px solid white&#x27;,
+            &#x27;width&#x27;: &#x27;auto&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+        });
+        submitButton.text(&#x27;Save&#x27;);
+        submitButton.click(function () { save(true); });
+
+        buttonRow.append(submitButton);
+
+        var cancelButton = $(document.createElement(&#x27;button&#x27;));
+        cancelButton.css({
+            &#x27;padding&#x27;: &#x27;1%&#x27;,
+            &#x27;border&#x27;: &#x27;1px solid white&#x27;,
+            &#x27;width&#x27;: &#x27;auto&#x27;,
+            &#x27;position&#x27;: &#x27;relative&#x27;,
+            &#x27;margin-top&#x27;: &#x27;1%&#x27;,
+            &#x27;float&#x27;: &#x27;right&#x27;
+        });
+        cancelButton.text(&#x27;Cancel&#x27;);
+        cancelButton.click(function () { dialogOverlay.fadeOut(500); });
+        buttonRow.append(cancelButton);
+        
+        //save button click event handler
+        saveButton.click(function () {
+            $(&#x27;.rightClickMenu&#x27;).hide();//shuts the menu that appears on right clicking on a track
+            dialogOverlay.fadeIn(500);
+            if (textArea.val().length === 0) {
+                textArea.val(&#x27;Untitled Tour 1&#x27;);
+            }
+            dialogTitle.text(&#x27;Save changes to &#x27; + textArea.val() + &#x27;?&#x27;);
+        });
+
+        //topbar.append(buttonPanel);
+
+        // Tour Options dropdown
+        var tourOptions = TAG.TourAuthoring.TourOptions({
+            timeManager: timeManager,
+            timeline: timeline,
+            root: root,
+            undoManager: undoManager,
+            playbackControls: playbackControls,
+            tour: tourobj
+        });
+        tourOptions.addToDOM(topbar);
+        var tourOptionsSpecs = TAG.Util.constrainAndPosition($(window).width(), $(window).height() * 0.08,
+        {
+            center_v: true,
+            width: 0.13,
+            height: 0.8,
+        });
+        var tourOptionsFontSize = TAG.Util.getMaxFontSizeEM(&#x27;Options&#x27;, 0.5, tourOptionsSpecs.width * 0.8, tourOptionsSpecs.height * 0.7, 0.01);
+        var optionsLabelSpecs = TAG.Util.constrainAndPosition(tourOptionsSpecs.width, tourOptionsSpecs.height, {
+            center_v: true,
+            width: 0.8,
+            height: 0.8,
+        });
+
+        tourOptions.applyCSS(
+            {
+                &quot;height&quot;: tourOptionsSpecs.height + &quot;px&quot;,
+                &quot;width&quot;: tourOptionsSpecs.width + &#x27;px&#x27;,
+                &quot;left&quot;: &quot;60%&quot;,
+                &#x27;top&#x27;: tourOptionsSpecs.y + &#x27;px&#x27;,
+                &quot;position&quot;: &#x27;absolute&#x27;,
+            });
+
+        tourOptions.applyLabelCSS(
+            {
+                &#x27;height&#x27;: optionsLabelSpecs.height + &#x27;px&#x27;,
+                &#x27;width&#x27;: optionsLabelSpecs.width + &#x27;px&#x27;,
+                &#x27;left&#x27;: 0 + &#x27;px&#x27;,
+                &#x27;top&#x27;: optionsLabelSpecs.y + &#x27;px&#x27;,
+                &quot;position&quot;: &#x27;absolute&#x27;,
+                &#x27;font-size&#x27;: tourOptionsFontSize,
+            });
+
+        // Page header (not user&#x27;s tour title)
+        var topBarLabel = $(document.createElement(&#x27;div&#x27;));
+        var topBarLabelSpecs = TAG.Util.constrainAndPosition($(window).width(), $(window).height() * 0.08,
+        {
+            width: 0.4,
+            height: 0.9,
+        });
+        topBarLabel.css({
+            &#x27;margin-right&#x27;: &#x27;2%&#x27;,
+            &#x27;margin-top&#x27;: 8 * 0.04 + &#x27;%&#x27;,
+            &#x27;color&#x27;: &#x27;white&#x27;,
+            &#x27;position&#x27;: &#x27;absolute&#x27;,
+            &#x27;text-align&#x27;: &#x27;right&#x27;,
+            &#x27;right&#x27;: &#x27;0px&#x27;,
+            &#x27;top&#x27;: &#x27;0px&#x27;,
+            &#x27;height&#x27;: topBarLabelSpecs.height + &#x27;px&#x27;,
+            &#x27;width&#x27;: topBarLabelSpecs.width + &#x27;px&#x27;,
+        });
+
+        var fontsizeTop = TAG.Util.getMaxFontSizeEM(&#x27;Tour Authoring&#x27;, 0.5, topBarLabelSpecs.width, topBarLabelSpecs.height * 0.85);
+        topBarLabel.css({ &#x27;font-size&#x27;: fontsizeTop });
+
+        topBarLabel.text(&#x27;Tour Authoring&#x27;);
+
+        topbar.append(topBarLabel);
+
+        //topbar.append(tourLabel);
+    })();
+
+    function addToDOM(container) {
+        container.append(topbar).append(dialogOverlay).append(backDialogOverlay);
+    }
+    that.addToDOM = addToDOM;
+
+    return that;
+};
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>
