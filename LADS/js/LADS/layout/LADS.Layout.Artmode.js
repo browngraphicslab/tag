@@ -253,8 +253,6 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
                     annotatedImage.getToManip()({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
                 }
             }
-
-            
         }
 
 
@@ -305,6 +303,12 @@ LADS.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
 
         $(document).keyup(function(evt){
             clearInterval(interval);
+        });
+
+        $('#seadragonManipContainer').on('click', function(evt) {
+            evt.stopPropagation(); //Prevent the click going through to the main container
+            evt.preventDefault();
+            LADS.IdleTimer.restartTimer();
         });
 
         $('#leftControl').on('mousedown', function(evt) {
