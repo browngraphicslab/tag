@@ -62,7 +62,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
 
         currentPage = TAG.Util.Constants.pages.ARTWORK_VIEWER;
 
-        idleTimer = TAG.IdleTimer.TwoStageTimer();
+        idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
         idleTimer.start();
 
         // add script for displaying bing maps
@@ -308,7 +308,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         $('#seadragonManipContainer').on('click', function(evt) {
             evt.stopPropagation(); //Prevent the click going through to the main container
             evt.preventDefault();
-            TAG.IdleTimer.restartTimer();
+            TAG.Util.IdleTimer.restartTimer();
         });
 
         $('#leftControl').on('mousedown', function(evt) {

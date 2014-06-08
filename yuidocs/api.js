@@ -3,7 +3,7 @@ YUI.add("yuidoc-meta", function(Y) {
     "classes": [
         "Autolinker",
         "TAG.AnnotatedImage",
-        "TAG.IdleTimer",
+        "TAG.Util.IdleTimer",
         "TAG.Layout.ArtworkViewer",
         "TAG.Layout.InternetFailurePage.js",
         "TAG.Layout.CollectionsPage",

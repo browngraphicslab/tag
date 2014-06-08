@@ -47,7 +47,7 @@ TAG.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
     currentPage = TAG.Util.Constants.pages.VIDEO_PLAYER;
 
     // UNCOMMENT IF WE WANT IDLE TIMER IN Video PLAYER
-    // idleTimer = TAG.IdleTimer.TwoStageTimer();
+    // idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
     // idleTimer.start();
 
     // init the video player status

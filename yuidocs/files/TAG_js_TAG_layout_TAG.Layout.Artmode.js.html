@@ -45,7 +45,7 @@
             
                 <li><a href="../classes/TAG.AnnotatedImage.html">TAG.AnnotatedImage</a></li>
             
-                <li><a href="../classes/TAG.IdleTimer.html">TAG.IdleTimer</a></li>
+                <li><a href="../classes/TAG.Util.IdleTimer.html">TAG.Util.IdleTimer</a></li>
             
                 <li><a href="../classes/TAG.Layout.ArtworkViewer.html">TAG.Layout.ArtworkViewer</a></li>
             
@@ -172,7 +172,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
 
         currentPage = TAG.Util.Constants.pages.ARTWORK_VIEWER;
 
-        idleTimer = TAG.IdleTimer.TwoStageTimer();
+        idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
         idleTimer.start();
 
         // add script for displaying bing maps
@@ -418,7 +418,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         $(&#x27;#seadragonManipContainer&#x27;).on(&#x27;click&#x27;, function(evt) {
             evt.stopPropagation(); //Prevent the click going through to the main container
             evt.preventDefault();
-            TAG.IdleTimer.restartTimer();
+            TAG.Util.IdleTimer.restartTimer();
         });
 
         $(&#x27;#leftControl&#x27;).on(&#x27;mousedown&#x27;, function(evt) {

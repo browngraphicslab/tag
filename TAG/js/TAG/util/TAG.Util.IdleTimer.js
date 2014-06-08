@@ -1,13 +1,13 @@
 ﻿/**
  * TAG idle timer class. Wraps idle timer-related
  * functions in a contained scope.
- * @class TAG.IdleTimer
+ * @class TAG.Util.IdleTimer
  * @constructor
  * @return {Object}      a couple public methods
  */
 
 var TAG = TAG || {};
-TAG.IdleTimer = (function() {
+TAG.Util.IdleTimer = (function() {
     var overlay ,
         stageTwoDuration,
         overlayInterval;

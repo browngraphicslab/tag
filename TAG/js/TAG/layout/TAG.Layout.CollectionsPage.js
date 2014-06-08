@@ -79,7 +79,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
         backbuttonIcon.attr('src', tagPath+'images/icons/Back.svg');
 
-        idleTimer = TAG.IdleTimer.TwoStageTimer();
+        idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
         idleTimer.start();
 
         progressCircCSS = {

@@ -45,7 +45,7 @@
             
                 <li><a href="../classes/TAG.AnnotatedImage.html">TAG.AnnotatedImage</a></li>
             
-                <li><a href="../classes/TAG.IdleTimer.html">TAG.IdleTimer</a></li>
+                <li><a href="../classes/TAG.Util.IdleTimer.html">TAG.Util.IdleTimer</a></li>
             
                 <li><a href="../classes/TAG.Layout.ArtworkViewer.html">TAG.Layout.ArtworkViewer</a></li>
             
@@ -773,7 +773,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         outerContainer.on(&#x27;click&#x27;, function (event) {
             event.stopPropagation();            //Prevent the click going through to the main container
             event.preventDefault();
-            TAG.IdleTimer.restartTimer();
+            TAG.Util.IdleTimer.restartTimer();
             mediaManipPreprocessing();
             // toManip = mediaManip;              //When you click on any media, use the manipulation method for media
             // clickedMedia = &#x27;media&#x27;; 

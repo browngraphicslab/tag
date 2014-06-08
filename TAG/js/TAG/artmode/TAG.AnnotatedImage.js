@@ -663,7 +663,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         outerContainer.on('click', function (event) {
             event.stopPropagation();            //Prevent the click going through to the main container
             event.preventDefault();
-            TAG.IdleTimer.restartTimer();
+            TAG.Util.IdleTimer.restartTimer();
             mediaManipPreprocessing();
             // toManip = mediaManip;              //When you click on any media, use the manipulation method for media
             // clickedMedia = 'media'; 

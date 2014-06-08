@@ -169,7 +169,7 @@
 
         // set up idle timer restarting
         $('body').on('click.idleTimer', function() {
-            TAG.IdleTimer.restartTimer();
+            TAG.Util.IdleTimer.restartTimer();
         });
 
        // if (checkInternetConnectivity())
