@@ -67,11 +67,11 @@
             "fors": {},
             "namespaces": {}
         },
-        "TAG/js/TAG/layout/TAG.Layout.Artmode.js": {
-            "name": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+        "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js": {
+            "name": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "modules": {},
             "classes": {
-                "TAG.Layout.Artmode": 1
+                "TAG.Layout.ArtworkViewer": 1
             },
             "fors": {},
             "namespaces": {}
@@ -106,11 +106,11 @@
             "fors": {},
             "namespaces": {}
         },
-        "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js": {
-            "name": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+        "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js": {
+            "name": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "modules": {},
             "classes": {
-                "TAG.Layout.NewCatalog": 1
+                "TAG.Layout.CollectionsPage": 1
             },
             "fors": {},
             "namespaces": {}
@@ -582,16 +582,16 @@
                 "type": "Object"
             }
         },
-        "TAG.Layout.Artmode": {
-            "name": "TAG.Layout.Artmode",
-            "shortname": "TAG.Layout.Artmode",
+        "TAG.Layout.ArtworkViewer": {
+            "name": "TAG.Layout.ArtworkViewer",
+            "shortname": "TAG.Layout.ArtworkViewer",
             "classitems": [],
             "plugins": [],
             "extensions": [],
             "plugin_for": [],
             "extension_for": [],
             "namespace": "",
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 3,
             "description": "The artwork viewer, which contains a sidebar with tools and thumbnails as well\nas a central area for the deepzoom image.",
             "is_constructor": 1,
@@ -627,16 +627,16 @@
                 }
             ]
         },
-        "TAG.Layout.NewCatalog": {
-            "name": "TAG.Layout.NewCatalog",
-            "shortname": "TAG.Layout.NewCatalog",
+        "TAG.Layout.CollectionsPage": {
+            "name": "TAG.Layout.CollectionsPage",
+            "shortname": "TAG.Layout.CollectionsPage",
             "classitems": [],
             "plugins": [],
             "extensions": [],
             "plugin_for": [],
             "extension_for": [],
             "namespace": "",
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 3,
             "description": "The collections page",
             "is_constructor": 1,
@@ -2656,13 +2656,13 @@
             "created": "2008-06-15",
             "updated": "2012-01-19",
             "link": "http://jscolor.com",
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
             "file": "TAG/js/TAG/authoring/TAG.Authoring.FileUploader.js",
             "line": 3,
             "description": "Enum of file upload types",
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
             "file": "TAG/js/TAG/authoring/TAG.Authoring.FileUploader.js",
@@ -2698,31 +2698,31 @@
                     "description": "Function to keep track of progress (e.g. for displaying a progress bar somewhere)"
                 }
             ],
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
             "file": "TAG/js/TAG/authoring/TAG.Authoring.FileUploader.js",
             "line": 88,
             "description": "Starts the file upload",
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
             "file": "TAG/js/TAG/authoring/TAG.Authoring.FileUploader.js",
             "line": 434,
             "description": "Appends overlay to root\n(no idea if this will actually disable interactions too as is)",
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
             "file": "TAG/js/TAG/authoring/TAG.Authoring.FileUploader.js",
             "line": 444,
             "description": "Totally remove the overlay from the DOM / destroy",
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
             "file": "TAG/js/TAG/authoring/TAG.Authoring.FileUploader.js",
             "line": 451,
             "description": "Inner class that performs actual upload operation\nPartly taken from: http://msdn.microsoft.com/en-us/library/windows/apps/Hh700372.aspx",
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
             "file": "TAG/js/TAG/authoring/TAG.Authoring.FileUploader.js",
@@ -2738,7 +2738,7 @@
                     "description": "File object representing file to be uploaded"
                 }
             ],
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
             "file": "TAG/js/TAG/authoring/TAG.Authoring.FileUploader.js",
@@ -2750,13 +2750,13 @@
                     "description": "Finished upload passed by background uploader"
                 }
             ],
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
             "file": "TAG/js/TAG/authoring/TAG.Authoring.FileUploader.js",
             "line": 592,
             "description": "If file upload fails",
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
             "file": "TAG/js/TAG/authoring/TAG.Authoring.FileUploader.js",
@@ -2768,13 +2768,13 @@
                     "description": "upload object / info"
                 }
             ],
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
             "file": "TAG/js/TAG/authoring/TAG.Authoring.FileUploader.js",
             "line": 667,
             "description": "copied from TAG.Util.UI because the boxes have crap CSS. tru fax.",
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
             "file": "TAG/js/TAG/authoring/TAG.Authoring.NewSettingsView.js",
@@ -2794,26 +2794,26 @@
                     "description": "the length of the list above"
                 }
             ],
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 54,
             "description": "Initiate artmode with a root, artwork image and a sidebar on the left",
             "itemtype": "method",
             "name": "init",
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 105,
             "description": "Add controls and key handlers for manual Seadragon manipulation",
             "itemtype": "method",
             "name": "createSeadragonControls",
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 148,
             "description": "Create a seadragon control button",
             "itemtype": "method",
@@ -2844,10 +2844,10 @@
                 "description": "the button",
                 "type": "JQuery obj"
             },
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 182,
             "description": "Keydown handler for artwork manipulation; wrapper around doManip that first\nprevents default key behaviors",
             "itemtype": "method",
@@ -2864,10 +2864,10 @@
                     "type": "String"
                 }
             ],
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 195,
             "description": "Click handler for button in given direction; a wrapper around doManip that also\nexecutes doManip in an interval if the user is holding down a button",
             "itemtype": "method",
@@ -2884,10 +2884,10 @@
                     "type": "String"
                 }
             ],
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 210,
             "description": "Do fixed manipulation in response to seadragon controls or key presses",
             "itemtype": "method",
@@ -2904,18 +2904,18 @@
                     "type": "String"
                 }
             ],
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 346,
             "description": "Makes the artwork viewer sidebar",
             "itemtype": "method",
             "name": "makeSidebar",
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 461,
             "description": "Creates a tour thumbnail button",
             "itemtype": "method",
@@ -2932,10 +2932,10 @@
                     "type": "Doq"
                 }
             ],
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 478,
             "description": "Creates a thumbnail button for an associated media",
             "itemtype": "method",
@@ -2952,10 +2952,10 @@
                     "type": "Object"
                 }
             ],
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 515,
             "description": "Generates a click handler for a specific associated media object",
             "itemtype": "method",
@@ -2967,26 +2967,26 @@
                     "type": "Object"
                 }
             ],
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 583,
             "description": "MINIMAP CODE. bleveque: didn't rewrite this; separate issue\n                        if some variable names are off now, let me know",
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 643,
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 656,
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 758,
             "description": "Create a drawer with a disclosure button used to display\nhotspots, assets, tours. The returned jQuery object has\na property called \"contents\" which should be used to add\nbuttons or messages to the contents of the drawer.",
             "params": [
@@ -2996,18 +2996,18 @@
                 }
             ],
             "author": "jastern",
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 813,
             "description": "A callback function to populate the location history map after it has been created",
             "itemtype": "method",
             "name": "prepMap",
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 833,
             "description": "Helper function to draw pushpin on location history map when a location's info\nbox is clicked",
             "itemtype": "method",
@@ -3019,26 +3019,26 @@
                     "type": "Object"
                 }
             ],
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 907,
             "description": "Click handler to expand location history window",
             "itemtype": "method",
             "name": "histOnClick",
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 922,
             "description": "Toggles location panel when locHistoryContainer or toggler is clicked",
             "itemtype": "method",
             "name": "toggleLocationPanel",
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 961,
             "description": "Create a drawer (e.g., for list of related tours or the artwork's description)",
             "params": [
@@ -3052,10 +3052,10 @@
                 "description": "the drawer",
                 "type": "JQuery obj"
             },
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 1020,
             "description": "Return art viewer root element",
             "itemtype": "method",
@@ -3064,10 +3064,10 @@
                 "description": "root jquery object",
                 "type": "JQuery obj"
             },
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.Artmode.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
             "line": 1029,
             "description": "Make the map for location History.",
             "itemtype": "method",
@@ -3079,7 +3079,7 @@
                     "type": "Function"
                 }
             ],
-            "class": "TAG.Layout.Artmode"
+            "class": "TAG.Layout.ArtworkViewer"
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkEditor.js",
@@ -3442,15 +3442,15 @@
             "class": "TAG.Layout.InternetFailurePage.js"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 66,
             "description": "Sets up the collections page UI",
             "itemtype": "method",
             "name": "init",
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 132,
             "description": "Return the type of work",
             "itemtype": "method",
@@ -3466,27 +3466,27 @@
                 "description": "a string describing type of work ('artwork', 'video', or 'tour')",
                 "type": "String"
             },
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 147,
             "description": "Helper function to add collections to left bar",
             "itemtype": "method",
             "name": "getCollectionsHelper",
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 186,
             "description": "When only a single collection exists, this function modifies\nthe CSS to hide the list of collections and expand the\ndescription area.",
             "itemtype": "method",
             "name": "enableSingleCollectionUI",
             "author": "Athyuttam Eleti",
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 218,
             "description": "Add a collection to the left bar",
             "itemtype": "method",
@@ -3498,10 +3498,10 @@
                     "type": "Doq"
                 }
             ],
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 269,
             "description": "Click handler for collection title in left bar",
             "itemtype": "method",
@@ -3523,10 +3523,10 @@
                     "type": "Doq"
                 }
             ],
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 295,
             "description": "When a collection is selected in the left bar, load its image and description\nin the display area",
             "itemtype": "method",
@@ -3543,10 +3543,10 @@
                     "type": "Boolean"
                 }
             ],
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 444,
             "description": "Get contents (artworks, videos, tours) in the specified collection and make catalog",
             "itemtype": "method",
@@ -3563,10 +3563,10 @@
                     "type": "Function"
                 }
             ],
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 453,
             "description": "Helper function to process collection contents",
             "itemtype": "method",
@@ -3578,10 +3578,10 @@
                     "type": "Array"
                 }
             ],
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 473,
             "description": "Store the search strings for each artwork/tour",
             "itemtype": "method",
@@ -3593,18 +3593,18 @@
                     "type": "Array"
                 }
             ],
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 499,
             "description": "Search collection using string in search input box",
             "itemtype": "method",
             "name": "doSearch",
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 529,
             "description": "Create tiles for each artwork/tour in a collection",
             "itemtype": "method",
@@ -3616,10 +3616,10 @@
                     "type": "Array"
                 }
             ],
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 541,
             "description": "Draw the collection catalog",
             "itemtype": "method",
@@ -3646,10 +3646,10 @@
                     "type": "Boolean"
                 }
             ],
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 596,
             "description": "Creates an artwork tile in a collection's catalog",
             "itemtype": "method",
@@ -3686,10 +3686,10 @@
                     "type": "Number"
                 }
             ],
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 689,
             "description": "Shows an artwork in the upper section; sets the current thumbnail to be the artwork's\nand shows name, description, etc",
             "itemtype": "method",
@@ -3701,10 +3701,10 @@
                     "type": "Doq"
                 }
             ],
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 741,
             "description": "Generates a comparator function for catalog sorting",
             "itemtype": "method",
@@ -3721,10 +3721,10 @@
                     "type": "String"
                 }
             ],
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 771,
             "description": "Generates a valuation function for catalog sorting",
             "itemtype": "method",
@@ -3736,10 +3736,10 @@
                     "type": "String"
                 }
             ],
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 790,
             "description": "Sort the catalog by the given criterium",
             "itemtype": "method",
@@ -3760,10 +3760,10 @@
                 "description": "an avl tree for easy sorting",
                 "type": "AVLTree"
             },
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 863,
             "description": "Set the colors of the sort tags",
             "itemtype": "method",
@@ -3775,10 +3775,10 @@
                     "type": "String"
                 }
             ],
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 873,
             "description": "Changes the selected tag and re-sorts",
             "itemtype": "method",
@@ -3795,10 +3795,10 @@
                     "type": "String"
                 }
             ],
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 914,
             "description": "Switch to the tour player",
             "itemtype": "method",
@@ -3810,18 +3810,18 @@
                     "type": "Doq"
                 }
             ],
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 955,
             "description": "Switch to the artwork viewer or tour player",
             "itemtype": "method",
             "name": "switchPage",
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 1016,
             "description": "Show collection contents and display current artwork if there is one",
             "itemtype": "method",
@@ -3833,10 +3833,10 @@
                     "type": "Doq"
                 }
             ],
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 1025,
             "description": "Gets the current state of the collections page",
             "itemtype": "method",
@@ -3845,10 +3845,10 @@
                 "description": "object containing state",
                 "type": "Object"
             },
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
-            "file": "TAG/js/TAG/layout/TAG.Layout.NewCatalog.js",
+            "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
             "line": 1038,
             "description": "Returns the root of the collections page",
             "itemtype": "method",
@@ -3857,7 +3857,7 @@
                 "description": "root of the collections page",
                 "type": "JQuery Object"
             },
-            "class": "TAG.Layout.NewCatalog"
+            "class": "TAG.Layout.CollectionsPage"
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.StartPage.js",
@@ -4060,7 +4060,7 @@
                 },
                 {
                     "name": "artmodeOptions",
-                    "description": "options to pass into TAG.Layout.Artmode"
+                    "description": "options to pass into TAG.Layout.ArtworkViewer"
                 },
                 {
                     "name": "tourObj",
@@ -12016,23 +12016,23 @@
         },
         {
             "message": "Missing item type\nMINIMAP CODE. bleveque: didn't rewrite this; separate issue\n                        if some variable names are off now, let me know",
-            "line": " TAG/js/TAG/layout/TAG.Layout.Artmode.js:583"
+            "line": " TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js:583"
         },
         {
             "message": "Missing item type",
-            "line": " TAG/js/TAG/layout/TAG.Layout.Artmode.js:643"
+            "line": " TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js:643"
         },
         {
             "message": "Missing item type",
-            "line": " TAG/js/TAG/layout/TAG.Layout.Artmode.js:656"
+            "line": " TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js:656"
         },
         {
             "message": "Missing item type\nCreate a drawer with a disclosure button used to display\nhotspots, assets, tours. The returned jQuery object has\na property called \"contents\" which should be used to add\nbuttons or messages to the contents of the drawer.",
-            "line": " TAG/js/TAG/layout/TAG.Layout.Artmode.js:758"
+            "line": " TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js:758"
         },
         {
             "message": "Missing item type\nCreate a drawer (e.g., for list of related tours or the artwork's description)",
-            "line": " TAG/js/TAG/layout/TAG.Layout.Artmode.js:961"
+            "line": " TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js:961"
         },
         {
             "message": "Missing item type\nCreate a new right panel for editing Associated Media and append it to the dom (just offscreen)",

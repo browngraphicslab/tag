@@ -20877,8 +20877,7 @@ TAG.IdleTimer = (function() {
       * is then started. However, if the second callback's timeout is reset, it will 
       * restart the entire timer back to stage one. Upon the second callback's 
       * execution, the timer will sit idle until the reset method is invoked.
-      * @class TwoStageTimer
-      * @constructor
+      * @method TwoStageTimer
       * @param {Object} stageOne         the stage one timer pair (see timerPair helper function below)
       * @param {Object} stageTwo         the stage two timer pair
       */
@@ -21111,7 +21110,7 @@ TAG.IdleTimer = (function() {
      * @method returnHome
      */
     function returnHome() {
-        catalog = new TAG.Layout.NewCatalog();
+        catalog = new TAG.Layout.CollectionsPage();
         TAG.Util.UI.slidePageRight(catalog.getRoot());
     }
 
@@ -41922,7 +41921,7 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
             var newCatalog;
 
             overlay.off('click');
-            newCatalog = TAG.Layout.NewCatalog();
+            newCatalog = TAG.Layout.CollectionsPage();
             TAG.Util.UI.slidePageLeft(newCatalog.getRoot());
         }
 
@@ -42334,17 +42333,17 @@ TAG.Layout.StartPage.default_options = {
 };
 
 ;
-TAG.Util.makeNamespace("TAG.Layout.Artmode");
+TAG.Util.makeNamespace("TAG.Layout.ArtworkViewer");
 
 /**
  * The artwork viewer, which contains a sidebar with tools and thumbnails as well
  * as a central area for the deepzoom image.
- * @class TAG.Layout.Artmode
+ * @class TAG.Layout.ArtworkViewer
  * @constructor
  * @param {Object} options        some options for the artwork viewer page
  * @return {Object}               some public methods
  */
-TAG.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
+TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition) {
     "use strict";
 
     options = options || {}; // cut down on null checks later
@@ -42746,7 +42745,7 @@ TAG.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
             idleTimer.kill();
             idleTimer = null;
             annotatedImage && annotatedImage.unload();
-            catalog = new TAG.Layout.NewCatalog({
+            catalog = new TAG.Layout.CollectionsPage({
                 backScroll:     prevScroll,
                 backArtwork:    doq,
                 backCollection: prevCollection
@@ -43395,23 +43394,23 @@ TAG.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
 
 };
 
-TAG.Layout.Artmode.default_options = {
+TAG.Layout.ArtworkViewer.default_options = {
     catalogState: {},
     doq: null,
     split: 'L',
 };
 
 ;
-TAG.Util.makeNamespace("TAG.Layout.NewCatalog");
+TAG.Util.makeNamespace("TAG.Layout.CollectionsPage");
 
 /**
  * The collections page
- * @class TAG.Layout.NewCatalog
+ * @class TAG.Layout.CollectionsPage
  * @constructor
  * @param {Object} options         some options for the collections page
  * @return {Object}                some public methods
  */
-TAG.Layout.NewCatalog = function (options) { // backInfo, backExhibition, container, forSplitscreen) {
+TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, container, forSplitscreen) {
     "use strict";
 
     options = options || {}; // cut down on null checks later
@@ -44406,7 +44405,7 @@ TAG.Layout.NewCatalog = function (options) { // backInfo, backExhibition, contai
         }
         else { // artwork
             scrollPos = catalogDiv.scrollLeft();
-            artworkViewer = new TAG.Layout.Artmode({
+            artworkViewer = new TAG.Layout.ArtworkViewer({
                 doq: currentArtwork,
                 prevScroll: scrollPos,
                 prevCollection: currCollection,
@@ -44454,7 +44453,7 @@ TAG.Layout.NewCatalog = function (options) { // backInfo, backExhibition, contai
     };
 };
 
-TAG.Layout.NewCatalog.default_options = {};
+TAG.Layout.CollectionsPage.default_options = {};
 ;
 TAG.Util.makeNamespace("TAG.Layout.InternetFailurePage");
 TAG.Util.makeNamespace("TAG.Layout.InternetFailure");
@@ -44694,7 +44693,7 @@ TAG.Util.makeNamespace("TAG.Layout.TourPlayer");
  * @param prevInfo   object containing previous page info 
  *    artworkPrev      value is 'artmode' when we arrive here from the art viewer
  *    prevScroll       value of scrollbar from new catalog page
- * @param artmodeOptions      options to pass into TAG.Layout.Artmode
+ * @param artmodeOptions      options to pass into TAG.Layout.ArtworkViewer
  * @param tourObj      the tour doq object, so we can return to the proper tour in the collections screen
  */
 TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, tourObj) {
@@ -44753,7 +44752,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
         backButton.off('click'); // prevent user from clicking twice
 
         if (artmodeOptions) {
-            artmode = new TAG.Layout.Artmode(artmodeOptions);
+            artmode = new TAG.Layout.ArtworkViewer(artmodeOptions);
             TAG.Util.UI.slidePageRightSplit(root, artmode.getRoot());
 
             var selectedExhib = $('#collection-' + prevExhib.Identifier);
@@ -44761,7 +44760,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
         } else {
             /* nbowditch _editted 2/13/2014 : added backInfo */
             var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
-            catalog = new TAG.Layout.NewCatalog({
+            catalog = new TAG.Layout.CollectionsPage({
                 backScroll: prevScroll,
                 backArtwork: tourObj,
                 backCollection: exhibition
@@ -44880,7 +44879,7 @@ TAG.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         // idleTimer = null;
 
         var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
-        var catalog = new TAG.Layout.NewCatalog({
+        var catalog = new TAG.Layout.CollectionsPage({
             backScroll: prevScroll,
             backArtwork: videoSrc,
             backCollection: collection
@@ -45401,7 +45400,7 @@ TAG.TESTS = (function () {
 					TAG.Worktop.Database.getDoq(garibaldiId, function(doq) {
 						var prevInfo = {prevPage: "catalog", prevScroll: 0},
 							options = {catalogState: {}, doq: doq, split: 'L' },
-			            	deepZoom = new TAG.Layout.Artmode(prevInfo, options, null);
+			            	deepZoom = new TAG.Layout.ArtworkViewer(prevInfo, options, null);
 		            	TAG.Util.UI.slidePageLeft(deepZoom.getRoot());
 					}, genErrorHandler('navigate_to_garibaldi'), genErrorHandler('navigate_to_garibaldi'));
 				}
@@ -45433,7 +45432,7 @@ TAG.TESTS = (function () {
 		return {
 			tests: [
 				function() {
-					var newCatalog = new TAG.Layout.NewCatalog();
+					var newCatalog = new TAG.Layout.CollectionsPage();
     			    $('#overlay').on('click', function(){});
         			TAG.Util.UI.slidePageLeft(newCatalog.getRoot());
         		}

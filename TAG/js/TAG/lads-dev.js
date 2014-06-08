@@ -98,9 +98,9 @@
         //Layout classes
         "layout/TAG.Layout.Catalog.js",
         "layout/TAG.Layout.StartPage.js",
-        "layout/TAG.Layout.Artmode.js",
+        "layout/TAG.Layout.ArtworkViewer.js",
         "layout/TAG.Layout.Exhibitions.js",
-        "layout/TAG.Layout.NewCatalog.js",
+        "layout/TAG.Layout.CollectionsPage.js",
         "layout/TAG.Layout.TourAuthoringNew.js",
         "layout/TAG.Layout.ArtworkEditor.js",
         "layout/TAG.Layout.ContentAuthoring.js",

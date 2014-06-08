@@ -47,11 +47,11 @@
             
                 <li><a href="../classes/TAG.IdleTimer.html">TAG.IdleTimer</a></li>
             
-                <li><a href="../classes/TAG.Layout.Artmode.html">TAG.Layout.Artmode</a></li>
+                <li><a href="../classes/TAG.Layout.ArtworkViewer.html">TAG.Layout.ArtworkViewer</a></li>
             
                 <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
             
-                <li><a href="../classes/TAG.Layout.NewCatalog.html">TAG.Layout.NewCatalog</a></li>
+                <li><a href="../classes/TAG.Layout.CollectionsPage.html">TAG.Layout.CollectionsPage</a></li>
             
                 <li><a href="../classes/TAG.Layout.StartPage.html">TAG.Layout.StartPage</a></li>
             
@@ -178,7 +178,7 @@ TAG.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         // idleTimer = null;
 
         var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
-        var catalog = new TAG.Layout.NewCatalog({
+        var catalog = new TAG.Layout.CollectionsPage({
             backScroll: prevScroll,
             backArtwork: videoSrc,
             backCollection: collection

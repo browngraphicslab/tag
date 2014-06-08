@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>TAG/js/TAG/layout/TAG.Layout.Artmode.js - Touch Art Gallery web application</title>
+    <title>TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js - Touch Art Gallery web application</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -47,11 +47,11 @@
             
                 <li><a href="../classes/TAG.IdleTimer.html">TAG.IdleTimer</a></li>
             
-                <li><a href="../classes/TAG.Layout.Artmode.html">TAG.Layout.Artmode</a></li>
+                <li><a href="../classes/TAG.Layout.ArtworkViewer.html">TAG.Layout.ArtworkViewer</a></li>
             
                 <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
             
-                <li><a href="../classes/TAG.Layout.NewCatalog.html">TAG.Layout.NewCatalog</a></li>
+                <li><a href="../classes/TAG.Layout.CollectionsPage.html">TAG.Layout.CollectionsPage</a></li>
             
                 <li><a href="../classes/TAG.Layout.StartPage.html">TAG.Layout.StartPage</a></li>
             
@@ -104,21 +104,21 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: TAG/js/TAG/layout/TAG.Layout.Artmode.js</h1>
+                        <h1 class="file-heading">File: TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
-﻿TAG.Util.makeNamespace(&quot;TAG.Layout.Artmode&quot;);
+﻿TAG.Util.makeNamespace(&quot;TAG.Layout.ArtworkViewer&quot;);
 
 /**
  * The artwork viewer, which contains a sidebar with tools and thumbnails as well
  * as a central area for the deepzoom image.
- * @class TAG.Layout.Artmode
+ * @class TAG.Layout.ArtworkViewer
  * @constructor
  * @param {Object} options        some options for the artwork viewer page
  * @return {Object}               some public methods
  */
-TAG.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
+TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition) {
     &quot;use strict&quot;;
 
     options = options || {}; // cut down on null checks later
@@ -520,7 +520,7 @@ TAG.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
             idleTimer.kill();
             idleTimer = null;
             annotatedImage &amp;&amp; annotatedImage.unload();
-            catalog = new TAG.Layout.NewCatalog({
+            catalog = new TAG.Layout.CollectionsPage({
                 backScroll:     prevScroll,
                 backArtwork:    doq,
                 backCollection: prevCollection
@@ -1169,7 +1169,7 @@ TAG.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
 
 };
 
-TAG.Layout.Artmode.default_options = {
+TAG.Layout.ArtworkViewer.default_options = {
     catalogState: {},
     doq: null,
     split: &#x27;L&#x27;,

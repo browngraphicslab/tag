@@ -812,7 +812,7 @@ TAG.Authoring.NewSettingsView = function (startView, callback, backPage, startLa
         // Sets the viewer to exhibition view
         function exhibitionView(exhibition) {
             rightQueue.add(function () {
-                var exhibView = new TAG.Layout.NewCatalog(null, exhibition, viewer);
+                var exhibView = new TAG.Layout.CollectionsPage(null, exhibition, viewer);
                 var exroot = exhibView.getRoot();
                 $(exroot).css('z-index','-1'); // otherwise, you can use the search box and sorting tabs!
                 viewer.append(exroot);

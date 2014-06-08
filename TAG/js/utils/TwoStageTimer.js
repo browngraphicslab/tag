@@ -253,7 +253,7 @@ TAG.IdleTimer = (function() {
      * @method returnHome
      */
     function returnHome() {
-        catalog = new TAG.Layout.NewCatalog();
+        catalog = new TAG.Layout.CollectionsPage();
         TAG.Util.UI.slidePageRight(catalog.getRoot());
     }
 

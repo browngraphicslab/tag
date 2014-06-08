@@ -203,7 +203,7 @@ TAG.TESTS = (function () {
 					TAG.Worktop.Database.getDoq(garibaldiId, function(doq) {
 						var prevInfo = {prevPage: "catalog", prevScroll: 0},
 							options = {catalogState: {}, doq: doq, split: 'L' },
-			            	deepZoom = new TAG.Layout.Artmode(prevInfo, options, null);
+			            	deepZoom = new TAG.Layout.ArtworkViewer(prevInfo, options, null);
 		            	TAG.Util.UI.slidePageLeft(deepZoom.getRoot());
 					}, genErrorHandler('navigate_to_garibaldi'), genErrorHandler('navigate_to_garibaldi'));
 				}
@@ -235,7 +235,7 @@ TAG.TESTS = (function () {
 		return {
 			tests: [
 				function() {
-					var newCatalog = new TAG.Layout.NewCatalog();
+					var newCatalog = new TAG.Layout.CollectionsPage();
     			    $('#overlay').on('click', function(){});
         			TAG.Util.UI.slidePageLeft(newCatalog.getRoot());
         		}

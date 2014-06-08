@@ -1,14 +1,14 @@
-﻿TAG.Util.makeNamespace("TAG.Layout.Artmode");
+﻿TAG.Util.makeNamespace("TAG.Layout.ArtworkViewer");
 
 /**
  * The artwork viewer, which contains a sidebar with tools and thumbnails as well
  * as a central area for the deepzoom image.
- * @class TAG.Layout.Artmode
+ * @class TAG.Layout.ArtworkViewer
  * @constructor
  * @param {Object} options        some options for the artwork viewer page
  * @return {Object}               some public methods
  */
-TAG.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
+TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition) {
     "use strict";
 
     options = options || {}; // cut down on null checks later
@@ -410,7 +410,7 @@ TAG.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
             idleTimer.kill();
             idleTimer = null;
             annotatedImage && annotatedImage.unload();
-            catalog = new TAG.Layout.NewCatalog({
+            catalog = new TAG.Layout.CollectionsPage({
                 backScroll:     prevScroll,
                 backArtwork:    doq,
                 backCollection: prevCollection
@@ -1059,7 +1059,7 @@ TAG.Layout.Artmode = function (options) { // prevInfo, options, exhibition) {
 
 };
 
-TAG.Layout.Artmode.default_options = {
+TAG.Layout.ArtworkViewer.default_options = {
     catalogState: {},
     doq: null,
     split: 'L',

@@ -112,7 +112,7 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
             var newCatalog;
 
             overlay.off('click');
-            newCatalog = TAG.Layout.NewCatalog();
+            newCatalog = TAG.Layout.CollectionsPage();
             TAG.Util.UI.slidePageLeft(newCatalog.getRoot());
         }
 

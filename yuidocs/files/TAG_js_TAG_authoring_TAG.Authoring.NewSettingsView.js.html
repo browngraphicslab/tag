@@ -47,11 +47,11 @@
             
                 <li><a href="../classes/TAG.IdleTimer.html">TAG.IdleTimer</a></li>
             
-                <li><a href="../classes/TAG.Layout.Artmode.html">TAG.Layout.Artmode</a></li>
+                <li><a href="../classes/TAG.Layout.ArtworkViewer.html">TAG.Layout.ArtworkViewer</a></li>
             
                 <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
             
-                <li><a href="../classes/TAG.Layout.NewCatalog.html">TAG.Layout.NewCatalog</a></li>
+                <li><a href="../classes/TAG.Layout.CollectionsPage.html">TAG.Layout.CollectionsPage</a></li>
             
                 <li><a href="../classes/TAG.Layout.StartPage.html">TAG.Layout.StartPage</a></li>
             
@@ -922,7 +922,7 @@ TAG.Authoring.NewSettingsView = function (startView, callback, backPage, startLa
         // Sets the viewer to exhibition view
         function exhibitionView(exhibition) {
             rightQueue.add(function () {
-                var exhibView = new TAG.Layout.NewCatalog(null, exhibition, viewer);
+                var exhibView = new TAG.Layout.CollectionsPage(null, exhibition, viewer);
                 var exroot = exhibView.getRoot();
                 $(exroot).css(&#x27;z-index&#x27;,&#x27;-1&#x27;); // otherwise, you can use the search box and sorting tabs!
                 viewer.append(exroot);

@@ -7,7 +7,7 @@ TAG.Util.makeNamespace("TAG.Layout.TourPlayer");
  * @param prevInfo   object containing previous page info 
  *    artworkPrev      value is 'artmode' when we arrive here from the art viewer
  *    prevScroll       value of scrollbar from new catalog page
- * @param artmodeOptions      options to pass into TAG.Layout.Artmode
+ * @param artmodeOptions      options to pass into TAG.Layout.ArtworkViewer
  * @param tourObj      the tour doq object, so we can return to the proper tour in the collections screen
  */
 TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, tourObj) {
@@ -66,7 +66,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
         backButton.off('click'); // prevent user from clicking twice
 
         if (artmodeOptions) {
-            artmode = new TAG.Layout.Artmode(artmodeOptions);
+            artmode = new TAG.Layout.ArtworkViewer(artmodeOptions);
             TAG.Util.UI.slidePageRightSplit(root, artmode.getRoot());
 
             var selectedExhib = $('#collection-' + prevExhib.Identifier);
@@ -74,7 +74,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
         } else {
             /* nbowditch _editted 2/13/2014 : added backInfo */
             var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
-            catalog = new TAG.Layout.NewCatalog({
+            catalog = new TAG.Layout.CollectionsPage({
                 backScroll: prevScroll,
                 backArtwork: tourObj,
                 backCollection: exhibition

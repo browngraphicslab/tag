@@ -47,11 +47,11 @@
             
                 <li><a href="../classes/TAG.IdleTimer.html">TAG.IdleTimer</a></li>
             
-                <li><a href="../classes/TAG.Layout.Artmode.html">TAG.Layout.Artmode</a></li>
+                <li><a href="../classes/TAG.Layout.ArtworkViewer.html">TAG.Layout.ArtworkViewer</a></li>
             
                 <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
             
-                <li><a href="../classes/TAG.Layout.NewCatalog.html">TAG.Layout.NewCatalog</a></li>
+                <li><a href="../classes/TAG.Layout.CollectionsPage.html">TAG.Layout.CollectionsPage</a></li>
             
                 <li><a href="../classes/TAG.Layout.StartPage.html">TAG.Layout.StartPage</a></li>
             
@@ -117,7 +117,7 @@ TAG.Util.makeNamespace(&quot;TAG.Layout.TourPlayer&quot;);
  * @param prevInfo   object containing previous page info 
  *    artworkPrev      value is &#x27;artmode&#x27; when we arrive here from the art viewer
  *    prevScroll       value of scrollbar from new catalog page
- * @param artmodeOptions      options to pass into TAG.Layout.Artmode
+ * @param artmodeOptions      options to pass into TAG.Layout.ArtworkViewer
  * @param tourObj      the tour doq object, so we can return to the proper tour in the collections screen
  */
 TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, tourObj) {
@@ -176,7 +176,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
         backButton.off(&#x27;click&#x27;); // prevent user from clicking twice
 
         if (artmodeOptions) {
-            artmode = new TAG.Layout.Artmode(artmodeOptions);
+            artmode = new TAG.Layout.ArtworkViewer(artmodeOptions);
             TAG.Util.UI.slidePageRightSplit(root, artmode.getRoot());
 
             var selectedExhib = $(&#x27;#collection-&#x27; + prevExhib.Identifier);
@@ -184,7 +184,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
         } else {
             /* nbowditch _editted 2/13/2014 : added backInfo */
             var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
-            catalog = new TAG.Layout.NewCatalog({
+            catalog = new TAG.Layout.CollectionsPage({
                 backScroll: prevScroll,
                 backArtwork: tourObj,
                 backCollection: exhibition

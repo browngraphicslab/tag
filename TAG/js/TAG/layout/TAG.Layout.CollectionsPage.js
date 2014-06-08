@@ -1,13 +1,13 @@
-TAG.Util.makeNamespace("TAG.Layout.NewCatalog");
+TAG.Util.makeNamespace("TAG.Layout.CollectionsPage");
 
 /**
  * The collections page
- * @class TAG.Layout.NewCatalog
+ * @class TAG.Layout.CollectionsPage
  * @constructor
  * @param {Object} options         some options for the collections page
  * @return {Object}                some public methods
  */
-TAG.Layout.NewCatalog = function (options) { // backInfo, backExhibition, container, forSplitscreen) {
+TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, container, forSplitscreen) {
     "use strict";
 
     options = options || {}; // cut down on null checks later
@@ -1002,7 +1002,7 @@ TAG.Layout.NewCatalog = function (options) { // backInfo, backExhibition, contai
         }
         else { // artwork
             scrollPos = catalogDiv.scrollLeft();
-            artworkViewer = new TAG.Layout.Artmode({
+            artworkViewer = new TAG.Layout.ArtworkViewer({
                 doq: currentArtwork,
                 prevScroll: scrollPos,
                 prevCollection: currCollection,
@@ -1050,4 +1050,4 @@ TAG.Layout.NewCatalog = function (options) { // backInfo, backExhibition, contai
     };
 };
 
-TAG.Layout.NewCatalog.default_options = {};
+TAG.Layout.CollectionsPage.default_options = {};
