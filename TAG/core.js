@@ -87,7 +87,7 @@
             $('[src$="jquery.pxtouch.min.js"]').remove();
             $('[href$="themeResources/rin.css"]').remove();
 
-            TAG({
+            TAG_GLOBAL({
                 path: tagPath,
                 containerId: containerId,
                 serverIp: ip
