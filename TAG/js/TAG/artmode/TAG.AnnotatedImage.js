@@ -247,7 +247,9 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 dzScroll(delta, pivot);
             },
             onManipulate: function (res) {
-                dzManip(res); // TODO change dzManip to just accept res
+                res.translation.x = - res.translation.x;        //Flip signs for dragging
+                res.translation.y = - res.translation.y;
+                dzManip(res); 
             }
         }, null, true); // NO ACCELERATION FOR NOW
 
