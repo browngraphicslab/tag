@@ -253,8 +253,13 @@ TAG.Util.IdleTimer = (function() {
      * @method returnHome
      */
     function returnHome() {
-        catalog = new TAG.Layout.CollectionsPage();
-        TAG.Util.UI.slidePageRight(catalog.getRoot());
+        if(currentPage.name !== TAG.Util.Constants.pages.COLLECTIONS_PAGE || !currentPage.obj || !currentPage.obj.loadFirstCollection) {
+            catalog = new TAG.Layout.CollectionsPage();
+            TAG.Util.UI.slidePageRight(catalog.getRoot());
+        } else {
+            removeIdleOverlay();
+            currentPage.obj.loadFirstCollection();
+        }
     }
 
     /**

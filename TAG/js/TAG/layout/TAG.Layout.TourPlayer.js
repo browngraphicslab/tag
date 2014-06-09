@@ -26,8 +26,6 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
         backButton = root.find('#backButton'),
         overlayOnRoot = root.find('#overlayOnRoot');
 
-    currentPage = TAG.Util.Constants.pages.TOUR_PLAYER;
-
     // UNCOMMENT IF WE WANT IDLE TIMER IN TOUR PLAYER
     // idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
     // idleTimer.start();
@@ -46,7 +44,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
     function goBack () {
         console.log('player: '+player);
 
-        var artmode, catalog;
+        var artmode, collectionsPage;
 
         // UNCOMMENT IF WE WANT IDLE TIMER IN TOUR PLAYER
         // idleTimer.kill();
@@ -69,18 +67,17 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
             artmode = new TAG.Layout.ArtworkViewer(artmodeOptions);
             TAG.Util.UI.slidePageRightSplit(root, artmode.getRoot());
 
-            var selectedExhib = $('#collection-' + prevExhib.Identifier);
-            selectedExhib.attr('flagClicked', 'true');
+            currentPage.name = TAG.Util.Constants.pages.ARTWORK_VIEWER;
+            currentPage.obj  = artmode;
         } else {
-            /* nbowditch _editted 2/13/2014 : added backInfo */
             var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
-            catalog = new TAG.Layout.CollectionsPage({
+            collectionsPage = new TAG.Layout.CollectionsPage({
                 backScroll: prevScroll,
                 backArtwork: tourObj,
                 backCollection: exhibition
             });
-            /* end nbowditch edit */
-            TAG.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
+
+            TAG.Util.UI.slidePageRightSplit(root, collectionsPage.getRoot(), function () {
 				artworkPrev = "catalog";
 				var selectedExhib = $('#collection-' + prevExhib.Identifier);
 				selectedExhib.attr('flagClicked', 'true');
@@ -88,7 +85,10 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
                 if(selectedExhib[0].firstChild) {
     				$(selectedExhib[0].firstChild).css({'color': 'black'});
                 }
-			});           
+			});
+
+            currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+            currentPage.obj  = collectionsPage;         
         }
         // TODO: do we need this next line?
         // tagContainer.css({ 'font-size': '11pt', 'font-family': "'source sans pro regular' sans-serif" }); // Quick hack to fix bug where rin.css was overriding styles for body element -jastern 4/30

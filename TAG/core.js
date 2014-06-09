@@ -96,39 +96,39 @@
 
         init();
 
-        /* nbowditch _editted 2/23/2014 : stopped scrolling when over tag*/
-        /* NOTE: had to do this in 2 places for cross-browser support.
-           for FF and IE, propogation had to be stopped inside the iframe.
-           For chrome, it had to be stopped outside iframe.
-        */
+        // /* nbowditch _editted 2/23/2014 : stopped scrolling when over tag*/
+        // /* NOTE: had to do this in 2 places for cross-browser support.
+        //    for FF and IE, propogation had to be stopped inside the iframe.
+        //    For chrome, it had to be stopped outside iframe.
+        // */
         
-        var frameDiv = document.getElementById('tagRootContainer');
+        // var frameDiv = document.getElementById('tagRootContainer');
 
-        // $('body').on('scroll.b mousewheel.b MozMousePixelScroll.b DOMMouseScroll.b', function(e) {
-        //     e.stopPropagation();
-        //     e.stopImmediatePropagation();
-        //     e.preventDefault();
-        //     return false;
-        // });
-        // frameDiv.addEventListener('mousewheel', function (evt) {
-        //     evt.stopPropagation();
-        //     evt.preventDefault();
-        //     return false;
-        // });
-        // frameDiv.addEventListener('DOMMouseScroll', function (evt) {
-        //     evt.stopPropagation();
-        //     evt.preventDefault();
-        //     return false;
-        // });
-        // frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
-        //     evt.stopPropagation();
-        //     evt.preventDefault();
-        //     return false;
-        // });
+        // // $('body').on('scroll.b mousewheel.b MozMousePixelScroll.b DOMMouseScroll.b', function(e) {
+        // //     e.stopPropagation();
+        // //     e.stopImmediatePropagation();
+        // //     e.preventDefault();
+        // //     return false;
+        // // });
+        // // frameDiv.addEventListener('mousewheel', function (evt) {
+        // //     evt.stopPropagation();
+        // //     evt.preventDefault();
+        // //     return false;
+        // // });
+        // // frameDiv.addEventListener('DOMMouseScroll', function (evt) {
+        // //     evt.stopPropagation();
+        // //     evt.preventDefault();
+        // //     return false;
+        // // });
+        // // frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
+        // //     evt.stopPropagation();
+        // //     evt.preventDefault();
+        // //     return false;
+        // // });
         
 
 
-        /* end nbowditch edit */
+        // /* end nbowditch edit */
     }
 
     function init() {
@@ -208,6 +208,9 @@
                     }
                 });
                 if (!found) {
+                    currentPage.name = TAG.Util.Constants.pages.START_PAGE;
+                    currentPage.obj  = null;
+                    
                     TAG.Layout.StartPage(null, function (x) {
                         tagContainer.append(x);
                     });
@@ -215,6 +218,9 @@
             });
         }
         else {
+            currentPage.name = TAG.Util.Constants.pages.START_PAGE;
+            currentPage.obj  = null;
+
             TAG.Layout.StartPage(null, function (page) {
                 tagContainer.append(page);
             });

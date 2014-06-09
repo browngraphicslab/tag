@@ -53,6 +53,10 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
     // get things rolling if doq is defined (it better be)
     doq && init();
 
+    return {
+        getRoot: getRoot
+    };
+
     /**
      * Initiate artmode with a root, artwork image and a sidebar on the left
      * @method init
@@ -61,8 +65,6 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         var head,
             script,
             meta;
-
-        currentPage = TAG.Util.Constants.pages.ARTWORK_VIEWER;
 
         idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
         idleTimer.start();
@@ -217,45 +219,25 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
          */
         function doManip(evt, direction) {
             manipulate = annotatedImage.getToManip();
-            if(annotatedImage.getClicked() === 'artwork') {
-                var pivot = {
-                    x: CENTER_X,
-                    y: CENTER_Y
+
+             var pivot = {
+                    x: annotatedImage.getMediaDimensions().width / 2,
+                    y: annotatedImage.getMediaDimensions().height / 2
                 };
-                
-                if (direction === 'left') {
-                    manipulate({pivot: pivot, translation: {x: -panDelta, y: 0}, scale: 1});
-                } else if (direction === 'up') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: -panDelta}, scale: 1});
-                } else if (direction === 'right') {
-                    manipulate({pivot: pivot, translation: {x: panDelta, y: 0}, scale: 1});
-                } else if (direction === 'down') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
-                } else if (direction === 'in') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 + zoomScale});
-                } else if (direction === 'out') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
-                }
-            }
-            else if(annotatedImage.getClicked() === 'media') {
-                var pivot = {
-                    x: annotatedImage.getAssocMediaDimensions().height / 2,
-                    y: annotatedImage.getAssocMediaDimensions().width / 2
-                };
-                if (direction === 'left') {
-                    manipulate({pivot: pivot, translation: {x: -panDelta, y: 0}, scale: 1});
-                } else if (direction === 'up') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: -panDelta}, scale: 1});
-                } else if (direction === 'right') {
-                    manipulate({pivot: pivot, translation: {x: panDelta, y: 0}, scale: 1});
-                } else if (direction === 'down') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
-                } else if (direction === 'in') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 + zoomScale});
-                } else if (direction === 'out') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
-                }
-            }
+
+            if (direction === 'left') {
+                manipulate({pivot: pivot, translation: {x: -panDelta, y: 0}, scale: 1});
+            } else if (direction === 'up') {
+                manipulate({pivot: pivot, translation: {x: 0, y: -panDelta}, scale: 1});
+            } else if (direction === 'right') {
+                manipulate({pivot: pivot, translation: {x: panDelta, y: 0}, scale: 1});
+            } else if (direction === 'down') {
+                manipulate({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
+            } else if (direction === 'in') {
+                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 + zoomScale});
+            } else if (direction === 'out') {
+                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
+            }   
         }
 
 
@@ -408,17 +390,20 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         });
 
         function goBack() {
-            var catalog;
+            var collectionsPage;
             backButton.off('click');
-            idleTimer.kill();
+            idleTimer && idleTimer.kill();
             idleTimer = null;
             annotatedImage && annotatedImage.unload();
-            catalog = new TAG.Layout.CollectionsPage({
+            collectionsPage = new TAG.Layout.CollectionsPage({
                 backScroll:     prevScroll,
                 backArtwork:    doq,
                 backCollection: prevCollection
             });
-            TAG.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {});
+            TAG.Util.UI.slidePageRightSplit(root, collectionsPage.getRoot(), function () {});
+
+            currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+            currentPage.obj  = collectionsPage;
         }
 
 
@@ -521,10 +506,13 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
          * @param {Object} media       the associated media object (from AnnotatedImage)
          */
         function mediaClicked(media) {
-            return function () {
+            return function (evt) {
+                evt.stopPropagation();
                 locHistoryActive && toggleLocationPanel();
                 media.create(); // returns if already created
                 media.toggle();
+                TAG.Util.IdleTimer.restartTimer();
+                media.mediaManipPreprocessing();                    //Set the newly opened media as active for manipulation
                 media.pauseReset();
             };
         }
@@ -572,7 +560,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
                     prevInfo,
                     rinPlayer;
                 
-                idleTimer.kill();
+                idleTimer && idleTimer.kill();
                 idleTimer = null;
 
                 annotatedImage.unload();
@@ -620,7 +608,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             });
 
             TAG.Util.disableDrag(minimapContainer);
-            
+
             AR = img.naturalWidth / img.naturalHeight;
             var heightR = img.naturalHeight / $(minimapContainer).height();//the ratio between the height of image and the container.
             var widthR = img.naturalWidth / $(minimapContainer).width();//ratio between the width of image and the container.
@@ -642,7 +630,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
                 onManipulate: onMinimapManip,
                 onScroll: onMinimapScroll,
                 onTapped: onMinimapTapped
-            }, false);
+            }, true);
 
             /**********************/
             var minimaph = minimap.height();
@@ -689,7 +677,6 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             var a = 0;
         }
         function onMinimapTapped(evt) {
-
             var minimaph = minimap.height();
             var minimapw = minimap.width();
             var minimapt = minimap.position().top;
@@ -1026,9 +1013,9 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
      * @method
      * @return {jQuery obj}    root jquery object
      */
-    this.getRoot = function () {
+    function getRoot() {
         return root;
-    };
+    }
 
     /**
      * Make the map for location History.

@@ -4,7 +4,7 @@ var TAG_GLOBAL = function(tagInput) {
         ip                = tagInput.serverIp, 					        
         allowServerChange = tagInput.allowServerChange, 					        
         idleDuration      = tagInput.idleDuration, 					        
-        currentPage, 					        
+        currentPage       = {}, // name and obj properties 					        
         idleTimer; 
 
 /*!
@@ -31271,7 +31271,6 @@ TAG.Util = (function () {
     //onTapped
     //onHolding
     function makeManipulatable(element, functions, stopOutside, noAccel) {
-        
         var hammer = new Hammer(element, {
             hold_threshold: 3,
             drag_min_distance: 9,
@@ -31299,7 +31298,7 @@ TAG.Util = (function () {
         function manipulationHandler(evt) {
             var translation;
             if (evt.gesture) {
-                // Update Dir
+                // Update Dir, and set pivot rotation, and scale values
                 getDir(evt, true);
                 var pivot = { x: evt.gesture.center.pageX - $element.offset().left, y: evt.gesture.center.pageY - $element.offset().top };
                 var rotation = evt.gesture.rotation; // In degrees
@@ -31307,22 +31306,36 @@ TAG.Util = (function () {
                     translation = { x: evt.gesture.deltaX, y: evt.gesture.deltaY };
                 } else {
                     translation = { x: evt.gesture.center.pageX - lastPos.x, y: evt.gesture.center.pageY - lastPos.y };
-                   // console.log('translation.y = '+translation.y);
                 }
                 var scale = evt.gesture.scale - lastScale;
+                // Previous values
                 lastScale = evt.gesture.scale;
                 lastPos.x = evt.gesture.center.pageX;
                 lastPos.y = evt.gesture.center.pageY;
                 lastEvt = evt;
                 if (typeof functions.onManipulate === "function") {
-                    functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: 1 + scale }, evt);
-                }
-                clearTimeout(timer);
-                timer = setTimeout(function () {
-                    var dir = getDir(evt);
-                    if (evt.gesture.pointerType !== "mouse" && !noAccel)
-                        accel(30 * dir.vx, 30 * dir.vy, null, currentAccelId);
-                }, 5);
+                    functions.onManipulate({ 
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        scale: 1 + scale,
+                        target: evt.gesture.target,
+                        touches: evt.gesture.touches,
+                        pointerType: evt.gesture.pointerType,
+                        center: evt.gesture.center,
+                        deltaTime: evt.gesture.deltaTime,
+                        deltaX: evt.gesture.deltaX,
+                        deltaY: evt.gesture.deltaY,
+                        velocityX: evt.gesture.velocityX,
+                        velocityY: evt.gesture.velocityY,
+                        angle: evt.gesture.angle,
+                        direction: evt.gesture.direction,
+                        distance: evt.gesture.distance,
+                        eventType: evt.gesture.eventType,
+                        srcEvent: evt.gesture.srcEvent,
+                        startEvent: evt.gesture.startEvent
+                    }, evt);
+                };
                 //if ((evt.type === "pinch" || evt.type === "pinchin" || evt.type === "pinchout") && typeof functions.onScroll === "function")
                 //    functions.onScroll(1 + scale, pivot);
             } else {
@@ -31341,9 +31354,31 @@ TAG.Util = (function () {
                 lastPos.x = evt.pageX;
                 lastPos.y = evt.pageY;
                 lastEvt = evt;
+
                 if (typeof functions.onManipulate === "function") {
-                    functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: 1 + scale }, evt);
-                }
+                    functions.onManipulate({ 
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        scale: 1 + scale,
+                        target: evt.gesture.target,
+                        touches: evt.gesture.touches,
+                        pointerType: evt.gesture.pointerType,
+                        center: evt.gesture.center,
+                        deltaTime: evt.gesture.deltaTime,
+                        deltaX: evt.gesture.deltaX,
+                        deltaY: evt.gesture.deltaY,
+                        velocityX: evt.gesture.velocityX,
+                        velocityY: evt.gesture.velocityY,
+                        angle: evt.gesture.angle,
+                        direction: evt.gesture.direction,
+                        distance: evt.gesture.distance,
+                        eventType: evt.gesture.eventType,
+                        srcEvent: evt.gesture.srcEvent,
+                        startEvent: evt.gesture.startEvent
+                    }, evt);
+                };
+
                 clearTimeout(timer);
                 timer = setTimeout(function () {
                     var dir = getDir(evt);
@@ -31352,6 +31387,7 @@ TAG.Util = (function () {
                 }, 5);
             }
         }
+
 
         function processPinch(evt) {
             var pivot = { x: evt.gesture.center.pageX - $element.offset().left, y: evt.gesture.center.pageY - $element.offset().top };
@@ -31368,9 +31404,29 @@ TAG.Util = (function () {
             getDir(evt, true);
             if (scale !== lastScale && typeof functions.onScroll === "function")
                 functions.onScroll(1 + scale, pivot);
-            if (typeof functions.onManipulate === "function")
-                functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: 1 }, evt);
 
+            if (typeof functions.onManipulate === "function")
+                functions.onManipulate({                     
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        target: evt.gesture.target,
+                        touches: evt.gesture.touches,
+                        pointerType: evt.gesture.pointerType,
+                        center: evt.gesture.center,
+                        deltaTime: evt.gesture.deltaTime,
+                        deltaX: evt.gesture.deltaX,
+                        deltaY: evt.gesture.deltaY,
+                        velocityX: evt.gesture.velocityX,
+                        velocityY: evt.gesture.velocityY,
+                        angle: evt.gesture.angle,
+                        direction: evt.gesture.direction,
+                        distance: evt.gesture.distance,
+                        eventType: evt.gesture.eventType,
+                        srcEvent: evt.gesture.srcEvent,
+                        startEvent: evt.gesture.startEvent,
+                        scale: 1 
+                    }, evt);
             lastScale = evt.gesture.scale;
         }
 
@@ -31385,6 +31441,7 @@ TAG.Util = (function () {
             currentAccelId++;
             resetDir();
             clearTimeout(timer);
+            manipulationHandler(evt);
         }
 
         // mouse move
@@ -31431,11 +31488,19 @@ TAG.Util = (function () {
             var translation = { x: vx, y: vy };
             var scale = 1;
             if (typeof functions.onManipulate === "function")
-                functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: scale }, lastEvt);
+                functions.onManipulate({ 
+
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        scale: scale
+
+                 }, lastEvt);
+
             timer = setTimeout(function () {
                 accel(vx * 0.95, vy * 0.95, delay, id);
             }, delay);
-            //timer = window.requestAnimationFrame(accel(vx * .95, vy * .95, delay, id), $element);
+            timer = window.requestAnimationFrame(accel(vx * .95, vy * .95, delay, id), $element);
         }
 
         // mouse release
@@ -31701,7 +31766,29 @@ TAG.Util = (function () {
                 var translation = { x: evt.delta.translation.x, y: evt.delta.translation.y };
                 var scale = evt.delta.scale;
                 if (typeof functions.onManipulate === "function")
-                    functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: scale });
+                    functions.onManipulate({ 
+
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        target: evt.gesture.target,
+                        touches: evt.gesture.touches,
+                        pointerType: evt.gesture.pointerType,
+                        center: evt.gesture.center,
+                        deltaTime: evt.gesture.deltaTime,
+                        deltaX: evt.gesture.deltaX,
+                        deltaY: evt.gesture.deltaY,
+                        velocityX: evt.gesture.velocityX,
+                        velocityY: evt.gesture.velocityY,
+                        angle: evt.gesture.angle,
+                        direction: evt.gesture.direction,
+                        distance: evt.gesture.distance,
+                        eventType: evt.gesture.eventType,
+                        srcEvent: evt.gesture.srcEvent,
+                        startEvent: evt.gesture.startEvent,
+                        scale: scale
+
+                     });
             }
         }
 
@@ -37926,8 +38013,13 @@ TAG.Util.IdleTimer = (function() {
      * @method returnHome
      */
     function returnHome() {
-        catalog = new TAG.Layout.CollectionsPage();
-        TAG.Util.UI.slidePageRight(catalog.getRoot());
+        if(currentPage.name !== TAG.Util.Constants.pages.COLLECTIONS_PAGE || !currentPage.obj || !currentPage.obj.loadFirstCollection) {
+            catalog = new TAG.Layout.CollectionsPage();
+            TAG.Util.UI.slidePageRight(catalog.getRoot());
+        } else {
+            removeIdleOverlay();
+            currentPage.obj.loadFirstCollection();
+        }
     }
 
     /**
@@ -41443,16 +41535,16 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             closeButton.attr('src', tagPath + 'images/icons/x.svg');
             closeButton.css({
                 'position': 'absolute',
-                'top': '-2.5em',
-                'left': '-2.5em',
-                'width': '1em',
-                'height': '1em',
+                'top': '2.5em',
+                'left': '2.5em',
+                'width': '0.5em',
+                'height': '0.5em',
                 'text-align': 'center',
                 'color': 'black',
                 'line-height': '1em',
                 'border': '10px solid black',
                 'border-radius': '2em',
-                'background-color': 'white',
+                'background-color': 'black',
                 'margin-left': '107%'
             });
             return closeButton;
@@ -41571,6 +41663,1020 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         };
     }
 };
+
+TAG.Util.makeNamespace("TAG.AnnotatedImage");
+
+/**
+ * Representation of deepzoom image with associated media. Contains
+ * touch handlers and a method for creating associated media objects.
+ * @class TAG.AnnotatedImage
+ * @constructor
+ * @param {Object} options         some options for the artwork and assoc media
+ * @return {Object}                some public methods and variables
+ */
+
+TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shouldNotLoadHotspots) {
+    "use strict";
+
+
+    var // input options
+        root     = options.root,           // root of the artwork viewing page
+        doq      = options.doq,            // doq for the artwork
+        callback = options.callback,       // called after associated media are retrieved from server
+        noMedia  = options.noMedia,        // should we not have assoc media? (set to true in artwork editor)
+
+        // constants
+        FIX_PATH = TAG.Worktop.Database.fixPath,   // prepend server address to given path
+
+        // misc initialized variables
+        artworkName     = doq.Name,        // artwork's title
+        associatedMedia = { guids: [] },   // object of associated media objects for this artwork, keyed by media GUID;
+                                           //   also contains an array of GUIDs for cleaner iteration
+        toManip         = dzManip,         // media to manipulate, i.e. artwork or associated media
+        rootHeight     = $('#tagRoot').height(),
+        rootWidth      = $('#tagRoot').width(),
+        outerContainerDimensions = {height: rootHeight, width: rootWidth},  //dimensions of active media to manipulate
+
+        // misc uninitialized variables
+        outerContainerDimensions,
+        viewer,
+        assetCanvas;
+
+    // get things rolling
+    init();
+
+    return {
+        getAssociatedMedia: getAssociatedMedia,
+        unload: unload,
+        dzManip: dzManip,
+        dzScroll: dzScroll,
+        openArtwork: openArtwork,
+        addAnimateHandler: addAnimateHandler,
+        getToManip: getToManip,
+        getMediaDimensions: getMediaDimensions,
+        setArtworkClicked: setArtworkClicked,
+        viewer: viewer
+    };
+
+    /**
+     * Sets the artwork as active and the Deep Zoom manipulation method is used zooming and panning
+     * @method setArtworkClicked
+     */
+    function setArtworkClicked() {
+        dzManipPreprocessing();
+    }
+
+    /**
+     * Return applicable manipulation method
+     * @method getToManip
+     * @return {Object}     manipulation method object
+     */
+    function getToManip() {
+        return toManip;   
+    }
+
+
+    /**
+     * Return the dimensions of the active associated media or artwork
+     * @method getMediaDimensions
+     * @return {String}     object with dimensions
+     */
+    function getMediaDimensions() {
+        return outerContainerDimensions;   
+    }
+
+
+    /**
+     * Return list of associatedMedia
+     * @method getAssociatedMedia
+     * @return {Object}     associated media object
+     */
+    function getAssociatedMedia() {
+        return associatedMedia;
+    }
+
+    /**
+     * Open the deepzoom image
+     * @method openArtwork
+     * @param {doq} doq           artwork doq to open
+     * @return {Boolean}          whether opening was successful
+     */
+    function openArtwork(doq) {
+        if(!viewer || !doq || !doq.Metadata || !doq.Metadata.DeepZoom) {
+            debugger;
+            console.log("ERROR IN openDZI");
+            return false;
+        }
+        viewer.openDzi(FIX_PATH(doq.Metadata.DeepZoom));
+        return true;
+    }
+
+    /**
+     * Wrapper around Seadragon.Drawer.updateOverlay; moves an HTML element "overlay."
+     * Used mostly in conjunction with hotspot circles (this function is currently
+     * only called from ArtworkEditor.js)
+     * @method updateOverlay
+     * @param {HTML element} element                   the overlay element to move
+     * @param {Seadragon.OverlayPlacement} placement   the new placement of the overlay
+     */
+    function updateOverlay(element, placement) {
+        var $elt = $(element),
+            top  = parseFloat($elt.css('top')),
+            left = parseFloat($elt.css('left'));
+        if (top && left) { // TODO is this check necessary?
+            viewer.drawer.updateOverlay(element, viewer.viewport.pointFromPixel(new Seadragon.Point(left, top)), placement);
+        }
+    }
+
+    /**
+     * Wrapper around Seadragon.Drawer.addOverlay; adds an HTML overlay to the seadragon
+     * canvas. Currently only used in ArtworkEditor.js.
+     * @method addOverlay
+     * @param {HTML element} element                   the overlay element to add
+     * @param {Seadragon.Point} point                  the point at which to add the overlay
+     * @param {Seadragon.OverlayPlacement} placement   the placement at the given point
+     */
+    function addOverlay(element, point, placement) {
+        if (!viewer.isOpen()) {
+            viewer.addEventListener('open', function () {
+                viewer.drawer.addOverlay(element, point, placement);
+                viewer.drawer.updateOverlay(element, point, placement);
+            });
+        } else {
+            viewer.drawer.addOverlay(element, point, placement);
+            viewer.drawer.updateOverlay(element, point, placement);
+        }
+    }
+
+    /**
+     * Wrapper around Seadragon.Drawer.removeOverlay. Removes an HTML overlay from the seadragon
+     * canvas.
+     * @method removeOverlay
+     * @param {HTML element}       the ovlerlay element to remove
+     */
+    function removeOverlay(element) {
+        if (!viewer.isOpen()) {
+            viewer.addEventListener('open', function () {
+                viewer.drawer.removeOverlay(element);
+            });
+        } else {
+            viewer.drawer.removeOverlay(element);
+        }
+    };
+
+    /**
+     * Unloads the seadragon viewer
+     * @method unload
+     */
+    function unload() {
+        viewer && viewer.unload();
+    }
+
+    /**
+     * When the artwork is active, sets the manipulation method and dimensions for the active container
+     * @method dzManipPreprocessing
+     */
+    function dzManipPreprocessing() {
+        outerContainerDimensions = {height: rootHeight, width: rootWidth};
+        toManip = dzManip;
+    }
+
+    /**
+     * Manipulation/drag handler for makeManipulatable on the deepzoom image
+     * @method dzManip
+     * @param {Object} res             object containing hammer event info
+     */
+
+    function dzManip(res) {
+        var scale = res.scale,
+            trans = res.translation,
+            pivot = res.pivot;
+
+        dzManipPreprocessing();
+        viewer.viewport.zoomBy(scale, viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)), false);
+        viewer.viewport.panBy(viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(trans.x, trans.y)), false);
+        viewer.viewport.applyConstraints();
+    }
+    
+    /**
+     * Scroll/pinch-zoom handler for makeManipulatable on the deepzoom image
+     * @method dzScroll
+     * @param {Number} scale          scale factor
+     * @param {Object} pivot          location of event (x,y)
+     */
+    function dzScroll(scale, pivot) {
+        dzManip({
+                scale: scale,
+                translation: {
+                    x: 0,
+                    y: 0
+                },
+                pivot: pivot
+        });
+    }
+
+    /**
+     * Initialize seadragon, set up handlers for the deepzoom image, load assoc media if necessary
+     * @method init
+     */
+    function init() {
+        var viewerelt,
+            canvas;
+
+        if(Seadragon.Config) {
+            Seadragon.Config.visibilityRatio = 0.8; // TODO see why Seadragon.Config isn't defined; should it be?
+        }
+
+        viewerelt = $(document.createElement('div'));
+        viewerelt.attr('id', 'annotatedImageViewer');
+        viewerelt.on('mousedown scroll click mousemove resize', function(evt) {
+            evt.preventDefault();
+        });
+        root.append(viewerelt);
+
+        viewer = new Seadragon.Viewer(viewerelt[0]);
+        viewer.setMouseNavEnabled(false);
+        viewer.clearControls();
+
+        canvas = $(viewer.canvas);
+        canvas.addClass('artworkCanvasTesting');
+
+        TAG.Util.makeManipulatable(canvas[0], {
+            onScroll: function (delta, pivot) {
+                dzScroll(delta, pivot);
+            },
+            onManipulate: function (res) {
+                res.translation.x = - res.translation.x;        //Flip signs for dragging
+                res.translation.y = - res.translation.y;
+                dzManip(res); 
+            }
+        }, null, true); // NO ACCELERATION FOR NOW
+
+        assetCanvas = $(document.createElement('div'));
+        assetCanvas.attr('id', 'annotatedImageAssetCanvas');
+        root.append(assetCanvas);
+
+        // this is stupid, but it seems to work (for being able to reference zoomimage in artmode)
+        noMedia ? setTimeout(function() { callback && callback() }, 1) : loadAssociatedMedia(callback);
+    }
+
+    /**
+     * Adds an animation handler to the annotated image. This is used to allow the image to move
+     * when the minimap is manipulated.
+     * @method addAnimationHandler
+     * @param {Function} handler      the handler to add
+     */
+    function addAnimateHandler(handler) {
+        viewer.addEventListener("animation", handler);
+    }
+
+    /**
+     * Retrieves associated media from server and stores them in the
+     * associatedMedia array.
+     * @method {Function} callback    function to call after loading associated media
+     */
+    function loadAssociatedMedia(callback) {
+        var done = 0,
+            total;
+
+        TAG.Worktop.Database.getAssocMediaTo(doq.Identifier, mediaSuccess, null, mediaSuccess);
+
+        /**
+         * Success callback function for .getAssocMediaTo call above. If the list of media is
+         * non-null and non-empty, it gets the linq between each doq and the artwork 
+         * @method mediaSuccess
+         * @param {Array} doqs        the media doqs
+         */
+        function mediaSuccess(doqs) {
+            var i;
+            total = doqs ? doqs.length : 0;
+            if (total > 0) {
+                for (i = 0; i < doqs.length; i++) {
+                    TAG.Worktop.Database.getLinq(doq.Identifier, doqs[i].Identifier, createLinqSuccess(doqs[i]), null, createLinqSuccess(doqs[i]));
+                }
+            } else {
+                callback && callback(associatedMedia);
+            }
+        }
+
+        /**
+         * Helper function for the calls to .getLinq above. It accepts an assoc media doc and returns
+         * a success callback function that accepts a linq. Using this information, it creates a new
+         * hotspot from the doq and linq
+         * @method createLinqSuccess
+         * @param {doq} assocMedia        the relevant associated media doq
+         */
+        function createLinqSuccess(assocMedia) {
+            return function (linq) {
+                associatedMedia[assocMedia.Identifier] = createMediaObject(assocMedia, linq);
+                associatedMedia.guids.push(assocMedia.Identifier);
+
+                if (++done >= total && callback) {
+                    callback(associatedMedia);
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Creates an associated media object to be added to associatedMedia.
+     * This object contains methods that could be called in Artmode.js or
+     * ArtworkEditor.js. This could be in its own file.
+     * @method createMediaObject
+     * @param {mdoq} doq       the media doq
+     * @param {linq} linq     the linq between the media doq and the artwork doq
+     * @return {Object}       some public methods to be used in other files
+     */
+    function createMediaObject(mdoq, linq) {
+        var // DOM-related
+            outerContainer = $(document.createElement('div')).addClass('mediaOuterContainer'),
+            innerContainer = $(document.createElement('div')).addClass('mediaInnerContainer'),
+            mediaContainer = $(document.createElement('div')).addClass('mediaMediaContainer'),
+
+            // constants
+            IS_HOTSPOT      = linq.Metadata.Type ? (linq.Metadata.Type === "Hotspot") : false,
+            X               = parseFloat(linq.Offset._x),
+            Y               = parseFloat(linq.Offset._y),
+            TITLE           = TAG.Util.htmlEntityDecode(mdoq.Name),
+            CONTENT_TYPE    = mdoq.Metadata.ContentType,
+            SOURCE          = mdoq.Metadata.Source,
+            DESCRIPTION     = TAG.Util.htmlEntityDecode(mdoq.Metadata.Description),
+            THUMBNAIL       = mdoq.Metadata.Thumbnail,
+            RELATED_ARTWORK = false,
+
+            // misc initialized variables
+            mediaHidden      = true,
+            currentlySeeking = false,
+            movementTimeouts = [],
+
+            // misc uninitialized variables
+            circle,
+            position,
+            mediaLoaded,
+            mediaHidden,
+            mediaElt,
+            titleDiv,
+            descDiv,
+            thumbnailButton,
+            startLocation,
+            play;
+
+        // get things rolling
+        initMediaObject();
+
+        /**
+         * Initialize various parts of the media object: UI, manipulation handlers
+         * @method initMediaObject
+         */
+        function initMediaObject() {
+            // set up divs for the associated media
+            outerContainer.css('width', Math.min(Math.max(250, (rootWidth / 5)), 450) + 'px');
+            innerContainer.css('backgroundColor', 'rgba(0,0,0,0.65)');
+
+            if (TITLE) {
+                titleDiv = $(document.createElement('div'));
+                titleDiv.addClass('annotatedImageMediaTitle');
+                titleDiv.text(TITLE);
+
+                innerContainer.append(titleDiv);
+            }
+
+            innerContainer.append(mediaContainer);
+
+            if (DESCRIPTION) {
+                descDiv = $(document.createElement('div'));
+                descDiv.addClass('annotatedImageMediaDescription');
+                descDiv.html(Autolinker.link(DESCRIPTION, {email: false, twitter: false}));
+                
+                innerContainer.append(descDiv);
+            }
+
+            if (RELATED_ARTWORK) {
+                // TODO append related artwork button here
+            }
+
+            outerContainer.append(innerContainer);
+            assetCanvas.append(outerContainer);
+            outerContainer.hide();
+
+            // create hotspot circle if need be
+            if (IS_HOTSPOT) {
+                circle = $(document.createElement("img"));
+                position = new Seadragon.Point(X, Y);
+                circle.attr('src', tagPath + 'images/icons/hotspot_circle.svg');
+                circle.addClass('annotatedImageHotspotCircle');
+                root.append(circle);
+            }
+
+            // allows asset to be dragged, despite the name
+            TAG.Util.disableDrag(outerContainer);
+
+            // register handlers
+            TAG.Util.makeManipulatable(outerContainer[0], {
+                onManipulate: mediaManip,
+                onScroll:     mediaScroll
+            }, null, true); // NO ACCELERATION FOR NOW
+        }
+
+        /**
+         * Initialize any media controls
+         * @method initMediaControls
+         * @param {HTML element} elt      video or audio element
+         */
+        function initMediaControls() {
+            var elt = mediaElt,
+                $elt = $(elt),
+                controlPanel = $(document.createElement('div')).addClass('annotatedImageMediaControlPanel'),
+                vol = $(document.createElement('img')).addClass('mediaVolButton'),
+                timeContainer = $(document.createElement('div')).addClass('mediaTimeContainer'),
+                currentTimeDisplay = $(document.createElement('span')).addClass('mediaTimeDisplay'),
+                playHolder = $(document.createElement('div')).addClass('mediaPlayHolder'),
+                volHolder = $(document.createElement('div')).addClass('mediaVolHolder'),
+                sliderContainer = $(document.createElement('div')).addClass('mediaSliderContainer'),
+                sliderPoint = $(document.createElement('div')).addClass('mediaSliderPoint');
+
+            controlPanel.attr('id', 'media-control-panel-' + mdoq.Identifier);
+
+            play = $(document.createElement('img')).addClass('mediaPlayButton');
+
+            play.attr('src', tagPath + 'images/icons/PlayWhite.svg');
+            vol.attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
+            currentTimeDisplay.text("00:00");
+
+            // TODO move this css to styl file
+            play.css({
+                'position': 'relative',
+                'height':   '20px',
+                'width':    '20px',
+                'display':  'inline-block',
+            });
+
+            playHolder.css({
+                'position': 'relative',
+                'height':   '20px',
+                'width':    '20px',
+                'display':  'inline-block',
+                'margin':   '2px 1% 0px 1%',
+            });
+
+            sliderContainer.css({
+                'position': 'absolute',
+                'height':   '15px',
+                'width':    '100%',
+                'left':     '0px',
+                'bottom':   '0px'
+            });
+
+            sliderPoint.css({
+                'position': 'absolute',
+                'height':   '100%',
+                'background-color': '#3cf',
+                'width':    '0%',
+                'left':     '0%'
+            });
+
+            vol.css({
+                'height':   '20px',
+                'width':    '20px',
+                'position': 'relative',
+                'display':  'inline-block',
+            });
+
+            volHolder.css({
+                'height':   '20px',
+                'width':    '20px',
+                'position': 'absolute',
+                'right':    '5px',
+                'top':      '2px'
+            });
+
+            timeContainer.css({
+                'height':   '20px',
+                'width':    '40px',
+                'right':    volHolder.width() + 25 + 'px',
+                'position': 'absolute',
+                'vertical-align': 'top',
+                'padding':  '0',
+                'display':  'inline-block',
+                'overflow': 'hidden',
+            });
+
+            playHolder.append(play);
+            sliderContainer.append(sliderPoint);
+            volHolder.append(vol);
+            
+            // set up handlers
+            play.on('click', function () {
+                if (elt.paused) {
+                    elt.play();
+                    play.attr('src', tagPath + 'images/icons/PauseWhite.svg');
+                } else {
+                    elt.pause();
+                    play.attr('src', tagPath + 'images/icons/PlayWhite.svg');
+                }
+            });
+
+            vol.on('click', function () {
+                if (elt.muted) {
+                    elt.muted = false;
+                    vol.attr('src', tagPath + 'images/icons/VolumeUpWhite.svg');
+                } else {
+                    elt.muted = true;
+                    vol.attr('src', tagPath + 'images/icons/VolumeDownWhite.svg');
+                }
+            });
+
+            $elt.on('ended', function () {
+                elt.pause();
+                play.attr('src', tagPath + 'images/icons/PlayWhite.svg');
+            });
+
+            sliderContainer.on('mousedown', function(evt) {
+                var time = elt.duration * ((evt.pageX - $(evt.target).offset().left) / sliderContainer.width()),
+                    origPoint = evt.pageX,
+                    timePxRatio = elt.duration / sliderContainer.width(),
+                    currTime = Math.max(0, Math.min(elt.duration, elt.currentTime)),
+                    origTime = time,
+                    currPx   = currTime / timePxRatio,
+                    minutes = Math.floor(currTime / 60),
+                    seconds = Math.floor(currTime % 60),
+                    adjMin = (minutes < 10) ? '0'+minutes : minutes,
+                    adjSec = (seconds < 10) ? '0'+seconds : seconds;
+
+                evt.stopPropagation();
+
+                if(!isNaN(time)) {
+                    currentTimeDisplay.text(adjMin + ":" + adjSec);
+                    elt.currentTime = time;
+                    sliderPoint.css('width', 100*(currPx / sliderContainer.width()) + '%');
+                }
+
+                sliderContainer.on('mousemove.seek', function(e) {
+                    var currPoint = e.pageX,
+                        timeDiff = (currPoint - origPoint) * timePxRatio;
+
+                    currTime = Math.max(0, Math.min(elt.duration, origTime + timeDiff));
+                    currPx   = currTime / timePxRatio;
+                    minutes  = Math.floor(currTime / 60);
+                    seconds  = Math.floor(currTime % 60);
+                    adjMin   = (minutes < 10) ? '0'+minutes : minutes;
+                    adjSec   = (seconds < 10) ? '0'+seconds : seconds;
+
+                    if(!isNaN(currTime)) {
+                        currentTimeDisplay.text(adjMin + ":" + adjSec);
+                        elt.currentTime = currTime;
+                        sliderPoint.css('width', 100*(currPx / sliderContainer.width()) + '%');
+                    }
+                });
+
+                $('body').on('mouseup.seek mouseleave.seek', function() {
+                    sliderContainer.off('mouseup.seek mouseleave.seek mousemove.seek');
+                    // if(!isNaN(getCurrTime())) {
+                    //     currentTimeDisplay.text(adjMin + ":" + adjSec);
+                    //     elt.currentTime = getCurrTime();
+                    //     sliderPoint.css('width', 100*(currPx / sliderContainer.width()) + '%');
+                    // }
+                });
+            });
+
+            // Update the seek bar as the video plays
+            $elt.on("timeupdate", function () {
+                var value = 100 * elt.currentTime / elt.duration,
+                    timePxRatio = elt.duration / sliderContainer.width(),
+                    currPx = elt.currentTime / timePxRatio,
+                    minutes = Math.floor(elt.currentTime / 60),
+                    seconds = Math.floor(elt.currentTime % 60),
+                    adjMin = (minutes < 10) ? '0' + minutes : minutes,
+                    adjSec = (seconds < 10) ? '0' + seconds : seconds;
+
+                if(!isNaN(elt.currentTime)) {
+                    currentTimeDisplay.text(adjMin + ":" + adjSec);
+                    sliderPoint.css('width', 100*(currPx / sliderContainer.width()) + '%');
+                }
+            });
+
+            mediaContainer.append(elt);
+            mediaContainer.append(controlPanel);
+
+            controlPanel.append(playHolder);
+            controlPanel.append(sliderContainer);
+            timeContainer.append(currentTimeDisplay);
+            controlPanel.append(timeContainer);
+            controlPanel.append(volHolder);
+        }
+
+        /**
+         * Load the actual image/video/audio; this can take a while if there are
+         * a lot of media, so just do it when the thumbnail button is clicked
+         * @method createMediaElements
+         */
+        function createMediaElements() {
+            var $mediaElt,
+                img,
+                closeButton = createCloseButton();
+
+            mediaContainer.append(closeButton[0]);
+            closeButton.on('click', function() {
+                hideMediaObject();
+            });
+
+            if(!mediaLoaded) {
+                mediaLoaded = true;
+            } else {
+                return;
+            }
+
+            if (CONTENT_TYPE === 'Image') {
+                img = document.createElement('img');
+                img.src = FIX_PATH(SOURCE);
+                $(img).css({
+                    position: 'relative',
+                    width:    '100%',
+                    height:   'auto'
+                });
+                mediaContainer.append(img);
+                mediaLoaded = true;
+            } else if (CONTENT_TYPE === 'Video') {
+                mediaElt = document.createElement('video');
+                $mediaElt = $(mediaElt);
+
+                $mediaElt.attr({
+                    preload:  'none',
+                    poster:   (THUMBNAIL && !THUMBNAIL.match(/.mp4/)) ? FIX_PATH(THUMBNAIL) : '',
+                    src:      FIX_PATH(SOURCE),
+                    type:     'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
+                    controls: false
+                });
+
+                // TODO need to use <source> tags rather than setting the source and type of the
+                //      video in the <video> tag's attributes; see video player code
+                
+                $mediaElt.css({
+                    position: 'relative',
+                    width:    '100%'
+                });
+
+                initMediaControls(mediaElt);
+
+            } else if (CONTENT_TYPE === 'Audio') {
+                mediaElt = document.createElement('audio');
+                $mediaElt = $(mediaElt);
+
+                $mediaElt.attr({
+                    preload:  'none',
+                    type:     'audio/mp3',
+                    src:      FIX_PATH(SOURCE),
+                    controls: false
+                });
+
+                initMediaControls(mediaElt);
+            }
+        }
+
+        /**
+         * Stores the dimensions and points to the media manipulation method  of the active associated media, also sends it to the front
+         * media manip.
+         * @method mediaManipPreprocessing
+         */
+        function mediaManipPreprocessing() {
+            outerContainerDimensions = {height: outerContainer.height(), width: outerContainer.width()};
+            toManip = mediaManip;
+            $('.mediaOuterContainer').css('z-index', 1000);
+            outerContainer.css('z-index', 1001);
+        }
+
+        //When the associated media is clicked, set it to active(see mediaManipPreprocessing() above )
+        outerContainer.on('click', function (event) {
+            event.stopPropagation();            //Prevent the click going through to the main container
+            event.preventDefault();
+            TAG.Util.IdleTimer.restartTimer();
+            mediaManipPreprocessing();
+
+        });
+
+     
+        /**
+         * Drag/manipulation handler for associated media
+         * @method mediaManip
+         * @param {Object} res     object containing hammer event info
+         */
+        function mediaManip(res) {
+            if (currentlySeeking || !res) {
+                return;
+            }
+            
+            var scale = res.scale,
+                trans = res.translation,
+                pivot = res.pivot,
+                t     = parseFloat(outerContainer.css('top')),
+                l     = parseFloat(outerContainer.css('left')),
+                w     = outerContainer.width(),
+                h     = outerContainer.height(),
+                timestepConstant = 50,
+                newW  = w * scale,
+                maxW,
+                minW,
+                timer;
+
+            // If event is initial touch on artwork, save current position of media object to use in movement method
+            if (res.eventType === 'start') {
+                startLocation = {
+                    x: l,
+                    y: t
+                };
+            };;
+
+            mediaManipPreprocessing();
+
+            // these values are somewhat arbitrary; TODO determine good values
+            if (CONTENT_TYPE === 'Image') {
+                maxW = 3000;
+                minW = 200;
+            } else if (CONTENT_TYPE === 'Video') {
+                maxW = 1000;
+                minW = 250;
+            } else if (CONTENT_TYPE === 'Audio') {
+                maxW = 800;
+                minW = 250;
+            }
+
+            // constrain new width
+            if(newW < minW || maxW < newW) {
+                scale = 1;
+                newW = Math.min(maxW, Math.max(minW, newW));
+            }
+
+           //Manipulation for touch and drag events
+            if (newW === w){ //If media object is being dragged (not resized)
+                if ((0 < t + h) && (t < rootHeight) && (0 < l + w) && (l< rootWidth)) { // and is still on screen
+                    
+                    var currentTime = Date.now(),
+
+                        //Position of object on manipulation
+                        initialPosition = {
+                            x: l, 
+                            y: t
+                        },
+
+                        //Where object should be moved to
+                        finalPosition = {
+                            x: res.center.pageX - (res.startEvent.center.pageX - startLocation.x),
+                            y: res.center.pageY - (res.startEvent.center.pageY - startLocation.y)
+                        },
+
+                        deltaPosition = {
+                            x: finalPosition.x - initialPosition.x,
+                            y: finalPosition.y - initialPosition.y
+                        },
+
+                        //Time difference from beginning of event to now
+                        deltaTime = Date.now() - res.srcEvent.timeStamp,
+
+                        //Initial velocity is proportional to distance traveled
+                        initialVelocity = {
+                            x: deltaPosition.x/timestepConstant,
+                            y: deltaPosition.y/timestepConstant
+                        };
+                        
+                        //Recursive function to move object between start location and final location with proper physics
+                        move(res, initialVelocity, initialPosition, finalPosition, timestepConstant/50);
+                        viewer.viewport.applyConstraints()
+
+                } else { //If object isn't within bounds, hide and reset it.
+                    hideMediaObject();
+                    pauseResetMediaObject();
+                    return;
+                }
+            } else{ // zoom from touch point: change width and height of outerContainer
+                outerContainer.css("top",  (t + trans.y + (1 - scale) * pivot.y) + "px");
+                outerContainer.css("left", (l + trans.x + (1 - scale) * pivot.x) + "px");
+                outerContainer.css("width", newW + "px");
+                outerContainer.css("height", "auto"); 
+            }
+
+
+            // TODO this shouldn't be necessary; style of controls should take care of it
+            // if ((CONTENT_TYPE === 'Video' || CONTENT_TYPE === 'Audio') && scale !== 1) {
+            //     resizeControlElements();
+            // }
+        }
+
+        function move(res, prevVelocity, prevLocation, finalPos, delay){
+            //If object is not on screen, reset and hide it
+            if (!(
+                (0 < outerContainer.position().top+ outerContainer.height()) 
+                && (outerContainer.position().top < rootHeight) 
+                && (0 < outerContainer.position().left + outerContainer.width()) 
+                && (outerContainer.position().left < rootWidth))) 
+                {
+                    hideMediaObject();
+                    pauseResetMediaObject();
+                    return;
+            };
+
+            //If velocity is almost 0, stop movement
+            if ((Math.abs(prevVelocity.x) < .1) && (Math.abs(prevVelocity.y) < .1)) {
+                return;
+            };
+
+            //Current position is previous position + movement from velocity * time
+            var currentPosition = { 
+                    x: prevLocation.x + delay*prevVelocity.x,
+                    y: prevLocation.y + delay*prevVelocity.y                  
+                },
+
+                // New velocity is proportional to distance left to travel
+                newVelocity = {
+                    x: (finalPos.x - currentPosition.x)/(delay*50),
+                    y: (finalPos.y - currentPosition.y)/(delay*50)
+                },
+
+                timer;
+
+            outerContainer.css({'left': currentPosition.x, 'top': currentPosition.y});
+
+            //Clear all previously-set timers used for movement on this object
+            for (var i = 0; i < movementTimeouts.length; i++) {
+                clearTimeout(movementTimeouts[i]);
+            }
+            movementTimeouts = [];
+            movementTimeouts.push( 
+                setTimeout(function () {
+                move(res, newVelocity, currentPosition, finalPos, delay);
+                }, 1)
+            );
+        }
+
+        /**
+         * Zoom handler for associated media (e.g., for mousewheel scrolling)
+         * @method mediaScroll
+         * @param {Number} scale     scale factor
+         * @param {Object} pivot     point of contact
+         */
+        function mediaScroll(scale, pivot) {
+            mediaManip({
+                scale: scale,
+                translation: {
+                    x: 0,
+                    y: 0
+                },
+                pivot: pivot
+            });
+        }
+		
+		/**
+		 * Create a closeButton for associated media
+		 * @method createCloseButton
+		 * @return {HTML element} the button as a 'div'
+		 */
+		function createCloseButton() {
+			var closeButton = $(document.createElement('div'));
+			closeButton.text('X');
+			closeButton.css({
+				'position': 'absolute',
+				'top': '0.4em',
+				'left': '-2em',
+				'width': '0.7em',
+				'height': '0.7em',
+				//'text-align': 'center',
+				//'color': 'black',
+				//'line-height': '1em',
+				//'border': '10px solid black',
+				//'border-radius': '2em',
+				'background-color': 'black',
+				'margin-left': '107%'
+			});
+			return closeButton;
+		}
+		 
+        /**
+         * Show the associated media on the seadragon canvas. If the media is not
+         * a hotspot, show it in a slightly random position.
+         * @method showMediaObject
+         */
+        function showMediaObject() {
+            var t,
+                l,
+                h = outerContainer.height(),
+                w = outerContainer.width();
+				
+            if(IS_HOTSPOT) {
+                console.log("---------------------------------------------- is hotspot");
+                circle.css('visibility', 'visible');
+                addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
+                viewer.viewport.panTo(position, false);
+                viewer.viewport.applyConstraints()
+                t = circle.offset().top + circle.width()*4;
+                l = circle.offset().left + circle.width()*4;
+
+                console.log("pointFromPixel: " + viewer.viewport.pointFromPixel(position));
+
+                console.log("circle.width: " + circle.width());
+
+                //t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
+                //l = rootWidth/2 + circle.width()*3/4;
+            } else {
+                t = rootHeight * 1/10 + Math.random() * rootHeight * 2/10;
+                l = rootWidth  * 3/10 + Math.random() * rootWidth  * 2/10;
+            };
+            outerContainer.css({
+                'top':            t + "px",
+                'left':           l + "px",
+                'position':       "absolute",
+                'z-index':        1000,
+                'pointer-events': 'all'
+            });
+
+            outerContainer.show();
+            assetCanvas.append(outerContainer);
+
+            if(!thumbnailButton) {
+                thumbnailButton = $('#thumbnailButton-' + mdoq.Identifier);
+            }
+
+            thumbnailButton.css({
+                'color': 'black',
+                'background-color': 'rgba(255,255,255, 0.3)'
+            });
+			
+            // TODO is this necessary?
+            // if ((info.contentType === 'Video') || (info.contentType === 'Audio')) {
+            //     resizeControlElements();
+            // }
+
+            mediaHidden = false;
+        }
+
+        /**
+         * Hide the associated media
+         * @method hideMediaObject
+         */
+        function hideMediaObject() {
+            pauseResetMediaObject();
+            IS_HOTSPOT && removeOverlay(circle[0]);
+            outerContainer.hide();   
+            mediaHidden = true;
+
+            if(!thumbnailButton) {
+                thumbnailButton = $('#thumbnailButton-' + mdoq.Identifier);
+            }
+
+            thumbnailButton.css({
+                'color': 'white',
+                'background-color': ''
+            });
+            TAG.Util.IdleTimer.restartTimer();              
+            dzManipPreprocessing();                     //When an object is hidden, set the artwork as active
+
+        }
+
+        /**
+         * Show if hidden, hide if shown
+         * @method toggleMediaObject
+         */
+        function toggleMediaObject() {
+            mediaHidden ? showMediaObject() : hideMediaObject();
+        }
+
+        /**
+         * Returns whether the media object is visible
+         * @method isVisible
+         * @return {Boolean}
+         */
+        function isVisible() {
+            return !mediaHidden;
+        }
+
+        /**
+         * Pauses and resets (to time 0) the media if the content type is video or audio
+         * @pauseResetMediaObject
+         */
+        function pauseResetMediaObject() {
+            if(!mediaElt || mediaElt.readyState < 4) { // see https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement
+                return;
+            }
+            mediaElt.currentTime = 0;
+            mediaElt.pause();
+            play.attr('src', tagPath + 'images/icons/PlayWhite.svg');
+        }
+
+
+        return {
+            doq:                 mdoq,
+            linq:                linq,
+            show:                showMediaObject,
+            hide:                hideMediaObject,
+            create:              createMediaElements,
+            pauseReset:          pauseResetMediaObject,
+            toggle:              toggleMediaObject,
+            createMediaElements: createMediaElements,
+            isVisible:           isVisible,
+            mediaManipPreprocessing: mediaManipPreprocessing
+        };
+    }
+};
+
 
 ;
 var TAG = TAG || {};
@@ -41884,7 +42990,6 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         tagContainer;
 
     TAG.Telemetry.register(overlay, 'click', 'start_to_collections');
-    currentPage = TAG.Util.Constants.pages.START_PAGE;
 
     if (localStorage.ip && localStorage.ip.indexOf(':') !== -1) {
         localStorage.ip = localStorage.ip.split(':')[0];
@@ -41968,11 +43073,14 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
 
         //opens the collections page on touch/click
         function switchPage() {
-            var newCatalog;
+            var collectionsPage;
 
             overlay.off('click');
-            newCatalog = TAG.Layout.CollectionsPage();
-            TAG.Util.UI.slidePageLeft(newCatalog.getRoot());
+            collectionsPage = TAG.Layout.CollectionsPage();
+            TAG.Util.UI.slidePageLeft(collectionsPage.getRoot());
+
+            currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+            currentPage.obj  = collectionsPage;
         }
 
         // Test for browser compatibility
@@ -42438,6 +43546,10 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
     // get things rolling if doq is defined (it better be)
     doq && init();
 
+    return {
+        getRoot: getRoot
+    };
+
     /**
      * Initiate artmode with a root, artwork image and a sidebar on the left
      * @method init
@@ -42446,8 +43558,6 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         var head,
             script,
             meta;
-
-        currentPage = TAG.Util.Constants.pages.ARTWORK_VIEWER;
 
         idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
         idleTimer.start();
@@ -42602,45 +43712,25 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
          */
         function doManip(evt, direction) {
             manipulate = annotatedImage.getToManip();
-            if(annotatedImage.getClicked() === 'artwork') {
-                var pivot = {
-                    x: CENTER_X,
-                    y: CENTER_Y
+
+             var pivot = {
+                    x: annotatedImage.getMediaDimensions().width / 2,
+                    y: annotatedImage.getMediaDimensions().height / 2
                 };
-                
-                if (direction === 'left') {
-                    manipulate({pivot: pivot, translation: {x: -panDelta, y: 0}, scale: 1});
-                } else if (direction === 'up') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: -panDelta}, scale: 1});
-                } else if (direction === 'right') {
-                    manipulate({pivot: pivot, translation: {x: panDelta, y: 0}, scale: 1});
-                } else if (direction === 'down') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
-                } else if (direction === 'in') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 + zoomScale});
-                } else if (direction === 'out') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
-                }
-            }
-            else if(annotatedImage.getClicked() === 'media') {
-                var pivot = {
-                    x: annotatedImage.getAssocMediaDimensions().height / 2,
-                    y: annotatedImage.getAssocMediaDimensions().width / 2
-                };
-                if (direction === 'left') {
-                    manipulate({pivot: pivot, translation: {x: -panDelta, y: 0}, scale: 1});
-                } else if (direction === 'up') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: -panDelta}, scale: 1});
-                } else if (direction === 'right') {
-                    manipulate({pivot: pivot, translation: {x: panDelta, y: 0}, scale: 1});
-                } else if (direction === 'down') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
-                } else if (direction === 'in') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 + zoomScale});
-                } else if (direction === 'out') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
-                }
-            }
+
+            if (direction === 'left') {
+                manipulate({pivot: pivot, translation: {x: -panDelta, y: 0}, scale: 1});
+            } else if (direction === 'up') {
+                manipulate({pivot: pivot, translation: {x: 0, y: -panDelta}, scale: 1});
+            } else if (direction === 'right') {
+                manipulate({pivot: pivot, translation: {x: panDelta, y: 0}, scale: 1});
+            } else if (direction === 'down') {
+                manipulate({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
+            } else if (direction === 'in') {
+                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 + zoomScale});
+            } else if (direction === 'out') {
+                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
+            }   
         }
 
 
@@ -42793,17 +43883,20 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         });
 
         function goBack() {
-            var catalog;
+            var collectionsPage;
             backButton.off('click');
-            idleTimer.kill();
+            idleTimer && idleTimer.kill();
             idleTimer = null;
             annotatedImage && annotatedImage.unload();
-            catalog = new TAG.Layout.CollectionsPage({
+            collectionsPage = new TAG.Layout.CollectionsPage({
                 backScroll:     prevScroll,
                 backArtwork:    doq,
                 backCollection: prevCollection
             });
-            TAG.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {});
+            TAG.Util.UI.slidePageRightSplit(root, collectionsPage.getRoot(), function () {});
+
+            currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+            currentPage.obj  = collectionsPage;
         }
 
 
@@ -42906,10 +43999,13 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
          * @param {Object} media       the associated media object (from AnnotatedImage)
          */
         function mediaClicked(media) {
-            return function () {
+            return function (evt) {
+                evt.stopPropagation();
                 locHistoryActive && toggleLocationPanel();
                 media.create(); // returns if already created
                 media.toggle();
+                TAG.Util.IdleTimer.restartTimer();
+                media.mediaManipPreprocessing();                    //Set the newly opened media as active for manipulation
                 media.pauseReset();
             };
         }
@@ -42957,7 +44053,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
                     prevInfo,
                     rinPlayer;
                 
-                idleTimer.kill();
+                idleTimer && idleTimer.kill();
                 idleTimer = null;
 
                 annotatedImage.unload();
@@ -43005,7 +44101,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             });
 
             TAG.Util.disableDrag(minimapContainer);
-            
+
             AR = img.naturalWidth / img.naturalHeight;
             var heightR = img.naturalHeight / $(minimapContainer).height();//the ratio between the height of image and the container.
             var widthR = img.naturalWidth / $(minimapContainer).width();//ratio between the width of image and the container.
@@ -43027,7 +44123,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
                 onManipulate: onMinimapManip,
                 onScroll: onMinimapScroll,
                 onTapped: onMinimapTapped
-            }, false);
+            }, true);
 
             /**********************/
             var minimaph = minimap.height();
@@ -43074,7 +44170,6 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             var a = 0;
         }
         function onMinimapTapped(evt) {
-
             var minimaph = minimap.height();
             var minimapw = minimap.width();
             var minimapt = minimap.position().top;
@@ -43411,9 +44506,9 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
      * @method
      * @return {jQuery obj}    root jquery object
      */
-    this.getRoot = function () {
+    function getRoot() {
         return root;
-    };
+    }
 
     /**
      * Make the map for location History.
@@ -43492,7 +44587,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         currentArtwork   = options.backArtwork,         // the currently selected artwork
 
         // misc initialized vars
-        loadQueue        = TAG.Util.createQueue(),          // an async queue for artwork tile creation, etc
+        loadQueue        = TAG.Util.createQueue(),           // an async queue for artwork tile creation, etc
         artworkSelected  = false,                            // whether an artwork is selected
         collectionTitles = [],                               // array of collection title DOM elements
         firstLoad        = true,                             // TODO is this necessary? what is it doing?
@@ -43500,11 +44595,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         infoSource       = [],                               // array to hold sorting/searching information
 
         // constants
-        DEFAULT_TAG      = "Title",                                 // default sort tag
+        DEFAULT_TAG      = "Title",                                // default sort tag
         BASE_FONT_SIZE   = TAG.Worktop.Database.getBaseFontSize(), // base font size for current font
         FIX_PATH         = TAG.Worktop.Database.fixPath,           // prepend server address to given path
 
         // misc uninitialized vars
+        toShowFirst,                    // first collection to be shown (by default)
         toursIn,                        // tours in current collection
         currentThumbnail,               // img tag for current thumbnail image
         numVisibleCollections,          // number of collections that are both published and visible
@@ -43529,15 +44625,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             circle,
             oldSearchTerm;
 
-        currentPage = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
-
         // register back button with the telemetry service
         TAG.Telemetry.register(backbuttonIcon, 'click', 'collections_to_start');
 
         backbuttonIcon.attr('src', tagPath+'images/icons/Back.svg');
 
-        idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
-        idleTimer.start();
+        idleTimer = null;
 
         progressCircCSS = {
             'position': 'absolute',
@@ -43578,7 +44671,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         //handles changing the color when clicking/mousing over on the backButton
         TAG.Util.UI.setUpBackButton(backbuttonIcon, function () {
             backbuttonIcon.off('click');
-            idleTimer.kill();
+            idleTimer && idleTimer.kill();
             idleTimer = null;
             TAG.Layout.StartPage(null, TAG.Util.UI.slidePageRight, true);
         });
@@ -43609,8 +44702,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         var i,
             privateState,
             c,
-            artwrk,
-            toShowFirst;
+            artwrk;
 
         numVisibleCollections = 0;
 
@@ -43635,7 +44727,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         if (currCollection) {
             clickCollection(currCollection, scrollPos, currentArtwork)();
         } else if(toShowFirst) {
-            clickCollection(toShowFirst)(); // first collection selected by default
+            loadFirstCollection();
         }
         loadingArea.hide();
     }
@@ -43731,8 +44823,15 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      * @param {doq} artwrk           if undefined, set currentArtwork to null, otherwise, use this
      */
     function clickCollection(collection, sPos, artwrk) {
-        return function() {
+        return function(evt) {
             var i;
+
+            // if the idle timer hasn't started already, start it
+            if(!idleTimer && evt) { // clickCollection is called without an event to show the first collection
+                idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
+                idleTimer.start();
+            }
+
             for (i = 0; i < collectionTitles.length; i++) {
                 collectionTitles[i].css({ 'background-color': 'transparent', 'color': 'white' });
                 collectionTitles[i].data("selected", false);
@@ -43896,6 +44995,14 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 'color': 'black'
             });
         }
+    }
+
+    /**
+     * Helper function to load first collection
+     * @method loadFirstCollection
+     */
+    function loadFirstCollection() {
+        clickCollection(toShowFirst)(); // first collection selected by default
     }
 
     /**
@@ -44080,6 +45187,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             });
 
             main.on('click', function () {
+                // if the idle timer hasn't started already, start it
+                if(!idleTimer) {
+                    idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
+                    idleTimer.start();
+                }
+
                 if (currentThumbnail.attr('guid') === currentWork.Identifier) { // click twice to enter viewer
                     switchPage();
                 } else {
@@ -44399,7 +45512,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             backArtwork: currentArtwork
         }
 
-        rinPlayer = new TAG.Layout.TourPlayer(rinData, currCollection, collectionOptions, null, tour);
+        rinPlayer = TAG.Layout.TourPlayer(rinData, currCollection, collectionOptions, null, tour);
 
         if (TAG.Util.Splitscreen.on()) { // if splitscreen is on, exit it
             parentid = root.parent().attr('id');
@@ -44407,6 +45520,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         }
 
         TAG.Util.UI.slidePageLeftSplit(root, rinPlayer.getRoot(), rinPlayer.startPlayback);
+
+        currentPage.name = TAG.Util.Constants.pages.TOUR_PLAYER;
+        currentPage.obj  = rinPlayer;
     }
 
     /**
@@ -44426,7 +45542,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             return;
         }
 
-        idleTimer.kill();
+        idleTimer && idleTimer.kill();
         idleTimer = null;
 
         curOpts = {
@@ -44454,18 +45570,23 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 artworkPrev: null,
                 prevScroll: scrollPos
             };
-            videoPlayer = new TAG.Layout.VideoPlayer(currentArtwork, currCollection, prevInfo);
+            videoPlayer = TAG.Layout.VideoPlayer(currentArtwork, currCollection, prevInfo);
             TAG.Util.UI.slidePageLeftSplit(root, videoPlayer.getRoot());
-        }
-        else { // artwork
+
+            currentPage.name = TAG.Util.Constants.pages.VIDEO_PLAYER;
+            currentPage.obj  = videoPlayer;
+        } else { // artwork
             scrollPos = catalogDiv.scrollLeft();
-            artworkViewer = new TAG.Layout.ArtworkViewer({
+            artworkViewer = TAG.Layout.ArtworkViewer({
                 doq: currentArtwork,
                 prevScroll: scrollPos,
                 prevCollection: currCollection,
                 prevPage: 'catalog'
             });
             TAG.Util.UI.slidePageLeftSplit(root, artworkViewer.getRoot());
+
+            currentPage.name = TAG.Util.Constants.pages.ARTWORK_VIEWER;
+            currentPage.obj  = artworkViewer;
         }
         root.css({ 'overflow-x': 'hidden' });
     }
@@ -44503,7 +45624,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
     return {
         getRoot: getRoot,
-        loadCollection: loadCollection
+        loadCollection: loadCollection,
+        loadFirstCollection: loadFirstCollection
     };
 };
 
@@ -44766,8 +45888,6 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
         backButton = root.find('#backButton'),
         overlayOnRoot = root.find('#overlayOnRoot');
 
-    currentPage = TAG.Util.Constants.pages.TOUR_PLAYER;
-
     // UNCOMMENT IF WE WANT IDLE TIMER IN TOUR PLAYER
     // idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
     // idleTimer.start();
@@ -44786,7 +45906,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
     function goBack () {
         console.log('player: '+player);
 
-        var artmode, catalog;
+        var artmode, collectionsPage;
 
         // UNCOMMENT IF WE WANT IDLE TIMER IN TOUR PLAYER
         // idleTimer.kill();
@@ -44809,18 +45929,17 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
             artmode = new TAG.Layout.ArtworkViewer(artmodeOptions);
             TAG.Util.UI.slidePageRightSplit(root, artmode.getRoot());
 
-            var selectedExhib = $('#collection-' + prevExhib.Identifier);
-            selectedExhib.attr('flagClicked', 'true');
+            currentPage.name = TAG.Util.Constants.pages.ARTWORK_VIEWER;
+            currentPage.obj  = artmode;
         } else {
-            /* nbowditch _editted 2/13/2014 : added backInfo */
             var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
-            catalog = new TAG.Layout.CollectionsPage({
+            collectionsPage = new TAG.Layout.CollectionsPage({
                 backScroll: prevScroll,
                 backArtwork: tourObj,
                 backCollection: exhibition
             });
-            /* end nbowditch edit */
-            TAG.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
+
+            TAG.Util.UI.slidePageRightSplit(root, collectionsPage.getRoot(), function () {
 				artworkPrev = "catalog";
 				var selectedExhib = $('#collection-' + prevExhib.Identifier);
 				selectedExhib.attr('flagClicked', 'true');
@@ -44828,7 +45947,10 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
                 if(selectedExhib[0].firstChild) {
     				$(selectedExhib[0].firstChild).css({'color': 'black'});
                 }
-			});           
+			});
+
+            currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+            currentPage.obj  = collectionsPage;         
         }
         // TODO: do we need this next line?
         // tagContainer.css({ 'font-size': '11pt', 'font-family': "'source sans pro regular' sans-serif" }); // Quick hack to fix bug where rin.css was overriding styles for body element -jastern 4/30
@@ -44909,8 +46031,6 @@ TAG.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         currentTimeDisplay = root.find('#currentTimeDisplay'),
         backButton = root.find('#backButton');
 
-    currentPage = TAG.Util.Constants.pages.VIDEO_PLAYER;
-
     // UNCOMMENT IF WE WANT IDLE TIMER IN Video PLAYER
     // idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
     // idleTimer.start();
@@ -44933,20 +46053,23 @@ TAG.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         // idleTimer = null;
 
         var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
-        var catalog = new TAG.Layout.CollectionsPage({
+        var collectionsPage = TAG.Layout.CollectionsPage({
             backScroll: prevScroll,
             backArtwork: videoSrc,
             backCollection: collection
         });
 
-        catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO should be default in .styl file
-        TAG.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
+        // collectionsPage.getRoot().css({ 'overflow-x': 'hidden' }); // TODO should be default in .styl file
+        TAG.Util.UI.slidePageRightSplit(root, collectionsPage.getRoot(), function () {
             artworkPrev = "catalog";
             var selectedExhib = $('#collection-' + prevExhib.Identifier);
             selectedExhib.attr('flagClicked', 'true');
             selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
             $(selectedExhib[0].firstChild).css({'color': 'black'});
         });
+
+        currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+        currentPage.obj  = collectionsPage;
     }
 
     function loop(){
@@ -45204,7 +46327,7 @@ TAG.Telemetry = (function() {
 					browser:    bversion,
 					platform:   platform,
 					time_stamp: date.getTime(),
-					time_human: date.toString(),
+					time_human: date.toString()
 				},
 				ret = true;
 
@@ -45956,39 +47079,39 @@ TAG.TESTS = (function () {
 
         init();
 
-        /* nbowditch _editted 2/23/2014 : stopped scrolling when over tag*/
-        /* NOTE: had to do this in 2 places for cross-browser support.
-           for FF and IE, propogation had to be stopped inside the iframe.
-           For chrome, it had to be stopped outside iframe.
-        */
+        // /* nbowditch _editted 2/23/2014 : stopped scrolling when over tag*/
+        // /* NOTE: had to do this in 2 places for cross-browser support.
+        //    for FF and IE, propogation had to be stopped inside the iframe.
+        //    For chrome, it had to be stopped outside iframe.
+        // */
         
-        var frameDiv = document.getElementById('tagRootContainer');
+        // var frameDiv = document.getElementById('tagRootContainer');
 
-        // $('body').on('scroll.b mousewheel.b MozMousePixelScroll.b DOMMouseScroll.b', function(e) {
-        //     e.stopPropagation();
-        //     e.stopImmediatePropagation();
-        //     e.preventDefault();
-        //     return false;
-        // });
-        // frameDiv.addEventListener('mousewheel', function (evt) {
-        //     evt.stopPropagation();
-        //     evt.preventDefault();
-        //     return false;
-        // });
-        // frameDiv.addEventListener('DOMMouseScroll', function (evt) {
-        //     evt.stopPropagation();
-        //     evt.preventDefault();
-        //     return false;
-        // });
-        // frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
-        //     evt.stopPropagation();
-        //     evt.preventDefault();
-        //     return false;
-        // });
+        // // $('body').on('scroll.b mousewheel.b MozMousePixelScroll.b DOMMouseScroll.b', function(e) {
+        // //     e.stopPropagation();
+        // //     e.stopImmediatePropagation();
+        // //     e.preventDefault();
+        // //     return false;
+        // // });
+        // // frameDiv.addEventListener('mousewheel', function (evt) {
+        // //     evt.stopPropagation();
+        // //     evt.preventDefault();
+        // //     return false;
+        // // });
+        // // frameDiv.addEventListener('DOMMouseScroll', function (evt) {
+        // //     evt.stopPropagation();
+        // //     evt.preventDefault();
+        // //     return false;
+        // // });
+        // // frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
+        // //     evt.stopPropagation();
+        // //     evt.preventDefault();
+        // //     return false;
+        // // });
         
 
 
-        /* end nbowditch edit */
+        // /* end nbowditch edit */
     }
 
     function init() {
@@ -46068,6 +47191,9 @@ TAG.TESTS = (function () {
                     }
                 });
                 if (!found) {
+                    currentPage.name = TAG.Util.Constants.pages.START_PAGE;
+                    currentPage.obj  = null;
+                    
                     TAG.Layout.StartPage(null, function (x) {
                         tagContainer.append(x);
                     });
@@ -46075,6 +47201,9 @@ TAG.TESTS = (function () {
             });
         }
         else {
+            currentPage.name = TAG.Util.Constants.pages.START_PAGE;
+            currentPage.obj  = null;
+
             TAG.Layout.StartPage(null, function (page) {
                 tagContainer.append(page);
             });
