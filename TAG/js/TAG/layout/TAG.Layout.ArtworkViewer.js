@@ -521,10 +521,13 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
          * @param {Object} media       the associated media object (from AnnotatedImage)
          */
         function mediaClicked(media) {
-            return function () {
+            return function (evt) {
+                evt.stopPropagation();
                 locHistoryActive && toggleLocationPanel();
                 media.create(); // returns if already created
                 media.toggle();
+                TAG.Util.IdleTimer.restartTimer();
+                media.mediaManipPreprocessing();                    //Set the newly opened media as active for manipulation
                 media.pauseReset();
             };
         }

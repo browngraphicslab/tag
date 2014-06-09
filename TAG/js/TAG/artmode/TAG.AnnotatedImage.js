@@ -873,6 +873,9 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 'color': 'white',
                 'background-color': ''
             });
+            TAG.Util.IdleTimer.restartTimer();              
+            dzManipPreprocessing();                     //When an object is hidden, set the artwork as active
+
         }
 
         /**
@@ -915,7 +918,8 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             pauseReset:          pauseResetMediaObject,
             toggle:              toggleMediaObject,
             createMediaElements: createMediaElements,
-            isVisible:           isVisible
+            isVisible:           isVisible,
+            mediaManipPreprocessing: mediaManipPreprocessing
         };
     }
 };
