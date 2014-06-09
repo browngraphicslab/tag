@@ -454,6 +454,8 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             locHistoryButton = initlocationHistory();
             assetContainer.append(locHistoryButton);
             currBottom += locHistoryButton.height();
+        } else {
+            $('#locationHistoryContainer').remove();
         }
 
         if (associatedMedia.guids.length > 0) {
