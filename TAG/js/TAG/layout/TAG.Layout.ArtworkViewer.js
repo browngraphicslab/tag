@@ -569,6 +569,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             maxHeight = Math.max(1, assetContainer.height() - currBottom);
             root.find(".drawerContents").css({
                 "max-height": maxHeight + "px",
+
             });
         });
 
