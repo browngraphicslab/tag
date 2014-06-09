@@ -412,7 +412,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         function goBack() {
             var collectionsPage;
             backButton.off('click');
-            idleTimer.kill();
+            idleTimer && idleTimer.kill();
             idleTimer = null;
             annotatedImage && annotatedImage.unload();
             collectionsPage = new TAG.Layout.CollectionsPage({
@@ -579,7 +579,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
                     prevInfo,
                     rinPlayer;
                 
-                idleTimer.kill();
+                idleTimer && idleTimer.kill();
                 idleTimer = null;
 
                 annotatedImage.unload();

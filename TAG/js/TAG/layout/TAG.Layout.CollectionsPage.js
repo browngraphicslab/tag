@@ -119,7 +119,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         //handles changing the color when clicking/mousing over on the backButton
         TAG.Util.UI.setUpBackButton(backbuttonIcon, function () {
             backbuttonIcon.off('click');
-            idleTimer.kill();
+            idleTimer && idleTimer.kill();
             idleTimer = null;
             TAG.Layout.StartPage(null, TAG.Util.UI.slidePageRight, true);
         });
@@ -990,7 +990,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             return;
         }
 
-        idleTimer.kill();
+        idleTimer && idleTimer.kill();
         idleTimer = null;
 
         curOpts = {

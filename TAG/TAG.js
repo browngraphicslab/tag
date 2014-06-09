@@ -40670,6 +40670,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         clickedMedia    = 'artwork',       // artwork or media
 
         // misc uninitialized variables
+        outerContainerDimensions,
         viewer,
         assetCanvas;
 
@@ -40685,13 +40686,17 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         addAnimateHandler: addAnimateHandler,
         getToManip: getToManip,
         getClicked: getClicked,
+        getAssocMediaDimensions: getAssocMediaDimensions,
         setArtworkClicked: setArtworkClicked,
         viewer: viewer
     };
 
-
+    /**
+     * Sets the artwork as active and the Deep Zoom manipulation method is used zooming and panning
+     * @method getToManip
+     */
     function setArtworkClicked() {
-        toManip = dzManip;                  //When the main artwork is clicked, use the Deep Zoom manipulation method
+        toManip = dzManip;                  
         clickedMedia = 'artwork';
     }
 
@@ -40704,9 +40709,19 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         return toManip;   
     }
 
+
+    /**
+     * Return the dimensions of the active associated media container
+     * @method clickedMedia
+     * @return {String}     object with dimensions
+     */
+    function getAssocMediaDimensions() {
+        return outerContainerDimensions;   
+    }
+
     /**
      * Return active media to be manipulated so applicable manipulation method can be called
-     * @method clickedMedia
+     * @method getClicked
      * @return {String}     manipulation method object
      */
 
@@ -40810,14 +40825,17 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
     /**
      * Manipulation/drag handler for makeManipulatable on the deepzoom image
      * @method dzManip
-     * @param {Object} pivot           location of the event (x,y)
-     * @param {Object} translation     distance translated in x and y
-     * @oaram {Number} scale           scale factor
+     * @param {Object} res             object containing hammer event info
      */
-    function dzManip(pivot, translation, scale) {
+
+    function dzManip(res) {
+        var scale = res.scale,
+            trans = res.translation,
+            pivot = res.pivot;
+
         dzManipPreprocessing();
         viewer.viewport.zoomBy(scale, viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)), false);
-        viewer.viewport.panBy(viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-translation.x, -translation.y)), false);
+        viewer.viewport.panBy(viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(trans.x, trans.y)), false);
         viewer.viewport.applyConstraints();
     }
     
@@ -40828,8 +40846,14 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
      * @param {Object} pivot          location of event (x,y)
      */
     function dzScroll(scale, pivot) {
-        viewer.viewport.zoomBy(scale, viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
-        viewer.viewport.applyConstraints();
+        dzManip({
+                scale: scale,
+                translation: {
+                    x: 0,
+                    y: 0
+                },
+                pivot: pivot
+        });
     }
 
     /**
@@ -40863,7 +40887,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 dzScroll(delta, pivot);
             },
             onManipulate: function (res) {
-                dzManip(res.pivot, res.translation, res.scale); // TODO change dzManip to just accept res
+                dzManip(res); // TODO change dzManip to just accept res
             }
         }, null, true); // NO ACCELERATION FOR NOW
 
@@ -41289,25 +41313,34 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         }
 
         /**
-         * Repeated functionality in the outerContainer click handler and
+         * Stores the dimensions and points to the media manipulation method  of the active associated media, also sends it to the front
          * media manip.
          * @method mediaManipPreprocessing
          */
         function mediaManipPreprocessing() {
+            outerContainerDimensions = getDimensions();
             toManip = mediaManip;
             clickedMedia = 'media';
             $('.mediaOuterContainer').css('z-index', 1000);
             outerContainer.css('z-index', 1001);
         }
 
+        //When the associated media is clicked, set it to active(see mediaManipPreprocessing() above )
         outerContainer.on('click', function (event) {
             event.stopPropagation();            //Prevent the click going through to the main container
             event.preventDefault();
             TAG.Util.IdleTimer.restartTimer();
             mediaManipPreprocessing();
-            // toManip = mediaManip;              //When you click on any media, use the manipulation method for media
-            // clickedMedia = 'media'; 
+
         });
+
+        //Returns the dimensions of the associated media
+        function getDimensions() {
+            return {
+                height: outerContainer.height(),
+                width: outerContainer.width()
+            };
+        }
 
      
         /**
@@ -41480,6 +41513,9 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 'color': 'white',
                 'background-color': ''
             });
+            TAG.Util.IdleTimer.restartTimer();              
+            dzManipPreprocessing();                     //When an object is hidden, set the artwork as active
+
         }
 
         /**
@@ -41522,7 +41558,8 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             pauseReset:          pauseResetMediaObject,
             toggle:              toggleMediaObject,
             createMediaElements: createMediaElements,
-            isVisible:           isVisible
+            isVisible:           isVisible,
+            mediaManipPreprocessing: mediaManipPreprocessing
         };
     }
 };
@@ -42384,11 +42421,13 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         mediaHolders     = [],                      // array of thumbnail buttons
         loadQueue        = TAG.Util.createQueue(), // async queue for thumbnail button creation, etc
 
+
         // misc uninitialized vars
         locationList,                               // location history data
         map,                                        // Bing Maps map for location history
         annotatedImage,                             // an AnnotatedImage object
-        associatedMedia;                            // object of associated media objects generated by AnnotatedImage
+        associatedMedia,                            // object of associated media objects generated by AnnotatedImage
+        manipulate;                                 // Manipulation method
         
     // get things rolling if doq is defined (it better be)
     doq && init();
@@ -42558,43 +42597,44 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
          * @param {String} direction   the direction in which to move the artwork
          */
         function doManip(evt, direction) {
-            if(annotatedImage.getClicked() == 'artwork') {
+            manipulate = annotatedImage.getToManip();
+            if(annotatedImage.getClicked() === 'artwork') {
                 var pivot = {
                     x: CENTER_X,
                     y: CENTER_Y
                 };
-
+                
                 if (direction === 'left') {
-                    annotatedImage.getToManip()(pivot, {x: panDelta, y: 0}, 1);
+                    manipulate({pivot: pivot, translation: {x: -panDelta, y: 0}, scale: 1});
                 } else if (direction === 'up') {
-                    annotatedImage.getToManip()(pivot, {x: 0, y: panDelta}, 1);
+                    manipulate({pivot: pivot, translation: {x: 0, y: -panDelta}, scale: 1});
                 } else if (direction === 'right') {
-                    annotatedImage.getToManip()(pivot, {x: -panDelta, y: 0}, 1);
+                    manipulate({pivot: pivot, translation: {x: panDelta, y: 0}, scale: 1});
                 } else if (direction === 'down') {
-                    annotatedImage.getToManip()(pivot, {x: 0, y: -panDelta}, 1);
+                    manipulate({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
                 } else if (direction === 'in') {
-                    annotatedImage.getToManip()(pivot, {x: 0, y: 0}, 1 + zoomScale);
+                    manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 + zoomScale});
                 } else if (direction === 'out') {
-                    annotatedImage.getToManip()(pivot, {x: 0, y: 0}, 1 - zoomScale);
+                    manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
                 }
             }
-            else if(annotatedImage.getClicked() == 'media') {
+            else if(annotatedImage.getClicked() === 'media') {
                 var pivot = {
-                    x: 30,
-                    y: 30
+                    x: annotatedImage.getAssocMediaDimensions().height / 2,
+                    y: annotatedImage.getAssocMediaDimensions().width / 2
                 };
                 if (direction === 'left') {
-                    annotatedImage.getToManip()({pivot: pivot, translation: {x: -panDelta, y: 0}, scale: 1});
+                    manipulate({pivot: pivot, translation: {x: -panDelta, y: 0}, scale: 1});
                 } else if (direction === 'up') {
-                    annotatedImage.getToManip()({pivot: pivot, translation: {x: 0, y: -panDelta}, scale: 1});
+                    manipulate({pivot: pivot, translation: {x: 0, y: -panDelta}, scale: 1});
                 } else if (direction === 'right') {
-                    annotatedImage.getToManip()({pivot: pivot, translation: {x: panDelta, y: 0}, scale: 1});
+                    manipulate({pivot: pivot, translation: {x: panDelta, y: 0}, scale: 1});
                 } else if (direction === 'down') {
-                    annotatedImage.getToManip()({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
+                    manipulate({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
                 } else if (direction === 'in') {
-                    annotatedImage.getToManip()({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 + zoomScale});
+                    manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 + zoomScale});
                 } else if (direction === 'out') {
-                    annotatedImage.getToManip()({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
+                    manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
                 }
             }
         }
@@ -42751,7 +42791,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         function goBack() {
             var collectionsPage;
             backButton.off('click');
-            idleTimer.kill();
+            idleTimer && idleTimer.kill();
             idleTimer = null;
             annotatedImage && annotatedImage.unload();
             collectionsPage = new TAG.Layout.CollectionsPage({
@@ -42865,10 +42905,13 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
          * @param {Object} media       the associated media object (from AnnotatedImage)
          */
         function mediaClicked(media) {
-            return function () {
+            return function (evt) {
+                evt.stopPropagation();
                 locHistoryActive && toggleLocationPanel();
                 media.create(); // returns if already created
                 media.toggle();
+                TAG.Util.IdleTimer.restartTimer();
+                media.mediaManipPreprocessing();                    //Set the newly opened media as active for manipulation
                 media.pauseReset();
             };
         }
@@ -42915,7 +42958,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
                     prevInfo,
                     rinPlayer;
                 
-                idleTimer.kill();
+                idleTimer && idleTimer.kill();
                 idleTimer = null;
 
                 annotatedImage.unload();
@@ -43534,7 +43577,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         //handles changing the color when clicking/mousing over on the backButton
         TAG.Util.UI.setUpBackButton(backbuttonIcon, function () {
             backbuttonIcon.off('click');
-            idleTimer.kill();
+            idleTimer && idleTimer.kill();
             idleTimer = null;
             TAG.Layout.StartPage(null, TAG.Util.UI.slidePageRight, true);
         });
@@ -44405,7 +44448,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             return;
         }
 
-        idleTimer.kill();
+        idleTimer && idleTimer.kill();
         idleTimer = null;
 
         curOpts = {
@@ -45190,7 +45233,7 @@ TAG.Telemetry = (function() {
 					browser:    bversion,
 					platform:   platform,
 					time_stamp: date.getTime(),
-					time_human: date.toString(),
+					time_human: date.toString()
 				},
 				ret = true;
 
