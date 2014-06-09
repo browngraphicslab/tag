@@ -40725,6 +40725,7 @@ TAG.Worktop.Database = (function () {
 
 })();
 ;
+
 TAG.Util.makeNamespace("TAG.AnnotatedImage");
 
 /**
@@ -41439,11 +41440,11 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 maxW,
                 minW,
                 timer,
-                currentTime,
                 initialPosition,
-                initialVelocity,
                 deltaPosition,
-                finalPosition;
+                finalPosition,
+                currentTime,
+                initialVelocity;
 
             // If event is initial touch on artwork, save current position of media object to use in movement method
             if (res.eventType === 'start') {
@@ -41506,20 +41507,20 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                     };
 
                     //Total distance to travel
-                    deltaPosition = {
-                        x: finalPosition.x - initialPosition.x,
-                        y: finalPosition.y - initialPosition.y
-                    };
+                        deltaPosition = {
+                            x: finalPosition.x - initialPosition.x,
+                            y: finalPosition.y - initialPosition.y
+                        },
 
-                    //Initial velocity is proportional to distance traveled
-                    initialVelocity = {
-                        x: deltaPosition.x/timestepConstant,
-                        y: deltaPosition.y/timestepConstant
-                    };
-                    
-                    //Recursive function to move object between start location and final location with proper physics
-                    move(initialVelocity, initialPosition, finalPosition, timestepConstant/50);
-                    viewer.viewport.applyConstraints()
+                        //Initial velocity is proportional to distance traveled
+                        initialVelocity = {
+                            x: deltaPosition.x/timestepConstant,
+                            y: deltaPosition.y/timestepConstant
+                        };
+                        
+                        //Recursive function to move object between start location and final location with proper physics
+                        move(initialVelocity, initialPosition, finalPosition, timestepConstant/50);
+                        viewer.viewport.applyConstraints()
 
                 } else { //If object isn't within bounds, hide and reset it.
                     hideMediaObject();
@@ -41539,18 +41540,6 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             //     resizeControlElements();
             // }
         }
-
-
-        /**
-         * Recursive helper function for mediaManip.
-         * Moves object between start location and final location with proper physics.
-         * @method move
-         * @param {Object} res              object containing hammer event info
-         * @param {Object} prevVelocity     velocity of object on release
-         * @param {Object} prevLocation     location of object
-         * @param {Object} finalPos         target location of object
-         * @param {Object} delay            delay (for timer)
-         */
 
         function move(prevVelocity, prevLocation, finalPos, delay){
             //If object is not on screen, reset and hide it
@@ -41625,16 +41614,16 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
 			closeButton.text('X');
 			closeButton.css({
 				'position': 'absolute',
-				'top': '-2.5em',
-				'left': '-2.5em',
-				'width': '1em',
-				'height': '1em',
+				'top': '0.4em',
+				'left': '-2em',
+				'width': '0.7em',
+				'height': '0.7em',
 				'text-align': 'center',
-				'color': 'black',
-				'line-height': '1em',
-				'border': '10px solid black',
-				'border-radius': '2em',
-				'background-color': 'white',
+				//'color': 'black',
+			    'line-height': '0.5em',
+				//'border': '10px solid black',
+				//'border-radius': '2em',
+				'background-color': 'black',
 				'margin-left': '107%'
 			});
 			return closeButton;
@@ -41652,19 +41641,24 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 w = outerContainer.width();
 				
             if(IS_HOTSPOT) {
+                console.log("---------------------------------------------- is hotspot");
                 circle.css('visibility', 'visible');
                 addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
                 viewer.viewport.panTo(position, false);
                 viewer.viewport.applyConstraints()
+                t = circle.offset().top + circle.width()*4;
+                l = circle.offset().left + circle.width()*4;
 
-                t = viewer.viewport.pixelFromPoint(position).y + 60 - h/2;
-                l = viewer.viewport.pixelFromPoint(position).x + 60;
+                console.log("pointFromPixel: " + viewer.viewport.pointFromPixel(position));
 
+                console.log("circle.width: " + circle.width());
+
+                //t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
+                //l = rootWidth/2 + circle.width()*3/4;
             } else {
                 t = rootHeight * 1/10 + Math.random() * rootHeight * 2/10;
                 l = rootWidth  * 3/10 + Math.random() * rootWidth  * 2/10;
             };
-            
             outerContainer.css({
                 'top':            t + "px",
                 'left':           l + "px",
@@ -43126,6 +43120,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             maxHeight = Math.max(1, assetContainer.height() - currBottom);
             root.find(".drawerContents").css({
                 "max-height": maxHeight + "px",
+
             });
         });
 
