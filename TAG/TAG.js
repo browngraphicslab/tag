@@ -31299,7 +31299,7 @@ TAG.Util = (function () {
         function manipulationHandler(evt) {
             var translation;
             if (evt.gesture) {
-                // Update Dir
+                // Update Dir, and set pivot rotation, and scale values
                 getDir(evt, true);
                 var pivot = { x: evt.gesture.center.pageX - $element.offset().left, y: evt.gesture.center.pageY - $element.offset().top };
                 var rotation = evt.gesture.rotation; // In degrees
@@ -31307,22 +31307,36 @@ TAG.Util = (function () {
                     translation = { x: evt.gesture.deltaX, y: evt.gesture.deltaY };
                 } else {
                     translation = { x: evt.gesture.center.pageX - lastPos.x, y: evt.gesture.center.pageY - lastPos.y };
-                   // console.log('translation.y = '+translation.y);
                 }
                 var scale = evt.gesture.scale - lastScale;
+                // Previous values
                 lastScale = evt.gesture.scale;
                 lastPos.x = evt.gesture.center.pageX;
                 lastPos.y = evt.gesture.center.pageY;
                 lastEvt = evt;
                 if (typeof functions.onManipulate === "function") {
-                    functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: 1 + scale }, evt);
-                }
-                clearTimeout(timer);
-                timer = setTimeout(function () {
-                    var dir = getDir(evt);
-                    if (evt.gesture.pointerType !== "mouse" && !noAccel)
-                        accel(30 * dir.vx, 30 * dir.vy, null, currentAccelId);
-                }, 5);
+                    functions.onManipulate({ 
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        scale: 1 + scale,
+                        target: evt.gesture.target,
+                        touches: evt.gesture.touches,
+                        pointerType: evt.gesture.pointerType,
+                        center: evt.gesture.center,
+                        deltaTime: evt.gesture.deltaTime,
+                        deltaX: evt.gesture.deltaX,
+                        deltaY: evt.gesture.deltaY,
+                        velocityX: evt.gesture.velocityX,
+                        velocityY: evt.gesture.velocityY,
+                        angle: evt.gesture.angle,
+                        direction: evt.gesture.direction,
+                        distance: evt.gesture.distance,
+                        eventType: evt.gesture.eventType,
+                        srcEvent: evt.gesture.srcEvent,
+                        startEvent: evt.gesture.startEvent
+                    }, evt);
+                };
                 //if ((evt.type === "pinch" || evt.type === "pinchin" || evt.type === "pinchout") && typeof functions.onScroll === "function")
                 //    functions.onScroll(1 + scale, pivot);
             } else {
@@ -31341,9 +31355,31 @@ TAG.Util = (function () {
                 lastPos.x = evt.pageX;
                 lastPos.y = evt.pageY;
                 lastEvt = evt;
+
                 if (typeof functions.onManipulate === "function") {
-                    functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: 1 + scale }, evt);
-                }
+                    functions.onManipulate({ 
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        scale: 1 + scale,
+                        target: evt.gesture.target,
+                        touches: evt.gesture.touches,
+                        pointerType: evt.gesture.pointerType,
+                        center: evt.gesture.center,
+                        deltaTime: evt.gesture.deltaTime,
+                        deltaX: evt.gesture.deltaX,
+                        deltaY: evt.gesture.deltaY,
+                        velocityX: evt.gesture.velocityX,
+                        velocityY: evt.gesture.velocityY,
+                        angle: evt.gesture.angle,
+                        direction: evt.gesture.direction,
+                        distance: evt.gesture.distance,
+                        eventType: evt.gesture.eventType,
+                        srcEvent: evt.gesture.srcEvent,
+                        startEvent: evt.gesture.startEvent
+                    }, evt);
+                };
+
                 clearTimeout(timer);
                 timer = setTimeout(function () {
                     var dir = getDir(evt);
@@ -31352,6 +31388,7 @@ TAG.Util = (function () {
                 }, 5);
             }
         }
+
 
         function processPinch(evt) {
             var pivot = { x: evt.gesture.center.pageX - $element.offset().left, y: evt.gesture.center.pageY - $element.offset().top };
@@ -31368,9 +31405,29 @@ TAG.Util = (function () {
             getDir(evt, true);
             if (scale !== lastScale && typeof functions.onScroll === "function")
                 functions.onScroll(1 + scale, pivot);
-            if (typeof functions.onManipulate === "function")
-                functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: 1 }, evt);
 
+            if (typeof functions.onManipulate === "function")
+                functions.onManipulate({                     
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        target: evt.gesture.target,
+                        touches: evt.gesture.touches,
+                        pointerType: evt.gesture.pointerType,
+                        center: evt.gesture.center,
+                        deltaTime: evt.gesture.deltaTime,
+                        deltaX: evt.gesture.deltaX,
+                        deltaY: evt.gesture.deltaY,
+                        velocityX: evt.gesture.velocityX,
+                        velocityY: evt.gesture.velocityY,
+                        angle: evt.gesture.angle,
+                        direction: evt.gesture.direction,
+                        distance: evt.gesture.distance,
+                        eventType: evt.gesture.eventType,
+                        srcEvent: evt.gesture.srcEvent,
+                        startEvent: evt.gesture.startEvent,
+                        scale: 1 
+                    }, evt);
             lastScale = evt.gesture.scale;
         }
 
@@ -31385,6 +31442,7 @@ TAG.Util = (function () {
             currentAccelId++;
             resetDir();
             clearTimeout(timer);
+            manipulationHandler(evt);
         }
 
         // mouse move
@@ -31431,11 +31489,19 @@ TAG.Util = (function () {
             var translation = { x: vx, y: vy };
             var scale = 1;
             if (typeof functions.onManipulate === "function")
-                functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: scale }, lastEvt);
+                functions.onManipulate({ 
+
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        scale: scale
+
+                 }, lastEvt);
+
             timer = setTimeout(function () {
                 accel(vx * 0.95, vy * 0.95, delay, id);
             }, delay);
-            //timer = window.requestAnimationFrame(accel(vx * .95, vy * .95, delay, id), $element);
+            timer = window.requestAnimationFrame(accel(vx * .95, vy * .95, delay, id), $element);
         }
 
         // mouse release
@@ -31701,7 +31767,29 @@ TAG.Util = (function () {
                 var translation = { x: evt.delta.translation.x, y: evt.delta.translation.y };
                 var scale = evt.delta.scale;
                 if (typeof functions.onManipulate === "function")
-                    functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: scale });
+                    functions.onManipulate({ 
+
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        target: evt.gesture.target,
+                        touches: evt.gesture.touches,
+                        pointerType: evt.gesture.pointerType,
+                        center: evt.gesture.center,
+                        deltaTime: evt.gesture.deltaTime,
+                        deltaX: evt.gesture.deltaX,
+                        deltaY: evt.gesture.deltaY,
+                        velocityX: evt.gesture.velocityX,
+                        velocityY: evt.gesture.velocityY,
+                        angle: evt.gesture.angle,
+                        direction: evt.gesture.direction,
+                        distance: evt.gesture.distance,
+                        eventType: evt.gesture.eventType,
+                        srcEvent: evt.gesture.srcEvent,
+                        startEvent: evt.gesture.startEvent,
+                        scale: scale
+
+                     });
             }
         }
 
@@ -40982,6 +41070,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             // misc initialized variables
             mediaHidden      = true,
             currentlySeeking = false,
+            movementTimeouts = [],
 
             // misc uninitialized variables
             circle,
@@ -40992,6 +41081,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             titleDiv,
             descDiv,
             thumbnailButton,
+            startLocation,
             play;
 
         // get things rolling
@@ -41346,7 +41436,16 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 h     = outerContainer.height(),
                 newW  = w * scale,
                 maxW,
-                minW;
+                minW,
+                timer;
+
+            // If event is initial touch on artwork, save current position of media object to use in movement method
+            if (res.eventType === 'start') {
+                startLocation = {
+                    x: l,
+                    y: t
+                };
+            };;
 
             mediaManipPreprocessing();
 
@@ -41368,24 +41467,104 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 newW = Math.min(maxW, Math.max(minW, newW));
             }
 
-            // zoom from touch point: change left and top of outerContainer
-            if ((0 < t + h) && (t < rootHeight) && (0 < l + w) && (l< rootWidth)) {
+           //Manipulation for touch and drag events
+            if (newW === w){ //If media object is being dragged (not resized)
+                if ((0 < t + h) && (t < rootHeight) && (0 < l + w) && (l< rootWidth)) { // and is still on screen
+                    
+                    var currentTime = Date.now(),
+
+                        //Position of object on manipulation
+                        initialPosition = {
+                            x: l, 
+                            y: t
+                        },
+
+                        //Where object should be moved to
+                        finalPosition = {
+                            x: res.center.pageX - (res.startEvent.center.pageX - startLocation.x),
+                            y: res.center.pageY - (res.startEvent.center.pageY - startLocation.y),
+                        },
+
+                        deltaPosition = {
+                            x: finalPosition.x - initialPosition.x,
+                            y: finalPosition.y - initialPosition.y
+                        },
+
+                        //Time difference from beginning of event to now
+                        deltaTime = Date.now() - res.srcEvent.timeStamp,
+
+                        //Initial velocity based on the above
+                        initialVelocity = {
+                            x: deltaPosition.x/(deltaTime*100),
+                            y: deltaPosition.y/(deltaTime*100)
+                        };
+
+                        //Recursive function to move object between start location and final location with proper physics
+                        move(res, initialVelocity, initialPosition, finalPosition, 1);
+                        viewer.viewport.applyConstraints()
+                } else { //If object isn't within bounds, hide and reset it.
+                    hideMediaObject();
+                    pauseResetMediaObject();
+                    return;
+                }
+            } else{ // zoom from touch point: change width and height of outerContainer
                 outerContainer.css("top",  (t + trans.y + (1 - scale) * pivot.y) + "px");
                 outerContainer.css("left", (l + trans.x + (1 - scale) * pivot.x) + "px");
-            } else {
-                hideMediaObject();
-                pauseResetMediaObject();
-                return;
+                outerContainer.css("width", newW + "px");
+                outerContainer.css("height", "auto"); 
             }
 
-            // zoom from touch point: change width and height of outerContainer
-            outerContainer.css("width", newW + "px");
-            outerContainer.css("height", "auto");
 
             // TODO this shouldn't be necessary; style of controls should take care of it
             // if ((CONTENT_TYPE === 'Video' || CONTENT_TYPE === 'Audio') && scale !== 1) {
             //     resizeControlElements();
             // }
+        }
+
+        function move(res, prevVelocity, prevLocation, finalPos, delay){
+            //If object is not on screen, reset and hide it
+            if (!(
+                (0 < outerContainer.position().top+ outerContainer.height()) 
+                && (outerContainer.position().top < rootHeight) 
+                && (0 < outerContainer.position().left + outerContainer.width()) 
+                && (outerContainer.position().left < rootWidth))) 
+                {
+                    hideMediaObject();
+                    pauseResetMediaObject();
+                    return;
+            };
+
+            //If velocity is almost 0, stop movement
+            if ((Math.abs(prevVelocity.x) < .1) && (Math.abs(prevVelocity.y) < .1)) {
+                return;
+            };
+
+            //Current position is previous position + movement from velocity * time
+            var currentPosition = { 
+                    x: prevLocation.x + delay*prevVelocity.x,
+                    y: prevLocation.y + delay*prevVelocity.y                  
+                },
+
+                // New velocity is proportional to distance left to travel
+                newVelocity = {
+                    x: (finalPos.x - currentPosition.x)/70,
+                    y: (finalPos.y - currentPosition.y)/70
+                },
+
+                timer;
+
+            outerContainer.css({'left': currentPosition.x, 'top': currentPosition.y});
+
+            //Clear all previously-set timers used for movement on this object
+            for (var i = 0; i < movementTimeouts.length; i++) {
+                clearTimeout(movementTimeouts[i]);
+            }
+            movementTimeouts = [];
+            movementTimeouts.push( 
+                setTimeout(function () {
+                move(res, newVelocity, currentPosition, finalPos, delay);
+                }, 1)
+            );
         }
 
         /**
@@ -41445,6 +41624,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 circle.css('visibility', 'visible');
                 addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
                 viewer.viewport.panTo(position, false);
+                viewer.viewport.applyConstraints()
                 t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
                 l = rootWidth/2 + circle.width()*3/4;
             } else {
@@ -42971,7 +43151,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             });
 
             TAG.Util.disableDrag(minimapContainer);
-            
+
             AR = img.naturalWidth / img.naturalHeight;
             var heightR = img.naturalHeight / $(minimapContainer).height();//the ratio between the height of image and the container.
             var widthR = img.naturalWidth / $(minimapContainer).width();//ratio between the width of image and the container.
@@ -42993,7 +43173,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
                 onManipulate: onMinimapManip,
                 onScroll: onMinimapScroll,
                 onTapped: onMinimapTapped
-            }, false);
+            }, true);
 
             /**********************/
             var minimaph = minimap.height();
@@ -43040,7 +43220,6 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             var a = 0;
         }
         function onMinimapTapped(evt) {
-
             var minimaph = minimap.height();
             var minimapw = minimap.width();
             var minimapt = minimap.position().top;

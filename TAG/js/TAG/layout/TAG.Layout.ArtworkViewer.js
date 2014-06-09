@@ -608,7 +608,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             });
 
             TAG.Util.disableDrag(minimapContainer);
-            
+
             AR = img.naturalWidth / img.naturalHeight;
             var heightR = img.naturalHeight / $(minimapContainer).height();//the ratio between the height of image and the container.
             var widthR = img.naturalWidth / $(minimapContainer).width();//ratio between the width of image and the container.
@@ -630,7 +630,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
                 onManipulate: onMinimapManip,
                 onScroll: onMinimapScroll,
                 onTapped: onMinimapTapped
-            }, false);
+            }, true);
 
             /**********************/
             var minimaph = minimap.height();
@@ -677,7 +677,6 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             var a = 0;
         }
         function onMinimapTapped(evt) {
-
             var minimaph = minimap.height();
             var minimapw = minimap.width();
             var minimapt = minimap.position().top;

@@ -342,6 +342,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             // misc initialized variables
             mediaHidden      = true,
             currentlySeeking = false,
+            movementTimeouts = [],
 
             // misc uninitialized variables
             circle,
@@ -352,6 +353,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             titleDiv,
             descDiv,
             thumbnailButton,
+            startLocation,
             play;
 
         // get things rolling
@@ -706,7 +708,16 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 h     = outerContainer.height(),
                 newW  = w * scale,
                 maxW,
-                minW;
+                minW,
+                timer;
+
+            // If event is initial touch on artwork, save current position of media object to use in movement method
+            if (res.eventType === 'start') {
+                startLocation = {
+                    x: l,
+                    y: t
+                };
+            };;
 
             mediaManipPreprocessing();
 
@@ -728,24 +739,104 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 newW = Math.min(maxW, Math.max(minW, newW));
             }
 
-            // zoom from touch point: change left and top of outerContainer
-            if ((0 < t + h) && (t < rootHeight) && (0 < l + w) && (l< rootWidth)) {
+           //Manipulation for touch and drag events
+            if (newW === w){ //If media object is being dragged (not resized)
+                if ((0 < t + h) && (t < rootHeight) && (0 < l + w) && (l< rootWidth)) { // and is still on screen
+                    
+                    var currentTime = Date.now(),
+
+                        //Position of object on manipulation
+                        initialPosition = {
+                            x: l, 
+                            y: t
+                        },
+
+                        //Where object should be moved to
+                        finalPosition = {
+                            x: res.center.pageX - (res.startEvent.center.pageX - startLocation.x),
+                            y: res.center.pageY - (res.startEvent.center.pageY - startLocation.y),
+                        },
+
+                        deltaPosition = {
+                            x: finalPosition.x - initialPosition.x,
+                            y: finalPosition.y - initialPosition.y
+                        },
+
+                        //Time difference from beginning of event to now
+                        deltaTime = Date.now() - res.srcEvent.timeStamp,
+
+                        //Initial velocity based on the above
+                        initialVelocity = {
+                            x: deltaPosition.x/(deltaTime*100),
+                            y: deltaPosition.y/(deltaTime*100)
+                        };
+
+                        //Recursive function to move object between start location and final location with proper physics
+                        move(res, initialVelocity, initialPosition, finalPosition, 1);
+                        viewer.viewport.applyConstraints()
+                } else { //If object isn't within bounds, hide and reset it.
+                    hideMediaObject();
+                    pauseResetMediaObject();
+                    return;
+                }
+            } else{ // zoom from touch point: change width and height of outerContainer
                 outerContainer.css("top",  (t + trans.y + (1 - scale) * pivot.y) + "px");
                 outerContainer.css("left", (l + trans.x + (1 - scale) * pivot.x) + "px");
-            } else {
-                hideMediaObject();
-                pauseResetMediaObject();
-                return;
+                outerContainer.css("width", newW + "px");
+                outerContainer.css("height", "auto"); 
             }
 
-            // zoom from touch point: change width and height of outerContainer
-            outerContainer.css("width", newW + "px");
-            outerContainer.css("height", "auto");
 
             // TODO this shouldn't be necessary; style of controls should take care of it
             // if ((CONTENT_TYPE === 'Video' || CONTENT_TYPE === 'Audio') && scale !== 1) {
             //     resizeControlElements();
             // }
+        }
+
+        function move(res, prevVelocity, prevLocation, finalPos, delay){
+            //If object is not on screen, reset and hide it
+            if (!(
+                (0 < outerContainer.position().top+ outerContainer.height()) 
+                && (outerContainer.position().top < rootHeight) 
+                && (0 < outerContainer.position().left + outerContainer.width()) 
+                && (outerContainer.position().left < rootWidth))) 
+                {
+                    hideMediaObject();
+                    pauseResetMediaObject();
+                    return;
+            };
+
+            //If velocity is almost 0, stop movement
+            if ((Math.abs(prevVelocity.x) < .1) && (Math.abs(prevVelocity.y) < .1)) {
+                return;
+            };
+
+            //Current position is previous position + movement from velocity * time
+            var currentPosition = { 
+                    x: prevLocation.x + delay*prevVelocity.x,
+                    y: prevLocation.y + delay*prevVelocity.y                  
+                },
+
+                // New velocity is proportional to distance left to travel
+                newVelocity = {
+                    x: (finalPos.x - currentPosition.x)/70,
+                    y: (finalPos.y - currentPosition.y)/70
+                },
+
+                timer;
+
+            outerContainer.css({'left': currentPosition.x, 'top': currentPosition.y});
+
+            //Clear all previously-set timers used for movement on this object
+            for (var i = 0; i < movementTimeouts.length; i++) {
+                clearTimeout(movementTimeouts[i]);
+            }
+            movementTimeouts = [];
+            movementTimeouts.push( 
+                setTimeout(function () {
+                move(res, newVelocity, currentPosition, finalPos, delay);
+                }, 1)
+            );
         }
 
         /**
@@ -805,6 +896,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 circle.css('visibility', 'visible');
                 addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
                 viewer.viewport.panTo(position, false);
+                viewer.viewport.applyConstraints()
                 t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
                 l = rootWidth/2 + circle.width()*3/4;
             } else {
