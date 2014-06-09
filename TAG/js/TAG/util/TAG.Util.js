@@ -771,7 +771,7 @@ TAG.Util = (function () {
         function manipulationHandler(evt) {
             var translation;
             if (evt.gesture) {
-                // Update Dir
+                // Update Dir, and set pivot rotation, and scale values
                 getDir(evt, true);
                 var pivot = { x: evt.gesture.center.pageX - $element.offset().left, y: evt.gesture.center.pageY - $element.offset().top };
                 var rotation = evt.gesture.rotation; // In degrees
@@ -779,22 +779,36 @@ TAG.Util = (function () {
                     translation = { x: evt.gesture.deltaX, y: evt.gesture.deltaY };
                 } else {
                     translation = { x: evt.gesture.center.pageX - lastPos.x, y: evt.gesture.center.pageY - lastPos.y };
-                   // console.log('translation.y = '+translation.y);
                 }
                 var scale = evt.gesture.scale - lastScale;
+                // Previous values
                 lastScale = evt.gesture.scale;
                 lastPos.x = evt.gesture.center.pageX;
                 lastPos.y = evt.gesture.center.pageY;
                 lastEvt = evt;
                 if (typeof functions.onManipulate === "function") {
-                    functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: 1 + scale }, evt);
-                }
-                clearTimeout(timer);
-                timer = setTimeout(function () {
-                    var dir = getDir(evt);
-                    if (evt.gesture.pointerType !== "mouse" && !noAccel)
-                        accel(30 * dir.vx, 30 * dir.vy, null, currentAccelId);
-                }, 5);
+                    functions.onManipulate({ 
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        scale: 1 + scale,
+                        target: evt.gesture.target,
+                        touches: evt.gesture.touches,
+                        pointerType: evt.gesture.pointerType,
+                        center: evt.gesture.center,
+                        deltaTime: evt.gesture.deltaTime,
+                        deltaX: evt.gesture.deltaX,
+                        deltaY: evt.gesture.deltaY,
+                        velocityX: evt.gesture.velocityX,
+                        velocityY: evt.gesture.velocityY,
+                        angle: evt.gesture.angle,
+                        direction: evt.gesture.direction,
+                        distance: evt.gesture.distance,
+                        eventType: evt.gesture.eventType,
+                        srcEvent: evt.gesture.srcEvent,
+                        startEvent: evt.gesture.startEvent
+                    }, evt);
+                };
                 //if ((evt.type === "pinch" || evt.type === "pinchin" || evt.type === "pinchout") && typeof functions.onScroll === "function")
                 //    functions.onScroll(1 + scale, pivot);
             } else {
@@ -813,9 +827,31 @@ TAG.Util = (function () {
                 lastPos.x = evt.pageX;
                 lastPos.y = evt.pageY;
                 lastEvt = evt;
+
                 if (typeof functions.onManipulate === "function") {
-                    functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: 1 + scale }, evt);
-                }
+                    functions.onManipulate({ 
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        scale: 1 + scale,
+                        target: evt.gesture.target,
+                        touches: evt.gesture.touches,
+                        pointerType: evt.gesture.pointerType,
+                        center: evt.gesture.center,
+                        deltaTime: evt.gesture.deltaTime,
+                        deltaX: evt.gesture.deltaX,
+                        deltaY: evt.gesture.deltaY,
+                        velocityX: evt.gesture.velocityX,
+                        velocityY: evt.gesture.velocityY,
+                        angle: evt.gesture.angle,
+                        direction: evt.gesture.direction,
+                        distance: evt.gesture.distance,
+                        eventType: evt.gesture.eventType,
+                        srcEvent: evt.gesture.srcEvent,
+                        startEvent: evt.gesture.startEvent
+                    }, evt);
+                };
+
                 clearTimeout(timer);
                 timer = setTimeout(function () {
                     var dir = getDir(evt);
@@ -824,6 +860,7 @@ TAG.Util = (function () {
                 }, 5);
             }
         }
+
 
         function processPinch(evt) {
             var pivot = { x: evt.gesture.center.pageX - $element.offset().left, y: evt.gesture.center.pageY - $element.offset().top };
@@ -840,9 +877,29 @@ TAG.Util = (function () {
             getDir(evt, true);
             if (scale !== lastScale && typeof functions.onScroll === "function")
                 functions.onScroll(1 + scale, pivot);
-            if (typeof functions.onManipulate === "function")
-                functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: 1 }, evt);
 
+            if (typeof functions.onManipulate === "function")
+                functions.onManipulate({                     
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        target: evt.gesture.target,
+                        touches: evt.gesture.touches,
+                        pointerType: evt.gesture.pointerType,
+                        center: evt.gesture.center,
+                        deltaTime: evt.gesture.deltaTime,
+                        deltaX: evt.gesture.deltaX,
+                        deltaY: evt.gesture.deltaY,
+                        velocityX: evt.gesture.velocityX,
+                        velocityY: evt.gesture.velocityY,
+                        angle: evt.gesture.angle,
+                        direction: evt.gesture.direction,
+                        distance: evt.gesture.distance,
+                        eventType: evt.gesture.eventType,
+                        srcEvent: evt.gesture.srcEvent,
+                        startEvent: evt.gesture.startEvent,
+                        scale: 1 
+                    }, evt);
             lastScale = evt.gesture.scale;
         }
 
@@ -857,6 +914,7 @@ TAG.Util = (function () {
             currentAccelId++;
             resetDir();
             clearTimeout(timer);
+            manipulationHandler(evt);
         }
 
         // mouse move
@@ -903,11 +961,19 @@ TAG.Util = (function () {
             var translation = { x: vx, y: vy };
             var scale = 1;
             if (typeof functions.onManipulate === "function")
-                functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: scale }, lastEvt);
+                functions.onManipulate({ 
+
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        scale: scale
+
+                 }, lastEvt);
+
             timer = setTimeout(function () {
                 accel(vx * 0.95, vy * 0.95, delay, id);
             }, delay);
-            //timer = window.requestAnimationFrame(accel(vx * .95, vy * .95, delay, id), $element);
+            timer = window.requestAnimationFrame(accel(vx * .95, vy * .95, delay, id), $element);
         }
 
         // mouse release
@@ -1173,7 +1239,29 @@ TAG.Util = (function () {
                 var translation = { x: evt.delta.translation.x, y: evt.delta.translation.y };
                 var scale = evt.delta.scale;
                 if (typeof functions.onManipulate === "function")
-                    functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: scale });
+                    functions.onManipulate({ 
+
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        target: evt.gesture.target,
+                        touches: evt.gesture.touches,
+                        pointerType: evt.gesture.pointerType,
+                        center: evt.gesture.center,
+                        deltaTime: evt.gesture.deltaTime,
+                        deltaX: evt.gesture.deltaX,
+                        deltaY: evt.gesture.deltaY,
+                        velocityX: evt.gesture.velocityX,
+                        velocityY: evt.gesture.velocityY,
+                        angle: evt.gesture.angle,
+                        direction: evt.gesture.direction,
+                        distance: evt.gesture.distance,
+                        eventType: evt.gesture.eventType,
+                        srcEvent: evt.gesture.srcEvent,
+                        startEvent: evt.gesture.startEvent,
+                        scale: scale
+
+                     });
             }
         }
 
