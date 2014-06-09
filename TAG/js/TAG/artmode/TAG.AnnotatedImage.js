@@ -711,7 +711,12 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 newW  = w * scale,
                 maxW,
                 minW,
-                timer;
+                timer,
+                currentTime,
+                initialPosition,
+                initialVelocity,
+                deltaPosition,
+                finalPosition;
 
             // If event is initial touch on artwork, save current position of media object to use in movement method
             if (res.eventType === 'start') {
@@ -745,37 +750,49 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             if (newW === w){ //If media object is being dragged (not resized)
                 if ((0 < t + h) && (t < rootHeight) && (0 < l + w) && (l< rootWidth)) { // and is still on screen
                     
-                    var currentTime = Date.now(),
+                    currentTime = Date.now();
 
-                        //Position of object on manipulation
+                    //Position of object on manipulation
+                    if (res.eventType) { //If initial values were set with a mouseDown or touch event
                         initialPosition = {
                             x: l, 
                             y: t
-                        },
+                        }
+                    } else { //If initial values were set with seadragon controls or key touches
+                        initialPosition = {
+                            x: outerContainer.position().left,
+                            y: outerContainer.position().top
+                        }
+                    };
 
-                        //Where object should be moved to
+                    //Where object should be moved to
+                    if (res.center) { //As above, if movement is caused by mouse or touch event (hammer):
                         finalPosition = {
                             x: res.center.pageX - (res.startEvent.center.pageX - startLocation.x),
                             y: res.center.pageY - (res.startEvent.center.pageY - startLocation.y)
-                        },
+                        }
+                    } else { //Or if it was set with seadragon controls or key touches:
+                        finalPosition = {
+                            x: initialPosition.x + res.translation.x,
+                            y: initialPosition.y + res.translation.y,                            
+                        }
+                    };
 
-                        deltaPosition = {
-                            x: finalPosition.x - initialPosition.x,
-                            y: finalPosition.y - initialPosition.y
-                        },
+                    //Total distance to travel
+                    deltaPosition = {
+                        x: finalPosition.x - initialPosition.x,
+                        y: finalPosition.y - initialPosition.y
+                    };
 
-                        //Time difference from beginning of event to now
-                        deltaTime = Date.now() - res.srcEvent.timeStamp,
-
-                        //Initial velocity is proportional to distance traveled
-                        initialVelocity = {
-                            x: deltaPosition.x/timestepConstant,
-                            y: deltaPosition.y/timestepConstant
-                        };
-                        
-                        //Recursive function to move object between start location and final location with proper physics
-                        move(res, initialVelocity, initialPosition, finalPosition, timestepConstant/50);
-                        viewer.viewport.applyConstraints()
+                    //Initial velocity is proportional to distance traveled
+                    initialVelocity = {
+                        x: deltaPosition.x/timestepConstant,
+                        y: deltaPosition.y/timestepConstant
+                    };
+                    
+                    //Recursive function to move object between start location and final location with proper physics
+                    move(initialVelocity, initialPosition, finalPosition, timestepConstant/50);
+                    viewer.viewport.applyConstraints()
 
                 } else { //If object isn't within bounds, hide and reset it.
                     hideMediaObject();
@@ -796,7 +813,19 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             // }
         }
 
-        function move(res, prevVelocity, prevLocation, finalPos, delay){
+
+        /**
+         * Recursive helper function for mediaManip.
+         * Moves object between start location and final location with proper physics.
+         * @method move
+         * @param {Object} res              object containing hammer event info
+         * @param {Object} prevVelocity     velocity of object on release
+         * @param {Object} prevLocation     location of object
+         * @param {Object} finalPos         target location of object
+         * @param {Object} delay            delay (for timer)
+         */
+
+        function move(prevVelocity, prevLocation, finalPos, delay){
             //If object is not on screen, reset and hide it
             if (!(
                 (0 < outerContainer.position().top+ outerContainer.height()) 
@@ -837,7 +866,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             movementTimeouts = [];
             movementTimeouts.push( 
                 setTimeout(function () {
-                move(res, newVelocity, currentPosition, finalPos, delay);
+                move(newVelocity, currentPosition, finalPos, delay);
                 }, 1)
             );
         }
@@ -896,24 +925,19 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 w = outerContainer.width();
 				
             if(IS_HOTSPOT) {
-                console.log("---------------------------------------------- is hotspot");
                 circle.css('visibility', 'visible');
                 addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
                 viewer.viewport.panTo(position, false);
                 viewer.viewport.applyConstraints()
-                t = circle.offset().top + circle.width()*4;
-                l = circle.offset().left + circle.width()*4;
 
-                console.log("pointFromPixel: " + viewer.viewport.pointFromPixel(position));
+                t = viewer.viewport.pixelFromPoint(position).y + 60 - h/2;
+                l = viewer.viewport.pixelFromPoint(position).x + 60;
 
-                console.log("circle.width: " + circle.width());
-
-                //t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
-                //l = rootWidth/2 + circle.width()*3/4;
             } else {
                 t = rootHeight * 1/10 + Math.random() * rootHeight * 2/10;
                 l = rootWidth  * 3/10 + Math.random() * rootWidth  * 2/10;
             };
+            
             outerContainer.css({
                 'top':            t + "px",
                 'left':           l + "px",

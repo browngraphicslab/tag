@@ -310,8 +310,8 @@ html, body, .rinPlayer /* TODO do we need to get rid of this? in iframe, so migh
     background-repeat: no-repeat;
     outline: none;
     opacity: 0.4;
-    position: relative;
-    top: 6px;
+    position: absolute;
+    top: 100%;
     clear: both;
 }
 
