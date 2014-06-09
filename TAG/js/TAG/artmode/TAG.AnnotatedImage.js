@@ -30,6 +30,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         clickedMedia    = 'artwork',       // artwork or media
 
         // misc uninitialized variables
+        outerContainerDimensions,
         viewer,
         assetCanvas;
 
@@ -45,13 +46,17 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         addAnimateHandler: addAnimateHandler,
         getToManip: getToManip,
         getClicked: getClicked,
+        getAssocMediaDimensions: getAssocMediaDimensions,
         setArtworkClicked: setArtworkClicked,
         viewer: viewer
     };
 
-
+    /**
+     * Sets the artwork as active and the Deep Zoom manipulation method is used zooming and panning
+     * @method getToManip
+     */
     function setArtworkClicked() {
-        toManip = dzManip;                  //When the main artwork is clicked, use the Deep Zoom manipulation method
+        toManip = dzManip;                  
         clickedMedia = 'artwork';
     }
 
@@ -64,9 +69,19 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         return toManip;   
     }
 
+
+    /**
+     * Return the dimensions of the active associated media container
+     * @method clickedMedia
+     * @return {String}     object with dimensions
+     */
+    function getAssocMediaDimensions() {
+        return outerContainerDimensions;   
+    }
+
     /**
      * Return active media to be manipulated so applicable manipulation method can be called
-     * @method clickedMedia
+     * @method getClicked
      * @return {String}     manipulation method object
      */
 
@@ -170,14 +185,17 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
     /**
      * Manipulation/drag handler for makeManipulatable on the deepzoom image
      * @method dzManip
-     * @param {Object} pivot           location of the event (x,y)
-     * @param {Object} translation     distance translated in x and y
-     * @oaram {Number} scale           scale factor
+     * @param {Object} res             object containing hammer event info
      */
-    function dzManip(pivot, translation, scale) {
+
+    function dzManip(res) {
+        var scale = res.scale,
+            trans = res.translation,
+            pivot = res.pivot;
+
         dzManipPreprocessing();
         viewer.viewport.zoomBy(scale, viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)), false);
-        viewer.viewport.panBy(viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(-translation.x, -translation.y)), false);
+        viewer.viewport.panBy(viewer.viewport.deltaPointsFromPixels(new Seadragon.Point(trans.x, trans.y)), false);
         viewer.viewport.applyConstraints();
     }
     
@@ -188,8 +206,14 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
      * @param {Object} pivot          location of event (x,y)
      */
     function dzScroll(scale, pivot) {
-        viewer.viewport.zoomBy(scale, viewer.viewport.pointFromPixel(new Seadragon.Point(pivot.x, pivot.y)));
-        viewer.viewport.applyConstraints();
+        dzManip({
+                scale: scale,
+                translation: {
+                    x: 0,
+                    y: 0
+                },
+                pivot: pivot
+        });
     }
 
     /**
@@ -223,7 +247,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 dzScroll(delta, pivot);
             },
             onManipulate: function (res) {
-                dzManip(res.pivot, res.translation, res.scale); // TODO change dzManip to just accept res
+                dzManip(res); // TODO change dzManip to just accept res
             }
         }, null, true); // NO ACCELERATION FOR NOW
 
@@ -649,25 +673,34 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         }
 
         /**
-         * Repeated functionality in the outerContainer click handler and
+         * Stores the dimensions and points to the media manipulation method  of the active associated media, also sends it to the front
          * media manip.
          * @method mediaManipPreprocessing
          */
         function mediaManipPreprocessing() {
+            outerContainerDimensions = getDimensions();
             toManip = mediaManip;
             clickedMedia = 'media';
             $('.mediaOuterContainer').css('z-index', 1000);
             outerContainer.css('z-index', 1001);
         }
 
+        //When the associated media is clicked, set it to active(see mediaManipPreprocessing() above )
         outerContainer.on('click', function (event) {
             event.stopPropagation();            //Prevent the click going through to the main container
             event.preventDefault();
             TAG.Util.IdleTimer.restartTimer();
             mediaManipPreprocessing();
-            // toManip = mediaManip;              //When you click on any media, use the manipulation method for media
-            // clickedMedia = 'media'; 
+
         });
+
+        //Returns the dimensions of the associated media
+        function getDimensions() {
+            return {
+                height: outerContainer.height(),
+                width: outerContainer.width()
+            };
+        }
 
      
         /**
