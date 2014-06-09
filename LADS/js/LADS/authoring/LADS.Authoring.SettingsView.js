@@ -1,59 +1,23 @@
 ﻿LADS.Util.makeNamespace("LADS.Authoring.SettingsView");
 
-/*  Creates a SettingsView.  
-        startView argument sets the starting setting.  
-        This arguent can be "Exhibitions", "Artworks", "Tours",
-        or "General Settings".  Undefined/null, etc. goes to General Settings.
-        TODO: Use constants instead of strings
-
-        callback is called after the UI is done being created.
-        The callback function is passed the setttings view object
-
-        backPage is a function to create the page to go back to (null/undefined goes
-        back to the main page).  This function, when called with no arguments,
-        should return a dom element that can be provided as an argument to 
-        slidePageRight.
-        
-        startLabelID selects a left label automatically if it matches that id.
-        The label will be scrolled to if it is off screen.
-
-    Terminology:
-        left label, left container, etc... (anything with left) really refers to the
-        middle panel.  It is left ignoring the nav panel.  Anything with right refers
-        to the right panel which includes the viewer.
-
-    Notes:
-        Use helper functions to avoid massive functions and avoid string comparisons
-        for navigating the UI.  
-        
-        Buttons/anything with click handlers should be created
-        in a function that takes a function as an argument to define the click behavior.
-        Button creator functions shouldn't try to figure out a button's functionality
-        from its name!
-
-        Try to define constants at the top of the function in capitals when possible
-        for ease of editing.
-
-        If adding a new nav section create a function to load it that is similar to loadGeneralView(),
-        loadTourView(), etc... and name it load____View.  If this section has labels that should be selectable
-        on load then it should take some identifier that can be used to select a label.  If you add a label
-        and it matches that identifier use the selectLabel() function to visually select (ie. give it a white
-        background) and then call load____() to load the right side.
-
-        For any operations that can take long a queue should be used.  These operations
-        include adding objects to the DOM as this can take a while sometimes.  
-        The queue objects leftQueue and rightQueue represent two separete queues that can
-        act independently.  These queues will process events in order, but asynchronously so
-        they can be completed in the 'background' (unfortunately JS is still single threaded).
-        leftQueue is generally used to add things to the left label container, while rightQueue
-        is used to add things to the right panel, but they can be used elsewhere (such as the
-        artwork picker in the exhibition view).  Calling .add(fn) adds a function to the queue
-        while .clear() clears the queue.  Note that an in progress function will not be canceled
-        by .clear().  Additionally, use asynchronous DB calls (supply the callback function) 
-        whenever possible.  Combining queues and asynchronous DB calls will result in a much
-        smoother experience for the user without UI lockups.  Also note that spinning circles
-        should be used when possible to show loading status.
-*/
+/*  Creates a SettingsView, which is the first UI in authoring mode.  Note that
+ *  left label, left container, etc... (anything with left) really refers to the
+ *  middle panel, while the left-most bar is the navigation panel. Anything with right refers
+ *  to the right panel which includes the viewer.
+ *  @class LADS.Authoring.SettingsView
+ *  @constructor
+ *  @param startView sets the starting setting.  This can be "Exhibitions", "Artworks", "Tours", 
+ *       or "General Settings".  Undefined/null, etc. goes to General Settings.
+ *       TODO: Use constants instead of strings
+ *   @param {Function} callback  called after the UI is done being created.
+ *   @param {Function} backPage is a function to create the page to go back to (null/undefined goes
+ *      back to the main page).  This function, when called with no arguments,
+ *      should return a dom element that can be provided as an argument to 
+ *      slidePageRight.
+ *   @param startLabelID selects a left label automatically if it matches that id.
+ *      The label will be scrolled to if it is off screen
+ *   @return {Object} public methods and variables
+ */
 LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabelID) {
     "use strict";
 
@@ -121,9 +85,11 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     
         prevSelectedSetting,
         prevSelectedLeftLabel,
-        // These are 'asynchronous' queues to perform tasks
-        leftQueue = LADS.Util.createQueue(),
-        rightQueue = LADS.Util.createQueue(),
+        // These are 'asynchronous' queues to perform tasks. These queues will process events in order, but asynchronously so
+        // they can be completed in the 'background'. Calling .add(fn) adds a function to the queue while .clear() clears the queue.  
+        //Note that an in progress function will not be canceled by .clear().
+        leftQueue = LADS.Util.createQueue(),  //used to add things to the left label container
+        rightQueue = LADS.Util.createQueue(), //used to add things to the right panel
         cancelLastSetting,
         artPickerOpen = false,
         nav = [],
@@ -144,6 +110,11 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         callback(that);
     }
 
+    /**
+     * Helper function to set up UI elements and switch to first view
+     * @method loadHelper
+     * @param {Object} main  
+     */
     function loadHelper(main){
 
         //Setting up UI:
@@ -228,7 +199,11 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         switchView(startView, startLabelID);
     }
     
-    // Programatically switch view
+    /**Switches the view based on selected navigation label
+     * @method switchView
+     * @param {String} view         the view to switch to
+     * @param {Object} id           the id of the left label to start on
+     */
     function switchView(view, id) {
         resetLabels('.navContainer');
         switch (view) {
@@ -266,19 +241,72 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }
     }
 
-   
-
-    // Functions that can be called from external sources
-
+    /**Returns root
+     * @method getRoot
+     * @return {Object} root 
+     */
     function getRoot() {
         return root;
     }
 
-    // Functions to change layout
+    // Navigation Bar Functions:
 
-    // General Settings Functions
+     /**Create a navigation label
+     * @method createNavLabel
+     * @param {String} text         text for label
+     * @param {Function} onclick    onclick function for label
+     * @return {Object} container   container containing new label
+     */
+    function createNavLabel(text, onclick) {
+        var container = $(document.createElement('div'));
+        container.attr('class', 'navContainer');
+        container.attr('id', 'nav-' + text.text);
+        container.mousedown(function () {
+            container.css({
+                'background': HIGHLIGHT
+            });
+        });
+        container.mouseup(function () {
+            container.css({
+                'background': 'transparent'
+            });
+        });
+        container.mouseleave(function () {
+            container.css({
+                'background': 'transparent'
+            });
+        });
+        container.click(function () {
+            // If a label is clicked return if its already selected.
+            if (prevSelectedSetting === container)
+                return;
+            // Reset all labels and then select this one
+            resetLabels('.navContainer');
+            selectLabel(container);
+            // Do the onclick function
+            if (onclick)
+                onclick();
+            prevSelectedSetting = container;
+        });
 
-    // Loads the General Settings view
+        var navtext = $(document.createElement('label'));
+        navtext.attr('class','navtext');
+        navtext.text(text.text);
+
+        var navsubtext = $(document.createElement('label'));
+        navsubtext.attr('class','navsubtext');
+        navsubtext.text(text.subtext);
+
+        container.append(navtext);
+        container.append(navsubtext);
+        return container;
+    }
+
+    // General Settings Functions:
+
+    /**Loads the General Settings view
+     * @method loadGeneralView
+     */
     function loadGeneralView() {
         prepareNextView(false);
 
@@ -291,15 +319,16 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             // Default to loading the splash screen
             loadSplashScreen();
             // Add the Password Settings label
-            // As of now this is disabled
             leftLoading.before(createLeftLabel('Password Settings', null, loadPasswordScreen).attr('id', 'password'));
             leftLoading.hide();
         });
         cancelLastSetting = null;
     }
 
-    // Sets up the right side of the UI for the splash screen
-    // including the viewer, buttons, and settings container.
+    /**Sets up the right side of the UI for the splash screen
+     * including the viewer, buttons, and settings container.
+     * @method loadSplashScreen
+     */
     function loadSplashScreen() {
         prepareViewer(true);
         clearRight();
@@ -399,15 +428,16 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             if (infoInput === undefined) {
                 infoInput = "";
             }
+            //save Splash screen and pass in inpts with following keys:
             saveSplashScreen({
-                alphaInput: alphaInput,
-                overlayColorInput: overlayColorInput,
-                nameInput: nameInput,
-                locInput: locInput,
-                infoInput: infoInput,
-                logoColorInput: logoColorInput,
-                bgImgInput: bgImgInput,
-                logoInput: logoInput,
+                alphaInput: alphaInput,                 //Overlay Transparency
+                overlayColorInput: overlayColorInput,   //Overlay Color
+                nameInput: nameInput,                   //Museum Name
+                locInput: locInput,                     //Museum Location
+                infoInput: infoInput,                   //Museum Info
+                logoColorInput: logoColorInput,         //Logo background color
+                bgImgInput: bgImgInput,                 //Background image
+                logoInput: logoInput,                   //Logo image
             });
         }, {
             'margin-right': '3%',
@@ -420,16 +450,10 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         buttonContainer.append(saveButton);
     }
 
-    // Saves the splash screen settings.  inputs should be the 
-    // inputs where the settings are held with the following keys:
-    //      alphaInput:         Overlay Transparency
-    //      overlayColorInput:  Overlay Color
-    //      nameInput:          Museum Name
-    //      locInput:           Museum Location
-    //      infoInput:          Museum Info
-    //      logoColorInput:     Logo background color
-    //      bgImgInput:         Background image
-    //      logoInput:          Logo image
+    /**Saves the splash screen settings
+     * @method saveSplashScreen
+     * @param {Object} inputs       information from setting inputs
+     */
     function saveSplashScreen(inputs) {
         prepareNextView(false, null, null, "Saving...");
         clearRight();
@@ -454,15 +478,18 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         };
         if (bgImg) options.Background = bgImg;
         if (logo) options.Icon = logo;
-
+        //Change the settings in the database
         LADS.Worktop.Database.changeMain(options, function () {
             LADS.Worktop.Database.getMain(loadGeneralView, error(loadGeneralView), null);
             ;
         }, authError, conflict({ Name: 'Main' }, 'Update', loadGeneralView), error(loadGeneralView));
     }
 
-    // Set up the right side of the UI for the  password changer
+    /**Set up the right side of the UI for the  password changer
+     * @method loadPasswordScreen
+     */
     function loadPasswordScreen() {
+        //Prepare right side without showing the viewer or buttonContainer
         prepareViewer(false, null, false);
         clearRight();
 
@@ -497,15 +524,14 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
 
                 var saveButton = createButton('Update Password', function () {
                     savePassword({
-                        old: oldInput,
-                        new1: newInput1,
-                        new2: newInput2,
-                        msg: msgLabel,
+                        old: oldInput,         // Old password
+                        new1: newInput1,       // New password
+                        new2: newInput2,       // New password confirmation
+                        msg: msgLabel,         // Message area
                     });
                 });
                 // Make the save button respond to enter
                 saveButton.removeAttr('type');
-
                 var save = createSetting('', saveButton);
                 settingsContainer.append(save);
             } else {
@@ -514,17 +540,19 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         });
     }
 
+    /**Display label if password change not supported by server
+     *@method passwordChangeNotSupported
+     */
     function passwordChangeNotSupported() {
         var label = createLabel('');
         var setting = createSetting('Changing the password has been disabled by the server.  Contact the server administrator for more information', label);
         settingsContainer.append(setting);
     }
 
-    // Updates the new password.  Inputs has the following keys:
-    //  old: Old password
-    //  new1: New password
-    //  new2: New password confirmation
-    //  msg:  Message area
+    /**Updates the new password
+     * @method savePassword
+     * @param {Object} inputs    keys for password change
+     */
     function savePassword(inputs) {
         inputs.msg.text('Processing...');
         if (inputs.new1.val() !== inputs.new2.val()) {
@@ -550,9 +578,12 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }
     }
 
-    // Exhibition Functions
+    // Collection Functions:
 
-    // Loads the exhibitions view
+    /**Loads the collections view
+     * @method loadExhibitionsView
+     * @param {Object} id       id of left label to start on
+     */
     function loadExhibitionsView(id) {
         var cancel = false;
         // Set the new button text to "New"
@@ -566,8 +597,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             sortAZ(result);
             $.each(result, function (i, val) {
                 if (cancel) return;
-                // Add each label as a separate function in the queue
-                // So they don't lock up the UI
+                // Add each label as a separate function in the queue so they don't lock up the UI
                 leftQueue.add(function () {
                     if (cancel) return;
                     if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
@@ -576,7 +606,8 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
                     var label;
                     if (!prevSelectedLeftLabel &&
                         ((id && val.Identifier === id) || (!id && i === 0))) {
-                        // Select the first one or the specifeid id
+                        
+                        // Select the first one or the specified id
                         leftLoading.before(selectLabel(label = createLeftLabel(val.Name, null, function () {
                             loadExhibition(val);
                         }, val.Identifier), true));
@@ -587,7 +618,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
                                 scrollTop: (label.offset().top - leftbar.height())
                             }, 1000);
                         }
-
                         prevSelectedLeftLabel = label;
                         loadExhibition(val);
                     } else {
@@ -609,7 +639,10 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         cancelLastSetting = function () { cancel = true; };
     }
 
-    // Set up the right side for an exhibition
+    /**Set up the right side for a collection
+     * @method loadExhibition
+     * @param {Object} exhibition   exhibition to load
+     */
     function loadExhibition(exhibition) {
         prepareViewer(true);
         clearRight();
@@ -617,7 +650,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         // Set the viewer to exhibition view (see function below)
         exhibitionView(exhibition);
 
-        // inputs
+        // Create inputs
         var privateState;
         if (exhibition.Metadata.Private) {
             privateState = (/^true$/i).test(exhibition.Metadata.Private);
@@ -703,11 +736,11 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
                 nameInput.val("Untitled Collection");
             }
             saveExhibition(exhibition, {
-                privateInput: privateState,
-                nameInput: nameInput,
-                descInput: descInput,
-                bgInput: bgInput,
-                previewInput: previewInput,
+                privateInput: privateState,  //default set unpublished
+                nameInput: nameInput,        //Collection name
+                descInput: descInput,        //Collection description
+                bgInput: bgInput,            //Collection background image
+                previewInput: previewInput,  //Collection preview image
             });
         }, {
             'margin-right': '3%',
@@ -755,22 +788,10 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             'margin-bottom': '3%',
         });
 
-        // Sets the viewer to catalog view
-        function catalogView() {
-            rightQueue.add(function () {
-                var catalog;
-                if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
-                    return;
-                }
-                LADS.Layout.Catalog(exhibition, null, function (catalog) {
-                    viewer.append(catalog.getRoot());
-                    catalog.loadInteraction();
-                    preventClickthrough(viewer);
-                    
-                });
-            });
-        }
-        // Sets the viewer to exhibition view
+        /**Helper method to set the viewer to exhibition view
+         * @method exhibitionView
+         * @param {Object} exhibition    exhibition to load
+         */
         function exhibitionView(exhibition) {
             rightQueue.add(function () {
                 var exhibView = new LADS.Layout.NewCatalog(null, exhibition, viewer);
@@ -784,7 +805,9 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         buttonContainer.append(artPickerButton).append(deleteButton).append(saveButton);
     }
 
-    // Create an exhibition
+    /**Create an exhibition
+     * @method createExhibition
+     */
     function createExhibition() {
         prepareNextView(false);
         clearRight();
@@ -803,15 +826,11 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }, authError, error(loadExhibitionsView), true);
     }
 
-    // Save an exhibition where inputs holds
-    // the inputs that contain the values with the following keys:
-    //      nameInput:      Exhibition Name
-    //      sub1Input:      Exhibition subheading 1
-    //      sub2Input:      Exhibition subheading 2
-    //      descInput:      Exhibition description
-    //      bgInput:        Exhibition background image
-    //      previewInput:   Exhibition preview image
-    //      privateInput
+    /** Save a collection
+     * @method saveExhibition
+     * @param {Object} exhibition   collection to save
+     * @inputs {Object} inputs      keys from input fields
+     */
     function saveExhibition(exhibition, inputs) {
         prepareNextView(false, null, null, "Saving...");
         clearRight();
@@ -842,7 +861,10 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }, authError, conflict(exhibition, "Update", loadExhibitionsView), error(loadExhibitionsView));
     }
 
-    // Delete an exhibition
+    /**Delete a collection
+     * @method deleteExhibition
+     * @param {Object} exhibition     collection to delete
+     */
     function deleteExhibition(exhibition) {
         var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
             prepareNextView(false);
@@ -862,9 +884,12 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     }
 
 
-    // Tour Functions
+    // Tour Functions:
 
-    // Load the tour view
+    /**Load the tour view
+     * @method loadTourView
+     * @param {Object} id   id of left label to start on
+     */
     function loadTourView(id) {
         prepareNextView(true, "New", createTour);
         clearRight();
@@ -877,8 +902,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
 
             $.each(result, function (i, val) {
                 if (cancel) return false;
-                // Add each label as a separate function to the queue
-                // so the UI doesn't lock up
+                // Add each label as a separate function to the queue so the UI doesn't lock up
                 leftQueue.add(function () {
                     if (cancel) return;
                     if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
@@ -924,7 +948,10 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         cancelLastSetting = function () { cancel = true; };
     }
 
-    // Load a tour to the right side
+    /**Load a tour to the right side
+     * @method loadTour
+     * @param {Object} tour     tour to load
+     */
     function loadTour(tour) {
         prepareViewer(true);
         clearRight();
@@ -1066,7 +1093,9 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         buttonContainer.append(editButton).append(duplicateButton).append(deleteButton).append(saveButton);
     }
 
-    // Creates a tour
+    /** Create a tour
+     * @method createTour
+     */
     function createTour() {
         prepareNextView(false);
         clearRight();
@@ -1085,7 +1114,10 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }, authError, error(loadTourView), true);
     }
 
-    // Edit a tour
+    /**Edit a tour
+     * @method editTour
+     * @param {Object} tour     tour to edit
+     */
     function editTour(tour) {
         // Overlay doesn't spin... not sure how to fix without redoing tour authoring to be more async
         loadingOverlay('Loading Tour...');
@@ -1098,14 +1130,17 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }, 1);
     }
 
-    // Delete a tour
+    /**Delete a tour
+     * @method deleteTour
+     * @param {Object} tour     tour to delete
+     */
     function deleteTour(tour) {
         var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
             prepareNextView(false);
             clearRight();
             prepareViewer(true);
 
-            // actually delete the exhibition
+            // actually delete the tour
             LADS.Worktop.Database.deleteDoq(tour.Identifier, function () {
                 if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
                     return;
@@ -1117,7 +1152,11 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         $(confirmationBox).show();
     }
 
-    // Duplicate a tour
+    /**Duplicate a tour
+     * @method duplicateTour
+     * @param {Object} tour     tour to duplicate
+     * @param {Object} inputs   keys for name, description, and privateInput of tour
+     */
     function duplicateTour(tour, inputs) {
         prepareNextView(false);
         clearRight();
@@ -1143,11 +1182,11 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         });
     }
 
-    // Save a tour where inputs contains the inputs with the values
-    // expected keys are:
-    //      nameInput: Name of the tour
-    //      descInput: Description of the tour
-    //      privateInput
+    /**Save a tour
+     * @method saveTour
+     * @param {Object} tour     tour to save
+     * @param {Object} inputs   keys for name, description, and privateInput of tour
+     */
     function saveTour(tour, inputs) {
         var name = inputs.nameInput.val();
         var desc = inputs.descInput.val();
@@ -1175,44 +1214,12 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }, authError, conflict(tour, "Update", loadTourView), error(loadTourView));
     }
 
-    // Associated Media functions
+    // Associated Media functions:
 
-    // Save an associated media with input data. The inputs parameter has:
-    //      titleInput:     media title
-    //      descInput:    media description
-    function saveAssocMedia(media, inputs) {
-        var name = inputs.titleInput.val();
-        var desc = inputs.descInput.val();
-
-        prepareNextView(false, null, null, "Saving...");
-        clearRight();
-        prepareViewer(true);
-
-        LADS.Worktop.Database.changeHotspot(media, {
-            Name: name,
-            Description: desc,
-        }, function () {
-            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.media.text]) {
-                return;
-            }
-            loadAssocMediaView(media.Identifier);
-        }, authError, conflict(media, "Update", loadAssocMediaView), error(loadAssocMediaView));
-    }
-
-    // Brings up an artwork chooser -- check the boxes of the art
-    function assocToArtworks(media) {
-        artworkAssociations = [[]];
-        numFiles = 1;
-        // chooseAssociatedArtworks(media);
-        LADS.Util.UI.createAssociationPicker(root, "Choose artworks", { comp: media, type: 'media' }, "artwork", [{
-            name: "All Artworks",
-            getObjs: LADS.Worktop.Database.getArtworks
-        }], {
-            getObjs: LADS.Worktop.Database.getArtworksAssocTo,
-            args: [media.Identifier]
-        }, function () { });
-    }
-
+    /**Load Associated Media view
+     * @method load AssocMediaView
+     * @param {Object} id   id of left label to start on
+     */
     function loadAssocMediaView(id) {
         prepareNextView(true, "Import", createAsset);
         prepareViewer(true);
@@ -1227,8 +1234,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             if (result[0] && result[0].Metadata) {
                 $.each(result, function (i, val) {
                     if (cancel) return;
-                    // Add each label in a separate function in the queue
-                    // so the UI doesn't lock up
+                    // Add each label in a separate function in the queue so the UI doesn't lock up
                     leftQueue.add(function () {
                         if (cancel) return;
                         if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.media.text]) {
@@ -1287,8 +1293,11 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         });
         cancelLastSetting = function () { cancel = true; };
     }
-
-    // Loads an artwork to the right side
+    
+    /**Loads associated media to the right side
+     * @method loadAssocMedia
+     * @param {Object} media    associated media to load
+     */
     function loadAssocMedia(media) {
         prepareViewer(true);
         clearRight();
@@ -1504,26 +1513,63 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         buttonContainer.append(deleteButton).append(saveButton);
     }
 
+    /**Save an associated media
+     * @method saveAssocMedia
+     * @param {Object} media    associated media to save
+     * @param {Object} inputs   keys for media title and description
+     */
+    function saveAssocMedia(media, inputs) {
+        var name = inputs.titleInput.val();
+        var desc = inputs.descInput.val();
+
+        prepareNextView(false, null, null, "Saving...");
+        clearRight();
+        prepareViewer(true);
+
+        LADS.Worktop.Database.changeHotspot(media, {
+            Name: name,
+            Description: desc,
+        }, function () {
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.media.text]) {
+                return;
+            }
+            loadAssocMediaView(media.Identifier);
+        }, authError, conflict(media, "Update", loadAssocMediaView), error(loadAssocMediaView));
+    }
+
+    /**Brings up an artwork chooser for a particular associated media
+     * @method assocToArtworks
+     * @param {Object} media    media to associate to artworks
+     */
+    function assocToArtworks(media) {
+        artworkAssociations = [[]];
+        numFiles = 1;
+        LADS.Util.UI.createAssociationPicker(root, "Choose artworks", { comp: media, type: 'media' }, "artwork", [{
+            name: "All Artworks",
+            getObjs: LADS.Worktop.Database.getArtworks
+        }], {
+            getObjs: LADS.Worktop.Database.getArtworksAssocTo,
+            args: [media.Identifier]
+        }, function () { });
+    }
+
+    /**Generate thumbnail for associated media
+     * @method generateAssocMediaThumbnail
+     * @param {Object} media        media to generate thumbnail for
+     */
     function generateAssocMediaThumbnail(media) {
         prepareNextView(false, null, null, "Saving...");
         clearRight();
         prepareViewer(true);
         LADS.Worktop.Database.changeHotspot(media.Identifier, { Thumbnail: 'generate' }, function () {
-            //$("#" + media.Identifier).find('img')[0].src = LADS.Worktop.Database.fixPath(media.Metadata.Source);
             console.log('success?');
             loadAssocMediaView(media.Identifier);
         }, unauth, conflict, error);
     }
 
-    function loadAssociatedMedia_OLD() {
-        secondaryButton.css("display","none");
-        prepareNextView(true, "Batch Upload Media", createMedia);
-        leftQueue.add(function () {
-            leftLoading.hide();
-        });
-    }
-
-    //
+    /**
+     * @method createAsset
+     */
     function createAsset() {
         uploadFile(LADS.Authoring.FileUploadTypes.AssociatedMedia, function (urls, names, contentTypes, files) {
             var check, i, url, name, done = 0, total = urls.length, durations = [];
@@ -1583,11 +1629,16 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }, true, ['.jpg', '.png', '.gif', '.tif', '.tiff', '.mp4', '.mp3']);
     }
 
-    // Create an associated media (import) --- possibly more than one
+    /**Create an associated media (import), possibly more than one
+     * @method createMedia
+     */
     function createMedia() {
         batchAssMedia();
     }
 
+    /**
+     * @method batchAssMedia
+     */
     function batchAssMedia() {
         var uniqueUrls = []; // Used to make sure we don't override data for the wrong media (not actually airtight but w/e)
         mediaMetadata = [];
@@ -1640,255 +1691,10 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         );
     }
 
-    // Creates the art picker for a given media
-    function chooseAssociatedArtworks(media) {
-        var i;
-
-        // Overlay over the whole page
-        var overlay = $(document.createElement('div'));
-        overlay.css({
-            'position': 'fixed',
-            'width': '100%',
-            'height': '100%',
-            'top': '0',
-            'left': '0',
-            'background-color': 'rgba(0,0,0,0.5)',
-            'z-index': '1000',
-            'display': 'block'
-        });
-
-        // Container for the picker
-        var container = $(document.createElement('div'));
-        container.css({
-            'height': '70%',
-            'width': '50%',
-            'position': 'absolute',
-            'top': '15%',
-            'left': '25%',
-            'background-color': 'black',
-            'border': '3px double white',
-            'padding': '2%',
-        });
-
-        // Title for the picker
-        var label = $(document.createElement('div'));
-        label.css({
-            'font-size': '180%',
-            'color': 'white',
-            'margin-bottom': '2%',
-            'height': '10%',
-        });
-        label.text('Choose artworks to associate to.');
-
-        var searchInput = $(document.createElement('input'));
-        searchInput.attr('type', 'text');
-        searchInput.css({
-        });
-        searchInput.keyup(function () {
-            searchData(searchInput.val(), '.artPickerButton');
-        });
-        searchInput.change(function () {
-            searchData(searchInput.val(), '.artPickerButton');
-        });
-        // Workaround for clear button (doesn't fire a change event...)
-        searchInput.mouseup(function () {
-            setTimeout(function () {
-                searchData(searchInput.val(), '.artPickerButton');
-            }, 1);
-        });
-        searchInput.attr('placeholder', PICKER_SEARCH_TEXT);
-
-        // Art section of the picker
-        var art = $(document.createElement('div'));
-        art.css({
-            'height': '72%',
-            'overflow': 'auto',
-            'margin-bottom': '2%',
-        });
-
-        // Container for the art inside the art section
-        var artContainer = $(document.createElement('div'));
-        artContainer.css({
-            'padding': '1%',
-        });
-
-        // Container for buttons/loading/saving indicator
-        var buttonContainer = $(document.createElement('div'));
-        buttonContainer.css({
-            'height': '8%',
-        });
-
-        // Loading/saving indicator
-        var loadingContainer = $(document.createElement('div'));
-        loadingContainer.css({
-            'width': '20%',
-            'display': 'inline-block',
-        });
-
-        // Loading/saving text
-        var loading = $(document.createElement('label'));
-        loading.css({
-            'color': 'white',
-            'font-size': '140%',
-        });
-        loading.text('Loading...');
-
-        var circle = $(document.createElement('img'));
-        circle.attr('src', 'images/icons/progress-circle.gif');
-        circle.css({
-            'height': $(document).height() * 0.03 + 'px',
-            'width': 'auto',
-            'float': 'right',
-        });
-
-        var save = $(document.createElement('button'));
-        save.attr('type', 'button');
-        save.text('Save');
-        save.css({
-            'float': 'right',
-            'margin': '2%',
-            'padding': '1%',
-        });
-
-        var cancel = $(document.createElement('button'));
-        cancel.attr('type', 'button');
-        cancel.text('Cancel');
-        cancel.css({
-            'float': 'right',
-            'margin': '2%',
-            'padding': '1%',
-        });
-
-        // Hide and remove the overlay when cancel is clicked
-        cancel.click(function () {
-            overlay.hide();
-            root[0].removeChild(overlay[0]);
-            artPickerOpen = false;
-        });
-
-        art.append(artContainer);
-
-        loadingContainer.append(loading);
-        loadingContainer.append(circle);
-
-        buttonContainer.append(loadingContainer);
-        buttonContainer.append(cancel);
-        buttonContainer.append(save);
-
-        container.append(label);
-        container.append(searchInput);
-        container.append(art);
-        container.append(buttonContainer);
-
-        overlay.append(container);
-
-        root.append(overlay);
-
-        var origMediaCheckedIDs;
-        mediaCheckedIDs = [];
-        mediaUncheckedIDs = [];
-        artworkList = [];
-        callAll();
-        //LADS.Worktop.Database.getAssocMediaTo(media.Identifier, function (artworks) {
-        //    console.log("artworks.length = " + artworks.length);
-        //    $.each(artworks, function (i, artwork) { console.log(artwork.Name) });
-        //    callAll();
-        //}, function () {
-        //    console.log("error");
-        //}, function() {
-        //    console.log("cache error");
-        //});
-        
-
-        // Get all artworks
-        function callAll() {
-            LADS.Worktop.Database.getArtworks(setUpButtons, null, null);
-        }
-
-        // set up buttons and checkboxes in picker, populate mediaCheckedIDs
-        function setUpButtons(allArtworks) {
-            sortAZ(allArtworks);
-            artworkList = allArtworks;
-            // Add each artwork to the artwork container.
-            $.each(allArtworks, function (i, artwork) {
-                leftQueue.add(function () {
-                    var label, index;
-                    // check if media is associated to this artwork
-
-                    artContainer.append(label = createArtButton(artwork,
-                        // Oncheck/uncheck function
-                        // If it is checked adds the artwork to the checkedIDs and
-                        // removes it from the uncheckedIDs.  If unchecked it removes it
-                        // from the checkedIDs and adds it to the uncheckedIDs
-                        function (checked) {
-                            if (checked) {
-                                if (mediaCheckedIDs.indexOf(i) === -1) {
-                                    mediaCheckedIDs.push(i);
-                                }
-                                index = mediaUncheckedIDs.indexOf(i);
-                                if (index !== -1) {
-                                    mediaUncheckedIDs.splice(index, 1);
-                                }
-                            } else {
-                                index = mediaCheckedIDs.indexOf(i);
-                                if (index !== -1) {
-                                    mediaCheckedIDs.splice(index, 1);
-                                }
-                                if (mediaUncheckedIDs.indexOf(i) === -1) {
-                                    mediaUncheckedIDs.push(i);
-                                }
-                            }
-                            // Set the initial checked/unchecked value
-                        }, $.inArray(i, mediaCheckedIDs) !== -1));
-                    // Hide if it doesn't match search criteria
-                    searchData(searchInput.val(), label);
-                });
-            });
-            // Hide loading when we're done
-            leftQueue.add(function () {
-                loadingContainer.hide();
-            });
-
-        }
-
-        // Hide save/cancel buttons, clear the left queue, and change Loading to Saving...
-        save.click(function () {
-            var j;
-            loading.text('Saving...');
-            loadingContainer.show();
-            save.hide();
-            cancel.hide();
-            leftQueue.clear();
-            var len = media ? 1 : numFiles;
-            // Save the art
-            for (i = 0; i < len; i++) {
-                for (j = 0; j < mediaCheckedIDs.length; j++) {
-                    artworkAssociations[i].push(artworkList[mediaCheckedIDs[j]]);
-                }
-            }
-
-            createAssociations(media, artworkAssociations[0], 0, overlay); // for now, don't worry about multiple media
-
-            //saveAssMedia(0);
-            //overlay.hide();
-            //root[0].removeChild(overlay[0]);
-        });
-    }
-
-    // adds media as an associated media of each artwork in artworks
-    function createAssociations(media, artworks, index, overlay) {
-        LADS.Worktop.Database.changeArtwork(artworks[index].Identifier, {
-            AddIDs: media.Identifier
-        }, function () {
-            if (index < artworks.length - 1) {
-                createAssociations(media, artworks, index + 1, overlay)
-            } else {
-                overlay.hide();
-                root[0].removeChild(overlay[0]);
-            }
-        }, authError, conflict(media, "Update", loadAssocMediaView), error(loadAssocMediaView));
-    }
-
+    /**
+     * @method saveAssMedia
+     * @param i the index of the asset 
+     */
     function saveAssMedia(i) {
         var len = artworkAssociations[i].length;
         uploadHotspotHelper(i, 0, len);
@@ -1896,6 +1702,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
 
     /**
      * Uploads hotspot i to artwork j in its list of artworks to associate to.
+     * @method uploadHotspotHelper
      * @param i    the index of the asset we're uploading
      * @param j    each asset has a list of artworks it'll be associated with; j is the index in this list
      * @param len  the length of the list above
@@ -1918,6 +1725,14 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         i, j, len);
     }
 
+    /**
+     * @method uploadHotspot
+     * @param artwork
+     * @param info
+     * @param i
+     * @param j
+     * @param len
+     */
     function uploadHotspot(artwork, info, i, j, len) {
         var title = info.title,
             desc = info.desc,
@@ -1943,6 +1758,11 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
 
         LADS.Worktop.Database.createHotspot(artwork.CreatorID, artwork.Identifier, createHotspotHelper);
 
+        /**
+         * @method createHotspotHelper
+         * @param isNewAsset
+         * @param xmlHotspot
+         */
         function createHotspotHelper(isNewAsset, xmlHotspot) { // currently for creating both hotspots and assoc media
             var $xmlHotspot,
                 hotspotId,
@@ -1986,9 +1806,12 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }
     }
 
-    // Art Functions
+    // Art Functions:
 
-    // Loads art labels
+    /**Loads art view
+     * @method loadArtView
+     * @param {Object} id   id of left label to start on
+     */
     function loadArtView(id) {
         prepareNextView(true, "Import", createArtwork);
         prepareViewer(true);
@@ -2065,7 +1888,10 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         cancelLastSetting = function () { cancel = true; };
     }
 
-    // Loads an artwork to the right side
+    /**Loads an artwork to the right side
+     * @method loadArtwork
+     * @param {Object} artwork  artwork to load
+     */
     function loadArtwork(artwork) {
         prepareViewer(true);
         clearRight();
@@ -2116,14 +1942,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         } else {
             viewer.append(mediaElement);
         }
-
-        // Create labels
-        // BM - Whoever wrote this... sigh
-        //function checkForLongName(d) {
-        //    if (d.length > 55)
-        //        return d.substr(0, 55) + "...";
-        //    return d;
-        //}
         var titleInput = createTextInput(LADS.Util.htmlEntityDecode(artwork.Name), true, 55);
         var artistInput = createTextInput(LADS.Util.htmlEntityDecode(artwork.Metadata.Artist), true, 55);
         var yearInput = createTextInput(LADS.Util.htmlEntityDecode(artwork.Metadata.Year), true, 20);
@@ -2193,11 +2011,11 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
                     titleInput.val("Untitled Artwork");
                 }
                 saveArtwork(artwork, {
-                    artistInput: artistInput,
-                    nameInput: titleInput,
-                    yearInput: yearInput,
-                    descInput: descInput,
-                    customInputs: customInputs,
+                    artistInput: artistInput,   //Artwork artist
+                    nameInput: titleInput,      //Artwork title
+                    yearInput: yearInput,       //Artwork year
+                    descInput: descInput,       //Artwork description
+                    customInputs: customInputs, //Artwork custom info fields
                 });
             }, {
                 'margin-right': '3%',
@@ -2224,6 +2042,11 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }
     }
 
+    /**Save Thumbnail image 
+     * @method saveThumbnail
+     * @param {Object} component
+     * @param {Boolean} isArtwork
+     */
     function saveThumbnail(component, isArtwork) {
         var id = $('#videoInPreview').attr('identifier');
         var pop = Popcorn('#videoInPreview');
@@ -2266,7 +2089,9 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         $(popup).show();
     }
 
-    // Create an artwork (import) --- possibly more than one artwork
+    /**Create an artwork (import), possibly more than one
+     * @method createArtwork
+     */
     function createArtwork() {
         uploadFile(LADS.Authoring.FileUploadTypes.DeepZoom, function (urls, names, contentTypes, files) {
             var check, i, url, name, done=0, total=urls.length, durations=[];
@@ -2320,7 +2145,10 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }, true, ['.jpg', '.png', '.gif', '.tif', '.tiff', '.mp4']);
     }
 
-    // Edits an artwork
+    /**Edit an artwork
+     * @method editArtwork
+     * @param {Object} artwork   artwork to edit
+     */
     function editArtwork(artwork) {
         // Overlay doesn't spin... not sure how to fix without redoing tour authoring to be more async
         loadingOverlay('Loading Artwork...');
@@ -2331,7 +2159,10 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }, 1);
     }
 
-    // Deletes an artwork
+    /**Delete an artwork
+     * @method deleteArtwork
+     * @param {Object} artwork      artwork to delete
+     */
     function deleteArtwork(artwork) {
         var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
             prepareNextView(false);
@@ -2350,11 +2181,11 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         $(confirmationBox).show();
     }
 
-    // Save an artwork with input data. The inputs parameter has:
-    //      titleInput:     artwork title
-    //      artistInput:    artwork artist
-    //      yearInput:      artwork year
-    //      customInputs:   artwork custom info fields
+    /**Save an artwork
+     * @method saveArtwork
+     * @param {Object} artwork      artwork to save
+     * @param {Object} inputs       keys for artwork info from input fields
+     */
     function saveArtwork(artwork, inputs) {
         var name = inputs.nameInput.val();
         var artist = inputs.artistInput.val();
@@ -2384,7 +2215,12 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }, authError, conflict(artwork, "Update", loadArtView), error(loadArtView)); 
     }
 
-    // Feedback Functions
+    // Feedback Functions:
+
+    /**Loads Feedback view
+     * @method loadFeedbackView
+     * @param {Object} id   id of left label to start on
+     */
     function loadFeedbackView(id) {
         prepareNextView(true, "");
         prepareViewer(false);
@@ -2398,8 +2234,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
 
             $.each(result, function (i, val) {
                 if (cancel) return false;
-                // Add each label as a separate function to the queue
-                // so the UI doesn't lock up
+                // Add each label as a separate function to the queue so the UI doesn't lock up
                 leftQueue.add(function () {
                     if (cancel) return;
                     if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.feedback.text]) {
@@ -2442,6 +2277,10 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         cancelLastSetting = function () { cancel = true; };
     }
 
+    /** Loads feedback to right side of screen
+     * @method loadFeedback
+     * @param {Object} feedback     feedback to load
+     */
     function loadFeedback(feedback) {
         clearRight();
         prepareViewer(true, feedback.Metadata.Feedback);
@@ -2485,6 +2324,13 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         buttonContainer.append(deleteButton);
     }
 
+    /**Get source of feedback
+     * @method getSourceName
+     * @param {Object} feedback     feedback to get source of
+     * @param {Function} onSuccess  function called if source found
+     * @param {Function} onDeleted  function called if source has been deleted
+     * @param {Function} onError    function called if there is an error 
+     */
     function getSourceName(feedback, onSuccess, onDeleted, onError) {
         LADS.Worktop.Database.getDoq(feedback.Metadata.SourceID,
             function (doq) {
@@ -2498,6 +2344,10 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             });
     }
 
+    /**Switch view to source of feedback
+     * @method followSource
+     * @param {Object} feedback     feedback to follow source of
+     */
     function followSource(feedback) {
         switch (feedback.Metadata.SourceType) {
             case "Exhibition":
@@ -2516,11 +2366,15 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }
     }
 
+    /**Delete a feedback
+     * @method deleteFeedback
+     * @param {Object} feedback     feedback to delete
+     */
     function deleteFeedback(feedback) {
         prepareNextView(false);
         clearRight();
 
-        // actually delete the exhibition
+        // actually delete the feedback
         LADS.Worktop.Database.deleteDoq(feedback.Identifier, function () {
             if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.feedback.text]) {
                 return;
@@ -2529,210 +2383,19 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }, authError, conflict(feedback), error(loadFeedbackView));
     }
 
-    // Sets up the left side for the next view
-    //  showSearch: if true show the search bar, otherwise hide it
-    //  newText: Text for the new button
-    //  newBehavior: onclick function for the new button
-    function prepareNextView(showSearch, newText, newBehavior, loadingText) {
-        leftQueue.clear();
-        leftLabelContainer.empty();
-        leftLabelContainer.append(leftLoading);
-        leftLoading.show();
-        secondaryButton.css("display", "none");
-        newButton.text(newText);
-        newButton.unbind('click').click(newBehavior);
-        if (!newText) newButton.hide();
-        else newButton.show();
-        prevSelectedLeftLabel = null;
-        if (cancelLastSetting) cancelLastSetting();
+    //Left Bar Functions:
 
-        if (loadingText) {
-            leftLoading.children('label').text(loadingText);
-        } else {
-            leftLoading.children('label').text('Loading...');
-        }
-
-        if (showSearch) {
-            searchContainer.show();
-            searchContainer.css('display', 'inline-block');
-            searchbar.val("");
-        } else {
-            searchContainer.hide();
-        }
-    }
-
-    // Clears the right side
-    function clearRight() {
-        settingsContainer.empty();
-        buttonContainer.empty();
-        rightQueue.clear();
-    }
-
-    // Clears the viewer
-    function prepareViewer(showViewer,text, showButtons) { 
-        viewer.empty();
-        viewer.css('background', 'black');
-        if (showViewer) {
-            viewer.show();
-            buttonContainer.show();
-            buttonContainer.css({
-                'top': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
-                'margin-top': '0.35%',
-            });
-            settings.css({
-                'height': getSettingsHeight() + 'px',
-            });
-            if (text) {
-                var textbox = $(document.createElement('textarea'));
-                if (typeof text == 'string')
-                    text = text.replace(/<br \/>/g, '\n').replace(/<br>/g, '\n').replace(/<br\/>/g, '\n');
-                textbox.val(text);
-                textbox.css({
-                    'padding': '.5%',
-                    'width': '100%',
-                    'height': '100%',
-                    'box-sizing': 'border-box',
-                    'margin': '0px',
-                });
-                textbox.attr('readonly', 'true');
-                viewer.append(textbox);
-                viewer.css('background', 'transparent');
-            } else {
-                viewer.css('background', 'black');
-            }
-        } else {
-            viewer.hide();
-            settings.css({
-                'height': ($(window).height() * CONTENT_HEIGHT / 100) -
-                (BUTTON_HEIGHT * 1) + 'px',
-            });
-        }
-        if (showButtons===false){
-            buttonContainer.hide();
-        }
-    }
-
-    // Clicks an element determined by a jquery selector when it is
-    // added to the page
-    function clickWhenReady(selector, maxtries, tries) {
-        doWhenReady(selector, function (elem) { elem.click(); }, maxtries, tries);
-    }
-
-    // Calls fn with selector when the element determined by the selector
-    // is added to the page
-    function doWhenReady(selector, fn, maxtries, tries) {
-        maxtries = maxtries || 100;
-        tries = tries || 0;
-        if (tries > maxtries) return;
-        if ($.contains(document.documentElement, $(selector)[0])) {
-            fn($(selector));
-        } else {
-            rightQueue.add(function () {
-                doWhenReady(selector, fn, maxtries, tries + 1);
-            });
-        }
-    }
-
-    // Resets mouse interaction for labels
-    function resetLabels(selector) {
-        $(selector).css('background', 'transparent');
-        $.each($(selector), function (i, current) {
-            if ($(current).attr('disabled') === 'disabled')
-                return;
-            $(current).mousedown(function () {
-                $(current).css({
-                    'background': HIGHLIGHT
-                });
-            });
-            $(current).mouseup(function () {
-                $(current).css({
-                    'background': 'transparent'
-                });
-            });
-            $(current).mouseleave(function () {
-                $(current).css({
-                    'background': 'transparent'
-                });
-            });
-        });
-    }
-
-    // Selects a label unbinding mouse events
-    function selectLabel(label, expand) {
-        label.css('background', HIGHLIGHT);
-        label.unbind('mousedown').unbind('mouseleave').unbind('mouseup');
-
-        if (expand) {
-            label.css('height', '');
-            label.children('div').css('white-space', '');
-
-            if (prevSelectedLeftLabel) {
-                prevSelectedLeftLabel.children('div').css('white-space', 'nowrap');
-            }
-        }
-        return label;
-    }
-
-    // Disables a label, unbinding mouse events
-    function disableLabel(label) {
-        label.css({
-            'color': 'gray',
-        });
-        label.unbind('mousedown').unbind('mouseleave').unbind('mouseup').unbind('click').attr('disabled', true);
-        return label;
-    }
-
-    function createNavLabel(text, onclick) {
-        var container = $(document.createElement('div'));
-        container.attr('class', 'navContainer');
-        container.attr('id', 'nav-' + text.text);
-        container.mousedown(function () {
-            container.css({
-                'background': HIGHLIGHT
-            });
-        });
-        container.mouseup(function () {
-            container.css({
-                'background': 'transparent'
-            });
-        });
-        container.mouseleave(function () {
-            container.css({
-                'background': 'transparent'
-            });
-        });
-        container.click(function () {
-            // If a label is clicked return if its already selected.
-            if (prevSelectedSetting === container)
-                return;
-            // Reset all labels and then select this one
-            resetLabels('.navContainer');
-            selectLabel(container);
-            // Do the onclick function
-            if (onclick)
-                onclick();
-            prevSelectedSetting = container;
-        });
-
-        var navtext = $(document.createElement('label'));
-        navtext.attr('class','navtext');
-        navtext.text(text.text);
-
-        var navsubtext = $(document.createElement('label'));
-        navsubtext.attr('class','navsubtext');
-        navsubtext.text(text.subtext);
-
-        container.append(navtext);
-        container.append(navsubtext);
-        return container;
-    }
-
-   
-    // Creates a left label with
-    //      text:       the text of the label
-    //      imagesrc:   src for the image.  If not specified then no image is added
-    //      onclick:    function to do on click
-    //      id:         id to set if specified
+    /**Create a left label 
+     * @method createLeftLabel
+     * @param  {String} text            the text of the label
+     * @param imagesrc                  the source for the image. If not specified no image added
+     * @param {Function} onclick        the onclick function for the label
+     * @param {Object} id               id to set if specified
+     * @param {Function} onDoubleClick  function for double click
+     * @param {Boolean} inArtMode 
+     * @param extension                 to check if is video or static art
+     * @return {Object} container       the container of the new label
+     */
     function createLeftLabel(text, imagesrc, onclick, id, noexpand, onDoubleClick, inArtMode, extension) {
         var container = $(document.createElement('div'));
         text = LADS.Util.htmlEntityDecode(text);
@@ -2822,13 +2485,203 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         return container;
     }
 
-    // Gets the height of the settings section
-    // Since the viewer has to be positioned absolutely,
-    // the entire right bar needs to be position absolutely.
-    // Settings has bottom: 0, so the height needs to be correct
-    // to not have this be under the buttons container.  If any
-    // of the heights of the right components changes it should be
-    // updated here.
+    /**Set up the left side for the next view
+     * @method prepareNextView
+     * @param {Boolean} showSearch      if true show search bar, otherwise hide
+     * @param {String} newText          text for the 'New' button
+     * @param {Function} newBehavior    onclick function for the 'New' button
+     * @param {String} loadingText      Text to display while left bar loading
+     */
+    function prepareNextView(showSearch, newText, newBehavior, loadingText) {
+        leftQueue.clear();
+        leftLabelContainer.empty();
+        leftLabelContainer.append(leftLoading);
+        leftLoading.show();
+        secondaryButton.css("display", "none");
+        newButton.text(newText);
+        newButton.unbind('click').click(newBehavior);
+        if (!newText) newButton.hide();
+        else newButton.show();
+        prevSelectedLeftLabel = null;
+        if (cancelLastSetting) cancelLastSetting();
+
+        if (loadingText) {
+            leftLoading.children('label').text(loadingText);
+        } else {
+            leftLoading.children('label').text('Loading...');
+        }
+
+        if (showSearch) {
+            searchContainer.show();
+            searchContainer.css('display', 'inline-block');
+            searchbar.val("");
+        } else {
+            searchContainer.hide();
+        }
+    }
+
+    /**Clears the right side
+     * @method clearRight
+     */
+    function clearRight() {
+        settingsContainer.empty();
+        buttonContainer.empty();
+        rightQueue.clear();
+    }
+
+    /**Prepares the viewer on the right side
+     * @method prepareViewer
+     * @param {Boolean} showViewer    whether the preview window is shown 
+     * @param {String} text           text to add to the viewer (in a textbox)
+     * @param {Boolean} showButtons   whether the buttonContainer is shown
+     */
+    function prepareViewer(showViewer,text, showButtons) { 
+        viewer.empty();
+        viewer.css('background', 'black');
+        if (showViewer) {
+            viewer.show();
+            buttonContainer.show();
+            buttonContainer.css({
+                'top': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
+                'margin-top': '0.35%',
+            });
+            settings.css({
+                'height': getSettingsHeight() + 'px',
+            });
+            if (text) {
+                var textbox = $(document.createElement('textarea'));
+                if (typeof text == 'string')
+                    text = text.replace(/<br \/>/g, '\n').replace(/<br>/g, '\n').replace(/<br\/>/g, '\n');
+                textbox.val(text);
+                textbox.css({
+                    'padding': '.5%',
+                    'width': '100%',
+                    'height': '100%',
+                    'box-sizing': 'border-box',
+                    'margin': '0px',
+                });
+                textbox.attr('readonly', 'true');
+                viewer.append(textbox);
+                viewer.css('background', 'transparent');
+            } else {
+                viewer.css('background', 'black');
+            }
+        } else {
+            viewer.hide();
+            settings.css({
+                'height': ($(window).height() * CONTENT_HEIGHT / 100) -
+                (BUTTON_HEIGHT * 1) + 'px',
+            });
+        }
+        if (showButtons===false){
+            buttonContainer.hide();
+        }
+    }
+
+    //Helper methods for label interaction:
+
+    /**Clicks an element determined by a jquery selector when it is added to the page
+     * @method clickWhenReady
+     * @param selector
+     * @param maxtries
+     * @param tries
+     */
+    function clickWhenReady(selector, maxtries, tries) {
+        doWhenReady(selector, function (elem) { elem.click(); }, maxtries, tries);
+    }
+
+    /** Calls passed in function when the element determined by the selector
+     *  is added to the page
+     * @method doWhenReady
+     * @param {Object} selector     class or id of object(s) on which fn is performed     
+     * @param {Function} fn
+     * @param maxtries
+     * @param tries
+     */
+    function doWhenReady(selector, fn, maxtries, tries) {
+        maxtries = maxtries || 100;
+        tries = tries || 0;
+        if (tries > maxtries) return;
+        if ($.contains(document.documentElement, $(selector)[0])) {
+            fn($(selector));
+        } else {
+            rightQueue.add(function () {
+                doWhenReady(selector, fn, maxtries, tries + 1);
+            });
+        }
+    }
+
+    /**Reset mouse interaction for labels
+     * @method resetLabels
+     * @param {Object} selector     class of labels to reset
+     */
+    function resetLabels(selector) {
+        $(selector).css('background', 'transparent');
+        $.each($(selector), function (i, current) {
+            if ($(current).attr('disabled') === 'disabled')
+                return;
+            $(current).mousedown(function () {
+                $(current).css({
+                    'background': HIGHLIGHT
+                });
+            });
+            $(current).mouseup(function () {
+                $(current).css({
+                    'background': 'transparent'
+                });
+            });
+            $(current).mouseleave(function () {
+                $(current).css({
+                    'background': 'transparent'
+                });
+            });
+        });
+    }
+
+    /**Select a label by unbinding mouse events and highlighting
+     * @method selectLabel
+     * @param {Object} label    label to select
+     * @param {Boolean} expand  if label expands when selected   
+     * @return {Object} label   selected label   
+     */
+    function selectLabel(label, expand) {
+        label.css('background', HIGHLIGHT);
+        label.unbind('mousedown').unbind('mouseleave').unbind('mouseup');
+
+        if (expand) {
+            label.css('height', '');
+            label.children('div').css('white-space', '');
+
+            if (prevSelectedLeftLabel) {
+                prevSelectedLeftLabel.children('div').css('white-space', 'nowrap');
+            }
+        }
+        return label;
+    }
+
+    /**Disable a label, unbinding mouse events
+     * @method disableLabel
+     * @param {Object} label         label to disable
+     * @return {Object} label        disabled label
+     */
+    function disableLabel(label) {
+        label.css({
+            'color': 'gray',
+        });
+        label.unbind('mousedown').unbind('mouseleave').unbind('mouseup').unbind('click').attr('disabled', true);
+        return label;
+    }
+
+   
+    //Settings functions:
+
+    /**Gets the height of the settings section since the viewer has to be positioned absolutely,
+     *the entire right bar needs to be position absolutely. Settings has bottom: 0, so the height needs to be correct
+     * to not have this be under the buttons container.  If any of the heights of the right components changes it should be
+     * updated here.
+     * @method getSettingsHeight
+     * @return height       appropriate height for settings
+     */
     function getSettingsHeight() {
         var height =
         // Start with the entire height of the right side
@@ -2845,17 +2698,16 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         return height;
     }
 
-    // Creates a setting to be inserted into the settings container
-    //  text:       text for the setting
-    //  input:      the input for the setting
-    //  width: if not-falsey then assumed to be a number (ex. 75) representing the pecent, must be less than 95
+    /**Creates a setting to be inserted into the settings container
+     * @method createSetting
+     * @param {String} text     text for the setting
+     * @param {Object} input    the input for the setting
+     * @param width             if not falsey then assumed to be number represengint percent, must be less than 95
+     * @return container        container of new setting
+     */
     function createSetting(text, input, width) {
         var container = $(document.createElement('div'));
         container.attr('class', 'settingLine');
-        container.css({
-            //'width': '100%',
-            //'margin-bottom': '4%',
-        });
 
         var label = $(document.createElement('div'));
         label.css({
@@ -2884,8 +2736,15 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         return container;
     }
 
-    // Creates a button with text set to 'text', on click
-    // function set to onclick, and additional css applied if specified
+    //Helper functions:
+
+    /** Create a button 
+     * @method createButton
+     * @param {String} text         button text
+     * @param {Function} onclick    onclick function for button
+     * @param css                   additional css to apply to button if specified
+     * @return {Object} button      new button created
+     */
     function createButton(text, onclick, css) {
         var button = $(document.createElement('button')).text(text);
         button.attr('type', 'button');
@@ -2897,15 +2756,24 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         return button;
     }
 
+    /**Create a label
+     * @method createLabel
+     * @param {String} text         label text
+     * @return {Object} label       new label created
+     */
     function createLabel(text) {
         var label = $(document.createElement('label')).text(text || "");
         return label;
     }
 
-    // Creates a text input
-    //  text:       the default text for the input
-    //  defaultval: if true then the input will reset to the default text if its empty and loses focus
-    //  maxlength:  max length of the input in characters
+    /**Create a text input
+     * @method createTextInput
+     * @param {String} text         the default text for the input
+     * @param {Boolean} defaultval  if true, reset to default text if empty and loses focus
+     * @param maxlength             max length of the input in characters
+     * @param hideOnClick
+     * @return input                newly created input
+     */
     function createTextInput(text, defaultval, maxlength, hideOnClick) {
         var input = $(document.createElement('input')).val(text);
         input.attr({
@@ -2915,7 +2783,13 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         return input;
     }
 
-    // Create a text area input with text/defaultval the same as createTextInput()
+    /**Create a text area input 
+     * @method createTextAreaInput
+     * @param {String} text     default text for area
+     * @param defaultval
+     * @param hideOnClick
+     * @return {Object} input    newly creted text input
+     */
     function createTextAreaInput(text, defaultval, hideOnClick) {
         if (typeof text === 'string')
             text = text.replace(/<br \/>/g, '\n').replace(/<br>/g, '\n').replace(/<br\/>/g, '\n');
@@ -2928,9 +2802,14 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         return input;
     }
 
-    // Creates a color input which modifies the background color
-    // of all elements matching the jquery selector 'selector'.
-    // getTransValue should return a valid transparency value
+    /**Create a color input which modifies the background color
+     * of all elements matching the jquery selector 'selector'.
+     * @method creatBGColorInput 
+     * @param color 
+     * @param selector                      jQuery selector for elements to be changed
+     * @param {Function} getTransValue      returns a valid transparency value  
+     * @return {Object} container           returns container holding new input
+     */
     function createBGColorInput(color, selector, getTransValue) {
         if (color.indexOf('#') !== -1) {
             color = color.substring(1, color.length);
@@ -2947,14 +2826,21 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         return container;
     }
 
-    // Sets the bg color of elements maching jquery selector 'selector'
-    // given a hex value and a transparency value
+    /**Set the bg color of elements maching jquery selector 'selector'
+     * @method updateBGColor 
+     * @param selector          jQuery selector of elements to be changed
+     * @param hex               hex value of color
+     * @param trans             transparency of color
+     */
     function updateBGColor(selector, hex, trans) {
         $(selector).css('background-color', LADS.Util.UI.hexToRGB(hex) + trans / 100.0 + ')');
 
     }
 
-    // Prevents a container from being clicked on by added a div on top of it
+    /**Prevent a container from being clicked on by added a div on top of it
+     * @method preventClickthrough
+     * @param {Object} container     container to prevent click through of
+     */
     function preventClickthrough(container) {
         var cover = document.createElement('div');
         $(cover).css({
@@ -2972,8 +2858,11 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         $(container).append(cover);
     }
 
-    // Sorts a list with propery Name alphabetically
-    // case insensitive
+    /**Sort a list with propery Name alphabetically, case insensitive
+     * @method sortAZ
+     * @param {Object} list
+     * @return 
+     */
     function sortAZ(list) {
         if (list.sort) {
             list.sort(function (a, b) {
@@ -2984,7 +2873,11 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }
     }
 
-    // Sorts a list with date metadata by date with most recent date first
+    /**Sort a list with date metadata by date with most recent date first
+     * @method sortDate
+     * @param {Object} list 
+     * @return 
+     */
     function sortDate(list) {
         if (list.sort) {
             list.sort(function (a, b) {
@@ -3001,28 +2894,12 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }
     }
 
-    // Sets the default value of an input to val
-    // If the input loses focus when its empty it will revert
-    // to val.  Additionally, if hideOnClick is true then
-    // if the value is val and the input gains focus it will be
-    // set to the empty string
-    function defaultVal(val, input, hideOnClick) {
-        input.val(val);
-        if (hideOnClick) {
-            input.focus(function () {
-                if (input.val() === val)
-                    input.val('').change();
-            });
-        }
-        input.blur(function () {
-            if (input.val() === '') {
-                input.val(val).change();
-                search('', '.leftLabel', 'div');
-            }
-        });
-    }
-
-    // Performs a search 
+    /**Perform a search 
+     * @method search
+     * @param val           value to search for
+     * @param selector      jQuery selector of elements to search
+     * @param childType     selector's type
+     */
     function search(val, selector, childType) {
         $.each($(selector), function (i, child) {
             if ($(child).attr('id') === 'leftLoading')
@@ -3035,6 +2912,10 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         });
     }
 
+    /**Search data
+     * @param val       value to search for
+     * @param selector  jQuery selector for elements to be searched
+     */
     function searchData(val, selector) {
         $.each($(selector), function (i, element) {
             var data = $(element).data();
@@ -3052,8 +2933,13 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         });
     }
 
-    // When a text input is changed keeps its length no greater than
-    // maxlength
+    /**Update text on change
+     * @method onChangeUpdateText
+     * @param {Object} input    input to update
+     * @param selector          jQuery selector of element to update
+     * @param maxLength         maximum text length in characters
+     * @return {Object}         updated input
+     */
     function onChangeUpdateText(input, selector, maxlength) {
         input.keyup(function () {
             if (input.val().length > maxlength) {
@@ -3076,8 +2962,13 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         return input;
     }
 
-    // When a text input is changed makes sure its a number and is within
-    // min and max.  Performs doOnChange when it changes
+    /**Update a text input that takes in a number
+     * @method onChangeUpdateNum
+     * @param {Object} input            input to update
+     * @param min                       minimum value of inputted number
+     * @param max                       maximum value of inputted number
+     * @param {Function} doOnChange     performed if input value is number between min and max   
+     */
     function onChangeUpdateNum(input, min, max, doOnChange) {
         input.keyup(function () {
             var replace = input.val().replace(/[^0-9]/g, '');
@@ -3111,58 +3002,23 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         });
     }
 
-    /* 
-     * This method parses the Metadata fields and then checks whether the required metadata
-     * field matches up with the one currently being looked at. Once it has found a match, it
-     * returns the appropriate node corresponding to the field.
-     *
-     * From the old settings view, works there so should work here
-     * Made it so that it creates blank text node if there is none
+
+    /**from JavaScript: The Good Parts
+     * @method is_array
+     * @param value         value to check
+     * @return {Boolean}    if value is an array
      */
-    function getFieldValueFromMetadata(xml, field) {
-        var metadata = getMetaData(xml);
-        for (var i = 0; i < metadata.length; i++) {
-            if (metadata[i].childNodes[0].textContent === field) {
-                var out = metadata[i].childNodes[1].childNodes[0];
-                if (out) return out;
-
-                metadata[i].childNodes[1].appendChild(xml.createTextNode(''));
-                return metadata[i].childNodes[1].childNodes[0];
-            }
-        }
-        return null;
-    }
-
-    function addFieldToMetadata(xml, field, value) {
-        // almost the same as getMetaData sans a final .childNodes, need a single element to append to!
-        var metadata = xml.getElementsByTagName("Metadata")[0].childNodes[0].childNodes[0].childNodes[1].childNodes[0];
-
-        var fieldcontainer = xml.createElement('d3p1:KeyValueOfstringanyType');
-        metadata.appendChild(fieldcontainer);
-
-        var fieldkey = xml.createElement('d3p1:Key');
-        fieldcontainer.appendChild(fieldkey);
-        fieldkey.appendChild(xml.createTextNode(field));
-
-        var fieldvalue = xml.createElement('d3p1:Value');
-        fieldvalue.setAttribute('i:type', 'd8p1:string');
-        fieldvalue.setAttribute('xmlns:d8p1', 'http://www.w3.org/2001/XMLSchema');
-        fieldcontainer.appendChild(fieldvalue);
-        fieldvalue.appendChild(xml.createTextNode(value));
-    }
-
-    function getMetaData(doq) {
-        return doq.getElementsByTagName("Metadata")[0].childNodes[0].childNodes[0].childNodes[1].childNodes[0].childNodes;
-    }
-
-
-    // from JavaScript: The Good Parts
     function is_array(value) {
         return Object.prototype.toString.apply(value) === '[object Array]';
     }
 
-    // Uploads a file then calls the callback with the url and name of the file.
-    // See LADS.Authoring.FileUploader for 'type' values
+    /** Upload a file then calls the callback with the url and name of the file.
+     * @method uploadFIle
+     * @param type                  See LADS.Authoring.FileUploader for 'type' values
+     * @param {Function} callback   
+     * @param multiple              for batch upload
+     * @param filter    
+     */
     function uploadFile(type, callback, multiple, filter) {
         var names = [], locals = [], contentTypes = [], fileArray, i;
         LADS.Authoring.FileUploader( // remember, this is a multi-file upload
@@ -3202,438 +3058,12 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             );
     }
 
-    // Creates the art picker for a given exhibition
-    function createArtPicker(exhibition) {
-        if (artPickerOpen)
-            return;
-        artPickerOpen = true;
-        // Overlay over the whole page
-        var overlay = $(document.createElement('div'));
-        overlay.css({
-            'position': 'fixed',
-            'width': '100%',
-            'height': '100%',
-            'top': '0',
-            'left': '0',
-            'background-color': 'rgba(0,0,0,0.5)',
-            'z-index': '1000',
-            'display': 'block'
-        });
-
-        // Container for the picker
-        var container = $(document.createElement('div'));
-        container.css({
-            'height': '70%',
-            'width': '50%',
-            'position': 'absolute',
-            'top': '15%',
-            'left': '25%',
-            'background-color': 'black',
-            'border': '3px double white',
-            'padding': '2%',
-        });
-
-        // Title for the picker
-        var label = $(document.createElement('div'));
-        label.css({
-            'font-size': '180%',
-            'color': 'white',
-            'margin-bottom': '2%',
-            'height': '10%',
-        });
-        label.text('Choose the artworks to link to this exhibition.');
-
-        var searchInput = $(document.createElement('input'));
-        searchInput.attr('type', 'text');
-        searchInput.css({
-        });
-        searchInput.keyup(function () {
-            searchData(searchInput.val(), '.artPickerButton');
-        });
-        searchInput.change(function () {
-            searchData(searchInput.val(), '.artPickerButton');
-        });
-        // Workaround for clear button (doesn't fire a change event...)
-        searchInput.mouseup(function () {
-            setTimeout(function () {
-                searchData(searchInput.val(), '.artPickerButton');
-            }, 1);
-        });
-        searchInput.attr('placeholder', PICKER_SEARCH_TEXT);
-
-        // Art section of the picker
-        var art = $(document.createElement('div'));
-        art.css({
-            'height': '72%',
-            'overflow': 'auto',
-            'margin-bottom': '2%',
-        });
-
-        // Container for the art inside the art section
-        var artContainer = $(document.createElement('div'));
-        artContainer.css({
-            'padding': '1%',
-        });
-
-        // Container for buttons/loading/saving indicator
-        var buttonContainer = $(document.createElement('div'));
-        buttonContainer.css({
-            'height': '8%',
-        });
-
-        // Loading/saving indicator
-        var loadingContainer = $(document.createElement('div'));
-        loadingContainer.css({
-            'width': '20%',
-            'display': 'inline-block',
-        });
-
-        // Loading/saving text
-        var loading = $(document.createElement('label'));
-        loading.css({
-            'color': 'white',
-            'font-size': '140%',
-        });
-        loading.text('Loading...');
-
-        var circle = $(document.createElement('img'));
-        circle.attr('src', 'images/icons/progress-circle.gif');
-        circle.css({
-            'height': $(document).height() * 0.03 + 'px',
-            'width': 'auto',
-            'float': 'right',
-        });
-
-        var save = $(document.createElement('button'));
-        save.attr('type', 'button');
-        save.text('Save');
-        save.css({
-            'float': 'right',
-            'margin': '2%',
-            'padding': '1%',
-        });
-
-        var cancel = $(document.createElement('button'));
-        cancel.attr('type', 'button');
-        cancel.text('Cancel');
-        cancel.css({
-            'float': 'right',
-            'margin': '2%',
-            'padding': '1%',
-        });
-
-        // Hide and remove the overlay when cancel is clicked
-        cancel.click(function () {
-            overlay.hide();
-            root[0].removeChild(overlay[0]);
-            artPickerOpen = false;
-        });
-
-        art.append(artContainer);
-
-        loadingContainer.append(loading);
-        loadingContainer.append(circle);
-
-        buttonContainer.append(loadingContainer);
-        buttonContainer.append(cancel);
-        buttonContainer.append(save);
-
-        container.append(label);
-        container.append(searchInput);
-        container.append(art);
-        container.append(buttonContainer);
-
-        overlay.append(container);
-
-        root.append(overlay);
-
-        var checkedIDs = [];
-        var uncheckedIDs = [];
-
-        function artworksInHelper(artworks) {
-            // Keep track of which artworks are in an exhibition
-            if (artworks) {
-                $.each(artworks, function (i, artwork) {
-                    if (artwork.Identifier)
-                        checkedIDs.push(artwork.Identifier);
-                });
-            }
-
-            // Get all the artworks for the exhibition
-            LADS.Worktop.Database.getArtworks(allArtworksHelper, null, allArtworksHelper);
-
-        }
-
-        function allArtworksHelper(allArtworks) {
-            sortAZ(allArtworks);
-            // Add each artwork to the artwork container.
-            $.each(allArtworks, function (i, artwork) {
-                leftQueue.add(function () {
-                    var label;
-                    artContainer.append(label = createArtButton(artwork,
-                        // Oncheck/uncheck function
-                        // If it is checked adds the artwork to the checkedIDs and
-                        // removes it from the uncheckedIDs.  If unchecked it removes it
-                        // from the checkedIDs and adds it to the uncheckedIDs
-                        function (checked) {
-                            var index;
-                            if (checked) {
-                                if (checkedIDs.indexOf(artwork.Identifier) === -1) {
-                                    checkedIDs.push(artwork.Identifier);
-                                }
-                                index = uncheckedIDs.indexOf(artwork.Identifier);
-                                if (index !== -1) {
-                                    uncheckedIDs.splice(index, 1);
-                                }
-                            } else {
-                                index = checkedIDs.indexOf(artwork.Identifier);
-                                if (index !== -1) {
-                                    checkedIDs.splice(index, 1);
-                                }
-                                if (uncheckedIDs.indexOf(artwork.Identifier) === -1) {
-                                    uncheckedIDs.push(artwork.Identifier);
-                                }
-                            }
-                            // Set the initial checked/unchecked value
-                        }, $.inArray(artwork.Identifier, checkedIDs) !== -1));
-                    // Hide if it doesn't match search criteria
-                    searchData(searchInput.val(), label);
-                });
-            });
-            // Hide loading when we're done
-            leftQueue.add(function () {
-                loadingContainer.hide();
-            });
-        }
-
-        // Hide save/cancel buttons, clear the left queue, and change Loading to Saving...
-        save.click(function () {
-            loading.text('Saving...');
-            loadingContainer.show();
-            save.hide();
-            cancel.hide();
-            leftQueue.clear();
-
-            // Save the art
-            saveArtAssosciation(exhibition, checkedIDs, uncheckedIDs, function () {
-                overlay.hide();
-                root[0].removeChild(overlay[0]);
-                artPickerOpen = false;
-                loadExhibitionsView(exhibition.Identifier);
-            }, function () {
-                loading.text('Authentication Failed');
-                save.show();
-                cancel.show();
-            }, function () {
-                loading.text('Server Error');
-                save.show();
-                cancel.show();
-            });
-        });
-
-        // TODO: Error handler?
-        LADS.Worktop.Database.getArtworksIn(exhibition.Identifier, artworksInHelper, null, artworksInHelper);
-    }
-
-    // Saves art assosciated to an exhibit
-    //  exhibition: The exhibition to add art to
-    //  checkedIDs: The IDs of the artwork to add
-    //  uncheckedIDs: The IDs of the artwork to remove
-    //  callback: Called when done
-    //
-    // Note: Artworks keep track of the exhibitions they are in, so we
-    // need to go through every artwork and add the exhibition to it.
-    function saveArtAssosciation(exhibition, checkedIDs, uncheckedIDs, success, unauth, error) {
-        if (checkedIDs.length + uncheckedIDs.length === 0) {
-            success();
-            return;
-        }
-        var addIDs = "";
-        var removeIDs = "";
-        $.each(checkedIDs, function (i, val) {
-            addIDs = addIDs + "," + val;
-        });
-        if (addIDs) addIDs = addIDs.substr(1);
-
-        $.each(uncheckedIDs, function (i, val) {
-            removeIDs = removeIDs + "," + val;
-        });
-        if (removeIDs) removeIDs = removeIDs.substr(1);
-
-        LADS.Worktop.Database.changeExhibition(exhibition.Identifier, { AddIDs: addIDs, RemoveIDs: removeIDs }, success, unauth, error);
-        
-    }
-
-    function fixArtMetadata(artworkXML) {
-        // Need to fix the xml
-        setArtworkName(artworkXML, LADS.Util.encodeXML(getArtworkName(artworkXML)));
-        setArtworkArtist(artworkXML, LADS.Util.encodeXML(getArtworkArtist(artworkXML)));
-        setArtworkYear(artworkXML, LADS.Util.encodeXML(getArtworkYear(artworkXML)));
-        setArtworkLocations(artworkXML, LADS.Util.encodeXML(getArtworkLocations(artworkXML)));
-
-
-        var metadata = artworkXML.getElementsByTagName("Metadata")[0].childNodes[0].childNodes[0].childNodes[1].childNodes[0].childNodes;
-
-        for (var i = metadata.length - 1; i >= 0; i--) {
-            if (metadata[i].childNodes[0].textContent.indexOf('InfoField_') !== -1) {
-                metadata[i].childNodes[1].textContent = LADS.Util.encodeXML(metadata[i].childNodes[1].textContent);
-            }
-        }
-    }
-
-    function setArtworkName(artworkXML, name) {
-        if (name && name.length > 0)
-            artworkXML.getElementsByTagName("Name")[0].childNodes[0].data = name;
-    }
-
-    function setArtworkArtist(artworkXML, artist) {
-        if (artist && artist.length > 0)
-            getFieldValueFromMetadata(artworkXML, "Artist").data = artist;
-    }
-
-    function setArtworkYear(artworkXML, year) {
-        if (year && year.length > 0)
-            getFieldValueFromMetadata(artworkXML, "Year").data = year;
-    }
-
-    function setArtworkLocations(artworkXML, data) {
-        getFieldValueFromMetadata(artworkXML, "Location").data = data;
-    }
-
-    function getArtworkName(artworkXML) {
-        return artworkXML.getElementsByTagName("Name")[0].childNodes[0].data;
-    }
-
-    function getArtworkArtist(artworkXML) {
-        return getFieldValueFromMetadata(artworkXML, "Artist").data;
-    }
-
-    function getArtworkYear(artworkXML) {
-        return getFieldValueFromMetadata(artworkXML, "Year").data;
-    }
-
-    function getArtworkLocations(artworkXML) {
-        return getFieldValueFromMetadata(artworkXML, "Location").data;
-    }
-
-    // Creates a check button for the artwork picker
-    function createArtButton(artwork, onclick, checked) {
-        var container = $(document.createElement('div'));
-        container.attr('class', 'artPickerButton');
-        container.css({
-            'height': '70px',
-            'margin-bottom': '3%',
-            'margin-right': '2.5%',
-            'overflow': 'hidden',
-            'position': 'relative',
-        });
-
-        container.data({
-            name: artwork.Name,
-            artist: artwork.Metadata.Artist,
-            year: artwork.Metadata.Year,
-        });
-
-        container.mousedown(function () {
-            container.css({
-                'background': HIGHLIGHT,
-            });
-        });
-        container.mouseup(function () {
-            container.css({
-                'background': 'transparent',
-            });
-        });
-        container.mouseleave(function () {
-            container.css({
-                'background': 'transparent',
-            });
-        });
-
-        var checkbox = $(document.createElement('input'));
-        checkbox.attr('type', 'checkbox');
-        checkbox.prop('checked', checked);
-        checkbox.css({
-            'margin-right': '.5%',
-            'float': 'right',
-        });
-        checkbox.click(function (evt) {
-            evt.stopPropagation();
-        });
-
-        checkbox.change(function () {
-            onclick(checkbox.prop('checked'));
-        });
-
-        container.click(function () {
-            checkbox.prop("checked", !checkbox.prop("checked"));
-            checkbox.trigger('change');
-        });
-
-        var image = $(document.createElement('img'));
-        image.attr('src', LADS.Worktop.Database.fixPath(artwork.Metadata.Thumbnail));
-        image.css({
-            'height': 'auto',
-            'width': '20%',
-            'margin-right': '5%',
-            'float': 'left',
-        });
-        container.append(image);
-
-        var progressCircCSS = {
-            'position': 'absolute',
-            'left': '5%',
-            'z-index': '50',
-            'height': 'auto',
-            'top': '18%',
-            'width': '10%',
-        };
-        var circle = LADS.Util.showProgressCircle(container, progressCircCSS, '0px', '0px', false);
-        image.load(function () {
-            LADS.Util.removeProgressCircle(circle);
-        });
-
-        var label = $(document.createElement('div'));
-        label.css({
-            'font-size': '160%',
-            //'display': 'inline-block',
-            'white-space': 'nowrap',
-            'width': '65%',
-            'overflow': 'hidden',
-            'text-overflow': 'ellipsis',
-            'vertical-align': 'top',
-            'color': 'white',
-        });
-        label.text(artwork.Name);
-
-        var sublabel = $(document.createElement('div'));
-        sublabel.css({
-            'font-size': '120%',
-            'font-style': 'italic',
-            'white-space': 'nowrap',
-            'width': '65%',
-            'overflow': 'hidden',
-            'text-overflow': 'ellipsis',
-            'vertical-align': 'top',
-            'color': 'white',
-        });
-        sublabel.text(artwork.Metadata.Artist + " (" + artwork.Metadata.Year + ")");
-
-        container.append(checkbox);
-
-        container.append(label);
-        container.append(sublabel);
-
-
-        return container;
-    }
-
-    // Creates an overlay over the whole settings view with
-    // a spinning circle and centered text.  Text defaults
-    // to 'Loading...' if not specified.  This overlay is intended
-    // to be used only when the page is 'done'.  The overlay doesn't
-    // support being removed from the page, so only call this when
-    // the page will be changed!
+    /**Create an overlay over the whole settings view with a spinning circle and centered text. This overlay is intended to be used 
+     * only when the page is 'done'.  The overlay doesn't support being removed from the page, so only call this when the page will 
+     * be changed!
+     * @method loadingOverlay
+     * @param {String} text     Text defaults to 'Loading...' if not specified. 
+     */
     function loadingOverlay(text) {
         text = text || "Loading...";
         var overlay = $(document.createElement('div'));
@@ -3683,6 +3113,9 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         overlay.append(label);
     }
     
+    /** Authentication error function
+     * @method authError
+     */
     function authError() {
         var popup = LADS.Util.UI.popUpMessage(function () {
             LADS.Auth.clearToken();
@@ -3696,6 +3129,10 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         $(popup).show();
     }
 
+    /**Error function
+     * @method error
+     * @param {Function} fn     function called if specified
+     */
     function error(fn) {
         return function () {
             var popup = LADS.Util.UI.popUpMessage(null, "An unknown error occured.", null, true);
@@ -3705,6 +3142,12 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }
     }
 
+    /**Conflict function
+    * @method conflict
+    * @param doq            doq for which there is a conflict
+    * @param {String} text      
+    * @param fail
+    */
     function conflict(doq, text, fail) {
         return function (jqXHR, ajaxCall) {
             var confirmationBox = LADS.Util.UI.PopUpConfirmation(function () {
