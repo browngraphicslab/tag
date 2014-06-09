@@ -31271,7 +31271,6 @@ TAG.Util = (function () {
     //onTapped
     //onHolding
     function makeManipulatable(element, functions, stopOutside, noAccel) {
-        
         var hammer = new Hammer(element, {
             hold_threshold: 3,
             drag_min_distance: 9,
@@ -41434,6 +41433,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 l     = parseFloat(outerContainer.css('left')),
                 w     = outerContainer.width(),
                 h     = outerContainer.height(),
+                timestepConstant = 50,
                 newW  = w * scale,
                 maxW,
                 minW,
@@ -41493,14 +41493,14 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                         //Time difference from beginning of event to now
                         deltaTime = Date.now() - res.srcEvent.timeStamp,
 
-                        //Initial velocity based on the above
+                        //Initial velocity is proportional to distance traveled
                         initialVelocity = {
-                            x: deltaPosition.x/(deltaTime*100),
-                            y: deltaPosition.y/(deltaTime*100)
+                            x: deltaPosition.x/timestepConstant,
+                            y: deltaPosition.y/timestepConstant
                         };
-
+                        
                         //Recursive function to move object between start location and final location with proper physics
-                        move(res, initialVelocity, initialPosition, finalPosition, 1);
+                        move(res, initialVelocity, initialPosition, finalPosition, timestepConstant/50);
                         viewer.viewport.applyConstraints()
                 } else { //If object isn't within bounds, hide and reset it.
                     hideMediaObject();
@@ -41547,8 +41547,8 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
 
                 // New velocity is proportional to distance left to travel
                 newVelocity = {
-                    x: (finalPos.x - currentPosition.x)/70,
-                    y: (finalPos.y - currentPosition.y)/70
+                    x: (finalPos.x - currentPosition.x)/(delay*50),
+                    y: (finalPos.y - currentPosition.y)/(delay*50)
                 },
 
                 timer;
@@ -41621,16 +41621,24 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 w = outerContainer.width();
 				
             if(IS_HOTSPOT) {
+                console.log("---------------------------------------------- is hotspot");
                 circle.css('visibility', 'visible');
                 addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
                 viewer.viewport.panTo(position, false);
                 viewer.viewport.applyConstraints()
-                t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
-                l = rootWidth/2 + circle.width()*3/4;
+                t = circle.offset().top + circle.width()*4;
+                l = circle.offset().left + circle.width()*4;
+
+                console.log("pointFromPixel: " + viewer.viewport.pointFromPixel(position));
+
+                console.log("circle.width: " + circle.width());
+
+                //t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
+                //l = rootWidth/2 + circle.width()*3/4;
             } else {
                 t = rootHeight * 1/10 + Math.random() * rootHeight * 2/10;
                 l = rootWidth  * 3/10 + Math.random() * rootWidth  * 2/10;
-            }
+            };
             outerContainer.css({
                 'top':            t + "px",
                 'left':           l + "px",

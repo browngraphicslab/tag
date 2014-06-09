@@ -743,7 +743,6 @@ TAG.Util = (function () {
     //onTapped
     //onHolding
     function makeManipulatable(element, functions, stopOutside, noAccel) {
-        
         var hammer = new Hammer(element, {
             hold_threshold: 3,
             drag_min_distance: 9,
