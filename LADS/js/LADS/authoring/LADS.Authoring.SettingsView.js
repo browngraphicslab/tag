@@ -463,7 +463,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
 
     // Set up the right side of the UI for the  password changer
     function loadPasswordScreen() {
-        prepareViewer(false);
+        prepareViewer(false, null, false);
         clearRight();
 
         var loading = createLabel('Loading...');
@@ -2569,7 +2569,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     }
 
     // Clears the viewer
-    function prepareViewer(showViewer, text) {
+    function prepareViewer(showViewer,text, showButtons) { 
         viewer.empty();
         viewer.css('background', 'black');
         if (showViewer) {
@@ -2602,11 +2602,13 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             }
         } else {
             viewer.hide();
-            buttonContainer.hide();
             settings.css({
                 'height': ($(window).height() * CONTENT_HEIGHT / 100) -
-                    (BUTTON_HEIGHT * 1) + 'px',
+                (BUTTON_HEIGHT * 1) + 'px',
             });
+        }
+        if (showButtons===false){
+            buttonContainer.hide();
         }
     }
 
