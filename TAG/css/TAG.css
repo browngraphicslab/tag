@@ -1313,7 +1313,6 @@
   left: 5%;
   width: 90%;
   color: #fff;
-  bottom: 5px;
   word-wrap: break-word;
 }
 #tagRoot .annotatedImageMediaTitle {
@@ -1322,7 +1321,7 @@
   width: 90%;
   color: #fff;
   top: 5px;
-  padding-bottom: 2%;
+  margin-bottom: 2%;
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 700;

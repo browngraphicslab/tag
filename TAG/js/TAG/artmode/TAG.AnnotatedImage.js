@@ -422,18 +422,17 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             var elt = mediaElt,
                 $elt = $(elt),
                 controlPanel = $(document.createElement('div')).addClass('annotatedImageMediaControlPanel'),
-                vol = $(document.createElement('img')).addClass('mediaControls'),
-                seekBar,
-                timeContainer = $(document.createElement('div')),
-                currentTimeDisplay = $(document.createElement('span')).addClass('mediaControls'),
-                playHolder = $(document.createElement('div')),
-                volHolder = $(document.createElement('div')),
-                sliderContainer = $(document.createElement('div')),
-                sliderPoint = $(document.createElement('div'));
+                vol = $(document.createElement('img')).addClass('mediaVolButton'),
+                timeContainer = $(document.createElement('div')).addClass('mediaTimeContainer'),
+                currentTimeDisplay = $(document.createElement('span')).addClass('mediaTimeDisplay'),
+                playHolder = $(document.createElement('div')).addClass('mediaPlayHolder'),
+                volHolder = $(document.createElement('div')).addClass('mediaVolHolder'),
+                sliderContainer = $(document.createElement('div')).addClass('mediaSliderContainer'),
+                sliderPoint = $(document.createElement('div')).addClass('mediaSliderPoint');
 
             controlPanel.attr('id', 'media-control-panel-' + mdoq.Identifier);
 
-            play = $(document.createElement('img')).addClass('mediaControls');
+            play = $(document.createElement('img')).addClass('mediaPlayButton');
 
             play.attr('src', tagPath + 'images/icons/PlayWhite.svg');
             vol.attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
@@ -452,12 +451,12 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 'height':   '20px',
                 'width':    '20px',
                 'display':  'inline-block',
-                'margin':   '0px 1% 0px 1%',
+                'margin':   '2px 1% 0px 1%',
             });
 
             sliderContainer.css({
                 'position': 'absolute',
-                'height':   '7px',
+                'height':   '15px',
                 'width':    '100%',
                 'left':     '0px',
                 'bottom':   '0px'
@@ -483,7 +482,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 'width':    '20px',
                 'position': 'absolute',
                 'right':    '5px',
-                'top':      '0px'
+                'top':      '2px'
             });
 
             timeContainer.css({
@@ -528,11 +527,11 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             });
 
             sliderContainer.on('mousedown', function(evt) {
-                var time = elt.duration * (evt.offsetX / sliderContainer.width()),
+                var time = elt.duration * ((evt.pageX - $(evt.target).offset().left) / sliderContainer.width()),
                     origPoint = evt.pageX,
-                    origTime = elt.currentTime,
                     timePxRatio = elt.duration / sliderContainer.width(),
-                    currTime = Math.max(0, Math.min(elt.duration, origTime)),
+                    currTime = Math.max(0, Math.min(elt.duration, elt.currentTime)),
+                    origTime = time,
                     currPx   = currTime / timePxRatio,
                     minutes = Math.floor(currTime / 60),
                     seconds = Math.floor(currTime % 60),
@@ -542,14 +541,16 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 evt.stopPropagation();
 
                 if(!isNaN(time)) {
+                    currentTimeDisplay.text(adjMin + ":" + adjSec);
                     elt.currentTime = time;
+                    sliderPoint.css('width', 100*(currPx / sliderContainer.width()) + '%');
                 }
 
-                $('body').on('mousemove.seek', function(e) {
+                sliderContainer.on('mousemove.seek', function(e) {
                     var currPoint = e.pageX,
                         timeDiff = (currPoint - origPoint) * timePxRatio;
 
-                    currTime = Math.max(0, Math.min(video.duration, origTime + timeDiff));
+                    currTime = Math.max(0, Math.min(elt.duration, origTime + timeDiff));
                     currPx   = currTime / timePxRatio;
                     minutes  = Math.floor(currTime / 60);
                     seconds  = Math.floor(currTime % 60);
@@ -564,12 +565,12 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 });
 
                 $('body').on('mouseup.seek mouseleave.seek', function() {
-                    $('body').off('mouseup.seek mouseleave.seek mousemove.seek');
-                    if(!isNaN(currTime)) {
-                        currentTimeDisplay.text(adjMin + ":" + adjSec);
-                        elt.currentTime = currTime;
-                        sliderPoint.css('width', 100*(currPx / sliderContainer.width()) + '%');
-                    }
+                    sliderContainer.off('mouseup.seek mouseleave.seek mousemove.seek');
+                    // if(!isNaN(getCurrTime())) {
+                    //     currentTimeDisplay.text(adjMin + ":" + adjSec);
+                    //     elt.currentTime = getCurrTime();
+                    //     sliderPoint.css('width', 100*(currPx / sliderContainer.width()) + '%');
+                    // }
                 });
             });
 
@@ -755,7 +756,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                         //Where object should be moved to
                         finalPosition = {
                             x: res.center.pageX - (res.startEvent.center.pageX - startLocation.x),
-                            y: res.center.pageY - (res.startEvent.center.pageY - startLocation.y),
+                            y: res.center.pageY - (res.startEvent.center.pageY - startLocation.y)
                         },
 
                         deltaPosition = {
@@ -771,10 +772,17 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                             x: deltaPosition.x/timestepConstant,
                             y: deltaPosition.y/timestepConstant
                         };
+<<<<<<< HEAD
                         
                         //Recursive function to move object between start location and final location with proper physics
                         move(res, initialVelocity, initialPosition, finalPosition, timestepConstant/50);
                         viewer.viewport.applyConstraints()
+=======
+
+                    //Recursive function to move object between start location and final location with proper physics
+                    move(res, initialVelocity, initialPosition, finalPosition, 1);
+                    viewer.viewport.applyConstraints()
+>>>>>>> 0c76e84820bc023ae1874551a749b131ae299d79
                 } else { //If object isn't within bounds, hide and reset it.
                     hideMediaObject();
                     pauseResetMediaObject();
