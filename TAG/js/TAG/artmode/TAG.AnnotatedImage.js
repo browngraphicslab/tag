@@ -787,7 +787,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
 		 * @return {HTML element} the button as a 'div'
 		 */
 		function createCloseButton() {
-			var closeButton = $(document.createElement('div'));
+			/*var closeButton = $(document.createElement('div'));
 			closeButton.text('X');
 			closeButton.css({
 				'position': 'absolute',
@@ -803,7 +803,24 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
 				'background-color': 'white',
 				'margin-left': '107%'
 			});
-			return closeButton;
+			return closeButton;*/
+            var closeButton = $(document.createElement('img'));
+            closeButton.attr('src', tagPath + 'images/icons/x.svg');
+            closeButton.css({
+                'position': 'absolute',
+                'top': '-2.5em',
+                'left': '-2.5em',
+                'width': '1em',
+                'height': '1em',
+                'text-align': 'center',
+                'color': 'black',
+                'line-height': '1em',
+                'border': '10px solid black',
+                'border-radius': '2em',
+                'background-color': 'white',
+                'margin-left': '107%'
+            });
+            return closeButton;
 		}
 		 
         /**
