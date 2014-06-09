@@ -896,6 +896,7 @@ left: 50% {
   margin-right: 3%;
   box-sizing: border-box;
   height: 100%;
+  color: #000;
 }
 #setViewRoot .button .settingButton {
   height: 100%;

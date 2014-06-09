@@ -333,8 +333,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
 
         // Create inputs
         var alphaInput = createTextInput(Math.floor(alpha * 100), true);
-        // Touch keyboard breaks everything...
-        //verticalSlider(alphaInput, 0, 100);
         var bgImgInput = createButton('Change Image', function () {
             uploadFile(LADS.Authoring.FileUploadTypes.Standard, function (urls) {
                 var url = urls[0];
@@ -974,6 +972,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             'margin-right': '4%',
             'width': '48%',
         });
+        privateInput.attr('class','settingButton');
         var publicInput = createButton('Publish', function () {
             privateState = false;
             publicInput.css('background-color', 'white');
@@ -982,6 +981,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             'min-height': '0px',
             'width': '48%',
         });
+        publicInput.attr('class','settingButton');
         if (privateState) {
             privateInput.css('background-color', 'white');
         } else {
@@ -1141,99 +1141,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         }, function () {
             console.log("cacheError");
         });
-
-        //// first, create a new tour (code lifted from createTour)
-        //LADS.Worktop.Database.createTour(function (newDoq) {
-        //    if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
-        //        return;
-        //    }
-        //    if (!newDoq) {
-        //        // TODO: ERROR
-        //        loadTourView();
-        //        return;
-        //    }
-
-        //    // grab the data to be copied from the tour we're duplicating
-        //    // not just copying everything because we want the new tour to have a unique identifier, etc...
-        //    var name = "Copy: " + tour.Name;
-        //    var desc = tour.Metadata.Description;
-        //    var content = tour.Metadata.Content;
-        //    var relatedArtworks = tour.Metadata.RelatedArtworks;
-        //    var thumbnailMeta = tour.Metadata.Thumbnail;
-        //    var privateMeta = "true"; // always want to create duplicates as unpublished
-        //    var keywords = tour._Keywords;
-        //    var thumbnail = tour.Thumbnail;
-        //    var type = tour.Type;
-
-        //    // set the XML of the new tour to account for the data above (code lifted from editTour)
-        //    LADS.Worktop.Database.getDoqXML(newDoq.Identifier, function (xml) {
-        //        var parser = new DOMParser();
-        //        var currentXML = $(parser.parseFromString(xml, 'text/xml'));
-
-        //        name = LADS.Util.encodeXML(name);
-        //        var desc = inputs.descInput.val().replace(/\n\r?/g, '<br />');
-
-        //        // set the name, etc...
-        //        // not sure what keywords, thumbnai, and type do, but set them here for good measure
-        //        currentXML.find('Name').text(name);
-        //        currentXML.find('_Keywords').text(keywords);
-        //        currentXML.find('Thumbnail').text(thumbnail);
-        //        currentXML.find('Type').text(type);
-
-        //        // set metadata, most importantly the content of the tour
-        //        //getFieldValueFromMetadata(currentXML[0], "Description").data = LADS.Util.encodeXML(desc);
-        //        //getFieldValueFromMetadata(currentXML[0], "Content").data = LADS.Util.encodeXML(content);
-        //        //getFieldValueFromMetadata(currentXML[0], "RelatedArtworks").data = LADS.Util.encodeXML(relatedArtworks);
-        //        //getFieldValueFromMetadata(currentXML[0], "Thumbnail").data = LADS.Util.encodeXML(thumbnailMeta);
-        //        //getFieldValueFromMetadata(currentXML[0], "Private").data = LADS.Util.encodeXML(privateMeta);
-
-        //        // Fix escape characters
-        //        currentXML.find("d3p1\\:Key:contains('Content') + d3p1\\:Value").text(LADS.Util.encodeXML(currentXML.find("d3p1\\:Key:contains('Content') + d3p1\\:Value").text()));
-
-        //        var privateField = getFieldValueFromMetadata(currentXML[0], "Private");
-        //        if (!privateField) {
-        //            privateField = addFieldToMetadata(currentXML[0], "Private", LADS.Util.encodeXML(privateMeta));
-        //        } else {
-        //            privateField.data = LADS.Util.encodeXML(privateMeta);
-        //        }
-
-        //        var descriptionField = getFieldValueFromMetadata(currentXML[0], "Description");
-        //        if (!descriptionField) {
-        //            descriptionField = addFieldToMetadata(currentXML[0], "Description", desc);
-        //        } else {
-        //            descriptionField.data = LADS.Util.encodeXML(desc);
-        //        }
-
-        //        var contentField = getFieldValueFromMetadata(currentXML[0], "Content");
-        //        if (!contentField) {
-        //            contentField = addFieldToMetadata(currentXML[0], "Content", content);
-        //        } else {
-        //            contentField.data = LADS.Util.encodeXML(content);
-        //        }
-
-        //        var relatedField = getFieldValueFromMetadata(currentXML[0], "RelatedArtworks");
-        //        if (!relatedField) {
-        //            relatedField = addFieldToMetadata(currentXML[0], "RelatedArtworks", relatedArtworks);
-        //        } else {
-        //            relatedField.data = LADS.Util.encodeXML(relatedArtworks);
-        //        }
-
-        //        var thumbnailField = getFieldValueFromMetadata(currentXML[0], "Thumbnail");
-        //        if (!thumbnailField) {
-        //            thumbnailField = addFieldToMetadata(currentXML[0], "Thumbnail", thumbnailMeta);
-        //        } else {
-        //            thumbnailField.data = LADS.Util.encodeXML(thumbnailMeta);
-        //        }
-
-        //        LADS.Worktop.Database.pushXML(currentXML[0], newDoq.Identifier, "Tour", function () {
-        //            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
-        //                return;
-        //            }
-        //            loadTourView(newDoq.Identifier);
-        //        }, authError, authError);
-        //    });
-        //}, authError, authError);
-
     }
 
     // Save a tour where inputs contains the inputs with the values
@@ -1672,31 +1579,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
                     console.log("error in uploading: " + error.message);
                     return;
                 }
-                
-
-
-                //var newDoq;
-                //try {
-                //    var options = {
-                //        Name: names[j],
-                //        ContentType: contentTypes[j],
-                //        Source: urls[j]
-                //    };
-                //    if (durations[j]) {
-                //        options.Duration = durations[j];
-                //    }
-                //    LADS.Worktop.Database.createHotspot(options, incrDone, function () { console.log("error1") }, function () { console.log("error2") }, newDoq);
-                //} catch (error) {
-                //    done++;
-                //    console.log("error in uploading: " + error.message);
-                //    return;
-                //}
-                //LADS.Worktop.Database.changeArtwork(newDoq.Identifier, { Name: names[j] }, incrDone, function () { console.log("error1") }, function () { console.log("error2") }, function () { console.log("error3") });
             }
-
-            //for (i = 0; i < urls.length; i++) {
-            //    updateDoq(i);
-            //}
         }, true, ['.jpg', '.png', '.gif', '.tif', '.tiff', '.mp4', '.mp3']);
     }
 
@@ -2108,39 +1991,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
     // Loads art labels
     function loadArtView(id) {
         prepareNextView(true, "Import", createArtwork);
-        //secondaryButton.css("display", "block");
-        //secondaryButton.off('click');
-        //secondaryButton.on('click', function () {
-        //    uploadFile(LADS.Authoring.FileUploadTypes.VideoArtwork, function (urls, names) {
-        //        var check, i, url, name, done = 0, total = urls.length;
-        //        prepareNextView(false);
-        //        clearRight();
-        //        prepareViewer(true);
-
-        //        function incrDone() {
-        //            done++;
-        //            if (done >= total) {
-        //                loadArtView();
-        //            }
-        //        }
-
-        //        function updateDoq(j) {
-        //            var newDoq;
-        //            try {
-        //                newDoq = new Worktop.Doq(urls[j]);
-        //            } catch (error) {
-        //                done++;
-        //                console.log("error in uploading: " + error.message);
-        //                return;
-        //            }
-        //            LADS.Worktop.Database.changeArtwork(newDoq.Identifier, { Name: names[j] }, incrDone, LADS.Util.multiFnHandler(authError, incrDone), LADS.Util.multiFnHandler(conflict(newDoq, "Update", incrDone)), error(incrDone));
-        //        }
-
-        //        for (i = 0; i < urls.length; i++) {
-        //            updateDoq(i);
-        //        }
-        //    }, true,['.mp4']);
-        //});
         prepareViewer(true);
         clearRight();
         var cancel = false;
@@ -2598,16 +2448,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
 
         var sourceLabel = createLabel('Loading...');
         var dateLabel = createLabel($.datepicker.formatDate('DD, MM d, yy ', new Date(feedback.Metadata.Date * 1000)));
-        //if (feedback.Metadata.SourceID) {
-        //    var sourceButton = createButton('Go To Source', function () {
-        //        followSource(feedback);
-        //    });
-        //}
-
         var source = createSetting('Submitted From', sourceLabel);
-        //if (feedback.Metadata.SourceID) {
-        //    var sourceButtonSetting = createSetting('', sourceButton);
-        //}
         var dateSetting = createSetting('Date', dateLabel);
 
         settingsContainer.append(source);
@@ -2733,6 +2574,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         viewer.css('background', 'black');
         if (showViewer) {
             viewer.show();
+            buttonContainer.show();
             buttonContainer.css({
                 'top': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
                 'margin-top': '0.35%',
@@ -2746,8 +2588,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
                     text = text.replace(/<br \/>/g, '\n').replace(/<br>/g, '\n').replace(/<br\/>/g, '\n');
                 textbox.val(text);
                 textbox.css({
-                    //'color': TEXT_COLOR,
-                    //'border-color': INPUT_BORDER,
                     'padding': '.5%',
                     'width': '100%',
                     'height': '100%',
@@ -2762,10 +2602,7 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
             }
         } else {
             viewer.hide();
-            buttonContainer.css({
-                'top': leftbar.width() * 0.05 + 'px',
-                'margin-top': '0',
-            });
+            buttonContainer.hide();
             settings.css({
                 'height': ($(window).height() * CONTENT_HEIGHT / 100) -
                     (BUTTON_HEIGHT * 1) + 'px',
@@ -2928,9 +2765,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         container.click(function () {
             if (prevSelectedLeftLabel == container)
                 return;
-            if (prevSelectedLeftLabel.attr('id') === 'password'){
-                buttonContainer.css('display','block');
-            }
             resetLabels('.leftLabel');
             selectLabel(container, !noexpand);
             if (onclick)
@@ -3048,18 +2882,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         return container;
     }
 
-    // Creates the settings container where settings are inserted
-    function createSettingsContainer() {
-        var container = $(document.createElement('div'));
-        container.css({
-            'margin-left': '2%',
-            'margin-top': '3%',
-            'margin-bottom': '3%',
-            'margin-right': '0%',
-        });
-        return container;
-    }
-
     // Creates a button with text set to 'text', on click
     // function set to onclick, and additional css applied if specified
     function createButton(text, onclick, css) {
@@ -3096,7 +2918,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         if (typeof text === 'string')
             text = text.replace(/<br \/>/g, '\n').replace(/<br>/g, '\n').replace(/<br\/>/g, '\n');
         var input = $(document.createElement('textarea')).val(text);
-        //input.attr('placeholder', text);
         input.autoSize();
         doWhenReady(input, function (elem) {
             var realHeight = input[0].scrollHeight;
@@ -3328,7 +3149,6 @@ LADS.Authoring.SettingsView = function (startView, callback, backPage, startLabe
         fieldvalue.appendChild(xml.createTextNode(value));
     }
 
-    // From the old settings view, works there so should work here
     function getMetaData(doq) {
         return doq.getElementsByTagName("Metadata")[0].childNodes[0].childNodes[0].childNodes[1].childNodes[0].childNodes;
     }
