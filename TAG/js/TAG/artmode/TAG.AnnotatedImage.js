@@ -527,7 +527,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             });
 
             sliderContainer.on('mousedown', function(evt) {
-                var time = elt.duration * (evt.offsetX / sliderContainer.width()),
+                var time = elt.duration * ((evt.pageX - $(evt.target).offset().left) / sliderContainer.width()),
                     origPoint = evt.pageX,
                     timePxRatio = elt.duration / sliderContainer.width(),
                     currTime = Math.max(0, Math.min(elt.duration, elt.currentTime)),
@@ -755,7 +755,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                         //Where object should be moved to
                         finalPosition = {
                             x: res.center.pageX - (res.startEvent.center.pageX - startLocation.x),
-                            y: res.center.pageY - (res.startEvent.center.pageY - startLocation.y),
+                            y: res.center.pageY - (res.startEvent.center.pageY - startLocation.y)
                         },
 
                         deltaPosition = {
@@ -772,9 +772,9 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                             y: deltaPosition.y/(deltaTime*100)
                         };
 
-                        //Recursive function to move object between start location and final location with proper physics
-                        move(res, initialVelocity, initialPosition, finalPosition, 1);
-                        viewer.viewport.applyConstraints()
+                    //Recursive function to move object between start location and final location with proper physics
+                    move(res, initialVelocity, initialPosition, finalPosition, 1);
+                    viewer.viewport.applyConstraints()
                 } else { //If object isn't within bounds, hide and reset it.
                     hideMediaObject();
                     pauseResetMediaObject();
