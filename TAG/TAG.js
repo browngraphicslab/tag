@@ -4,7 +4,7 @@ var TAG_GLOBAL = function(tagInput) {
         ip                = tagInput.serverIp, 					        
         allowServerChange = tagInput.allowServerChange, 					        
         idleDuration      = tagInput.idleDuration, 					        
-        currentPage, 					        
+        currentPage       = {}, // name and obj properties 					        
         idleTimer; 
 
 /*!
@@ -37926,8 +37926,13 @@ TAG.Util.IdleTimer = (function() {
      * @method returnHome
      */
     function returnHome() {
-        catalog = new TAG.Layout.CollectionsPage();
-        TAG.Util.UI.slidePageRight(catalog.getRoot());
+        if(currentPage.name !== TAG.Util.Constants.pages.COLLECTIONS_PAGE || !currentPage.obj || !currentPage.obj.loadFirstCollection) {
+            catalog = new TAG.Layout.CollectionsPage();
+            TAG.Util.UI.slidePageRight(catalog.getRoot());
+        } else {
+            removeIdleOverlay();
+            currentPage.obj.loadFirstCollection();
+        }
     }
 
     /**
@@ -41834,7 +41839,6 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         tagContainer;
 
     TAG.Telemetry.register(overlay, 'click', 'start_to_collections');
-    currentPage = TAG.Util.Constants.pages.START_PAGE;
 
     if (localStorage.ip && localStorage.ip.indexOf(':') !== -1) {
         localStorage.ip = localStorage.ip.split(':')[0];
@@ -41918,11 +41922,14 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
 
         //opens the collections page on touch/click
         function switchPage() {
-            var newCatalog;
+            var collectionsPage;
 
             overlay.off('click');
-            newCatalog = TAG.Layout.CollectionsPage();
-            TAG.Util.UI.slidePageLeft(newCatalog.getRoot());
+            collectionsPage = TAG.Layout.CollectionsPage();
+            TAG.Util.UI.slidePageLeft(collectionsPage.getRoot());
+
+            currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+            currentPage.obj  = collectionsPage;
         }
 
         // Test for browser compatibility
@@ -42386,6 +42393,10 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
     // get things rolling if doq is defined (it better be)
     doq && init();
 
+    return {
+        getRoot: getRoot
+    };
+
     /**
      * Initiate artmode with a root, artwork image and a sidebar on the left
      * @method init
@@ -42394,8 +42405,6 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         var head,
             script,
             meta;
-
-        currentPage = TAG.Util.Constants.pages.ARTWORK_VIEWER;
 
         idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
         idleTimer.start();
@@ -42740,17 +42749,20 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         });
 
         function goBack() {
-            var catalog;
+            var collectionsPage;
             backButton.off('click');
             idleTimer.kill();
             idleTimer = null;
             annotatedImage && annotatedImage.unload();
-            catalog = new TAG.Layout.CollectionsPage({
+            collectionsPage = new TAG.Layout.CollectionsPage({
                 backScroll:     prevScroll,
                 backArtwork:    doq,
                 backCollection: prevCollection
             });
-            TAG.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {});
+            TAG.Util.UI.slidePageRightSplit(root, collectionsPage.getRoot(), function () {});
+
+            currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+            currentPage.obj  = collectionsPage;
         }
 
 
@@ -43357,9 +43369,9 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
      * @method
      * @return {jQuery obj}    root jquery object
      */
-    this.getRoot = function () {
+    function getRoot() {
         return root;
-    };
+    }
 
     /**
      * Make the map for location History.
@@ -43438,7 +43450,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         currentArtwork   = options.backArtwork,         // the currently selected artwork
 
         // misc initialized vars
-        loadQueue        = TAG.Util.createQueue(),          // an async queue for artwork tile creation, etc
+        loadQueue        = TAG.Util.createQueue(),           // an async queue for artwork tile creation, etc
         artworkSelected  = false,                            // whether an artwork is selected
         collectionTitles = [],                               // array of collection title DOM elements
         firstLoad        = true,                             // TODO is this necessary? what is it doing?
@@ -43446,11 +43458,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         infoSource       = [],                               // array to hold sorting/searching information
 
         // constants
-        DEFAULT_TAG      = "Title",                                 // default sort tag
+        DEFAULT_TAG      = "Title",                                // default sort tag
         BASE_FONT_SIZE   = TAG.Worktop.Database.getBaseFontSize(), // base font size for current font
         FIX_PATH         = TAG.Worktop.Database.fixPath,           // prepend server address to given path
 
         // misc uninitialized vars
+        toShowFirst,                    // first collection to be shown (by default)
         toursIn,                        // tours in current collection
         currentThumbnail,               // img tag for current thumbnail image
         numVisibleCollections,          // number of collections that are both published and visible
@@ -43475,15 +43488,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             circle,
             oldSearchTerm;
 
-        currentPage = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
-
         // register back button with the telemetry service
         TAG.Telemetry.register(backbuttonIcon, 'click', 'collections_to_start');
 
         backbuttonIcon.attr('src', tagPath+'images/icons/Back.svg');
 
-        idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
-        idleTimer.start();
+        idleTimer = null;
 
         progressCircCSS = {
             'position': 'absolute',
@@ -43555,8 +43565,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         var i,
             privateState,
             c,
-            artwrk,
-            toShowFirst;
+            artwrk;
 
         numVisibleCollections = 0;
 
@@ -43581,7 +43590,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         if (currCollection) {
             clickCollection(currCollection, scrollPos, currentArtwork)();
         } else if(toShowFirst) {
-            clickCollection(toShowFirst)(); // first collection selected by default
+            loadFirstCollection();
         }
         loadingArea.hide();
     }
@@ -43677,8 +43686,15 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      * @param {doq} artwrk           if undefined, set currentArtwork to null, otherwise, use this
      */
     function clickCollection(collection, sPos, artwrk) {
-        return function() {
+        return function(evt) {
             var i;
+
+            // if the idle timer hasn't started already, start it
+            if(!idleTimer && evt) { // clickCollection is called without an event to show the first collection
+                idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
+                idleTimer.start();
+            }
+
             for (i = 0; i < collectionTitles.length; i++) {
                 collectionTitles[i].css({ 'background-color': 'transparent', 'color': 'white' });
                 collectionTitles[i].data("selected", false);
@@ -43842,6 +43858,14 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 'color': 'black'
             });
         }
+    }
+
+    /**
+     * Helper function to load first collection
+     * @method loadFirstCollection
+     */
+    function loadFirstCollection() {
+        clickCollection(toShowFirst)(); // first collection selected by default
     }
 
     /**
@@ -44026,6 +44050,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             });
 
             main.on('click', function () {
+                // if the idle timer hasn't started already, start it
+                if(!idleTimer) {
+                    idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
+                    idleTimer.start();
+                }
+
                 if (currentThumbnail.attr('guid') === currentWork.Identifier) { // click twice to enter viewer
                     switchPage();
                 } else {
@@ -44345,7 +44375,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             backArtwork: currentArtwork
         }
 
-        rinPlayer = new TAG.Layout.TourPlayer(rinData, currCollection, collectionOptions, null, tour);
+        rinPlayer = TAG.Layout.TourPlayer(rinData, currCollection, collectionOptions, null, tour);
 
         if (TAG.Util.Splitscreen.on()) { // if splitscreen is on, exit it
             parentid = root.parent().attr('id');
@@ -44353,6 +44383,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         }
 
         TAG.Util.UI.slidePageLeftSplit(root, rinPlayer.getRoot(), rinPlayer.startPlayback);
+
+        currentPage.name = TAG.Util.Constants.pages.TOUR_PLAYER;
+        currentPage.obj  = rinPlayer;
     }
 
     /**
@@ -44400,18 +44433,23 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 artworkPrev: null,
                 prevScroll: scrollPos
             };
-            videoPlayer = new TAG.Layout.VideoPlayer(currentArtwork, currCollection, prevInfo);
+            videoPlayer = TAG.Layout.VideoPlayer(currentArtwork, currCollection, prevInfo);
             TAG.Util.UI.slidePageLeftSplit(root, videoPlayer.getRoot());
-        }
-        else { // artwork
+
+            currentPage.name = TAG.Util.Constants.pages.VIDEO_PLAYER;
+            currentPage.obj  = videoPlayer;
+        } else { // artwork
             scrollPos = catalogDiv.scrollLeft();
-            artworkViewer = new TAG.Layout.ArtworkViewer({
+            artworkViewer = TAG.Layout.ArtworkViewer({
                 doq: currentArtwork,
                 prevScroll: scrollPos,
                 prevCollection: currCollection,
                 prevPage: 'catalog'
             });
             TAG.Util.UI.slidePageLeftSplit(root, artworkViewer.getRoot());
+
+            currentPage.name = TAG.Util.Constants.pages.ARTWORK_VIEWER;
+            currentPage.obj  = artworkViewer;
         }
         root.css({ 'overflow-x': 'hidden' });
     }
@@ -44449,7 +44487,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
     return {
         getRoot: getRoot,
-        loadCollection: loadCollection
+        loadCollection: loadCollection,
+        loadFirstCollection: loadFirstCollection
     };
 };
 
@@ -44712,8 +44751,6 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
         backButton = root.find('#backButton'),
         overlayOnRoot = root.find('#overlayOnRoot');
 
-    currentPage = TAG.Util.Constants.pages.TOUR_PLAYER;
-
     // UNCOMMENT IF WE WANT IDLE TIMER IN TOUR PLAYER
     // idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
     // idleTimer.start();
@@ -44732,7 +44769,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
     function goBack () {
         console.log('player: '+player);
 
-        var artmode, catalog;
+        var artmode, collectionsPage;
 
         // UNCOMMENT IF WE WANT IDLE TIMER IN TOUR PLAYER
         // idleTimer.kill();
@@ -44755,18 +44792,17 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
             artmode = new TAG.Layout.ArtworkViewer(artmodeOptions);
             TAG.Util.UI.slidePageRightSplit(root, artmode.getRoot());
 
-            var selectedExhib = $('#collection-' + prevExhib.Identifier);
-            selectedExhib.attr('flagClicked', 'true');
+            currentPage.name = TAG.Util.Constants.pages.ARTWORK_VIEWER;
+            currentPage.obj  = artmode;
         } else {
-            /* nbowditch _editted 2/13/2014 : added backInfo */
             var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
-            catalog = new TAG.Layout.CollectionsPage({
+            collectionsPage = new TAG.Layout.CollectionsPage({
                 backScroll: prevScroll,
                 backArtwork: tourObj,
                 backCollection: exhibition
             });
-            /* end nbowditch edit */
-            TAG.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
+
+            TAG.Util.UI.slidePageRightSplit(root, collectionsPage.getRoot(), function () {
 				artworkPrev = "catalog";
 				var selectedExhib = $('#collection-' + prevExhib.Identifier);
 				selectedExhib.attr('flagClicked', 'true');
@@ -44774,7 +44810,10 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
                 if(selectedExhib[0].firstChild) {
     				$(selectedExhib[0].firstChild).css({'color': 'black'});
                 }
-			});           
+			});
+
+            currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+            currentPage.obj  = collectionsPage;         
         }
         // TODO: do we need this next line?
         // tagContainer.css({ 'font-size': '11pt', 'font-family': "'source sans pro regular' sans-serif" }); // Quick hack to fix bug where rin.css was overriding styles for body element -jastern 4/30
@@ -44855,8 +44894,6 @@ TAG.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         currentTimeDisplay = root.find('#currentTimeDisplay'),
         backButton = root.find('#backButton');
 
-    currentPage = TAG.Util.Constants.pages.VIDEO_PLAYER;
-
     // UNCOMMENT IF WE WANT IDLE TIMER IN Video PLAYER
     // idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
     // idleTimer.start();
@@ -44879,20 +44916,23 @@ TAG.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         // idleTimer = null;
 
         var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
-        var catalog = new TAG.Layout.CollectionsPage({
+        var collectionsPage = TAG.Layout.CollectionsPage({
             backScroll: prevScroll,
             backArtwork: videoSrc,
             backCollection: collection
         });
 
-        catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO should be default in .styl file
-        TAG.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
+        // collectionsPage.getRoot().css({ 'overflow-x': 'hidden' }); // TODO should be default in .styl file
+        TAG.Util.UI.slidePageRightSplit(root, collectionsPage.getRoot(), function () {
             artworkPrev = "catalog";
             var selectedExhib = $('#collection-' + prevExhib.Identifier);
             selectedExhib.attr('flagClicked', 'true');
             selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
             $(selectedExhib[0].firstChild).css({'color': 'black'});
         });
+
+        currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+        currentPage.obj  = collectionsPage;
     }
 
     function loop(){
@@ -45902,39 +45942,39 @@ TAG.TESTS = (function () {
 
         init();
 
-        /* nbowditch _editted 2/23/2014 : stopped scrolling when over tag*/
-        /* NOTE: had to do this in 2 places for cross-browser support.
-           for FF and IE, propogation had to be stopped inside the iframe.
-           For chrome, it had to be stopped outside iframe.
-        */
+        // /* nbowditch _editted 2/23/2014 : stopped scrolling when over tag*/
+        // /* NOTE: had to do this in 2 places for cross-browser support.
+        //    for FF and IE, propogation had to be stopped inside the iframe.
+        //    For chrome, it had to be stopped outside iframe.
+        // */
         
-        var frameDiv = document.getElementById('tagRootContainer');
+        // var frameDiv = document.getElementById('tagRootContainer');
 
-        // $('body').on('scroll.b mousewheel.b MozMousePixelScroll.b DOMMouseScroll.b', function(e) {
-        //     e.stopPropagation();
-        //     e.stopImmediatePropagation();
-        //     e.preventDefault();
-        //     return false;
-        // });
-        // frameDiv.addEventListener('mousewheel', function (evt) {
-        //     evt.stopPropagation();
-        //     evt.preventDefault();
-        //     return false;
-        // });
-        // frameDiv.addEventListener('DOMMouseScroll', function (evt) {
-        //     evt.stopPropagation();
-        //     evt.preventDefault();
-        //     return false;
-        // });
-        // frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
-        //     evt.stopPropagation();
-        //     evt.preventDefault();
-        //     return false;
-        // });
+        // // $('body').on('scroll.b mousewheel.b MozMousePixelScroll.b DOMMouseScroll.b', function(e) {
+        // //     e.stopPropagation();
+        // //     e.stopImmediatePropagation();
+        // //     e.preventDefault();
+        // //     return false;
+        // // });
+        // // frameDiv.addEventListener('mousewheel', function (evt) {
+        // //     evt.stopPropagation();
+        // //     evt.preventDefault();
+        // //     return false;
+        // // });
+        // // frameDiv.addEventListener('DOMMouseScroll', function (evt) {
+        // //     evt.stopPropagation();
+        // //     evt.preventDefault();
+        // //     return false;
+        // // });
+        // // frameDiv.addEventListener('MozMousePixelScroll', function (evt) {
+        // //     evt.stopPropagation();
+        // //     evt.preventDefault();
+        // //     return false;
+        // // });
         
 
 
-        /* end nbowditch edit */
+        // /* end nbowditch edit */
     }
 
     function init() {
@@ -46014,6 +46054,9 @@ TAG.TESTS = (function () {
                     }
                 });
                 if (!found) {
+                    currentPage.name = TAG.Util.Constants.pages.START_PAGE;
+                    currentPage.obj  = null;
+                    
                     TAG.Layout.StartPage(null, function (x) {
                         tagContainer.append(x);
                     });
@@ -46021,6 +46064,9 @@ TAG.TESTS = (function () {
             });
         }
         else {
+            currentPage.name = TAG.Util.Constants.pages.START_PAGE;
+            currentPage.obj  = null;
+
             TAG.Layout.StartPage(null, function (page) {
                 tagContainer.append(page);
             });

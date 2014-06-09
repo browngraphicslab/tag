@@ -35,7 +35,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         currentArtwork   = options.backArtwork,         // the currently selected artwork
 
         // misc initialized vars
-        loadQueue        = TAG.Util.createQueue(),          // an async queue for artwork tile creation, etc
+        loadQueue        = TAG.Util.createQueue(),           // an async queue for artwork tile creation, etc
         artworkSelected  = false,                            // whether an artwork is selected
         collectionTitles = [],                               // array of collection title DOM elements
         firstLoad        = true,                             // TODO is this necessary? what is it doing?
@@ -43,11 +43,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         infoSource       = [],                               // array to hold sorting/searching information
 
         // constants
-        DEFAULT_TAG      = "Title",                                 // default sort tag
+        DEFAULT_TAG      = "Title",                                // default sort tag
         BASE_FONT_SIZE   = TAG.Worktop.Database.getBaseFontSize(), // base font size for current font
         FIX_PATH         = TAG.Worktop.Database.fixPath,           // prepend server address to given path
 
         // misc uninitialized vars
+        toShowFirst,                    // first collection to be shown (by default)
         toursIn,                        // tours in current collection
         currentThumbnail,               // img tag for current thumbnail image
         numVisibleCollections,          // number of collections that are both published and visible
@@ -72,15 +73,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             circle,
             oldSearchTerm;
 
-        currentPage = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
-
         // register back button with the telemetry service
         TAG.Telemetry.register(backbuttonIcon, 'click', 'collections_to_start');
 
         backbuttonIcon.attr('src', tagPath+'images/icons/Back.svg');
 
-        idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
-        idleTimer.start();
+        idleTimer = null;
 
         progressCircCSS = {
             'position': 'absolute',
@@ -152,8 +150,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         var i,
             privateState,
             c,
-            artwrk,
-            toShowFirst;
+            artwrk;
 
         numVisibleCollections = 0;
 
@@ -178,7 +175,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         if (currCollection) {
             clickCollection(currCollection, scrollPos, currentArtwork)();
         } else if(toShowFirst) {
-            clickCollection(toShowFirst)(); // first collection selected by default
+            loadFirstCollection();
         }
         loadingArea.hide();
     }
@@ -274,8 +271,15 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      * @param {doq} artwrk           if undefined, set currentArtwork to null, otherwise, use this
      */
     function clickCollection(collection, sPos, artwrk) {
-        return function() {
+        return function(evt) {
             var i;
+
+            // if the idle timer hasn't started already, start it
+            if(!idleTimer && evt) { // clickCollection is called without an event to show the first collection
+                idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
+                idleTimer.start();
+            }
+
             for (i = 0; i < collectionTitles.length; i++) {
                 collectionTitles[i].css({ 'background-color': 'transparent', 'color': 'white' });
                 collectionTitles[i].data("selected", false);
@@ -439,6 +443,14 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 'color': 'black'
             });
         }
+    }
+
+    /**
+     * Helper function to load first collection
+     * @method loadFirstCollection
+     */
+    function loadFirstCollection() {
+        clickCollection(toShowFirst)(); // first collection selected by default
     }
 
     /**
@@ -623,6 +635,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             });
 
             main.on('click', function () {
+                // if the idle timer hasn't started already, start it
+                if(!idleTimer) {
+                    idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
+                    idleTimer.start();
+                }
+
                 if (currentThumbnail.attr('guid') === currentWork.Identifier) { // click twice to enter viewer
                     switchPage();
                 } else {
@@ -942,7 +960,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             backArtwork: currentArtwork
         }
 
-        rinPlayer = new TAG.Layout.TourPlayer(rinData, currCollection, collectionOptions, null, tour);
+        rinPlayer = TAG.Layout.TourPlayer(rinData, currCollection, collectionOptions, null, tour);
 
         if (TAG.Util.Splitscreen.on()) { // if splitscreen is on, exit it
             parentid = root.parent().attr('id');
@@ -950,6 +968,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         }
 
         TAG.Util.UI.slidePageLeftSplit(root, rinPlayer.getRoot(), rinPlayer.startPlayback);
+
+        currentPage.name = TAG.Util.Constants.pages.TOUR_PLAYER;
+        currentPage.obj  = rinPlayer;
     }
 
     /**
@@ -997,18 +1018,23 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 artworkPrev: null,
                 prevScroll: scrollPos
             };
-            videoPlayer = new TAG.Layout.VideoPlayer(currentArtwork, currCollection, prevInfo);
+            videoPlayer = TAG.Layout.VideoPlayer(currentArtwork, currCollection, prevInfo);
             TAG.Util.UI.slidePageLeftSplit(root, videoPlayer.getRoot());
-        }
-        else { // artwork
+
+            currentPage.name = TAG.Util.Constants.pages.VIDEO_PLAYER;
+            currentPage.obj  = videoPlayer;
+        } else { // artwork
             scrollPos = catalogDiv.scrollLeft();
-            artworkViewer = new TAG.Layout.ArtworkViewer({
+            artworkViewer = TAG.Layout.ArtworkViewer({
                 doq: currentArtwork,
                 prevScroll: scrollPos,
                 prevCollection: currCollection,
                 prevPage: 'catalog'
             });
             TAG.Util.UI.slidePageLeftSplit(root, artworkViewer.getRoot());
+
+            currentPage.name = TAG.Util.Constants.pages.ARTWORK_VIEWER;
+            currentPage.obj  = artworkViewer;
         }
         root.css({ 'overflow-x': 'hidden' });
     }
@@ -1046,7 +1072,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
     return {
         getRoot: getRoot,
-        loadCollection: loadCollection
+        loadCollection: loadCollection,
+        loadFirstCollection: loadFirstCollection
     };
 };
 

@@ -9,7 +9,7 @@ module.exports = function(grunt) {
 					        \n        ip                = tagInput.serverIp, \
 					        \n        allowServerChange = tagInput.allowServerChange, \
 					        \n        idleDuration      = tagInput.idleDuration, \
-					        \n        currentPage, \
+					        \n        currentPage       = {}, // name and obj properties \
 					        \n        idleTimer; \n\n',
 				footer: '};'
 			},

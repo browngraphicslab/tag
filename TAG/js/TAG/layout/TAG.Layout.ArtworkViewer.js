@@ -51,6 +51,10 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
     // get things rolling if doq is defined (it better be)
     doq && init();
 
+    return {
+        getRoot: getRoot
+    };
+
     /**
      * Initiate artmode with a root, artwork image and a sidebar on the left
      * @method init
@@ -59,8 +63,6 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         var head,
             script,
             meta;
-
-        currentPage = TAG.Util.Constants.pages.ARTWORK_VIEWER;
 
         idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
         idleTimer.start();
@@ -405,17 +407,20 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         });
 
         function goBack() {
-            var catalog;
+            var collectionsPage;
             backButton.off('click');
             idleTimer.kill();
             idleTimer = null;
             annotatedImage && annotatedImage.unload();
-            catalog = new TAG.Layout.CollectionsPage({
+            collectionsPage = new TAG.Layout.CollectionsPage({
                 backScroll:     prevScroll,
                 backArtwork:    doq,
                 backCollection: prevCollection
             });
-            TAG.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {});
+            TAG.Util.UI.slidePageRightSplit(root, collectionsPage.getRoot(), function () {});
+
+            currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+            currentPage.obj  = collectionsPage;
         }
 
 
@@ -1022,9 +1027,9 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
      * @method
      * @return {jQuery obj}    root jquery object
      */
-    this.getRoot = function () {
+    function getRoot() {
         return root;
-    };
+    }
 
     /**
      * Make the map for location History.
