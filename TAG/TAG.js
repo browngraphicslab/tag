@@ -42714,10 +42714,12 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         
         //condition to check if the height of the info div is greater than or equal to half the lenght of the side bar, 
         //in which case the scroll property of the div is enabled and its max height set to a 3rd of the info div height
-        if (info.height()>=sideBar.height()/2){
+        if (assetContainer.height()>=sideBarInfo.height()-info.height()){
+            
             info.css({
-                'overflow-y' : 'scroll',
-                'max-height' : sideBar.height()/3 + 'px',
+                 'width': '500px',
+                //'overflow-y' : 'scroll',
+                //'max-height' : '10em',
 
             });
         }
