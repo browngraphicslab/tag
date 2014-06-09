@@ -149,6 +149,26 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         container.append(createButton('zinControl',   tagPath+'images/icons/zoom_plus.svg',  D_PAD_LEFT-40, D_PAD_TOP-6));
         container.append(createButton('zoutControl',  tagPath+'images/icons/zoom_minus.svg', D_PAD_LEFT-40, D_PAD_TOP+34));
 
+        /////////////////////////// RAPID PROTOTYPING /////////////////////////////
+
+        var crossfadeSlider = $(document.createElement('input')).attr({
+            'id': 'crossfadeSlider',
+            'type': 'range',
+            'value': 1,
+            'min': 0,
+            'max': 1,
+            'step': 0.05
+        });
+
+        crossfadeSlider.on('change mousemove', function() {
+            $('.mediaOuterContainer').css('opacity', crossfadeSlider.val());
+        });
+        container.append(crossfadeSlider);
+
+        ///////////////////////////////////////////////////////////////////////////
+
+
+
         /**
          * Create a seadragon control button
          * @method createButton

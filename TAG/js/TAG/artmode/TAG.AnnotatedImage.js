@@ -743,7 +743,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
 
            //Manipulation for touch and drag events
             if (newW === w){ //If media object is being dragged (not resized)
-                if ((0 < t + h) && (t < rootHeight) && (0 < l + w) && (l< rootWidth)) { // and is still on screen
+                if ((0 < t + h) && (t < rootHeight) && (0 < l + w) && (l < rootWidth)) { // and is still on screen
                     
                     var currentTime = Date.now(),
 
@@ -775,8 +775,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                         
                         //Recursive function to move object between start location and final location with proper physics
                         move(res, initialVelocity, initialPosition, finalPosition, timestepConstant/50);
-                        viewer.viewport.applyConstraints()
-
+                        viewer.viewport.applyConstraints();
                 } else { //If object isn't within bounds, hide and reset it.
                     hideMediaObject();
                     pauseResetMediaObject();
@@ -812,7 +811,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             //If velocity is almost 0, stop movement
             if ((Math.abs(prevVelocity.x) < .1) && (Math.abs(prevVelocity.y) < .1)) {
                 return;
-            };
+            }
 
             //Current position is previous position + movement from velocity * time
             var currentPosition = { 

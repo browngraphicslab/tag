@@ -41470,7 +41470,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
 
            //Manipulation for touch and drag events
             if (newW === w){ //If media object is being dragged (not resized)
-                if ((0 < t + h) && (t < rootHeight) && (0 < l + w) && (l< rootWidth)) { // and is still on screen
+                if ((0 < t + h) && (t < rootHeight) && (0 < l + w) && (l < rootWidth)) { // and is still on screen
                     
                     var currentTime = Date.now(),
 
@@ -41502,8 +41502,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                         
                         //Recursive function to move object between start location and final location with proper physics
                         move(res, initialVelocity, initialPosition, finalPosition, timestepConstant/50);
-                        viewer.viewport.applyConstraints()
-
+                        viewer.viewport.applyConstraints();
                 } else { //If object isn't within bounds, hide and reset it.
                     hideMediaObject();
                     pauseResetMediaObject();
@@ -41539,7 +41538,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             //If velocity is almost 0, stop movement
             if ((Math.abs(prevVelocity.x) < .1) && (Math.abs(prevVelocity.y) < .1)) {
                 return;
-            };
+            }
 
             //Current position is previous position + movement from velocity * time
             var currentPosition = { 
@@ -42701,6 +42700,26 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         container.append(createButton('downControl',  tagPath+'images/icons/zoom_down.svg',  D_PAD_LEFT+12, D_PAD_TOP+43));
         container.append(createButton('zinControl',   tagPath+'images/icons/zoom_plus.svg',  D_PAD_LEFT-40, D_PAD_TOP-6));
         container.append(createButton('zoutControl',  tagPath+'images/icons/zoom_minus.svg', D_PAD_LEFT-40, D_PAD_TOP+34));
+
+        /////////////////////////// RAPID PROTOTYPING /////////////////////////////
+
+        var crossfadeSlider = $(document.createElement('input')).attr({
+            'id': 'crossfadeSlider',
+            'type': 'range',
+            'value': 1,
+            'min': 0,
+            'max': 1,
+            'step': 0.05
+        });
+
+        crossfadeSlider.on('change mousemove', function() {
+            $('.mediaOuterContainer').css('opacity', crossfadeSlider.val());
+        });
+        container.append(crossfadeSlider);
+
+        ///////////////////////////////////////////////////////////////////////////
+
+
 
         /**
          * Create a seadragon control button
@@ -43974,7 +43993,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         currentThumbnail.attr('thumbnail', FIX_PATH(collection.Metadata.DescriptionImage1));
         currentThumbnail.on('click', switchPage);
 
-        TAG.Telemetry.register(currentThumbnail, 'click', '', function() {
+        TAG.Telemetry.register(currentThumbnail, 'click', '', function(tobj) {
             if (!currentArtwork || !artworkSelected) {
                 return true; // abort
             }

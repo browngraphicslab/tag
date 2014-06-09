@@ -363,7 +363,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         currentThumbnail.attr('thumbnail', FIX_PATH(collection.Metadata.DescriptionImage1));
         currentThumbnail.on('click', switchPage);
 
-        TAG.Telemetry.register(currentThumbnail, 'click', '', function() {
+        TAG.Telemetry.register(currentThumbnail, 'click', '', function(tobj) {
             if (!currentArtwork || !artworkSelected) {
                 return true; // abort
             }
