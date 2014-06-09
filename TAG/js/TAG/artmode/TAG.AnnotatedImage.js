@@ -772,17 +772,11 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                             x: deltaPosition.x/timestepConstant,
                             y: deltaPosition.y/timestepConstant
                         };
-<<<<<<< HEAD
                         
                         //Recursive function to move object between start location and final location with proper physics
                         move(res, initialVelocity, initialPosition, finalPosition, timestepConstant/50);
                         viewer.viewport.applyConstraints()
-=======
 
-                    //Recursive function to move object between start location and final location with proper physics
-                    move(res, initialVelocity, initialPosition, finalPosition, 1);
-                    viewer.viewport.applyConstraints()
->>>>>>> 0c76e84820bc023ae1874551a749b131ae299d79
                 } else { //If object isn't within bounds, hide and reset it.
                     hideMediaObject();
                     pauseResetMediaObject();
