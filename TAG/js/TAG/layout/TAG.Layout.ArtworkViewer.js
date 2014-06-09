@@ -217,12 +217,12 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
          */
         function doManip(evt, direction) {
             manipulate = annotatedImage.getToManip();
-            if(annotatedImage.getClicked() === 'artwork') {
-                var pivot = {
-                    x: CENTER_X,
-                    y: CENTER_Y
+
+             var pivot = {
+                    x: Math.floor(annotatedImage.getMediaDimensions().width / 2),
+                    y: Math.floor(annotatedImage.getMediaDimensions().height / 2)
                 };
-                
+
                 if (direction === 'left') {
                     manipulate({pivot: pivot, translation: {x: -panDelta, y: 0}, scale: 1});
                 } else if (direction === 'up') {
@@ -236,26 +236,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
                 } else if (direction === 'out') {
                     manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
                 }
-            }
-            else if(annotatedImage.getClicked() === 'media') {
-                var pivot = {
-                    x: annotatedImage.getAssocMediaDimensions().height / 2,
-                    y: annotatedImage.getAssocMediaDimensions().width / 2
-                };
-                if (direction === 'left') {
-                    manipulate({pivot: pivot, translation: {x: -panDelta, y: 0}, scale: 1});
-                } else if (direction === 'up') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: -panDelta}, scale: 1});
-                } else if (direction === 'right') {
-                    manipulate({pivot: pivot, translation: {x: panDelta, y: 0}, scale: 1});
-                } else if (direction === 'down') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
-                } else if (direction === 'in') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 + zoomScale});
-                } else if (direction === 'out') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
-                }
-            }
+            
         }
 
 

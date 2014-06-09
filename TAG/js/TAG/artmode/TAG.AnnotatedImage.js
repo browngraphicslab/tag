@@ -27,7 +27,9 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         associatedMedia = { guids: [] },   // object of associated media objects for this artwork, keyed by media GUID;
                                            //   also contains an array of GUIDs for cleaner iteration
         toManip         = dzManip,         // media to manipulate, i.e. artwork or associated media
-        clickedMedia    = 'artwork',       // artwork or media
+        rootHeight     = $('#tagRoot').height(),
+        rootWidth      = $('#tagRoot').width(),
+        outerContainerDimensions = {height: rootHeight, width: rootWidth},  //dimensions of active media to manipulate
 
         // misc uninitialized variables
         outerContainerDimensions,
@@ -45,19 +47,17 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         openArtwork: openArtwork,
         addAnimateHandler: addAnimateHandler,
         getToManip: getToManip,
-        getClicked: getClicked,
-        getAssocMediaDimensions: getAssocMediaDimensions,
+        getMediaDimensions: getMediaDimensions,
         setArtworkClicked: setArtworkClicked,
         viewer: viewer
     };
 
     /**
      * Sets the artwork as active and the Deep Zoom manipulation method is used zooming and panning
-     * @method getToManip
+     * @method setArtworkClicked
      */
     function setArtworkClicked() {
-        toManip = dzManip;                  
-        clickedMedia = 'artwork';
+        dzManipPreprocessing();
     }
 
     /**
@@ -71,22 +71,12 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
 
 
     /**
-     * Return the dimensions of the active associated media container
-     * @method clickedMedia
+     * Return the dimensions of the active associated media or artwork
+     * @method getMediaDimensions
      * @return {String}     object with dimensions
      */
-    function getAssocMediaDimensions() {
+    function getMediaDimensions() {
         return outerContainerDimensions;   
-    }
-
-    /**
-     * Return active media to be manipulated so applicable manipulation method can be called
-     * @method getClicked
-     * @return {String}     manipulation method object
-     */
-
-    function getClicked() {
-        return clickedMedia;
     }
 
 
@@ -176,10 +166,13 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         viewer && viewer.unload();
     }
 
-
+    /**
+     * When the artwork is active, sets the manipulation method and dimensions for the active container
+     * @method dzManipPreprocessing
+     */
     function dzManipPreprocessing() {
+        outerContainerDimensions = {height: rootHeight, width: rootWidth};
         toManip = dzManip;
-        clickedMedia = 'artwork';
     }
 
     /**
@@ -334,8 +327,6 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             outerContainer = $(document.createElement('div')).addClass('mediaOuterContainer'),
             innerContainer = $(document.createElement('div')).addClass('mediaInnerContainer'),
             mediaContainer = $(document.createElement('div')).addClass('mediaMediaContainer'),
-            rootHeight     = $('#tagRoot').height(),
-            rootWidth      = $('#tagRoot').width(),
 
             // constants
             IS_HOTSPOT      = linq.Metadata.Type ? (linq.Metadata.Type === "Hotspot") : false,
@@ -680,9 +671,8 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
          * @method mediaManipPreprocessing
          */
         function mediaManipPreprocessing() {
-            outerContainerDimensions = getDimensions();
+            outerContainerDimensions = {height: outerContainer.height(), width: outerContainer.width()};
             toManip = mediaManip;
-            clickedMedia = 'media';
             $('.mediaOuterContainer').css('z-index', 1000);
             outerContainer.css('z-index', 1001);
         }
@@ -695,14 +685,6 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             mediaManipPreprocessing();
 
         });
-
-        //Returns the dimensions of the associated media
-        function getDimensions() {
-            return {
-                height: outerContainer.height(),
-                width: outerContainer.width()
-            };
-        }
 
      
         /**
@@ -768,7 +750,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
 
         /**
          * Zoom handler for associated media (e.g., for mousewheel scrolling)
-         * @method onScroll
+         * @method mediaScroll
          * @param {Number} scale     scale factor
          * @param {Object} pivot     point of contact
          */
