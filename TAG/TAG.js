@@ -41499,17 +41499,11 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                             x: deltaPosition.x/timestepConstant,
                             y: deltaPosition.y/timestepConstant
                         };
-<<<<<<< HEAD
                         
                         //Recursive function to move object between start location and final location with proper physics
                         move(res, initialVelocity, initialPosition, finalPosition, timestepConstant/50);
                         viewer.viewport.applyConstraints()
-=======
 
-                    //Recursive function to move object between start location and final location with proper physics
-                    move(res, initialVelocity, initialPosition, finalPosition, 1);
-                    viewer.viewport.applyConstraints()
->>>>>>> 0c76e84820bc023ae1874551a749b131ae299d79
                 } else { //If object isn't within bounds, hide and reset it.
                     hideMediaObject();
                     pauseResetMediaObject();
@@ -41633,7 +41627,6 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 circle.css('visibility', 'visible');
                 addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
                 viewer.viewport.panTo(position, false);
-<<<<<<< HEAD
                 viewer.viewport.applyConstraints()
                 t = circle.offset().top + circle.width()*4;
                 l = circle.offset().left + circle.width()*4;
@@ -41644,10 +41637,6 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
 
                 //t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
                 //l = rootWidth/2 + circle.width()*3/4;
-=======
-                t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
-                l = rootWidth/2 + circle.width()*3/4;
->>>>>>> 0c76e84820bc023ae1874551a749b131ae299d79
             } else {
                 t = rootHeight * 1/10 + Math.random() * rootHeight * 2/10;
                 l = rootWidth  * 3/10 + Math.random() * rootWidth  * 2/10;
@@ -41748,6 +41737,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         };
     }
 };
+
 ;
 var TAG = TAG || {};
 
