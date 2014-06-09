@@ -163,7 +163,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         crossfadeSlider.on('change mousemove', function() {
             $('.mediaOuterContainer').css('opacity', crossfadeSlider.val());
         });
-        container.append(crossfadeSlider);
+        // container.append(crossfadeSlider);
 
         ///////////////////////////////////////////////////////////////////////////
 
