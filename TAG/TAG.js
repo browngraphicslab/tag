@@ -41530,10 +41530,14 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                     return;
                 }
             } else{ // zoom from touch point: change width and height of outerContainer
+             
                 outerContainer.css("top",  (t + trans.y + (1 - scale) * pivot.y) + "px");
                 outerContainer.css("left", (l + trans.x + (1 - scale) * pivot.x) + "px");
                 outerContainer.css("width", newW + "px");
                 outerContainer.css("height", "auto"); 
+                mediaManipPreprocessing();
+
+
             }
 
 
@@ -41543,6 +41547,17 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             // }
         }
 
+
+        /**
+         * Recursive helper function for mediaManip.
+         * Moves object between start location and final location with proper physics.
+         * @method move
+         * @param {Object} res              object containing hammer event info
+         * @param {Object} prevVelocity     velocity of object on release
+         * @param {Object} prevLocation     location of object
+         * @param {Object} finalPos         target location of object
+         * @param {Object} delay            delay (for timer)
+         */
         function move(prevVelocity, prevLocation, finalPos, delay){
             var currentPosition,
                 newVelocity,
