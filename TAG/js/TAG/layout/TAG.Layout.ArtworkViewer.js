@@ -268,7 +268,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         $("[tabindex='-1']").on('click', function() {
             $("[tabindex='-1']").focus();
             containerFocused = true;
-            annotatedImage.setArtworkClicked();     //Tell AnnotatedImage that the main artwork is active
+            annotatedImage.dzManipPreprocessing();     //Tell AnnotatedImage that the main artwork is active
         });
         $("[tabindex='-1']").focus(function() {
             containerFocused = true;
