@@ -41070,6 +41070,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             mediaHidden      = true,
             currentlySeeking = false,
             movementTimeouts = [],
+            circleRadius = 60,
 
             // misc uninitialized variables
             circle,
@@ -41541,6 +41542,9 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         }
 
         function move(prevVelocity, prevLocation, finalPos, delay){
+            var currentPosition,
+                newVelocity,
+                timer;
             //If object is not on screen, reset and hide it
             if (!(
                 (0 < outerContainer.position().top+ outerContainer.height()) 
@@ -41559,19 +41563,17 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             };
 
             //Current position is previous position + movement from velocity * time
-            var currentPosition = { 
-                    x: prevLocation.x + delay*prevVelocity.x,
-                    y: prevLocation.y + delay*prevVelocity.y                  
-                },
+            currentPosition = { 
+                x: prevLocation.x + delay*prevVelocity.x,
+                y: prevLocation.y + delay*prevVelocity.y                  
+            };
 
-                // New velocity is proportional to distance left to travel
-                newVelocity = {
-                    x: (finalPos.x - currentPosition.x)/(delay*50),
-                    y: (finalPos.y - currentPosition.y)/(delay*50)
-                },
-
-                timer;
-
+            // New velocity is proportional to distance left to travel
+            newVelocity = {
+                x: (finalPos.x - currentPosition.x)/(delay*50),
+                y: (finalPos.y - currentPosition.y)/(delay*50)
+            };
+            
             outerContainer.css({'left': currentPosition.x, 'top': currentPosition.y});
 
             //Clear all previously-set timers used for movement on this object
@@ -41638,22 +41640,15 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 l,
                 h = outerContainer.height(),
                 w = outerContainer.width();
-                
+
+            //If associated media object is a hotspot, then position it next to circle.  Otherwise, put it in a slightly random position near the middle
             if(IS_HOTSPOT) {
-                console.log("---------------------------------------------- is hotspot");
                 circle.css('visibility', 'visible');
                 addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
                 viewer.viewport.panTo(position, false);
                 viewer.viewport.applyConstraints()
-                t = circle.offset().top + circle.width()*4;
-                l = circle.offset().left + circle.width()*4;
-
-                console.log("pointFromPixel: " + viewer.viewport.pointFromPixel(position));
-
-                console.log("circle.width: " + circle.width());
-
-                //t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
-                //l = rootWidth/2 + circle.width()*3/4;
+                t = viewer.viewport.pixelFromPoint(position).y - h/2 + circleRadius/2;
+                l = viewer.viewport.pixelFromPoint(position).x + circleRadius;
             } else {
                 t = rootHeight * 1/10 + Math.random() * rootHeight * 2/10;
                 l = rootWidth  * 3/10 + Math.random() * rootWidth  * 2/10;
@@ -41754,6 +41749,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         };
     }
 };
+
 ;
 var TAG = TAG || {};
 
