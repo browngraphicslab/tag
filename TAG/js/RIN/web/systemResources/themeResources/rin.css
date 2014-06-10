@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-06-09 */
+/*! RIN | http://research.microsoft.com/rin | 2014-06-10 */
 .rin_selectDisable
 {
     -webkit-user-select: none;
@@ -987,7 +987,7 @@ html, body, .rinPlayer /* TODO do we need to get rid of this? in iframe, so migh
     outline: none;
     opacity: 0.4;
     position: relative;
-    top: 6px;
+    top: 2px;
     clear: both;
 }
 

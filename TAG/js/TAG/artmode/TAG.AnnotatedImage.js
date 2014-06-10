@@ -27,7 +27,13 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         associatedMedia = { guids: [] },   // object of associated media objects for this artwork, keyed by media GUID;
                                            //   also contains an array of GUIDs for cleaner iteration
         toManip         = dzManip,         // media to manipulate, i.e. artwork or associated media
+
         clickedMedia    = 'artwork',       // artwork or media
+
+        rootHeight     = $('#tagRoot').height(),
+        rootWidth      = $('#tagRoot').width(),
+        outerContainerDimensions = {height: rootHeight, width: rootWidth},  //dimensions of active media to manipulate
+
 
         // misc uninitialized variables
         outerContainerDimensions,
@@ -45,19 +51,24 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         openArtwork: openArtwork,
         addAnimateHandler: addAnimateHandler,
         getToManip: getToManip,
+
         getClicked: getClicked,
         getAssocMediaDimensions: getAssocMediaDimensions,
+
+        getMediaDimensions: getMediaDimensions,
+
         setArtworkClicked: setArtworkClicked,
         viewer: viewer
     };
 
     /**
      * Sets the artwork as active and the Deep Zoom manipulation method is used zooming and panning
+
      * @method getToManip
      */
+    
     function setArtworkClicked() {
-        toManip = dzManip;                  
-        clickedMedia = 'artwork';
+        dzManipPreprocessing();
     }
 
     /**
@@ -71,6 +82,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
 
 
     /**
+
      * Return the dimensions of the active associated media container
      * @method clickedMedia
      * @return {String}     object with dimensions
@@ -88,6 +100,15 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
     function getClicked() {
         return clickedMedia;
     }
+
+     /* Return the dimensions of the active associated media or artwork
+     * @method getMediaDimensions
+     * @return {String}     object with dimensions
+     */
+    function getMediaDimensions() {
+        return outerContainerDimensions;   
+    }
+
 
 
     /**
@@ -177,9 +198,16 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
     }
 
 
+
+
+    /**
+     * When the artwork is active, sets the manipulation method and dimensions for the active container
+     * @method dzManipPreprocessing
+     */
     function dzManipPreprocessing() {
+        outerContainerDimensions = {height: rootHeight, width: rootWidth};
         toManip = dzManip;
-        clickedMedia = 'artwork';
+
     }
 
     /**
@@ -247,7 +275,12 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 dzScroll(delta, pivot);
             },
             onManipulate: function (res) {
-                dzManip(res); // TODO change dzManip to just accept res
+
+               
+                res.translation.x = - res.translation.x;        //Flip signs for dragging
+                res.translation.y = - res.translation.y;
+                dzManip(res); 
+
             }
         }, null, true); // NO ACCELERATION FOR NOW
 
@@ -258,6 +291,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         // this is stupid, but it seems to work (for being able to reference zoomimage in artmode)
         noMedia ? setTimeout(function() { callback && callback() }, 1) : loadAssociatedMedia(callback);
     }
+
 
     /**
      * Adds an animation handler to the annotated image. This is used to allow the image to move

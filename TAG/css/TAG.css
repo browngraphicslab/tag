@@ -191,6 +191,31 @@
   top: 29%;
   width: 100%;
 }
+#startPageRoot #authoringButtonBuffer {
+  bottom: 0%;
+  height: 8%;
+  left: 0%;
+  position: absolute;
+  width: 23.8%;
+}
+#startPageRoot #authoringButtonContainer {
+  background-color: rgba(0,0,0,0.85);
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  bottom: 0%;
+  height: 60%;
+  left: 18.5%;
+  position: absolute;
+  text-align: center;
+  width: 63%;
+}
+#startPageRoot #authoringLabel {
+  color: #fff;
+  font-size: 85%;
+  position: relative;
+  text-align: center;
+  top: 8%;
+}
 
 @font-face {
   font-family: sourceSans;
@@ -460,6 +485,12 @@
   height: 40px;
   transform: rotate(180deg);
   margin-top: -10px;
+}
+#artmodeRoot #crossfadeSlider {
+  left: 10px;
+  position: absolute;
+  top: 110px;
+  width: 140px;
 }
 #artmodeRoot #sideBar {
   background-color: rgba(0,0,0,0.7);
@@ -1331,6 +1362,233 @@
   width: 100%;
   position: absolute;
   z-index: 0;
+}
+
+#setViewRoot {
+  background-color: #dbd9cc;
+  color: #000;
+  width: 100%;
+  height: 100%;
+}
+#setViewRoot input {
+  border-width: thin;
+}
+#setViewTopBar {
+  height: 8%;
+  min-height: 25px;
+  width: 100%;
+  background-color: #3f3735;
+}
+#setViewBackButton {
+  height: 63%;
+  margin-left: 1.2%;
+  width: auto;
+  top: 18.5%;
+  position: relative;
+}
+#setViewTopBarLabel {
+  margin-right: 2%;
+  margin-top: 0.36%;
+  color: #fff;
+  position: absolute;
+  text-align: right;
+  right: 0px;
+  top: 0px;
+}
+#setViewNavBar {
+  height: 92%;
+  width: 23%;
+  float: left;
+}
+#setViewRoot .navContainer {
+  min-height: 40px;
+  height: 10%;
+  background: transparent;
+  color: #000;
+  margin-top: 2%;
+  padding-top: 4%;
+  padding-bottom: 4%;
+}
+#setViewRoot .navtext {
+  font-size: 100%;
+  display: block;
+  margin-left: 6.95%;
+  margin-top: 0.372%;
+}
+#setViewRoot .navsubtext {
+  font-size: 70%;
+  display: block;
+  margin-left: 6.95%;
+  margin-top: 0.372%;
+}
+#setViewLeftBarContainer {
+  width: 22%;
+  height: 92%;
+  float: left;
+}
+#setViewRoot .leftLabel {
+  min-height: 20px;
+  height: 8%;
+  padding-left: 2%;
+  padding-top: 2%;
+  padding-bottom: 2%;
+  margin-right: 3.2%;
+  margin-bottom: 3%;
+  overflow: hidden;
+  position: relative;
+}
+#setViewRoot .leftLabel .labelText {
+  font-size: 100%;
+  color: #000;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: top;
+}
+#setViewSearchContainer {
+  min-height: 40px;
+  height: 8%;
+  width: 100%;
+  margin-top: 2.5%;
+  margin-bottom: 2.5%;
+}
+#setViewSearchBar {
+  width: 55%;
+  border-color: #a7b4ae;
+  margin-top: 2%;
+  margin-left: 3.5%;
+  border-style: solid;
+}
+#setViewRoot .button {
+  font-size: 75%;
+  height: 50%;
+  width: 19%;
+}
+#setViewRoot button {
+  border-color: #000;
+  color: #000;
+  border-width: thin;
+}
+#setViewNewButton {
+  float: right;
+  height: 70%;
+  width: 30%;
+  font-size: 85%;
+  margin-top: 1%;
+  padding-bottom: 1%;
+}
+#setViewSecondaryButton {
+  float: right;
+  height: 100%;
+  margin-top: 1%;
+  padding-bottom: 1%;
+  margin-right: 15px;
+  display: none;
+}
+#setViewRoot input[type='text'] {
+  border-style: solid;
+  color: #000;
+  border-color: #a7b4ae;
+  padding: 0.5%;
+}
+#setViewRoot input[type='password'] {
+  border-style: solid;
+  border-color: #a7b4ae;
+}
+#setViewLeftBar {
+  width: 100%;
+  height: 92%;
+}
+#setViewLeftLabelContainer {
+  padding-left: 3.5%;
+  padding-right: 20px;
+  padding-bottom: 5%;
+  padding-top: 2%;
+  height: 92%;
+  overflow: auto;
+}
+#setViewLeftLoading {
+  padding: 2%;
+  height: 40px;
+  margin-right: 3%;
+}
+#setViewLoadingLabel {
+  font-size: 160%;
+}
+#setViewLoadingCircle {
+  height: 38.4px;
+  width: auto;
+  float: right;
+}
+#setViewRightBar {
+  height: 92%;
+  width: 54%;
+  float: right;
+  position: relative;
+}
+#setViewViewer {
+  color: #fff;
+  position: absolute;
+  font-size: 6pt;
+  background: #000;
+  top: 0%;
+  right: 0px;
+  z-index: 5;
+  overflow: hidden;
+  width: 100%;
+}
+#setViewRoot textarea {
+  color: #000;
+  border-color: #a7b4ae;
+  padding: 0.5%;
+}
+#setViewButtonContainer {
+  width: 100%;
+  position: absolute;
+  height: 40px;
+  z-index: 5;
+  background-color: #dbd9cc;
+  margin-top: 0.35%;
+  margin-bottom: 2.5%;
+}
+#setViewSettingsBar {
+  width: 100%;
+  position: absolute;
+  bottom: 0px;
+  overflow: auto;
+}
+#setViewSettingsContainer {
+  color: #000;
+  margin-left: 2%;
+  margin-top: 3%;
+  margin-bottom: 3%;
+  margin-right: 0%;
+}
+#setViewRoot .settingLine {
+  height: 20px;
+  width: 100%;
+  margin-bottom: 4%;
+}
+#setViewRoot .settingLine .labelText {
+  color: #000;
+  font-size: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-style: italic;
+  display: inline-block;
+  height: 100%;
+}
+#setViewRoot .settingInput {
+  font-size: 120%;
+  float: right;
+  margin-right: 3%;
+  box-sizing: border-box;
+  height: 100%;
+  color: #000;
+}
+#setViewRoot .button .settingButton {
+  height: 100%;
 }
 
 .dialogBoxOverlay {

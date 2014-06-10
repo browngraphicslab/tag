@@ -3,6 +3,7 @@ var TAG_GLOBAL = function(tagInput) {
         containerId       = tagInput.containerId, 					        
         ip                = tagInput.serverIp, 					        
         allowServerChange = tagInput.allowServerChange, 					        
+ 		  allowAuthoringMode = tagInput.allowAuthoringMode, 					        
         idleDuration      = tagInput.idleDuration, 					        
         currentPage       = {}, // name and obj properties 					        
         idleTimer; 
@@ -40754,7 +40755,13 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         associatedMedia = { guids: [] },   // object of associated media objects for this artwork, keyed by media GUID;
                                            //   also contains an array of GUIDs for cleaner iteration
         toManip         = dzManip,         // media to manipulate, i.e. artwork or associated media
+
         clickedMedia    = 'artwork',       // artwork or media
+
+        rootHeight     = $('#tagRoot').height(),
+        rootWidth      = $('#tagRoot').width(),
+        outerContainerDimensions = {height: rootHeight, width: rootWidth},  //dimensions of active media to manipulate
+
 
         // misc uninitialized variables
         outerContainerDimensions,
@@ -40772,19 +40779,24 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         openArtwork: openArtwork,
         addAnimateHandler: addAnimateHandler,
         getToManip: getToManip,
+
         getClicked: getClicked,
         getAssocMediaDimensions: getAssocMediaDimensions,
+
+        getMediaDimensions: getMediaDimensions,
+
         setArtworkClicked: setArtworkClicked,
         viewer: viewer
     };
 
     /**
      * Sets the artwork as active and the Deep Zoom manipulation method is used zooming and panning
+
      * @method getToManip
      */
+    
     function setArtworkClicked() {
-        toManip = dzManip;                  
-        clickedMedia = 'artwork';
+        dzManipPreprocessing();
     }
 
     /**
@@ -40798,6 +40810,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
 
 
     /**
+
      * Return the dimensions of the active associated media container
      * @method clickedMedia
      * @return {String}     object with dimensions
@@ -40815,6 +40828,15 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
     function getClicked() {
         return clickedMedia;
     }
+
+     /* Return the dimensions of the active associated media or artwork
+     * @method getMediaDimensions
+     * @return {String}     object with dimensions
+     */
+    function getMediaDimensions() {
+        return outerContainerDimensions;   
+    }
+
 
 
     /**
@@ -40904,9 +40926,16 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
     }
 
 
+
+
+    /**
+     * When the artwork is active, sets the manipulation method and dimensions for the active container
+     * @method dzManipPreprocessing
+     */
     function dzManipPreprocessing() {
+        outerContainerDimensions = {height: rootHeight, width: rootWidth};
         toManip = dzManip;
-        clickedMedia = 'artwork';
+
     }
 
     /**
@@ -40974,7 +41003,12 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 dzScroll(delta, pivot);
             },
             onManipulate: function (res) {
-                dzManip(res); // TODO change dzManip to just accept res
+
+               
+                res.translation.x = - res.translation.x;        //Flip signs for dragging
+                res.translation.y = - res.translation.y;
+                dzManip(res); 
+
             }
         }, null, true); // NO ACCELERATION FOR NOW
 
@@ -40985,6 +41019,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         // this is stupid, but it seems to work (for being able to reference zoomimage in artmode)
         noMedia ? setTimeout(function() { callback && callback() }, 1) : loadAssociatedMedia(callback);
     }
+
 
     /**
      * Adds an animation handler to the annotated image. This is used to allow the image to move
@@ -41975,6 +42010,8 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         overlay = root.find('#overlay'),
         serverTagBuffer = root.find('#serverTagBuffer'),
         serverSetUpContainer = root.find('#serverSetUpContainer'),
+        authoringButtonContainer = root.find('#authoringButtonContainer'),
+        authoringButtonBuffer = root.find('#authoringButtonBuffer'),
         serverURL,
         tagContainer;
 
@@ -42053,12 +42090,21 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
             $('#serverTagBuffer').remove();
         }
     
+        if(!allowAuthoringMode){
+            $('#authoringButtonBuffer').remove();
+        }
+
         overlay.on('click', switchPage);
         
         setImagePaths(main);
         setUpCredits();
         setUpInfo(main);
         initializeHandlers();
+
+        authoringButtonContainer.on('click', openDialog);
+        authoringButtonBuffer.on('click', function (evt) {
+            evt.stopPropagation();
+        });
 
         //opens the collections page on touch/click
         function switchPage() {
@@ -42461,8 +42507,25 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
             museumInfoSpan.html(Autolinker.link(tempInfo , {email: false, twitter: false}));
         }
     }
-    
 
+    /**Opens authoring mode password dialog
+     * @method openDialog
+     */
+    function openDialog() {
+        TAG.Auth.authenticate(enterAuthoringMode);
+        return;
+    }
+
+    /**Loads authoring mode Settings View
+     * @method enterAuthoringMode
+     */
+    function enterAuthoringMode() {
+        overlay.on('click', function() {;});
+        authoringButtonContainer.off('click');
+        var authoringMode = new TAG.Authoring.SettingsView();
+        TAG.Util.UI.slidePageLeft(authoringMode.getRoot());
+    }
+ 
     /**
     * @method getRoot
     * @return    the root of the splash screen DOM
@@ -42603,7 +42666,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             top              = 0,
             count            = 0,
             panDelta         = 20,
-            zoomScale        = 0.1,
+            zoomScale        = 1.1,
             containerFocused = true,
             interval;
 
@@ -42630,6 +42693,26 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         container.append(createButton('downControl',  tagPath+'images/icons/zoom_down.svg',  D_PAD_LEFT+12, D_PAD_TOP+43));
         container.append(createButton('zinControl',   tagPath+'images/icons/zoom_plus.svg',  D_PAD_LEFT-40, D_PAD_TOP-6));
         container.append(createButton('zoutControl',  tagPath+'images/icons/zoom_minus.svg', D_PAD_LEFT-40, D_PAD_TOP+34));
+
+        /////////////////////////// RAPID PROTOTYPING /////////////////////////////
+
+        var crossfadeSlider = $(document.createElement('input')).attr({
+            'id': 'crossfadeSlider',
+            'type': 'range',
+            'value': 1,
+            'min': 0,
+            'max': 1,
+            'step': 0.05
+        });
+
+        crossfadeSlider.on('change mousemove', function() {
+            $('.mediaOuterContainer').css('opacity', crossfadeSlider.val());
+        });
+        // container.append(crossfadeSlider);
+
+        ///////////////////////////////////////////////////////////////////////////
+
+
 
         /**
          * Create a seadragon control button
@@ -42716,9 +42799,9 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             } else if (direction === 'down') {
                 manipulate({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
             } else if (direction === 'in') {
-                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 + zoomScale});
+                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: zoomScale});
             } else if (direction === 'out') {
-                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
+                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1/zoomScale});
             }   
         }
 
@@ -42916,6 +42999,8 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             locHistoryButton = initlocationHistory();
             assetContainer.append(locHistoryButton);
             currBottom += locHistoryButton.height();
+        } else {
+            $('#locationHistoryContainer').remove();
         }
 
         if (associatedMedia.guids.length > 0) {
@@ -43904,7 +43989,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         currentThumbnail.attr('thumbnail', FIX_PATH(collection.Metadata.DescriptionImage1));
         currentThumbnail.on('click', switchPage);
 
-        TAG.Telemetry.register(currentThumbnail, 'click', '', function() {
+        TAG.Telemetry.register(currentThumbnail, 'click', '', function(tobj) {
             if (!currentArtwork || !artworkSelected) {
                 return true; // abort
             }
@@ -45269,6 +45354,7323 @@ TAG.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
     return that;
 };
 
+;
+TAG.Util.makeNamespace("TAG.Authoring.SettingsView");
+
+/*  Creates a SettingsView, which is the first UI in authoring mode.  Note that
+ *  left label, left container, etc... (anything with left) really refers to the
+ *  middle panel, while the left-most bar is the navigation panel. Anything with right refers
+ *  to the right panel which includes the viewer.
+ *  @class TAG.Authoring.SettingsView
+ *  @constructor
+ *  @param startView sets the starting setting.  This can be "Exhibitions", "Artworks", "Tours", 
+ *       or "General Settings".  Undefined/null, etc. goes to General Settings.
+ *       TODO: Use constants instead of strings
+ *   @param {Function} callback  called after the UI is done being created.
+ *   @param {Function} backPage is a function to create the page to go back to (null/undefined goes
+ *      back to the main page).  This function, when called with no arguments,
+ *      should return a dom element that can be provided as an argument to 
+ *      slidePageRight.
+ *   @param startLabelID selects a left label automatically if it matches that id.
+ *      The label will be scrolled to if it is off screen
+ *   @return {Object} public methods and variables
+ */
+TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabelID) {
+    "use strict";
+
+        
+    var root = TAG.Util.getHtmlAjax('SettingsView.html'), //Get html from html file
+
+        //get all of the ui elements from the root and save them in variables
+        leftLoading = root.find('#setViewLoadingCircle'),
+        settingsContainer = root.find('#setViewSettingsContainer'),
+        searchContainer = root.find('#setViewSearchContainer'),
+        navBar = root.find('#setViewNavBar'),
+        searchbar = root.find('#setViewSearchBar'),
+        newButton = root.find('#setViewNewButton'),
+        secondaryButton = root.find('#setViewSecondaryButton'),
+        leftbar = root.find('#setViewLeftBar'),
+        leftLabelContainer = root.find('#setViewLeftLabelContainer'),
+        rightbar = root.find('#setViewRightBar'),
+        viewer = root.find('#setViewViewer'),
+        buttonContainer = root.find('#setViewButtonContainer'),
+        settings = root.find('#setViewSettingsBar'),
+        label = root.find('#setViewLoadingLabel'),
+        circle = root.find('#setViewLoadingCircle'),
+
+        // Constants
+        VIEWER_ASPECTRATIO = $(window).width() / $(window).height(),
+        //Should probably get rid of any hard-coded values here:
+        RIGHT_WIDTH = '54', 
+        CONTENT_HEIGHT = '92',
+        HIGHLIGHT = 'white',
+        BUTTON_HEIGHT = '40',
+        DEFAULT_SEARCH_TEXT = 'Search...',
+        PICKER_SEARCH_TEXT = 'Search by Name, Artist, or Year...',
+
+        // Text for Navagation labels
+        NAV_TEXT = {
+        general: {
+            text: 'General Settings',
+            subtext: 'Customize TAG experience'
+        },
+        exhib: {
+            text: 'Collections',
+            subtext: 'Create and edit collections'
+        },
+        art: {
+            text: 'Artworks',
+            subtext: 'Import and manage artworks'
+        },
+        media: {
+            text: 'Associated Media',
+            subtext: 'Manage associated media'
+        },
+        tour: {
+            text: 'Tours',
+            subtext: 'Build interactive tours'
+        },
+        feedback: {
+            text: 'Feedback',
+            subtext: 'View comments and reports'
+        },
+    },
+
+    that = {
+        getRoot: getRoot,
+    },
+    
+        prevSelectedSetting,
+        prevSelectedLeftLabel,
+        // These are 'asynchronous' queues to perform tasks. These queues will process events in order, but asynchronously so
+        // they can be completed in the 'background'. Calling .add(fn) adds a function to the queue while .clear() clears the queue.  
+        //Note that an in progress function will not be canceled by .clear().
+        leftQueue = TAG.Util.createQueue(),  //used to add things to the left label container
+        rightQueue = TAG.Util.createQueue(), //used to add things to the right panel
+        cancelLastSetting,
+        artPickerOpen = false,
+        nav = [],
+        artworks = [],
+        assetUploader,
+        mediaMetadata = [],
+        numFiles = 0,
+        isUploading = false,
+        isCreatingMedia = false,
+        artworkAssociations = [], // entry i contains the artwork info for the ith associated media
+        artworkList = [], // save artworks retrieved from the database
+        mediaCheckedIDs = [], // artworks checked in associated media uploading
+        mediaUncheckedIDs = [], // artworks unchecked in associated media uploading
+        editArt; // enter artwork editor button
+
+    loadHelper();
+    if (callback) {
+        callback(that);
+    }
+
+    /**
+     * Helper function to set up UI elements and switch to first view
+     * @method loadHelper
+     * @param {Object} main  
+     */
+    function loadHelper(main){
+
+        //Setting up UI:
+        var backButton = root.find('#setViewBackButton');
+        backButton.attr('src', 'images/icons/Back.svg');
+
+        backButton.mousedown(function () {
+            TAG.Util.UI.cgBackColor("backButton", backButton, false);
+        });
+
+        backButton.mouseleave(function () {
+            TAG.Util.UI.cgBackColor("backButton", backButton, true);
+        });
+
+        backButton.click(function () {
+            TAG.Auth.clearToken();
+            rightQueue.clear();
+            leftQueue.clear();
+            backButton.off('click');
+            if (backPage) {
+                var bpage = backPage();
+                TAG.Util.UI.slidePageRight(bpage);
+            } else {
+                TAG.Layout.StartPage(null, function (page) {
+                    TAG.Util.UI.slidePageRight(page);
+                });
+            }
+        });
+
+        var topBarLabel = root.find('#setViewTopBarLabel');
+        var topBarLabelSpecs = TAG.Util.constrainAndPosition($(window).width(), $(window).height() * 0.08,
+        {
+            width: 0.4,
+            height: 0.9,
+        });
+        topBarLabel.css({
+            'height': topBarLabelSpecs.height + 'px',
+            'width': topBarLabelSpecs.width + 'px',
+        });
+        var fontsize = TAG.Util.getMaxFontSizeEM('Tour Authoring', 0.5, topBarLabelSpecs.width, topBarLabelSpecs.height * 0.8, 0.1);
+        topBarLabel.css({ 'font-size': fontsize });
+        topBarLabel.text('Authoring Mode');
+
+        //Add text to navigation bar:
+
+        navBar.append(nav[NAV_TEXT.general.text] = createNavLabel(NAV_TEXT.general, loadGeneralView));
+        navBar.append(nav[NAV_TEXT.exhib.text] = createNavLabel(NAV_TEXT.exhib, loadExhibitionsView));
+        navBar.append(nav[NAV_TEXT.art.text] = createNavLabel(NAV_TEXT.art, loadArtView));
+        navBar.append(nav[NAV_TEXT.media.text] = createNavLabel(NAV_TEXT.media, loadAssocMediaView)); // COMMENT!!!!!!!!
+        navBar.append(nav[NAV_TEXT.tour.text] = createNavLabel(NAV_TEXT.tour, loadTourView));
+        navBar.append(nav[NAV_TEXT.feedback.text] = createNavLabel(NAV_TEXT.feedback, loadFeedbackView));
+        searchbar.keyup(function () {
+            search(searchbar.val(), '.leftLabel', 'div');
+        });
+        searchbar.change(function () {
+            search(searchbar.val(), '.leftLabel', 'div');
+        });
+
+        // Workaround for clear button (doesn't fire a change event...)
+        searchbar.mouseup(function () {
+            setTimeout(function () {
+                search(searchbar.val(), '.leftLabel', 'div');
+            }, 1);
+        });
+
+        searchbar.attr('placeholder', 'Search...');
+        newButton.text('New');
+        secondaryButton.text('Video');
+        label.text('Loading...');
+        circle.attr('src', 'images/icons/progress-circle.gif');
+
+        viewer.css({
+            'height': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
+        });
+
+        buttonContainer.css({
+            'top': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
+        });
+        settings.css({
+            'height': getSettingsHeight() + 'px',
+        });
+        switchView(startView, startLabelID);
+    }
+    
+    /**Switches the view based on selected navigation label
+     * @method switchView
+     * @param {String} view         the view to switch to
+     * @param {Object} id           the id of the left label to start on
+     */
+    function switchView(view, id) {
+        resetLabels('.navContainer');
+        switch (view) {
+            case "Exhibitions":
+                selectLabel(nav[NAV_TEXT.exhib.text]);
+                prevSelectedSetting = nav[NAV_TEXT.exhib.text];
+                loadExhibitionsView(id);
+                break;
+            case "Artworks":
+                selectLabel(nav[NAV_TEXT.art.text]);
+                prevSelectedSetting = nav[NAV_TEXT.art.text];
+                loadArtView(id);
+                break;
+            case "Associated Media": 
+                selectLabel(nav[NAV_TEXT.media.text]);
+                prevSelectedSetting = nav[NAV_TEXT.media.text];
+                loadAssocMediaView(id);
+                break;
+            case "Tours":
+                selectLabel(nav[NAV_TEXT.tour.text]);
+                prevSelectedSetting = nav[NAV_TEXT.tour.text];
+                loadTourView(id);
+                break;
+            case "Feedback":
+                selectLabel(nav[NAV_TEXT.feedback.text]);
+                prevSelectedSetting = nav[NAV_TEXT.feedback.text];
+                loadFeedbackView(id);
+                break;
+            case "General Settings":
+            default:
+                selectLabel(nav[NAV_TEXT.general.text]);
+                prevSelectedSetting = nav[NAV_TEXT.general.text];
+                loadGeneralView();
+                break;
+        }
+    }
+
+    /**Returns root
+     * @method getRoot
+     * @return {Object} root 
+     */
+    function getRoot() {
+        return root;
+    }
+
+    // Navigation Bar Functions:
+
+     /**Create a navigation label
+     * @method createNavLabel
+     * @param {String} text         text for label
+     * @param {Function} onclick    onclick function for label
+     * @return {Object} container   container containing new label
+     */
+    function createNavLabel(text, onclick) {
+        var container = $(document.createElement('div'));
+        container.attr('class', 'navContainer');
+        container.attr('id', 'nav-' + text.text);
+        container.mousedown(function () {
+            container.css({
+                'background': HIGHLIGHT
+            });
+        });
+        container.mouseup(function () {
+            container.css({
+                'background': 'transparent'
+            });
+        });
+        container.mouseleave(function () {
+            container.css({
+                'background': 'transparent'
+            });
+        });
+        container.click(function () {
+            // If a label is clicked return if its already selected.
+            if (prevSelectedSetting === container)
+                return;
+            // Reset all labels and then select this one
+            resetLabels('.navContainer');
+            selectLabel(container);
+            // Do the onclick function
+            if (onclick)
+                onclick();
+            prevSelectedSetting = container;
+        });
+
+        var navtext = $(document.createElement('label'));
+        navtext.attr('class','navtext');
+        navtext.text(text.text);
+
+        var navsubtext = $(document.createElement('label'));
+        navsubtext.attr('class','navsubtext');
+        navsubtext.text(text.subtext);
+
+        container.append(navtext);
+        container.append(navsubtext);
+        return container;
+    }
+
+    // General Settings Functions:
+
+    /**Loads the General Settings view
+     * @method loadGeneralView
+     */
+    function loadGeneralView() {
+        prepareNextView(false);
+
+        // Add this to our queue so the UI doesn't lock up
+        leftQueue.add(function () {
+            var label;
+            // Add the Splash Screen label and set it as previously selected because its our default
+            leftLoading.before(label = selectLabel(createLeftLabel('Splash Screen', null, loadSplashScreen), true));
+            prevSelectedLeftLabel = label;
+            // Default to loading the splash screen
+            loadSplashScreen();
+            // Add the Password Settings label
+            leftLoading.before(createLeftLabel('Password Settings', null, loadPasswordScreen).attr('id', 'password'));
+            leftLoading.hide();
+        });
+        cancelLastSetting = null;
+    }
+
+    /**Sets up the right side of the UI for the splash screen
+     * including the viewer, buttons, and settings container.
+     * @method loadSplashScreen
+     */
+    function loadSplashScreen() {
+        prepareViewer(true);
+        clearRight();
+
+        // Load the start page, the callback will add it to the viewer when its done
+        var startPage = new TAG.Layout.StartPage(null, function (startPage) {
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.general.text]) {
+                return;
+            }
+            viewer.append(startPage);
+            // Don't allow the viewer to be clicked
+            preventClickthrough(viewer);
+        }, true);
+
+        // Get DB Values
+        var alpha = TAG.Worktop.Database.getMuseumOverlayTransparency();
+        var overlayColor = TAG.Worktop.Database.getMuseumOverlayColor();
+        var name = TAG.Worktop.Database.getMuseumName();
+        var loc = TAG.Worktop.Database.getMuseumLoc();
+        var info = TAG.Worktop.Database.getMuseumInfo();
+        if (name === undefined) {
+            name = "";
+        }
+        if (loc === undefined) {
+            loc = "";
+        }
+        if (info === undefined) {
+            info = "";
+        }
+        var logoColor = TAG.Worktop.Database.getLogoBackgroundColor();
+
+        // Create inputs
+        var alphaInput = createTextInput(Math.floor(alpha * 100), true);
+        var bgImgInput = createButton('Change Image', function () {
+            uploadFile(TAG.Authoring.FileUploadTypes.Standard, function (urls) {
+                var url = urls[0];
+                bgImgInput.val(url);
+                $('#background').css({
+                    'background-image': 'url("' + TAG.Worktop.Database.fixPath(url) + '")',
+                    'background-size': 'cover',
+                });
+            });
+        });
+        var logoInput = createButton('Change Logo', function () {
+            uploadFile(TAG.Authoring.FileUploadTypes.Standard, function (urls) {
+                var url = urls[0];
+                logoInput.val(url);
+                $('#logo')[0].src = TAG.Worktop.Database.fixPath(url);
+            });
+        });
+        var overlayColorInput = createBGColorInput(overlayColor, '.infoDiv', function () { return alphaInput.val(); });
+        var nameInput = createTextInput(TAG.Util.htmlEntityDecode(name), true, 40);
+        var locInput = createTextInput(TAG.Util.htmlEntityDecode(loc), true, 45);
+        var infoInput = createTextAreaInput(TAG.Util.htmlEntityDecode(info), true);
+        var logoColorInput = createBGColorInput(logoColor, '.logoContainer', function () { return 100; });
+
+        // Handle changes
+        onChangeUpdateNum(alphaInput, 0, 100, function (num) {
+            updateBGColor('.infoDiv', overlayColorInput.val(), num);
+        });
+        onChangeUpdateText(nameInput, '#museumName', 40);
+        nameInput.keyup(function () {
+            startPage.fixText();
+        });
+        nameInput.keydown(function () {
+            startPage.fixText();
+        });
+        nameInput.change(function () {
+            startPage.fixText();
+        });
+        onChangeUpdateText(locInput, '#subheading', 33);
+        onChangeUpdateText(infoInput, '#museumInfo', 300);
+
+        var bgImage = createSetting('Background Image', bgImgInput);
+        var overlayAlpha = createSetting('Overlay Transparency (0-100)', alphaInput);
+        var overlayColorSetting = createSetting('Overlay Color', overlayColorInput);
+        var museumName = createSetting('Museum Name', nameInput);
+        var museumLoc = createSetting('Museum Location', locInput);
+        var museumInfo = createSetting('Museum Info', infoInput);
+        var museumLogo = createSetting('Museum Logo', logoInput);
+        var logoColorSetting = createSetting('Museum Logo Background Color', logoColorInput);
+
+        settingsContainer.append(bgImage);
+        settingsContainer.append(overlayColorSetting);
+        settingsContainer.append(overlayAlpha);
+        settingsContainer.append(museumName);
+        settingsContainer.append(museumLoc);
+        settingsContainer.append(museumInfo);
+        settingsContainer.append(museumLogo);
+        settingsContainer.append(logoColorSetting);
+
+        // Save button
+        var saveButton = createButton('Save Changes', function () {
+            if (locInput === undefined) {
+                locInput = "";
+            }
+            if (infoInput === undefined) {
+                infoInput = "";
+            }
+            //save Splash screen and pass in inpts with following keys:
+            saveSplashScreen({
+                alphaInput: alphaInput,                 //Overlay Transparency
+                overlayColorInput: overlayColorInput,   //Overlay Color
+                nameInput: nameInput,                   //Museum Name
+                locInput: locInput,                     //Museum Location
+                infoInput: infoInput,                   //Museum Info
+                logoColorInput: logoColorInput,         //Logo background color
+                bgImgInput: bgImgInput,                 //Background image
+                logoInput: logoInput,                   //Logo image
+            });
+        }, {
+            'margin-right': '3%',
+            'margin-top': '1%',
+            'margin-bottom': '1%',
+            'margin-left': '.5%',
+            'float': 'right'
+        });
+
+        buttonContainer.append(saveButton);
+    }
+
+    /**Saves the splash screen settings
+     * @method saveSplashScreen
+     * @param {Object} inputs       information from setting inputs
+     */
+    function saveSplashScreen(inputs) {
+        prepareNextView(false, null, null, "Saving...");
+        clearRight();
+        prepareViewer(true);
+
+        var alpha = inputs.alphaInput.val()/100;
+        var overlayColor = inputs.overlayColorInput.val();
+        var name = inputs.nameInput.val();
+        var loc = inputs.locInput.val();
+        var info = inputs.infoInput.val().replace('/\n\r?/g', '<br />');
+        var logoColor = inputs.logoColorInput.val();
+        var bgImg = inputs.bgImgInput.val();
+        var logo = inputs.logoInput.val();
+      
+        var options = {
+            Name: name,
+            OverlayColor: overlayColor,
+            OverlayTrans: alpha,
+            Location: loc,
+            Info: info,
+            IconColor: logoColor,
+        };
+        if (bgImg) options.Background = bgImg;
+        if (logo) options.Icon = logo;
+        //Change the settings in the database
+        TAG.Worktop.Database.changeMain(options, function () {
+            TAG.Worktop.Database.getMain(loadGeneralView, error(loadGeneralView), null);
+            ;
+        }, authError, conflict({ Name: 'Main' }, 'Update', loadGeneralView), error(loadGeneralView));
+    }
+
+    /**Set up the right side of the UI for the  password changer
+     * @method loadPasswordScreen
+     */
+    function loadPasswordScreen() {
+        //Prepare right side without showing the viewer or buttonContainer
+        prepareViewer(false, null, false);
+        clearRight();
+
+        var loading = createLabel('Loading...');
+        var loadingSetting = createSetting('', loading);
+        settingsContainer.append(loadingSetting);
+
+        TAG.Worktop.Database.checkSetting('AllowChangePassword', function (val) {
+            loadingSetting.remove();
+            if (val.toLowerCase() === 'true') {
+                var oldInput = createTextInput('', false);
+                var newInput1 = createTextInput('', false);
+                var newInput2 = createTextInput('', false);
+                var msgLabel = createLabel('');
+
+                oldInput.attr('type', 'password');
+                newInput1.attr('type', 'password');
+                newInput2.attr('type', 'password');
+
+                var old = createSetting('Current Password', oldInput);
+                var new1 = createSetting('New Password', newInput1);
+                var new2 = createSetting('Confirm New Password', newInput2);
+                var msg = createSetting('', msgLabel);
+
+                settingsContainer.append(old);
+                settingsContainer.append(new1);
+                settingsContainer.append(new2);
+                settingsContainer.append(msg);
+
+                //Hide or else unused div covers 'Old Password' line
+                buttonContainer.css('display', 'none');
+
+                var saveButton = createButton('Update Password', function () {
+                    savePassword({
+                        old: oldInput,         // Old password
+                        new1: newInput1,       // New password
+                        new2: newInput2,       // New password confirmation
+                        msg: msgLabel,         // Message area
+                    });
+                });
+                // Make the save button respond to enter
+                saveButton.removeAttr('type');
+                var save = createSetting('', saveButton);
+                settingsContainer.append(save);
+            } else {
+                passwordChangeNotSupported();
+            }
+        });
+    }
+
+    /**Display label if password change not supported by server
+     *@method passwordChangeNotSupported
+     */
+    function passwordChangeNotSupported() {
+        var label = createLabel('');
+        var setting = createSetting('Changing the password has been disabled by the server.  Contact the server administrator for more information', label);
+        settingsContainer.append(setting);
+    }
+
+    /**Updates the new password
+     * @method savePassword
+     * @param {Object} inputs    keys for password change
+     */
+    function savePassword(inputs) {
+        inputs.msg.text('Processing...');
+        if (inputs.new1.val() !== inputs.new2.val()) {
+            inputs.msg.text('New passwords do not match.');
+        } else {
+            TAG.Auth.changePassword(inputs.old.val(), inputs.new1.val(),
+                function () {
+                    inputs.msg.text('Password Saved.');
+                    inputs.old.val('');
+                    inputs.new1.val('');
+                    inputs.new2.val('');
+                },
+                function (msg) {
+                    if (msg) {
+                        inputs.msg.html(msg);
+                    } else {
+                        inputs.msg.text('Incorrect Password.');
+                    }
+                },
+                function () {
+                    inputs.msg.text('There was an error contacting the server.');
+                });
+        }
+    }
+
+    // Collection Functions:
+
+    /**Loads the collections view
+     * @method loadExhibitionsView
+     * @param {Object} id       id of left label to start on
+     */
+    function loadExhibitionsView(id) {
+        var cancel = false;
+        // Set the new button text to "New"
+        prepareNextView(true, "New", createExhibition);
+        clearRight();
+        prepareViewer(true);
+
+        // Make an async call to get the list of exhibitions
+        TAG.Worktop.Database.getExhibitions(function (result) {
+            if (cancel) return;
+            sortAZ(result);
+            $.each(result, function (i, val) {
+                if (cancel) return;
+                // Add each label as a separate function in the queue so they don't lock up the UI
+                leftQueue.add(function () {
+                    if (cancel) return;
+                    if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
+                        return;
+                    }
+                    var label;
+                    if (!prevSelectedLeftLabel &&
+                        ((id && val.Identifier === id) || (!id && i === 0))) {
+                        
+                        // Select the first one or the specified id
+                        leftLoading.before(selectLabel(label = createLeftLabel(val.Name, null, function () {
+                            loadExhibition(val);
+                        }, val.Identifier), true));
+
+                        // Scroll to the selected label if the user hasn't already scrolled somewhere
+                        if (leftbar.scrollTop() === 0 && label.offset().top - leftbar.height() > 0) {
+                            leftbar.animate({
+                                scrollTop: (label.offset().top - leftbar.height())
+                            }, 1000);
+                        }
+                        prevSelectedLeftLabel = label;
+                        loadExhibition(val);
+                    } else {
+                        leftLoading.before(label = createLeftLabel(val.Name, null, function () {
+                            loadExhibition(val);
+                        }, val.Identifier));
+                    }
+                    // Hide the label if it doesn't match the current search criteria
+                    if (!TAG.Util.searchString(val.Name, searchbar.val())) {
+                        label.hide();
+                    }
+                });
+            });
+            // Hide the loading label when we're done
+            leftQueue.add(function () {
+                leftLoading.hide();
+            });
+        });
+        cancelLastSetting = function () { cancel = true; };
+    }
+
+    /**Set up the right side for a collection
+     * @method loadExhibition
+     * @param {Object} exhibition   exhibition to load
+     */
+    function loadExhibition(exhibition) {
+        prepareViewer(true);
+        clearRight();
+
+        // Set the viewer to exhibition view (see function below)
+        exhibitionView(exhibition);
+
+        // Create inputs
+        var privateState;
+        if (exhibition.Metadata.Private) {
+            privateState = (/^true$/i).test(exhibition.Metadata.Private);
+        } else {
+            privateState = false;
+        }
+        var privateInput = createButton('Unpublish', function () {
+            privateState = true;
+            privateInput.css('background-color', 'white');
+            publicInput.css('background-color', '');
+        }, {
+            'min-height': '0px',
+            'margin-right': '4%',
+            'width': '48%',
+        });
+        privateInput.attr('class', 'settingButton');
+        var publicInput = createButton('Publish', function () {
+            privateState = false;
+            publicInput.css('background-color', 'white');
+            privateInput.css('background-color', '');
+        }, {
+            'min-height': '0px',
+            'width': '48%',
+        });
+        publicInput.attr('class', 'settingButton');
+        if (privateState) {
+            privateInput.css('background-color', 'white');
+        } else {
+            publicInput.css('background-color', 'white');
+        }
+        var pubPrivDiv = $(document.createElement('div'));
+        pubPrivDiv.append(privateInput).append(publicInput);
+
+        var nameInput = createTextInput(TAG.Util.htmlEntityDecode(exhibition.Name), 'Collection name', 40);
+        var descInput = createTextAreaInput(TAG.Util.htmlEntityDecode(exhibition.Metadata.Description), false);
+        var bgInput = createButton('Change Background Image', function () {
+            uploadFile(TAG.Authoring.FileUploadTypes.Standard, function (urls) {
+                var url = urls[0];
+                bgInput.val(url);
+                $('#bgimage').css({
+                    'background-image': 'url("' + TAG.Worktop.Database.fixPath(url) + '")',
+                    'background-size': 'cover',
+                });
+            });
+        });
+        var previewInput = createButton('Change Image', function () {
+            uploadFile(TAG.Authoring.FileUploadTypes.Standard, function (urls) {
+                var url = urls[0];
+                previewInput.val(url);
+                $('#img1')[0].src = TAG.Worktop.Database.fixPath(url);
+            });
+        });
+
+        nameInput.focus(function () {
+            if (nameInput.val() === 'Collection')
+                nameInput.select();
+        });
+
+        descInput.focus(function () {
+            if (descInput.val() === 'Description')
+                descInput.select();
+        });
+
+        // Handle Changes
+        onChangeUpdateText(nameInput, '#exhibition-title', 40);
+        onChangeUpdateText(descInput, '#description-text', 1790);
+
+        var privateSetting = createSetting('Change Publish Setting', pubPrivDiv);
+        var name = createSetting('Collection Name', nameInput);
+        var desc = createSetting('Collection Description', descInput);
+        var bg = createSetting('Collection Background Image', bgInput);
+        var preview = createSetting('Collection Preview Image', previewInput);
+
+        settingsContainer.append(privateSetting);
+        settingsContainer.append(name);
+        settingsContainer.append(desc);
+        settingsContainer.append(bg);
+        settingsContainer.append(preview);
+
+        // Buttons
+        var saveButton = createButton('Save Changes', function () {
+            if (nameInput.val() === undefined || nameInput.val() === "") {
+                nameInput.val("Untitled Collection");
+            }
+            saveExhibition(exhibition, {
+                privateInput: privateState,  //default set unpublished
+                nameInput: nameInput,        //Collection name
+                descInput: descInput,        //Collection description
+                bgInput: bgInput,            //Collection background image
+                previewInput: previewInput,  //Collection preview image
+            });
+        }, {
+            'margin-right': '3%',
+            'margin-top': '1%',
+            'margin-bottom': '1%',
+            'margin-left': '.5%',
+            'float': 'right',
+        });
+
+        var deleteButton = createButton('Delete Collection', function () {
+            deleteExhibition(exhibition);
+        }, {
+            'margin-left': '2%',
+            'margin-top': '1%',
+            'margin-right': '0',
+            'margin-bottom': '3%',
+        });
+
+        var catalogNext = true;
+
+        var artPickerButton = createButton('Manage Collection', function () {
+            TAG.Util.UI.createAssociationPicker(root, "Add and Remove Artworks in this Collection",
+                { comp: exhibition, type: 'exhib' },
+                'exhib', [{
+                    name: 'All Artworks',
+                    getObjs: TAG.Worktop.Database.getArtworksAndTours,
+                }, {
+                    name: 'Artworks in this Collection',
+                    getObjs: TAG.Worktop.Database.getArtworksIn,
+                    args: [exhibition.Identifier]
+                }], {
+                    getObjs: TAG.Worktop.Database.getArtworksIn,
+                    args: [exhibition.Identifier]
+                }, function () {
+                    prepareNextView(true, "New", createExhibition);
+                    clearRight();
+                    prepareViewer(true);
+                    loadExhibitionsView(exhibition.Identifier);
+                });
+
+        }, {
+            'margin-left': '2%',
+            'margin-top': '1%',
+            'margin-right': '0%',
+            'margin-bottom': '3%',
+        });
+
+        /**Helper method to set the viewer to exhibition view
+         * @method exhibitionView
+         * @param {Object} exhibition    exhibition to load
+         */
+        function exhibitionView(exhibition) {
+            rightQueue.add(function () {
+                var exhibView = new TAG.Layout.NewCatalog(null, exhibition, viewer);
+                var exroot = exhibView.getRoot();
+                $(exroot).css('z-index','-1'); // otherwise, you can use the search box and sorting tabs!
+                viewer.append(exroot);
+                preventClickthrough(viewer);
+            });
+        }
+
+        buttonContainer.append(artPickerButton).append(deleteButton).append(saveButton);
+    }
+
+    /**Create an exhibition
+     * @method createExhibition
+     */
+    function createExhibition() {
+        prepareNextView(false);
+        clearRight();
+        prepareViewer(true);
+
+        TAG.Worktop.Database.createExhibition(null, function (newDoq) {
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
+                return;
+            }
+            if (!newDoq) { // Shouldn't happen!
+                // TODO: Error Message
+                loadExhibitionsView();
+                return;
+            }
+            loadExhibitionsView(newDoq.Identifier);
+        }, authError, error(loadExhibitionsView), true);
+    }
+
+    /** Save a collection
+     * @method saveExhibition
+     * @param {Object} exhibition   collection to save
+     * @inputs {Object} inputs      keys from input fields
+     */
+    function saveExhibition(exhibition, inputs) {
+        prepareNextView(false, null, null, "Saving...");
+        clearRight();
+        prepareViewer(true);
+
+        var name = inputs.nameInput.val();
+        var desc = inputs.descInput.val();
+        var bg = inputs.bgInput.val();
+        var preview = inputs.previewInput.val();
+        var priv = inputs.privateInput;
+
+        var options = {
+            Name: name,
+            Private: priv,
+            Description: desc,
+        }
+
+        if (bg)
+            options.Background = bg;
+        if (preview)
+            options.Img1 = preview;
+
+        TAG.Worktop.Database.changeExhibition(exhibition.Identifier, options, function () {
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
+                return;
+            }
+            loadExhibitionsView(exhibition.Identifier);
+        }, authError, conflict(exhibition, "Update", loadExhibitionsView), error(loadExhibitionsView));
+    }
+
+    /**Delete a collection
+     * @method deleteExhibition
+     * @param {Object} exhibition     collection to delete
+     */
+    function deleteExhibition(exhibition) {
+        var confirmationBox = TAG.Util.UI.PopUpConfirmation(function () {
+            prepareNextView(false);
+            clearRight();
+            prepareViewer(true);
+
+            // actually delete the exhibition
+            TAG.Worktop.Database.deleteDoq(exhibition.Identifier, function () {
+                if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
+                    return;
+                }
+                loadExhibitionsView();
+            }, authError, conflict(exhibition, "Delete", loadExhibitionsView), error(loadExhibitionsView));
+        }, "Are you sure you want to delete " + exhibition.Name + "?", "Delete", true, function() { $(confirmationBox).hide(); });
+        root.append(confirmationBox);
+        $(confirmationBox).show();
+    }
+
+
+    // Tour Functions:
+
+    /**Load the tour view
+     * @method loadTourView
+     * @param {Object} id   id of left label to start on
+     */
+    function loadTourView(id) {
+        prepareNextView(true, "New", createTour);
+        clearRight();
+        prepareViewer(true);
+        var cancel = false;
+        // Make an async call to get tours
+        TAG.Worktop.Database.getTours(function (result) {
+            if (cancel) return;
+            sortAZ(result);
+
+            $.each(result, function (i, val) {
+                if (cancel) return false;
+                // Add each label as a separate function to the queue so the UI doesn't lock up
+                leftQueue.add(function () {
+                    if (cancel) return;
+                    if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+                        return;
+                    }
+                    var label;
+                    if (!prevSelectedLeftLabel &&
+                        ((id && val.Identifier === id) || (!id && i === 0))) {
+                        // Select the first one
+                        leftLoading.before(selectLabel(label = createLeftLabel(val.Name, null, function () {
+                            loadTour(val);
+                        }, val.Identifier, false, function () {
+                            editTour(val);
+                        }), true));
+
+                        // Scroll to the selected label if the user hasn't already scrolled somewhere
+                        if (leftbar.scrollTop() === 0 && label.offset().top - leftbar.height() > 0) {
+                            leftbar.animate({
+                                scrollTop: (label.offset().top - leftbar.height())
+                            }, 1000);
+                        }
+
+                        prevSelectedLeftLabel = label;
+                        loadTour(val);
+                    } else {
+                        leftLoading.before(label = createLeftLabel(val.Name, null, function () {
+                            loadTour(val);
+                        }, val.Identifier, false, function () {
+                            editTour(val);
+                        }));
+                    }
+                    // Hide if it doesn't match search criteria
+                    if (!TAG.Util.searchString(val.Name, searchbar.val())) {
+                        label.hide();
+                    }
+                });
+            });
+            // Hide the loading label when we're done
+            leftQueue.add(function () {
+                leftLoading.hide();
+            });
+        });
+        cancelLastSetting = function () { cancel = true; };
+    }
+
+    /**Load a tour to the right side
+     * @method loadTour
+     * @param {Object} tour     tour to load
+     */
+    function loadTour(tour) {
+        prepareViewer(true);
+        clearRight();
+
+        // Create an img element just to load the image
+        var img = $(document.createElement('img'));
+        img.attr('src', TAG.Worktop.Database.fixPath(tour.Metadata.Thumbnail));
+
+        // Create a progress circle
+        var progressCircCSS = {
+            'position': 'absolute',
+            'left': '30%',
+            'top': '22%',
+            'z-index': '50',
+            'height': viewer.height() / 2 + 'px',
+            'width': 'auto'
+        };
+        var circle = TAG.Util.showProgressCircle(viewer, progressCircCSS, '0px', '0px', false);
+        var selectedLabel = prevSelectedLeftLabel;
+        img.load(function () {
+            // If the selection has changed since we started loading return
+            if (prevSelectedLeftLabel && prevSelectedLeftLabel.text() !== tour.Name) {
+                TAG.Util.removeProgressCircle(circle);
+                return;
+            }
+            TAG.Util.removeProgressCircle(circle);
+            // Set the image as a background image, centered and contained
+            viewer.css('background', 'black url(' + TAG.Worktop.Database.fixPath(tour.Metadata.Thumbnail) + ') no-repeat center / contain');
+        });
+
+        // Create inputs
+        // inputs
+        var privateState;
+        if (tour.Metadata.Private) {
+            privateState = (/^true$/i).test(tour.Metadata.Private);
+        } else {
+            privateState = false;
+        }
+        var privateInput = createButton('Unpublish', function () {
+            privateState = true;
+            privateInput.css('background-color', 'white');
+            publicInput.css('background-color', '');
+        }, {
+            'min-height': '0px',
+            'margin-right': '4%',
+            'width': '48%',
+        });
+        privateInput.attr('class','settingButton');
+        var publicInput = createButton('Publish', function () {
+            privateState = false;
+            publicInput.css('background-color', 'white');
+            privateInput.css('background-color', '');
+        }, {
+            'min-height': '0px',
+            'width': '48%',
+        });
+        publicInput.attr('class','settingButton');
+        if (privateState) {
+            privateInput.css('background-color', 'white');
+        } else {
+            publicInput.css('background-color', 'white');
+        }
+        var pubPrivDiv = $(document.createElement('div'));
+        pubPrivDiv.append(privateInput).append(publicInput);
+
+        var nameInput = createTextInput(TAG.Util.htmlEntityDecode(tour.Name), true, 120);
+        var descInput = createTextAreaInput(TAG.Util.htmlEntityDecode(tour.Metadata.Description).replace(/\n/g,'<br />') || "", false);
+
+        nameInput.focus(function () {
+            if (nameInput.val() === 'Untitled Tour')
+                nameInput.select();
+        });
+        descInput.focus(function () {
+            if (descInput.val() === 'Tour Description')
+                descInput.select();
+        });
+
+        // on change behavior
+        onChangeUpdateText(descInput, null, 1500); // What should max length be?
+
+        var privateSetting = createSetting('Change Publish Setting', pubPrivDiv);
+        var name = createSetting('Tour Name', nameInput);
+        var desc = createSetting('Tour Description', descInput);
+
+        settingsContainer.append(privateSetting);
+        settingsContainer.append(name);
+        settingsContainer.append(desc);
+
+
+        // Create buttons
+        var editButton = createButton('Edit Tour',
+            function () { editTour(tour); },
+            {
+                'margin-left': '2%',
+                'margin-top': '1%',
+                'margin-right': '0%',
+                'margin-bottom': '3%',
+            });
+        var deleteButton = createButton('Delete Tour',
+            function () { deleteTour(tour); },
+            {
+                'margin-left': '2%',
+                'margin-top': '1%',
+                'margin-right': '0%',
+                'margin-bottom': '3%',
+            });
+        var duplicateButton = createButton('Duplicate Tour',
+            function () {
+                duplicateTour(tour, {
+                    privateInput: privateState,
+                    nameInput: nameInput,
+                    descInput: descInput,
+                });
+            },
+            {
+                'margin-left': '2%',
+                'margin-top': '1%',
+                'margin-right': '0%',
+                'margin-bottom': '3%',
+            });
+        var saveButton = createButton('Save Changes',
+            function () {
+                if (nameInput.val() === undefined || nameInput.val() === "") {
+                    nameInput.val() = "Untitled Tour";
+                }
+                saveTour(tour, {
+                    privateInput: privateState,
+                    nameInput: nameInput,
+                    descInput: descInput,
+                });
+            }, {
+                'margin-right': '3%',
+                'margin-top': '1%',
+                'margin-bottom': '1%',
+                'margin-left': '.5%',
+                'float': 'right'
+            });
+
+        buttonContainer.append(editButton).append(duplicateButton).append(deleteButton).append(saveButton);
+    }
+
+    /** Create a tour
+     * @method createTour
+     */
+    function createTour() {
+        prepareNextView(false);
+        clearRight();
+        prepareViewer(true);
+
+        TAG.Worktop.Database.createTour(null, function (newDoq) {
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+                return;
+            }
+            if (!newDoq) {
+                // TODO: ERROR
+                loadTourView();
+                return;
+            }
+            loadTourView(newDoq.Identifier);
+        }, authError, error(loadTourView), true);
+    }
+
+    /**Edit a tour
+     * @method editTour
+     * @param {Object} tour     tour to edit
+     */
+    function editTour(tour) {
+        // Overlay doesn't spin... not sure how to fix without redoing tour authoring to be more async
+        loadingOverlay('Loading Tour...');
+        leftQueue.clear();
+        rightQueue.clear();
+        setTimeout(function () {
+            var toureditor = new TAG.Layout.TourAuthoringNew(tour, function () {
+                TAG.Util.UI.slidePageLeft(toureditor.getRoot());
+            });
+        }, 1);
+    }
+
+    /**Delete a tour
+     * @method deleteTour
+     * @param {Object} tour     tour to delete
+     */
+    function deleteTour(tour) {
+        var confirmationBox = TAG.Util.UI.PopUpConfirmation(function () {
+            prepareNextView(false);
+            clearRight();
+            prepareViewer(true);
+
+            // actually delete the tour
+            TAG.Worktop.Database.deleteDoq(tour.Identifier, function () {
+                if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+                    return;
+                }
+                loadTourView();
+            }, authError, conflict(tour, "Delete", loadTourView), error(loadTourView));
+        }, "Are you sure you want to delete " + tour.Name + "?", "Delete", true, function () { $(confirmationBox).hide(); });
+        root.append(confirmationBox);
+        $(confirmationBox).show();
+    }
+
+    /**Duplicate a tour
+     * @method duplicateTour
+     * @param {Object} tour     tour to duplicate
+     * @param {Object} inputs   keys for name, description, and privateInput of tour
+     */
+    function duplicateTour(tour, inputs) {
+        prepareNextView(false);
+        clearRight();
+        prepareViewer(true);
+        var options = {
+            Name: "Copy: " + tour.Name,
+            Description: tour.Metadata.Description,
+            Content: tour.Metadata.Content,
+            Thumbnail: tour.Metadata.Thumbnail,
+            Private: "true", // always want to create duplicates as unpublished
+        };
+
+        TAG.Worktop.Database.createTour(options, function (tewer) {
+            console.log("success");
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+                return;
+            }
+            loadTourView(tewer.Identifier);
+        }, function () {
+            console.log("error");
+        }, function () {
+            console.log("cacheError");
+        });
+    }
+
+    /**Save a tour
+     * @method saveTour
+     * @param {Object} tour     tour to save
+     * @param {Object} inputs   keys for name, description, and privateInput of tour
+     */
+    function saveTour(tour, inputs) {
+        var name = inputs.nameInput.val();
+        var desc = inputs.descInput.val();
+
+        if (name.indexOf(' ') === 0) {
+            var messageBox = TAG.Util.UI.popUpMessage(null, "Tour Name cannot start with a space.", null, true);
+            $(root).append(messageBox);
+            $(messageBox).show();
+            return;
+        }
+
+        prepareNextView(false, null, null, "Saving...");
+        clearRight();
+        prepareViewer(true);
+
+        TAG.Worktop.Database.changeTour(tour.Identifier, {
+            Name: name,
+            Description: desc,
+            Private: inputs.privateInput,
+        }, function () {
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
+                return;
+            }
+            loadTourView(tour.Identifier);
+        }, authError, conflict(tour, "Update", loadTourView), error(loadTourView));
+    }
+
+    // Associated Media functions:
+
+    /**Load Associated Media view
+     * @method load AssocMediaView
+     * @param {Object} id   id of left label to start on
+     */
+    function loadAssocMediaView(id) {
+        prepareNextView(true, "Import", createAsset);
+        prepareViewer(true);
+        clearRight();
+        var cancel = false;
+
+        // Make an async call to get artworks
+        TAG.Worktop.Database.getAssocMedia(function (result) {
+            if (cancel) return;
+            sortAZ(result);
+            console.log('media in hand');
+            if (result[0] && result[0].Metadata) {
+                $.each(result, function (i, val) {
+                    if (cancel) return;
+                    // Add each label in a separate function in the queue so the UI doesn't lock up
+                    leftQueue.add(function () {
+                        if (cancel) return;
+                        if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.media.text]) {
+                            return;
+                        }
+                        var label;
+                        var imagesrc;
+                        switch (val.Metadata.ContentType.toLowerCase()) {
+                            case 'video':
+                                imagesrc = (val.Metadata.Thumbnail && !val.Metadata.Thumbnail.match(/.mp4/)) ? TAG.Worktop.Database.fixPath(val.Metadata.Thumbnail) : 'images/video_icon.svg';
+                                break;
+                            case 'audio':
+                                imagesrc = 'images/audio_icon.svg';
+                                break;
+                            case 'image':
+                                imagesrc = val.Metadata.Thumbnail ? TAG.Worktop.Database.fixPath(val.Metadata.Thumbnail) : 'images/image_icon.svg';
+                                break;
+                            default:
+                                imagesrc = null;
+                                break;
+                        }
+                        if (!prevSelectedLeftLabel &&
+                            ((id && val.Identifier === id) || (!id && i === 0))) {
+                            // Select the first one
+                            leftLoading.before(selectLabel(label = createLeftLabel(val.Name, imagesrc, function () {
+                                loadAssocMedia(val);
+                            }, val.Identifier, false), true));
+
+                            // Scroll to the selected label if the user hasn't already scrolled somewhere
+                            if (leftbar.scrollTop() === 0 && label.offset().top - leftbar.height() > 0) {
+                                leftbar.animate({
+                                    scrollTop: (label.offset().top - leftbar.height())
+                                }, 1000);
+                            }
+
+                            prevSelectedLeftLabel = label;
+                            loadAssocMedia(val);
+                        } else {
+                            leftLoading.before(label = createLeftLabel(val.Name, imagesrc, function () {
+                                loadAssocMedia(val);
+                            }, val.Identifier, false));
+                        }
+                        // Hide if it doesn't match search criteria
+                        if (!TAG.Util.searchString(val.Name, searchbar.val())) {
+                            label.hide();
+                        }
+                    });
+                });
+                // Hide the loading label when we're done
+                leftQueue.add(function () {
+                    leftLoading.hide();
+                });
+            } else {
+                leftLoading.hide();
+            }
+        });
+        cancelLastSetting = function () { cancel = true; };
+    }
+    
+    /**Loads associated media to the right side
+     * @method loadAssocMedia
+     * @param {Object} media    associated media to load
+     */
+    function loadAssocMedia(media) {
+        prepareViewer(true);
+        clearRight();
+
+        // Create an img element to load the image
+        var type = media.Metadata.ContentType.toLowerCase();
+        var holder;
+        var source = TAG.Worktop.Database.fixPath(media.Metadata.Source);
+        switch (type) {
+            case "image":
+                holder = $(document.createElement('img'));
+                break;
+            case "video":
+                holder = $(document.createElement('video'));
+                holder.attr('id', 'videoInPreview');
+                holder.attr('poster', (media.Metadata.Thumbnail && !media.Metadata.Thumbnail.match(/.mp4/)) ? TAG.Worktop.Database.fixPath(media.Metadata.Thumbnail) : '');
+                holder.attr('identifier', media.Identifier);
+                holder.attr("preload", "none");
+                holder.attr("controls", "");
+                holder.css({ "width": "100%", "max-width": "100%", "max-height": "100%" });
+                holder[0].onerror = TAG.Util.videoErrorHandler(holder, viewer);
+                break;
+            case "audio":
+                holder = $(document.createElement('audio'));
+                holder.attr("preload", "none");
+                holder.attr("controls", "");
+                holder.css({ 'width': '80%' });
+                break;
+            case "text":
+            default:
+                holder = $(document.createElement('div'));
+                holder.css({
+                    "font-size": "24px",
+                    "top": "20%",
+                    "width": "80%",
+                    //"margin-left": "10%",
+                    "text-align": "center",
+                    "color": "white"
+                });
+                holder.html(media.Name + "<br /><br />" + media.Metadata.Description);
+                break;
+        }
+        (source && type !== 'text') && holder.attr('src', source);
+
+        // Create a progress circle
+        var progressCircCSS = {
+            'position': 'absolute',
+            'left': '40%',
+            'top': '40%',
+            'z-index': '50',
+            'height': 'auto',
+            'width': '20%'
+        };
+        var circle = TAG.Util.showProgressCircle(viewer, progressCircCSS, '0px', '0px', false);
+        var selectedLabel = prevSelectedLeftLabel;
+
+        switch (type) {
+            case "image":
+                holder.load(function () {
+                    // If the selection has changed since we started loading then return
+                    if (prevSelectedLeftLabel && prevSelectedLeftLabel.text() !== media.Name) {
+                        TAG.Util.removeProgressCircle(circle);
+                        return;
+                    }
+                    TAG.Util.removeProgressCircle(circle);
+                    // Set the image as a background image
+                    viewer.css('background', 'black url(' + source + ') no-repeat center / contain');
+                });
+                break;
+            case "video":
+                TAG.Util.removeProgressCircle(circle);
+                viewer.css('background', 'black');
+                viewer.append(holder);
+                break;
+            case "audio":
+                TAG.Util.removeProgressCircle(circle);
+                viewer.css('background', 'black');
+                //center the the audio element in the viewer
+                viewer.append(holder);
+                var left = viewer.width() / 2 - holder.width() / 2 + "px";
+                var top = viewer.height() /2 - holder.height() /2 + "px";
+                holder.css({ "position": "absolute", "left": left, "top" : top });
+                break;
+            case "text":
+                TAG.Util.removeProgressCircle(circle);
+                viewer.css({ 'background': 'black'});
+                viewer.append(holder);
+                var left = viewer.width() / 2 - holder.width() / 2 + "px";
+                var top = viewer.height() / 2 - holder.height() / 2 + "px";
+                holder.css({ "position": "absolute", "left": left, "top": top });
+                break;
+            default:
+                TAG.Util.removeProgressCircle(circle);
+                viewer.css('background', 'black');
+                break;
+        }
+
+        // Create labels
+        var titleInput = createTextInput(TAG.Util.htmlEntityDecode(media.Name) || "", true, 55);
+        var descInput = createTextAreaInput(TAG.Util.htmlEntityDecode(media.Metadata.Description).replace(/\n/g,'<br />') || "", true);
+
+        titleInput.focus(function () {
+            if (titleInput.val() === 'Title')
+                titleInput.select();
+        });
+        descInput.focus(function () {
+            if (descInput.val() === 'Description')
+                descInput.select();
+        });
+
+        var title = createSetting('Title', titleInput);
+        var desc = createSetting('Description', descInput);
+
+        settingsContainer.append(title);
+        settingsContainer.append(desc);
+
+        // Create buttons
+        var assocButton = createButton('Associate to Artworks',
+            function () { assocToArtworks(media); },
+            {
+                'float': 'left',
+                'margin-left': '2%',
+                'margin-top': '1%',
+                'margin-right': '0%',
+                'margin-bottom': '3%',
+            });
+        var deleteButton = createButton('Delete',
+            function () {
+                var confirmationBox = TAG.Util.UI.PopUpConfirmation(function () {
+                    prepareNextView(false);
+                    clearRight();
+                    prepareViewer(true);
+
+                    // stupid way to force associated artworks to increment their linq counts and refresh their lists of media
+                    TAG.Worktop.Database.changeHotspot(media.Identifier, { Name: media.Name }, function () {
+                        // success handler
+                        TAG.Worktop.Database.deleteDoq(media.Identifier, function () {
+                            console.log("deleted");
+                            loadAssocMediaView();
+                        }, function () {
+                            console.log("noauth error");
+                        }, function () {
+                            console.log("conflict error");
+                        }, function () {
+                            console.log("general error");
+                        });
+                    }, function () {
+                        // unauth handler
+                    }, function () {
+                        // conflict handler
+                    }, function () {
+                        // error handler
+                    });
+                }, "Are you sure you want to delete " + media.Name + "?", "Delete", true, function () { $(confirmationBox).hide(); });
+                root.append(confirmationBox);
+                $(confirmationBox).show();
+                 },
+            {
+                'margin-left': '2%',
+                'margin-top': '1%',
+                'margin-right': '0%',
+                'margin-bottom': '3%',
+                'float': 'left',
+            });
+
+        var generateAssocMediaThumbnailButton = createButton('Generate Thumbnail',
+            function () {
+                generateAssocMediaThumbnail(media);
+            }, {
+                'margin-right': '0%',
+                'margin-top': '1%',
+                'margin-bottom': '1%',
+                'margin-left': '2%',
+                'float': 'left'
+            });
+
+        var saveButton = createButton('Save Changes',
+            function () {
+                if (titleInput.val() === undefined || titleInput.val() === "") {
+                    titleInput.val("Untitled Asset");
+                }
+                saveAssocMedia(media, {
+                    titleInput: titleInput,
+                    descInput: descInput
+                });
+            }, {
+                'margin-right': '3%',
+                'margin-top': '1%',
+                'margin-bottom': '1%',
+                'margin-left': '.5%',
+                'float': 'right'
+            });
+
+        var thumbnailButton = createButton('Capture Thumbnail',
+            function () {
+                saveThumbnail(media, false);
+            }, {
+                'margin-right': '0%',
+                'margin-top': '1%',
+                'margin-bottom': '3%',
+                'margin-left': '2%',
+                'float': 'left'
+            });
+
+        buttonContainer.append(assocButton);
+        if (media.Metadata.ContentType.toLowerCase() === 'video') {
+            buttonContainer.append(thumbnailButton);
+        } else if (media.Metadata.ContentType.toLowerCase() === 'image' && !media.Metadata.Thumbnail && media.Metadata.Source[0] === '/' && !source.match(/.mp3/)) {
+            // hacky way to see if asset was imported recently enough to support thumbnailing (these are /Images/_____.__
+            // rather than http:// _______/Images/_______.__
+            buttonContainer.append(generateAssocMediaThumbnailButton);
+        }
+        buttonContainer.append(deleteButton).append(saveButton);
+    }
+
+    /**Save an associated media
+     * @method saveAssocMedia
+     * @param {Object} media    associated media to save
+     * @param {Object} inputs   keys for media title and description
+     */
+    function saveAssocMedia(media, inputs) {
+        var name = inputs.titleInput.val();
+        var desc = inputs.descInput.val();
+
+        prepareNextView(false, null, null, "Saving...");
+        clearRight();
+        prepareViewer(true);
+
+        TAG.Worktop.Database.changeHotspot(media, {
+            Name: name,
+            Description: desc,
+        }, function () {
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.media.text]) {
+                return;
+            }
+            loadAssocMediaView(media.Identifier);
+        }, authError, conflict(media, "Update", loadAssocMediaView), error(loadAssocMediaView));
+    }
+
+    /**Brings up an artwork chooser for a particular associated media
+     * @method assocToArtworks
+     * @param {Object} media    media to associate to artworks
+     */
+    function assocToArtworks(media) {
+        artworkAssociations = [[]];
+        numFiles = 1;
+        TAG.Util.UI.createAssociationPicker(root, "Choose artworks", { comp: media, type: 'media' }, "artwork", [{
+            name: "All Artworks",
+            getObjs: TAG.Worktop.Database.getArtworks
+        }], {
+            getObjs: TAG.Worktop.Database.getArtworksAssocTo,
+            args: [media.Identifier]
+        }, function () { });
+    }
+
+    /**Generate thumbnail for associated media
+     * @method generateAssocMediaThumbnail
+     * @param {Object} media        media to generate thumbnail for
+     */
+    function generateAssocMediaThumbnail(media) {
+        prepareNextView(false, null, null, "Saving...");
+        clearRight();
+        prepareViewer(true);
+        TAG.Worktop.Database.changeHotspot(media.Identifier, { Thumbnail: 'generate' }, function () {
+            console.log('success?');
+            loadAssocMediaView(media.Identifier);
+        }, unauth, conflict, error);
+    }
+
+    /**
+     * @method createAsset
+     */
+    function createAsset() {
+        uploadFile(TAG.Authoring.FileUploadTypes.AssociatedMedia, function (urls, names, contentTypes, files) {
+            var check, i, url, name, done = 0, total = urls.length, durations = [];
+            prepareNextView(false);
+            clearRight();
+            prepareViewer(true);
+
+            if(files.length > 0) {
+                durationHelper(0);
+            }
+
+            function durationHelper(j) {
+                if (contentTypes[j] === 'Video') {
+                    files[j].properties.getVideoPropertiesAsync().done(function (VideoProperties) {
+                        durations.push(VideoProperties.duration / 1000); // duration in seconds
+                        updateDoq(j);
+                    }, function (err) {
+                        console.log(err);
+                    });
+                } else if (contentTypes[j] === 'Audio') {
+                    files[j].properties.getMusicPropertiesAsync().done(function (MusicProperties) {
+                        durations.push(MusicProperties.duration / 1000); // duration in seconds
+                        updateDoq(j);
+                    }, function (error) {
+                        console.log(error);
+                    });
+                } else {
+                    durations.push(null);
+                    updateDoq(j);
+                }
+            }
+
+            function incrDone() {
+                done++;
+                if (done >= total) {
+                    loadAssocMediaView();
+                } else {
+                    durationHelper(done);
+                }
+            }
+
+            function updateDoq(j) {
+                var newDoq;
+                try {
+                    newDoq = new Worktop.Doq(urls[j]);
+                    var options = {Name: names[j]};
+                    if (durations[j]) {
+                        options.Duration = durations[j];
+                    }
+                    TAG.Worktop.Database.changeHotspot(newDoq.Identifier, options, incrDone, TAG.Util.multiFnHandler(authError, incrDone), TAG.Util.multiFnHandler(conflict(newDoq, "Update", incrDone)), error(incrDone));
+                } catch (error) {
+                    done++;
+                    console.log("error in uploading: " + error.message);
+                    return;
+                }
+            }
+        }, true, ['.jpg', '.png', '.gif', '.tif', '.tiff', '.mp4', '.mp3']);
+    }
+
+    /**Create an associated media (import), possibly more than one
+     * @method createMedia
+     */
+    function createMedia() {
+        batchAssMedia();
+    }
+
+    /**
+     * @method batchAssMedia
+     */
+    function batchAssMedia() {
+        var uniqueUrls = []; // Used to make sure we don't override data for the wrong media (not actually airtight but w/e)
+        mediaMetadata = [];
+        artworkAssociations = [];
+        numFiles = 0;
+        isUploading = true;
+        assetUploader = TAG.Authoring.FileUploader( // multi-file upload now
+            root,
+            TAG.Authoring.FileUploadTypes.AssociatedMedia,
+            function (files, localURLs) { // localCallback
+                var file, localURL, i;
+                var img, video, audio;
+                var contentType;
+                numFiles = files.length;
+                for (i = 0; i < files.length; i++) {
+                    artworkAssociations.push([]);
+                    file = files[i];
+                    localURL = localURLs[i];
+                    if (file.contentType.match(/image/)) {
+                        contentType = 'Image';
+                    } else if (file.contentType.match(/video/)) {
+                        contentType = 'Video';
+                    } else if (file.contentType.match(/audio/)) {
+                        contentType = 'Audio';
+                    }
+                    uniqueUrls.push(localURL);
+                    mediaMetadata.push({
+                        'title': file.displayName,
+                        'contentType': contentType,
+                        'localUrl': localURL,
+                        'assetType': 'Asset',
+                        'assetLinqID': undefined,
+                        'assetDoqID': undefined
+                    });
+                }
+            },
+            function (dataReaderLoads) { // finished callback: set proper contentUrls, if not first, save it
+                var i, dataReaderLoad;
+                for (i = 0; i < dataReaderLoads.length; i++) {
+                    dataReaderLoad = dataReaderLoads[i];
+                    mediaMetadata[i].contentUrl = dataReaderLoad;
+                }
+
+                // chooseAssociatedArtworks(); // need to send in media objects here TODO
+            },
+            ['.jpg', '.png', '.gif', '.tif', '.tiff', '.mp4', '.mp3'], // filters
+            false, // useThumbnail
+            null, // errorCallback
+            true // multiple file upload enabled?
+        );
+    }
+
+    /**
+     * @method saveAssMedia
+     * @param i the index of the asset 
+     */
+    function saveAssMedia(i) {
+        var len = artworkAssociations[i].length;
+        uploadHotspotHelper(i, 0, len);
+    }
+
+    /**
+     * Uploads hotspot i to artwork j in its list of artworks to associate to.
+     * @method uploadHotspotHelper
+     * @param i    the index of the asset we're uploading
+     * @param j    each asset has a list of artworks it'll be associated with; j is the index in this list
+     * @param len  the length of the list above
+     */
+    function uploadHotspotHelper(i, j, len) {
+        // uploads hotspot hotspot i to artwork j in its list
+        var activeMM = mediaMetadata[i];
+        uploadHotspot(artworkAssociations[i][j], { // this info isn't changing, so maybe we can do this more easily in uploadHotspot
+            title: TAG.Util.encodeXML(activeMM.title || 'Untitled media'),
+            desc: TAG.Util.encodeXML(''),
+            pos: null, // bogus entry for now -- should set it to {x: 0, y: 0} in uploadHotspot
+            contentType: activeMM.contentType,
+            contentUrl: activeMM.contentUrl,
+            assetType: activeMM.assetType,
+            metadata: {
+                assetLinqID: activeMM.assetLinqID,
+                assetDoqID: activeMM.assetDoqID
+            }
+        },
+        i, j, len);
+    }
+
+    /**
+     * @method uploadHotspot
+     * @param artwork
+     * @param info
+     * @param i
+     * @param j
+     * @param len
+     */
+    function uploadHotspot(artwork, info, i, j, len) {
+        var title = info.title,
+            desc = info.desc,
+            pixel = info.pos,
+            contentType = info.contentType,
+            contentUrl = info.contentUrl,
+            assetType = info.assetType,
+            worktopInfo = info.metadata || {},
+            dzPos = pixel ? zoomimage.viewer.viewport.pointFromPixel(pixel) : { x: 0, y: 0 },
+            rightbarLoadingSave;
+
+        var options = {
+            Name: title,
+            ContentType: contentType,
+            Duration: duration,
+            Source: contentUrl,
+            LinqTo: artwork.Identifier,
+            X: dzPos.x,
+            Y: dzPos.y,
+            LinqType: assetType,
+            Description: desc
+        };
+
+        TAG.Worktop.Database.createHotspot(artwork.CreatorID, artwork.Identifier, createHotspotHelper);
+
+        /**
+         * @method createHotspotHelper
+         * @param isNewAsset
+         * @param xmlHotspot
+         */
+        function createHotspotHelper(isNewAsset, xmlHotspot) { // currently for creating both hotspots and assoc media
+            var $xmlHotspot,
+                hotspotId,
+                hotspotContentId,
+                hotspotContentDoq,
+                $hotspotContentDoq,
+                titleField,
+                metadata,
+                descField,
+                contentTypeField,
+                sourceField,
+                position;
+            $xmlHotspot = $(xmlHotspot);
+            hotspotId = $xmlHotspot.find("Identifier").text();
+            hotspotContentId = $xmlHotspot.find("BubbleContentID:last").text();
+            hotspotContentDoq = $.parseXML(TAG.Worktop.Database.getDoqXML(hotspotContentId));
+            $hotspotContentDoq = $(hotspotContentDoq);
+            // update doq info and send back to server
+            titleField = $hotspotContentDoq.find('Name').text(title);
+            metadata = $hotspotContentDoq.find('Metadata');
+            descField = metadata.find("d3p1\\:Key:contains('Description') + d3p1\\:Value").text(desc);
+            contentTypeField = metadata.find("d3p1\\:Key:contains('ContentType') + d3p1\\:Value").text(contentType);
+            sourceField = metadata.find("d3p1\\:Key:contains('Source') + d3p1\\:Value").text(contentUrl);
+            position = $xmlHotspot.find('Offset > d2p1\\:_x').text(dzPos.x); // why is position getting reset?
+            position = $xmlHotspot.find('Offset > d2p1\\:_y').text(dzPos.y);
+            //add linq type : Hotspot vs. Asset
+            $xmlHotspot.find("d3p1\\:Key:contains('Type') + d3p1\\:Value").text(assetType);
+            TAG.Worktop.Database.pushLinq(xmlHotspot, hotspotId);
+            TAG.Worktop.Database.pushXML(hotspotContentDoq, hotspotContentId);
+            if (j < len - 1) {
+                uploadHotspotHelper(i, j + 1, len);
+            }
+            else if (j === len - 1 && i < numFiles - 1) {
+                saveAssMedia(i + 1);
+            }
+            else {
+                isUploading = false;
+                isCreatingMedia = false;
+                //$topProgressDiv.css("visibility", "hidden");
+            }
+        }
+    }
+
+    // Art Functions:
+
+    /**Loads art view
+     * @method loadArtView
+     * @param {Object} id   id of left label to start on
+     */
+    function loadArtView(id) {
+        prepareNextView(true, "Import", createArtwork);
+        prepareViewer(true);
+        clearRight();
+        var cancel = false;
+
+        // Make an async call to get artworks
+        TAG.Worktop.Database.getArtworks(function (result) {
+            if (cancel) return;
+            sortAZ(result);
+            if (result[0] && result[0].Metadata) {
+                $.each(result, function (i, val) {
+                    if (cancel) return;
+                    // Add each label in a separate function in the queue
+                    // so the UI doesn't lock up
+                    val.Name = TAG.Util.htmlEntityDecode(val.Name);
+                    leftQueue.add(function () {
+                        if (cancel) return;
+                        if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.art.text]) {
+                            return;
+                        }
+                        var label;
+                        var imagesrc;
+                        switch (val.Metadata.Type) {
+                            case 'Artwork':
+                                imagesrc = TAG.Worktop.Database.fixPath(val.Metadata.Thumbnail);
+                                break;
+                            case 'VideoArtwork':
+                                imagesrc = val.Metadata.Thumbnail ? TAG.Worktop.Database.fixPath(val.Metadata.Thumbnail) : "images/video_icon.svg";
+                                break
+                            default:
+                                imagesrc = null;
+                        }
+                        if (!prevSelectedLeftLabel &&
+                            ((id && val.Identifier === id) || (!id && i === 0))) {
+                            // Select the first one
+                            leftLoading.before(selectLabel(label = createLeftLabel(val.Name, imagesrc, function () {
+                                loadArtwork(val);
+                            }, val.Identifier, false, function () {
+                                editArtwork(val);
+                            }, true, val.Extension), true));
+
+                            // Scroll to the selected label if the user hasn't already scrolled somewhere
+                            if (leftbar.scrollTop() === 0 && label.offset().top - leftbar.height() > 0) {
+                                leftbar.animate({
+                                    scrollTop: (label.offset().top - leftbar.height())
+                                }, 1000);
+                            }
+
+                            prevSelectedLeftLabel = label;
+                            loadArtwork(val);
+                        } else {
+                            leftLoading.before(label = createLeftLabel(val.Name, imagesrc, function () {
+                                loadArtwork(val);
+                            }, val.Identifier, false, function () {
+                                editArtwork(val);
+                            }, true, val.Extension));
+                        }
+                        // Hide if it doesn't match search criteria
+                        if (!TAG.Util.searchString(val.Name, searchbar.val())) {
+                            label.hide();
+                        }
+                    });
+                });
+                // Hide the loading label when we're done
+                leftQueue.add(function () {
+                    leftLoading.hide();
+                });
+            } else {
+                leftLoading.hide();
+            }
+        });
+
+        cancelLastSetting = function () { cancel = true; };
+    }
+
+    /**Loads an artwork to the right side
+     * @method loadArtwork
+     * @param {Object} artwork  artwork to load
+     */
+    function loadArtwork(artwork) {
+        prepareViewer(true);
+        clearRight();
+
+        // Create an img element to load the image
+        var mediaElement;
+        if (artwork.Metadata.Type !== 'VideoArtwork') {
+            mediaElement = $(document.createElement('img'));
+            mediaElement.attr('src', TAG.Worktop.Database.fixPath(artwork.URL));
+        } else {
+            mediaElement = $(document.createElement('video'));
+            mediaElement.attr('id', 'videoInPreview');
+            mediaElement.attr('poster', (artwork.Metadata.Thumbnail && !artwork.Metadata.Thumbnail.match(/.mp4/)) ? TAG.Worktop.Database.fixPath(artwork.Metadata.Thumbnail) : '');
+            mediaElement.attr('identifier', artwork.Identifier);
+            mediaElement.attr("preload", "none");
+            mediaElement.attr("controls", "");
+            mediaElement.css({ "width": "100%", "max-width": "100%", "max-height": "100%" });
+            mediaElement.attr('src', TAG.Worktop.Database.fixPath(artwork.Metadata.Source));
+            mediaElement[0].onerror = TAG.Util.videoErrorHandler(mediaElement, viewer);
+        }
+
+        // Create a progress circle
+        var progressCircCSS = {
+            'position': 'absolute',
+            'left': '40%',
+            'top': '40%',
+            'z-index': '50',
+            'height': 'auto',
+            'width': '20%'
+        };
+        var circle;
+        if (artwork.Metadata.Type !== 'VideoArtwork') {
+            circle = TAG.Util.showProgressCircle(viewer, progressCircCSS, '0px', '0px', false);
+        }
+        var selectedLabel = prevSelectedLeftLabel;
+
+        if (artwork.Metadata.Type !== 'VideoArtwork') {
+            mediaElement.load(function () {
+                // If the selection has changed since we started loading then return
+                if (prevSelectedLeftLabel && prevSelectedLeftLabel.text() !== artwork.Name) {
+                    TAG.Util.removeProgressCircle(circle);
+                    return;
+                }
+                TAG.Util.removeProgressCircle(circle);
+                // Set the image as a background image
+                viewer.css('background', 'black url(' + TAG.Worktop.Database.fixPath(artwork.URL) + ') no-repeat center / contain');
+            });
+        } else {
+            viewer.append(mediaElement);
+        }
+        var titleInput = createTextInput(TAG.Util.htmlEntityDecode(artwork.Name), true, 55);
+        var artistInput = createTextInput(TAG.Util.htmlEntityDecode(artwork.Metadata.Artist), true, 55);
+        var yearInput = createTextInput(TAG.Util.htmlEntityDecode(artwork.Metadata.Year), true, 20);
+        var descInput = createTextAreaInput(TAG.Util.htmlEntityDecode(artwork.Metadata.Description).replace(/\n/g, '<br />') || "", "", false);
+        var customInputs = {};
+        var customSettings = {};
+
+        if (artwork.Metadata.InfoFields) {
+            $.each(artwork.Metadata.InfoFields, function (key, val) {
+                customInputs[key] = createTextInput(TAG.Util.htmlEntityDecode(val), true);
+                customSettings[key] = createSetting(key, customInputs[key]);
+            });
+        }
+
+        titleInput.focus(function () {
+            if (titleInput.val() === 'Title')
+                titleInput.select();
+        });
+        artistInput.focus(function () {
+            if (artistInput.val() === 'Artist')
+                artistInput.select();
+        });
+        yearInput.focus(function () {
+            if (yearInput.val() === 'Year')
+                yearInput.select();
+        });
+        descInput.focus(function () {
+            if (descInput.val() === 'Description')
+                descInput.select();
+        });
+
+        var title = createSetting('Title', titleInput);
+        var artist = createSetting('Artist', artistInput);
+        var year = createSetting('Year', yearInput);
+        var desc = createSetting('Description', descInput);
+
+        settingsContainer.append(title);
+        settingsContainer.append(artist);
+        settingsContainer.append(year);
+        settingsContainer.append(desc);
+
+        $.each(customSettings, function (key, val) {
+            settingsContainer.append(val);
+        });
+
+        // Create buttons
+        editArt = createButton('Enter Artwork Editor',
+            function () { editArtwork(artwork); },
+            {
+                'margin-left': '2%',
+                'margin-top': '1%',
+                'margin-right': '0%',
+                'margin-bottom': '3%',
+            });
+        editArt.attr("id", "artworkEditorButton");
+        var deleteArt = createButton('Delete Artwork',
+            function () { deleteArtwork(artwork); },
+            {
+                'margin-left': '2%',
+                'margin-top': '1%',
+                'margin-right': '0%',
+                'margin-bottom': '3%',
+            });
+        var saveButton = createButton('Save Changes',
+            function () {
+                if (titleInput.val() === undefined || titleInput.val() === "") {
+                    titleInput.val("Untitled Artwork");
+                }
+                saveArtwork(artwork, {
+                    artistInput: artistInput,   //Artwork artist
+                    nameInput: titleInput,      //Artwork title
+                    yearInput: yearInput,       //Artwork year
+                    descInput: descInput,       //Artwork description
+                    customInputs: customInputs, //Artwork custom info fields
+                });
+            }, {
+                'margin-right': '3%',
+                'margin-top': '1%',
+                'margin-bottom': '1%',
+                'margin-left': '.5%',
+                'float': 'right'
+            });
+
+        var thumbnailButton = createButton('Capture Thumbnail',
+            function () {
+                saveThumbnail(artwork, true);
+            }, {
+                'margin-right': '0%',
+                'margin-top': '1%',
+                'margin-bottom': '1%',
+                'margin-left': '2%',
+                'float': 'left'
+            });
+        if (artwork.Metadata.Type !== 'VideoArtwork') {
+            buttonContainer.append(editArt).append(deleteArt).append(saveButton);
+        } else {
+            buttonContainer.append(thumbnailButton).append(deleteArt).append(saveButton);
+        }
+    }
+
+    /**Save Thumbnail image 
+     * @method saveThumbnail
+     * @param {Object} component
+     * @param {Boolean} isArtwork
+     */
+    function saveThumbnail(component, isArtwork) {
+        var id = $('#videoInPreview').attr('identifier');
+        var pop = Popcorn('#videoInPreview');
+        var time = $('#videoInPreview')[0].currentTime;
+        var dataurl = pop.capture({ type: 'jpg' }); // modified popcorn.capture a bit to
+        prepareNextView(false, null, null, "Saving...");
+        clearRight();
+        prepareViewer(true);
+        TAG.Worktop.Database.uploadImage(dataurl, function (imageURL) {
+            if (isArtwork) {
+                TAG.Worktop.Database.changeArtwork(id, { Thumbnail: imageURL }, function () {
+                    console.log("success?");
+                    loadArtView(component.Identifier);
+                }, unauth, conflict, error);
+            
+            } else { // here, it must be a video assoc media
+                TAG.Worktop.Database.changeHotspot(id, { Thumbnail: imageURL }, function () {
+                    console.log("success?");
+                    loadAssocMediaView(component.Identifier);
+                }, unauth, conflict, error);
+            }
+        }, unauth, error);
+    }
+
+    function unauth() {
+        dialogOverlay.hide();
+        var popup = TAG.Util.UI.popUpMessage(null, "Thumbnail not saved.  You must log in to save changes.");
+        $('body').append(popup);
+        $(popup).show();
+    }
+
+    function conflict(jqXHR, ajaxCall) {
+        ajaxCall.force();
+    }
+
+    function error() {
+        dialogOverlay.hide();
+        var popup = TAG.Util.UI.popUpMessage(null, "Thumbnail not saved.  There was an error contacting the server.");
+        $('body').append(popup);
+        $(popup).show();
+    }
+
+    /**Create an artwork (import), possibly more than one
+     * @method createArtwork
+     */
+    function createArtwork() {
+        uploadFile(TAG.Authoring.FileUploadTypes.DeepZoom, function (urls, names, contentTypes, files) {
+            var check, i, url, name, done=0, total=urls.length, durations=[];
+            prepareNextView(false);
+            clearRight();
+            prepareViewer(true);
+
+            function incrDone() {
+                done++;
+                if (done >= total) {
+                    loadArtView();
+                } else {
+                    durationHelper(done);
+                }
+            }
+
+            if (files.length > 0) {
+                durationHelper(0);
+            }
+
+            function durationHelper(j) {
+                if (contentTypes[j] === 'Video') {
+                    files[j].properties.getVideoPropertiesAsync().done(function (VideoProperties) {
+                        durations.push(VideoProperties.duration / 1000); // duration in seconds
+                        updateDoq(j);
+                    }, function (err) {
+                        console.log(err);
+                    });
+                } else {
+                    durations.push(null);
+                    updateDoq(j);
+                }
+            }
+
+            function updateDoq(j) {
+                var newDoq;
+                try {
+                    newDoq = new Worktop.Doq(urls[j]);
+                } catch (error) {
+                    done++;
+                    console.log("error in uploading: " + error.message);
+                    return;
+                }
+                var ops = { Name: names[j] };
+                if (durations[j]) {
+                    ops.Duration = durations[j];
+                }
+                TAG.Worktop.Database.changeArtwork(newDoq.Identifier, ops, incrDone, TAG.Util.multiFnHandler(authError, incrDone), TAG.Util.multiFnHandler(conflict(newDoq, "Update", incrDone)), error(incrDone));
+            }
+
+        }, true, ['.jpg', '.png', '.gif', '.tif', '.tiff', '.mp4']);
+    }
+
+    /**Edit an artwork
+     * @method editArtwork
+     * @param {Object} artwork   artwork to edit
+     */
+    function editArtwork(artwork) {
+        // Overlay doesn't spin... not sure how to fix without redoing tour authoring to be more async
+        loadingOverlay('Loading Artwork...');
+        leftQueue.clear();
+        rightQueue.clear();
+        setTimeout(function () {
+            TAG.Util.UI.slidePageLeft((new TAG.Layout.ArtworkEditor(artwork)).getRoot());
+        }, 1);
+    }
+
+    /**Delete an artwork
+     * @method deleteArtwork
+     * @param {Object} artwork      artwork to delete
+     */
+    function deleteArtwork(artwork) {
+        var confirmationBox = TAG.Util.UI.PopUpConfirmation(function () {
+            prepareNextView(false);
+            clearRight();
+            prepareViewer(true);
+
+            // actually delete the artwork
+            TAG.Worktop.Database.deleteDoq(artwork.Identifier, function () {
+                if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.art.text]) {
+                    return;
+                }
+                loadArtView();
+            }, authError, authError);
+        }, "Are you sure you want to delete " + artwork.Name + "?", "Delete", true, function () { $(confirmationBox).hide() });
+        root.append(confirmationBox);
+        $(confirmationBox).show();
+    }
+
+    /**Save an artwork
+     * @method saveArtwork
+     * @param {Object} artwork      artwork to save
+     * @param {Object} inputs       keys for artwork info from input fields
+     */
+    function saveArtwork(artwork, inputs) {
+        var name = inputs.nameInput.val();
+        var artist = inputs.artistInput.val();
+        var year = inputs.yearInput.val();
+        var description = inputs.descInput.val();
+
+        var infoFields = {};
+        $.each(inputs.customInputs, function (key, val) {
+            infoFields[key] = val.val();
+        });
+
+        prepareNextView(false, null, null, "Saving...");
+        clearRight();
+        prepareViewer(true);
+        
+        TAG.Worktop.Database.changeArtwork(artwork, {
+            Name: name,
+            Artist: artist,
+            Year: year,
+            Description: description,
+            InfoFields: JSON.stringify(infoFields),
+        }, function () {
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.art.text]) {
+                return;
+            }
+            loadArtView(artwork.Identifier);
+        }, authError, conflict(artwork, "Update", loadArtView), error(loadArtView)); 
+    }
+
+    // Feedback Functions:
+
+    /**Loads Feedback view
+     * @method loadFeedbackView
+     * @param {Object} id   id of left label to start on
+     */
+    function loadFeedbackView(id) {
+        prepareNextView(true, "");
+        prepareViewer(false);
+        clearRight();
+
+        var cancel = false;
+        // Make an async call to get feedback
+        TAG.Worktop.Database.getFeedback(function (result) {
+            if (cancel) return;
+            sortDate(result);
+
+            $.each(result, function (i, val) {
+                if (cancel) return false;
+                // Add each label as a separate function to the queue so the UI doesn't lock up
+                leftQueue.add(function () {
+                    if (cancel) return;
+                    if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.feedback.text]) {
+                        return;
+                    }
+                    var label;
+                    var text = $.datepicker.formatDate('(m/dd/yy) ', new Date(val.Metadata.Date * 1000)) + val.Metadata.Feedback;
+                    if (!prevSelectedLeftLabel &&
+                        ((id && val.Identifier === id) || (!id && i === 0))) {
+                        // Select the first one
+                        leftLoading.before(selectLabel(label = createLeftLabel(text, null, function () {
+                            loadFeedback(val);
+                        }, val.Identifier, true)));
+
+                        // Scroll to the selected label if the user hasn't already scrolled somewhere
+                        if (leftbar.scrollTop() === 0 && label.offset().top - leftbar.height() > 0) {
+                            leftbar.animate({
+                                scrollTop: (label.offset().top - leftbar.height())
+                            }, 1000);
+                        }
+
+                        prevSelectedLeftLabel = label;
+                        loadFeedback(val);
+                    } else {
+                        leftLoading.before(label = createLeftLabel(text, null, function () {
+                            loadFeedback(val);
+                        }, val.Identifier, true));
+                    }
+                    // Hide if it doesn't match search criteria
+                    if (!TAG.Util.searchString(text, searchbar.val())) {
+                        label.hide();
+                    }
+                });
+            });
+            // Hide the loading label when we're done
+            leftQueue.add(function () {
+                leftLoading.hide();
+            });
+        });
+        cancelLastSetting = function () { cancel = true; };
+    }
+
+    /** Loads feedback to right side of screen
+     * @method loadFeedback
+     * @param {Object} feedback     feedback to load
+     */
+    function loadFeedback(feedback) {
+        clearRight();
+        prepareViewer(true, feedback.Metadata.Feedback);
+
+        var sourceLabel = createLabel('Loading...');
+        var dateLabel = createLabel($.datepicker.formatDate('DD, MM d, yy ', new Date(feedback.Metadata.Date * 1000)));
+        var source = createSetting('Submitted From', sourceLabel);
+        var dateSetting = createSetting('Date', dateLabel);
+
+        settingsContainer.append(source);
+        var sourceType = feedback.Metadata.SourceType === "Exhibition" ? "Collection" : feedback.Metadata.SourceType;
+        if (feedback.Metadata.SourceID) {
+            getSourceName(feedback, function (sourceName) {
+                sourceLabel.text(sourceName + ' (' + sourceType + ')');
+                var sourceButton = createButton(sourceName + ' (' + sourceType + ')', function () {
+                    followSource(feedback);
+                });
+                var sourceSetting = createSetting('Submitted From', sourceButton);
+                source.remove();
+                dateSetting.prepend(sourceSetting);
+            }, function (sourceName) {
+                sourceLabel.text(sourceName + ' (' + sourceType + ', Deleted)');
+            }, function () {
+                sourceLabel.text('Deleted');
+            });
+        } else {
+            sourceLabel.text(sourceType + " Page (No " + sourceType + " Selected)");
+        }
+        settingsContainer.append(dateSetting);
+
+        var deleteButton = createButton('Delete Feedback', function () {
+            deleteFeedback(feedback);
+        },
+        {
+            'margin-left': '2%',
+            'margin-top': '1%',
+            'margin-right': '0%',
+            'margin-bottom': '3%',
+        });
+
+        buttonContainer.append(deleteButton);
+    }
+
+    /**Get source of feedback
+     * @method getSourceName
+     * @param {Object} feedback     feedback to get source of
+     * @param {Function} onSuccess  function called if source found
+     * @param {Function} onDeleted  function called if source has been deleted
+     * @param {Function} onError    function called if there is an error 
+     */
+    function getSourceName(feedback, onSuccess, onDeleted, onError) {
+        TAG.Worktop.Database.getDoq(feedback.Metadata.SourceID,
+            function (doq) {
+                if (doq.Metadata.Deleted) {
+                    onDeleted(doq.Name);
+                } else {
+                    onSuccess(doq.Name);
+                }
+            }, function () {
+                onError();
+            });
+    }
+
+    /**Switch view to source of feedback
+     * @method followSource
+     * @param {Object} feedback     feedback to follow source of
+     */
+    function followSource(feedback) {
+        switch (feedback.Metadata.SourceType) {
+            case "Exhibition":
+            case "Exhibitions":
+                switchView("Exhibitions", feedback.Metadata.SourceID);
+                break;
+            case "Tour":
+            case "Tours":
+                switchView("Tours", feedback.Metadata.SourceID);
+                break;
+            case "Art":
+            case "Artwork":
+            case "Artworks":
+                switchView("Artworks", feedback.Metadata.SourceID);
+                break;
+        }
+    }
+
+    /**Delete a feedback
+     * @method deleteFeedback
+     * @param {Object} feedback     feedback to delete
+     */
+    function deleteFeedback(feedback) {
+        prepareNextView(false);
+        clearRight();
+
+        // actually delete the feedback
+        TAG.Worktop.Database.deleteDoq(feedback.Identifier, function () {
+            if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.feedback.text]) {
+                return;
+            }
+            loadFeedbackView();
+        }, authError, conflict(feedback), error(loadFeedbackView));
+    }
+
+    //Left Bar Functions:
+
+    /**Create a left label 
+     * @method createLeftLabel
+     * @param  {String} text            the text of the label
+     * @param imagesrc                  the source for the image. If not specified no image added
+     * @param {Function} onclick        the onclick function for the label
+     * @param {Object} id               id to set if specified
+     * @param {Function} onDoubleClick  function for double click
+     * @param {Boolean} inArtMode 
+     * @param extension                 to check if is video or static art
+     * @return {Object} container       the container of the new label
+     */
+    function createLeftLabel(text, imagesrc, onclick, id, noexpand, onDoubleClick, inArtMode, extension) {
+        var container = $(document.createElement('div'));
+        text = TAG.Util.htmlEntityDecode(text);
+        container.attr('class', 'leftLabel');
+        if (id) {
+            container.attr('id', id);
+        }
+
+        if (inArtMode) {
+            if(extension.match(/mp4/)) {
+                container.data('isVideoArtwork', true);
+            } else {
+                container.data('isStaticArtwork', true);
+            }
+        }
+
+        container.mousedown(function () {
+            container.css({
+                'background': HIGHLIGHT
+            });
+        });
+        container.mouseup(function () {
+            container.css({
+                'background': 'transparent'
+            });
+        });
+        container.mouseleave(function () {
+            container.css({
+                'background': 'transparent'
+            });
+        });
+        container.click(function () {
+            if (prevSelectedLeftLabel == container)
+                return;
+            resetLabels('.leftLabel');
+            selectLabel(container, !noexpand);
+            if (onclick)
+                onclick();
+            prevSelectedLeftLabel = container;
+        });
+        if (onDoubleClick) {
+            container.dblclick(onDoubleClick);
+        }
+        var width;
+        if (imagesrc) {
+            var image = $(document.createElement('img'));
+            image.attr('src', imagesrc);
+            image.css({
+                'height': 'auto',
+                'width': '20%',
+                'margin-right': '5%',
+            });
+            container.append(image);
+            
+
+            var progressCircCSS = {
+                'position': 'absolute',
+                'left': '5%',
+                'z-index': '50',
+                'height': 'auto',
+                'width': '10%',
+                'top': '20%',
+            };
+            var circle = TAG.Util.showProgressCircle(container, progressCircCSS, '0px', '0px', false);
+            image.load(function () {
+                TAG.Util.removeProgressCircle(circle);
+            });
+            width = '75%';
+        } else {
+            width = '95%';
+        }
+
+        var label = $(document.createElement('div'));
+        label.attr('class', 'labelText');
+        label.css({'width': width});
+
+        if (!imagesrc) {
+            label.css({
+                'padding-top': '0.4%',
+                'padding-left': '1.3%',
+            });
+        }
+        label.text(text);
+
+        container.append(label);
+
+        return container;
+    }
+
+    /**Set up the left side for the next view
+     * @method prepareNextView
+     * @param {Boolean} showSearch      if true show search bar, otherwise hide
+     * @param {String} newText          text for the 'New' button
+     * @param {Function} newBehavior    onclick function for the 'New' button
+     * @param {String} loadingText      Text to display while left bar loading
+     */
+    function prepareNextView(showSearch, newText, newBehavior, loadingText) {
+        leftQueue.clear();
+        leftLabelContainer.empty();
+        leftLabelContainer.append(leftLoading);
+        leftLoading.show();
+        secondaryButton.css("display", "none");
+        newButton.text(newText);
+        newButton.unbind('click').click(newBehavior);
+        if (!newText) newButton.hide();
+        else newButton.show();
+        prevSelectedLeftLabel = null;
+        if (cancelLastSetting) cancelLastSetting();
+
+        if (loadingText) {
+            leftLoading.children('label').text(loadingText);
+        } else {
+            leftLoading.children('label').text('Loading...');
+        }
+
+        if (showSearch) {
+            searchContainer.show();
+            searchContainer.css('display', 'inline-block');
+            searchbar.val("");
+        } else {
+            searchContainer.hide();
+        }
+    }
+
+    /**Clears the right side
+     * @method clearRight
+     */
+    function clearRight() {
+        settingsContainer.empty();
+        buttonContainer.empty();
+        rightQueue.clear();
+    }
+
+    /**Prepares the viewer on the right side
+     * @method prepareViewer
+     * @param {Boolean} showViewer    whether the preview window is shown 
+     * @param {String} text           text to add to the viewer (in a textbox)
+     * @param {Boolean} showButtons   whether the buttonContainer is shown
+     */
+    function prepareViewer(showViewer,text, showButtons) { 
+        viewer.empty();
+        viewer.css('background', 'black');
+        if (showViewer) {
+            viewer.show();
+            buttonContainer.show();
+            buttonContainer.css({
+                'top': $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO + 'px',
+                'margin-top': '0.35%',
+            });
+            settings.css({
+                'height': getSettingsHeight() + 'px',
+            });
+            if (text) {
+                var textbox = $(document.createElement('textarea'));
+                if (typeof text == 'string')
+                    text = text.replace(/<br \/>/g, '\n').replace(/<br>/g, '\n').replace(/<br\/>/g, '\n');
+                textbox.val(text);
+                textbox.css({
+                    'padding': '.5%',
+                    'width': '100%',
+                    'height': '100%',
+                    'box-sizing': 'border-box',
+                    'margin': '0px',
+                });
+                textbox.attr('readonly', 'true');
+                viewer.append(textbox);
+                viewer.css('background', 'transparent');
+            } else {
+                viewer.css('background', 'black');
+            }
+        } else {
+            viewer.hide();
+            settings.css({
+                'height': ($(window).height() * CONTENT_HEIGHT / 100) -
+                (BUTTON_HEIGHT * 1) + 'px',
+            });
+        }
+        if (showButtons===false){
+            buttonContainer.hide();
+        }
+    }
+
+    //Helper methods for label interaction:
+
+    /**Clicks an element determined by a jquery selector when it is added to the page
+     * @method clickWhenReady
+     * @param selector
+     * @param maxtries
+     * @param tries
+     */
+    function clickWhenReady(selector, maxtries, tries) {
+        doWhenReady(selector, function (elem) { elem.click(); }, maxtries, tries);
+    }
+
+    /** Calls passed in function when the element determined by the selector
+     *  is added to the page
+     * @method doWhenReady
+     * @param {Object} selector     class or id of object(s) on which fn is performed     
+     * @param {Function} fn
+     * @param maxtries
+     * @param tries
+     */
+    function doWhenReady(selector, fn, maxtries, tries) {
+        maxtries = maxtries || 100;
+        tries = tries || 0;
+        if (tries > maxtries) return;
+        if ($.contains(document.documentElement, $(selector)[0])) {
+            fn($(selector));
+        } else {
+            rightQueue.add(function () {
+                doWhenReady(selector, fn, maxtries, tries + 1);
+            });
+        }
+    }
+
+    /**Reset mouse interaction for labels
+     * @method resetLabels
+     * @param {Object} selector     class of labels to reset
+     */
+    function resetLabels(selector) {
+        $(selector).css('background', 'transparent');
+        $.each($(selector), function (i, current) {
+            if ($(current).attr('disabled') === 'disabled')
+                return;
+            $(current).mousedown(function () {
+                $(current).css({
+                    'background': HIGHLIGHT
+                });
+            });
+            $(current).mouseup(function () {
+                $(current).css({
+                    'background': 'transparent'
+                });
+            });
+            $(current).mouseleave(function () {
+                $(current).css({
+                    'background': 'transparent'
+                });
+            });
+        });
+    }
+
+    /**Select a label by unbinding mouse events and highlighting
+     * @method selectLabel
+     * @param {Object} label    label to select
+     * @param {Boolean} expand  if label expands when selected   
+     * @return {Object} label   selected label   
+     */
+    function selectLabel(label, expand) {
+        label.css('background', HIGHLIGHT);
+        label.unbind('mousedown').unbind('mouseleave').unbind('mouseup');
+
+        if (expand) {
+            label.css('height', '');
+            label.children('div').css('white-space', '');
+
+            if (prevSelectedLeftLabel) {
+                prevSelectedLeftLabel.children('div').css('white-space', 'nowrap');
+            }
+        }
+        return label;
+    }
+
+    /**Disable a label, unbinding mouse events
+     * @method disableLabel
+     * @param {Object} label         label to disable
+     * @return {Object} label        disabled label
+     */
+    function disableLabel(label) {
+        label.css({
+            'color': 'gray',
+        });
+        label.unbind('mousedown').unbind('mouseleave').unbind('mouseup').unbind('click').attr('disabled', true);
+        return label;
+    }
+
+   
+    //Settings functions:
+
+    /**Gets the height of the settings section since the viewer has to be positioned absolutely,
+     *the entire right bar needs to be position absolutely. Settings has bottom: 0, so the height needs to be correct
+     * to not have this be under the buttons container.  If any of the heights of the right components changes it should be
+     * updated here.
+     * @method getSettingsHeight
+     * @return height       appropriate height for settings
+     */
+    function getSettingsHeight() {
+        var height =
+        // Start with the entire height of the right side
+        ($(window).height() * CONTENT_HEIGHT / 100) -
+        // Subtract:
+        (
+            // Height of the viewer
+            $(window).width() * RIGHT_WIDTH / 100 * 1 / VIEWER_ASPECTRATIO +
+            // Height of the button container
+            BUTTON_HEIGHT * 1 +
+            // Height of the padding of the button container
+            $(window).width() * RIGHT_WIDTH / 100 * 0.0285
+        );
+        return height;
+    }
+
+    /**Creates a setting to be inserted into the settings container
+     * @method createSetting
+     * @param {String} text     text for the setting
+     * @param {Object} input    the input for the setting
+     * @param width             if not falsey then assumed to be number represengint percent, must be less than 95
+     * @return container        container of new setting
+     */
+    function createSetting(text, input, width) {
+        var container = $(document.createElement('div'));
+        container.attr('class', 'settingLine');
+
+        var label = $(document.createElement('div'));
+        label.css({
+            'width': width ? 45 - (width - 50) + '%' : '45%',
+        });
+        label.text(text);
+        label.attr('class', 'labelText');
+
+        if (width) {
+            width = width + '%';
+        } else {
+            width = '50%';
+        }
+        input.attr('class', 'settingInput');
+        input.css({
+            'width': width,
+        });
+
+        var clear = $(document.createElement('div'));
+        clear.css('clear', 'both');
+
+        container.append(label);
+        container.append(input);
+        container.append(clear);
+
+        return container;
+    }
+
+    //Helper functions:
+
+    /** Create a button 
+     * @method createButton
+     * @param {String} text         button text
+     * @param {Function} onclick    onclick function for button
+     * @param css                   additional css to apply to button if specified
+     * @return {Object} button      new button created
+     */
+    function createButton(text, onclick, css) {
+        var button = $(document.createElement('button')).text(text);
+        button.attr('type', 'button');
+        button.attr('class','button');
+        if (css) {
+            button.css(css);
+        }
+        button.click(onclick);
+        return button;
+    }
+
+    /**Create a label
+     * @method createLabel
+     * @param {String} text         label text
+     * @return {Object} label       new label created
+     */
+    function createLabel(text) {
+        var label = $(document.createElement('label')).text(text || "");
+        return label;
+    }
+
+    /**Create a text input
+     * @method createTextInput
+     * @param {String} text         the default text for the input
+     * @param {Boolean} defaultval  if true, reset to default text if empty and loses focus
+     * @param maxlength             max length of the input in characters
+     * @param hideOnClick
+     * @return input                newly created input
+     */
+    function createTextInput(text, defaultval, maxlength, hideOnClick) {
+        var input = $(document.createElement('input')).val(text);
+        input.attr({
+            'type': 'text',
+            'maxlength': maxlength
+        });
+        return input;
+    }
+
+    /**Create a text area input 
+     * @method createTextAreaInput
+     * @param {String} text     default text for area
+     * @param defaultval
+     * @param hideOnClick
+     * @return {Object} input    newly creted text input
+     */
+    function createTextAreaInput(text, defaultval, hideOnClick) {
+        if (typeof text === 'string')
+            text = text.replace(/<br \/>/g, '\n').replace(/<br>/g, '\n').replace(/<br\/>/g, '\n');
+        var input = $(document.createElement('textarea')).val(text);
+        input.autoSize();
+        doWhenReady(input, function (elem) {
+            var realHeight = input[0].scrollHeight;
+            $(input).css('height', realHeight + 'px');
+        });
+        return input;
+    }
+
+    /**Create a color input which modifies the background color
+     * of all elements matching the jquery selector 'selector'.
+     * @method creatBGColorInput 
+     * @param color 
+     * @param selector                      jQuery selector for elements to be changed
+     * @param {Function} getTransValue      returns a valid transparency value  
+     * @return {Object} container           returns container holding new input
+     */
+    function createBGColorInput(color, selector, getTransValue) {
+        if (color.indexOf('#') !== -1) {
+            color = color.substring(1, color.length);
+        }
+        var container = $(document.createElement('input'));
+        container.attr('type', 'text');
+        var picker = new jscolor.color(container[0], {});
+        var hex = TAG.Util.UI.colorToHex(color);
+        container.val(color);
+        picker.fromString(color);
+        picker.onImmediateChange = function () {
+            updateBGColor(selector, container.val(), getTransValue());
+        };
+        return container;
+    }
+
+    /**Set the bg color of elements maching jquery selector 'selector'
+     * @method updateBGColor 
+     * @param selector          jQuery selector of elements to be changed
+     * @param hex               hex value of color
+     * @param trans             transparency of color
+     */
+    function updateBGColor(selector, hex, trans) {
+        $(selector).css('background-color', TAG.Util.UI.hexToRGB(hex) + trans / 100.0 + ')');
+
+    }
+
+    /**Prevent a container from being clicked on by added a div on top of it
+     * @method preventClickthrough
+     * @param {Object} container     container to prevent click through of
+     */
+    function preventClickthrough(container) {
+        var cover = document.createElement('div');
+        $(cover).css({
+            'height': '100%',
+            'width': '100%',
+            'float': 'left',
+            'position': 'absolute',
+            'background-color': 'white',
+            'opacity': '0',
+            'top': '0px',
+            'right': '0px',
+            'z-index': '499',
+        });
+        $(cover).bind('click', function () { return false; });
+        $(container).append(cover);
+    }
+
+    /**Sort a list with propery Name alphabetically, case insensitive
+     * @method sortAZ
+     * @param {Object} list
+     * @return 
+     */
+    function sortAZ(list) {
+        if (list.sort) {
+            list.sort(function (a, b) {
+                var aLower = a.Name.toLowerCase();
+                var bLower = b.Name.toLowerCase();
+                return (aLower < bLower) ? -1 : 1;
+            });
+        }
+    }
+
+    /**Sort a list with date metadata by date with most recent date first
+     * @method sortDate
+     * @param {Object} list 
+     * @return 
+     */
+    function sortDate(list) {
+        if (list.sort) {
+            list.sort(function (a, b) {
+                var aint = parseInt(a.Metadata.Date, 10);
+                var bint = parseInt(b.Metadata.Date, 10);
+                if (aint < bint) {
+                    return 1;
+                } else if (aint > bint) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            });
+        }
+    }
+
+    /**Perform a search 
+     * @method search
+     * @param val           value to search for
+     * @param selector      jQuery selector of elements to search
+     * @param childType     selector's type
+     */
+    function search(val, selector, childType) {
+        $.each($(selector), function (i, child) {
+            if ($(child).attr('id') === 'leftLoading')
+                return;
+            if (TAG.Util.searchString($(child).children(childType).text(), val)) {
+                $(child).show();
+            } else {
+                $(child).hide();
+            }
+        });
+    }
+
+    /**Search data
+     * @param val       value to search for
+     * @param selector  jQuery selector for elements to be searched
+     */
+    function searchData(val, selector) {
+        $.each($(selector), function (i, element) {
+            var data = $(element).data();
+            var show = false;
+            $.each(data, function (k, v) {
+                if (TAG.Util.searchString(v, val)) {
+                    show = true;
+                }
+            });
+            if (show) {
+                $(element).show();
+            } else {
+                $(element).hide();
+            }
+        });
+    }
+
+    /**Update text on change
+     * @method onChangeUpdateText
+     * @param {Object} input    input to update
+     * @param selector          jQuery selector of element to update
+     * @param maxLength         maximum text length in characters
+     * @return {Object}         updated input
+     */
+    function onChangeUpdateText(input, selector, maxlength) {
+        input.keyup(function () {
+            if (input.val().length > maxlength) {
+                input.val(input.val().substring(0, maxlength));
+            }
+            $(selector).html(input.val().replace(/\n\r?/g, '<br />'));
+        });
+        input.keydown(function () {
+            if (input.val().length > maxlength) {
+                input.val(input.val().substring(0, maxlength));
+            }
+            $(selector).html(input.val().replace(/\n\r?/g, '<br />'));
+        });
+        input.change(function () {
+            if (input.val().length > maxlength) {
+                input.val(input.val().substring(0, maxlength));
+            }
+            $(selector).html(input.val().replace(/\n\r?/g, '<br />'));
+        });
+        return input;
+    }
+
+    /**Update a text input that takes in a number
+     * @method onChangeUpdateNum
+     * @param {Object} input            input to update
+     * @param min                       minimum value of inputted number
+     * @param max                       maximum value of inputted number
+     * @param {Function} doOnChange     performed if input value is number between min and max   
+     */
+    function onChangeUpdateNum(input, min, max, doOnChange) {
+        input.keyup(function () {
+            var replace = input.val().replace(/[^0-9]/g, '');
+            replace = Math.constrain(parseInt(replace, 10), min, max);
+            if (isNaN(replace)) replace = 0;
+            if (input.val() !== replace + '') {
+                input.val(replace);
+            }
+            if (doOnChange)
+                doOnChange(replace);
+        });
+        input.keydown(function () {
+            var replace = input.val().replace(/[^0-9]/g, '');
+            replace = Math.constrain(parseInt(replace, 10), min, max);
+            if (isNaN(replace)) replace = 0;
+            if (input.val() !== replace + '') {
+                input.val(replace);
+            }
+            if (doOnChange)
+                doOnChange(replace);
+        });
+        input.change(function () {
+            var replace = input.val().replace(/[^0-9]/g, '');
+            replace = Math.constrain(parseInt(replace, 10), min, max);
+            if (isNaN(replace)) replace = 0;
+            if (input.val() !== replace + '') {
+                input.val(replace);
+            }
+            if (doOnChange)
+                doOnChange(replace);
+        });
+    }
+
+
+    /**from JavaScript: The Good Parts
+     * @method is_array
+     * @param value         value to check
+     * @return {Boolean}    if value is an array
+     */
+    function is_array(value) {
+        return Object.prototype.toString.apply(value) === '[object Array]';
+    }
+
+    /** Upload a file then calls the callback with the url and name of the file.
+     * @method uploadFIle
+     * @param type                  See TAG.Authoring.FileUploader for 'type' values
+     * @param {Function} callback   
+     * @param multiple              for batch upload
+     * @param filter    
+     */
+    function uploadFile(type, callback, multiple, filter) {
+        var names = [], locals = [], contentTypes = [], fileArray, i;
+        TAG.Authoring.FileUploader( // remember, this is a multi-file upload
+            root,
+            type,
+            // local callback - get filename
+            function (files, localURLs) {
+                fileArray = files;
+                for (i = 0; i < files.length; i++) {
+                    names.push(files[i].displayName);
+                    if (files[i].contentType.match(/image/)) {
+                        contentTypes.push('Image');
+                    } else if (files[i].contentType.match(/video/)) {
+                        contentTypes.push('Video');
+                    } else if (files[i].contentType.match(/audio/)) {
+                        contentTypes.push('Audio');
+                    }
+                }
+            },
+            // remote callback - save correct name
+            function (urls) {
+                if (!is_array(urls)) { // check to see whether a single file was returned
+                    urls = [urls];
+                    names = [names];
+                }
+                for (i = 0; i < urls.length; i++) {
+                    console.log("urls[" + i + "] = " + urls[i] + ", names[" + i + "] = " + names[i]);
+                }
+                callback(urls, names, contentTypes, fileArray);
+            },
+            filter || ['.jpg', '.png', '.gif', '.tif', '.tiff'],
+            false,
+            function () {
+                root.append(TAG.Util.UI.popUpMessage(null, "There was an error uploading the file.  Please try again later."));
+            },
+            !!multiple // batch upload disabled
+            );
+    }
+
+    /**Create an overlay over the whole settings view with a spinning circle and centered text. This overlay is intended to be used 
+     * only when the page is 'done'.  The overlay doesn't support being removed from the page, so only call this when the page will 
+     * be changed!
+     * @method loadingOverlay
+     * @param {String} text     Text defaults to 'Loading...' if not specified. 
+     */
+    function loadingOverlay(text) {
+        text = text || "Loading...";
+        var overlay = $(document.createElement('div'));
+        overlay.css({
+            'position': 'absolute',
+            'left': '0px',
+            'top': '0px',
+            'width': '100%',
+            'height': '100%',
+            'background-color': 'rgba(0,0,0,0.5)',
+            'z-index': '1000',
+        });
+        root.append(overlay);
+
+        var circle = $(document.createElement('img'));
+        circle.attr('src', 'images/icons/progress-circle.gif');
+        circle.css({
+            'height': 'auto',
+            'width': '10%',
+            'position': 'absolute',
+            'left': '45%',
+            'top': ($(window).height() - $(window).width() * 0.1) / 2 + 'px',
+        });
+        overlay.append(circle);
+
+        var widthFinder = $(document.createElement('div'));
+        widthFinder.css({
+            'position': 'absolute',
+            'visibility': 'hidden',
+            'height': 'auto',
+            'width': 'auto',
+            'font-size': '200%',
+        });
+        widthFinder.text(text);
+        root.append(widthFinder);
+
+        var label = $(document.createElement('label'));
+        label.css({
+            'position': 'absolute',
+            'left': ($(window).width() - widthFinder.width()) / 2 + 'px',
+            'top': ($(window).height() - $(window).width() * 0.1) / 2 + $(window).width() * 0.1 + 'px',
+            'font-size': '200%',
+            'color': 'white',
+        });
+        widthFinder.remove();
+        label.text(text);
+        overlay.append(label);
+    }
+    
+    /** Authentication error function
+     * @method authError
+     */
+    function authError() {
+        var popup = TAG.Util.UI.popUpMessage(function () {
+            TAG.Auth.clearToken();
+            rightQueue.clear();
+            leftQueue.clear();
+            TAG.Layout.StartPage(null, function (page) {
+                TAG.Util.UI.slidePageRight(page);
+            });
+        }, "Could not authenticate, returning to the splash page.", null, true);
+        root.append(popup);
+        $(popup).show();
+    }
+
+    /**Error function
+     * @method error
+     * @param {Function} fn     function called if specified
+     */
+    function error(fn) {
+        return function () {
+            var popup = TAG.Util.UI.popUpMessage(null, "An unknown error occured.", null, true);
+            root.append(popup);
+            $(popup).show();
+            fn && fn();
+        }
+    }
+
+    /**Conflict function
+    * @method conflict
+    * @param doq            doq for which there is a conflict
+    * @param {String} text      
+    * @param fail
+    */
+    function conflict(doq, text, fail) {
+        return function (jqXHR, ajaxCall) {
+            var confirmationBox = TAG.Util.UI.PopUpConfirmation(function () {
+                ajaxCall.force();
+                // TODO: Text for change/delete
+            }, "Your version of " + doq.Name + " is not up to date.  Are you sure you want to change " + doq.Name + "?", text, true, fail);
+            root.append(confirmationBox);
+            $(confirmationBox).show();
+        }
+    }
+
+    return that;
+};
+;
+TAG.Util.makeNamespace("TAG.Authoring.ButtonBar");
+	
+
+
+TAG.Authoring.ButtonGroup = function (itemData, options) {
+
+
+    return new ButtonGroup(itemData, options);
+
+    //expects array with fields: content (either text or image), function for onclick, boolean isImage
+    //returns div of buttongroup
+    function ButtonGroup(array, options) {
+        var buttonGroup = $(document.createElement('div'));
+        buttonGroup.css('height', '100%'); buttonGroup.css('width', '100%');
+        var size = Math.round(100 / array.length) - 1; //-1 makes sure that there is not any overflow problems
+
+        buttonGroup.selected = null;
+
+        function handleSelected(event) {
+            if (buttonGroup.selected) {
+                buttonGroup.selected.removeClass(options.handleSelectedClass);
+            }
+
+            //Really hacky way to make sure entire div is selected
+            if ($(event.target).hasClass("ButtonItem")) {
+
+                buttonGroup.selected = $(event.target);
+            } else {
+                buttonGroup.selected = $(event.target).parent();
+            }
+
+            buttonGroup.selected.addClass(options.handleSelectedClass);
+        }
+
+        for (var i = 0; i < array.length; i++) {
+            var item = new ButtonItem(array[i], options.isVertical);
+            if (!options.isVertical) {
+                item.css('height', '100%');
+                item.css('width', size + '%');
+            }
+            else {
+                item.css('width', '100%');
+                //item.css('height', size + '%');
+                item.css('padding', '3% 2%');
+                item.css('margin-bottom', '2%');
+            }
+            if (array[i].onClickFunction) item.click(handleSelected);
+            buttonGroup.append(item);
+            if (array[i].selected) item.click();
+
+        }
+        return buttonGroup;
+    }
+
+    // expects string for content, function for onclick and boolean isImage
+    //returns div of button item
+    function ButtonItem(itemData, isVertical) {
+        var buttonItem = $(document.createElement('div'));
+
+        buttonItem.addClass("ButtonItem");
+
+        if (itemData.isImage) {
+            var image = $("<img src='" + itemData.content + "' </img>");
+            image.css("max-width", "100%");
+            image.css("max-height", "100%");
+            buttonItem.html(image);
+        } else {
+            var text = $("<div>" + itemData.content + "</div>");
+            text.css('width', '100%');
+            text.addClass(itemData.contentClass);
+
+            buttonItem.append(text);
+        }
+
+        buttonItem.click({ dataArray: itemData.onClickData }, itemData.onClickFunction);
+        if (!isVertical) {
+            buttonItem.css('float', 'left');
+        }
+        buttonItem.addClass(itemData.itemClass);
+        buttonItem.css('text-align', 'center');
+
+        return buttonItem;
+    }
+};
+
+;
+TAG.Util.makeNamespace('TAG.Authoring.FileUploader');
+
+/**
+ * Enum of file upload types
+ */
+TAG.Authoring.FileUploadTypes = {
+    Standard: 0,
+    DeepZoom: 1,
+    AssociatedMedia: 2,
+    VideoArtwork: 3
+};
+
+/**
+ * Helper class for performing file uploads
+ * Also creates HTML overlay that displays progress / spinning wheel
+ * Note: everything is handled internally, no external API, does its thing then removes itself and disappears
+ * @param root              Root of HTML, upload overlay will be appended to this while upload is running and removed when finished automatically!
+ * @param type              Type of file upload (defined by FileUploadTypes)
+ * @param localCallback     Callback passed local file info (args: <WinJS.StorageFile> file, <String> localURL)
+ * @param finishedCallback  Callback to execute once upload is finished (standard args: <String> url; deepzoom args: <String> xmlDoq)
+ * @param filters           Array of file types selectable by user
+ * @param useThumbs         Use thumbnail view mode?
+ * @param progressFunc      Function to keep track of progress (e.g. for displaying a progress bar somewhere)
+ */
+TAG.Authoring.FileUploader = function (root, type, localCallback, finishedCallback, filters, useThumbs, errorCallback, multiple, innerProgBar) {
+    "use strict";
+    var that = {};
+    filters = filters || ["*"];
+    multiple = multiple || false;
+
+
+    var uploadingOverlay = $(document.createElement('div')),
+        innerProgressBar = $(document.createElement('div')); // HTML upload overlay
+    var filesFinished = 0;
+    var numFiles = 100000;
+    var dataReaderLoads = [];
+    var uploadQueue = TAG.Util.createQueue();
+    var globalUriStrings = [], globalFiles = [], globalUpload = null;
+    var percentLoaded = 0;
+    var totalBytesToSend = {}; // an entry for each upload object, indexed by guid
+    var totalBytesSent = {};
+    var promises = [];
+    var globalFilesObject;
+    var uploadFilesObject;
+    var maxDuration = Infinity;
+    var minDuration = -1;
+    var size;
+    var largeFiles = "";
+    var longFiles = [];
+    var shortFiles = [];
+    var fileUploadError;
+    var maxFileSize = 50 * 1024 * 1024;
+    var maxDeepZoomFileSize = 250 * 1024 * 1024;
+
+    // Basic HTML initialization
+    (function init() {
+        var uploadOverlayText = $(document.createElement('label')),
+            progressIcon = $(document.createElement('img')),
+            progressBar = $(document.createElement('div'));
+
+        // Progress / spinner wheel overlay to display while uploading
+        uploadingOverlay.attr("id", "uploadingOverlay");
+        uploadingOverlay.css({ 'position': 'absolute', 'left': '0%', 'top': '0%', 'background-color': 'rgba(0, 0, 0, .5)', 'width': '100%', 'height': '100%', 'z-index': 100000100 });
+
+        uploadOverlayText.css({ 'color': 'white', 'width': '10%', 'height': '5%', 'top': '38%', 'left': '40%', 'position': 'relative', 'font-size': '250%' });
+        uploadOverlayText.text('Uploading file(s). Please wait.');
+
+        progressIcon.css({
+            'position': 'relative', 'top': '50%', 'left': '14%'
+        });
+        progressIcon.attr('src', 'images/icons/progress-circle.gif');
+
+        progressBar.css({
+            'position': 'relative', 'top': '42%', 'left': '45%', 'border-style': 'solid', 'border-color': 'white', 'width': '10%', 'height': '2%'
+        });
+
+        innerProgressBar.css({
+            'background-color': 'white', 'width': '0%', 'height': '100%'
+        });
+
+        progressBar.append(innerProgressBar);
+        uploadingOverlay.append(uploadOverlayText);
+        uploadingOverlay.append(progressBar);
+        uploadingOverlay.hide();
+        root.append(uploadingOverlay);
+    })();
+
+    /**
+     * Starts the file upload
+     */
+    (function uploadFile() {
+        // Opens file picker
+        var currentState = Windows.UI.ViewManagement.ApplicationView.value;        
+        var filePicker = new Windows.Storage.Pickers.FileOpenPicker();
+        if (useThumbs) {
+            filePicker.viewMode = Windows.Storage.Pickers.PickerViewMode.thumbnail;
+        } else {
+            filePicker.viewMode = Windows.Storage.Pickers.PickerViewMode.list;
+        }
+        filePicker.fileTypeFilter.replaceAll(filters);
+        filePicker.suggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.desktop;
+        try {
+            if (multiple) { // batch upload
+                filePicker.pickMultipleFilesAsync().then(
+                    uploadFilesObject = function (filesObject) { // Now file has been picked
+                            var uriStrings = [],
+                                upload = new UploadOp(),
+                                localURLs = [],
+                                k, files = [],
+                                //largeFiles = [],
+                                hashedDate, newHashedDate; // local URL
+                            globalFilesObject = filesObject;
+                            totalBytesToSend = {};
+                            totalBytesSent = {};
+                            largeFiles = "";
+                            longFiles = [];
+                            shortFiles = [];
+                            var bar = innerProgBar || innerProgressBar; // reset the width of the uploading bar
+                            bar.width("0%");
+                            if (filesObject.length === 0) {
+                                removeOverlay();
+                                addLocalCallback([], [])();
+                                return;
+                            }
+                            // create an actual array out of the windows files object -- filter out files that are too large/long
+
+                            function fileLimitHelper(file, i) {
+                                file.getBasicPropertiesAsync().then(
+                                    function (basicProperties) {
+                                        size = basicProperties.size;
+
+                                        numFiles = files.length; // global
+                                        var maxSize;
+                                        switch (type) {
+                                            case TAG.Authoring.FileUploadTypes.VideoArtwork:
+                                            case TAG.Authoring.FileUploadTypes.AssociatedMedia:
+                                            case TAG.Authoring.FileUploadTypes.Standard:
+                                                maxSize = maxFileSize;
+                                                break;
+                                            case TAG.Authoring.FileUploadTypes.DeepZoom:
+                                                maxSize = maxDeepZoomFileSize;
+                                                break;
+                                        }
+                                        if (size < maxSize) {
+                                            files.push(file);
+                                            localURLs.push(window.URL.createObjectURL(file, { oneTimeOnly: true }));
+                                            switch (type) {
+                                                case TAG.Authoring.FileUploadTypes.VideoArtwork:
+                                                    uriStrings.push(TAG.Worktop.Database.getSecureURL() + "/?Type=FileUploadVideoArtwork&Client=Windows&ReturnDoq=true&token=" + TAG.Auth.getToken() + "&Extension=" + file.fileType.substr(1));
+                                                    break;
+                                                case TAG.Authoring.FileUploadTypes.AssociatedMedia:
+                                                    uriStrings.push(TAG.Worktop.Database.getSecureURL() + "/?Type=FileUploadAssociatedMedia&Client=Windows&ReturnDoq=true&token=" + TAG.Auth.getToken() + "&Extension=" + file.fileType.substr(1));
+                                                    break;
+                                                case TAG.Authoring.FileUploadTypes.Standard:
+                                                    uriStrings.push(TAG.Worktop.Database.getSecureURL() + "/?Type=FileUpload&Client=Windows&token=" + TAG.Auth.getToken() + "&Extension=" + file.fileType.substr(1));
+                                                    break;
+                                                case TAG.Authoring.FileUploadTypes.DeepZoom:
+                                                    if (file.contentType.match(/video/)) {
+                                                        uriStrings.push(TAG.Worktop.Database.getSecureURL() + "/?Type=FileUploadVideoArtwork&Client=Windows&ReturnDoq=true&token=" + TAG.Auth.getToken() + "&Extension=" + file.fileType.substr(1));
+                                                    } else {
+                                                        uriStrings.push(TAG.Worktop.Database.getSecureURL() + "/?Type=FileUploadDeepzoom&Client=Windows&ReturnDoq=true&token=" + TAG.Auth.getToken() + "&Extension=" + file.fileType.substr(1));
+                                                    }
+                                                    break;
+                                            }
+                                        }
+                                        else {                                            
+                                            largeFiles += ("<br />" + file.name);
+                                        }
+                                        
+                                        // if we haven't hit all the files, keep going
+                                        if (i < filesObject.length - 1) {
+                                            fileLimitHelper(filesObject[i + 1], i + 1);
+                                        } else if (i === (filesObject.length - 1)) { // here we've reached the end
+                                            checkDurations(files, function () {
+                                                var mins, secs;
+                                                removeOverlay();
+                                                addLocalCallback([], [])();
+                                                if (files.length === 0 && largeFiles !== '') { //no > time-limit files
+                                                    //alert that all files failed.
+                                                    fileUploadError = uploadErrorAlert(null, "The selected file(s) could not be uploaded because they exceed the 50MB file limit.", null);
+                                                    $(fileUploadError).css('z-index', TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
+                                                    $('body').append(fileUploadError);
+                                                    $(fileUploadError).fadeIn(500);
+                                                    return;
+                                                }
+                                                else if (files.length === 0 && longFiles.length > 0) { // no > 50MB files
+                                                    mins = Math.floor(maxDuration / 60);
+                                                    secs = maxDuration % 60;
+                                                    if (secs === 0) secs = '00';
+                                                    else if (secs <= 9) secs = '0' + secs;
+
+                                                    fileUploadError = uploadErrorAlert(null, "The selected file(s) could not uploaded because they exceed " + mins + ":" + secs + " in length.", null);
+
+                                                    $(fileUploadError).css('z-index', TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
+                                                    $('body').append(fileUploadError);
+                                                    $(fileUploadError).fadeIn(500);
+                                                    return;
+                                                }
+                                                else if (files.length === 0 && shortFiles.length > 0) { // no > 50MB files
+                                                    mins = Math.floor(minDuration / 60);
+                                                    secs = minDuration % 60;
+                                                    if (secs === 0) secs = '00';
+                                                    else if (secs <= 9) secs = '0' + secs;
+
+                                                    fileUploadError = uploadErrorAlert(null, "The selected file(s) could not uploaded because they are shorter than " + mins + ":" + secs + " in length.", null);
+
+                                                    $(fileUploadError).css('z-index', TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
+                                                    $('body').append(fileUploadError);
+                                                    $(fileUploadError).fadeIn(500);
+                                                    return;
+                                                }
+                                                else if (files.length === 0) {
+                                                    mins = Math.floor(maxDuration / 60);
+                                                    secs = maxDuration % 60;
+                                                    if (secs === 0) secs = '00';
+                                                    else if (secs <= 9) secs = '0' + secs;
+
+                                                    fileUploadError = uploadErrorAlert(null, "The selected file(s) could not be uploaded because they exceed the 50MB file limit or exceed the " + mins + ":" + secs + " duration limit.", null);
+                                                    $(fileUploadError).css('z-index', TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
+                                                    $('body').append(fileUploadError);
+                                                    $(fileUploadError).fadeIn(500);
+                                                    return;
+                                                }
+                                                globalFiles = files;
+                                                numFiles = files.length; // global
+                                                globalUriStrings = uriStrings;
+                                                globalUpload = upload;
+
+                                                uploadStart(0, upload)();
+                                                addLocalCallback(files, localURLs)();
+                                            });
+                                        }
+
+                                    }
+                                );
+                            }
+
+                            fileLimitHelper(filesObject[0], 0);
+                    });
+            }
+            else { // single upload
+                filePicker.pickSingleFileAsync().then(
+                    function (file) { // Now file has been picked
+
+                        // error check
+                        if (!file) {
+                            removeOverlay();
+                            addLocalCallback([], [], [])();
+                        }
+                        else {
+                            file.getBasicPropertiesAsync().then(
+                                   function (basicProperties) {
+                                       size = basicProperties.size;
+
+                                       var maxSize;
+                                       switch (type) {
+                                           case TAG.Authoring.FileUploadTypes.VideoArtwork:
+                                           case TAG.Authoring.FileUploadTypes.AssociatedMedia:
+                                           case TAG.Authoring.FileUploadTypes.Standard:
+                                               maxSize = maxFileSize;
+                                               break;
+                                           case TAG.Authoring.FileUploadTypes.DeepZoom:
+                                               maxSize = maxDeepZoomFileSize;
+                                               break;
+                                       }
+                                       //50 MB size limit for standard, 250 MB size limit for deep zoom images
+                                       if (size < maxSize) {
+                                           checkDuration(file, function () {
+                                               var uriString,
+                                                   upload = new UploadOp(),
+                                                   localURL; // local URL
+
+                                               globalFiles = [file];
+                                               numFiles = 1;
+
+                                               localURL = window.URL.createObjectURL(file, { oneTimeOnly: true });
+
+                                               // Set specifics of request by type
+                                               switch (type) {
+                                                   case TAG.Authoring.FileUploadTypes.VideoArtwork:
+                                                       uriString = TAG.Worktop.Database.getSecureURL() + "/?Type=FileUploadVideoArtwork&Client=Windows&ReturnDoq=true&Token=" + TAG.Auth.getToken() + "&Extension=" + file.fileType.substr(1);
+                                                       break;
+                                                   case TAG.Authoring.FileUploadTypes.AssociatedMedia:
+                                                       uriString = TAG.Worktop.Database.getSecureURL() + "/?Type=FileUploadAssociatedMedia&Client=Windows&ReturnDoq=true&Token=" + TAG.Auth.getToken() + "&Extension=" + file.fileType.substr(1);
+                                                       break;
+                                                   case TAG.Authoring.FileUploadTypes.Standard:
+                                                       uriString = TAG.Worktop.Database.getSecureURL() + "/?Type=FileUpload&Client=Windows&Token=" + TAG.Auth.getToken() + "&Extension=" + file.fileType.substr(1);
+                                                       break;
+                                                   case TAG.Authoring.FileUploadTypes.DeepZoom:
+                                                       uriString = TAG.Worktop.Database.getSecureURL() + "/?Type=FileUploadDeepzoom&Client=Windows&ReturnDoq=true&token=" + TAG.Auth.getToken() + "&Extension=" + file.fileType.substr(1);
+                                                       break;
+                                               }
+
+                                               globalUriStrings = [uriString];
+                                               globalUpload = upload;
+
+                                               // Set up the upload
+                                               var msg;
+                                               if (typeof (msg = localCallback([file], [localURL], [uriString])) === 'string') {
+                                                   fileUploadError = uploadErrorAlert(null, msg, null);
+                                                   $(fileUploadError).css('z-index', TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
+                                                   $('body').append(fileUploadError);
+                                                   $(fileUploadError).fadeIn(500);
+                                               } else {
+                                                   upload.start(0);
+                                               }
+                                           }, function () { // longbad
+                                               var mins = Math.floor(maxDuration / 60);
+                                               var secs = maxDuration % 60;
+                                               if (secs === 0) secs = '00';
+                                               else if (secs <= 9) secs = '0' + secs;
+
+                                               fileUploadError = uploadErrorAlert(null, "The selected file exceeded the " + mins + ":" + secs + " duration limit and could not be uploaded.", null);
+                                               $(fileUploadError).css('z-index', TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
+                                               $('body').append(fileUploadError);
+                                               $(fileUploadError).fadeIn(500);
+                                           }, function () { // shortbad
+                                               var mins = Math.floor(minDuration / 60);
+                                               var secs = minDuration % 60;
+                                               if (secs === 0) secs = '00';
+                                               else if (secs <= 9) secs = '0' + secs;
+
+                                               fileUploadError = uploadErrorAlert(null, "The selected file is shorter than the " + mins + ":" + secs + " lower duration limit and could not be uploaded.", null);
+                                               $(fileUploadError).css('z-index', TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
+                                               $('body').append(fileUploadError);
+                                               $(fileUploadError).fadeIn(500);
+                                           });
+
+                                       }
+
+
+                                       else {
+                                           fileUploadError = uploadErrorAlert(null, "The selected file exceeded the 50MB file limit and could not be uploaded.", null);
+                                           $(fileUploadError).css('z-index', TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
+                                           $('body').append(fileUploadError);
+                                           $(fileUploadError).fadeIn(500);
+
+                                       }
+
+                                   });
+                        }
+
+                    });
+            }
+        } catch (e) {
+            // file access failed
+            console.log("file access failed: "+e.message);
+            if (errorCallback)
+                errorCallback();
+        }
+    })();
+
+    function checkDuration(file, good, longbad, shortbad) {
+        if (file.fileType === '.mp3') {
+            // Get music properties
+            file.properties.getMusicPropertiesAsync().done(function (musicProperties) {
+                if (musicProperties.duration / 1000 > maxDuration) {
+                    longbad();
+                } else if (musicProperties.duration / 1000 < minDuration) {
+                    shortbad();
+                } else {
+                    good();
+                }
+            },
+            longbad); // error callback
+        } else if (file.fileType === '.mp4') {
+            file.properties.getVideoPropertiesAsync().done(function (videoProperties) {
+                if (videoProperties.duration / 1000 > maxDuration) {
+                    longbad();
+                } else if (videoProperties.duration / 1000 < minDuration) {
+                    shortbad();
+                } else {
+                    good();
+                }
+            },
+            longbad); // error callback
+        } else {
+            good();
+        }
+    }
+
+    function checkDurations(files, callback) {
+        var removeVals = [];
+        var done = 0;
+        if (files.length === 0) {
+            callback();
+            return;
+        }
+        helper(0);
+
+        function helper(j) {
+            checkDuration(files[j], function () {
+                done++;
+                if (done === files.length) remove();
+                else helper(j++);
+            }, function () { // longbad
+                removeVals.push(j);
+                longFiles.push(files[j]);
+                done++;
+                if (done === files.length) remove();
+                else helper(j++);
+            }, function () { // shortbad
+                removeVals.push(j);
+                shortFiles.push(files[j]);
+                done++;
+                if (done === files.length) remove();
+                else helper(j++);
+            });
+        }
+
+        function remove() {
+            removeVals.sort(function (a, b) { return b - a; });
+            for (var i = 0; i < removeVals.length; i++) {
+                files.splice(removeVals[i], 1);
+            }
+            callback();
+        }
+    }
+
+    function uploadStart(i, upload) {
+        return function () {
+            upload.start(i);
+        };
+    }
+
+    function addLocalCallback(files, localUrls, uriStrings) {
+        return function () {
+            localCallback(files, localUrls, uriStrings);
+        };
+    }
+
+    // Helper functions
+
+    /**
+     * Appends overlay to root
+     * (no idea if this will actually disable interactions too as is)
+     */
+    function addOverlay(elmt) {
+        if ($("#uploadingOverlay").length === 0) {
+            elmt.append(uploadingOverlay);
+        }
+    }
+
+    /**
+     * Totally remove the overlay from the DOM / destroy
+     */
+    function removeOverlay() {
+        uploadingOverlay.remove();
+    }
+
+    /**
+     * Inner class that performs actual upload operation
+     * Partly taken from: http://msdn.microsoft.com/en-us/library/windows/apps/Hh700372.aspx
+     */
+    function UploadOp() {
+        var upload = null,
+            promise = null;
+
+        /**
+         * Starts upload of given file
+         * @param uriString     Spec passed to server
+         * @param file          File object representing file to be uploaded
+         */
+        this.start = function (i) {
+            var uri, uploader;
+            var uriString = globalUriStrings[i], file = globalFiles[i];
+            try {
+                addOverlay(root);
+                uploadingOverlay.show();
+
+                uri = new Windows.Foundation.Uri(uriString);
+                uploader = new Windows.Networking.BackgroundTransfer.BackgroundUploader();
+
+                // Set a header, so the server can save the file (this is specific to the sample server).
+                uploader.setRequestHeader("Filename", file.name);
+                uploader.setRequestHeader("Content-Type", "multipart/form-data; boundary=----WebKitFormBoundaryqj1e7E6nvkEBR9N5");
+
+                // Create a new upload operation.
+                upload = uploader.createUpload(uri, file);
+                var ind = upload.guid; // property name in the totalBytesSent object
+                totalBytesSent[ind] = 0;
+                file.getBasicPropertiesAsync().then(
+                    function (basicProperties) {
+                        size = basicProperties.size;
+
+                            // Start the upload and persist the promise to be able to cancel the upload.
+                            promise = upload.startAsync().then(interComplete(i), error, progress);
+                            promises.push(promise);
+                    }
+                );
+            } catch (err) {
+                removeOverlay();
+                console.log(err.message);
+            }
+        };
+
+        // On application activation, reassign callbacks for an upload
+        // operation persisted from previous application state.
+        this.load = function (loadedUpload) {
+            try {
+                upload = loadedUpload;
+                promise = upload.attachAsync().then(complete, error, progress(upload));
+            } catch (err) {
+                removeOverlay();
+                if (errorCallback)
+                    errorCallback();
+            }
+        };
+    }
+
+    function interComplete(i) {
+        return function (uploadOperation) {
+            complete(uploadOperation, i);
+        };
+    }
+
+    /**
+     * Called when upload is completed
+     * @param uploadOperation       Finished upload passed by background uploader
+     */
+    function complete(uploadOperation, i) {
+        var response = uploadOperation.getResponseInformation(),
+            iInputStream = uploadOperation.getResultStreamAt(0),
+            dataReader = new Windows.Storage.Streams.DataReader(iInputStream),
+            loadop = dataReader.loadAsync(10000000);
+
+        // Once response is read
+        loadop.operation.completed = function () {
+            var dataReaderLoad = dataReader.readString(dataReader.unconsumedBufferLength);
+            dataReaderLoads.push($.trim(dataReaderLoad)); // DEBUGGING: this function mutates the data
+            finishedUpload();
+        };
+        if(i<numFiles-1) {
+            uploadStart(i + 1, globalUpload)();
+        }
+    }
+
+    function finishedUpload() {
+        filesFinished += 1;
+        if (filesFinished === numFiles) {
+            removeOverlay();
+            finishedCallback(dataReaderLoads);
+            var msg = "", str, mins, secs;
+            var longFilesExist = false;
+            var i;
+            if (largeFiles !== "") {
+                msg = "The following file(s) exceeded the 50MB file limit:" + largeFiles;
+            }
+            if (longFiles.length) {
+                longFilesExist = true;
+                mins = Math.floor(maxDuration / 60);
+                secs = maxDuration % 60;
+                if (secs === 0) {
+                    secs = '00';
+                }
+                else if (secs <= 9) {
+                    secs = '0' + secs;
+                }
+                str = "The following file(s) exceeded the " + mins + ":" + secs + " duration limit:<br />";
+                for (i = 0; i < longFiles.length; i++) {
+                    str = str + longFiles[i].name + "<br />";
+                }
+                msg = msg + str;
+            }
+            if (shortFiles.length) {
+                if (longFilesExist) {
+                    msg = msg + "<br />";
+                }
+                mins = Math.floor(minDuration / 60);
+                secs = minDuration % 60;
+                if (secs === 0) {
+                    secs = '00';
+                }
+                else if (secs <= 9) {
+                    secs = '0' + secs;
+                }
+                str = "The following file(s) are shorter than the " + mins + ":" + secs + " lower duration limit:<br />";
+                for (i = 0; i < shortFiles.length; i++) {
+                    str = str + shortFiles[i].name + "<br />";
+                }
+                msg = msg + str;
+            }
+            if (msg) {
+                var fileUploadError = uploadErrorAlert(null, msg, null, false, true);
+                $(fileUploadError).css('z-index', TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
+                $('body').append(fileUploadError);
+                $(fileUploadError).fadeIn(500);
+            }
+        }
+    }
+
+    /**
+     * If file upload fails
+     */
+    function error(err) {
+        var shouldContinue = false,
+            popup;
+        if (err.message.split(" ")[0] === "Unauthorized") {
+            removeOverlay();
+            console.log("unauthorized");
+            TAG.Auth.authenticate(
+                function () {
+                    uploadFilesObject(globalFilesObject); // need to deal with this for single file uploads, too, if this ever comes back...
+                },
+                function () {
+                    shouldContinue = true;
+                    popup = TAG.Util.UI.popUpMessage(null, "File(s) not uploaded. You must login to upload files.");
+                    $('body').append(popup);
+                    $(popup).show();
+                }
+            );
+        } else {
+            removeOverlay();
+            console.log("internal server error: possible not enough RAM on the server VM to handle this upload");
+            popup = TAG.Util.UI.popUpMessage(null, "A server error occurred. It is possible that an image you are trying to upload is too large for the server's memory.");
+            $('body').append(popup);
+            $(popup).show();
+        }
+        if (shouldContinue) {
+            console.log('file upload error: ' + err.message);
+            console.log(err.message);
+            removeOverlay();
+            
+            if (errorCallback) {
+                errorCallback();
+            }
+        }
+    }
+
+    /**
+     * Called by uploader as upload progresses
+     * @param upload        upload object / info
+     */
+    function progress(upload) {        
+        var bar = innerProgBar || innerProgressBar;
+        totalBytesToSend[upload.guid] = upload.progress.totalBytesToSend;
+        var bytesSent = upload.progress.bytesSent;
+        totalBytesSent[upload.guid] = bytesSent;
+        var percentComplete = 0;
+        for (var key in totalBytesSent) {
+            if (totalBytesToSend[key]) {
+                percentComplete += totalBytesSent[key] / (totalBytesToSend[key] * numFiles);
+
+            }
+        }        
+        bar.width(percentComplete * 90 + "%");
+    }
+
+    function cancelPromises() {
+        var i;
+        for (i = 0; i < promises.length; i++) { // promise.cancel doesn't do anything for fulfilled promises
+            promises[i].cancel();
+        }
+    }
+    that.cancelPromises = cancelPromises;
+
+    function setMaxDuration(seconds) {
+        maxDuration = seconds;
+    }
+    that.setMaxDuration = setMaxDuration;
+
+    function setMinDuration(seconds) {
+        minDuration = seconds;
+    }
+    that.setMinDuration = setMinDuration;
+
+    /**
+    * copied from TAG.Util.UI because the boxes have crap CSS. tru fax.
+    */
+    function uploadErrorAlert(clickAction, message, buttonText, noFade, useHTML) {
+        var overlay = TAG.Util.UI.blockInteractionOverlay();
+
+        var confirmBox = document.createElement('div');
+        var confirmBoxSpecs = TAG.Util.constrainAndPosition($(window).width(), $(window).height(),
+           {
+               center_h: true,
+               center_v: true,
+               width: 0.5,
+               height: 0.35,
+               max_width: 560,
+               max_height: 200,
+           });
+
+        $(confirmBox).css({
+            position: 'absolute',
+            left: confirmBoxSpecs.x + 'px',
+            top: confirmBoxSpecs.y + 'px',
+            width: confirmBoxSpecs.width + 'px',
+            height: confirmBoxSpecs.height + 'px',
+            border: '3px double white',
+            'background-color': 'black',
+        });
+
+        var messageLabel = document.createElement('div');
+        $(messageLabel).css({
+            'color': 'white',
+            'width': '90%',
+            'height': '57.5%',
+            'left': '5%',
+            'top': '12.5%',
+            'font-size': '1.25em',
+            'position': 'relative',
+            'text-align': 'center',
+            'word-wrap': 'break-word',
+            'overflow-y': 'auto',
+        });
+        if (useHTML) {
+            $(messageLabel).html(message);
+        } else {
+            $(messageLabel).text(message);
+        }
+        var optionButtonDiv = document.createElement('div');
+        $(optionButtonDiv).addClass('optionButtonDiv');
+        $(optionButtonDiv).css({
+            'height': '30%',
+            'width': '98%',
+            'position': 'absolute',
+            'bottom': '0%',
+            'right': '2%',
+        });
+
+        var confirmButton = document.createElement('button');
+        $(confirmButton).css({
+            'padding': '1%',
+            'border': '1px solid white',
+            'width': 'auto',
+            'position': 'relative',
+            'float': "right",
+            'margin-right': '3%',
+            'margin-top': '0%',
+        });
+        buttonText = (!buttonText || buttonText === "") ? "OK" : buttonText;
+        $(confirmButton).text(buttonText);
+        confirmButton.onclick = function () {
+            if (clickAction)
+                clickAction();
+            removeAll();
+        };
+
+        function removeAll() {
+            if (noFade) {
+                $(overlay).hide();
+                $(overlay).remove();
+            } else {
+                $(overlay).fadeOut(500, function () { $(overlay).remove(); });
+            }
+        }
+
+        $(optionButtonDiv).append(confirmButton);
+
+        $(confirmBox).append(messageLabel);
+        $(confirmBox).append(optionButtonDiv);
+
+        $(overlay).append(confirmBox);
+        return overlay;
+    }
+
+    return that;
+};
+;
+/**
+ * jscolor, JavaScript Color Picker
+ *
+ * @version 1.3.13
+ * @license GNU Lesser General Public License, http://www.gnu.org/copyleft/lesser.html
+ * @author  Jan Odvarko, http://odvarko.cz
+ * @created 2008-06-15
+ * @updated 2012-01-19
+ * @link    http://jscolor.com
+ */
+
+
+var jscolor = {
+
+
+	dir : '', // location of jscolor directory (leave empty to autodetect)
+	bindClass : 'color', // class name
+	binding : true, // automatic binding via <input class="...">
+	preloading : true, // use image preloading?
+
+
+	install : function() {
+		//jscolor.addEvent(window, 'load', jscolor.init);
+	},
+
+
+	init : function() {
+		if(jscolor.binding) {
+			jscolor.bind();
+		}
+		if(jscolor.preloading) {
+			jscolor.preload();
+		}
+	},
+
+
+	getDir : function() {
+		if(!jscolor.dir) {
+			var detected = jscolor.detectDir();
+			jscolor.dir = detected!==false ? detected : 'jscolor/';
+		}
+		return jscolor.dir;
+	},
+
+
+	detectDir : function() {
+		var base = location.href;
+
+		var e = document.getElementsByTagName('base');
+		for(var i=0; i<e.length; i+=1) {
+			if(e[i].href) { base = e[i].href; }
+		}
+
+		var e = document.getElementsByTagName('script');
+		for(var i=0; i<e.length; i+=1) {
+			if(e[i].src && /(^|\/)jscolor\.js([?#].*)?$/i.test(e[i].src)) {
+				var src = new jscolor.URI(e[i].src);
+				var srcAbs = src.toAbsolute(base);
+				srcAbs.path = srcAbs.path.replace(/[^\/]+$/, ''); // remove filename
+				srcAbs.query = null;
+				srcAbs.fragment = null;
+				return srcAbs.toString();
+			}
+		}
+		return false;
+	},
+
+
+	bind : function() {
+		var matchClass = new RegExp('(^|\\s)('+jscolor.bindClass+')\\s*(\\{[^}]*\\})?', 'i');
+		var e = document.getElementsByTagName('input');
+		for(var i=0; i<e.length; i+=1) {
+			var m;
+			if(!e[i].color && e[i].className && (m = e[i].className.match(matchClass))) {
+				var prop = {};
+				if(m[3]) {
+					try {
+						eval('prop='+m[3]);
+					} catch(eInvalidProp) {}
+				}
+				e[i].color = new jscolor.color(e[i], prop);
+			}
+		}
+	},
+
+
+	preload : function() {
+		for(var fn in jscolor.imgRequire) {
+			if(jscolor.imgRequire.hasOwnProperty(fn)) {
+				jscolor.loadImage(fn);
+			}
+		}
+	},
+
+
+	images : {
+		pad : [ 181, 101 ],
+		sld : [ 16, 101 ],
+		cross : [ 15, 15 ],
+		arrow : [ 7, 11 ]
+	},
+
+
+	imgRequire : {},
+	imgLoaded : {},
+
+
+	requireImage : function(filename) {
+		jscolor.imgRequire[filename] = true;
+	},
+
+
+	loadImage : function(filename) {
+		if(!jscolor.imgLoaded[filename]) {
+			jscolor.imgLoaded[filename] = new Image();
+			jscolor.imgLoaded[filename].src = jscolor.getDir()+filename;
+		}
+	},
+
+
+	fetchElement : function(mixed) {
+		return typeof mixed === 'string' ? document.getElementById(mixed) : mixed;
+	},
+
+
+	addEvent : function(el, evnt, func) {
+		if(el.addEventListener) {
+			el.addEventListener(evnt, func, false);
+		} else if(el.attachEvent) {
+			el.attachEvent('on'+evnt, func);
+		}
+	},
+
+
+	fireEvent : function(el, evnt) {
+		if(!el) {
+			return;
+		}
+		if(document.createEvent) {
+			var ev = document.createEvent('HTMLEvents');
+			ev.initEvent(evnt, true, true);
+			el.dispatchEvent(ev);
+		} else if(document.createEventObject) {
+			var ev = document.createEventObject();
+			el.fireEvent('on'+evnt, ev);
+		} else if(el['on'+evnt]) { // alternatively use the traditional event model (IE5)
+			el['on'+evnt]();
+		}
+	},
+
+
+	getElementPos : function(e) {
+		var e1=e, e2=e;
+		var x=0, y=0;
+		if(e1.offsetParent) {
+			do {
+				x += e1.offsetLeft;
+				y += e1.offsetTop;
+			} while(e1 = e1.offsetParent);
+		}
+		while((e2 = e2.parentNode) && e2.nodeName.toUpperCase() !== 'BODY') {
+			x -= e2.scrollLeft;
+			y -= e2.scrollTop;
+		}
+		return [x, y];
+	},
+
+
+	getElementSize : function(e) {
+		return [e.offsetWidth, e.offsetHeight];
+	},
+
+
+	getRelMousePos : function(e) {
+		var x = 0, y = 0;
+		if (!e) { e = window.event; }
+		if (typeof e.offsetX === 'number') {
+			x = e.offsetX;
+			y = e.offsetY;
+		} else if (typeof e.layerX === 'number') {
+			x = e.layerX;
+			y = e.layerY;
+		}
+		return { x: x, y: y };
+	},
+
+
+	getViewPos : function() {
+		if(typeof window.pageYOffset === 'number') {
+			return [window.pageXOffset, window.pageYOffset];
+		} else if(document.body && (document.body.scrollLeft || document.body.scrollTop)) {
+			return [document.body.scrollLeft, document.body.scrollTop];
+		} else if(document.documentElement && (document.documentElement.scrollLeft || document.documentElement.scrollTop)) {
+			return [document.documentElement.scrollLeft, document.documentElement.scrollTop];
+		} else {
+			return [0, 0];
+		}
+	},
+
+
+	getViewSize : function() {
+		if(typeof window.innerWidth === 'number') {
+			return [window.innerWidth, window.innerHeight];
+		} else if(document.body && (document.body.clientWidth || document.body.clientHeight)) {
+			return [document.body.clientWidth, document.body.clientHeight];
+		} else if(document.documentElement && (document.documentElement.clientWidth || document.documentElement.clientHeight)) {
+			return [document.documentElement.clientWidth, document.documentElement.clientHeight];
+		} else {
+			return [0, 0];
+		}
+	},
+
+
+	URI : function(uri) { // See RFC3986
+
+		this.scheme = null;
+		this.authority = null;
+		this.path = '';
+		this.query = null;
+		this.fragment = null;
+
+		this.parse = function(uri) {
+			var m = uri.match(/^(([A-Za-z][0-9A-Za-z+.-]*)(:))?((\/\/)([^\/?#]*))?([^?#]*)((\?)([^#]*))?((#)(.*))?/);
+			this.scheme = m[3] ? m[2] : null;
+			this.authority = m[5] ? m[6] : null;
+			this.path = m[7];
+			this.query = m[9] ? m[10] : null;
+			this.fragment = m[12] ? m[13] : null;
+			return this;
+		};
+
+		this.toString = function() {
+			var result = '';
+			if(this.scheme !== null) { result = result + this.scheme + ':'; }
+			if(this.authority !== null) { result = result + '//' + this.authority; }
+			if(this.path !== null) { result = result + this.path; }
+			if(this.query !== null) { result = result + '?' + this.query; }
+			if(this.fragment !== null) { result = result + '#' + this.fragment; }
+			return result;
+		};
+
+		this.toAbsolute = function(base) {
+			var base = new jscolor.URI(base);
+			var r = this;
+			var t = new jscolor.URI;
+
+			if(base.scheme === null) { return false; }
+
+			if(r.scheme !== null && r.scheme.toLowerCase() === base.scheme.toLowerCase()) {
+				r.scheme = null;
+			}
+
+			if(r.scheme !== null) {
+				t.scheme = r.scheme;
+				t.authority = r.authority;
+				t.path = removeDotSegments(r.path);
+				t.query = r.query;
+			} else {
+				if(r.authority !== null) {
+					t.authority = r.authority;
+					t.path = removeDotSegments(r.path);
+					t.query = r.query;
+				} else {
+					if(r.path === '') { // TODO: == or === ?
+						t.path = base.path;
+						if(r.query !== null) {
+							t.query = r.query;
+						} else {
+							t.query = base.query;
+						}
+					} else {
+						if(r.path.substr(0,1) === '/') {
+							t.path = removeDotSegments(r.path);
+						} else {
+							if(base.authority !== null && base.path === '') { // TODO: == or === ?
+								t.path = '/'+r.path;
+							} else {
+								t.path = base.path.replace(/[^\/]+$/,'')+r.path;
+							}
+							t.path = removeDotSegments(t.path);
+						}
+						t.query = r.query;
+					}
+					t.authority = base.authority;
+				}
+				t.scheme = base.scheme;
+			}
+			t.fragment = r.fragment;
+
+			return t;
+		};
+
+		function removeDotSegments(path) {
+			var out = '';
+			while(path) {
+				if(path.substr(0,3)==='../' || path.substr(0,2)==='./') {
+					path = path.replace(/^\.+/,'').substr(1);
+				} else if(path.substr(0,3)==='/./' || path==='/.') {
+					path = '/'+path.substr(3);
+				} else if(path.substr(0,4)==='/../' || path==='/..') {
+					path = '/'+path.substr(4);
+					out = out.replace(/\/?[^\/]*$/, '');
+				} else if(path==='.' || path==='..') {
+					path = '';
+				} else {
+					var rm = path.match(/^\/?[^\/]*/)[0];
+					path = path.substr(rm.length);
+					out = out + rm;
+				}
+			}
+			return out;
+		}
+
+		if(uri) {
+			this.parse(uri);
+		}
+
+	},
+
+
+	/*
+	 * Usage example:
+	 * var myColor = new jscolor.color(myInputElement)
+	 */
+
+	color : function(target, prop) {
+
+
+		this.required = true; // refuse empty values?
+		this.adjust = true; // adjust value to uniform notation?
+		this.hash = false; // prefix color with # symbol?
+		this.caps = true; // uppercase?
+		this.slider = true; // show the value/saturation slider?
+		this.valueElement = target; // value holder
+		this.styleElement = target; // where to reflect current color
+		this.onImmediateChange = null; // onchange callback (can be either string or function)
+		this.hsv = [0, 0, 1]; // read-only  0-6, 0-1, 0-1
+		this.rgb = [1, 1, 1]; // read-only  0-1, 0-1, 0-1
+
+		this.pickerOnfocus = true; // display picker on focus?
+		this.pickerMode = 'HSV'; // HSV | HVS
+		this.pickerPosition = 'bottom'; // left | right | top | bottom
+		this.pickerSmartPosition = true; // automatically adjust picker position when necessary
+		this.pickerButtonHeight = 20; // px
+		this.pickerClosable = false;
+		this.pickerCloseText = 'Close';
+		this.pickerButtonColor = 'ButtonText'; // px
+		this.pickerFace = 10; // px
+		this.pickerFaceColor = 'ThreeDFace'; // CSS color
+		this.pickerBorder = 1; // px
+		this.pickerBorderColor = 'ThreeDHighlight ThreeDShadow ThreeDShadow ThreeDHighlight'; // CSS color
+		this.pickerInset = 1; // px
+		this.pickerInsetColor = 'ThreeDShadow ThreeDHighlight ThreeDHighlight ThreeDShadow'; // CSS color
+		this.pickerZIndex = 10000;
+
+
+		for(var p in prop) {
+			if(prop.hasOwnProperty(p)) {
+				this[p] = prop[p];
+			}
+		}
+
+
+		this.hidePicker = function() {
+			if(isPickerOwner()) {
+				removePicker();
+			}
+		};
+
+
+		this.showPicker = function() {
+			if(!isPickerOwner()) {
+				var tp = jscolor.getElementPos(target); // target pos
+				var ts = jscolor.getElementSize(target); // target size
+				var vp = jscolor.getViewPos(); // view pos
+				var vs = jscolor.getViewSize(); // view size
+				var ps = getPickerDims(this); // picker size
+				var a, b, c;
+				switch(this.pickerPosition.toLowerCase()) {
+					case 'left': a=1; b=0; c=-1; break;
+					case 'right':a=1; b=0; c=1; break;
+					case 'top':  a=0; b=1; c=-1; break;
+					default:     a=0; b=1; c=1; break;
+				}
+				var l = (ts[b]+ps[b])/2;
+
+				// picker pos
+				if (!this.pickerSmartPosition) {
+					var pp = [
+						tp[a],
+						tp[b]+ts[b]-l+l*c
+					];
+				} else {
+					var pp = [
+						-vp[a]+tp[a]+ps[a] > vs[a] ?
+							(-vp[a]+tp[a]+ts[a]/2 > vs[a]/2 && tp[a]+ts[a]-ps[a] >= 0 ? tp[a]+ts[a]-ps[a] : tp[a]) :
+							tp[a],
+						-vp[b]+tp[b]+ts[b]+ps[b]-l+l*c > vs[b] ?
+							(-vp[b]+tp[b]+ts[b]/2 > vs[b]/2 && tp[b]+ts[b]-l-l*c >= 0 ? tp[b]+ts[b]-l-l*c : tp[b]+ts[b]-l+l*c) :
+							(tp[b]+ts[b]-l+l*c >= 0 ? tp[b]+ts[b]-l+l*c : tp[b]+ts[b]-l-l*c)
+					];
+				}
+				drawPicker(pp[a], pp[b]);
+			}
+		};
+
+
+		this.importColor = function() {
+			if(!valueElement) {
+				this.exportColor();
+			} else {
+				if(!this.adjust) {
+					if(!this.fromString(valueElement.value, leaveValue)) {
+						styleElement.style.backgroundImage = styleElement.jscStyle.backgroundImage;
+						styleElement.style.backgroundColor = styleElement.jscStyle.backgroundColor;
+						styleElement.style.color = styleElement.jscStyle.color;
+						this.exportColor(leaveValue | leaveStyle);
+					}
+				} else if(!this.required && /^\s*$/.test(valueElement.value)) {
+					valueElement.value = '';
+					styleElement.style.backgroundImage = styleElement.jscStyle.backgroundImage;
+					styleElement.style.backgroundColor = styleElement.jscStyle.backgroundColor;
+					styleElement.style.color = styleElement.jscStyle.color;
+					this.exportColor(leaveValue | leaveStyle);
+
+				} else if(this.fromString(valueElement.value)) {
+					// OK
+				} else {
+					this.exportColor();
+				}
+			}
+		};
+
+
+		this.exportColor = function(flags) {
+			if(!(flags & leaveValue) && valueElement) {
+				var value = this.toString();
+				if(this.caps) { value = value.toUpperCase(); }
+				if(this.hash) { value = '#'+value; }
+				valueElement.value = value;
+			}
+			if(!(flags & leaveStyle) && styleElement) {
+				styleElement.style.backgroundImage = "none";
+				styleElement.style.backgroundColor =
+					'#'+this.toString();
+				styleElement.style.color =
+					0.213 * this.rgb[0] +
+					0.715 * this.rgb[1] +
+					0.072 * this.rgb[2]
+					< 0.5 ? '#FFF' : '#000';
+			}
+			if(!(flags & leavePad) && isPickerOwner()) {
+				redrawPad();
+			}
+			if(!(flags & leaveSld) && isPickerOwner()) {
+				redrawSld();
+			}
+		};
+
+
+		this.fromHSV = function(h, s, v, flags) { // null = don't change
+			h<0 && (h=0) || h>6 && (h=6);
+			s<0 && (s=0) || s>1 && (s=1);
+			v<0 && (v=0) || v>1 && (v=1);
+			this.rgb = HSV_RGB(
+				h===null ? this.hsv[0] : (this.hsv[0]=h),
+				s===null ? this.hsv[1] : (this.hsv[1]=s),
+				v===null ? this.hsv[2] : (this.hsv[2]=v)
+			);
+			this.exportColor(flags);
+		};
+
+
+		this.fromRGB = function(r, g, b, flags) { // null = don't change
+			r<0 && (r=0) || r>1 && (r=1);
+			g<0 && (g=0) || g>1 && (g=1);
+			b<0 && (b=0) || b>1 && (b=1);
+			var hsv = RGB_HSV(
+				r===null ? this.rgb[0] : (this.rgb[0]=r),
+				g===null ? this.rgb[1] : (this.rgb[1]=g),
+				b===null ? this.rgb[2] : (this.rgb[2]=b)
+			);
+			if(hsv[0] !== null) {
+				this.hsv[0] = hsv[0];
+			}
+			if(hsv[2] !== 0) {
+				this.hsv[1] = hsv[1];
+			}
+			this.hsv[2] = hsv[2];
+			this.exportColor(flags);
+		};
+
+
+		this.fromString = function(hex, flags) {
+			var m = hex.match(/^\W*([0-9A-F]{3}([0-9A-F]{3})?)\W*$/i);
+			if(!m) {
+				return false;
+			} else {
+				if(m[1].length === 6) { // 6-char notation
+					this.fromRGB(
+						parseInt(m[1].substr(0,2),16) / 255,
+						parseInt(m[1].substr(2,2),16) / 255,
+						parseInt(m[1].substr(4,2),16) / 255,
+						flags
+					);
+				} else { // 3-char notation
+					this.fromRGB(
+						parseInt(m[1].charAt(0)+m[1].charAt(0),16) / 255,
+						parseInt(m[1].charAt(1)+m[1].charAt(1),16) / 255,
+						parseInt(m[1].charAt(2)+m[1].charAt(2),16) / 255,
+						flags
+					);
+				}
+				return true;
+			}
+		};
+
+
+		this.toString = function() {
+			return (
+				(0x100 | Math.round(255*this.rgb[0])).toString(16).substr(1) +
+				(0x100 | Math.round(255*this.rgb[1])).toString(16).substr(1) +
+				(0x100 | Math.round(255*this.rgb[2])).toString(16).substr(1)
+			);
+		};
+
+
+		function RGB_HSV(r, g, b) {
+			var n = Math.min(Math.min(r,g),b);
+			var v = Math.max(Math.max(r,g),b);
+			var m = v - n;
+			if(m === 0) { return [ null, 0, v ]; }
+			var h = r===n ? 3+(b-g)/m : (g===n ? 5+(r-b)/m : 1+(g-r)/m);
+			return [ h===6?0:h, m/v, v ];
+		}
+
+
+		function HSV_RGB(h, s, v) {
+			if(h === null) { return [ v, v, v ]; }
+			var i = Math.floor(h);
+			var f = i%2 ? h-i : 1-(h-i);
+			var m = v * (1 - s);
+			var n = v * (1 - s*f);
+			switch(i) {
+				case 6:
+				case 0: return [v,n,m];
+				case 1: return [n,v,m];
+				case 2: return [m,v,n];
+				case 3: return [m,n,v];
+				case 4: return [n,m,v];
+				case 5: return [v,m,n];
+			}
+		}
+
+
+		function removePicker() {
+			delete jscolor.picker.owner;
+			document.getElementsByTagName('body')[0].removeChild(jscolor.picker.boxB);
+		}
+
+
+		function drawPicker(x, y) {
+			if(!jscolor.picker) {
+				jscolor.picker = {
+					box : document.createElement('div'),
+					boxB : document.createElement('div'),
+					pad : document.createElement('div'),
+					padB : document.createElement('div'),
+					padM : document.createElement('div'),
+					sld : document.createElement('div'),
+					sldB : document.createElement('div'),
+					sldM : document.createElement('div'),
+					btn : document.createElement('div'),
+					btnS : document.createElement('span'),
+					btnT : document.createTextNode(THIS.pickerCloseText)
+				};
+				for(var i=0,segSize=4; i<jscolor.images.sld[1]; i+=segSize) {
+					var seg = document.createElement('div');
+					seg.style.height = segSize+'px';
+					seg.style.fontSize = '1px';
+					seg.style.lineHeight = '0';
+					jscolor.picker.sld.appendChild(seg);
+				}
+				jscolor.picker.sldB.appendChild(jscolor.picker.sld);
+				jscolor.picker.box.appendChild(jscolor.picker.sldB);
+				jscolor.picker.box.appendChild(jscolor.picker.sldM);
+				jscolor.picker.padB.appendChild(jscolor.picker.pad);
+				jscolor.picker.box.appendChild(jscolor.picker.padB);
+				jscolor.picker.box.appendChild(jscolor.picker.padM);
+				jscolor.picker.btnS.appendChild(jscolor.picker.btnT);
+				jscolor.picker.btn.appendChild(jscolor.picker.btnS);
+				jscolor.picker.box.appendChild(jscolor.picker.btn);
+				jscolor.picker.boxB.appendChild(jscolor.picker.box);
+			}
+
+			var p = jscolor.picker;
+
+			// controls interaction
+			p.box.onmouseup =
+			p.box.onmouseout = function() { target.focus(); };
+			p.box.onmousedown = function() { abortBlur=true; };
+			p.box.onmousemove = function(e) {
+				if (holdPad || holdSld) {
+					holdPad && setPad(e);
+					holdSld && setSld(e);
+					if (document.selection) {
+						document.selection.empty();
+					} else if (window.getSelection) {
+						window.getSelection().removeAllRanges();
+					}
+					dispatchImmediateChange();
+				}
+			};
+			p.padM.onmouseup =
+			p.padM.onmouseout = function() { if(holdPad) { holdPad=false; jscolor.fireEvent(valueElement,'change'); } };
+			p.padM.onmousedown = function(e) {
+				// if the slider is at the bottom, move it up
+				switch(modeID) {
+					case 0: if (THIS.hsv[2] === 0) { THIS.fromHSV(null, null, 1.0); }; break;
+					case 1: if (THIS.hsv[1] === 0) { THIS.fromHSV(null, 1.0, null); }; break;
+				}
+				holdPad=true;
+				setPad(e);
+				dispatchImmediateChange();
+			};
+			p.sldM.onmouseup =
+			p.sldM.onmouseout = function() { if(holdSld) { holdSld=false; jscolor.fireEvent(valueElement,'change'); } };
+			p.sldM.onmousedown = function(e) {
+				holdSld=true;
+				setSld(e);
+				dispatchImmediateChange();
+			};
+
+			// picker
+			var dims = getPickerDims(THIS);
+			p.box.style.width = dims[0] + 'px';
+			p.box.style.height = dims[1] + 'px';
+
+			// picker border
+			p.boxB.style.position = 'absolute';
+			p.boxB.style.clear = 'both';
+			p.boxB.style.left = x+'px';
+			p.boxB.style.top = y+'px';
+			p.boxB.style.zIndex = THIS.pickerZIndex;
+			p.boxB.style.border = THIS.pickerBorder+'px solid';
+			p.boxB.style.borderColor = THIS.pickerBorderColor;
+			p.boxB.style.background = THIS.pickerFaceColor;
+
+			// pad image
+			p.pad.style.width = jscolor.images.pad[0]+'px';
+			p.pad.style.height = jscolor.images.pad[1]+'px';
+
+			// pad border
+			p.padB.style.position = 'absolute';
+			p.padB.style.left = THIS.pickerFace+'px';
+			p.padB.style.top = THIS.pickerFace+'px';
+			p.padB.style.border = THIS.pickerInset+'px solid';
+			p.padB.style.borderColor = THIS.pickerInsetColor;
+
+			// pad mouse area
+			p.padM.style.position = 'absolute';
+			p.padM.style.left = '0';
+			p.padM.style.top = '0';
+			p.padM.style.width = THIS.pickerFace + 2*THIS.pickerInset + jscolor.images.pad[0] + jscolor.images.arrow[0] + 'px';
+			p.padM.style.height = p.box.style.height;
+			p.padM.style.cursor = 'crosshair';
+
+			// slider image
+			p.sld.style.overflow = 'hidden';
+			p.sld.style.width = jscolor.images.sld[0]+'px';
+			p.sld.style.height = jscolor.images.sld[1]+'px';
+
+			// slider border
+			p.sldB.style.display = THIS.slider ? 'block' : 'none';
+			p.sldB.style.position = 'absolute';
+			p.sldB.style.right = THIS.pickerFace+'px';
+			p.sldB.style.top = THIS.pickerFace+'px';
+			p.sldB.style.border = THIS.pickerInset+'px solid';
+			p.sldB.style.borderColor = THIS.pickerInsetColor;
+
+			// slider mouse area
+			p.sldM.style.display = THIS.slider ? 'block' : 'none';
+			p.sldM.style.position = 'absolute';
+			p.sldM.style.right = '0';
+			p.sldM.style.top = '0';
+			p.sldM.style.width = jscolor.images.sld[0] + jscolor.images.arrow[0] + THIS.pickerFace + 2*THIS.pickerInset + 'px';
+			p.sldM.style.height = p.box.style.height;
+			try {
+				p.sldM.style.cursor = 'pointer';
+			} catch(eOldIE) {
+				p.sldM.style.cursor = 'hand';
+			}
+
+			// "close" button
+			function setBtnBorder() {
+				var insetColors = THIS.pickerInsetColor.split(/\s+/);
+				var pickerOutsetColor = insetColors.length < 2 ? insetColors[0] : insetColors[1] + ' ' + insetColors[0] + ' ' + insetColors[0] + ' ' + insetColors[1];
+				p.btn.style.borderColor = pickerOutsetColor;
+			}
+			p.btn.style.display = THIS.pickerClosable ? 'block' : 'none';
+			p.btn.style.position = 'absolute';
+			p.btn.style.left = THIS.pickerFace + 'px';
+			p.btn.style.bottom = THIS.pickerFace + 'px';
+			p.btn.style.padding = '0 15px';
+			p.btn.style.height = '18px';
+			p.btn.style.border = THIS.pickerInset + 'px solid';
+			setBtnBorder();
+			p.btn.style.color = THIS.pickerButtonColor;
+			p.btn.style.font = '12px sans-serif';
+			p.btn.style.textAlign = 'center';
+			try {
+				p.btn.style.cursor = 'pointer';
+			} catch(eOldIE) {
+				p.btn.style.cursor = 'hand';
+			}
+			p.btn.onmousedown = function () {
+				THIS.hidePicker();
+			};
+			p.btnS.style.lineHeight = p.btn.style.height;
+
+			// load images in optimal order
+			switch(modeID) {
+				case 0: var padImg = 'hs.png'; break;
+				case 1: var padImg = 'hv.png'; break;
+			}
+			p.padM.style.backgroundImage = "url('"+jscolor.getDir()+"cross.gif')";
+			p.padM.style.backgroundRepeat = "no-repeat";
+			p.sldM.style.backgroundImage = "url('"+jscolor.getDir()+"arrow.gif')";
+			p.sldM.style.backgroundRepeat = "no-repeat";
+			p.pad.style.backgroundImage = "url('"+jscolor.getDir()+padImg+"')";
+			p.pad.style.backgroundRepeat = "no-repeat";
+			p.pad.style.backgroundPosition = "0 0";
+
+			// place pointers
+			redrawPad();
+			redrawSld();
+
+			jscolor.picker.owner = THIS;
+			document.getElementsByTagName('body')[0].appendChild(p.boxB);
+		}
+
+
+		function getPickerDims(o) {
+			var dims = [
+				2*o.pickerInset + 2*o.pickerFace + jscolor.images.pad[0] +
+					(o.slider ? 2*o.pickerInset + 2*jscolor.images.arrow[0] + jscolor.images.sld[0] : 0),
+				o.pickerClosable ?
+					4*o.pickerInset + 3*o.pickerFace + jscolor.images.pad[1] + o.pickerButtonHeight :
+					2*o.pickerInset + 2*o.pickerFace + jscolor.images.pad[1]
+			];
+			return dims;
+		}
+
+
+		function redrawPad() {
+			// redraw the pad pointer
+			switch(modeID) {
+				case 0: var yComponent = 1; break;
+				case 1: var yComponent = 2; break;
+			}
+			var x = Math.round((THIS.hsv[0]/6) * (jscolor.images.pad[0]-1));
+			var y = Math.round((1-THIS.hsv[yComponent]) * (jscolor.images.pad[1]-1));
+			jscolor.picker.padM.style.backgroundPosition =
+				(THIS.pickerFace+THIS.pickerInset+x - Math.floor(jscolor.images.cross[0]/2)) + 'px ' +
+				(THIS.pickerFace+THIS.pickerInset+y - Math.floor(jscolor.images.cross[1]/2)) + 'px';
+
+			// redraw the slider image
+			var seg = jscolor.picker.sld.childNodes;
+
+			switch(modeID) {
+				case 0:
+					var rgb = HSV_RGB(THIS.hsv[0], THIS.hsv[1], 1);
+					for(var i=0; i<seg.length; i+=1) {
+						seg[i].style.backgroundColor = 'rgb('+
+							(rgb[0]*(1-i/seg.length)*100)+'%,'+
+							(rgb[1]*(1-i/seg.length)*100)+'%,'+
+							(rgb[2]*(1-i/seg.length)*100)+'%)';
+					}
+					break;
+				case 1:
+					var rgb, s, c = [ THIS.hsv[2], 0, 0 ];
+					var i = Math.floor(THIS.hsv[0]);
+					var f = i%2 ? THIS.hsv[0]-i : 1-(THIS.hsv[0]-i);
+					switch(i) {
+						case 6:
+						case 0: rgb=[0,1,2]; break;
+						case 1: rgb=[1,0,2]; break;
+						case 2: rgb=[2,0,1]; break;
+						case 3: rgb=[2,1,0]; break;
+						case 4: rgb=[1,2,0]; break;
+						case 5: rgb=[0,2,1]; break;
+					}
+					for(var i=0; i<seg.length; i+=1) {
+						s = 1 - 1/(seg.length-1)*i;
+						c[1] = c[0] * (1 - s*f);
+						c[2] = c[0] * (1 - s);
+						seg[i].style.backgroundColor = 'rgb('+
+							(c[rgb[0]]*100)+'%,'+
+							(c[rgb[1]]*100)+'%,'+
+							(c[rgb[2]]*100)+'%)';
+					}
+					break;
+			}
+		}
+
+
+		function redrawSld() {
+			// redraw the slider pointer
+			switch(modeID) {
+				case 0: var yComponent = 2; break;
+				case 1: var yComponent = 1; break;
+			}
+			var y = Math.round((1-THIS.hsv[yComponent]) * (jscolor.images.sld[1]-1));
+			jscolor.picker.sldM.style.backgroundPosition =
+				'0 ' + (THIS.pickerFace+THIS.pickerInset+y - Math.floor(jscolor.images.arrow[1]/2)) + 'px';
+		}
+
+
+		function isPickerOwner() {
+			return jscolor.picker && jscolor.picker.owner === THIS;
+		}
+
+
+		function blurTarget() {
+			if(valueElement === target) {
+				THIS.importColor();
+			}
+			if(THIS.pickerOnfocus) {
+				THIS.hidePicker();
+			}
+		}
+
+
+		function blurValue() {
+			if(valueElement !== target) {
+				THIS.importColor();
+			}
+		}
+
+
+		function setPad(e) {
+			var mpos = jscolor.getRelMousePos(e);
+			var x = mpos.x - THIS.pickerFace - THIS.pickerInset;
+			var y = mpos.y - THIS.pickerFace - THIS.pickerInset;
+			switch(modeID) {
+				case 0: THIS.fromHSV(x*(6/(jscolor.images.pad[0]-1)), 1 - y/(jscolor.images.pad[1]-1), null, leaveSld); break;
+				case 1: THIS.fromHSV(x*(6/(jscolor.images.pad[0]-1)), null, 1 - y/(jscolor.images.pad[1]-1), leaveSld); break;
+			}
+		}
+
+
+		function setSld(e) {
+			var mpos = jscolor.getRelMousePos(e);
+			var y = mpos.y - THIS.pickerFace - THIS.pickerInset;
+			switch(modeID) {
+				case 0: THIS.fromHSV(null, null, 1 - y/(jscolor.images.sld[1]-1), leavePad); break;
+				case 1: THIS.fromHSV(null, 1 - y/(jscolor.images.sld[1]-1), null, leavePad); break;
+			}
+		}
+
+
+		function dispatchImmediateChange() {
+			if (THIS.onImmediateChange) {
+				if (typeof THIS.onImmediateChange === 'string') {
+					eval(THIS.onImmediateChange);
+				} else {
+					THIS.onImmediateChange(THIS);
+				}
+			}
+		}
+
+
+		var THIS = this;
+		var modeID = this.pickerMode.toLowerCase()==='hvs' ? 1 : 0;
+		var abortBlur = false;
+		var
+			valueElement = jscolor.fetchElement(this.valueElement),
+			styleElement = jscolor.fetchElement(this.styleElement);
+		var
+			holdPad = false,
+			holdSld = false;
+		var
+			leaveValue = 1<<0,
+			leaveStyle = 1<<1,
+			leavePad = 1<<2,
+			leaveSld = 1<<3;
+
+		// target
+		jscolor.addEvent(target, 'focus', function() {
+			if(THIS.pickerOnfocus) { THIS.showPicker(); }
+		});
+		jscolor.addEvent(target, 'blur', function() {
+			if(!abortBlur) {
+				window.setTimeout(function(){ abortBlur || blurTarget(); abortBlur=false; }, 0);
+			} else {
+				abortBlur = false;
+			}
+		});
+
+		// valueElement
+		if(valueElement) {
+			var updateField = function() {
+				THIS.fromString(valueElement.value, leaveValue);
+				dispatchImmediateChange();
+			};
+			jscolor.addEvent(valueElement, 'keyup', updateField);
+			jscolor.addEvent(valueElement, 'input', updateField);
+			jscolor.addEvent(valueElement, 'blur', blurValue);
+			valueElement.setAttribute('autocomplete', 'off');
+		}
+
+		// styleElement
+		if(styleElement) {
+			styleElement.jscStyle = {
+				backgroundImage : styleElement.style.backgroundImage,
+				backgroundColor : styleElement.style.backgroundColor,
+				color : styleElement.style.color
+			};
+		}
+
+		// require images
+		switch(modeID) {
+			case 0: jscolor.requireImage('hs.png'); break;
+			case 1: jscolor.requireImage('hv.png'); break;
+		}
+		jscolor.requireImage('cross.gif');
+		jscolor.requireImage('arrow.gif');
+
+		this.importColor();
+	}
+
+};
+
+
+jscolor.install();
+
+;
+/*
+ * popcorn.js version 1.3
+ * http://popcornjs.org
+ *
+ * Copyright 2011, Mozilla Foundation
+ * Licensed under the MIT license
+ */
+
+(function (global, document) {
+
+    // Popcorn.js does not support archaic browsers
+    if (!document.addEventListener) {
+        global.Popcorn = {
+            isSupported: false
+        };
+
+        var methods = ("byId forEach extend effects error guid sizeOf isArray nop position disable enable destroy" +
+              "addTrackEvent removeTrackEvent getTrackEvents getTrackEvent getLastTrackEventId " +
+              "timeUpdate plugin removePlugin compose effect xhr getJSONP getScript").split(/\s+/);
+
+        while (methods.length) {
+            global.Popcorn[methods.shift()] = function () { };
+        }
+        return;
+    }
+
+    var
+
+    AP = Array.prototype,
+    OP = Object.prototype,
+
+    forEach = AP.forEach,
+    slice = AP.slice,
+    hasOwn = OP.hasOwnProperty,
+    toString = OP.toString,
+
+    // Copy global Popcorn (may not exist)
+    _Popcorn = global.Popcorn,
+
+    //  Ready fn cache
+    readyStack = [],
+    readyBound = false,
+    readyFired = false,
+
+    //  Non-public internal data object
+    internal = {
+        events: {
+            hash: {},
+            apis: {}
+        }
+    },
+
+    //  Non-public `requestAnimFrame`
+    //  http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+    requestAnimFrame = (function () {
+        return global.requestAnimationFrame ||
+          global.webkitRequestAnimationFrame ||
+          global.mozRequestAnimationFrame ||
+          global.oRequestAnimationFrame ||
+          global.msRequestAnimationFrame ||
+          function (callback, element) {
+              global.setTimeout(callback, 16);
+          };
+    }()),
+
+    //  Non-public `getKeys`, return an object's keys as an array
+    getKeys = function (obj) {
+        return Object.keys ? Object.keys(obj) : (function (obj) {
+            var item,
+                list = [];
+
+            for (item in obj) {
+                if (hasOwn.call(obj, item)) {
+                    list.push(item);
+                }
+            }
+            return list;
+        })(obj);
+    },
+
+    //  Declare constructor
+    //  Returns an instance object.
+    Popcorn = function (entity, options) {
+        //  Return new Popcorn object
+        return new Popcorn.p.init(entity, options || null);
+    };
+
+    //  Popcorn API version, automatically inserted via build system.
+    Popcorn.version = "1.3";
+
+    //  Boolean flag allowing a client to determine if Popcorn can be supported
+    Popcorn.isSupported = true;
+
+    //  Instance caching
+    Popcorn.instances = [];
+
+    //  Declare a shortcut (Popcorn.p) to and a definition of
+    //  the new prototype for our Popcorn constructor
+    Popcorn.p = Popcorn.prototype = {
+
+        init: function (entity, options) {
+
+            var matches, nodeName,
+                self = this;
+
+            //  Supports Popcorn(function () { /../ })
+            //  Originally proposed by Daniel Brooks
+
+            if (typeof entity === "function") {
+
+                //  If document ready has already fired
+                if (document.readyState === "complete") {
+
+                    entity(document, Popcorn);
+
+                    return;
+                }
+                //  Add `entity` fn to ready stack
+                readyStack.push(entity);
+
+                //  This process should happen once per page load
+                if (!readyBound) {
+
+                    //  set readyBound flag
+                    readyBound = true;
+
+                    var DOMContentLoaded = function () {
+
+                        readyFired = true;
+
+                        //  Remove global DOM ready listener
+                        document.removeEventListener("DOMContentLoaded", DOMContentLoaded, false);
+
+                        //  Execute all ready function in the stack
+                        for (var i = 0, readyStackLength = readyStack.length; i < readyStackLength; i++) {
+
+                            readyStack[i].call(document, Popcorn);
+
+                        }
+                        //  GC readyStack
+                        readyStack = null;
+                    };
+
+                    //  Register global DOM ready listener
+                    document.addEventListener("DOMContentLoaded", DOMContentLoaded, false);
+                }
+
+                return;
+            }
+
+            if (typeof entity === "string") {
+                try {
+                    matches = document.querySelector(entity);
+                } catch (e) {
+                    throw new Error("Popcorn.js Error: Invalid media element selector: " + entity);
+                }
+            }
+
+            //  Get media element by id or object reference
+            this.media = matches || entity;
+
+            //  inner reference to this media element's nodeName string value
+            nodeName = (this.media.nodeName && this.media.nodeName.toLowerCase()) || "video";
+
+            //  Create an audio or video element property reference
+            this[nodeName] = this.media;
+
+            this.options = options || {};
+
+            //  Resolve custom ID or default prefixed ID
+            this.id = this.options.id || Popcorn.guid(nodeName);
+
+            //  Throw if an attempt is made to use an ID that already exists
+            if (Popcorn.byId(this.id)) {
+                throw new Error("Popcorn.js Error: Cannot use duplicate ID (" + this.id + ")");
+            }
+
+            this.isDestroyed = false;
+
+            this.data = {
+
+                // data structure of all
+                running: {
+                    cue: []
+                },
+
+                // Executed by either timeupdate event or in rAF loop
+                timeUpdate: Popcorn.nop,
+
+                // Allows disabling a plugin per instance
+                disabled: {},
+
+                // Stores DOM event queues by type
+                events: {},
+
+                // Stores Special event hooks data
+                hooks: {},
+
+                // Store track event history data
+                history: [],
+
+                // Stores ad-hoc state related data]
+                state: {
+                    volume: this.media.volume
+                },
+
+                // Store track event object references by trackId
+                trackRefs: {},
+
+                // Playback track event queues
+                trackEvents: {
+                    byStart: [{
+
+                        start: -1,
+                        end: -1
+                    }],
+                    byEnd: [{
+                        start: -1,
+                        end: -1
+                    }],
+                    animating: [],
+                    startIndex: 0,
+                    endIndex: 0,
+                    previousUpdateTime: -1
+                }
+            };
+
+            //  Register new instance
+            Popcorn.instances.push(this);
+
+            //  function to fire when video is ready
+            var isReady = function () {
+
+                // chrome bug: http://code.google.com/p/chromium/issues/detail?id=119598
+                // it is possible the video's time is less than 0
+                // this has the potential to call track events more than once, when they should not
+                // start: 0, end: 1 will start, end, start again, when it should just start
+                // just setting it to 0 if it is below 0 fixes this issue
+                if (self.media.currentTime < 0) {
+
+                    self.media.currentTime = 0;
+                }
+
+                self.media.removeEventListener("loadeddata", isReady, false);
+
+                var duration, videoDurationPlus,
+                    runningPlugins, runningPlugin, rpLength, rpNatives;
+
+                //  Adding padding to the front and end of the arrays
+                //  this is so we do not fall off either end
+                duration = self.media.duration;
+
+                //  Check for no duration info (NaN)
+                videoDurationPlus = duration != duration ? Number.MAX_VALUE : duration + 1;
+
+                Popcorn.addTrackEvent(self, {
+                    start: videoDurationPlus,
+                    end: videoDurationPlus
+                });
+
+                if (self.options.frameAnimation) {
+
+                    //  if Popcorn is created with frameAnimation option set to true,
+                    //  requestAnimFrame is used instead of "timeupdate" media event.
+                    //  This is for greater frame time accuracy, theoretically up to
+                    //  60 frames per second as opposed to ~4 ( ~every 15-250ms)
+                    self.data.timeUpdate = function () {
+
+                        Popcorn.timeUpdate(self, {});
+
+                        // fire frame for each enabled active plugin of every type
+                        Popcorn.forEach(Popcorn.manifest, function (key, val) {
+
+                            runningPlugins = self.data.running[val];
+
+                            // ensure there are running plugins on this type on this instance
+                            if (runningPlugins) {
+
+                                rpLength = runningPlugins.length;
+                                for (var i = 0; i < rpLength; i++) {
+
+                                    runningPlugin = runningPlugins[i];
+                                    rpNatives = runningPlugin._natives;
+                                    rpNatives && rpNatives.frame &&
+                                      rpNatives.frame.call(self, {}, runningPlugin, self.currentTime());
+                                }
+                            }
+                        });
+
+                        self.emit("timeupdate");
+
+                        !self.isDestroyed && requestAnimFrame(self.data.timeUpdate);
+                    };
+
+                    !self.isDestroyed && requestAnimFrame(self.data.timeUpdate);
+
+                } else {
+
+                    self.data.timeUpdate = function (event) {
+                        Popcorn.timeUpdate(self, event);
+                    };
+
+                    if (!self.isDestroyed) {
+                        self.media.addEventListener("timeupdate", self.data.timeUpdate, false);
+                    }
+                }
+            };
+
+            Object.defineProperty(this, "error", {
+                get: function () {
+
+                    return self.media.error;
+                }
+            });
+
+            if (self.media.readyState >= 2) {
+
+                isReady();
+            } else {
+
+                self.media.addEventListener("loadeddata", isReady, false);
+            }
+
+            return this;
+        }
+    };
+
+    //  Extend constructor prototype to instance prototype
+    //  Allows chaining methods to instances
+    Popcorn.p.init.prototype = Popcorn.p;
+
+    Popcorn.byId = function (str) {
+        var instances = Popcorn.instances,
+            length = instances.length,
+            i = 0;
+
+        for (; i < length; i++) {
+            if (instances[i].id === str) {
+                return instances[i];
+            }
+        }
+
+        return null;
+    };
+
+    Popcorn.forEach = function (obj, fn, context) {
+
+        if (!obj || !fn) {
+            return {};
+        }
+
+        context = context || this;
+
+        var key, len;
+
+        // Use native whenever possible
+        if (forEach && obj.forEach === forEach) {
+            return obj.forEach(fn, context);
+        }
+
+        if (toString.call(obj) === "[object NodeList]") {
+            for (key = 0, len = obj.length; key < len; key++) {
+                fn.call(context, obj[key], key, obj);
+            }
+            return obj;
+        }
+
+        for (key in obj) {
+            if (hasOwn.call(obj, key)) {
+                fn.call(context, obj[key], key, obj);
+            }
+        }
+        return obj;
+    };
+
+    Popcorn.extend = function (obj) {
+        var dest = obj, src = slice.call(arguments, 1);
+
+        Popcorn.forEach(src, function (copy) {
+            for (var prop in copy) {
+                dest[prop] = copy[prop];
+            }
+        });
+
+        return dest;
+    };
+
+
+    // A Few reusable utils, memoized onto Popcorn
+    Popcorn.extend(Popcorn, {
+        noConflict: function (deep) {
+
+            if (deep) {
+                global.Popcorn = _Popcorn;
+            }
+
+            return Popcorn;
+        },
+        error: function (msg) {
+            throw new Error(msg);
+        },
+        guid: function (prefix) {
+            Popcorn.guid.counter++;
+            return (prefix ? prefix : "") + (+new Date() + Popcorn.guid.counter);
+        },
+        sizeOf: function (obj) {
+            var size = 0;
+
+            for (var prop in obj) {
+                size++;
+            }
+
+            return size;
+        },
+        isArray: Array.isArray || function (array) {
+            return toString.call(array) === "[object Array]";
+        },
+
+        nop: function () { },
+
+        position: function (elem) {
+
+            var clientRect = elem.getBoundingClientRect(),
+                bounds = {},
+                doc = elem.ownerDocument,
+                docElem = document.documentElement,
+                body = document.body,
+                clientTop, clientLeft, scrollTop, scrollLeft, top, left;
+
+            //  Determine correct clientTop/Left
+            clientTop = docElem.clientTop || body.clientTop || 0;
+            clientLeft = docElem.clientLeft || body.clientLeft || 0;
+
+            //  Determine correct scrollTop/Left
+            scrollTop = (global.pageYOffset && docElem.scrollTop || body.scrollTop);
+            scrollLeft = (global.pageXOffset && docElem.scrollLeft || body.scrollLeft);
+
+            //  Temp top/left
+            top = Math.ceil(clientRect.top + scrollTop - clientTop);
+            left = Math.ceil(clientRect.left + scrollLeft - clientLeft);
+
+            for (var p in clientRect) {
+                bounds[p] = Math.round(clientRect[p]);
+            }
+
+            return Popcorn.extend({}, bounds, { top: top, left: left });
+        },
+
+        disable: function (instance, plugin) {
+
+            if (!instance.data.disabled[plugin]) {
+
+                instance.data.disabled[plugin] = true;
+
+                for (var i = instance.data.running[plugin].length - 1, event; i >= 0; i--) {
+
+                    event = instance.data.running[plugin][i];
+                    event._natives.end.call(instance, null, event);
+                }
+            }
+
+            return instance;
+        },
+        enable: function (instance, plugin) {
+
+            if (instance.data.disabled[plugin]) {
+
+                instance.data.disabled[plugin] = false;
+
+                for (var i = instance.data.running[plugin].length - 1, event; i >= 0; i--) {
+
+                    event = instance.data.running[plugin][i];
+                    event._natives.start.call(instance, null, event);
+                }
+            }
+
+            return instance;
+        },
+        destroy: function (instance) {
+            var events = instance.data.events,
+                trackEvents = instance.data.trackEvents,
+                singleEvent, item, fn, plugin;
+
+            //  Iterate through all events and remove them
+            for (item in events) {
+                singleEvent = events[item];
+                for (fn in singleEvent) {
+                    delete singleEvent[fn];
+                }
+                events[item] = null;
+            }
+
+            // remove all plugins off the given instance
+            for (plugin in Popcorn.registryByName) {
+                Popcorn.removePlugin(instance, plugin);
+            }
+
+            // Remove all data.trackEvents #1178
+            trackEvents.byStart.length = 0;
+            trackEvents.byEnd.length = 0;
+
+            if (!instance.isDestroyed) {
+                instance.data.timeUpdate && instance.media.removeEventListener("timeupdate", instance.data.timeUpdate, false);
+                instance.isDestroyed = true;
+            }
+        }
+    });
+
+    //  Memoized GUID Counter
+    Popcorn.guid.counter = 1;
+
+    //  Factory to implement getters, setters and controllers
+    //  as Popcorn instance methods. The IIFE will create and return
+    //  an object with defined methods
+    Popcorn.extend(Popcorn.p, (function () {
+
+        var methods = "load play pause currentTime playbackRate volume duration preload playbackRate " +
+                      "autoplay loop controls muted buffered readyState seeking paused played seekable ended",
+            ret = {};
+
+
+        //  Build methods, store in object that is returned and passed to extend
+        Popcorn.forEach(methods.split(/\s+/g), function (name) {
+
+            ret[name] = function (arg) {
+                var previous;
+
+                if (typeof this.media[name] === "function") {
+
+                    // Support for shorthanded play(n)/pause(n) jump to currentTime
+                    // If arg is not null or undefined and called by one of the
+                    // allowed shorthandable methods, then set the currentTime
+                    // Supports time as seconds or SMPTE
+                    if (arg != null && /play|pause/.test(name)) {
+                        this.media.currentTime = Popcorn.util.toSeconds(arg);
+                    }
+
+                    this.media[name]();
+
+                    return this;
+                }
+
+                if (arg != null) {
+                    // Capture the current value of the attribute property
+                    previous = this.media[name];
+
+                    // Set the attribute property with the new value
+                    this.media[name] = arg;
+
+                    // If the new value is not the same as the old value
+                    // emit an "attrchanged event"
+                    if (previous !== arg) {
+                        this.emit("attrchange", {
+                            attribute: name,
+                            previousValue: previous,
+                            currentValue: arg
+                        });
+                    }
+                    return this;
+                }
+
+                return this.media[name];
+            };
+        });
+
+        return ret;
+
+    })()
+    );
+
+    Popcorn.forEach("enable disable".split(" "), function (method) {
+        Popcorn.p[method] = function (plugin) {
+            return Popcorn[method](this, plugin);
+        };
+    });
+
+    Popcorn.extend(Popcorn.p, {
+
+        //  Rounded currentTime
+        roundTime: function () {
+            return Math.round(this.media.currentTime);
+        },
+
+        //  Attach an event to a single point in time
+        exec: function (id, time, fn) {
+            var length = arguments.length,
+                trackEvent, sec;
+
+            // Check if first could possibly be a SMPTE string
+            // p.cue( "smpte string", fn );
+            // try/catch avoid awful throw in Popcorn.util.toSeconds
+            // TODO: Get rid of that, replace with NaN return?
+            try {
+                sec = Popcorn.util.toSeconds(id);
+            } catch (e) { }
+
+            // If it can be converted into a number then
+            // it's safe to assume that the string was SMPTE
+            if (typeof sec === "number") {
+                id = sec;
+            }
+
+            // Shift arguments based on use case
+            //
+            // Back compat for:
+            // p.cue( time, fn );
+            if (typeof id === "number" && length === 2) {
+                fn = time;
+                time = id;
+                id = Popcorn.guid("cue");
+            } else {
+                // Support for new forms
+
+                // p.cue( "empty-cue" );
+                if (length === 1) {
+                    // Set a time for an empty cue. It's not important what
+                    // the time actually is, because the cue is a no-op
+                    time = -1;
+
+                } else {
+
+                    // Get the trackEvent that matches the given id.
+                    trackEvent = this.getTrackEvent(id);
+
+                    if (trackEvent) {
+
+                        // p.cue( "my-id", 12 );
+                        // p.cue( "my-id", function() { ... });
+                        if (typeof id === "string" && length === 2) {
+
+                            // p.cue( "my-id", 12 );
+                            // The path will update the cue time.
+                            if (typeof time === "number") {
+                                // Re-use existing trackEvent start callback
+                                fn = trackEvent._natives.start;
+                            }
+
+                            // p.cue( "my-id", function() { ... });
+                            // The path will update the cue function
+                            if (typeof time === "function") {
+                                fn = time;
+                                // Re-use existing trackEvent start time
+                                time = trackEvent.start;
+                            }
+                        }
+                    } else {
+
+                        if (length >= 2) {
+
+                            // p.cue( "a", "00:00:00");
+                            if (typeof time === "string") {
+                                try {
+                                    sec = Popcorn.util.toSeconds(time);
+                                } catch (e) { }
+
+                                time = sec;
+                            }
+
+                            // p.cue( "b", 11 );
+                            if (typeof time === "number") {
+                                fn = Popcorn.nop();
+                            }
+
+                            // p.cue( "c", function() {});
+                            if (typeof time === "function") {
+                                fn = time;
+                                time = -1;
+                            }
+                        }
+                    }
+                }
+            }
+
+            //  Creating a one second track event with an empty end
+            //  Or update an existing track event with new values
+            Popcorn.addTrackEvent(this, {
+                id: id,
+                start: time,
+                end: time + 1,
+                _running: false,
+                _natives: {
+                    start: fn || Popcorn.nop,
+                    end: Popcorn.nop,
+                    type: "cue"
+                }
+            });
+
+            return this;
+        },
+
+        // Mute the calling media, optionally toggle
+        mute: function (toggle) {
+
+            var event = toggle == null || toggle === true ? "muted" : "unmuted";
+
+            // If `toggle` is explicitly `false`,
+            // unmute the media and restore the volume level
+            if (event === "unmuted") {
+                this.media.muted = false;
+                this.media.volume = this.data.state.volume;
+            }
+
+            // If `toggle` is either null or undefined,
+            // save the current volume and mute the media element
+            if (event === "muted") {
+                this.data.state.volume = this.media.volume;
+                this.media.muted = true;
+            }
+
+            // Trigger either muted|unmuted event
+            this.emit(event);
+
+            return this;
+        },
+
+        // Convenience method, unmute the calling media
+        unmute: function (toggle) {
+
+            return this.mute(toggle == null ? false : !toggle);
+        },
+
+        // Get the client bounding box of an instance element
+        position: function () {
+            return Popcorn.position(this.media);
+        },
+
+        // Toggle a plugin's playback behaviour (on or off) per instance
+        toggle: function (plugin) {
+            return Popcorn[this.data.disabled[plugin] ? "enable" : "disable"](this, plugin);
+        },
+
+        // Set default values for plugin options objects per instance
+        defaults: function (plugin, defaults) {
+
+            // If an array of default configurations is provided,
+            // iterate and apply each to this instance
+            if (Popcorn.isArray(plugin)) {
+
+                Popcorn.forEach(plugin, function (obj) {
+                    for (var name in obj) {
+                        this.defaults(name, obj[name]);
+                    }
+                }, this);
+
+                return this;
+            }
+
+            if (!this.options.defaults) {
+                this.options.defaults = {};
+            }
+
+            if (!this.options.defaults[plugin]) {
+                this.options.defaults[plugin] = {};
+            }
+
+            Popcorn.extend(this.options.defaults[plugin], defaults);
+
+            return this;
+        }
+    });
+
+    Popcorn.Events = {
+        UIEvents: "blur focus focusin focusout load resize scroll unload",
+        MouseEvents: "mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave click dblclick",
+        Events: "loadstart progress suspend emptied stalled play pause error " +
+                "loadedmetadata loadeddata waiting playing canplay canplaythrough " +
+                "seeking seeked timeupdate ended ratechange durationchange volumechange"
+    };
+
+    Popcorn.Events.Natives = Popcorn.Events.UIEvents + " " +
+                             Popcorn.Events.MouseEvents + " " +
+                             Popcorn.Events.Events;
+
+    internal.events.apiTypes = ["UIEvents", "MouseEvents", "Events"];
+
+    // Privately compile events table at load time
+    (function (events, data) {
+
+        var apis = internal.events.apiTypes,
+        eventsList = events.Natives.split(/\s+/g),
+        idx = 0, len = eventsList.length, prop;
+
+        for (; idx < len; idx++) {
+            data.hash[eventsList[idx]] = true;
+        }
+
+        apis.forEach(function (val, idx) {
+
+            data.apis[val] = {};
+
+            var apiEvents = events[val].split(/\s+/g),
+            len = apiEvents.length,
+            k = 0;
+
+            for (; k < len; k++) {
+                data.apis[val][apiEvents[k]] = true;
+            }
+        });
+    })(Popcorn.Events, internal.events);
+
+    Popcorn.events = {
+
+        isNative: function (type) {
+            return !!internal.events.hash[type];
+        },
+        getInterface: function (type) {
+
+            if (!Popcorn.events.isNative(type)) {
+                return false;
+            }
+
+            var eventApi = internal.events,
+              apis = eventApi.apiTypes,
+              apihash = eventApi.apis,
+              idx = 0, len = apis.length, api, tmp;
+
+            for (; idx < len; idx++) {
+                tmp = apis[idx];
+
+                if (apihash[tmp][type]) {
+                    api = tmp;
+                    break;
+                }
+            }
+            return api;
+        },
+        //  Compile all native events to single array
+        all: Popcorn.Events.Natives.split(/\s+/g),
+        //  Defines all Event handling static functions
+        fn: {
+            trigger: function (type, data) {
+
+                var eventInterface, evt;
+                //  setup checks for custom event system
+                if (this.data.events[type] && Popcorn.sizeOf(this.data.events[type])) {
+
+                    eventInterface = Popcorn.events.getInterface(type);
+
+                    if (eventInterface) {
+
+                        evt = document.createEvent(eventInterface);
+                        evt.initEvent(type, true, true, global, 1);
+
+                        this.media.dispatchEvent(evt);
+
+                        return this;
+                    }
+
+                    //  Custom events
+                    Popcorn.forEach(this.data.events[type], function (obj, key) {
+
+                        obj.call(this, data);
+
+                    }, this);
+
+                }
+
+                return this;
+            },
+            listen: function (type, fn) {
+
+                var self = this,
+                    hasEvents = true,
+                    eventHook = Popcorn.events.hooks[type],
+                    origType = type,
+                    tmp;
+
+                if (!this.data.events[type]) {
+                    this.data.events[type] = {};
+                    hasEvents = false;
+                }
+
+                // Check and setup event hooks
+                if (eventHook) {
+
+                    // Execute hook add method if defined
+                    if (eventHook.add) {
+                        eventHook.add.call(this, {}, fn);
+                    }
+
+                    // Reassign event type to our piggyback event type if defined
+                    if (eventHook.bind) {
+                        type = eventHook.bind;
+                    }
+
+                    // Reassign handler if defined
+                    if (eventHook.handler) {
+                        tmp = fn;
+
+                        fn = function wrapper(event) {
+                            eventHook.handler.call(self, event, tmp);
+                        };
+                    }
+
+                    // assume the piggy back event is registered
+                    hasEvents = true;
+
+                    // Setup event registry entry
+                    if (!this.data.events[type]) {
+                        this.data.events[type] = {};
+                        // Toggle if the previous assumption was untrue
+                        hasEvents = false;
+                    }
+                }
+
+                //  Register event and handler
+                this.data.events[type][fn.name || (fn.toString() + Popcorn.guid())] = fn;
+
+                // only attach one event of any type
+                if (!hasEvents && Popcorn.events.all.indexOf(type) > -1) {
+
+                    this.media.addEventListener(type, function (event) {
+
+                        Popcorn.forEach(self.data.events[type], function (obj, key) {
+                            if (typeof obj === "function") {
+                                obj.call(self, event);
+                            }
+                        });
+
+                    }, false);
+                }
+                return this;
+            },
+            unlisten: function (type, fn) {
+
+                if (this.data.events[type] && this.data.events[type][fn]) {
+
+                    delete this.data.events[type][fn];
+
+                    return this;
+                }
+
+                this.data.events[type] = null;
+
+                return this;
+            }
+        },
+        hooks: {
+            canplayall: {
+                bind: "canplaythrough",
+                add: function (event, callback) {
+
+                    var state = false;
+
+                    if (this.media.readyState) {
+
+                        callback.call(this, event);
+
+                        state = true;
+                    }
+
+                    this.data.hooks.canplayall = {
+                        fired: state
+                    };
+                },
+                // declare special handling instructions
+                handler: function canplayall(event, callback) {
+
+                    if (!this.data.hooks.canplayall.fired) {
+                        // trigger original user callback once
+                        callback.call(this, event);
+
+                        this.data.hooks.canplayall.fired = true;
+                    }
+                }
+            }
+        }
+    };
+
+    //  Extend Popcorn.events.fns (listen, unlisten, trigger) to all Popcorn instances
+    //  Extend aliases (on, off, emit)
+    Popcorn.forEach([["trigger", "emit"], ["listen", "on"], ["unlisten", "off"]], function (key) {
+        Popcorn.p[key[0]] = Popcorn.p[key[1]] = Popcorn.events.fn[key[0]];
+    });
+
+    // Internal Only - Adds track events to the instance object
+    Popcorn.addTrackEvent = function (obj, track) {
+        var trackEvent, isUpdate, eventType;
+
+        // Do a lookup for existing trackevents with this id
+        if (track.id) {
+            trackEvent = obj.getTrackEvent(track.id);
+        }
+
+        // If a track event by this id currently exists, modify it
+        if (trackEvent) {
+            isUpdate = true;
+            // Create a new object with the existing trackEvent
+            // Extend with new track properties
+            track = Popcorn.extend({}, trackEvent, track);
+
+            // Remove the existing track from the instance
+            obj.removeTrackEvent(track.id);
+        }
+
+        // Determine if this track has default options set for it
+        // If so, apply them to the track object
+        if (track && track._natives && track._natives.type &&
+            (obj.options.defaults && obj.options.defaults[track._natives.type])) {
+
+            track = Popcorn.extend({}, obj.options.defaults[track._natives.type], track);
+        }
+
+        if (track._natives) {
+            //  Supports user defined track event id
+            track._id = track.id || track._id || Popcorn.guid(track._natives.type);
+
+            //  Push track event ids into the history
+            obj.data.history.push(track._id);
+        }
+
+        track.start = Popcorn.util.toSeconds(track.start, obj.options.framerate);
+        track.end = Popcorn.util.toSeconds(track.end, obj.options.framerate);
+
+        //  Store this definition in an array sorted by times
+        var byStart = obj.data.trackEvents.byStart,
+            byEnd = obj.data.trackEvents.byEnd,
+            startIndex, endIndex;
+
+        for (startIndex = byStart.length - 1; startIndex >= 0; startIndex--) {
+
+            if (track.start >= byStart[startIndex].start) {
+                byStart.splice(startIndex + 1, 0, track);
+                break;
+            }
+        }
+
+        for (endIndex = byEnd.length - 1; endIndex >= 0; endIndex--) {
+
+            if (track.end > byEnd[endIndex].end) {
+                byEnd.splice(endIndex + 1, 0, track);
+                break;
+            }
+        }
+
+        // Display track event immediately if it's enabled and current
+        if (track.end > obj.media.currentTime &&
+            track.start <= obj.media.currentTime) {
+
+            track._running = true;
+            obj.data.running[track._natives.type].push(track);
+
+            if (!obj.data.disabled[track._natives.type]) {
+
+                track._natives.start.call(obj, null, track);
+            }
+        }
+
+        // update startIndex and endIndex
+        if (startIndex <= obj.data.trackEvents.startIndex &&
+          track.start <= obj.data.trackEvents.previousUpdateTime) {
+
+            obj.data.trackEvents.startIndex++;
+        }
+
+        if (endIndex <= obj.data.trackEvents.endIndex &&
+          track.end < obj.data.trackEvents.previousUpdateTime) {
+
+            obj.data.trackEvents.endIndex++;
+        }
+
+        this.timeUpdate(obj, null, true);
+
+        // Store references to user added trackevents in ref table
+        if (track._id) {
+            Popcorn.addTrackEvent.ref(obj, track);
+        }
+
+        // If the call to addTrackEvent was an update/modify call, fire an event
+        if (isUpdate) {
+
+            // Determine appropriate event type to trigger
+            // they are identical in function, but the naming
+            // adds some level of intuition for the end developer
+            // to rely on
+            if (track._natives.type === "cue") {
+                eventType = "cuechange";
+            } else {
+                eventType = "trackchange";
+            }
+
+            // Fire an event with change information
+            obj.emit(eventType, {
+                id: track.id,
+                previousValue: {
+                    time: trackEvent.start,
+                    fn: trackEvent._natives.start
+                },
+                currentValue: {
+                    time: track.start,
+                    fn: track._natives.start
+                }
+            });
+        }
+    };
+
+    // Internal Only - Adds track event references to the instance object's trackRefs hash table
+    Popcorn.addTrackEvent.ref = function (obj, track) {
+        obj.data.trackRefs[track._id] = track;
+
+        return obj;
+    };
+
+    Popcorn.removeTrackEvent = function (obj, removeId) {
+
+        var start, end, animate,
+            historyLen = obj.data.history.length,
+            length = obj.data.trackEvents.byStart.length,
+            index = 0,
+            indexWasAt = 0,
+            byStart = [],
+            byEnd = [],
+            animating = [],
+            history = [];
+
+        while (--length > -1) {
+            start = obj.data.trackEvents.byStart[index];
+            end = obj.data.trackEvents.byEnd[index];
+
+            // Padding events will not have _id properties.
+            // These should be safely pushed onto the front and back of the
+            // track event array
+            if (!start._id) {
+                byStart.push(start);
+                byEnd.push(end);
+            }
+
+            // Filter for user track events (vs system track events)
+            if (start._id) {
+
+                // If not a matching start event for removal
+                if (start._id !== removeId) {
+                    byStart.push(start);
+                }
+
+                // If not a matching end event for removal
+                if (end._id !== removeId) {
+                    byEnd.push(end);
+                }
+
+                // If the _id is matched, capture the current index
+                if (start._id === removeId) {
+                    indexWasAt = index;
+
+                    // If a _teardown function was defined,
+                    // enforce for track event removals
+                    if (start._natives._teardown) {
+                        start._natives._teardown.call(obj, start);
+                    }
+                }
+            }
+            // Increment the track index
+            index++;
+        }
+
+        // Reset length to be used by the condition below to determine
+        // if animating track events should also be filtered for removal.
+        // Reset index below to be used by the reverse while as an
+        // incrementing counter
+        length = obj.data.trackEvents.animating.length;
+        index = 0;
+
+        if (length) {
+            while (--length > -1) {
+                animate = obj.data.trackEvents.animating[index];
+
+                // Padding events will not have _id properties.
+                // These should be safely pushed onto the front and back of the
+                // track event array
+                if (!animate._id) {
+                    animating.push(animate);
+                }
+
+                // If not a matching animate event for removal
+                if (animate._id && animate._id !== removeId) {
+                    animating.push(animate);
+                }
+                // Increment the track index
+                index++;
+            }
+        }
+
+        //  Update
+        if (indexWasAt <= obj.data.trackEvents.startIndex) {
+            obj.data.trackEvents.startIndex--;
+        }
+
+        if (indexWasAt <= obj.data.trackEvents.endIndex) {
+            obj.data.trackEvents.endIndex--;
+        }
+
+        obj.data.trackEvents.byStart = byStart;
+        obj.data.trackEvents.byEnd = byEnd;
+        obj.data.trackEvents.animating = animating;
+
+        for (var i = 0; i < historyLen; i++) {
+            if (obj.data.history[i] !== removeId) {
+                history.push(obj.data.history[i]);
+            }
+        }
+
+        // Update ordered history array
+        obj.data.history = history;
+
+        // Update track event references
+        Popcorn.removeTrackEvent.ref(obj, removeId);
+    };
+
+    // Internal Only - Removes track event references from instance object's trackRefs hash table
+    Popcorn.removeTrackEvent.ref = function (obj, removeId) {
+        delete obj.data.trackRefs[removeId];
+
+        return obj;
+    };
+
+    // Return an array of track events bound to this instance object
+    Popcorn.getTrackEvents = function (obj) {
+
+        var trackevents = [],
+          refs = obj.data.trackEvents.byStart,
+          length = refs.length,
+          idx = 0,
+          ref;
+
+        for (; idx < length; idx++) {
+            ref = refs[idx];
+            // Return only user attributed track event references
+            if (ref._id) {
+                trackevents.push(ref);
+            }
+        }
+
+        return trackevents;
+    };
+
+    // Internal Only - Returns an instance object's trackRefs hash table
+    Popcorn.getTrackEvents.ref = function (obj) {
+        return obj.data.trackRefs;
+    };
+
+    // Return a single track event bound to this instance object
+    Popcorn.getTrackEvent = function (obj, trackId) {
+        return obj.data.trackRefs[trackId];
+    };
+
+    // Internal Only - Returns an instance object's track reference by track id
+    Popcorn.getTrackEvent.ref = function (obj, trackId) {
+        return obj.data.trackRefs[trackId];
+    };
+
+    Popcorn.getLastTrackEventId = function (obj) {
+        return obj.data.history[obj.data.history.length - 1];
+    };
+
+    Popcorn.timeUpdate = function (obj, event) {
+
+        var currentTime = obj.media.currentTime,
+            previousTime = obj.data.trackEvents.previousUpdateTime,
+            tracks = obj.data.trackEvents,
+            end = tracks.endIndex,
+            start = tracks.startIndex,
+            byStartLen = tracks.byStart.length,
+            byEndLen = tracks.byEnd.length,
+            registryByName = Popcorn.registryByName,
+            trackstart = "trackstart",
+            trackend = "trackend",
+
+            byEnd, byStart, byAnimate, natives, type, runningPlugins;
+
+        //  Playbar advancing
+        if (previousTime <= currentTime) {
+
+            while (tracks.byEnd[end] && tracks.byEnd[end].end <= currentTime) {
+
+                byEnd = tracks.byEnd[end];
+                natives = byEnd._natives;
+                type = natives && natives.type;
+
+                //  If plugin does not exist on this instance, remove it
+                if (!natives ||
+                    (!!registryByName[type] ||
+                      !!obj[type])) {
+
+                    if (byEnd._running === true) {
+
+                        byEnd._running = false;
+                        runningPlugins = obj.data.running[type];
+                        runningPlugins.splice(runningPlugins.indexOf(byEnd), 1);
+
+                        if (!obj.data.disabled[type]) {
+
+                            natives.end.call(obj, event, byEnd);
+
+                            obj.emit(trackend,
+                              Popcorn.extend({}, byEnd, {
+                                  plugin: type,
+                                  type: trackend
+                              })
+                            );
+                        }
+                    }
+
+                    end++;
+                } else {
+                    // remove track event
+                    Popcorn.removeTrackEvent(obj, byEnd._id);
+                    return;
+                }
+            }
+
+            while (tracks.byStart[start] && tracks.byStart[start].start <= currentTime) {
+
+                byStart = tracks.byStart[start];
+                natives = byStart._natives;
+                type = natives && natives.type;
+
+                //  If plugin does not exist on this instance, remove it
+                if (!natives ||
+                    (!!registryByName[type] ||
+                      !!obj[type])) {
+
+                    if (byStart.end > currentTime &&
+                          byStart._running === false) {
+
+                        byStart._running = true;
+                        obj.data.running[type].push(byStart);
+
+                        if (!obj.data.disabled[type]) {
+
+                            natives.start.call(obj, event, byStart);
+
+                            obj.emit(trackstart,
+                              Popcorn.extend({}, byStart, {
+                                  plugin: type,
+                                  type: trackstart
+                              })
+                            );
+                        }
+                    }
+                    start++;
+                } else {
+                    // remove track event
+                    Popcorn.removeTrackEvent(obj, byStart._id);
+                    return;
+                }
+            }
+
+            // Playbar receding
+        } else if (previousTime > currentTime) {
+
+            while (tracks.byStart[start] && tracks.byStart[start].start > currentTime) {
+
+                byStart = tracks.byStart[start];
+                natives = byStart._natives;
+                type = natives && natives.type;
+
+                // if plugin does not exist on this instance, remove it
+                if (!natives ||
+                    (!!registryByName[type] ||
+                      !!obj[type])) {
+
+                    if (byStart._running === true) {
+
+                        byStart._running = false;
+                        runningPlugins = obj.data.running[type];
+                        runningPlugins.splice(runningPlugins.indexOf(byStart), 1);
+
+                        if (!obj.data.disabled[type]) {
+
+                            natives.end.call(obj, event, byStart);
+
+                            obj.emit(trackend,
+                              Popcorn.extend({}, byStart, {
+                                  plugin: type,
+                                  type: trackend
+                              })
+                            );
+                        }
+                    }
+                    start--;
+                } else {
+                    // remove track event
+                    Popcorn.removeTrackEvent(obj, byStart._id);
+                    return;
+                }
+            }
+
+            while (tracks.byEnd[end] && tracks.byEnd[end].end > currentTime) {
+
+                byEnd = tracks.byEnd[end];
+                natives = byEnd._natives;
+                type = natives && natives.type;
+
+                // if plugin does not exist on this instance, remove it
+                if (!natives ||
+                    (!!registryByName[type] ||
+                      !!obj[type])) {
+
+                    if (byEnd.start <= currentTime &&
+                          byEnd._running === false) {
+
+                        byEnd._running = true;
+                        obj.data.running[type].push(byEnd);
+
+                        if (!obj.data.disabled[type]) {
+
+                            natives.start.call(obj, event, byEnd);
+
+                            obj.emit(trackstart,
+                              Popcorn.extend({}, byEnd, {
+                                  plugin: type,
+                                  type: trackstart
+                              })
+                            );
+                        }
+                    }
+                    end--;
+                } else {
+                    // remove track event
+                    Popcorn.removeTrackEvent(obj, byEnd._id);
+                    return;
+                }
+            }
+        }
+
+        tracks.endIndex = end;
+        tracks.startIndex = start;
+        tracks.previousUpdateTime = currentTime;
+
+        //enforce index integrity if trackRemoved
+        tracks.byStart.length < byStartLen && tracks.startIndex--;
+        tracks.byEnd.length < byEndLen && tracks.endIndex--;
+
+    };
+
+    //  Map and Extend TrackEvent functions to all Popcorn instances
+    Popcorn.extend(Popcorn.p, {
+
+        getTrackEvents: function () {
+            return Popcorn.getTrackEvents.call(null, this);
+        },
+
+        getTrackEvent: function (id) {
+            return Popcorn.getTrackEvent.call(null, this, id);
+        },
+
+        getLastTrackEventId: function () {
+            return Popcorn.getLastTrackEventId.call(null, this);
+        },
+
+        removeTrackEvent: function (id) {
+
+            Popcorn.removeTrackEvent.call(null, this, id);
+            return this;
+        },
+
+        removePlugin: function (name) {
+            Popcorn.removePlugin.call(null, this, name);
+            return this;
+        },
+
+        timeUpdate: function (event) {
+            Popcorn.timeUpdate.call(null, this, event);
+            return this;
+        },
+
+        destroy: function () {
+            Popcorn.destroy.call(null, this);
+            return this;
+        }
+    });
+
+    //  Plugin manifests
+    Popcorn.manifest = {};
+    //  Plugins are registered
+    Popcorn.registry = [];
+    Popcorn.registryByName = {};
+    //  An interface for extending Popcorn
+    //  with plugin functionality
+    Popcorn.plugin = function (name, definition, manifest) {
+
+        if (Popcorn.protect.natives.indexOf(name.toLowerCase()) >= 0) {
+            Popcorn.error("'" + name + "' is a protected function name");
+            return;
+        }
+
+        //  Provides some sugar, but ultimately extends
+        //  the definition into Popcorn.p
+        var reserved = ["start", "end"],
+            plugin = {},
+            setup,
+            isfn = typeof definition === "function",
+            methods = ["_setup", "_teardown", "start", "end", "frame"];
+
+        // combines calls of two function calls into one
+        var combineFn = function (first, second) {
+
+            first = first || Popcorn.nop;
+            second = second || Popcorn.nop;
+
+            return function () {
+                first.apply(this, arguments);
+                second.apply(this, arguments);
+            };
+        };
+
+        //  If `manifest` arg is undefined, check for manifest within the `definition` object
+        //  If no `definition.manifest`, an empty object is a sufficient fallback
+        Popcorn.manifest[name] = manifest = manifest || definition.manifest || {};
+
+        // apply safe, and empty default functions
+        methods.forEach(function (method) {
+            definition[method] = safeTry(definition[method] || Popcorn.nop, name);
+        });
+
+        var pluginFn = function (setup, options) {
+
+            if (!options) {
+                return this;
+            }
+
+            // When the "ranges" property is set and its value is an array, short-circuit
+            // the pluginFn definition to recall itself with an options object generated from
+            // each range object in the ranges array. (eg. { start: 15, end: 16 } )
+            if (options.ranges && Popcorn.isArray(options.ranges)) {
+                Popcorn.forEach(options.ranges, function (range) {
+                    // Create a fresh object, extend with current options
+                    // and start/end range object's properties
+                    // Works with in/out as well.
+                    var opts = Popcorn.extend({}, options, range);
+
+                    // Remove the ranges property to prevent infinitely
+                    // entering this condition
+                    delete opts.ranges;
+
+                    // Call the plugin with the newly created opts object
+                    this[name](opts);
+                }, this);
+
+                // Return the Popcorn instance to avoid creating an empty track event
+                return this;
+            }
+
+            //  Storing the plugin natives
+            var natives = options._natives = {},
+                compose = "",
+                originalOpts, manifestOpts;
+
+            Popcorn.extend(natives, setup);
+
+            options._natives.type = name;
+            options._running = false;
+
+            natives.start = natives.start || natives["in"];
+            natives.end = natives.end || natives["out"];
+
+            if (options.once) {
+                natives.end = combineFn(natives.end, function () {
+                    this.removeTrackEvent(options._id);
+                });
+            }
+
+            // extend teardown to always call end if running
+            natives._teardown = combineFn(function () {
+
+                var args = slice.call(arguments),
+                    runningPlugins = this.data.running[natives.type];
+
+                // end function signature is not the same as teardown,
+                // put null on the front of arguments for the event parameter
+                args.unshift(null);
+
+                // only call end if event is running
+                args[1]._running &&
+                  runningPlugins.splice(runningPlugins.indexOf(options), 1) &&
+                  natives.end.apply(this, args);
+            }, natives._teardown);
+
+            // default to an empty string if no effect exists
+            // split string into an array of effects
+            options.compose = options.compose && options.compose.split(" ") || [];
+            options.effect = options.effect && options.effect.split(" ") || [];
+
+            // join the two arrays together
+            options.compose = options.compose.concat(options.effect);
+
+            options.compose.forEach(function (composeOption) {
+
+                // if the requested compose is garbage, throw it away
+                compose = Popcorn.compositions[composeOption] || {};
+
+                // extends previous functions with compose function
+                methods.forEach(function (method) {
+                    natives[method] = combineFn(natives[method], compose[method]);
+                });
+            });
+
+            //  Ensure a manifest object, an empty object is a sufficient fallback
+            options._natives.manifest = manifest;
+
+            //  Checks for expected properties
+            if (!("start" in options)) {
+                options.start = options["in"] || 0;
+            }
+
+            if (!options.end && options.end !== 0) {
+                options.end = options["out"] || Number.MAX_VALUE;
+            }
+
+            // Use hasOwn to detect non-inherited toString, since all
+            // objects will receive a toString - its otherwise undetectable
+            if (!hasOwn.call(options, "toString")) {
+                options.toString = function () {
+                    var props = [
+                      "start: " + options.start,
+                      "end: " + options.end,
+                      "id: " + (options.id || options._id)
+                    ];
+
+                    // Matches null and undefined, allows: false, 0, "" and truthy
+                    if (options.target != null) {
+                        props.push("target: " + options.target);
+                    }
+
+                    return name + " ( " + props.join(", ") + " )";
+                };
+            }
+
+            // Resolves 239, 241, 242
+            if (!options.target) {
+
+                //  Sometimes the manifest may be missing entirely
+                //  or it has an options object that doesn't have a `target` property
+                manifestOpts = "options" in manifest && manifest.options;
+
+                options.target = manifestOpts && "target" in manifestOpts && manifestOpts.target;
+            }
+
+            if (options._natives) {
+                // ensure an initial id is there before setup is called
+                options._id = Popcorn.guid(options._natives.type);
+            }
+
+            // Trigger _setup method if exists
+            options._natives._setup && options._natives._setup.call(this, options);
+
+            // Create new track event for this instance
+            Popcorn.addTrackEvent(this, options);
+
+            //  Future support for plugin event definitions
+            //  for all of the native events
+            Popcorn.forEach(setup, function (callback, type) {
+
+                if (type !== "type") {
+
+                    if (reserved.indexOf(type) === -1) {
+
+                        this.on(type, callback);
+                    }
+                }
+
+            }, this);
+
+            return this;
+        };
+
+        //  Extend Popcorn.p with new named definition
+        //  Assign new named definition
+        Popcorn.p[name] = plugin[name] = function (id, options) {
+            var length = arguments.length,
+                trackEvent, defaults, mergedSetupOpts;
+
+            // Shift arguments based on use case
+            //
+            // Back compat for:
+            // p.plugin( options );
+            if (id && !options) {
+                options = id;
+                id = null;
+            } else {
+
+                // Get the trackEvent that matches the given id.
+                trackEvent = this.getTrackEvent(id);
+
+                // If the track event does not exist, ensure that the options
+                // object has a proper id
+                if (!trackEvent) {
+                    options.id = id;
+
+                    // If the track event does exist, merge the updated properties
+                } else {
+
+                    options = Popcorn.extend({}, trackEvent, options);
+
+                    Popcorn.addTrackEvent(this, options);
+
+                    return this;
+                }
+            }
+
+            this.data.running[name] = this.data.running[name] || [];
+
+            // Merge with defaults if they exist, make sure per call is prioritized
+            defaults = (this.options.defaults && this.options.defaults[name]) || {};
+            mergedSetupOpts = Popcorn.extend({}, defaults, options);
+
+            return pluginFn.call(this, isfn ? definition.call(this, mergedSetupOpts) : definition,
+                                        mergedSetupOpts);
+        };
+
+        // if the manifest parameter exists we should extend it onto the definition object
+        // so that it shows up when calling Popcorn.registry and Popcorn.registryByName
+        if (manifest) {
+            Popcorn.extend(definition, {
+                manifest: manifest
+            });
+        }
+
+        //  Push into the registry
+        var entry = {
+            fn: plugin[name],
+            definition: definition,
+            base: definition,
+            parents: [],
+            name: name
+        };
+        Popcorn.registry.push(
+           Popcorn.extend(plugin, entry, {
+               type: name
+           })
+        );
+        Popcorn.registryByName[name] = entry;
+
+        return plugin;
+    };
+
+    // Storage for plugin function errors
+    Popcorn.plugin.errors = [];
+
+    // Returns wrapped plugin function
+    function safeTry(fn, pluginName) {
+        return function () {
+
+            //  When Popcorn.plugin.debug is true, do not suppress errors
+            if (Popcorn.plugin.debug) {
+                return fn.apply(this, arguments);
+            }
+
+            try {
+                return fn.apply(this, arguments);
+            } catch (ex) {
+
+                // Push plugin function errors into logging queue
+                Popcorn.plugin.errors.push({
+                    plugin: pluginName,
+                    thrown: ex,
+                    source: fn.toString()
+                });
+
+                // Trigger an error that the instance can listen for
+                // and react to
+                this.emit("pluginerror", Popcorn.plugin.errors);
+            }
+        };
+    }
+
+    // Debug-mode flag for plugin development
+    // True for Popcorn development versions, false for stable/tagged versions
+    Popcorn.plugin.debug = (Popcorn.version === "@" + "VERSION");
+
+    //  removePlugin( type ) removes all tracks of that from all instances of popcorn
+    //  removePlugin( obj, type ) removes all tracks of type from obj, where obj is a single instance of popcorn
+    Popcorn.removePlugin = function (obj, name) {
+
+        //  Check if we are removing plugin from an instance or from all of Popcorn
+        if (!name) {
+
+            //  Fix the order
+            name = obj;
+            obj = Popcorn.p;
+
+            if (Popcorn.protect.natives.indexOf(name.toLowerCase()) >= 0) {
+                Popcorn.error("'" + name + "' is a protected function name");
+                return;
+            }
+
+            var registryLen = Popcorn.registry.length,
+                registryIdx;
+
+            // remove plugin reference from registry
+            for (registryIdx = 0; registryIdx < registryLen; registryIdx++) {
+                if (Popcorn.registry[registryIdx].name === name) {
+                    Popcorn.registry.splice(registryIdx, 1);
+                    delete Popcorn.registryByName[name];
+                    delete Popcorn.manifest[name];
+
+                    // delete the plugin
+                    delete obj[name];
+
+                    // plugin found and removed, stop checking, we are done
+                    return;
+                }
+            }
+
+        }
+
+        var byStart = obj.data.trackEvents.byStart,
+            byEnd = obj.data.trackEvents.byEnd,
+            animating = obj.data.trackEvents.animating,
+            idx, sl;
+
+        // remove all trackEvents
+        for (idx = 0, sl = byStart.length; idx < sl; idx++) {
+
+            if (byStart[idx] && byStart[idx]._natives && byStart[idx]._natives.type === name) {
+
+                byStart[idx]._natives._teardown && byStart[idx]._natives._teardown.call(obj, byStart[idx]);
+
+                byStart.splice(idx, 1);
+
+                // update for loop if something removed, but keep checking
+                idx--; sl--;
+                if (obj.data.trackEvents.startIndex <= idx) {
+                    obj.data.trackEvents.startIndex--;
+                    obj.data.trackEvents.endIndex--;
+                }
+            }
+
+            // clean any remaining references in the end index
+            // we do this seperate from the above check because they might not be in the same order
+            if (byEnd[idx] && byEnd[idx]._natives && byEnd[idx]._natives.type === name) {
+
+                byEnd.splice(idx, 1);
+            }
+        }
+
+        //remove all animating events
+        for (idx = 0, sl = animating.length; idx < sl; idx++) {
+
+            if (animating[idx] && animating[idx]._natives && animating[idx]._natives.type === name) {
+
+                animating.splice(idx, 1);
+
+                // update for loop if something removed, but keep checking
+                idx--; sl--;
+            }
+        }
+
+    };
+
+    Popcorn.compositions = {};
+
+    //  Plugin inheritance
+    Popcorn.compose = function (name, definition, manifest) {
+
+        //  If `manifest` arg is undefined, check for manifest within the `definition` object
+        //  If no `definition.manifest`, an empty object is a sufficient fallback
+        Popcorn.manifest[name] = manifest = manifest || definition.manifest || {};
+
+        // register the effect by name
+        Popcorn.compositions[name] = definition;
+    };
+
+    Popcorn.plugin.effect = Popcorn.effect = Popcorn.compose;
+
+    var rnaiveExpr = /^(?:\.|#|\[)/;
+
+    //  Basic DOM utilities and helpers API. See #1037
+    Popcorn.dom = {
+        debug: false,
+        //  Popcorn.dom.find( selector, context )
+        //
+        //  Returns the first element that matches the specified selector
+        //  Optionally provide a context element, defaults to `document`
+        //
+        //  eg.
+        //  Popcorn.dom.find("video") returns the first video element
+        //  Popcorn.dom.find("#foo") returns the first element with `id="foo"`
+        //  Popcorn.dom.find("foo") returns the first element with `id="foo"`
+        //     Note: Popcorn.dom.find("foo") is the only allowed deviation
+        //           from valid querySelector selector syntax
+        //
+        //  Popcorn.dom.find(".baz") returns the first element with `class="baz"`
+        //  Popcorn.dom.find("[preload]") returns the first element with `preload="..."`
+        //  ...
+        //  See https://developer.mozilla.org/En/DOM/Document.querySelector
+        //
+        //
+        find: function (selector, context) {
+            var node = null;
+
+            //  Trim leading/trailing whitespace to avoid false negatives
+            selector = selector.trim();
+
+            //  Default context is the `document`
+            context = context || document;
+
+            if (selector) {
+                //  If the selector does not begin with "#", "." or "[",
+                //  it could be either a nodeName or ID w/o "#"
+                if (!rnaiveExpr.test(selector)) {
+
+                    //  Try finding an element that matches by ID first
+                    node = document.getElementById(selector);
+
+                    //  If a match was found by ID, return the element
+                    if (node !== null) {
+                        return node;
+                    }
+                }
+                //  Assume no elements have been found yet
+                //  Catch any invalid selector syntax errors and bury them.
+                try {
+                    node = context.querySelector(selector);
+                } catch (e) {
+                    if (Popcorn.dom.debug) {
+                        throw new Error(e);
+                    }
+                }
+            }
+            return node;
+        }
+    };
+
+    //  Cache references to reused RegExps
+    var rparams = /\?/,
+    //  XHR Setup object
+    setup = {
+        url: "",
+        data: "",
+        dataType: "",
+        success: Popcorn.nop,
+        type: "GET",
+        async: true,
+        xhr: function () {
+            return new global.XMLHttpRequest();
+        }
+    };
+
+    Popcorn.xhr = function (options) {
+
+        options.dataType = options.dataType && options.dataType.toLowerCase() || null;
+
+        if (options.dataType &&
+             (options.dataType === "jsonp" || options.dataType === "script")) {
+
+            Popcorn.xhr.getJSONP(
+              options.url,
+              options.success,
+              options.dataType === "script"
+            );
+            return;
+        }
+
+        var settings = Popcorn.extend({}, setup, options);
+
+        //  Create new XMLHttpRequest object
+        settings.ajax = settings.xhr();
+
+        if (settings.ajax) {
+
+            if (settings.type === "GET" && settings.data) {
+
+                //  append query string
+                settings.url += (rparams.test(settings.url) ? "&" : "?") + settings.data;
+
+                //  Garbage collect and reset settings.data
+                settings.data = null;
+            }
+
+
+            settings.ajax.open(settings.type, settings.url, settings.async);
+            settings.ajax.send(settings.data || null);
+
+            return Popcorn.xhr.httpData(settings);
+        }
+    };
+
+
+    Popcorn.xhr.httpData = function (settings) {
+
+        var data, json = null,
+            parser, xml = null;
+
+        settings.ajax.onreadystatechange = function () {
+
+            if (settings.ajax.readyState === 4) {
+
+                try {
+                    json = JSON.parse(settings.ajax.responseText);
+                } catch (e) {
+                    //suppress
+                }
+
+                data = {
+                    xml: settings.ajax.responseXML,
+                    text: settings.ajax.responseText,
+                    json: json
+                };
+
+                // Normalize: data.xml is non-null in IE9 regardless of if response is valid xml
+                if (!data.xml || !data.xml.documentElement) {
+                    data.xml = null;
+
+                    try {
+                        parser = new DOMParser();
+                        xml = parser.parseFromString(settings.ajax.responseText, "text/xml");
+
+                        if (!xml.getElementsByTagName("parsererror").length) {
+                            data.xml = xml;
+                        }
+                    } catch (e) {
+                        // data.xml remains null
+                    }
+                }
+
+                //  If a dataType was specified, return that type of data
+                if (settings.dataType) {
+                    data = data[settings.dataType];
+                }
+
+
+                settings.success.call(settings.ajax, data);
+
+            }
+        };
+        return data;
+    };
+
+    Popcorn.xhr.getJSONP = function (url, success, isScript) {
+
+        var head = document.head || document.getElementsByTagName("head")[0] || document.documentElement,
+          script = document.createElement("script"),
+          isFired = false,
+          params = [],
+          rjsonp = /(=)\?(?=&|$)|\?\?/,
+          replaceInUrl, prefix, paramStr, callback, callparam;
+
+        if (!isScript) {
+
+            // is there a calback already in the url
+            callparam = url.match(/(callback=[^&]*)/);
+
+            if (callparam !== null && callparam.length) {
+
+                prefix = callparam[1].split("=")[1];
+
+                // Since we need to support developer specified callbacks
+                // and placeholders in harmony, make sure matches to "callback="
+                // aren't just placeholders.
+                // We coded ourselves into a corner here.
+                // JSONP callbacks should never have been
+                // allowed to have developer specified callbacks
+                if (prefix === "?") {
+                    prefix = "jsonp";
+                }
+
+                // get the callback name
+                callback = Popcorn.guid(prefix);
+
+                // replace existing callback name with unique callback name
+                url = url.replace(/(callback=[^&]*)/, "callback=" + callback);
+            } else {
+
+                callback = Popcorn.guid("jsonp");
+
+                if (rjsonp.test(url)) {
+                    url = url.replace(rjsonp, "$1" + callback);
+                }
+
+                // split on first question mark,
+                // this is to capture the query string
+                params = url.split(/\?(.+)?/);
+
+                // rebuild url with callback
+                url = params[0] + "?";
+                if (params[1]) {
+                    url += params[1] + "&";
+                }
+                url += "callback=" + callback;
+            }
+
+            //  Define the JSONP success callback globally
+            window[callback] = function (data) {
+                // Fire success callbacks
+                success && success(data);
+                isFired = true;
+            };
+        }
+
+        script.addEventListener("load", function () {
+
+            //  Handling remote script loading callbacks
+            if (isScript) {
+                //  getScript
+                success && success();
+            }
+
+            //  Executing for JSONP requests
+            if (isFired) {
+                //  Garbage collect the callback
+                delete window[callback];
+            }
+            //  Garbage collect the script resource
+            head.removeChild(script);
+        }, false);
+
+        script.src = url;
+
+        head.insertBefore(script, head.firstChild);
+
+        return;
+    };
+
+    Popcorn.getJSONP = Popcorn.xhr.getJSONP;
+
+    Popcorn.getScript = Popcorn.xhr.getScript = function (url, success) {
+
+        return Popcorn.xhr.getJSONP(url, success, true);
+    };
+
+    Popcorn.util = {
+        // Simple function to parse a timestamp into seconds
+        // Acceptable formats are:
+        // HH:MM:SS.MMM
+        // HH:MM:SS;FF
+        // Hours and minutes are optional. They default to 0
+        toSeconds: function (timeStr, framerate) {
+            // Hours and minutes are optional
+            // Seconds must be specified
+            // Seconds can be followed by milliseconds OR by the frame information
+            var validTimeFormat = /^([0-9]+:){0,2}[0-9]+([.;][0-9]+)?$/,
+                errorMessage = "Invalid time format",
+                digitPairs, lastIndex, lastPair, firstPair,
+                frameInfo, frameTime;
+
+            if (typeof timeStr === "number") {
+                return timeStr;
+            }
+
+            if (typeof timeStr === "string" &&
+                  !validTimeFormat.test(timeStr)) {
+                Popcorn.error(errorMessage);
+            }
+
+            digitPairs = timeStr.split(":");
+            lastIndex = digitPairs.length - 1;
+            lastPair = digitPairs[lastIndex];
+
+            // Fix last element:
+            if (lastPair.indexOf(";") > -1) {
+
+                frameInfo = lastPair.split(";");
+                frameTime = 0;
+
+                if (framerate && (typeof framerate === "number")) {
+                    frameTime = parseFloat(frameInfo[1], 10) / framerate;
+                }
+
+                digitPairs[lastIndex] = parseInt(frameInfo[0], 10) + frameTime;
+            }
+
+            firstPair = digitPairs[0];
+
+            return {
+
+                1: parseFloat(firstPair, 10),
+
+                2: (parseInt(firstPair, 10) * 60) +
+                      parseFloat(digitPairs[1], 10),
+
+                3: (parseInt(firstPair, 10) * 3600) +
+                    (parseInt(digitPairs[1], 10) * 60) +
+                      parseFloat(digitPairs[2], 10)
+
+            }[digitPairs.length || 1];
+        }
+    };
+
+    // alias for exec function
+    Popcorn.p.cue = Popcorn.p.exec;
+
+    //  Protected API methods
+    Popcorn.protect = {
+        natives: getKeys(Popcorn.p).map(function (val) {
+            return val.toLowerCase();
+        })
+    };
+
+    // Setup logging for deprecated methods
+    Popcorn.forEach({
+        // Deprecated: Recommended
+        "listen": "on",
+        "unlisten": "off",
+        "trigger": "emit",
+        "exec": "cue"
+
+    }, function (recommend, api) {
+        var original = Popcorn.p[api];
+        // Override the deprecated api method with a method of the same name
+        // that logs a warning and defers to the new recommended method
+        Popcorn.p[api] = function () {
+            if (typeof console !== "undefined" && console.warn) {
+                console.warn(
+                  "Deprecated method '" + api + "', " +
+                  (recommend == null ? "do not use." : "use '" + recommend + "' instead.")
+                );
+
+                // Restore api after first warning
+                Popcorn.p[api] = original;
+            }
+            return Popcorn.p[recommend].apply(this, [].slice.call(arguments));
+        };
+    });
+
+
+    //  Exposes Popcorn to global context
+    global.Popcorn = Popcorn;
+
+})(window, window.document);
+;
+/*!
+ * Popcorn.prototype.capture()
+ *
+ * Copyright 2011, Rick Waldron
+ * Licensed under MIT license.
+ *
+ */
+
+// Requires Popcorn.js
+/* global Popcorn: true */
+(function( global, Popcorn, document ) {
+
+	var doc = document,
+	defaults = {
+
+		// Set image type, encodes as png by default
+		type: "png",
+
+		// Set to poster attribute, this occurs by default
+		set: true,
+
+		// Capture time, uses currentTime by default
+		at: null,
+
+		// Target selector, no target by default
+		// Use by providing selector to an image element
+		target: null,
+
+		// Reload the video after poster is set
+		// Otherwise the poster will not be displayed
+		reload: true
+	};
+
+	Popcorn.prototype.capture = function( options ) {
+
+		var context, dataUrl, seeked, targets, time,
+
+		// Merge user options & defaults into new object
+		opts = Popcorn.extend( {}, defaults, options ),
+
+		// Media's position dimensions
+		dims = this.position(),
+
+		// Reused canvas id string
+		canvasId = "popcorn-canvas-" + this.media.id,
+
+		// The canvas element associated with this media
+		canvas = doc.getElementById( canvasId );
+
+		// If a time is provided
+		if ( opts.at ) {
+
+			// Normalize capture time in case smpte time was given
+			opts.at = Popcorn.util.toSeconds( opts.at );
+
+			// Save the current time
+			time = this.currentTime();
+
+			// Jump to the capture time
+			this.currentTime( opts.at );
+		}
+
+		// If the canvas we want does not exist...
+		if ( !canvas ) {
+
+			// Create a new canvas
+			canvas = doc.createElement("canvas");
+
+			// Give it our known/expected ID
+			canvas.id = canvasId;
+
+			// Set it to the same dimensions as the target movie
+			canvas.width = dims.width;
+			canvas.height = dims.height;
+
+			// Hide the canvas
+			canvas.style.display = "none";
+
+			// Append it to the same parent as the target movie
+			this.media.parentNode.appendChild( canvas );
+		}
+
+		// Get the canvas's context for reading/writing
+		context = canvas.getContext("2d");
+
+		seeked = function() {
+
+			// Draw the current media frame into the canvas
+			context.drawImage( this.media, 0, 0, dims.width, dims.height );
+
+			// Capture pixel data as a base64 encoded data url
+			dataUrl = canvas.toDataURL( "image/" + opts.type );
+
+			// If a target selector has been provided, set src to dataUrl
+			if ( opts.target ) {
+				targets = doc.querySelectorAll( opts.target );
+
+				// If valid targets exist
+				if ( targets.length ) {
+
+					// Iterate all targets
+					Popcorn.forEach( targets, function( node ) {
+
+						// If target is a valid IMG element
+						if ( node.nodeName === "IMG" ) {
+							// Set the node's src to the captured dataUrl
+							node.src = dataUrl;
+						}
+					});
+				}
+			}
+
+			// By default, we set the poster attribute of the popcorn instance
+			if ( opts.set ) {
+				this.media.setAttribute( "poster", dataUrl );
+			}
+
+			// If a time is provided, Restore to original time
+			if ( opts.at ) {
+				// Jump back to original time
+				this.listen( "loaded", function() {
+					this.currentTime( time );
+				});
+			}
+
+			// If a reload is provided, Restore the media
+			if ( opts.reload ) {
+				this.media.load();
+			}
+
+			this.unlisten( "seeked", seeked );
+
+			this.trigger("captured");
+
+			return dataUrl; // added by bleveque
+		};
+
+		this.listen( "seeked", seeked );
+
+		if ( !opts.at ) {
+		    var durl = seeked.call(this);
+		    return durl;
+		}
+
+		return this; // modified from "return this" by bleveque
+	};
+
+})( this, this.Popcorn, this.document );
 ;
 
 TAG.Telemetry = (function() {
