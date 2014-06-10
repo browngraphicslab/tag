@@ -614,8 +614,10 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         var minimapw = 1;//minimap width
         var minimaph = 1;//minimap height
         var minimap;
+
         /*
-        **On load, load the image of artwork and initialize the rectangle
+        **Load the image of artwork and initialize the minimap rectangle
+        * @method minimapLoaded
         */
         function minimapLoaded() {
             if (loaded) return;
@@ -670,7 +672,9 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             /*********************/
         }
         /*
-        **implement specific manipulation functions for manipulating the minimap.
+        **Implement manipulation function from makeManipulatable.
+        * @method onMinimapManip
+        * @param {Object} evt        object containing hammer event info 
         */
         function onMinimapManip(evt) {
             var minimaph = minimap.height();
@@ -678,6 +682,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             var minimapt = minimap.position().top;
             var minimapl = parseFloat(minimap.css('marginLeft'));
 
+            //find pivot and translation of manipulation event
             var px = evt.pivot.x;
             var py = evt.pivot.y;
             var tx = evt.translation.x;
@@ -695,9 +700,26 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             annotatedImage.viewer.viewport.panTo(new Seadragon.Point(x, y), true);
             annotatedImage.viewer.viewport.applyConstraints();
         }
-        function onMinimapScroll(res, pivot) {
-            var a = 0;
+        /**Implement scroll function from makeManipulatable
+         * @method onMinimapScroll
+         * @param {Number} scale     scale factor
+         * @param {Object} pivot     x and y location of event
+         */
+        function onMinimapScroll(scale, pivot) {
+            //create hammer event and pass into onMinimapManip
+            onMinimapManip({
+                scale: scale,
+                translation: {
+                    x: 0,
+                    y: 0
+                },
+                pivot: pivot
+            });    
         }
+        /**Implement tapped function from makeManipulatable
+        * @method onMinimapTapped
+        * @param {Object} evt        object containing hammer event info
+        */
         function onMinimapTapped(evt) {
             var minimaph = minimap.height();
             var minimapw = minimap.width();
@@ -724,7 +746,9 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             minimapLoaded();
         }
         /*
-        **Handler for image->rectangle TODO: rectangle->image handler
+        **Move the minimap rectangle based on the manipulation of the image
+        * @method dzMoveHandler
+        * @param {event} evt            manipulation event of the image
         */
         function dzMoveHandler(evt) {
             var minimaph = minimap.height();
