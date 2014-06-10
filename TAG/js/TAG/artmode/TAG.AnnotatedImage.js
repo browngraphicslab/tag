@@ -729,8 +729,6 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 };
             }
 
-            mediaManipPreprocessing();
-
             // these values are somewhat arbitrary; TODO determine good values
             if (CONTENT_TYPE === 'Image') {
                 maxW = 3000;
@@ -808,8 +806,8 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 outerContainer.css("left", (l + trans.x + (1 - scale) * pivot.x) + "px");
                 outerContainer.css("width", newW + "px");
                 outerContainer.css("height", "auto"); 
-                mediaManipPreprocessing();
-
+                mediaManipPreprocessing();      //Update dimensions since they've changed, and keep this media as active (if say an inactive media was dragged/pinch-zoomed)
+                
 
             }
 
