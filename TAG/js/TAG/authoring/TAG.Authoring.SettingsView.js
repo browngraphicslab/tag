@@ -1075,7 +1075,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         var saveButton = createButton('Save Changes',
             function () {
                 if (nameInput.val() === undefined || nameInput.val() === "") {
-                    nameInput.val() = "Untitled Tour";
+                    nameInput.val("Untitled Tour");
                 }
                 saveTour(tour, {
                     privateInput: privateState,
