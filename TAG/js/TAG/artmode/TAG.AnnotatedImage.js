@@ -802,10 +802,14 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                     return;
                 }
             } else{ // zoom from touch point: change width and height of outerContainer
+             
                 outerContainer.css("top",  (t + trans.y + (1 - scale) * pivot.y) + "px");
                 outerContainer.css("left", (l + trans.x + (1 - scale) * pivot.x) + "px");
                 outerContainer.css("width", newW + "px");
                 outerContainer.css("height", "auto"); 
+                mediaManipPreprocessing();
+
+
             }
 
 
@@ -815,6 +819,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             // }
         }
 
+        //TODO Documentation
         function move(prevVelocity, prevLocation, finalPos, delay){
             //If object is not on screen, reset and hide it
             if (!(
