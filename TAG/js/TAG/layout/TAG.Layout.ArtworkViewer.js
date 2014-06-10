@@ -121,7 +121,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             top              = 0,
             count            = 0,
             panDelta         = 20,
-            zoomScale        = 0.1,
+            zoomScale        = 1.1,
             containerFocused = true,
             interval;
 
@@ -254,9 +254,9 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             } else if (direction === 'down') {
                 manipulate({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
             } else if (direction === 'in') {
-                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 + zoomScale});
+                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: zoomScale});
             } else if (direction === 'out') {
-                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
+                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1/zoomScale});
             }   
         }
 

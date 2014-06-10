@@ -675,7 +675,9 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
          * @method mediaManipPreprocessing
          */
         function mediaManipPreprocessing() {
-            outerContainerDimensions = {height: outerContainer.height(), width: outerContainer.width()};
+            var w = outerContainer.width(),
+                h = outerContainer.height();
+            outerContainerDimensions = {height: h, width: w};
             toManip = mediaManip;
             $('.mediaOuterContainer').css('z-index', 1000);
             outerContainer.css('z-index', 1001);
@@ -725,7 +727,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                     x: l,
                     y: t
                 };
-            };;
+            }
 
             mediaManipPreprocessing();
 
@@ -743,8 +745,8 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
 
             // constrain new width
             if(newW < minW || maxW < newW) {
-                scale = 1;
                 newW = Math.min(maxW, Math.max(minW, newW));
+                scale = newW / w;
             }
 
            //Manipulation for touch and drag events
@@ -758,42 +760,42 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                         initialPosition = {
                             x: l, 
                             y: t
-                        }
+                        };
                     } else { //If initial values were set with seadragon controls or key touches
                         initialPosition = {
                             x: outerContainer.position().left,
                             y: outerContainer.position().top
-                        }
-                    };
+                        };
+                    }
 
                     //Where object should be moved to
                     if (res.center) { //As above, if movement is caused by mouse or touch event (hammer):
                         finalPosition = {
                             x: res.center.pageX - (res.startEvent.center.pageX - startLocation.x),
                             y: res.center.pageY - (res.startEvent.center.pageY - startLocation.y)
-                        }
+                        };
                     } else { //Or if it was set with seadragon controls or key touches:
                         finalPosition = {
                             x: initialPosition.x + res.translation.x,
                             y: initialPosition.y + res.translation.y,                            
-                        }
-                    };
+                        };
+                    }
 
                     //Total distance to travel
-                        deltaPosition = {
-                            x: finalPosition.x - initialPosition.x,
-                            y: finalPosition.y - initialPosition.y
-                        },
+                    deltaPosition = {
+                        x: finalPosition.x - initialPosition.x,
+                        y: finalPosition.y - initialPosition.y
+                    },
 
-                        //Initial velocity is proportional to distance traveled
-                        initialVelocity = {
-                            x: deltaPosition.x/timestepConstant,
-                            y: deltaPosition.y/timestepConstant
-                        };
-                        
-                        //Recursive function to move object between start location and final location with proper physics
-                        move(initialVelocity, initialPosition, finalPosition, timestepConstant/50);
-                        viewer.viewport.applyConstraints()
+                    //Initial velocity is proportional to distance traveled
+                    initialVelocity = {
+                        x: deltaPosition.x/timestepConstant,
+                        y: deltaPosition.y/timestepConstant
+                    };
+                    
+                    //Recursive function to move object between start location and final location with proper physics
+                    move(initialVelocity, initialPosition, finalPosition, timestepConstant/50);
+                    viewer.viewport.applyConstraints();
 
                 } else { //If object isn't within bounds, hide and reset it.
                     hideMediaObject();
@@ -801,10 +803,14 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                     return;
                 }
             } else{ // zoom from touch point: change width and height of outerContainer
+             
                 outerContainer.css("top",  (t + trans.y + (1 - scale) * pivot.y) + "px");
                 outerContainer.css("left", (l + trans.x + (1 - scale) * pivot.x) + "px");
                 outerContainer.css("width", newW + "px");
                 outerContainer.css("height", "auto"); 
+                mediaManipPreprocessing();
+
+
             }
 
 
@@ -814,6 +820,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             // }
         }
 
+        //TODO Documentation
         function move(prevVelocity, prevLocation, finalPos, delay){
             var currentPosition,
                 newVelocity,
