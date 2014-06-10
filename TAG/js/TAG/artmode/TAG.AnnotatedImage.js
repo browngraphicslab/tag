@@ -612,7 +612,8 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 closeButton = createCloseButton();
 
             mediaContainer.append(closeButton[0]);
-            closeButton.on('click', function() {
+            closeButton.on('click', function(evt) {
+                evt.stopPropagation();
                 hideMediaObject();
             });
 
