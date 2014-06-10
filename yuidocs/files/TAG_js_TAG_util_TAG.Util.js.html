@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>TAG/js/TAG/util/TAG.Util.js - Touch Art Gallery web application</title>
+    <title>TAG\js\TAG\util\TAG.Util.js - Touch Art Gallery web application</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -15,7 +15,7 @@
     <div id="hd" class="yui3-g header">
         <div class="yui3-u-3-4">
             
-                <h1><img src="../../TAG/images/WideLogo.scale-100.png" title="Touch Art Gallery web application"></h1>
+                <h1><img src="..\..\TAG\images\WideLogo.scale-100.png" title="Touch Art Gallery web application"></h1>
             
         </div>
         <div class="yui3-u-1-4 version">
@@ -45,13 +45,11 @@
             
                 <li><a href="../classes/TAG.AnnotatedImage.html">TAG.AnnotatedImage</a></li>
             
-                <li><a href="../classes/TAG.Util.IdleTimer.html">TAG.Util.IdleTimer</a></li>
-            
                 <li><a href="../classes/TAG.Layout.ArtworkViewer.html">TAG.Layout.ArtworkViewer</a></li>
             
-                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
-            
                 <li><a href="../classes/TAG.Layout.CollectionsPage.html">TAG.Layout.CollectionsPage</a></li>
+            
+                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
             
                 <li><a href="../classes/TAG.Layout.StartPage.html">TAG.Layout.StartPage</a></li>
             
@@ -59,11 +57,11 @@
             
                 <li><a href="../classes/TAG.Util.Artwork.html">TAG.Util.Artwork</a></li>
             
+                <li><a href="../classes/TAG.Util.IdleTimer.html">TAG.Util.IdleTimer</a></li>
+            
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
                 <li><a href="../classes/Telemetry.html">Telemetry</a></li>
-            
-                <li><a href="../classes/TwoStageTimer.html">TwoStageTimer</a></li>
             
             </ul>
 
@@ -104,7 +102,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: TAG/js/TAG/util/TAG.Util.js</h1>
+                        <h1 class="file-heading">File: TAG\js\TAG\util\TAG.Util.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
@@ -853,7 +851,6 @@ TAG.Util = (function () {
     //onTapped
     //onHolding
     function makeManipulatable(element, functions, stopOutside, noAccel) {
-        
         var hammer = new Hammer(element, {
             hold_threshold: 3,
             drag_min_distance: 9,
@@ -881,7 +878,7 @@ TAG.Util = (function () {
         function manipulationHandler(evt) {
             var translation;
             if (evt.gesture) {
-                // Update Dir
+                // Update Dir, and set pivot rotation, and scale values
                 getDir(evt, true);
                 var pivot = { x: evt.gesture.center.pageX - $element.offset().left, y: evt.gesture.center.pageY - $element.offset().top };
                 var rotation = evt.gesture.rotation; // In degrees
@@ -889,22 +886,36 @@ TAG.Util = (function () {
                     translation = { x: evt.gesture.deltaX, y: evt.gesture.deltaY };
                 } else {
                     translation = { x: evt.gesture.center.pageX - lastPos.x, y: evt.gesture.center.pageY - lastPos.y };
-                   // console.log(&#x27;translation.y = &#x27;+translation.y);
                 }
                 var scale = evt.gesture.scale - lastScale;
+                // Previous values
                 lastScale = evt.gesture.scale;
                 lastPos.x = evt.gesture.center.pageX;
                 lastPos.y = evt.gesture.center.pageY;
                 lastEvt = evt;
                 if (typeof functions.onManipulate === &quot;function&quot;) {
-                    functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: 1 + scale }, evt);
-                }
-                clearTimeout(timer);
-                timer = setTimeout(function () {
-                    var dir = getDir(evt);
-                    if (evt.gesture.pointerType !== &quot;mouse&quot; &amp;&amp; !noAccel)
-                        accel(30 * dir.vx, 30 * dir.vy, null, currentAccelId);
-                }, 5);
+                    functions.onManipulate({ 
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        scale: 1 + scale,
+                        target: evt.gesture.target,
+                        touches: evt.gesture.touches,
+                        pointerType: evt.gesture.pointerType,
+                        center: evt.gesture.center,
+                        deltaTime: evt.gesture.deltaTime,
+                        deltaX: evt.gesture.deltaX,
+                        deltaY: evt.gesture.deltaY,
+                        velocityX: evt.gesture.velocityX,
+                        velocityY: evt.gesture.velocityY,
+                        angle: evt.gesture.angle,
+                        direction: evt.gesture.direction,
+                        distance: evt.gesture.distance,
+                        eventType: evt.gesture.eventType,
+                        srcEvent: evt.gesture.srcEvent,
+                        startEvent: evt.gesture.startEvent
+                    }, evt);
+                };
                 //if ((evt.type === &quot;pinch&quot; || evt.type === &quot;pinchin&quot; || evt.type === &quot;pinchout&quot;) &amp;&amp; typeof functions.onScroll === &quot;function&quot;)
                 //    functions.onScroll(1 + scale, pivot);
             } else {
@@ -923,9 +934,31 @@ TAG.Util = (function () {
                 lastPos.x = evt.pageX;
                 lastPos.y = evt.pageY;
                 lastEvt = evt;
+
                 if (typeof functions.onManipulate === &quot;function&quot;) {
-                    functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: 1 + scale }, evt);
-                }
+                    functions.onManipulate({ 
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        scale: 1 + scale,
+                        target: evt.gesture.target,
+                        touches: evt.gesture.touches,
+                        pointerType: evt.gesture.pointerType,
+                        center: evt.gesture.center,
+                        deltaTime: evt.gesture.deltaTime,
+                        deltaX: evt.gesture.deltaX,
+                        deltaY: evt.gesture.deltaY,
+                        velocityX: evt.gesture.velocityX,
+                        velocityY: evt.gesture.velocityY,
+                        angle: evt.gesture.angle,
+                        direction: evt.gesture.direction,
+                        distance: evt.gesture.distance,
+                        eventType: evt.gesture.eventType,
+                        srcEvent: evt.gesture.srcEvent,
+                        startEvent: evt.gesture.startEvent
+                    }, evt);
+                };
+
                 clearTimeout(timer);
                 timer = setTimeout(function () {
                     var dir = getDir(evt);
@@ -934,6 +967,7 @@ TAG.Util = (function () {
                 }, 5);
             }
         }
+
 
         function processPinch(evt) {
             var pivot = { x: evt.gesture.center.pageX - $element.offset().left, y: evt.gesture.center.pageY - $element.offset().top };
@@ -950,9 +984,29 @@ TAG.Util = (function () {
             getDir(evt, true);
             if (scale !== lastScale &amp;&amp; typeof functions.onScroll === &quot;function&quot;)
                 functions.onScroll(1 + scale, pivot);
-            if (typeof functions.onManipulate === &quot;function&quot;)
-                functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: 1 }, evt);
 
+            if (typeof functions.onManipulate === &quot;function&quot;)
+                functions.onManipulate({                     
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        target: evt.gesture.target,
+                        touches: evt.gesture.touches,
+                        pointerType: evt.gesture.pointerType,
+                        center: evt.gesture.center,
+                        deltaTime: evt.gesture.deltaTime,
+                        deltaX: evt.gesture.deltaX,
+                        deltaY: evt.gesture.deltaY,
+                        velocityX: evt.gesture.velocityX,
+                        velocityY: evt.gesture.velocityY,
+                        angle: evt.gesture.angle,
+                        direction: evt.gesture.direction,
+                        distance: evt.gesture.distance,
+                        eventType: evt.gesture.eventType,
+                        srcEvent: evt.gesture.srcEvent,
+                        startEvent: evt.gesture.startEvent,
+                        scale: 1 
+                    }, evt);
             lastScale = evt.gesture.scale;
         }
 
@@ -967,6 +1021,7 @@ TAG.Util = (function () {
             currentAccelId++;
             resetDir();
             clearTimeout(timer);
+            manipulationHandler(evt);
         }
 
         // mouse move
@@ -1013,11 +1068,19 @@ TAG.Util = (function () {
             var translation = { x: vx, y: vy };
             var scale = 1;
             if (typeof functions.onManipulate === &quot;function&quot;)
-                functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: scale }, lastEvt);
+                functions.onManipulate({ 
+
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        scale: scale
+
+                 }, lastEvt);
+
             timer = setTimeout(function () {
                 accel(vx * 0.95, vy * 0.95, delay, id);
             }, delay);
-            //timer = window.requestAnimationFrame(accel(vx * .95, vy * .95, delay, id), $element);
+            timer = window.requestAnimationFrame(accel(vx * .95, vy * .95, delay, id), $element);
         }
 
         // mouse release
@@ -1283,7 +1346,29 @@ TAG.Util = (function () {
                 var translation = { x: evt.delta.translation.x, y: evt.delta.translation.y };
                 var scale = evt.delta.scale;
                 if (typeof functions.onManipulate === &quot;function&quot;)
-                    functions.onManipulate({ pivot: pivot, translation: translation, rotation: rotation, scale: scale });
+                    functions.onManipulate({ 
+
+                        pivot: pivot, 
+                        translation: translation, 
+                        rotation: rotation, 
+                        target: evt.gesture.target,
+                        touches: evt.gesture.touches,
+                        pointerType: evt.gesture.pointerType,
+                        center: evt.gesture.center,
+                        deltaTime: evt.gesture.deltaTime,
+                        deltaX: evt.gesture.deltaX,
+                        deltaY: evt.gesture.deltaY,
+                        velocityX: evt.gesture.velocityX,
+                        velocityY: evt.gesture.velocityY,
+                        angle: evt.gesture.angle,
+                        direction: evt.gesture.direction,
+                        distance: evt.gesture.distance,
+                        eventType: evt.gesture.eventType,
+                        srcEvent: evt.gesture.srcEvent,
+                        startEvent: evt.gesture.startEvent,
+                        scale: scale
+
+                     });
             }
         }
 

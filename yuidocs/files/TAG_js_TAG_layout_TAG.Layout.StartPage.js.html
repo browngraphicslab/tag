@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>TAG/js/TAG/layout/TAG.Layout.StartPage.js - Touch Art Gallery web application</title>
+    <title>TAG\js\TAG\layout\TAG.Layout.StartPage.js - Touch Art Gallery web application</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -15,7 +15,7 @@
     <div id="hd" class="yui3-g header">
         <div class="yui3-u-3-4">
             
-                <h1><img src="../../TAG/images/WideLogo.scale-100.png" title="Touch Art Gallery web application"></h1>
+                <h1><img src="..\..\TAG\images\WideLogo.scale-100.png" title="Touch Art Gallery web application"></h1>
             
         </div>
         <div class="yui3-u-1-4 version">
@@ -45,13 +45,11 @@
             
                 <li><a href="../classes/TAG.AnnotatedImage.html">TAG.AnnotatedImage</a></li>
             
-                <li><a href="../classes/TAG.Util.IdleTimer.html">TAG.Util.IdleTimer</a></li>
-            
                 <li><a href="../classes/TAG.Layout.ArtworkViewer.html">TAG.Layout.ArtworkViewer</a></li>
             
-                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
-            
                 <li><a href="../classes/TAG.Layout.CollectionsPage.html">TAG.Layout.CollectionsPage</a></li>
+            
+                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
             
                 <li><a href="../classes/TAG.Layout.StartPage.html">TAG.Layout.StartPage</a></li>
             
@@ -59,11 +57,11 @@
             
                 <li><a href="../classes/TAG.Util.Artwork.html">TAG.Util.Artwork</a></li>
             
+                <li><a href="../classes/TAG.Util.IdleTimer.html">TAG.Util.IdleTimer</a></li>
+            
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
                 <li><a href="../classes/Telemetry.html">Telemetry</a></li>
-            
-                <li><a href="../classes/TwoStageTimer.html">TwoStageTimer</a></li>
             
             </ul>
 
@@ -104,7 +102,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: TAG/js/TAG/layout/TAG.Layout.StartPage.js</h1>
+                        <h1 class="file-heading">File: TAG\js\TAG\layout\TAG.Layout.StartPage.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
@@ -131,11 +129,12 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         overlay = root.find(&#x27;#overlay&#x27;),
         serverTagBuffer = root.find(&#x27;#serverTagBuffer&#x27;),
         serverSetUpContainer = root.find(&#x27;#serverSetUpContainer&#x27;),
+        authoringButtonContainer = root.find(&#x27;#authoringButtonContainer&#x27;),
+        authoringButtonBuffer = root.find(&#x27;#authoringButtonBuffer&#x27;),
         serverURL,
         tagContainer;
 
     TAG.Telemetry.register(overlay, &#x27;click&#x27;, &#x27;start_to_collections&#x27;);
-    currentPage = TAG.Util.Constants.pages.START_PAGE;
 
     if (localStorage.ip &amp;&amp; localStorage.ip.indexOf(&#x27;:&#x27;) !== -1) {
         localStorage.ip = localStorage.ip.split(&#x27;:&#x27;)[0];
@@ -210,6 +209,10 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
             $(&#x27;#serverTagBuffer&#x27;).remove();
         }
     
+        if(!allowAuthoringMode){
+            $(&#x27;#authoringButtonBuffer&#x27;).remove();
+        }
+
         overlay.on(&#x27;click&#x27;, switchPage);
         
         setImagePaths(main);
@@ -217,13 +220,21 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         setUpInfo(main);
         initializeHandlers();
 
+        authoringButtonContainer.on(&#x27;click&#x27;, openDialog);
+        authoringButtonBuffer.on(&#x27;click&#x27;, function (evt) {
+            evt.stopPropagation();
+        });
+
         //opens the collections page on touch/click
         function switchPage() {
-            var newCatalog;
+            var collectionsPage;
 
             overlay.off(&#x27;click&#x27;);
-            newCatalog = TAG.Layout.CollectionsPage();
-            TAG.Util.UI.slidePageLeft(newCatalog.getRoot());
+            collectionsPage = TAG.Layout.CollectionsPage();
+            TAG.Util.UI.slidePageLeft(collectionsPage.getRoot());
+
+            currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+            currentPage.obj  = collectionsPage;
         }
 
         // Test for browser compatibility
@@ -615,8 +626,25 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
             museumInfoSpan.html(Autolinker.link(tempInfo , {email: false, twitter: false}));
         }
     }
-    
 
+    /**Opens authoring mode password dialog
+     * @method openDialog
+     */
+    function openDialog() {
+        TAG.Auth.authenticate(enterAuthoringMode);
+        return;
+    }
+
+    /**Loads authoring mode Settings View
+     * @method enterAuthoringMode
+     */
+    function enterAuthoringMode() {
+        overlay.on(&#x27;click&#x27;, function() {;});
+        authoringButtonContainer.off(&#x27;click&#x27;);
+        var authoringMode = new TAG.Authoring.SettingsView();
+        TAG.Util.UI.slidePageLeft(authoringMode.getRoot());
+    }
+ 
     /**
     * @method getRoot
     * @return    the root of the splash screen DOM
