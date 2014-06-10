@@ -486,6 +486,12 @@
   transform: rotate(180deg);
   margin-top: -10px;
 }
+#artmodeRoot #crossfadeSlider {
+  left: 10px;
+  position: absolute;
+  top: 110px;
+  width: 140px;
+}
 #artmodeRoot #sideBar {
   background-color: rgba(0,0,0,0.7);
   display: block;

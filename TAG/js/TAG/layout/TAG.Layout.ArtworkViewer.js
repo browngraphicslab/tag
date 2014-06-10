@@ -121,7 +121,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             top              = 0,
             count            = 0,
             panDelta         = 20,
-            zoomScale        = 0.1,
+            zoomScale        = 1.1,
             containerFocused = true,
             interval;
 
@@ -148,6 +148,26 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         container.append(createButton('downControl',  tagPath+'images/icons/zoom_down.svg',  D_PAD_LEFT+12, D_PAD_TOP+43));
         container.append(createButton('zinControl',   tagPath+'images/icons/zoom_plus.svg',  D_PAD_LEFT-40, D_PAD_TOP-6));
         container.append(createButton('zoutControl',  tagPath+'images/icons/zoom_minus.svg', D_PAD_LEFT-40, D_PAD_TOP+34));
+
+        /////////////////////////// RAPID PROTOTYPING /////////////////////////////
+
+        var crossfadeSlider = $(document.createElement('input')).attr({
+            'id': 'crossfadeSlider',
+            'type': 'range',
+            'value': 1,
+            'min': 0,
+            'max': 1,
+            'step': 0.05
+        });
+
+        crossfadeSlider.on('change mousemove', function() {
+            $('.mediaOuterContainer').css('opacity', crossfadeSlider.val());
+        });
+        // container.append(crossfadeSlider);
+
+        ///////////////////////////////////////////////////////////////////////////
+
+
 
         /**
          * Create a seadragon control button
@@ -234,9 +254,9 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             } else if (direction === 'down') {
                 manipulate({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
             } else if (direction === 'in') {
-                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 + zoomScale});
+                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: zoomScale});
             } else if (direction === 'out') {
-                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
+                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1/zoomScale});
             }   
         }
 
@@ -434,6 +454,8 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             locHistoryButton = initlocationHistory();
             assetContainer.append(locHistoryButton);
             currBottom += locHistoryButton.height();
+        } else {
+            $('#locationHistoryContainer').remove();
         }
 
         if (associatedMedia.guids.length > 0) {
@@ -549,6 +571,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             maxHeight = Math.max(1, assetContainer.height() - currBottom);
             root.find(".drawerContents").css({
                 "max-height": maxHeight + "px",
+
             });
         });
 

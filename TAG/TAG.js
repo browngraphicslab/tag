@@ -41071,6 +41071,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             mediaHidden      = true,
             currentlySeeking = false,
             movementTimeouts = [],
+            circleRadius = 60,
 
             // misc uninitialized variables
             circle,
@@ -41402,7 +41403,9 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
          * @method mediaManipPreprocessing
          */
         function mediaManipPreprocessing() {
-            outerContainerDimensions = {height: outerContainer.height(), width: outerContainer.width()};
+            var w = outerContainer.width(),
+                h = outerContainer.height();
+            outerContainerDimensions = {height: h, width: w};
             toManip = mediaManip;
             $('.mediaOuterContainer').css('z-index', 1000);
             outerContainer.css('z-index', 1001);
@@ -41439,7 +41442,12 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 newW  = w * scale,
                 maxW,
                 minW,
-                timer;
+                timer,
+                initialPosition,
+                deltaPosition,
+                finalPosition,
+                currentTime,
+                initialVelocity;
 
             // If event is initial touch on artwork, save current position of media object to use in movement method
             if (res.eventType === 'start') {
@@ -41447,7 +41455,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                     x: l,
                     y: t
                 };
-            };;
+            }
 
             mediaManipPreprocessing();
 
@@ -41465,45 +41473,57 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
 
             // constrain new width
             if(newW < minW || maxW < newW) {
-                scale = 1;
                 newW = Math.min(maxW, Math.max(minW, newW));
+                scale = newW / w;
             }
 
            //Manipulation for touch and drag events
             if (newW === w){ //If media object is being dragged (not resized)
                 if ((0 < t + h) && (t < rootHeight) && (0 < l + w) && (l< rootWidth)) { // and is still on screen
                     
-                    var currentTime = Date.now(),
+                    currentTime = Date.now();
 
-                        //Position of object on manipulation
+                    //Position of object on manipulation
+                    if (res.eventType) { //If initial values were set with a mouseDown or touch event
                         initialPosition = {
                             x: l, 
                             y: t
-                        },
+                        };
+                    } else { //If initial values were set with seadragon controls or key touches
+                        initialPosition = {
+                            x: outerContainer.position().left,
+                            y: outerContainer.position().top
+                        };
+                    }
 
-                        //Where object should be moved to
+                    //Where object should be moved to
+                    if (res.center) { //As above, if movement is caused by mouse or touch event (hammer):
                         finalPosition = {
                             x: res.center.pageX - (res.startEvent.center.pageX - startLocation.x),
                             y: res.center.pageY - (res.startEvent.center.pageY - startLocation.y)
-                        },
-
-                        deltaPosition = {
-                            x: finalPosition.x - initialPosition.x,
-                            y: finalPosition.y - initialPosition.y
-                        },
-
-                        //Time difference from beginning of event to now
-                        deltaTime = Date.now() - res.srcEvent.timeStamp,
-
-                        //Initial velocity is proportional to distance traveled
-                        initialVelocity = {
-                            x: deltaPosition.x/timestepConstant,
-                            y: deltaPosition.y/timestepConstant
                         };
-                        
-                        //Recursive function to move object between start location and final location with proper physics
-                        move(res, initialVelocity, initialPosition, finalPosition, timestepConstant/50);
-                        viewer.viewport.applyConstraints()
+                    } else { //Or if it was set with seadragon controls or key touches:
+                        finalPosition = {
+                            x: initialPosition.x + res.translation.x,
+                            y: initialPosition.y + res.translation.y,                            
+                        };
+                    }
+
+                    //Total distance to travel
+                    deltaPosition = {
+                        x: finalPosition.x - initialPosition.x,
+                        y: finalPosition.y - initialPosition.y
+                    },
+
+                    //Initial velocity is proportional to distance traveled
+                    initialVelocity = {
+                        x: deltaPosition.x/timestepConstant,
+                        y: deltaPosition.y/timestepConstant
+                    };
+                    
+                    //Recursive function to move object between start location and final location with proper physics
+                    move(initialVelocity, initialPosition, finalPosition, timestepConstant/50);
+                    viewer.viewport.applyConstraints();
 
                 } else { //If object isn't within bounds, hide and reset it.
                     hideMediaObject();
@@ -41511,10 +41531,14 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                     return;
                 }
             } else{ // zoom from touch point: change width and height of outerContainer
+             
                 outerContainer.css("top",  (t + trans.y + (1 - scale) * pivot.y) + "px");
                 outerContainer.css("left", (l + trans.x + (1 - scale) * pivot.x) + "px");
                 outerContainer.css("width", newW + "px");
                 outerContainer.css("height", "auto"); 
+                mediaManipPreprocessing();
+
+
             }
 
 
@@ -41524,7 +41548,21 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             // }
         }
 
-        function move(res, prevVelocity, prevLocation, finalPos, delay){
+
+        /**
+         * Recursive helper function for mediaManip.
+         * Moves object between start location and final location with proper physics.
+         * @method move
+         * @param {Object} res              object containing hammer event info
+         * @param {Object} prevVelocity     velocity of object on release
+         * @param {Object} prevLocation     location of object
+         * @param {Object} finalPos         target location of object
+         * @param {Object} delay            delay (for timer)
+         */
+        function move(prevVelocity, prevLocation, finalPos, delay){
+            var currentPosition,
+                newVelocity,
+                timer;
             //If object is not on screen, reset and hide it
             if (!(
                 (0 < outerContainer.position().top+ outerContainer.height()) 
@@ -41543,19 +41581,17 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             };
 
             //Current position is previous position + movement from velocity * time
-            var currentPosition = { 
-                    x: prevLocation.x + delay*prevVelocity.x,
-                    y: prevLocation.y + delay*prevVelocity.y                  
-                },
+            currentPosition = { 
+                x: prevLocation.x + delay*prevVelocity.x,
+                y: prevLocation.y + delay*prevVelocity.y                  
+            };
 
-                // New velocity is proportional to distance left to travel
-                newVelocity = {
-                    x: (finalPos.x - currentPosition.x)/(delay*50),
-                    y: (finalPos.y - currentPosition.y)/(delay*50)
-                },
-
-                timer;
-
+            // New velocity is proportional to distance left to travel
+            newVelocity = {
+                x: (finalPos.x - currentPosition.x)/(delay*50),
+                y: (finalPos.y - currentPosition.y)/(delay*50)
+            };
+            
             outerContainer.css({'left': currentPosition.x, 'top': currentPosition.y});
 
             //Clear all previously-set timers used for movement on this object
@@ -41565,7 +41601,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             movementTimeouts = [];
             movementTimeouts.push( 
                 setTimeout(function () {
-                move(res, newVelocity, currentPosition, finalPos, delay);
+                move(newVelocity, currentPosition, finalPos, delay);
                 }, 1)
             );
         }
@@ -41586,32 +41622,32 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 pivot: pivot
             });
         }
-		
-		/**
-		 * Create a closeButton for associated media
-		 * @method createCloseButton
-		 * @return {HTML element} the button as a 'div'
-		 */
-		function createCloseButton() {
-			var closeButton = $(document.createElement('div'));
-			closeButton.text('X');
-			closeButton.css({
-				'position': 'absolute',
-				'top': '-2.5em',
-				'left': '-2.5em',
-				'width': '1em',
-				'height': '1em',
-				'text-align': 'center',
-				'color': 'black',
-				'line-height': '1em',
-				'border': '10px solid black',
-				'border-radius': '2em',
-				'background-color': 'white',
-				'margin-left': '107%'
-			});
-			return closeButton;
-		}
-		 
+        
+        /**
+         * Create a closeButton for associated media
+         * @method createCloseButton
+         * @return {HTML element} the button as a 'div'
+         */
+        function createCloseButton() {
+            var closeButton = $(document.createElement('div'));
+            closeButton.text('X');
+            closeButton.css({
+                'position': 'absolute',
+                'top': '0.4em',
+                'left': '-2em',
+                'width': '0.7em',
+                'height': '0.7em',
+                'text-align': 'center',
+                //'color': 'black',
+                'line-height': '0.5em',
+                //'border': '10px solid black',
+                //'border-radius': '2em',
+                'background-color': 'black',
+                'margin-left': '107%'
+            });
+            return closeButton;
+        }
+         
         /**
          * Show the associated media on the seadragon canvas. If the media is not
          * a hotspot, show it in a slightly random position.
@@ -41622,22 +41658,15 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 l,
                 h = outerContainer.height(),
                 w = outerContainer.width();
-				
+
+            //If associated media object is a hotspot, then position it next to circle.  Otherwise, put it in a slightly random position near the middle
             if(IS_HOTSPOT) {
-                console.log("---------------------------------------------- is hotspot");
                 circle.css('visibility', 'visible');
                 addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
                 viewer.viewport.panTo(position, false);
                 viewer.viewport.applyConstraints()
-                t = circle.offset().top + circle.width()*4;
-                l = circle.offset().left + circle.width()*4;
-
-                console.log("pointFromPixel: " + viewer.viewport.pointFromPixel(position));
-
-                console.log("circle.width: " + circle.width());
-
-                //t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
-                //l = rootWidth/2 + circle.width()*3/4;
+                t = viewer.viewport.pixelFromPoint(position).y - h/2 + circleRadius/2;
+                l = viewer.viewport.pixelFromPoint(position).x + circleRadius;
             } else {
                 t = rootHeight * 1/10 + Math.random() * rootHeight * 2/10;
                 l = rootWidth  * 3/10 + Math.random() * rootWidth  * 2/10;
@@ -41661,7 +41690,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 'color': 'black',
                 'background-color': 'rgba(255,255,255, 0.3)'
             });
-			
+            
             // TODO is this necessary?
             // if ((info.contentType === 'Video') || (info.contentType === 'Audio')) {
             //     resizeControlElements();
@@ -42703,7 +42732,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             top              = 0,
             count            = 0,
             panDelta         = 20,
-            zoomScale        = 0.1,
+            zoomScale        = 1.1,
             containerFocused = true,
             interval;
 
@@ -42730,6 +42759,26 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         container.append(createButton('downControl',  tagPath+'images/icons/zoom_down.svg',  D_PAD_LEFT+12, D_PAD_TOP+43));
         container.append(createButton('zinControl',   tagPath+'images/icons/zoom_plus.svg',  D_PAD_LEFT-40, D_PAD_TOP-6));
         container.append(createButton('zoutControl',  tagPath+'images/icons/zoom_minus.svg', D_PAD_LEFT-40, D_PAD_TOP+34));
+
+        /////////////////////////// RAPID PROTOTYPING /////////////////////////////
+
+        var crossfadeSlider = $(document.createElement('input')).attr({
+            'id': 'crossfadeSlider',
+            'type': 'range',
+            'value': 1,
+            'min': 0,
+            'max': 1,
+            'step': 0.05
+        });
+
+        crossfadeSlider.on('change mousemove', function() {
+            $('.mediaOuterContainer').css('opacity', crossfadeSlider.val());
+        });
+        // container.append(crossfadeSlider);
+
+        ///////////////////////////////////////////////////////////////////////////
+
+
 
         /**
          * Create a seadragon control button
@@ -42816,9 +42865,9 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             } else if (direction === 'down') {
                 manipulate({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
             } else if (direction === 'in') {
-                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 + zoomScale});
+                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: zoomScale});
             } else if (direction === 'out') {
-                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
+                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1/zoomScale});
             }   
         }
 
@@ -43016,6 +43065,8 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             locHistoryButton = initlocationHistory();
             assetContainer.append(locHistoryButton);
             currBottom += locHistoryButton.height();
+        } else {
+            $('#locationHistoryContainer').remove();
         }
 
         if (associatedMedia.guids.length > 0) {
@@ -43131,6 +43182,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             maxHeight = Math.max(1, assetContainer.height() - currBottom);
             root.find(".drawerContents").css({
                 "max-height": maxHeight + "px",
+
             });
         });
 
@@ -44003,7 +44055,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         currentThumbnail.attr('thumbnail', FIX_PATH(collection.Metadata.DescriptionImage1));
         currentThumbnail.on('click', switchPage);
 
-        TAG.Telemetry.register(currentThumbnail, 'click', '', function() {
+        TAG.Telemetry.register(currentThumbnail, 'click', '', function(tobj) {
             if (!currentArtwork || !artworkSelected) {
                 return true; // abort
             }
