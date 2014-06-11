@@ -788,7 +788,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         
             info.css({
 
-                'overflow-y' : 'scroll',
+                'overflow-y' : 'auto',
                 'max-height' : '5em',
 
             });
