@@ -268,7 +268,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         $("[tabindex='-1']").on('click', function() {
             $("[tabindex='-1']").focus();
             containerFocused = true;
-            annotatedImage.setArtworkClicked();     //Tell AnnotatedImage that the main artwork is active
+            annotatedImage.dzManipPreprocessing();     //Tell AnnotatedImage that the main artwork is active
         });
         $("[tabindex='-1']").focus(function() {
             containerFocused = true;
@@ -381,16 +381,6 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         infoTitle.text(doq.Name);
         infoArtist.text(doq.Metadata.Artist);
         infoYear.text(doq.Metadata.Year);
-        
-        //condition to check if the height of the info div is greater than or equal to half the lenght of the side bar, 
-        //in which case the scroll property of the div is enabled and its max height set to a 3rd of the info div height
-        if (info.height()>=sideBar.height()/2){
-            info.css({
-                'overflow-y' : 'scroll',
-                'max-height' : sideBar.height()/3 + 'px',
-
-            });
-        }
         
 
         // toggler to hide/show sidebar
@@ -568,7 +558,8 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             }
 
             // set max height of drawers to avoid expanding into minimap area
-            maxHeight = Math.max(1, assetContainer.height() - currBottom);
+            maxHeight = Math.max(1, assetContainer.height() - currBottom- root.find(".drawerLabel").height()); //to account for the height of the drawerLabel of the current drawer.
+            console.log(currBottom);
             root.find(".drawerContents").css({
                 "max-height": maxHeight + "px",
 
@@ -614,8 +605,10 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         var minimapw = 1;//minimap width
         var minimaph = 1;//minimap height
         var minimap;
+
         /*
-        **On load, load the image of artwork and initialize the rectangle
+        **Load the image of artwork and initialize the minimap rectangle
+        * @method minimapLoaded
         */
         function minimapLoaded() {
             if (loaded) return;
@@ -670,7 +663,9 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             /*********************/
         }
         /*
-        **implement specific manipulation functions for manipulating the minimap.
+        **Implement manipulation function from makeManipulatable.
+        * @method onMinimapManip
+        * @param {Object} evt        object containing hammer event info 
         */
         function onMinimapManip(evt) {
             var minimaph = minimap.height();
@@ -678,6 +673,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             var minimapt = minimap.position().top;
             var minimapl = parseFloat(minimap.css('marginLeft'));
 
+            //find pivot and translation of manipulation event
             var px = evt.pivot.x;
             var py = evt.pivot.y;
             var tx = evt.translation.x;
@@ -695,9 +691,26 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             annotatedImage.viewer.viewport.panTo(new Seadragon.Point(x, y), true);
             annotatedImage.viewer.viewport.applyConstraints();
         }
-        function onMinimapScroll(res, pivot) {
-            var a = 0;
+        /**Implement scroll function from makeManipulatable
+         * @method onMinimapScroll
+         * @param {Number} scale     scale factor
+         * @param {Object} pivot     x and y location of event
+         */
+        function onMinimapScroll(scale, pivot) {
+            //create hammer event and pass into onMinimapManip
+            onMinimapManip({
+                scale: scale,
+                translation: {
+                    x: 0,
+                    y: 0
+                },
+                pivot: pivot
+            });    
         }
+        /**Implement tapped function from makeManipulatable
+        * @method onMinimapTapped
+        * @param {Object} evt        object containing hammer event info
+        */
         function onMinimapTapped(evt) {
             var minimaph = minimap.height();
             var minimapw = minimap.width();
@@ -724,7 +737,9 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             minimapLoaded();
         }
         /*
-        **Handler for image->rectangle TODO: rectangle->image handler
+        **Move the minimap rectangle based on the manipulation of the image
+        * @method dzMoveHandler
+        * @param {event} evt            manipulation event of the image
         */
         function dzMoveHandler(evt) {
             var minimaph = minimap.height();
@@ -763,6 +778,22 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         }
         annotatedImage.addAnimateHandler(dzMoveHandler);
 
+        //condition to check for overlap of the assetscontainer with minimap. If they overlap, we restrict the height of #info div to its original max-height.
+        var overlap = !(assetContainer.right < minimapContainer.left || 
+                assetContainer.left > minimapContainer.right || 
+                assetContainer.bottom < minimapContainer.top || 
+                assetContainer.top > minimapContainer.bottom)
+
+        if (overlap) {
+        
+            info.css({
+
+                'overflow-y' : 'auto',
+                'max-height' : '5em',
+
+            });
+
+    }
         /*
          * END MINIMAP CODE
          ******************/
@@ -984,7 +1015,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             toggle          = $(document.createElement('img')).addClass("drawerPlusToggle"),
             drawerContents  = $(document.createElement('div')).addClass("drawerContents"),
             i;
-
+       
         label.text(title);
         toggle.attr({
             src: tagPath+'images/icons/plus.svg',
@@ -1025,7 +1056,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             }
             drawerContents.slideToggle();
         });
-
+        
         drawer.contents = drawerContents;
         return drawer;
     }
@@ -1077,3 +1108,4 @@ TAG.Layout.ArtworkViewer.default_options = {
     doq: null,
     split: 'L',
 };
+

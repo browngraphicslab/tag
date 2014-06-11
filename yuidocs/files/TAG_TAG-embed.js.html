@@ -119,6 +119,7 @@
  * @param {property} width               the desired width of TAG
  * @param {property} height              the desired height of TAG
  * @param {property} allowServerChange   should a button be shown on the splash screen that allows server change?
+ * @param {property} allowAuthoringMode	 if a button should be shown on splash screen to allow entering into authoring mode
  * @param {property} hiddenCollections   a list of collection IDs for published collections to be hidden
  * @param {property} idleDuration        the duration of TAG&#x27;s idle timer
  * 
@@ -137,6 +138,7 @@ var TAG_embed = function(tagInput) {
         ip = tagInput.serverIp,
         hiddenCollections = tagInput.hiddenCollections || [],
         allowServerChange = tagInput.allowServerChange,
+        allowAuthoringMode = tagInput.allowAuthoringMode,
         width = tagInput.width,
         height = tagInput.height,
         idleDuration = tagInput.idleDuration || 0,
@@ -210,6 +212,7 @@ var TAG_embed = function(tagInput) {
                                 containerId:&quot;tagContainer&quot;, \
                                 serverIp:&quot;&#x27;+ip+&#x27;&quot;, \
                                 allowServerChange:&#x27;+allowServerChange+&#x27;, \
+                                allowAuthoringMode: &#x27;+allowAuthoringMode+&#x27;, \
                                 idleDuration:&#x27;+idleDuration+&#x27; \
                             }); \
                         }; \

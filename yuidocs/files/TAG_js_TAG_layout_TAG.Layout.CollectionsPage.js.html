@@ -275,16 +275,17 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             }
         }
 
-        // Single collection UI; CSS modifications for the case when there is only one collection
-        if(numVisibleCollections === 1) {
-            enableSingleCollectionUI()
-        }
-
         if (currCollection) {
             clickCollection(currCollection, scrollPos, currentArtwork)();
         } else if(toShowFirst) {
             loadFirstCollection();
         }
+
+        // Single collection UI; CSS modifications for the case when there is only one collection
+        if(numVisibleCollections === 1) {
+            enableSingleCollectionUI()
+        }
+
         loadingArea.hide();
     }
 
@@ -294,9 +295,17 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      * description area.
      *
      * @method enableSingleCollectionUI
-     * @author Athyuttam Eleti
+     * @author Athyuttam Eleti and Emily Reif
      */
     function enableSingleCollectionUI() {
+
+        //Various divs to be manipulated
+        var exhibitionInfo = root.find(&quot;#collection-info&quot;),
+            exhibitionNameDiv = root.find(&quot;#collection-name-div&quot;),
+            contentDiv = root.find(&quot;#contentdiv&quot;),
+            descriptionTextDiv = root.find(&quot;#description-text&quot;),
+            imgContainerDiv = root.find(&quot;#img-container&quot;);
+
         collectionArea.css(&quot;display&quot;, &quot;none&quot;);
         collectionHeader.css(&quot;display&quot;, &quot;none&quot;);
         displayarea.css({
@@ -304,21 +313,20 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             &quot;width&quot;: &quot;100%&quot;
         });
 
-        // NOT WOKING BECAUSE THESE DIVS AREN&#x27;T YET
-        // CREATED WHEN THIS CODE IS EXECUTED
-
-        // var exhibition_info = root.find(&quot;#collection-info&quot;);
-        // exhibition_info.css(&quot;width&quot;, &quot;100%&quot;);
-
-        // var exhibition_name_div = root.find(&quot;#collection-name-div&quot;);
-        // exhibition_name_div.css(&quot;width&quot;, &quot;100%&quot;);
-
-        // var content_div = root.find(&quot;#content-div&quot;);
-        // content_div.css({
-        //     &quot;left&quot;: &quot;4.5%&quot;,
-        //     &quot;right&quot;: &quot;4.5%&quot;
-        // })
-    }
+        exhibitionInfo.css(&quot;width&quot;, &quot;100%&quot;);
+        exhibitionNameDiv.css(&quot;width&quot;, &quot;100%&quot;);
+        exhibitionInfo.append(contentDiv);
+        contentDiv.css({
+            &#x27;padding-left&#x27;: &#x27;4.5%&#x27;,
+            &#x27;width&#x27;: &#x27;90%&#x27;,
+            &#x27;left&#x27;: &#x27;0&#x27;,
+        });
+        imgContainerDiv.css(&#x27;width&#x27;, &#x27;30%&#x27;);   
+        descriptionTextDiv.css({
+            &#x27;left&#x27;: &#x27;38%&#x27;,
+            &#x27;width&#x27;: &#x27;62%&#x27;
+        });
+    };
 
     /**
      * Add a collection to the left bar

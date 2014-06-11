@@ -129,6 +129,8 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         overlay = root.find(&#x27;#overlay&#x27;),
         serverTagBuffer = root.find(&#x27;#serverTagBuffer&#x27;),
         serverSetUpContainer = root.find(&#x27;#serverSetUpContainer&#x27;),
+        authoringButtonContainer = root.find(&#x27;#authoringButtonContainer&#x27;),
+        authoringButtonBuffer = root.find(&#x27;#authoringButtonBuffer&#x27;),
         serverURL,
         tagContainer;
 
@@ -207,12 +209,21 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
             $(&#x27;#serverTagBuffer&#x27;).remove();
         }
     
+        if(!allowAuthoringMode){
+            $(&#x27;#authoringButtonBuffer&#x27;).remove();
+        }
+
         overlay.on(&#x27;click&#x27;, switchPage);
         
         setImagePaths(main);
         setUpCredits();
         setUpInfo(main);
         initializeHandlers();
+
+        authoringButtonContainer.on(&#x27;click&#x27;, openDialog);
+        authoringButtonBuffer.on(&#x27;click&#x27;, function (evt) {
+            evt.stopPropagation();
+        });
 
         //opens the collections page on touch/click
         function switchPage() {
@@ -615,8 +626,25 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
             museumInfoSpan.html(Autolinker.link(tempInfo , {email: false, twitter: false}));
         }
     }
-    
 
+    /**Opens authoring mode password dialog
+     * @method openDialog
+     */
+    function openDialog() {
+        TAG.Auth.authenticate(enterAuthoringMode);
+        return;
+    }
+
+    /**Loads authoring mode Settings View
+     * @method enterAuthoringMode
+     */
+    function enterAuthoringMode() {
+        overlay.on(&#x27;click&#x27;, function() {;});
+        authoringButtonContainer.off(&#x27;click&#x27;);
+        var authoringMode = new TAG.Authoring.SettingsView();
+        TAG.Util.UI.slidePageLeft(authoringMode.getRoot());
+    }
+ 
     /**
     * @method getRoot
     * @return    the root of the splash screen DOM

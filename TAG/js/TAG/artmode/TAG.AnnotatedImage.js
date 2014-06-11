@@ -48,17 +48,10 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         addAnimateHandler: addAnimateHandler,
         getToManip: getToManip,
         getMediaDimensions: getMediaDimensions,
-        setArtworkClicked: setArtworkClicked,
+        dzManipPreprocessing: dzManipPreprocessing,
         viewer: viewer
     };
 
-    /**
-     * Sets the artwork as active and the Deep Zoom manipulation method is used zooming and panning
-     * @method setArtworkClicked
-     */
-    function setArtworkClicked() {
-        dzManipPreprocessing();
-    }
 
     /**
      * Return applicable manipulation method
@@ -898,21 +891,17 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
          * @return {HTML element} the button as a 'div'
          */
         function createCloseButton() {
-            var closeButton = $(document.createElement('div'));
+            var closeButton = $(document.createElement('img'));
+            closeButton.attr('src', tagPath + 'images/icons/x.svg');
             closeButton.text('X');
             closeButton.css({
                 'position': 'absolute',
-                'top': '0.4em',
-                'left': '-2em',
-                'width': '0.7em',
-                'height': '0.7em',
-                'text-align': 'center',
-                //'color': 'black',
-                'line-height': '0.5em',
-                //'border': '10px solid black',
-                //'border-radius': '2em',
-                'background-color': 'black',
-                'margin-left': '107%'
+                'top': '0%',
+                'width': '4%',
+                'height': '4%',
+                'z-index': '1',
+                'background-color': '',
+                'margin-left': '95%'
             });
             return closeButton;
         }

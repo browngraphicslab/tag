@@ -60,8 +60,8 @@
             "fors": {},
             "namespaces": {}
         },
-        "TAG/js/TAG/authoring/TAG.Authoring.NewSettingsView.js": {
-            "name": "TAG/js/TAG/authoring/TAG.Authoring.NewSettingsView.js",
+        "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js": {
+            "name": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
             "modules": {},
             "classes": {},
             "fors": {},
@@ -730,7 +730,7 @@
             "extension_for": [],
             "namespace": "",
             "file": "TAG/js/TAG/util/TAG.Util.js",
-            "line": 3453,
+            "line": 3482,
             "description": "Utils for the artwork viewer and the artwork editor"
         },
         "Telemetry": {
@@ -794,6 +794,11 @@
                 {
                     "name": "allowServerChange",
                     "description": "should a button be shown on the splash screen that allows server change?",
+                    "type": "Property"
+                },
+                {
+                    "name": "allowAuthoringMode",
+                    "description": "if a button should be shown on splash screen to allow entering into authoring mode",
                     "type": "Property"
                 },
                 {
@@ -2228,15 +2233,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 55,
-            "description": "Sets the artwork as active and the Deep Zoom manipulation method is used zooming and panning",
-            "itemtype": "method",
-            "name": "setArtworkClicked",
-            "class": "TAG.AnnotatedImage"
-        },
-        {
-            "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 63,
+            "line": 56,
             "description": "Return applicable manipulation method",
             "itemtype": "method",
             "name": "getToManip",
@@ -2248,7 +2245,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 73,
+            "line": 66,
             "description": "Return the dimensions of the active associated media or artwork",
             "itemtype": "method",
             "name": "getMediaDimensions",
@@ -2260,7 +2257,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 83,
+            "line": 76,
             "description": "Return list of associatedMedia",
             "itemtype": "method",
             "name": "getAssociatedMedia",
@@ -2272,7 +2269,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 92,
+            "line": 85,
             "description": "Open the deepzoom image",
             "itemtype": "method",
             "name": "openArtwork",
@@ -2291,7 +2288,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 108,
+            "line": 101,
             "description": "Wrapper around Seadragon.Drawer.updateOverlay; moves an HTML element \"overlay.\"\nUsed mostly in conjunction with hotspot circles (this function is currently\nonly called from ArtworkEditor.js)",
             "itemtype": "method",
             "name": "updateOverlay",
@@ -2311,7 +2308,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 125,
+            "line": 118,
             "description": "Wrapper around Seadragon.Drawer.addOverlay; adds an HTML overlay to the seadragon\ncanvas. Currently only used in ArtworkEditor.js.",
             "itemtype": "method",
             "name": "addOverlay",
@@ -2336,7 +2333,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 145,
+            "line": 138,
             "description": "Wrapper around Seadragon.Drawer.removeOverlay. Removes an HTML overlay from the seadragon\ncanvas.",
             "itemtype": "method",
             "name": "removeOverlay",
@@ -2351,7 +2348,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 161,
+            "line": 154,
             "description": "Unloads the seadragon viewer",
             "itemtype": "method",
             "name": "unload",
@@ -2359,7 +2356,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 169,
+            "line": 162,
             "description": "When the artwork is active, sets the manipulation method and dimensions for the active container",
             "itemtype": "method",
             "name": "dzManipPreprocessing",
@@ -2367,7 +2364,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 178,
+            "line": 172,
             "description": "Manipulation/drag handler for makeManipulatable on the deepzoom image",
             "itemtype": "method",
             "name": "dzManip",
@@ -2382,7 +2379,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 195,
+            "line": 189,
             "description": "Scroll/pinch-zoom handler for makeManipulatable on the deepzoom image",
             "itemtype": "method",
             "name": "dzScroll",
@@ -2402,7 +2399,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 212,
+            "line": 206,
             "description": "Initialize seadragon, set up handlers for the deepzoom image, load assoc media if necessary",
             "itemtype": "method",
             "name": "init",
@@ -2410,7 +2407,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 257,
+            "line": 251,
             "description": "Adds an animation handler to the annotated image. This is used to allow the image to move\nwhen the minimap is manipulated.",
             "itemtype": "method",
             "name": "addAnimationHandler",
@@ -2425,7 +2422,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 267,
+            "line": 261,
             "description": "Retrieves associated media from server and stores them in the\nassociatedMedia array.",
             "itemtype": "method",
             "name": "callback    function to call after loading associated media",
@@ -2434,7 +2431,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 278,
+            "line": 272,
             "description": "Success callback function for .getAssocMediaTo call above. If the list of media is\nnon-null and non-empty, it gets the linq between each doq and the artwork",
             "itemtype": "method",
             "name": "mediaSuccess",
@@ -2449,7 +2446,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 296,
+            "line": 290,
             "description": "Helper function for the calls to .getLinq above. It accepts an assoc media doc and returns\na success callback function that accepts a linq. Using this information, it creates a new\nhotspot from the doq and linq",
             "itemtype": "method",
             "name": "createLinqSuccess",
@@ -2464,7 +2461,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 316,
+            "line": 310,
             "description": "Creates an associated media object to be added to associatedMedia.\nThis object contains methods that could be called in Artmode.js or\nArtworkEditor.js. This could be in its own file.",
             "itemtype": "method",
             "name": "createMediaObject",
@@ -2488,7 +2485,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 363,
+            "line": 357,
             "description": "Initialize various parts of the media object: UI, manipulation handlers",
             "itemtype": "method",
             "name": "initMediaObject",
@@ -2496,7 +2493,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 417,
+            "line": 411,
             "description": "Initialize any media controls",
             "itemtype": "method",
             "name": "initMediaControls",
@@ -2511,7 +2508,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 604,
+            "line": 598,
             "description": "Load the actual image/video/audio; this can take a while if there are\na lot of media, so just do it when the thumbnail button is clicked",
             "itemtype": "method",
             "name": "createMediaElements",
@@ -2519,7 +2516,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 673,
+            "line": 667,
             "description": "Stores the dimensions and points to the media manipulation method  of the active associated media, also sends it to the front\nmedia manip.",
             "itemtype": "method",
             "name": "mediaManipPreprocessing",
@@ -2527,7 +2524,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 696,
+            "line": 691,
             "description": "Drag/manipulation handler for associated media",
             "itemtype": "method",
             "name": "mediaManip",
@@ -2542,7 +2539,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 819,
+            "line": 814,
             "description": "Recursive helper function for mediaManip.\nMoves object between start location and final location with proper physics.",
             "itemtype": "method",
             "name": "move",
@@ -2577,7 +2574,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 876,
+            "line": 871,
             "description": "Zoom handler for associated media (e.g., for mousewheel scrolling)",
             "itemtype": "method",
             "name": "mediaScroll",
@@ -2597,7 +2594,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 893,
+            "line": 888,
             "description": "Create a closeButton for associated media",
             "itemtype": "method",
             "name": "createCloseButton",
@@ -2609,7 +2606,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 918,
+            "line": 909,
             "description": "Show the associated media on the seadragon canvas. If the media is not\na hotspot, show it in a slightly random position.",
             "itemtype": "method",
             "name": "showMediaObject",
@@ -2617,7 +2614,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 969,
+            "line": 960,
             "description": "Hide the associated media",
             "itemtype": "method",
             "name": "hideMediaObject",
@@ -2625,7 +2622,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 992,
+            "line": 983,
             "description": "Show if hidden, hide if shown",
             "itemtype": "method",
             "name": "toggleMediaObject",
@@ -2633,7 +2630,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 1000,
+            "line": 991,
             "description": "Returns whether the media object is visible",
             "itemtype": "method",
             "name": "isVisible",
@@ -2645,7 +2642,7 @@
         },
         {
             "file": "TAG/js/TAG/artmode/TAG.AnnotatedImage.js",
-            "line": 1009,
+            "line": 1000,
             "description": "Pauses and resets (to time 0) the media if the content type is video or audio",
             "pauseresetmediaobject": "",
             "class": "TAG.AnnotatedImage"
@@ -2781,9 +2778,424 @@
             "class": "TAG.Layout.ArtworkViewer"
         },
         {
-            "file": "TAG/js/TAG/authoring/TAG.Authoring.NewSettingsView.js",
-            "line": 2069,
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 113,
+            "description": "Helper function to set up UI elements and switch to first view",
+            "itemtype": "method",
+            "name": "loadHelper",
+            "params": [
+                {
+                    "name": "main",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 202,
+            "itemtype": "method",
+            "name": "switchView",
+            "params": [
+                {
+                    "name": "view",
+                    "description": "the view to switch to",
+                    "type": "String"
+                },
+                {
+                    "name": "id",
+                    "description": "the id of the left label to start on",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 244,
+            "itemtype": "method",
+            "name": "getRoot",
+            "return": {
+                "description": "root",
+                "type": "Object"
+            },
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 254,
+            "itemtype": "method",
+            "name": "createNavLabel",
+            "params": [
+                {
+                    "name": "text",
+                    "description": "text for label",
+                    "type": "String"
+                },
+                {
+                    "name": "onclick",
+                    "description": "onclick function for label",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "container   container containing new label",
+                "type": "Object"
+            },
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 307,
+            "itemtype": "method",
+            "name": "loadGeneralView",
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 328,
+            "description": "including the viewer, buttons, and settings container.",
+            "itemtype": "method",
+            "name": "loadSplashScreen",
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 453,
+            "itemtype": "method",
+            "name": "saveSplashScreen",
+            "params": [
+                {
+                    "name": "inputs",
+                    "description": "information from setting inputs",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 488,
+            "itemtype": "method",
+            "name": "loadPasswordScreen",
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 543,
+            "itemtype": "method",
+            "name": "passwordChangeNotSupported",
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 552,
+            "itemtype": "method",
+            "name": "savePassword",
+            "params": [
+                {
+                    "name": "inputs",
+                    "description": "keys for password change",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 583,
+            "itemtype": "method",
+            "name": "loadExhibitionsView",
+            "params": [
+                {
+                    "name": "id",
+                    "description": "id of left label to start on",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 642,
+            "itemtype": "method",
+            "name": "loadExhibition",
+            "params": [
+                {
+                    "name": "exhibition",
+                    "description": "exhibition to load",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 791,
+            "itemtype": "method",
+            "name": "exhibitionView",
+            "params": [
+                {
+                    "name": "exhibition",
+                    "description": "exhibition to load",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 808,
+            "itemtype": "method",
+            "name": "createExhibition",
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 829,
+            "itemtype": "method",
+            "name": "saveExhibition",
+            "params": [
+                {
+                    "name": "exhibition",
+                    "description": "collection to save",
+                    "type": "Object"
+                }
+            ],
+            "inputs": "{Object} inputs      keys from input fields",
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 864,
+            "itemtype": "method",
+            "name": "deleteExhibition",
+            "params": [
+                {
+                    "name": "exhibition",
+                    "description": "collection to delete",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 889,
+            "itemtype": "method",
+            "name": "loadTourView",
+            "params": [
+                {
+                    "name": "id",
+                    "description": "id of left label to start on",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 951,
+            "itemtype": "method",
+            "name": "loadTour",
+            "params": [
+                {
+                    "name": "tour",
+                    "description": "tour to load",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1096,
+            "itemtype": "method",
+            "name": "createTour",
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1117,
+            "itemtype": "method",
+            "name": "editTour",
+            "params": [
+                {
+                    "name": "tour",
+                    "description": "tour to edit",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1133,
+            "itemtype": "method",
+            "name": "deleteTour",
+            "params": [
+                {
+                    "name": "tour",
+                    "description": "tour to delete",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1155,
+            "itemtype": "method",
+            "name": "duplicateTour",
+            "params": [
+                {
+                    "name": "tour",
+                    "description": "tour to duplicate",
+                    "type": "Object"
+                },
+                {
+                    "name": "inputs",
+                    "description": "keys for name, description, and privateInput of tour",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1185,
+            "itemtype": "method",
+            "name": "saveTour",
+            "params": [
+                {
+                    "name": "tour",
+                    "description": "tour to save",
+                    "type": "Object"
+                },
+                {
+                    "name": "inputs",
+                    "description": "keys for name, description, and privateInput of tour",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1219,
+            "itemtype": "method",
+            "name": "load AssocMediaView",
+            "params": [
+                {
+                    "name": "id",
+                    "description": "id of left label to start on",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1297,
+            "itemtype": "method",
+            "name": "loadAssocMedia",
+            "params": [
+                {
+                    "name": "media",
+                    "description": "associated media to load",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1516,
+            "itemtype": "method",
+            "name": "saveAssocMedia",
+            "params": [
+                {
+                    "name": "media",
+                    "description": "associated media to save",
+                    "type": "Object"
+                },
+                {
+                    "name": "inputs",
+                    "description": "keys for media title and description",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1540,
+            "itemtype": "method",
+            "name": "assocToArtworks",
+            "params": [
+                {
+                    "name": "media",
+                    "description": "media to associate to artworks",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1556,
+            "itemtype": "method",
+            "name": "generateAssocMediaThumbnail",
+            "params": [
+                {
+                    "name": "media",
+                    "description": "media to generate thumbnail for",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1570,
+            "itemtype": "method",
+            "name": "createAsset",
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1632,
+            "itemtype": "method",
+            "name": "createMedia",
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1639,
+            "itemtype": "method",
+            "name": "batchAssMedia",
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1694,
+            "itemtype": "method",
+            "name": "saveAssMedia",
+            "params": [
+                {
+                    "name": "i",
+                    "description": "the index of the asset"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1703,
             "description": "Uploads hotspot i to artwork j in its list of artworks to associate to.",
+            "itemtype": "method",
+            "name": "uploadHotspotHelper",
             "params": [
                 {
                     "name": "i",
@@ -2796,6 +3208,872 @@
                 {
                     "name": "len",
                     "description": "the length of the list above"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1728,
+            "itemtype": "method",
+            "name": "uploadHotspot",
+            "params": [
+                {
+                    "name": "artwork",
+                    "description": ""
+                },
+                {
+                    "name": "info",
+                    "description": ""
+                },
+                {
+                    "name": "i",
+                    "description": ""
+                },
+                {
+                    "name": "j",
+                    "description": ""
+                },
+                {
+                    "name": "len",
+                    "description": ""
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1761,
+            "itemtype": "method",
+            "name": "createHotspotHelper",
+            "params": [
+                {
+                    "name": "isNewAsset",
+                    "description": ""
+                },
+                {
+                    "name": "xmlHotspot",
+                    "description": ""
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1811,
+            "itemtype": "method",
+            "name": "loadArtView",
+            "params": [
+                {
+                    "name": "id",
+                    "description": "id of left label to start on",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 1891,
+            "itemtype": "method",
+            "name": "loadArtwork",
+            "params": [
+                {
+                    "name": "artwork",
+                    "description": "artwork to load",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2045,
+            "itemtype": "method",
+            "name": "saveThumbnail",
+            "params": [
+                {
+                    "name": "component",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "isArtwork",
+                    "description": "",
+                    "type": "Boolean"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2092,
+            "itemtype": "method",
+            "name": "createArtwork",
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2148,
+            "itemtype": "method",
+            "name": "editArtwork",
+            "params": [
+                {
+                    "name": "artwork",
+                    "description": "artwork to edit",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2162,
+            "itemtype": "method",
+            "name": "deleteArtwork",
+            "params": [
+                {
+                    "name": "artwork",
+                    "description": "artwork to delete",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2184,
+            "itemtype": "method",
+            "name": "saveArtwork",
+            "params": [
+                {
+                    "name": "artwork",
+                    "description": "artwork to save",
+                    "type": "Object"
+                },
+                {
+                    "name": "inputs",
+                    "description": "keys for artwork info from input fields",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2220,
+            "itemtype": "method",
+            "name": "loadFeedbackView",
+            "params": [
+                {
+                    "name": "id",
+                    "description": "id of left label to start on",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2280,
+            "itemtype": "method",
+            "name": "loadFeedback",
+            "params": [
+                {
+                    "name": "feedback",
+                    "description": "feedback to load",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2327,
+            "itemtype": "method",
+            "name": "getSourceName",
+            "params": [
+                {
+                    "name": "feedback",
+                    "description": "feedback to get source of",
+                    "type": "Object"
+                },
+                {
+                    "name": "onSuccess",
+                    "description": "function called if source found",
+                    "type": "Function"
+                },
+                {
+                    "name": "onDeleted",
+                    "description": "function called if source has been deleted",
+                    "type": "Function"
+                },
+                {
+                    "name": "onError",
+                    "description": "function called if there is an error",
+                    "type": "Function"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2347,
+            "itemtype": "method",
+            "name": "followSource",
+            "params": [
+                {
+                    "name": "feedback",
+                    "description": "feedback to follow source of",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2369,
+            "itemtype": "method",
+            "name": "deleteFeedback",
+            "params": [
+                {
+                    "name": "feedback",
+                    "description": "feedback to delete",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2388,
+            "itemtype": "method",
+            "name": "createLeftLabel",
+            "params": [
+                {
+                    "name": "text",
+                    "description": "the text of the label",
+                    "type": "String"
+                },
+                {
+                    "name": "imagesrc",
+                    "description": "the source for the image. If not specified no image added"
+                },
+                {
+                    "name": "onclick",
+                    "description": "the onclick function for the label",
+                    "type": "Function"
+                },
+                {
+                    "name": "id",
+                    "description": "id to set if specified",
+                    "type": "Object"
+                },
+                {
+                    "name": "onDoubleClick",
+                    "description": "function for double click",
+                    "type": "Function"
+                },
+                {
+                    "name": "inArtMode",
+                    "description": "",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "extension",
+                    "description": "to check if is video or static art"
+                }
+            ],
+            "return": {
+                "description": "container       the container of the new label",
+                "type": "Object"
+            },
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2488,
+            "itemtype": "method",
+            "name": "prepareNextView",
+            "params": [
+                {
+                    "name": "showSearch",
+                    "description": "if true show search bar, otherwise hide",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "newText",
+                    "description": "text for the 'New' button",
+                    "type": "String"
+                },
+                {
+                    "name": "newBehavior",
+                    "description": "onclick function for the 'New' button",
+                    "type": "Function"
+                },
+                {
+                    "name": "loadingText",
+                    "description": "Text to display while left bar loading",
+                    "type": "String"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2523,
+            "itemtype": "method",
+            "name": "clearRight",
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2532,
+            "itemtype": "method",
+            "name": "prepareViewer",
+            "params": [
+                {
+                    "name": "showViewer",
+                    "description": "whether the preview window is shown",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "text",
+                    "description": "text to add to the viewer (in a textbox)",
+                    "type": "String"
+                },
+                {
+                    "name": "showButtons",
+                    "description": "whether the buttonContainer is shown",
+                    "type": "Boolean"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2583,
+            "itemtype": "method",
+            "name": "clickWhenReady",
+            "params": [
+                {
+                    "name": "selector",
+                    "description": ""
+                },
+                {
+                    "name": "maxtries",
+                    "description": ""
+                },
+                {
+                    "name": "tries",
+                    "description": ""
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2593,
+            "description": "is added to the page",
+            "itemtype": "method",
+            "name": "doWhenReady",
+            "params": [
+                {
+                    "name": "selector",
+                    "description": "class or id of object(s) on which fn is performed",
+                    "type": "Object"
+                },
+                {
+                    "name": "fn",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "maxtries",
+                    "description": ""
+                },
+                {
+                    "name": "tries",
+                    "description": ""
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2614,
+            "itemtype": "method",
+            "name": "resetLabels",
+            "params": [
+                {
+                    "name": "selector",
+                    "description": "class of labels to reset",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2641,
+            "itemtype": "method",
+            "name": "selectLabel",
+            "params": [
+                {
+                    "name": "label",
+                    "description": "label to select",
+                    "type": "Object"
+                },
+                {
+                    "name": "expand",
+                    "description": "if label expands when selected",
+                    "type": "Boolean"
+                }
+            ],
+            "return": {
+                "description": "label   selected label",
+                "type": "Object"
+            },
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2662,
+            "itemtype": "method",
+            "name": "disableLabel",
+            "params": [
+                {
+                    "name": "label",
+                    "description": "label to disable",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "label        disabled label",
+                "type": "Object"
+            },
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2678,
+            "description": "the entire right bar needs to be position absolutely. Settings has bottom: 0, so the height needs to be correct\n to not have this be under the buttons container.  If any of the heights of the right components changes it should be\n updated here.",
+            "itemtype": "method",
+            "name": "getSettingsHeight",
+            "return": {
+                "description": "height       appropriate height for settings"
+            },
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2701,
+            "itemtype": "method",
+            "name": "createSetting",
+            "params": [
+                {
+                    "name": "text",
+                    "description": "text for the setting",
+                    "type": "String"
+                },
+                {
+                    "name": "input",
+                    "description": "the input for the setting",
+                    "type": "Object"
+                },
+                {
+                    "name": "width",
+                    "description": "if not falsey then assumed to be number represengint percent, must be less than 95"
+                }
+            ],
+            "return": {
+                "description": "container        container of new setting"
+            },
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2741,
+            "itemtype": "method",
+            "name": "createButton",
+            "params": [
+                {
+                    "name": "text",
+                    "description": "button text",
+                    "type": "String"
+                },
+                {
+                    "name": "onclick",
+                    "description": "onclick function for button",
+                    "type": "Function"
+                },
+                {
+                    "name": "css",
+                    "description": "additional css to apply to button if specified"
+                }
+            ],
+            "return": {
+                "description": "button      new button created",
+                "type": "Object"
+            },
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2759,
+            "itemtype": "method",
+            "name": "createLabel",
+            "params": [
+                {
+                    "name": "text",
+                    "description": "label text",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "label       new label created",
+                "type": "Object"
+            },
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2769,
+            "itemtype": "method",
+            "name": "createTextInput",
+            "params": [
+                {
+                    "name": "text",
+                    "description": "the default text for the input",
+                    "type": "String"
+                },
+                {
+                    "name": "defaultval",
+                    "description": "if true, reset to default text if empty and loses focus",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "maxlength",
+                    "description": "max length of the input in characters"
+                },
+                {
+                    "name": "hideOnClick",
+                    "description": ""
+                }
+            ],
+            "return": {
+                "description": "input                newly created input"
+            },
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2786,
+            "itemtype": "method",
+            "name": "createTextAreaInput",
+            "params": [
+                {
+                    "name": "text",
+                    "description": "default text for area",
+                    "type": "String"
+                },
+                {
+                    "name": "defaultval",
+                    "description": ""
+                },
+                {
+                    "name": "hideOnClick",
+                    "description": ""
+                }
+            ],
+            "return": {
+                "description": "input    newly creted text input",
+                "type": "Object"
+            },
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2805,
+            "description": "of all elements matching the jquery selector 'selector'.",
+            "itemtype": "method",
+            "name": "creatBGColorInput",
+            "params": [
+                {
+                    "name": "color",
+                    "description": ""
+                },
+                {
+                    "name": "selector",
+                    "description": "jQuery selector for elements to be changed"
+                },
+                {
+                    "name": "getTransValue",
+                    "description": "returns a valid transparency value",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "container           returns container holding new input",
+                "type": "Object"
+            },
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2829,
+            "itemtype": "method",
+            "name": "updateBGColor",
+            "params": [
+                {
+                    "name": "selector",
+                    "description": "jQuery selector of elements to be changed"
+                },
+                {
+                    "name": "hex",
+                    "description": "hex value of color"
+                },
+                {
+                    "name": "trans",
+                    "description": "transparency of color"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2840,
+            "itemtype": "method",
+            "name": "preventClickthrough",
+            "params": [
+                {
+                    "name": "container",
+                    "description": "container to prevent click through of",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2861,
+            "itemtype": "method",
+            "name": "sortAZ",
+            "params": [
+                {
+                    "name": "list",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": ""
+            },
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2876,
+            "itemtype": "method",
+            "name": "sortDate",
+            "params": [
+                {
+                    "name": "list",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": ""
+            },
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2897,
+            "itemtype": "method",
+            "name": "search",
+            "params": [
+                {
+                    "name": "val",
+                    "description": "value to search for"
+                },
+                {
+                    "name": "selector",
+                    "description": "jQuery selector of elements to search"
+                },
+                {
+                    "name": "childType",
+                    "description": "selector's type"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2915,
+            "params": [
+                {
+                    "name": "val",
+                    "description": "value to search for"
+                },
+                {
+                    "name": "selector",
+                    "description": "jQuery selector for elements to be searched"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2936,
+            "itemtype": "method",
+            "name": "onChangeUpdateText",
+            "params": [
+                {
+                    "name": "input",
+                    "description": "input to update",
+                    "type": "Object"
+                },
+                {
+                    "name": "selector",
+                    "description": "jQuery selector of element to update"
+                },
+                {
+                    "name": "maxLength",
+                    "description": "maximum text length in characters"
+                }
+            ],
+            "return": {
+                "description": "updated input",
+                "type": "Object"
+            },
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 2965,
+            "itemtype": "method",
+            "name": "onChangeUpdateNum",
+            "params": [
+                {
+                    "name": "input",
+                    "description": "input to update",
+                    "type": "Object"
+                },
+                {
+                    "name": "min",
+                    "description": "minimum value of inputted number"
+                },
+                {
+                    "name": "max",
+                    "description": "maximum value of inputted number"
+                },
+                {
+                    "name": "doOnChange",
+                    "description": "performed if input value is number between min and max",
+                    "type": "Function"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 3006,
+            "itemtype": "method",
+            "name": "is_array",
+            "params": [
+                {
+                    "name": "value",
+                    "description": "value to check"
+                }
+            ],
+            "return": {
+                "description": "if value is an array",
+                "type": "Boolean"
+            },
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 3015,
+            "itemtype": "method",
+            "name": "uploadFIle",
+            "params": [
+                {
+                    "name": "type",
+                    "description": "See TAG.Authoring.FileUploader for 'type' values"
+                },
+                {
+                    "name": "callback",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "multiple",
+                    "description": "for batch upload"
+                },
+                {
+                    "name": "filter",
+                    "description": ""
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 3061,
+            "description": "only when the page is 'done'.  The overlay doesn't support being removed from the page, so only call this when the page will \nbe changed!",
+            "itemtype": "method",
+            "name": "loadingOverlay",
+            "params": [
+                {
+                    "name": "text",
+                    "description": "Text defaults to 'Loading...' if not specified.",
+                    "type": "String"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 3116,
+            "itemtype": "method",
+            "name": "authError",
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 3132,
+            "itemtype": "method",
+            "name": "error",
+            "params": [
+                {
+                    "name": "fn",
+                    "description": "function called if specified",
+                    "type": "Function"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js",
+            "line": 3145,
+            "itemtype": "method",
+            "name": "conflict",
+            "params": [
+                {
+                    "name": "doq",
+                    "description": "doq for which there is a conflict"
+                },
+                {
+                    "name": "text",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "fail",
+                    "description": ""
                 }
             ],
             "class": "TAG.Layout.ArtworkViewer"
@@ -3069,7 +4347,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
-            "line": 471,
+            "line": 461,
             "description": "Creates a tour thumbnail button",
             "itemtype": "method",
             "name": "createTourButton",
@@ -3089,7 +4367,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
-            "line": 488,
+            "line": 478,
             "description": "Creates a thumbnail button for an associated media",
             "itemtype": "method",
             "name": "createMediaButton",
@@ -3109,7 +4387,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
-            "line": 525,
+            "line": 515,
             "description": "Generates a click handler for a specific associated media object",
             "itemtype": "method",
             "name": "mediaClicked",
@@ -3124,23 +4402,56 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
-            "line": 597,
+            "line": 588,
             "description": "MINIMAP CODE. bleveque: didn't rewrite this; separate issue\n                        if some variable names are off now, let me know",
             "class": "TAG.Layout.ArtworkViewer"
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
-            "line": 657,
+            "line": 650,
             "class": "TAG.Layout.ArtworkViewer"
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
-            "line": 670,
+            "line": 663,
             "class": "TAG.Layout.ArtworkViewer"
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
-            "line": 771,
+            "line": 694,
+            "itemtype": "method",
+            "name": "onMinimapScroll",
+            "params": [
+                {
+                    "name": "scale",
+                    "description": "scale factor",
+                    "type": "Number"
+                },
+                {
+                    "name": "pivot",
+                    "description": "x and y location of event",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
+            "line": 710,
+            "itemtype": "method",
+            "name": "onMinimapTapped",
+            "params": [
+                {
+                    "name": "evt",
+                    "description": "object containing hammer event info",
+                    "type": "Object"
+                }
+            ],
+            "class": "TAG.Layout.ArtworkViewer"
+        },
+        {
+            "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
+            "line": 802,
             "description": "Create a drawer with a disclosure button used to display\nhotspots, assets, tours. The returned jQuery object has\na property called \"contents\" which should be used to add\nbuttons or messages to the contents of the drawer.",
             "params": [
                 {
@@ -3153,7 +4464,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
-            "line": 826,
+            "line": 857,
             "description": "A callback function to populate the location history map after it has been created",
             "itemtype": "method",
             "name": "prepMap",
@@ -3161,7 +4472,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
-            "line": 846,
+            "line": 877,
             "description": "Helper function to draw pushpin on location history map when a location's info\nbox is clicked",
             "itemtype": "method",
             "name": "drawPinHelper",
@@ -3176,7 +4487,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
-            "line": 920,
+            "line": 951,
             "description": "Click handler to expand location history window",
             "itemtype": "method",
             "name": "histOnClick",
@@ -3184,7 +4495,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
-            "line": 935,
+            "line": 966,
             "description": "Toggles location panel when locHistoryContainer or toggler is clicked",
             "itemtype": "method",
             "name": "toggleLocationPanel",
@@ -3192,7 +4503,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
-            "line": 974,
+            "line": 1005,
             "description": "Create a drawer (e.g., for list of related tours or the artwork's description)",
             "params": [
                 {
@@ -3209,7 +4520,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
-            "line": 1033,
+            "line": 1064,
             "description": "Return art viewer root element",
             "itemtype": "method",
             "name": "",
@@ -3221,7 +4532,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js",
-            "line": 1042,
+            "line": 1073,
             "description": "Make the map for location History.",
             "itemtype": "method",
             "name": "makeMap",
@@ -3271,16 +4582,16 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 183,
+            "line": 184,
             "description": "When only a single collection exists, this function modifies\nthe CSS to hide the list of collections and expand the\ndescription area.",
             "itemtype": "method",
             "name": "enableSingleCollectionUI",
-            "author": "Athyuttam Eleti",
+            "author": "Athyuttam Eleti and Emily Reif",
             "class": "TAG.Layout.CollectionsPage"
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 215,
+            "line": 223,
             "description": "Add a collection to the left bar",
             "itemtype": "method",
             "name": "addCollection",
@@ -3295,7 +4606,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 266,
+            "line": 274,
             "description": "Click handler for collection title in left bar",
             "itemtype": "method",
             "name": "clickCollection",
@@ -3320,7 +4631,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 299,
+            "line": 307,
             "description": "When a collection is selected in the left bar, load its image and description\nin the display area",
             "itemtype": "method",
             "name": "loadCollection",
@@ -3340,7 +4651,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 448,
+            "line": 456,
             "description": "Helper function to load first collection",
             "itemtype": "method",
             "name": "loadFirstCollection",
@@ -3348,7 +4659,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 456,
+            "line": 464,
             "description": "Get contents (artworks, videos, tours) in the specified collection and make catalog",
             "itemtype": "method",
             "name": "getCollectionContents",
@@ -3368,7 +4679,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 465,
+            "line": 473,
             "description": "Helper function to process collection contents",
             "itemtype": "method",
             "name": "contentsHelper",
@@ -3383,7 +4694,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 485,
+            "line": 493,
             "description": "Store the search strings for each artwork/tour",
             "itemtype": "method",
             "name": "initSearch",
@@ -3398,7 +4709,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 511,
+            "line": 519,
             "description": "Search collection using string in search input box",
             "itemtype": "method",
             "name": "doSearch",
@@ -3406,7 +4717,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 541,
+            "line": 549,
             "description": "Create tiles for each artwork/tour in a collection",
             "itemtype": "method",
             "name": "createArtTiles",
@@ -3421,7 +4732,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 553,
+            "line": 561,
             "description": "Draw the collection catalog",
             "itemtype": "method",
             "name": "drawCatalog",
@@ -3451,7 +4762,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 608,
+            "line": 616,
             "description": "Creates an artwork tile in a collection's catalog",
             "itemtype": "method",
             "name": "drawArtworkTile",
@@ -3491,7 +4802,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 707,
+            "line": 715,
             "description": "Shows an artwork in the upper section; sets the current thumbnail to be the artwork's\nand shows name, description, etc",
             "itemtype": "method",
             "name": "showArtwork",
@@ -3506,7 +4817,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 759,
+            "line": 767,
             "description": "Generates a comparator function for catalog sorting",
             "itemtype": "method",
             "name": "sortComparator",
@@ -3526,7 +4837,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 789,
+            "line": 797,
             "description": "Generates a valuation function for catalog sorting",
             "itemtype": "method",
             "name": "sortValuation",
@@ -3541,7 +4852,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 808,
+            "line": 816,
             "description": "Sort the catalog by the given criterium",
             "itemtype": "method",
             "name": "sortCatalog",
@@ -3565,7 +4876,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 881,
+            "line": 889,
             "description": "Set the colors of the sort tags",
             "itemtype": "method",
             "name": "colorSortTags",
@@ -3580,7 +4891,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 891,
+            "line": 899,
             "description": "Changes the selected tag and re-sorts",
             "itemtype": "method",
             "name": "changeDisplayTag",
@@ -3600,7 +4911,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 932,
+            "line": 940,
             "description": "Switch to the tour player",
             "itemtype": "method",
             "name": "switchPageTour",
@@ -3615,7 +4926,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 976,
+            "line": 984,
             "description": "Switch to the artwork viewer or tour player",
             "itemtype": "method",
             "name": "switchPage",
@@ -3623,7 +4934,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 1042,
+            "line": 1050,
             "description": "Show collection contents and display current artwork if there is one",
             "itemtype": "method",
             "name": "showCollection",
@@ -3638,7 +4949,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 1051,
+            "line": 1059,
             "description": "Gets the current state of the collections page",
             "itemtype": "method",
             "name": "getState",
@@ -3650,7 +4961,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js",
-            "line": 1064,
+            "line": 1072,
             "description": "Returns the root of the collections page",
             "itemtype": "method",
             "name": "getRoot",
@@ -3689,7 +5000,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.StartPage.js",
-            "line": 38,
+            "line": 40,
             "description": "Test internet and server connections",
             "params": [
                 {
@@ -3701,7 +5012,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.StartPage.js",
-            "line": 87,
+            "line": 89,
             "description": "sets up the entire visual layout and images of the splash screen",
             "itemtype": "method",
             "name": "loadHelper",
@@ -3716,7 +5027,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.StartPage.js",
-            "line": 127,
+            "line": 138,
             "description": "Checks if TAG is compatible with the current browser.",
             "itemtype": "method",
             "name": "isBrowserCompatible",
@@ -3728,7 +5039,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.StartPage.js",
-            "line": 196,
+            "line": 207,
             "description": "Finds the current browser version.\nCode from http://stackoverflow.com/questions/5916900/detect-version-of-browser",
             "itemtype": "method",
             "name": "getBrowserVersion",
@@ -3740,7 +5051,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.StartPage.js",
-            "line": 219,
+            "line": 230,
             "description": "Displays a dialog box indicating that the user is using an\nincompatible browser. Points them to links to download the latest\nversion of supported browsers such as IE, Chrome, Safari and Firefox.",
             "itemtype": "method",
             "name": "handleIncompatibleBrowser",
@@ -3749,7 +5060,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.StartPage.js",
-            "line": 288,
+            "line": 299,
             "description": "adjusts the text to fit the screen size",
             "itemtype": "method",
             "name": "fixText",
@@ -3757,7 +5068,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.StartPage.js",
-            "line": 306,
+            "line": 317,
             "description": "initializes the handlers for various 'click' functions including setting up a server",
             "itemtype": "method",
             "name": "initializeHandlers",
@@ -3765,7 +5076,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.StartPage.js",
-            "line": 331,
+            "line": 342,
             "description": "gets the paths for all the images displayed on the splash screen",
             "itemtype": "method",
             "name": "setImagePaths",
@@ -3780,7 +5091,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.StartPage.js",
-            "line": 363,
+            "line": 374,
             "description": "Sets up the credits box with its content including text and images. Also includes function for animation of credits.",
             "itemtype": "method",
             "name": "setUpCredits",
@@ -3788,7 +5099,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.StartPage.js",
-            "line": 401,
+            "line": 412,
             "description": "animation of credits when user clicks",
             "itemtype": "method",
             "name": "expandInfo",
@@ -3803,7 +5114,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.StartPage.js",
-            "line": 436,
+            "line": 447,
             "description": "sets up the info div which contains all the museum information",
             "itemtype": "method",
             "name": "setUpInfo",
@@ -3818,7 +5129,7 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.StartPage.js",
-            "line": 459,
+            "line": 470,
             "description": "Fills in all museum info including name and location",
             "itemtype": "method",
             "name": "setUpMuseumInfo",
@@ -3833,7 +5144,21 @@
         },
         {
             "file": "TAG/js/TAG/layout/TAG.Layout.StartPage.js",
-            "line": 512,
+            "line": 522,
+            "itemtype": "method",
+            "name": "openDialog",
+            "class": "TAG.Layout.StartPage"
+        },
+        {
+            "file": "TAG/js/TAG/layout/TAG.Layout.StartPage.js",
+            "line": 530,
+            "itemtype": "method",
+            "name": "enterAuthoringMode",
+            "class": "TAG.Layout.StartPage"
+        },
+        {
+            "file": "TAG/js/TAG/layout/TAG.Layout.StartPage.js",
+            "line": 540,
             "itemtype": "method",
             "name": "getRoot",
             "return": {
@@ -7183,7 +8508,7 @@
         },
         {
             "file": "TAG/js/TAG/util/TAG.Util.js",
-            "line": 3055,
+            "line": 3081,
             "description": "Creates the media panel",
             "params": [
                 {
@@ -7199,7 +8524,7 @@
         },
         {
             "file": "TAG/js/TAG/util/TAG.Util.js",
-            "line": 3464,
+            "line": 3493,
             "description": "Creates a thumbnail button to be used in a side bar list",
             "itemtype": "method",
             "name": "createThumbnailButton",
@@ -7218,19 +8543,19 @@
         },
         {
             "file": "TAG/js/TAG/util/TAG.Util.js",
-            "line": 3494,
+            "line": 3523,
             "description": "----------------------------------------------\n        |                                            |  <--- holder\n        | ------------------------------------------ |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | <------ thumbHolderDiv\n        | |                                        | |\n        | |              THUMBNAIL                 | |\n        | |                IMAGE                   | |\n        | |                 HERE                  <--------- thumbnailImage\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | ------------------------------------------ |\n        | ------------------------------------------ |\n        | |             NAME OF DOQ                | <--- titleDiv\n        | |                                        | |\n        | ------------------------------------------ |\n        ----------------------------------------------",
             "class": "TAG.Util.Artwork"
         },
         {
             "file": "TAG/js/TAG/util/TAG.Util.js",
-            "line": 3552,
+            "line": 3581,
             "description": "Built-in object extensions",
             "class": "TAG.Util.Artwork"
         },
         {
             "file": "TAG/js/TAG/util/TAG.Util.js",
-            "line": 3575,
+            "line": 3604,
             "description": "If specified object is in the array, remove it",
             "params": [
                 {
@@ -7242,7 +8567,7 @@
         },
         {
             "file": "TAG/js/TAG/util/TAG.Util.js",
-            "line": 3589,
+            "line": 3618,
             "description": "Insert object into array based on comparator fn given\nAssumes array is already sorted!",
             "params": [
                 {
@@ -7261,7 +8586,7 @@
         },
         {
             "file": "TAG/js/TAG/util/TAG.Util.js",
-            "line": 3608,
+            "line": 3637,
             "description": "Constrain a number to given range",
             "params": [
                 {
@@ -10888,7 +12213,7 @@
         },
         {
             "message": "unknown tag: pauseresetmediaobject",
-            "line": " TAG/js/TAG/artmode/TAG.AnnotatedImage.js:1009"
+            "line": " TAG/js/TAG/artmode/TAG.AnnotatedImage.js:1000"
         },
         {
             "message": "unknown tag: version",
@@ -10909,6 +12234,10 @@
         {
             "message": "unknown tag: link",
             "line": " TAG/js/TAG/authoring/jscolor/jscolor.js:1"
+        },
+        {
+            "message": "unknown tag: inputs",
+            "line": " TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js:829"
         },
         {
             "message": "replacing incorrect tag: returns with return",
@@ -11000,7 +12329,7 @@
         },
         {
             "message": "replacing incorrect tag: returns with return",
-            "line": " TAG/js/TAG/util/TAG.Util.js:3589"
+            "line": " TAG/js/TAG/util/TAG.Util.js:3618"
         },
         {
             "message": "replacing incorrect tag: returns with return",
@@ -11804,7 +13133,7 @@
         },
         {
             "message": "Missing item type\nPauses and resets (to time 0) the media if the content type is video or audio",
-            "line": " TAG/js/TAG/artmode/TAG.AnnotatedImage.js:1009"
+            "line": " TAG/js/TAG/artmode/TAG.AnnotatedImage.js:1000"
         },
         {
             "message": "Missing item type\njscolor, JavaScript Color Picker",
@@ -11855,8 +13184,8 @@
             "line": " TAG/js/TAG/authoring/TAG.Authoring.FileUploader.js:667"
         },
         {
-            "message": "Missing item type\nUploads hotspot i to artwork j in its list of artworks to associate to.",
-            "line": " TAG/js/TAG/authoring/TAG.Authoring.NewSettingsView.js:2069"
+            "message": "Missing item type",
+            "line": " TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js:2915"
         },
         {
             "message": "Missing item type\nCreate a new right panel for editing Associated Media and append it to the dom (just offscreen)",
@@ -11912,27 +13241,27 @@
         },
         {
             "message": "Missing item type\nMINIMAP CODE. bleveque: didn't rewrite this; separate issue\n                        if some variable names are off now, let me know",
-            "line": " TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js:597"
+            "line": " TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js:588"
         },
         {
             "message": "Missing item type",
-            "line": " TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js:657"
+            "line": " TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js:650"
         },
         {
             "message": "Missing item type",
-            "line": " TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js:670"
+            "line": " TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js:663"
         },
         {
             "message": "Missing item type\nCreate a drawer with a disclosure button used to display\nhotspots, assets, tours. The returned jQuery object has\na property called \"contents\" which should be used to add\nbuttons or messages to the contents of the drawer.",
-            "line": " TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js:771"
+            "line": " TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js:802"
         },
         {
             "message": "Missing item type\nCreate a drawer (e.g., for list of related tours or the artwork's description)",
-            "line": " TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js:974"
+            "line": " TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js:1005"
         },
         {
             "message": "Missing item type\nTest internet and server connections",
-            "line": " TAG/js/TAG/layout/TAG.Layout.StartPage.js:38"
+            "line": " TAG/js/TAG/layout/TAG.Layout.StartPage.js:40"
         },
         {
             "message": "Missing item type\nFinal layout for Tour Authoring\nAll parts of layout are container in separate files/classes\nLayout file also contains testing instructions / notes / functions",
@@ -13156,27 +14485,27 @@
         },
         {
             "message": "Missing item type\nCreates the media panel",
-            "line": " TAG/js/TAG/util/TAG.Util.js:3055"
+            "line": " TAG/js/TAG/util/TAG.Util.js:3081"
         },
         {
             "message": "Missing item type\n----------------------------------------------\n        |                                            |  <--- holder\n        | ------------------------------------------ |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | <------ thumbHolderDiv\n        | |                                        | |\n        | |              THUMBNAIL                 | |\n        | |                IMAGE                   | |\n        | |                 HERE                  <--------- thumbnailImage\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | |                                        | |\n        | ------------------------------------------ |\n        | ------------------------------------------ |\n        | |             NAME OF DOQ                | <--- titleDiv\n        | |                                        | |\n        | ------------------------------------------ |\n        ----------------------------------------------",
-            "line": " TAG/js/TAG/util/TAG.Util.js:3494"
+            "line": " TAG/js/TAG/util/TAG.Util.js:3523"
         },
         {
             "message": "Missing item type\nBuilt-in object extensions",
-            "line": " TAG/js/TAG/util/TAG.Util.js:3552"
+            "line": " TAG/js/TAG/util/TAG.Util.js:3581"
         },
         {
             "message": "Missing item type\nIf specified object is in the array, remove it",
-            "line": " TAG/js/TAG/util/TAG.Util.js:3575"
+            "line": " TAG/js/TAG/util/TAG.Util.js:3604"
         },
         {
             "message": "Missing item type\nInsert object into array based on comparator fn given\nAssumes array is already sorted!",
-            "line": " TAG/js/TAG/util/TAG.Util.js:3589"
+            "line": " TAG/js/TAG/util/TAG.Util.js:3618"
         },
         {
             "message": "Missing item type\nConstrain a number to given range",
-            "line": " TAG/js/TAG/util/TAG.Util.js:3608"
+            "line": " TAG/js/TAG/util/TAG.Util.js:3637"
         },
         {
             "message": "Missing item type\nSoft delete a hotspot by deleting both the hotspot linq and doq files",

@@ -156,17 +156,10 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         addAnimateHandler: addAnimateHandler,
         getToManip: getToManip,
         getMediaDimensions: getMediaDimensions,
-        setArtworkClicked: setArtworkClicked,
+        dzManipPreprocessing: dzManipPreprocessing,
         viewer: viewer
     };
 
-    /**
-     * Sets the artwork as active and the Deep Zoom manipulation method is used zooming and panning
-     * @method setArtworkClicked
-     */
-    function setArtworkClicked() {
-        dzManipPreprocessing();
-    }
 
     /**
      * Return applicable manipulation method
@@ -281,6 +274,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
     function dzManipPreprocessing() {
         outerContainerDimensions = {height: rootHeight, width: rootWidth};
         toManip = dzManip;
+        TAG.Util.IdleTimer.restartTimer();
     }
 
     /**
@@ -790,6 +784,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             toManip = mediaManip;
             $(&#x27;.mediaOuterContainer&#x27;).css(&#x27;z-index&#x27;, 1000);
             outerContainer.css(&#x27;z-index&#x27;, 1001);
+            TAG.Util.IdleTimer.restartTimer();
         }
 
         //When the associated media is clicked, set it to active(see mediaManipPreprocessing() above )
@@ -1004,21 +999,17 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
          * @return {HTML element} the button as a &#x27;div&#x27;
          */
         function createCloseButton() {
-            var closeButton = $(document.createElement(&#x27;div&#x27;));
+            var closeButton = $(document.createElement(&#x27;img&#x27;));
+            closeButton.attr(&#x27;src&#x27;, tagPath + &#x27;images/icons/x.svg&#x27;);
             closeButton.text(&#x27;X&#x27;);
             closeButton.css({
                 &#x27;position&#x27;: &#x27;absolute&#x27;,
-                &#x27;top&#x27;: &#x27;0.4em&#x27;,
-                &#x27;left&#x27;: &#x27;-2em&#x27;,
-                &#x27;width&#x27;: &#x27;0.7em&#x27;,
-                &#x27;height&#x27;: &#x27;0.7em&#x27;,
-                &#x27;text-align&#x27;: &#x27;center&#x27;,
-                //&#x27;color&#x27;: &#x27;black&#x27;,
-                &#x27;line-height&#x27;: &#x27;0.5em&#x27;,
-                //&#x27;border&#x27;: &#x27;10px solid black&#x27;,
-                //&#x27;border-radius&#x27;: &#x27;2em&#x27;,
-                &#x27;background-color&#x27;: &#x27;black&#x27;,
-                &#x27;margin-left&#x27;: &#x27;107%&#x27;
+                &#x27;top&#x27;: &#x27;0%&#x27;,
+                &#x27;width&#x27;: &#x27;4%&#x27;,
+                &#x27;height&#x27;: &#x27;4%&#x27;,
+                &#x27;z-index&#x27;: &#x27;1&#x27;,
+                &#x27;background-color&#x27;: &#x27;&#x27;,
+                &#x27;margin-left&#x27;: &#x27;95%&#x27;
             });
             return closeButton;
         }
