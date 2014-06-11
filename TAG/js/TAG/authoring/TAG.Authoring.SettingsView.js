@@ -791,7 +791,11 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
          */
         function exhibitionView(exhibition) {
             rightQueue.add(function () {
-                var exhibView = new TAG.Layout.NewCatalog(null, exhibition, viewer);
+                var options = {
+                    backCollection : exhibition
+                };
+                //var exhibView = new TAG.Layout.CollectionsPage(null, exhibition, viewer);
+                var exhibView = new TAG.Layout.CollectionsPage(options);
                 var exroot = exhibView.getRoot();
                 $(exroot).css('z-index','-1'); // otherwise, you can use the search box and sorting tabs!
                 viewer.append(exroot);
@@ -1825,7 +1829,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                     // Add each label in a separate function in the queue
                     // so the UI doesn't lock up
                     val.Name = TAG.Util.htmlEntityDecode(val.Name);
-                    leftQueue.add(function () {
+                    middleQueue.add(function () {
                         if (cancel) return;
                         if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.art.text]) {
                             return;
