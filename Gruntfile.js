@@ -8,8 +8,9 @@ module.exports = function(grunt) {
 					        \n        containerId       = tagInput.containerId, \
 					        \n        ip                = tagInput.serverIp, \
 					        \n        allowServerChange = tagInput.allowServerChange, \
+					        \n 		  allowAuthoringMode = tagInput.allowAuthoringMode, \
 					        \n        idleDuration      = tagInput.idleDuration, \
-					        \n        currentPage, \
+					        \n        currentPage       = {}, // name and obj properties \
 					        \n        idleTimer; \n\n',
 				footer: '};'
 			},
@@ -84,6 +85,14 @@ module.exports = function(grunt) {
 					'TAG/js/TAG/layout/TAG.Layout.TourPlayer.js',
 					'TAG/js/TAG/layout/TAG.Layout.VideoPlayer.js',
 
+					'TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js',
+					'TAG/js/TAG/authoring/TAG.Authoring.ButtonGroup.js',
+					'TAG/js/TAG/authoring/TAG.Authoring.FileUploader.js',
+					'TAG/js/TAG/authoring/jscolor/jscolor.js',
+
+					'TAG/js/popcorn.min.js',
+					'TAG/js/popcorn.capture.js',
+
 					'TAG/telemetry/telemetry.js',
 					
 					'TAG/tests.js',
@@ -115,6 +124,7 @@ module.exports = function(grunt) {
 						'TAG/css/VideoPlayer.styl',
 						'TAG/css/TourPlayer.styl',
 						'TAG/css/General.styl',
+						'TAG/css/SettingsView.styl',
 						'TAG/css/Util.styl'
 					]
 				}
@@ -131,6 +141,7 @@ module.exports = function(grunt) {
 					'TAG/html/Artmode.html': 'TAG/html/Artmode.jade',
 					'TAG/html/NewCatalog.html': 'TAG/html/NewCatalog.jade',
 					'TAG/html/VideoPlayer.html': 'TAG/html/VideoPlayer.jade',
+					'TAG/html/SettingsView.html': 'TAG/html/SettingsView.jade',
 					'TAG/html/TourPlayer.html': 'TAG/html/TourPlayer.jade'
 				}
 			}
@@ -209,6 +220,11 @@ module.exports = function(grunt) {
 				'TAG/js/TAG/layout/TAG.Layout.MetroSplitscreenMessage.js',
 				'TAG/js/TAG/layout/TAG.Layout.TourPlayer.js',
 				'TAG/js/TAG/layout/TAG.Layout.VideoPlayer.js',
+
+				'TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js',
+				'TAG/js/TAG/authoring/TAG.Authoring.ButtonGroup.js',
+				'TAG/js/TAG/authoring/TAG.Authoring.FileUploader.js',
+				'TAG/js/TAG/authoring/jscolor/jscolor.js',
 
 				'TAG/telemetry/telemetry.js',
 				

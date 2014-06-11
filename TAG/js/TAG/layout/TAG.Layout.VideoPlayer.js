@@ -44,8 +44,6 @@ TAG.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         currentTimeDisplay = root.find('#currentTimeDisplay'),
         backButton = root.find('#backButton');
 
-    currentPage = TAG.Util.Constants.pages.VIDEO_PLAYER;
-
     // UNCOMMENT IF WE WANT IDLE TIMER IN Video PLAYER
     // idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
     // idleTimer.start();
@@ -68,20 +66,23 @@ TAG.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         // idleTimer = null;
 
         var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
-        var catalog = new TAG.Layout.CollectionsPage({
+        var collectionsPage = TAG.Layout.CollectionsPage({
             backScroll: prevScroll,
             backArtwork: videoSrc,
             backCollection: collection
         });
 
-        catalog.getRoot().css({ 'overflow-x': 'hidden' }); // TODO should be default in .styl file
-        TAG.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
+        // collectionsPage.getRoot().css({ 'overflow-x': 'hidden' }); // TODO should be default in .styl file
+        TAG.Util.UI.slidePageRightSplit(root, collectionsPage.getRoot(), function () {
             artworkPrev = "catalog";
             var selectedExhib = $('#collection-' + prevExhib.Identifier);
             selectedExhib.attr('flagClicked', 'true');
             selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
             $(selectedExhib[0].firstChild).css({'color': 'black'});
         });
+
+        currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+        currentPage.obj  = collectionsPage;
     }
 
     function loop(){

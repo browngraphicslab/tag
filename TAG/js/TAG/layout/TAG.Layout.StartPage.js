@@ -21,11 +21,12 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         overlay = root.find('#overlay'),
         serverTagBuffer = root.find('#serverTagBuffer'),
         serverSetUpContainer = root.find('#serverSetUpContainer'),
+        authoringButtonContainer = root.find('#authoringButtonContainer'),
+        authoringButtonBuffer = root.find('#authoringButtonBuffer'),
         serverURL,
         tagContainer;
 
     TAG.Telemetry.register(overlay, 'click', 'start_to_collections');
-    currentPage = TAG.Util.Constants.pages.START_PAGE;
 
     if (localStorage.ip && localStorage.ip.indexOf(':') !== -1) {
         localStorage.ip = localStorage.ip.split(':')[0];
@@ -100,6 +101,10 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
             $('#serverTagBuffer').remove();
         }
     
+        if(!allowAuthoringMode){
+            $('#authoringButtonBuffer').remove();
+        }
+
         overlay.on('click', switchPage);
         
         setImagePaths(main);
@@ -107,13 +112,21 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         setUpInfo(main);
         initializeHandlers();
 
+        authoringButtonContainer.on('click', openDialog);
+        authoringButtonBuffer.on('click', function (evt) {
+            evt.stopPropagation();
+        });
+
         //opens the collections page on touch/click
         function switchPage() {
-            var newCatalog;
+            var collectionsPage;
 
             overlay.off('click');
-            newCatalog = TAG.Layout.CollectionsPage();
-            TAG.Util.UI.slidePageLeft(newCatalog.getRoot());
+            collectionsPage = TAG.Layout.CollectionsPage();
+            TAG.Util.UI.slidePageLeft(collectionsPage.getRoot());
+
+            currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+            currentPage.obj  = collectionsPage;
         }
 
         // Test for browser compatibility
@@ -505,8 +518,25 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
             museumInfoSpan.html(Autolinker.link(tempInfo , {email: false, twitter: false}));
         }
     }
-    
 
+    /**Opens authoring mode password dialog
+     * @method openDialog
+     */
+    function openDialog() {
+        TAG.Auth.authenticate(enterAuthoringMode);
+        return;
+    }
+
+    /**Loads authoring mode Settings View
+     * @method enterAuthoringMode
+     */
+    function enterAuthoringMode() {
+        overlay.on('click', function() {;});
+        authoringButtonContainer.off('click');
+        var authoringMode = new TAG.Authoring.SettingsView();
+        TAG.Util.UI.slidePageLeft(authoringMode.getRoot());
+    }
+ 
     /**
     * @method getRoot
     * @return    the root of the splash screen DOM

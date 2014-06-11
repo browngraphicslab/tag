@@ -447,7 +447,8 @@ module.exports = function(grunt) {
                 'Gruntfile.js',
                 '<%= concat.core.src %>',
                 '<%= concat.experiences.src %>',
-                '<%= concat.panoviewer.src %>'
+                '<%= concat.panoviewer.src %>',
+                'web/systemResources/themeResources/**/*.part.css'
             ],
             tasks: ['default']
         }

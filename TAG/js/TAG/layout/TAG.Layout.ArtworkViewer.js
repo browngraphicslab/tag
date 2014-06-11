@@ -53,6 +53,10 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
     // get things rolling if doq is defined (it better be)
     doq && init();
 
+    return {
+        getRoot: getRoot
+    };
+
     /**
      * Initiate artmode with a root, artwork image and a sidebar on the left
      * @method init
@@ -61,8 +65,6 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         var head,
             script,
             meta;
-
-        currentPage = TAG.Util.Constants.pages.ARTWORK_VIEWER;
 
         idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
         idleTimer.start();
@@ -119,7 +121,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             top              = 0,
             count            = 0,
             panDelta         = 20,
-            zoomScale        = 0.1,
+            zoomScale        = 1.1,
             containerFocused = true,
             interval;
 
@@ -146,6 +148,26 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         container.append(createButton('downControl',  tagPath+'images/icons/zoom_down.svg',  D_PAD_LEFT+12, D_PAD_TOP+43));
         container.append(createButton('zinControl',   tagPath+'images/icons/zoom_plus.svg',  D_PAD_LEFT-40, D_PAD_TOP-6));
         container.append(createButton('zoutControl',  tagPath+'images/icons/zoom_minus.svg', D_PAD_LEFT-40, D_PAD_TOP+34));
+
+        /////////////////////////// RAPID PROTOTYPING /////////////////////////////
+
+        var crossfadeSlider = $(document.createElement('input')).attr({
+            'id': 'crossfadeSlider',
+            'type': 'range',
+            'value': 1,
+            'min': 0,
+            'max': 1,
+            'step': 0.05
+        });
+
+        crossfadeSlider.on('change mousemove', function() {
+            $('.mediaOuterContainer').css('opacity', crossfadeSlider.val());
+        });
+        // container.append(crossfadeSlider);
+
+        ///////////////////////////////////////////////////////////////////////////
+
+
 
         /**
          * Create a seadragon control button
@@ -217,45 +239,25 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
          */
         function doManip(evt, direction) {
             manipulate = annotatedImage.getToManip();
-            if(annotatedImage.getClicked() === 'artwork') {
-                var pivot = {
-                    x: CENTER_X,
-                    y: CENTER_Y
+
+             var pivot = {
+                    x: annotatedImage.getMediaDimensions().width / 2,
+                    y: annotatedImage.getMediaDimensions().height / 2
                 };
-                
-                if (direction === 'left') {
-                    manipulate({pivot: pivot, translation: {x: -panDelta, y: 0}, scale: 1});
-                } else if (direction === 'up') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: -panDelta}, scale: 1});
-                } else if (direction === 'right') {
-                    manipulate({pivot: pivot, translation: {x: panDelta, y: 0}, scale: 1});
-                } else if (direction === 'down') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
-                } else if (direction === 'in') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 + zoomScale});
-                } else if (direction === 'out') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
-                }
-            }
-            else if(annotatedImage.getClicked() === 'media') {
-                var pivot = {
-                    x: annotatedImage.getAssocMediaDimensions().height / 2,
-                    y: annotatedImage.getAssocMediaDimensions().width / 2
-                };
-                if (direction === 'left') {
-                    manipulate({pivot: pivot, translation: {x: -panDelta, y: 0}, scale: 1});
-                } else if (direction === 'up') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: -panDelta}, scale: 1});
-                } else if (direction === 'right') {
-                    manipulate({pivot: pivot, translation: {x: panDelta, y: 0}, scale: 1});
-                } else if (direction === 'down') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
-                } else if (direction === 'in') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 + zoomScale});
-                } else if (direction === 'out') {
-                    manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1 - zoomScale});
-                }
-            }
+
+            if (direction === 'left') {
+                manipulate({pivot: pivot, translation: {x: -panDelta, y: 0}, scale: 1});
+            } else if (direction === 'up') {
+                manipulate({pivot: pivot, translation: {x: 0, y: -panDelta}, scale: 1});
+            } else if (direction === 'right') {
+                manipulate({pivot: pivot, translation: {x: panDelta, y: 0}, scale: 1});
+            } else if (direction === 'down') {
+                manipulate({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
+            } else if (direction === 'in') {
+                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: zoomScale});
+            } else if (direction === 'out') {
+                manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1/zoomScale});
+            }   
         }
 
 
@@ -266,7 +268,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         $("[tabindex='-1']").on('click', function() {
             $("[tabindex='-1']").focus();
             containerFocused = true;
-            annotatedImage.setArtworkClicked();     //Tell AnnotatedImage that the main artwork is active
+            annotatedImage.dzManipPreprocessing();     //Tell AnnotatedImage that the main artwork is active
         });
         $("[tabindex='-1']").focus(function() {
             containerFocused = true;
@@ -398,17 +400,20 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         });
 
         function goBack() {
-            var catalog;
+            var collectionsPage;
             backButton.off('click');
-            idleTimer.kill();
+            idleTimer && idleTimer.kill();
             idleTimer = null;
             annotatedImage && annotatedImage.unload();
-            catalog = new TAG.Layout.CollectionsPage({
+            collectionsPage = new TAG.Layout.CollectionsPage({
                 backScroll:     prevScroll,
                 backArtwork:    doq,
                 backCollection: prevCollection
             });
-            TAG.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {});
+            TAG.Util.UI.slidePageRightSplit(root, collectionsPage.getRoot(), function () {});
+
+            currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+            currentPage.obj  = collectionsPage;
         }
 
 
@@ -439,6 +444,8 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             locHistoryButton = initlocationHistory();
             assetContainer.append(locHistoryButton);
             currBottom += locHistoryButton.height();
+        } else {
+            $('#locationHistoryContainer').remove();
         }
 
         if (associatedMedia.guids.length > 0) {
@@ -511,10 +518,13 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
          * @param {Object} media       the associated media object (from AnnotatedImage)
          */
         function mediaClicked(media) {
-            return function () {
+            return function (evt) {
+                evt.stopPropagation();
                 locHistoryActive && toggleLocationPanel();
                 media.create(); // returns if already created
                 media.toggle();
+                TAG.Util.IdleTimer.restartTimer();
+                media.mediaManipPreprocessing();                    //Set the newly opened media as active for manipulation
                 media.pauseReset();
             };
         }
@@ -552,6 +562,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             console.log(currBottom);
             root.find(".drawerContents").css({
                 "max-height": maxHeight + "px",
+
             });
         });
 
@@ -562,7 +573,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
                     prevInfo,
                     rinPlayer;
                 
-                idleTimer.kill();
+                idleTimer && idleTimer.kill();
                 idleTimer = null;
 
                 annotatedImage.unload();
@@ -594,8 +605,10 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         var minimapw = 1;//minimap width
         var minimaph = 1;//minimap height
         var minimap;
+
         /*
-        **On load, load the image of artwork and initialize the rectangle
+        **Load the image of artwork and initialize the minimap rectangle
+        * @method minimapLoaded
         */
         function minimapLoaded() {
             if (loaded) return;
@@ -610,7 +623,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             });
 
             TAG.Util.disableDrag(minimapContainer);
-            
+
             AR = img.naturalWidth / img.naturalHeight;
             var heightR = img.naturalHeight / $(minimapContainer).height();//the ratio between the height of image and the container.
             var widthR = img.naturalWidth / $(minimapContainer).width();//ratio between the width of image and the container.
@@ -632,7 +645,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
                 onManipulate: onMinimapManip,
                 onScroll: onMinimapScroll,
                 onTapped: onMinimapTapped
-            }, false);
+            }, true);
 
             /**********************/
             var minimaph = minimap.height();
@@ -650,7 +663,9 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             /*********************/
         }
         /*
-        **implement specific manipulation functions for manipulating the minimap.
+        **Implement manipulation function from makeManipulatable.
+        * @method onMinimapManip
+        * @param {Object} evt        object containing hammer event info 
         */
         function onMinimapManip(evt) {
             var minimaph = minimap.height();
@@ -658,6 +673,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             var minimapt = minimap.position().top;
             var minimapl = parseFloat(minimap.css('marginLeft'));
 
+            //find pivot and translation of manipulation event
             var px = evt.pivot.x;
             var py = evt.pivot.y;
             var tx = evt.translation.x;
@@ -675,11 +691,27 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             annotatedImage.viewer.viewport.panTo(new Seadragon.Point(x, y), true);
             annotatedImage.viewer.viewport.applyConstraints();
         }
-        function onMinimapScroll(res, pivot) {
-            var a = 0;
+        /**Implement scroll function from makeManipulatable
+         * @method onMinimapScroll
+         * @param {Number} scale     scale factor
+         * @param {Object} pivot     x and y location of event
+         */
+        function onMinimapScroll(scale, pivot) {
+            //create hammer event and pass into onMinimapManip
+            onMinimapManip({
+                scale: scale,
+                translation: {
+                    x: 0,
+                    y: 0
+                },
+                pivot: pivot
+            });    
         }
+        /**Implement tapped function from makeManipulatable
+        * @method onMinimapTapped
+        * @param {Object} evt        object containing hammer event info
+        */
         function onMinimapTapped(evt) {
-
             var minimaph = minimap.height();
             var minimapw = minimap.width();
             var minimapt = minimap.position().top;
@@ -705,7 +737,9 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             minimapLoaded();
         }
         /*
-        **Handler for image->rectangle TODO: rectangle->image handler
+        **Move the minimap rectangle based on the manipulation of the image
+        * @method dzMoveHandler
+        * @param {event} evt            manipulation event of the image
         */
         function dzMoveHandler(evt) {
             var minimaph = minimap.height();
@@ -1032,9 +1066,9 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
      * @method
      * @return {jQuery obj}    root jquery object
      */
-    this.getRoot = function () {
+    function getRoot() {
         return root;
-    };
+    }
 
     /**
      * Make the map for location History.

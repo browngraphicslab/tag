@@ -27,7 +27,9 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         associatedMedia = { guids: [] },   // object of associated media objects for this artwork, keyed by media GUID;
                                            //   also contains an array of GUIDs for cleaner iteration
         toManip         = dzManip,         // media to manipulate, i.e. artwork or associated media
-        clickedMedia    = 'artwork',       // artwork or media
+        rootHeight     = $('#tagRoot').height(),
+        rootWidth      = $('#tagRoot').width(),
+        outerContainerDimensions = {height: rootHeight, width: rootWidth},  //dimensions of active media to manipulate
 
         // misc uninitialized variables
         outerContainerDimensions,
@@ -45,20 +47,11 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         openArtwork: openArtwork,
         addAnimateHandler: addAnimateHandler,
         getToManip: getToManip,
-        getClicked: getClicked,
-        getAssocMediaDimensions: getAssocMediaDimensions,
-        setArtworkClicked: setArtworkClicked,
+        getMediaDimensions: getMediaDimensions,
+        dzManipPreprocessing: dzManipPreprocessing,
         viewer: viewer
     };
 
-    /**
-     * Sets the artwork as active and the Deep Zoom manipulation method is used zooming and panning
-     * @method getToManip
-     */
-    function setArtworkClicked() {
-        toManip = dzManip;                  
-        clickedMedia = 'artwork';
-    }
 
     /**
      * Return applicable manipulation method
@@ -71,22 +64,12 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
 
 
     /**
-     * Return the dimensions of the active associated media container
-     * @method clickedMedia
+     * Return the dimensions of the active associated media or artwork
+     * @method getMediaDimensions
      * @return {String}     object with dimensions
      */
-    function getAssocMediaDimensions() {
+    function getMediaDimensions() {
         return outerContainerDimensions;   
-    }
-
-    /**
-     * Return active media to be manipulated so applicable manipulation method can be called
-     * @method getClicked
-     * @return {String}     manipulation method object
-     */
-
-    function getClicked() {
-        return clickedMedia;
     }
 
 
@@ -176,10 +159,13 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         viewer && viewer.unload();
     }
 
-
+    /**
+     * When the artwork is active, sets the manipulation method and dimensions for the active container
+     * @method dzManipPreprocessing
+     */
     function dzManipPreprocessing() {
+        outerContainerDimensions = {height: rootHeight, width: rootWidth};
         toManip = dzManip;
-        clickedMedia = 'artwork';
     }
 
     /**
@@ -247,7 +233,9 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 dzScroll(delta, pivot);
             },
             onManipulate: function (res) {
-                dzManip(res); // TODO change dzManip to just accept res
+                res.translation.x = - res.translation.x;        //Flip signs for dragging
+                res.translation.y = - res.translation.y;
+                dzManip(res); 
             }
         }, null, true); // NO ACCELERATION FOR NOW
 
@@ -332,8 +320,6 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             outerContainer = $(document.createElement('div')).addClass('mediaOuterContainer'),
             innerContainer = $(document.createElement('div')).addClass('mediaInnerContainer'),
             mediaContainer = $(document.createElement('div')).addClass('mediaMediaContainer'),
-            rootHeight     = $('#tagRoot').height(),
-            rootWidth      = $('#tagRoot').width(),
 
             // constants
             IS_HOTSPOT      = linq.Metadata.Type ? (linq.Metadata.Type === "Hotspot") : false,
@@ -349,6 +335,8 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             // misc initialized variables
             mediaHidden      = true,
             currentlySeeking = false,
+            movementTimeouts = [],
+            circleRadius = 60,
 
             // misc uninitialized variables
             circle,
@@ -359,6 +347,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             titleDiv,
             descDiv,
             thumbnailButton,
+            startLocation,
             play;
 
         // get things rolling
@@ -427,18 +416,17 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             var elt = mediaElt,
                 $elt = $(elt),
                 controlPanel = $(document.createElement('div')).addClass('annotatedImageMediaControlPanel'),
-                vol = $(document.createElement('img')).addClass('mediaControls'),
-                seekBar,
-                timeContainer = $(document.createElement('div')),
-                currentTimeDisplay = $(document.createElement('span')).addClass('mediaControls'),
-                playHolder = $(document.createElement('div')),
-                volHolder = $(document.createElement('div')),
-                sliderContainer = $(document.createElement('div')),
-                sliderPoint = $(document.createElement('div'));
+                vol = $(document.createElement('img')).addClass('mediaVolButton'),
+                timeContainer = $(document.createElement('div')).addClass('mediaTimeContainer'),
+                currentTimeDisplay = $(document.createElement('span')).addClass('mediaTimeDisplay'),
+                playHolder = $(document.createElement('div')).addClass('mediaPlayHolder'),
+                volHolder = $(document.createElement('div')).addClass('mediaVolHolder'),
+                sliderContainer = $(document.createElement('div')).addClass('mediaSliderContainer'),
+                sliderPoint = $(document.createElement('div')).addClass('mediaSliderPoint');
 
             controlPanel.attr('id', 'media-control-panel-' + mdoq.Identifier);
 
-            play = $(document.createElement('img')).addClass('mediaControls');
+            play = $(document.createElement('img')).addClass('mediaPlayButton');
 
             play.attr('src', tagPath + 'images/icons/PlayWhite.svg');
             vol.attr('src', tagPath+'images/icons/VolumeUpWhite.svg');
@@ -457,12 +445,12 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 'height':   '20px',
                 'width':    '20px',
                 'display':  'inline-block',
-                'margin':   '0px 1% 0px 1%',
+                'margin':   '2px 1% 0px 1%',
             });
 
             sliderContainer.css({
                 'position': 'absolute',
-                'height':   '7px',
+                'height':   '15px',
                 'width':    '100%',
                 'left':     '0px',
                 'bottom':   '0px'
@@ -488,7 +476,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 'width':    '20px',
                 'position': 'absolute',
                 'right':    '5px',
-                'top':      '0px'
+                'top':      '2px'
             });
 
             timeContainer.css({
@@ -533,11 +521,11 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             });
 
             sliderContainer.on('mousedown', function(evt) {
-                var time = elt.duration * (evt.offsetX / sliderContainer.width()),
+                var time = elt.duration * ((evt.pageX - $(evt.target).offset().left) / sliderContainer.width()),
                     origPoint = evt.pageX,
-                    origTime = elt.currentTime,
                     timePxRatio = elt.duration / sliderContainer.width(),
-                    currTime = Math.max(0, Math.min(elt.duration, origTime)),
+                    currTime = Math.max(0, Math.min(elt.duration, elt.currentTime)),
+                    origTime = time,
                     currPx   = currTime / timePxRatio,
                     minutes = Math.floor(currTime / 60),
                     seconds = Math.floor(currTime % 60),
@@ -547,14 +535,16 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 evt.stopPropagation();
 
                 if(!isNaN(time)) {
+                    currentTimeDisplay.text(adjMin + ":" + adjSec);
                     elt.currentTime = time;
+                    sliderPoint.css('width', 100*(currPx / sliderContainer.width()) + '%');
                 }
 
-                $('body').on('mousemove.seek', function(e) {
+                sliderContainer.on('mousemove.seek', function(e) {
                     var currPoint = e.pageX,
                         timeDiff = (currPoint - origPoint) * timePxRatio;
 
-                    currTime = Math.max(0, Math.min(video.duration, origTime + timeDiff));
+                    currTime = Math.max(0, Math.min(elt.duration, origTime + timeDiff));
                     currPx   = currTime / timePxRatio;
                     minutes  = Math.floor(currTime / 60);
                     seconds  = Math.floor(currTime % 60);
@@ -569,12 +559,12 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 });
 
                 $('body').on('mouseup.seek mouseleave.seek', function() {
-                    $('body').off('mouseup.seek mouseleave.seek mousemove.seek');
-                    if(!isNaN(currTime)) {
-                        currentTimeDisplay.text(adjMin + ":" + adjSec);
-                        elt.currentTime = currTime;
-                        sliderPoint.css('width', 100*(currPx / sliderContainer.width()) + '%');
-                    }
+                    sliderContainer.off('mouseup.seek mouseleave.seek mousemove.seek');
+                    // if(!isNaN(getCurrTime())) {
+                    //     currentTimeDisplay.text(adjMin + ":" + adjSec);
+                    //     elt.currentTime = getCurrTime();
+                    //     sliderPoint.css('width', 100*(currPx / sliderContainer.width()) + '%');
+                    // }
                 });
             });
 
@@ -615,7 +605,8 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 closeButton = createCloseButton();
 
             mediaContainer.append(closeButton[0]);
-            closeButton.on('click', function() {
+            closeButton.on('click', function(evt) {
+                evt.stopPropagation();
                 hideMediaObject();
             });
 
@@ -678,9 +669,10 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
          * @method mediaManipPreprocessing
          */
         function mediaManipPreprocessing() {
-            outerContainerDimensions = getDimensions();
+            var w = outerContainer.width(),
+                h = outerContainer.height();
+            outerContainerDimensions = {height: h, width: w};
             toManip = mediaManip;
-            clickedMedia = 'media';
             $('.mediaOuterContainer').css('z-index', 1000);
             outerContainer.css('z-index', 1001);
         }
@@ -693,14 +685,6 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             mediaManipPreprocessing();
 
         });
-
-        //Returns the dimensions of the associated media
-        function getDimensions() {
-            return {
-                height: outerContainer.height(),
-                width: outerContainer.width()
-            };
-        }
 
      
         /**
@@ -720,11 +704,24 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 l     = parseFloat(outerContainer.css('left')),
                 w     = outerContainer.width(),
                 h     = outerContainer.height(),
+                timestepConstant = 50,
                 newW  = w * scale,
                 maxW,
-                minW;
+                minW,
+                timer,
+                initialPosition,
+                deltaPosition,
+                finalPosition,
+                currentTime,
+                initialVelocity;
 
-            mediaManipPreprocessing();
+            // If event is initial touch on artwork, save current position of media object to use in movement method
+            if (res.eventType === 'start') {
+                startLocation = {
+                    x: l,
+                    y: t
+                };
+            }
 
             // these values are somewhat arbitrary; TODO determine good values
             if (CONTENT_TYPE === 'Image') {
@@ -740,23 +737,74 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
 
             // constrain new width
             if(newW < minW || maxW < newW) {
-                scale = 1;
                 newW = Math.min(maxW, Math.max(minW, newW));
+                scale = newW / w;
             }
 
-            // zoom from touch point: change left and top of outerContainer
-            if ((0 < t + h) && (t < rootHeight) && (0 < l + w) && (l< rootWidth)) {
+           //Manipulation for touch and drag events
+            if (newW === w){ //If media object is being dragged (not resized)
+                if ((0 < t + h) && (t < rootHeight) && (0 < l + w) && (l< rootWidth)) { // and is still on screen
+                    
+                    currentTime = Date.now();
+
+                    //Position of object on manipulation
+                    if (res.eventType) { //If initial values were set with a mouseDown or touch event
+                        initialPosition = {
+                            x: l, 
+                            y: t
+                        };
+                    } else { //If initial values were set with seadragon controls or key touches
+                        initialPosition = {
+                            x: outerContainer.position().left,
+                            y: outerContainer.position().top
+                        };
+                    }
+
+                    //Where object should be moved to
+                    if (res.center) { //As above, if movement is caused by mouse or touch event (hammer):
+                        finalPosition = {
+                            x: res.center.pageX - (res.startEvent.center.pageX - startLocation.x),
+                            y: res.center.pageY - (res.startEvent.center.pageY - startLocation.y)
+                        };
+                    } else { //Or if it was set with seadragon controls or key touches:
+                        finalPosition = {
+                            x: initialPosition.x + res.translation.x,
+                            y: initialPosition.y + res.translation.y,                            
+                        };
+                    }
+
+                    //Total distance to travel
+                    deltaPosition = {
+                        x: finalPosition.x - initialPosition.x,
+                        y: finalPosition.y - initialPosition.y
+                    },
+
+                    //Initial velocity is proportional to distance traveled
+                    initialVelocity = {
+                        x: deltaPosition.x/timestepConstant,
+                        y: deltaPosition.y/timestepConstant
+                    };
+                    
+                    //Recursive function to move object between start location and final location with proper physics
+                    move(initialVelocity, initialPosition, finalPosition, timestepConstant/50);
+                    viewer.viewport.applyConstraints();
+
+                } else { //If object isn't within bounds, hide and reset it.
+                    hideMediaObject();
+                    pauseResetMediaObject();
+                    return;
+                }
+            } else{ // zoom from touch point: change width and height of outerContainer
+             
                 outerContainer.css("top",  (t + trans.y + (1 - scale) * pivot.y) + "px");
                 outerContainer.css("left", (l + trans.x + (1 - scale) * pivot.x) + "px");
-            } else {
-                hideMediaObject();
-                pauseResetMediaObject();
-                return;
+                outerContainer.css("width", newW + "px");
+                outerContainer.css("height", "auto"); 
+                
+
             }
 
-            // zoom from touch point: change width and height of outerContainer
-            outerContainer.css("width", newW + "px");
-            outerContainer.css("height", "auto");
+            mediaManipPreprocessing();      //Update dimensions since they've changed, and keep this media as active (if say an inactive media was dragged/pinch-zoomed)
 
             // TODO this shouldn't be necessary; style of controls should take care of it
             // if ((CONTENT_TYPE === 'Video' || CONTENT_TYPE === 'Audio') && scale !== 1) {
@@ -764,9 +812,67 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             // }
         }
 
+
+        /**
+         * Recursive helper function for mediaManip.
+         * Moves object between start location and final location with proper physics.
+         * @method move
+         * @param {Object} res              object containing hammer event info
+         * @param {Object} prevVelocity     velocity of object on release
+         * @param {Object} prevLocation     location of object
+         * @param {Object} finalPos         target location of object
+         * @param {Object} delay            delay (for timer)
+         */
+        function move(prevVelocity, prevLocation, finalPos, delay){
+            var currentPosition,
+                newVelocity,
+                timer;
+            //If object is not on screen, reset and hide it
+            if (!(
+                (0 < outerContainer.position().top+ outerContainer.height()) 
+                && (outerContainer.position().top < rootHeight) 
+                && (0 < outerContainer.position().left + outerContainer.width()) 
+                && (outerContainer.position().left < rootWidth))) 
+                {
+                    hideMediaObject();
+                    pauseResetMediaObject();
+                    return;
+            };
+
+            //If velocity is almost 0, stop movement
+            if ((Math.abs(prevVelocity.x) < .1) && (Math.abs(prevVelocity.y) < .1)) {
+                return;
+            };
+
+            //Current position is previous position + movement from velocity * time
+            currentPosition = { 
+                x: prevLocation.x + delay*prevVelocity.x,
+                y: prevLocation.y + delay*prevVelocity.y                  
+            };
+
+            // New velocity is proportional to distance left to travel
+            newVelocity = {
+                x: (finalPos.x - currentPosition.x)/(delay*50),
+                y: (finalPos.y - currentPosition.y)/(delay*50)
+            };
+            
+            outerContainer.css({'left': currentPosition.x, 'top': currentPosition.y});
+
+            //Clear all previously-set timers used for movement on this object
+            for (var i = 0; i < movementTimeouts.length; i++) {
+                clearTimeout(movementTimeouts[i]);
+            }
+            movementTimeouts = [];
+            movementTimeouts.push( 
+                setTimeout(function () {
+                move(newVelocity, currentPosition, finalPos, delay);
+                }, 1)
+            );
+        }
+
         /**
          * Zoom handler for associated media (e.g., for mousewheel scrolling)
-         * @method onScroll
+         * @method mediaScroll
          * @param {Number} scale     scale factor
          * @param {Object} pivot     point of contact
          */
@@ -780,32 +886,28 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 pivot: pivot
             });
         }
-		
-		/**
-		 * Create a closeButton for associated media
-		 * @method createCloseButton
-		 * @return {HTML element} the button as a 'div'
-		 */
-		function createCloseButton() {
-			var closeButton = $(document.createElement('div'));
-			closeButton.text('X');
-			closeButton.css({
-				'position': 'absolute',
-				'top': '-2.5em',
-				'left': '-2.5em',
-				'width': '1em',
-				'height': '1em',
-				'text-align': 'center',
-				'color': 'black',
-				'line-height': '1em',
-				'border': '10px solid black',
-				'border-radius': '2em',
-				'background-color': 'white',
-				'margin-left': '107%'
-			});
-			return closeButton;
-		}
-		 
+        
+        /**
+         * Create a closeButton for associated media
+         * @method createCloseButton
+         * @return {HTML element} the button as a 'div'
+         */
+        function createCloseButton() {
+            var closeButton = $(document.createElement('img'));
+            closeButton.attr('src', tagPath + 'images/icons/x.svg');
+            closeButton.text('X');
+            closeButton.css({
+                'position': 'absolute',
+                'top': '0%',
+                'width': '4%',
+                'height': '4%',
+                'z-index': '1',
+                'background-color': '',
+                'margin-left': '95%'
+            });
+            return closeButton;
+        }
+         
         /**
          * Show the associated media on the seadragon canvas. If the media is not
          * a hotspot, show it in a slightly random position.
@@ -816,17 +918,19 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 l,
                 h = outerContainer.height(),
                 w = outerContainer.width();
-				
+
+            //If associated media object is a hotspot, then position it next to circle.  Otherwise, put it in a slightly random position near the middle
             if(IS_HOTSPOT) {
                 circle.css('visibility', 'visible');
                 addOverlay(circle[0], position, Seadragon.OverlayPlacement.TOP_LEFT);
                 viewer.viewport.panTo(position, false);
-                t = Math.max(10, (rootHeight - h)/2); // tries to put middle of outer container at circle level
-                l = rootWidth/2 + circle.width()*3/4;
+                viewer.viewport.applyConstraints()
+                t = viewer.viewport.pixelFromPoint(position).y - h/2 + circleRadius/2;
+                l = viewer.viewport.pixelFromPoint(position).x + circleRadius;
             } else {
                 t = rootHeight * 1/10 + Math.random() * rootHeight * 2/10;
                 l = rootWidth  * 3/10 + Math.random() * rootWidth  * 2/10;
-            }
+            };
             outerContainer.css({
                 'top':            t + "px",
                 'left':           l + "px",
@@ -846,7 +950,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 'color': 'black',
                 'background-color': 'rgba(255,255,255, 0.3)'
             });
-			
+            
             // TODO is this necessary?
             // if ((info.contentType === 'Video') || (info.contentType === 'Audio')) {
             //     resizeControlElements();
@@ -873,6 +977,9 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 'color': 'white',
                 'background-color': ''
             });
+            TAG.Util.IdleTimer.restartTimer();              
+            dzManipPreprocessing();                     //When an object is hidden, set the artwork as active
+
         }
 
         /**
@@ -915,7 +1022,8 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             pauseReset:          pauseResetMediaObject,
             toggle:              toggleMediaObject,
             createMediaElements: createMediaElements,
-            isVisible:           isVisible
+            isVisible:           isVisible,
+            mediaManipPreprocessing: mediaManipPreprocessing
         };
     }
 };
