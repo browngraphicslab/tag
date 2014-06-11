@@ -45478,10 +45478,7 @@ TAG.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
 ;
 TAG.Util.makeNamespace("TAG.Authoring.SettingsView");
 
-/*  Creates a SettingsView, which is the first UI in authoring mode.  Note that
- *  left label, left container, etc... (anything with left) really refers to the
- *  middle panel, while the left-most bar is the navigation panel. Anything with right refers
- *  to the right panel which includes the viewer.
+/*  Creates a SettingsView, which is the first UI in authoring mode.  
  *  @class TAG.Authoring.SettingsView
  *  @constructor
  *  @param startView sets the starting setting.  This can be "Exhibitions", "Artworks", "Tours", 
@@ -45492,7 +45489,7 @@ TAG.Util.makeNamespace("TAG.Authoring.SettingsView");
  *      back to the main page).  This function, when called with no arguments,
  *      should return a dom element that can be provided as an argument to 
  *      slidePageRight.
- *   @param startLabelID selects a left label automatically if it matches that id.
+ *   @param startLabelID selects a middle label automatically if it matches that id.
  *      The label will be scrolled to if it is off screen
  *   @return {Object} public methods and variables
  */
@@ -45503,15 +45500,15 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
     var root = TAG.Util.getHtmlAjax('SettingsView.html'), //Get html from html file
 
         //get all of the ui elements from the root and save them in variables
-        leftLoading = root.find('#setViewLoadingCircle'),
+        middleLoading = root.find('#setViewLoadingCircle'),
         settingsContainer = root.find('#setViewSettingsContainer'),
         searchContainer = root.find('#setViewSearchContainer'),
         navBar = root.find('#setViewNavBar'),
         searchbar = root.find('#setViewSearchBar'),
         newButton = root.find('#setViewNewButton'),
         secondaryButton = root.find('#setViewSecondaryButton'),
-        leftbar = root.find('#setViewLeftBar'),
-        leftLabelContainer = root.find('#setViewLeftLabelContainer'),
+        middlebar = root.find('#setViewMiddleBar'),
+        middleLabelContainer = root.find('#setViewMiddleLabelContainer'),
         rightbar = root.find('#setViewRightBar'),
         viewer = root.find('#setViewViewer'),
         buttonContainer = root.find('#setViewButtonContainer'),
@@ -45562,11 +45559,11 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
     },
     
         prevSelectedSetting,
-        prevSelectedLeftLabel,
+        prevSelectedMiddleLabel,
         // These are 'asynchronous' queues to perform tasks. These queues will process events in order, but asynchronously so
         // they can be completed in the 'background'. Calling .add(fn) adds a function to the queue while .clear() clears the queue.  
         //Note that an in progress function will not be canceled by .clear().
-        leftQueue = TAG.Util.createQueue(),  //used to add things to the left label container
+        middleQueue = TAG.Util.createQueue(),  //used to add things to the middle label container
         rightQueue = TAG.Util.createQueue(), //used to add things to the right panel
         cancelLastSetting,
         artPickerOpen = false,
@@ -45610,7 +45607,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         backButton.click(function () {
             TAG.Auth.clearToken();
             rightQueue.clear();
-            leftQueue.clear();
+            middleQueue.clear();
             backButton.off('click');
             if (backPage) {
                 var bpage = backPage();
@@ -45645,16 +45642,16 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         navBar.append(nav[NAV_TEXT.tour.text] = createNavLabel(NAV_TEXT.tour, loadTourView));
         navBar.append(nav[NAV_TEXT.feedback.text] = createNavLabel(NAV_TEXT.feedback, loadFeedbackView));
         searchbar.keyup(function () {
-            search(searchbar.val(), '.leftLabel', 'div');
+            search(searchbar.val(), '.middleLabel', 'div');
         });
         searchbar.change(function () {
-            search(searchbar.val(), '.leftLabel', 'div');
+            search(searchbar.val(), '.middleLabel', 'div');
         });
 
         // Workaround for clear button (doesn't fire a change event...)
         searchbar.mouseup(function () {
             setTimeout(function () {
-                search(searchbar.val(), '.leftLabel', 'div');
+                search(searchbar.val(), '.middleLabel', 'div');
             }, 1);
         });
 
@@ -45680,7 +45677,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
     /**Switches the view based on selected navigation label
      * @method switchView
      * @param {String} view         the view to switch to
-     * @param {Object} id           the id of the left label to start on
+     * @param {Object} id           the id of the middle label to start on
      */
     function switchView(view, id) {
         resetLabels('.navContainer');
@@ -45789,16 +45786,16 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         prepareNextView(false);
 
         // Add this to our queue so the UI doesn't lock up
-        leftQueue.add(function () {
+        middleQueue.add(function () {
             var label;
             // Add the Splash Screen label and set it as previously selected because its our default
-            leftLoading.before(label = selectLabel(createLeftLabel('Splash Screen', null, loadSplashScreen), true));
-            prevSelectedLeftLabel = label;
+            middleLoading.before(label = selectLabel(createMiddleLabel('Splash Screen', null, loadSplashScreen), true));
+            prevSelectedMiddleLabel = label;
             // Default to loading the splash screen
             loadSplashScreen();
             // Add the Password Settings label
-            leftLoading.before(createLeftLabel('Password Settings', null, loadPasswordScreen).attr('id', 'password'));
-            leftLoading.hide();
+            middleLoading.before(createMiddleLabel('Password Settings', null, loadPasswordScreen).attr('id', 'password'));
+            middleLoading.hide();
         });
         cancelLastSetting = null;
     }
@@ -46060,7 +46057,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
 
     /**Loads the collections view
      * @method loadExhibitionsView
-     * @param {Object} id       id of left label to start on
+     * @param {Object} id       id of middle label to start on
      */
     function loadExhibitionsView(id) {
         var cancel = false;
@@ -46076,30 +46073,30 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             $.each(result, function (i, val) {
                 if (cancel) return;
                 // Add each label as a separate function in the queue so they don't lock up the UI
-                leftQueue.add(function () {
+                middleQueue.add(function () {
                     if (cancel) return;
                     if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
                         return;
                     }
                     var label;
-                    if (!prevSelectedLeftLabel &&
+                    if (!prevSelectedMiddleLabel &&
                         ((id && val.Identifier === id) || (!id && i === 0))) {
                         
                         // Select the first one or the specified id
-                        leftLoading.before(selectLabel(label = createLeftLabel(val.Name, null, function () {
+                        middleLoading.before(selectLabel(label = createMiddleLabel(val.Name, null, function () {
                             loadExhibition(val);
                         }, val.Identifier), true));
 
                         // Scroll to the selected label if the user hasn't already scrolled somewhere
-                        if (leftbar.scrollTop() === 0 && label.offset().top - leftbar.height() > 0) {
-                            leftbar.animate({
-                                scrollTop: (label.offset().top - leftbar.height())
+                        if (middlebar.scrollTop() === 0 && label.offset().top - middlebar.height() > 0) {
+                            middlebar.animate({
+                                scrollTop: (label.offset().top - middlebar.height())
                             }, 1000);
                         }
-                        prevSelectedLeftLabel = label;
+                        prevSelectedMiddleLabel = label;
                         loadExhibition(val);
                     } else {
-                        leftLoading.before(label = createLeftLabel(val.Name, null, function () {
+                        middleLoading.before(label = createMiddleLabel(val.Name, null, function () {
                             loadExhibition(val);
                         }, val.Identifier));
                     }
@@ -46110,8 +46107,8 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                 });
             });
             // Hide the loading label when we're done
-            leftQueue.add(function () {
-                leftLoading.hide();
+            middleQueue.add(function () {
+                middleLoading.hide();
             });
         });
         cancelLastSetting = function () { cancel = true; };
@@ -46366,7 +46363,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
 
     /**Load the tour view
      * @method loadTourView
-     * @param {Object} id   id of left label to start on
+     * @param {Object} id   id of middle label to start on
      */
     function loadTourView(id) {
         prepareNextView(true, "New", createTour);
@@ -46381,32 +46378,32 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             $.each(result, function (i, val) {
                 if (cancel) return false;
                 // Add each label as a separate function to the queue so the UI doesn't lock up
-                leftQueue.add(function () {
+                middleQueue.add(function () {
                     if (cancel) return;
                     if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.tour.text]) {
                         return;
                     }
                     var label;
-                    if (!prevSelectedLeftLabel &&
+                    if (!prevSelectedMiddleLabel &&
                         ((id && val.Identifier === id) || (!id && i === 0))) {
                         // Select the first one
-                        leftLoading.before(selectLabel(label = createLeftLabel(val.Name, null, function () {
+                        middleLoading.before(selectLabel(label = createMiddleLabel(val.Name, null, function () {
                             loadTour(val);
                         }, val.Identifier, false, function () {
                             editTour(val);
                         }), true));
 
                         // Scroll to the selected label if the user hasn't already scrolled somewhere
-                        if (leftbar.scrollTop() === 0 && label.offset().top - leftbar.height() > 0) {
-                            leftbar.animate({
-                                scrollTop: (label.offset().top - leftbar.height())
+                        if (middlebar.scrollTop() === 0 && label.offset().top - middlebar.height() > 0) {
+                            middlebar.animate({
+                                scrollTop: (label.offset().top - middlebar.height())
                             }, 1000);
                         }
 
-                        prevSelectedLeftLabel = label;
+                        prevSelectedMiddleLabel = label;
                         loadTour(val);
                     } else {
-                        leftLoading.before(label = createLeftLabel(val.Name, null, function () {
+                        middleLoading.before(label = createMiddleLabel(val.Name, null, function () {
                             loadTour(val);
                         }, val.Identifier, false, function () {
                             editTour(val);
@@ -46419,8 +46416,8 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                 });
             });
             // Hide the loading label when we're done
-            leftQueue.add(function () {
-                leftLoading.hide();
+            middleQueue.add(function () {
+                middleLoading.hide();
             });
         });
         cancelLastSetting = function () { cancel = true; };
@@ -46448,10 +46445,10 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             'width': 'auto'
         };
         var circle = TAG.Util.showProgressCircle(viewer, progressCircCSS, '0px', '0px', false);
-        var selectedLabel = prevSelectedLeftLabel;
+        var selectedLabel = prevSelectedMiddleLabel;
         img.load(function () {
             // If the selection has changed since we started loading return
-            if (prevSelectedLeftLabel && prevSelectedLeftLabel.text() !== tour.Name) {
+            if (prevSelectedMiddleLabel && prevSelectedMiddleLabel.text() !== tour.Name) {
                 TAG.Util.removeProgressCircle(circle);
                 return;
             }
@@ -46599,7 +46596,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
     function editTour(tour) {
         // Overlay doesn't spin... not sure how to fix without redoing tour authoring to be more async
         loadingOverlay('Loading Tour...');
-        leftQueue.clear();
+        middleQueue.clear();
         rightQueue.clear();
         setTimeout(function () {
             var toureditor = new TAG.Layout.TourAuthoringNew(tour, function () {
@@ -46696,7 +46693,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
 
     /**Load Associated Media view
      * @method load AssocMediaView
-     * @param {Object} id   id of left label to start on
+     * @param {Object} id   id of middle label to start on
      */
     function loadAssocMediaView(id) {
         prepareNextView(true, "Import", createAsset);
@@ -46713,7 +46710,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                 $.each(result, function (i, val) {
                     if (cancel) return;
                     // Add each label in a separate function in the queue so the UI doesn't lock up
-                    leftQueue.add(function () {
+                    middleQueue.add(function () {
                         if (cancel) return;
                         if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.media.text]) {
                             return;
@@ -46734,24 +46731,24 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                                 imagesrc = null;
                                 break;
                         }
-                        if (!prevSelectedLeftLabel &&
+                        if (!prevSelectedMiddleLabel &&
                             ((id && val.Identifier === id) || (!id && i === 0))) {
                             // Select the first one
-                            leftLoading.before(selectLabel(label = createLeftLabel(val.Name, imagesrc, function () {
+                            middleLoading.before(selectLabel(label = createMiddleLabel(val.Name, imagesrc, function () {
                                 loadAssocMedia(val);
                             }, val.Identifier, false), true));
 
                             // Scroll to the selected label if the user hasn't already scrolled somewhere
-                            if (leftbar.scrollTop() === 0 && label.offset().top - leftbar.height() > 0) {
-                                leftbar.animate({
-                                    scrollTop: (label.offset().top - leftbar.height())
+                            if (middlebar.scrollTop() === 0 && label.offset().top - middlebar.height() > 0) {
+                                middlebar.animate({
+                                    scrollTop: (label.offset().top - middlebar.height())
                                 }, 1000);
                             }
 
-                            prevSelectedLeftLabel = label;
+                            prevSelectedMiddleLabel = label;
                             loadAssocMedia(val);
                         } else {
-                            leftLoading.before(label = createLeftLabel(val.Name, imagesrc, function () {
+                            middleLoading.before(label = createMiddleLabel(val.Name, imagesrc, function () {
                                 loadAssocMedia(val);
                             }, val.Identifier, false));
                         }
@@ -46762,11 +46759,11 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                     });
                 });
                 // Hide the loading label when we're done
-                leftQueue.add(function () {
-                    leftLoading.hide();
+                middleQueue.add(function () {
+                    middleLoading.hide();
                 });
             } else {
-                leftLoading.hide();
+                middleLoading.hide();
             }
         });
         cancelLastSetting = function () { cancel = true; };
@@ -46830,13 +46827,13 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             'width': '20%'
         };
         var circle = TAG.Util.showProgressCircle(viewer, progressCircCSS, '0px', '0px', false);
-        var selectedLabel = prevSelectedLeftLabel;
+        var selectedLabel = prevSelectedMiddleLabel;
 
         switch (type) {
             case "image":
                 holder.load(function () {
                     // If the selection has changed since we started loading then return
-                    if (prevSelectedLeftLabel && prevSelectedLeftLabel.text() !== media.Name) {
+                    if (prevSelectedMiddleLabel && prevSelectedMiddleLabel.text() !== media.Name) {
                         TAG.Util.removeProgressCircle(circle);
                         return;
                     }
@@ -47288,7 +47285,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
 
     /**Loads art view
      * @method loadArtView
-     * @param {Object} id   id of left label to start on
+     * @param {Object} id   id of middle label to start on
      */
     function loadArtView(id) {
         prepareNextView(true, "Import", createArtwork);
@@ -47323,26 +47320,26 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                             default:
                                 imagesrc = null;
                         }
-                        if (!prevSelectedLeftLabel &&
+                        if (!prevSelectedMiddleLabel &&
                             ((id && val.Identifier === id) || (!id && i === 0))) {
                             // Select the first one
-                            leftLoading.before(selectLabel(label = createLeftLabel(val.Name, imagesrc, function () {
+                            middleLoading.before(selectLabel(label = createMiddleLabel(val.Name, imagesrc, function () {
                                 loadArtwork(val);
                             }, val.Identifier, false, function () {
                                 editArtwork(val);
                             }, true, val.Extension), true));
 
                             // Scroll to the selected label if the user hasn't already scrolled somewhere
-                            if (leftbar.scrollTop() === 0 && label.offset().top - leftbar.height() > 0) {
-                                leftbar.animate({
-                                    scrollTop: (label.offset().top - leftbar.height())
+                            if (middlebar.scrollTop() === 0 && label.offset().top - middlebar.height() > 0) {
+                                middlebar.animate({
+                                    scrollTop: (label.offset().top - middlebar.height())
                                 }, 1000);
                             }
 
-                            prevSelectedLeftLabel = label;
+                            prevSelectedMiddleLabel = label;
                             loadArtwork(val);
                         } else {
-                            leftLoading.before(label = createLeftLabel(val.Name, imagesrc, function () {
+                            middleLoading.before(label = createMiddleLabel(val.Name, imagesrc, function () {
                                 loadArtwork(val);
                             }, val.Identifier, false, function () {
                                 editArtwork(val);
@@ -47355,11 +47352,11 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                     });
                 });
                 // Hide the loading label when we're done
-                leftQueue.add(function () {
-                    leftLoading.hide();
+                middleQueue.add(function () {
+                    middleLoading.hide();
                 });
             } else {
-                leftLoading.hide();
+                middleLoading.hide();
             }
         });
 
@@ -47404,12 +47401,12 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         if (artwork.Metadata.Type !== 'VideoArtwork') {
             circle = TAG.Util.showProgressCircle(viewer, progressCircCSS, '0px', '0px', false);
         }
-        var selectedLabel = prevSelectedLeftLabel;
+        var selectedLabel = prevSelectedMiddleLabel;
 
         if (artwork.Metadata.Type !== 'VideoArtwork') {
             mediaElement.load(function () {
                 // If the selection has changed since we started loading then return
-                if (prevSelectedLeftLabel && prevSelectedLeftLabel.text() !== artwork.Name) {
+                if (prevSelectedMiddleLabel && prevSelectedMiddleLabel.text() !== artwork.Name) {
                     TAG.Util.removeProgressCircle(circle);
                     return;
                 }
@@ -47630,7 +47627,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
     function editArtwork(artwork) {
         // Overlay doesn't spin... not sure how to fix without redoing tour authoring to be more async
         loadingOverlay('Loading Artwork...');
-        leftQueue.clear();
+        middleQueue.clear();
         rightQueue.clear();
         setTimeout(function () {
             TAG.Util.UI.slidePageLeft((new TAG.Layout.ArtworkEditor(artwork)).getRoot());
@@ -47697,7 +47694,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
 
     /**Loads Feedback view
      * @method loadFeedbackView
-     * @param {Object} id   id of left label to start on
+     * @param {Object} id   id of middle label to start on
      */
     function loadFeedbackView(id) {
         prepareNextView(true, "");
@@ -47713,31 +47710,31 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             $.each(result, function (i, val) {
                 if (cancel) return false;
                 // Add each label as a separate function to the queue so the UI doesn't lock up
-                leftQueue.add(function () {
+                middleQueue.add(function () {
                     if (cancel) return;
                     if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.feedback.text]) {
                         return;
                     }
                     var label;
                     var text = $.datepicker.formatDate('(m/dd/yy) ', new Date(val.Metadata.Date * 1000)) + val.Metadata.Feedback;
-                    if (!prevSelectedLeftLabel &&
+                    if (!prevSelectedMiddleLabel &&
                         ((id && val.Identifier === id) || (!id && i === 0))) {
                         // Select the first one
-                        leftLoading.before(selectLabel(label = createLeftLabel(text, null, function () {
+                        middleLoading.before(selectLabel(label = createMiddleLabel(text, null, function () {
                             loadFeedback(val);
                         }, val.Identifier, true)));
 
                         // Scroll to the selected label if the user hasn't already scrolled somewhere
-                        if (leftbar.scrollTop() === 0 && label.offset().top - leftbar.height() > 0) {
-                            leftbar.animate({
-                                scrollTop: (label.offset().top - leftbar.height())
+                        if (middlebar.scrollTop() === 0 && label.offset().top - middlebar.height() > 0) {
+                            middlebar.animate({
+                                scrollTop: (label.offset().top - middlebar.height())
                             }, 1000);
                         }
 
-                        prevSelectedLeftLabel = label;
+                        prevSelectedMiddleLabel = label;
                         loadFeedback(val);
                     } else {
-                        leftLoading.before(label = createLeftLabel(text, null, function () {
+                        middleLoading.before(label = createMiddleLabel(text, null, function () {
                             loadFeedback(val);
                         }, val.Identifier, true));
                     }
@@ -47748,8 +47745,8 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                 });
             });
             // Hide the loading label when we're done
-            leftQueue.add(function () {
-                leftLoading.hide();
+            middleQueue.add(function () {
+                middleLoading.hide();
             });
         });
         cancelLastSetting = function () { cancel = true; };
@@ -47861,10 +47858,10 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         }, authError, conflict(feedback), error(loadFeedbackView));
     }
 
-    //Left Bar Functions:
+    //Middle Bar Functions:
 
-    /**Create a left label 
-     * @method createLeftLabel
+    /**Create a middle label 
+     * @method createMiddleLabel
      * @param  {String} text            the text of the label
      * @param imagesrc                  the source for the image. If not specified no image added
      * @param {Function} onclick        the onclick function for the label
@@ -47874,10 +47871,10 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
      * @param extension                 to check if is video or static art
      * @return {Object} container       the container of the new label
      */
-    function createLeftLabel(text, imagesrc, onclick, id, noexpand, onDoubleClick, inArtMode, extension) {
+    function createMiddleLabel(text, imagesrc, onclick, id, noexpand, onDoubleClick, inArtMode, extension) {
         var container = $(document.createElement('div'));
         text = TAG.Util.htmlEntityDecode(text);
-        container.attr('class', 'leftLabel');
+        container.attr('class', 'middleLabel');
         if (id) {
             container.attr('id', id);
         }
@@ -47906,13 +47903,13 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             });
         });
         container.click(function () {
-            if (prevSelectedLeftLabel == container)
+            if (prevSelectedMiddleLabel == container)
                 return;
-            resetLabels('.leftLabel');
+            resetLabels('.middleLabel');
             selectLabel(container, !noexpand);
             if (onclick)
                 onclick();
-            prevSelectedLeftLabel = container;
+            prevSelectedMiddleLabel = container;
         });
         if (onDoubleClick) {
             container.dblclick(onDoubleClick);
@@ -47963,30 +47960,30 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         return container;
     }
 
-    /**Set up the left side for the next view
+    /**Set up the middle bar for the next view
      * @method prepareNextView
      * @param {Boolean} showSearch      if true show search bar, otherwise hide
      * @param {String} newText          text for the 'New' button
      * @param {Function} newBehavior    onclick function for the 'New' button
-     * @param {String} loadingText      Text to display while left bar loading
+     * @param {String} loadingText      Text to display while middle bar loading
      */
     function prepareNextView(showSearch, newText, newBehavior, loadingText) {
-        leftQueue.clear();
-        leftLabelContainer.empty();
-        leftLabelContainer.append(leftLoading);
-        leftLoading.show();
+        middleQueue.clear();
+        middleLabelContainer.empty();
+        middleLabelContainer.append(middleLoading);
+        middleLoading.show();
         secondaryButton.css("display", "none");
         newButton.text(newText);
         newButton.unbind('click').click(newBehavior);
         if (!newText) newButton.hide();
         else newButton.show();
-        prevSelectedLeftLabel = null;
+        prevSelectedMiddleLabel = null;
         if (cancelLastSetting) cancelLastSetting();
 
         if (loadingText) {
-            leftLoading.children('label').text(loadingText);
+            middleLoading.children('label').text(loadingText);
         } else {
-            leftLoading.children('label').text('Loading...');
+            middleLoading.children('label').text('Loading...');
         }
 
         if (showSearch) {
@@ -48130,8 +48127,8 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             label.css('height', '');
             label.children('div').css('white-space', '');
 
-            if (prevSelectedLeftLabel) {
-                prevSelectedLeftLabel.children('div').css('white-space', 'nowrap');
+            if (prevSelectedMiddleLabel) {
+                prevSelectedMiddleLabel.children('div').css('white-space', 'nowrap');
             }
         }
         return label;
@@ -48380,7 +48377,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
      */
     function search(val, selector, childType) {
         $.each($(selector), function (i, child) {
-            if ($(child).attr('id') === 'leftLoading')
+            if ($(child).attr('id') === 'middleLoading')
                 return;
             if (TAG.Util.searchString($(child).children(childType).text(), val)) {
                 $(child).show();
@@ -48598,7 +48595,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         var popup = TAG.Util.UI.popUpMessage(function () {
             TAG.Auth.clearToken();
             rightQueue.clear();
-            leftQueue.clear();
+            middleQueue.clear();
             TAG.Layout.StartPage(null, function (page) {
                 TAG.Util.UI.slidePageRight(page);
             });
