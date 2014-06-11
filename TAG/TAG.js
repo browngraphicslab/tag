@@ -43878,16 +43878,17 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             }
         }
 
-        // Single collection UI; CSS modifications for the case when there is only one collection
-        if(numVisibleCollections === 1) {
-            enableSingleCollectionUI()
-        }
-
         if (currCollection) {
             clickCollection(currCollection, scrollPos, currentArtwork)();
         } else if(toShowFirst) {
             loadFirstCollection();
         }
+
+        // Single collection UI; CSS modifications for the case when there is only one collection
+        if(numVisibleCollections === 1) {
+            enableSingleCollectionUI()
+        }
+
         loadingArea.hide();
     }
 
@@ -43897,9 +43898,17 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      * description area.
      *
      * @method enableSingleCollectionUI
-     * @author Athyuttam Eleti
+     * @author Athyuttam Eleti and Emily Reif
      */
     function enableSingleCollectionUI() {
+
+        //Various divs to be manipulated
+        var exhibitionInfo = root.find("#collection-info"),
+            exhibitionNameDiv = root.find("#collection-name-div"),
+            contentDiv = root.find("#contentdiv"),
+            descriptionTextDiv = root.find("#description-text"),
+            imgContainerDiv = root.find("#img-container");
+
         collectionArea.css("display", "none");
         collectionHeader.css("display", "none");
         displayarea.css({
@@ -43907,21 +43916,20 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             "width": "100%"
         });
 
-        // NOT WOKING BECAUSE THESE DIVS AREN'T YET
-        // CREATED WHEN THIS CODE IS EXECUTED
-
-        // var exhibition_info = root.find("#collection-info");
-        // exhibition_info.css("width", "100%");
-
-        // var exhibition_name_div = root.find("#collection-name-div");
-        // exhibition_name_div.css("width", "100%");
-
-        // var content_div = root.find("#content-div");
-        // content_div.css({
-        //     "left": "4.5%",
-        //     "right": "4.5%"
-        // })
-    }
+        exhibitionInfo.css("width", "100%");
+        exhibitionNameDiv.css("width", "100%");
+        exhibitionInfo.append(contentDiv);
+        contentDiv.css({
+            'padding-left': '4.5%',
+            'width': '90%',
+            'left': '0',
+        });
+        imgContainerDiv.css('width', '30%');   
+        descriptionTextDiv.css({
+            'left': '38%',
+            'width': '62%'
+        });
+    };
 
     /**
      * Add a collection to the left bar
