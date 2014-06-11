@@ -609,7 +609,8 @@
   width: 95%;
   color: #ddd;
   padding-right: 20px;
-  overflow: auto;
+  overflow-y: scroll;
+  height: 170px;
 }
 #artmodeRoot .exhibitionPicker {
   width: 40%;

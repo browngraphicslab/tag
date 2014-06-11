@@ -380,18 +380,6 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         infoArtist.text(doq.Metadata.Artist);
         infoYear.text(doq.Metadata.Year);
         
-        //condition to check if the height of the info div is greater than or equal to half the lenght of the side bar, 
-        //in which case the scroll property of the div is enabled and its max height set to a 3rd of the info div height
-        if (assetContainer.height()>=sideBarInfo.height()-info.height()){
-            
-            info.css({
-                 'width': '500px',
-                //'overflow-y' : 'scroll',
-                //'max-height' : '10em',
-
-            });
-        }
-        
 
         // toggler to hide/show sidebar
         toggler.on('click', function () {
@@ -560,7 +548,8 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             }
 
             // set max height of drawers to avoid expanding into minimap area
-            maxHeight = Math.max(1, assetContainer.height() - currBottom);
+            maxHeight = Math.max(1, assetContainer.height() - currBottom- root.find(".drawerLabel").height()); //to account for the height of the drawerLabel of the current drawer.
+            console.log(currBottom);
             root.find(".drawerContents").css({
                 "max-height": maxHeight + "px",
             });
@@ -755,6 +744,22 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
         }
         annotatedImage.addAnimateHandler(dzMoveHandler);
 
+        //condition to check for overlap of the assetscontainer with minimap. If they overlap, we restrict the height of #info div to its original max-height.
+        var overlap = !(assetContainer.right < minimapContainer.left || 
+                assetContainer.left > minimapContainer.right || 
+                assetContainer.bottom < minimapContainer.top || 
+                assetContainer.top > minimapContainer.bottom)
+
+        if (overlap) {
+        
+            info.css({
+
+                'overflow-y' : 'scroll',
+                'max-height' : '5em',
+
+            });
+
+    }
         /*
          * END MINIMAP CODE
          ******************/
@@ -976,7 +981,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             toggle          = $(document.createElement('img')).addClass("drawerPlusToggle"),
             drawerContents  = $(document.createElement('div')).addClass("drawerContents"),
             i;
-
+       
         label.text(title);
         toggle.attr({
             src: tagPath+'images/icons/plus.svg',
@@ -1017,7 +1022,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             }
             drawerContents.slideToggle();
         });
-
+        
         drawer.contents = drawerContents;
         return drawer;
     }
@@ -1069,3 +1074,4 @@ TAG.Layout.ArtworkViewer.default_options = {
     doq: null,
     split: 'L',
 };
+
