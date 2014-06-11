@@ -45,13 +45,11 @@
             
                 <li><a href="../classes/TAG.AnnotatedImage.html">TAG.AnnotatedImage</a></li>
             
-                <li><a href="../classes/TAG.Util.IdleTimer.html">TAG.Util.IdleTimer</a></li>
-            
                 <li><a href="../classes/TAG.Layout.ArtworkViewer.html">TAG.Layout.ArtworkViewer</a></li>
             
-                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
-            
                 <li><a href="../classes/TAG.Layout.CollectionsPage.html">TAG.Layout.CollectionsPage</a></li>
+            
+                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
             
                 <li><a href="../classes/TAG.Layout.StartPage.html">TAG.Layout.StartPage</a></li>
             
@@ -59,11 +57,11 @@
             
                 <li><a href="../classes/TAG.Util.Artwork.html">TAG.Util.Artwork</a></li>
             
+                <li><a href="../classes/TAG.Util.IdleTimer.html">TAG.Util.IdleTimer</a></li>
+            
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
                 <li><a href="../classes/Telemetry.html">Telemetry</a></li>
-            
-                <li><a href="../classes/TwoStageTimer.html">TwoStageTimer</a></li>
             
             </ul>
 
@@ -136,8 +134,6 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
         backButton = root.find(&#x27;#backButton&#x27;),
         overlayOnRoot = root.find(&#x27;#overlayOnRoot&#x27;);
 
-    currentPage = TAG.Util.Constants.pages.TOUR_PLAYER;
-
     // UNCOMMENT IF WE WANT IDLE TIMER IN TOUR PLAYER
     // idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
     // idleTimer.start();
@@ -156,7 +152,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
     function goBack () {
         console.log(&#x27;player: &#x27;+player);
 
-        var artmode, catalog;
+        var artmode, collectionsPage;
 
         // UNCOMMENT IF WE WANT IDLE TIMER IN TOUR PLAYER
         // idleTimer.kill();
@@ -179,18 +175,17 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
             artmode = new TAG.Layout.ArtworkViewer(artmodeOptions);
             TAG.Util.UI.slidePageRightSplit(root, artmode.getRoot());
 
-            var selectedExhib = $(&#x27;#collection-&#x27; + prevExhib.Identifier);
-            selectedExhib.attr(&#x27;flagClicked&#x27;, &#x27;true&#x27;);
+            currentPage.name = TAG.Util.Constants.pages.ARTWORK_VIEWER;
+            currentPage.obj  = artmode;
         } else {
-            /* nbowditch _editted 2/13/2014 : added backInfo */
             var backInfo = { backArtwork: tourObj, backScroll: prevScroll };
-            catalog = new TAG.Layout.CollectionsPage({
+            collectionsPage = new TAG.Layout.CollectionsPage({
                 backScroll: prevScroll,
                 backArtwork: tourObj,
                 backCollection: exhibition
             });
-            /* end nbowditch edit */
-            TAG.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
+
+            TAG.Util.UI.slidePageRightSplit(root, collectionsPage.getRoot(), function () {
 				artworkPrev = &quot;catalog&quot;;
 				var selectedExhib = $(&#x27;#collection-&#x27; + prevExhib.Identifier);
 				selectedExhib.attr(&#x27;flagClicked&#x27;, &#x27;true&#x27;);
@@ -198,7 +193,10 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
                 if(selectedExhib[0].firstChild) {
     				$(selectedExhib[0].firstChild).css({&#x27;color&#x27;: &#x27;black&#x27;});
                 }
-			});           
+			});
+
+            currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+            currentPage.obj  = collectionsPage;         
         }
         // TODO: do we need this next line?
         // tagContainer.css({ &#x27;font-size&#x27;: &#x27;11pt&#x27;, &#x27;font-family&#x27;: &quot;&#x27;source sans pro regular&#x27; sans-serif&quot; }); // Quick hack to fix bug where rin.css was overriding styles for body element -jastern 4/30

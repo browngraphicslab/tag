@@ -73,7 +73,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
     /**
      * Return the dimensions of the active associated media or artwork
      * @method getMediaDimensions
-     * @return {String}     object with dimensions
+     * @return {Object}     object with dimensions
      */
     function getMediaDimensions() {
         return outerContainerDimensions;   
@@ -173,6 +173,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
     function dzManipPreprocessing() {
         outerContainerDimensions = {height: rootHeight, width: rootWidth};
         toManip = dzManip;
+        TAG.Util.IdleTimer.restartTimer();
     }
 
     /**
@@ -200,12 +201,12 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
      */
     function dzScroll(scale, pivot) {
         dzManip({
-                scale: scale,
-                translation: {
-                    x: 0,
-                    y: 0
-                },
-                pivot: pivot
+            scale: scale,
+            translation: {
+                x: 0,
+                y: 0
+            },
+            pivot: pivot
         });
     }
 
@@ -682,6 +683,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             toManip = mediaManip;
             $('.mediaOuterContainer').css('z-index', 1000);
             outerContainer.css('z-index', 1001);
+            TAG.Util.IdleTimer.restartTimer();
         }
 
         //When the associated media is clicked, set it to active(see mediaManipPreprocessing() above )
@@ -690,7 +692,6 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             event.preventDefault();
             TAG.Util.IdleTimer.restartTimer();
             mediaManipPreprocessing();
-
         });
 
      
@@ -802,13 +803,10 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                     return;
                 }
             } else{ // zoom from touch point: change width and height of outerContainer
-             
                 outerContainer.css("top",  (t + trans.y + (1 - scale) * pivot.y) + "px");
                 outerContainer.css("left", (l + trans.x + (1 - scale) * pivot.x) + "px");
                 outerContainer.css("width", newW + "px");
                 outerContainer.css("height", "auto"); 
-                
-
             }
 
             mediaManipPreprocessing();      //Update dimensions since they've changed, and keep this media as active (if say an inactive media was dragged/pinch-zoomed)

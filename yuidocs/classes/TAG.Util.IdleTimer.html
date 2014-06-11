@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>TwoStageTimer - Touch Art Gallery web application</title>
+    <title>TAG.Util.IdleTimer - Touch Art Gallery web application</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -45,13 +45,11 @@
             
                 <li><a href="../classes/TAG.AnnotatedImage.html">TAG.AnnotatedImage</a></li>
             
-                <li><a href="../classes/TAG.Util.IdleTimer.html">TAG.Util.IdleTimer</a></li>
-            
                 <li><a href="../classes/TAG.Layout.ArtworkViewer.html">TAG.Layout.ArtworkViewer</a></li>
             
-                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
-            
                 <li><a href="../classes/TAG.Layout.CollectionsPage.html">TAG.Layout.CollectionsPage</a></li>
+            
+                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
             
                 <li><a href="../classes/TAG.Layout.StartPage.html">TAG.Layout.StartPage</a></li>
             
@@ -59,11 +57,11 @@
             
                 <li><a href="../classes/TAG.Util.Artwork.html">TAG.Util.Artwork</a></li>
             
+                <li><a href="../classes/TAG.Util.IdleTimer.html">TAG.Util.IdleTimer</a></li>
+            
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
                 <li><a href="../classes/Telemetry.html">Telemetry</a></li>
-            
-                <li><a href="../classes/TwoStageTimer.html">TwoStageTimer</a></li>
             
             </ul>
 
@@ -104,7 +102,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>TwoStageTimer Class</h1>
+                        <h1>TAG.Util.IdleTimer Class</h1>
 <div class="box meta">
     
 
@@ -112,7 +110,7 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/TAG_js_utils_TwoStageTimer.js.html#l15"><code>TAG&#x2F;js&#x2F;utils&#x2F;TwoStageTimer.js:15</code></a>
+            Defined in: <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l1"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:1</code></a>
         </div>
     
 
@@ -124,42 +122,25 @@
 
 
 <div class="box intro">
-    <p>This two-stage timer takes in two duration-callback pairs. The stage one 
-callback is put on a timeout configured to the pre-specified duration
-which will tick down until the callback executes or until it is restarted. 
-Upon the stage one callback&#39;s execution, the stage two callback&#39;s timeout
-is then started. However, if the second callback&#39;s timeout is reset, it will 
-restart the entire timer back to stage one. Upon the second callback&#39;s 
-execution, the timer will sit idle until the reset method is invoked.</p>
+    <p>TAG idle timer class. Wraps idle timer-related
+functions in a contained scope.</p>
 
 </div>
 
 
     <div class="constructor">
         <h2>Constructor</h2>
-        <div id="method_TwoStageTimer" class="method item">
-    <h3 class="name"><code>TwoStageTimer</code></h3>
+        <div id="method_TAG.Util.IdleTimer" class="method item">
+    <h3 class="name"><code>TAG.Util.IdleTimer</code></h3>
 
     
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>stageOne</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>stageTwo</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
+        <span class="paren">()</span>
     
 
+    
+        <span class="returns-inline">
+            <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+        </span>
     
 
     
@@ -185,7 +166,7 @@ execution, the timer will sit idle until the reset method is invoked.</p>
             
         
         
-        <a href="../files/TAG_js_utils_TwoStageTimer.js.html#l15"><code>TAG&#x2F;js&#x2F;utils&#x2F;TwoStageTimer.js:15</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l1"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:1</code></a>
         
         </p>
 
@@ -200,47 +181,21 @@ execution, the timer will sit idle until the reset method is invoked.</p>
     </div>
 
     
-        <div class="params">
-            <h4>Parameters:</h4>
 
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">stageOne</code>
-                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the stage one timer pair (see timerPair helper function below)</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">stageTwo</code>
-                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the stage two timer pair</p>
-
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
     
+        <div class="returns">
+            <h4>Returns:</h4>
 
+            <div class="returns-description">
+                
+                    
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>:
+                    
+                    <p>a couple public methods</p>
+
+                
+            </div>
+        </div>
     
 
     
@@ -362,6 +317,13 @@ execution, the timer will sit idle until the reset method is invoked.</p>
                                 
                             </li>
                         
+                            <li class="index-item method">
+                                <a href="#method_TwoStageTimer">TwoStageTimer</a>
+
+                                
+                                
+                            </li>
+                        
                     </ul>
                 </div>
             
@@ -410,7 +372,7 @@ execution, the timer will sit idle until the reset method is invoked.</p>
             
         
         
-        <a href="../files/TAG_js_utils_TwoStageTimer.js.html#l167"><code>TAG&#x2F;js&#x2F;utils&#x2F;TwoStageTimer.js:167</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l166"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:166</code></a>
         
         </p>
 
@@ -470,7 +432,7 @@ stage one callback</p>
             
         
         
-        <a href="../files/TAG_js_utils_TwoStageTimer.js.html#l149"><code>TAG&#x2F;js&#x2F;utils&#x2F;TwoStageTimer.js:149</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l148"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:148</code></a>
         
         </p>
 
@@ -543,7 +505,7 @@ stage one callback</p>
             
         
         
-        <a href="../files/TAG_js_utils_TwoStageTimer.js.html#l158"><code>TAG&#x2F;js&#x2F;utils&#x2F;TwoStageTimer.js:158</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l157"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:157</code></a>
         
         </p>
 
@@ -612,7 +574,7 @@ stage one callback</p>
             
         
         
-        <a href="../files/TAG_js_utils_TwoStageTimer.js.html#l109"><code>TAG&#x2F;js&#x2F;utils&#x2F;TwoStageTimer.js:109</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l108"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:108</code></a>
         
         </p>
 
@@ -667,7 +629,7 @@ stage one callback</p>
             
         
         
-        <a href="../files/TAG_js_utils_TwoStageTimer.js.html#l118"><code>TAG&#x2F;js&#x2F;utils&#x2F;TwoStageTimer.js:118</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l117"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:117</code></a>
         
         </p>
 
@@ -726,7 +688,7 @@ stage one callback</p>
             
         
         
-        <a href="../files/TAG_js_utils_TwoStageTimer.js.html#l62"><code>TAG&#x2F;js&#x2F;utils&#x2F;TwoStageTimer.js:62</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l61"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:61</code></a>
         
         </p>
 
@@ -795,7 +757,7 @@ stage one callback</p>
             
         
         
-        <a href="../files/TAG_js_utils_TwoStageTimer.js.html#l51"><code>TAG&#x2F;js&#x2F;utils&#x2F;TwoStageTimer.js:51</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l50"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:50</code></a>
         
         </p>
 
@@ -850,7 +812,7 @@ stage one callback</p>
             
         
         
-        <a href="../files/TAG_js_utils_TwoStageTimer.js.html#l244"><code>TAG&#x2F;js&#x2F;utils&#x2F;TwoStageTimer.js:244</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l243"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:243</code></a>
         
         </p>
 
@@ -905,7 +867,7 @@ stage one callback</p>
             
         
         
-        <a href="../files/TAG_js_utils_TwoStageTimer.js.html#l71"><code>TAG&#x2F;js&#x2F;utils&#x2F;TwoStageTimer.js:71</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l70"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:70</code></a>
         
         </p>
 
@@ -961,7 +923,7 @@ restarts stage one timeout</p>
             
         
         
-        <a href="../files/TAG_js_utils_TwoStageTimer.js.html#l261"><code>TAG&#x2F;js&#x2F;utils&#x2F;TwoStageTimer.js:261</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l265"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:265</code></a>
         
         </p>
 
@@ -1016,7 +978,7 @@ restarts stage one timeout</p>
             
         
         
-        <a href="../files/TAG_js_utils_TwoStageTimer.js.html#l252"><code>TAG&#x2F;js&#x2F;utils&#x2F;TwoStageTimer.js:252</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l251"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:251</code></a>
         
         </p>
 
@@ -1071,7 +1033,7 @@ restarts stage one timeout</p>
             
         
         
-        <a href="../files/TAG_js_utils_TwoStageTimer.js.html#l42"><code>TAG&#x2F;js&#x2F;utils&#x2F;TwoStageTimer.js:42</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l41"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:41</code></a>
         
         </p>
 
@@ -1142,7 +1104,7 @@ restarts stage one timeout</p>
             
         
         
-        <a href="../files/TAG_js_utils_TwoStageTimer.js.html#l136"><code>TAG&#x2F;js&#x2F;utils&#x2F;TwoStageTimer.js:136</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l135"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:135</code></a>
         
         </p>
 
@@ -1189,6 +1151,123 @@ restarts stage one timeout</p>
 
                     <div class="param-description">
                         <p>function to be called when timer expires</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_TwoStageTimer" class="method item">
+    <h3 class="name"><code>TwoStageTimer</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>stageOne</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>stageTwo</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l15"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:15</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>This two-stage timer takes in two duration-callback pairs. The stage one 
+callback is put on a timeout configured to the pre-specified duration
+which will tick down until the callback executes or until it is restarted. 
+Upon the stage one callback&#39;s execution, the stage two callback&#39;s timeout
+is then started. However, if the second callback&#39;s timeout is reset, it will 
+restart the entire timer back to stage one. Upon the second callback&#39;s 
+execution, the timer will sit idle until the reset method is invoked.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">stageOne</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the stage one timer pair (see timerPair helper function below)</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">stageTwo</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the stage two timer pair</p>
 
                     </div>
 

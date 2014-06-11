@@ -611,7 +611,7 @@ TAG.Authoring.FileUploader = function (root, type, localCallback, finishedCallba
             );
         } else {
             removeOverlay();
-            console.log("internal server error: possible not enough RAM on the server VM to handle this upload");
+            console.log("internal server error: possibly not enough RAM on the server VM to handle this upload");
             popup = TAG.Util.UI.popUpMessage(null, "A server error occurred. It is possible that an image you are trying to upload is too large for the server's memory.");
             $('body').append(popup);
             $(popup).show();

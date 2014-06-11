@@ -45,13 +45,11 @@
             
                 <li><a href="../classes/TAG.AnnotatedImage.html">TAG.AnnotatedImage</a></li>
             
-                <li><a href="../classes/TAG.Util.IdleTimer.html">TAG.Util.IdleTimer</a></li>
-            
                 <li><a href="../classes/TAG.Layout.ArtworkViewer.html">TAG.Layout.ArtworkViewer</a></li>
             
-                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
-            
                 <li><a href="../classes/TAG.Layout.CollectionsPage.html">TAG.Layout.CollectionsPage</a></li>
+            
+                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
             
                 <li><a href="../classes/TAG.Layout.StartPage.html">TAG.Layout.StartPage</a></li>
             
@@ -59,11 +57,11 @@
             
                 <li><a href="../classes/TAG.Util.Artwork.html">TAG.Util.Artwork</a></li>
             
+                <li><a href="../classes/TAG.Util.IdleTimer.html">TAG.Util.IdleTimer</a></li>
+            
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
                 <li><a href="../classes/Telemetry.html">Telemetry</a></li>
-            
-                <li><a href="../classes/TwoStageTimer.html">TwoStageTimer</a></li>
             
             </ul>
 
@@ -135,7 +133,6 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         tagContainer;
 
     TAG.Telemetry.register(overlay, &#x27;click&#x27;, &#x27;start_to_collections&#x27;);
-    currentPage = TAG.Util.Constants.pages.START_PAGE;
 
     if (localStorage.ip &amp;&amp; localStorage.ip.indexOf(&#x27;:&#x27;) !== -1) {
         localStorage.ip = localStorage.ip.split(&#x27;:&#x27;)[0];
@@ -219,11 +216,14 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
 
         //opens the collections page on touch/click
         function switchPage() {
-            var newCatalog;
+            var collectionsPage;
 
             overlay.off(&#x27;click&#x27;);
-            newCatalog = TAG.Layout.CollectionsPage();
-            TAG.Util.UI.slidePageLeft(newCatalog.getRoot());
+            collectionsPage = TAG.Layout.CollectionsPage();
+            TAG.Util.UI.slidePageLeft(collectionsPage.getRoot());
+
+            currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+            currentPage.obj  = collectionsPage;
         }
 
         // Test for browser compatibility

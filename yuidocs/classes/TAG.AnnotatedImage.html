@@ -45,13 +45,11 @@
             
                 <li><a href="../classes/TAG.AnnotatedImage.html">TAG.AnnotatedImage</a></li>
             
-                <li><a href="../classes/TAG.Util.IdleTimer.html">TAG.Util.IdleTimer</a></li>
-            
                 <li><a href="../classes/TAG.Layout.ArtworkViewer.html">TAG.Layout.ArtworkViewer</a></li>
             
-                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
-            
                 <li><a href="../classes/TAG.Layout.CollectionsPage.html">TAG.Layout.CollectionsPage</a></li>
+            
+                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
             
                 <li><a href="../classes/TAG.Layout.StartPage.html">TAG.Layout.StartPage</a></li>
             
@@ -59,11 +57,11 @@
             
                 <li><a href="../classes/TAG.Util.Artwork.html">TAG.Util.Artwork</a></li>
             
+                <li><a href="../classes/TAG.Util.IdleTimer.html">TAG.Util.IdleTimer</a></li>
+            
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
                 <li><a href="../classes/Telemetry.html">Telemetry</a></li>
-            
-                <li><a href="../classes/TwoStageTimer.html">TwoStageTimer</a></li>
             
             </ul>
 
@@ -286,13 +284,6 @@ touch handlers and a method for creating associated media objects.</p>
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_clickedMedia">clickedMedia</a>
-
-                                
-                                
-                            </li>
-                        
-                            <li class="index-item method">
                                 <a href="#method_createCloseButton">createCloseButton</a>
 
                                 
@@ -328,6 +319,13 @@ touch handlers and a method for creating associated media objects.</p>
                             </li>
                         
                             <li class="index-item method">
+                                <a href="#method_dzManipPreprocessing">dzManipPreprocessing</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
                                 <a href="#method_dzScroll">dzScroll</a>
 
                                 
@@ -336,6 +334,13 @@ touch handlers and a method for creating associated media objects.</p>
                         
                             <li class="index-item method">
                                 <a href="#method_getAssociatedMedia">getAssociatedMedia</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_getMediaDimensions">getMediaDimensions</a>
 
                                 
                                 
@@ -398,6 +403,13 @@ touch handlers and a method for creating associated media objects.</p>
                             </li>
                         
                             <li class="index-item method">
+                                <a href="#method_mediaScroll">mediaScroll</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
                                 <a href="#method_mediaSuccess">mediaSuccess</a>
 
                                 
@@ -405,7 +417,7 @@ touch handlers and a method for creating associated media objects.</p>
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_onScroll">onScroll</a>
+                                <a href="#method_move">move</a>
 
                                 
                                 
@@ -420,6 +432,13 @@ touch handlers and a method for creating associated media objects.</p>
                         
                             <li class="index-item method">
                                 <a href="#method_removeOverlay">removeOverlay</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_setArtworkClicked">setArtworkClicked</a>
 
                                 
                                 
@@ -526,7 +545,7 @@ touch handlers and a method for creating associated media objects.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l238"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:238</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l257"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:257</code></a>
         
         </p>
 
@@ -628,7 +647,7 @@ when the minimap is manipulated.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l120"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:120</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l125"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:125</code></a>
         
         </p>
 
@@ -740,7 +759,7 @@ canvas. Currently only used in ArtworkEditor.js.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l248"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:248</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l267"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:267</code></a>
         
         </p>
 
@@ -758,79 +777,6 @@ associatedMedia array.</p>
 
     
 
-    
-
-    
-</div>
-
-                
-                    <div id="method_clickedMedia" class="method item">
-    <h3 class="name"><code>clickedMedia</code></h3>
-
-    
-        <span class="paren">()</span>
-    
-
-    
-        <span class="returns-inline">
-            <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-        </span>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l67"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:67</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Return active media to be manipulated so applicable manipulation method can be called</p>
-
-    </div>
-
-    
-
-    
-        <div class="returns">
-            <h4>Returns:</h4>
-
-            <div class="returns-description">
-                
-                    
-                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>:
-                    
-                    <p>manipulation method object</p>
-
-                
-            </div>
-        </div>
     
 
     
@@ -873,7 +819,7 @@ associatedMedia array.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l751"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:751</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l893"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:893</code></a>
         
         </p>
 
@@ -952,7 +898,7 @@ associatedMedia array.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l277"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:277</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l296"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:296</code></a>
         
         </p>
 
@@ -1033,7 +979,7 @@ hotspot from the doq and linq</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l583"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:583</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l604"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:604</code></a>
         
         </p>
 
@@ -1109,7 +1055,7 @@ a lot of media, so just do it when the thumbnail button is clicked</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l297"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:297</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l316"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:316</code></a>
         
         </p>
 
@@ -1197,13 +1143,7 @@ ArtworkEditor.js. This could be in its own file.</p>
             
                 <li class="arg">
                     
-                        <code>pivot</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>translation</code>
+                        <code>res</code>
                     
                 </li>
             
@@ -1236,7 +1176,7 @@ ArtworkEditor.js. This could be in its own file.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l170"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:170</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l178"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:178</code></a>
         
         </p>
 
@@ -1259,30 +1199,14 @@ ArtworkEditor.js. This could be in its own file.</p>
             
                 <li class="param">
                     
-                        <code class="param-name">pivot</code>
+                        <code class="param-name">res</code>
                         <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>location of the event (x,y)</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">translation</code>
-                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>distance translated in x and y</p>
+                        <p>object containing hammer event info</p>
 
                     </div>
 
@@ -1291,6 +1215,61 @@ ArtworkEditor.js. This could be in its own file.</p>
             
             </ul>
         </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_dzManipPreprocessing" class="method item">
+    <h3 class="name"><code>dzManipPreprocessing</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l169"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:169</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>When the artwork is active, sets the manipulation method and dimensions for the active container</p>
+
+    </div>
+
     
 
     
@@ -1347,7 +1326,7 @@ ArtworkEditor.js. This could be in its own file.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l184"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:184</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l195"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:195</code></a>
         
         </p>
 
@@ -1446,7 +1425,7 @@ ArtworkEditor.js. This could be in its own file.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l78"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:78</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l83"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:83</code></a>
         
         </p>
 
@@ -1473,6 +1452,79 @@ ArtworkEditor.js. This could be in its own file.</p>
                         <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>:
                     
                     <p>associated media object</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_getMediaDimensions" class="method item">
+    <h3 class="name"><code>getMediaDimensions</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l73"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:73</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Return the dimensions of the active associated media or artwork</p>
+
+    </div>
+
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>:
+                    
+                    <p>object with dimensions</p>
 
                 
             </div>
@@ -1519,7 +1571,7 @@ ArtworkEditor.js. This could be in its own file.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l58"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:58</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l63"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:63</code></a>
         
         </p>
 
@@ -1588,7 +1640,7 @@ ArtworkEditor.js. This could be in its own file.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l825"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:825</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l969"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:969</code></a>
         
         </p>
 
@@ -1643,7 +1695,7 @@ ArtworkEditor.js. This could be in its own file.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l195"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:195</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l212"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:212</code></a>
         
         </p>
 
@@ -1708,7 +1760,7 @@ ArtworkEditor.js. This could be in its own file.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l397"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:397</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l417"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:417</code></a>
         
         </p>
 
@@ -1787,7 +1839,7 @@ ArtworkEditor.js. This could be in its own file.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l343"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:343</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l363"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:363</code></a>
         
         </p>
 
@@ -1846,7 +1898,7 @@ ArtworkEditor.js. This could be in its own file.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l853"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:853</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l1000"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:1000</code></a>
         
         </p>
 
@@ -1923,7 +1975,7 @@ ArtworkEditor.js. This could be in its own file.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l673"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:673</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l696"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:696</code></a>
         
         </p>
 
@@ -2002,7 +2054,7 @@ ArtworkEditor.js. This could be in its own file.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l651"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:651</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l673"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:673</code></a>
         
         </p>
 
@@ -2013,7 +2065,7 @@ ArtworkEditor.js. This could be in its own file.</p>
     </div>
 
     <div class="description">
-        <p>Repeated functionality in the outerContainer click handler and
+        <p>Stores the dimensions and points to the media manipulation method  of the active associated media, also sends it to the front
 media manip.</p>
 
     </div>
@@ -2026,98 +2078,8 @@ media manip.</p>
 </div>
 
                 
-                    <div id="method_mediaSuccess" class="method item">
-    <h3 class="name"><code>mediaSuccess</code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>doqs</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l259"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:259</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Success callback function for .getAssocMediaTo call above. If the list of media is
-non-null and non-empty, it gets the linq between each doq and the artwork</p>
-
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">doqs</code>
-                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array" class="crosslink external" target="_blank">Array</a></span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the media doqs</p>
-
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
-    
-
-    
-</div>
-
-                
-                    <div id="method_onScroll" class="method item">
-    <h3 class="name"><code>onScroll</code></h3>
+                    <div id="method_mediaScroll" class="method item">
+    <h3 class="name"><code>mediaScroll</code></h3>
 
     
         <div class="args">
@@ -2164,7 +2126,7 @@ non-null and non-empty, it gets the linq between each doq and the artwork</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l734"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:734</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l876"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:876</code></a>
         
         </p>
 
@@ -2227,6 +2189,274 @@ non-null and non-empty, it gets the linq between each doq and the artwork</p>
 </div>
 
                 
+                    <div id="method_mediaSuccess" class="method item">
+    <h3 class="name"><code>mediaSuccess</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>doqs</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l278"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:278</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Success callback function for .getAssocMediaTo call above. If the list of media is
+non-null and non-empty, it gets the linq between each doq and the artwork</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">doqs</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array" class="crosslink external" target="_blank">Array</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the media doqs</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_move" class="method item">
+    <h3 class="name"><code>move</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>res</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>prevVelocity</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>prevLocation</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>finalPos</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>delay</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l819"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:819</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Recursive helper function for mediaManip.
+Moves object between start location and final location with proper physics.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">res</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>object containing hammer event info</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">prevVelocity</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>velocity of object on release</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">prevLocation</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>location of object</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">finalPos</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>target location of object</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">delay</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>delay (for timer)</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
                     <div id="method_openArtwork" class="method item">
     <h3 class="name"><code>openArtwork</code></h3>
 
@@ -2273,7 +2503,7 @@ non-null and non-empty, it gets the linq between each doq and the artwork</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l87"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:87</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l92"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:92</code></a>
         
         </p>
 
@@ -2376,7 +2606,7 @@ non-null and non-empty, it gets the linq between each doq and the artwork</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l140"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:140</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l145"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:145</code></a>
         
         </p>
 
@@ -2424,6 +2654,61 @@ canvas.</p>
 </div>
 
                 
+                    <div id="method_setArtworkClicked" class="method item">
+    <h3 class="name"><code>setArtworkClicked</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l55"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:55</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Sets the artwork as active and the Deep Zoom manipulation method is used zooming and panning</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
                     <div id="method_showMediaObject" class="method item">
     <h3 class="name"><code>showMediaObject</code></h3>
 
@@ -2456,7 +2741,7 @@ canvas.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l776"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:776</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l918"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:918</code></a>
         
         </p>
 
@@ -2512,7 +2797,7 @@ a hotspot, show it in a slightly random position.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l845"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:845</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l992"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:992</code></a>
         
         </p>
 
@@ -2567,7 +2852,7 @@ a hotspot, show it in a slightly random position.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l156"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:156</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l161"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:161</code></a>
         
         </p>
 
@@ -2638,7 +2923,7 @@ a hotspot, show it in a slightly random position.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l103"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:103</code></a>
+        <a href="../files/TAG_js_TAG_artmode_TAG.AnnotatedImage.js.html#l108"><code>TAG&#x2F;js&#x2F;TAG&#x2F;artmode&#x2F;TAG.AnnotatedImage.js:108</code></a>
         
         </p>
 

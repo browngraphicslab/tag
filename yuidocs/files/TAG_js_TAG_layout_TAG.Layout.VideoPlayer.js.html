@@ -45,13 +45,11 @@
             
                 <li><a href="../classes/TAG.AnnotatedImage.html">TAG.AnnotatedImage</a></li>
             
-                <li><a href="../classes/TAG.Util.IdleTimer.html">TAG.Util.IdleTimer</a></li>
-            
                 <li><a href="../classes/TAG.Layout.ArtworkViewer.html">TAG.Layout.ArtworkViewer</a></li>
             
-                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
-            
                 <li><a href="../classes/TAG.Layout.CollectionsPage.html">TAG.Layout.CollectionsPage</a></li>
+            
+                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
             
                 <li><a href="../classes/TAG.Layout.StartPage.html">TAG.Layout.StartPage</a></li>
             
@@ -59,11 +57,11 @@
             
                 <li><a href="../classes/TAG.Util.Artwork.html">TAG.Util.Artwork</a></li>
             
+                <li><a href="../classes/TAG.Util.IdleTimer.html">TAG.Util.IdleTimer</a></li>
+            
                 <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
             
                 <li><a href="../classes/Telemetry.html">Telemetry</a></li>
-            
-                <li><a href="../classes/TwoStageTimer.html">TwoStageTimer</a></li>
             
             </ul>
 
@@ -154,8 +152,6 @@ TAG.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         currentTimeDisplay = root.find(&#x27;#currentTimeDisplay&#x27;),
         backButton = root.find(&#x27;#backButton&#x27;);
 
-    currentPage = TAG.Util.Constants.pages.VIDEO_PLAYER;
-
     // UNCOMMENT IF WE WANT IDLE TIMER IN Video PLAYER
     // idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
     // idleTimer.start();
@@ -178,20 +174,23 @@ TAG.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         // idleTimer = null;
 
         var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
-        var catalog = new TAG.Layout.CollectionsPage({
+        var collectionsPage = TAG.Layout.CollectionsPage({
             backScroll: prevScroll,
             backArtwork: videoSrc,
             backCollection: collection
         });
 
-        catalog.getRoot().css({ &#x27;overflow-x&#x27;: &#x27;hidden&#x27; }); // TODO should be default in .styl file
-        TAG.Util.UI.slidePageRightSplit(root, catalog.getRoot(), function () {
+        // collectionsPage.getRoot().css({ &#x27;overflow-x&#x27;: &#x27;hidden&#x27; }); // TODO should be default in .styl file
+        TAG.Util.UI.slidePageRightSplit(root, collectionsPage.getRoot(), function () {
             artworkPrev = &quot;catalog&quot;;
             var selectedExhib = $(&#x27;#collection-&#x27; + prevExhib.Identifier);
             selectedExhib.attr(&#x27;flagClicked&#x27;, &#x27;true&#x27;);
             selectedExhib.css({ &#x27;background-color&#x27;: &#x27;white&#x27;, &#x27;color&#x27;: &#x27;black&#x27; });
             $(selectedExhib[0].firstChild).css({&#x27;color&#x27;: &#x27;black&#x27;});
         });
+
+        currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
+        currentPage.obj  = collectionsPage;
     }
 
     function loop(){
