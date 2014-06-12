@@ -1496,7 +1496,9 @@ TAG.Util.UI = (function () {
         hexToG: hexToG,
         hexToB: hexToB,
         hexToRGB: hexToRGB,
+        hexToRGBA: hexToRGBA,
         colorToHex: colorToHex,
+        dimColor: dimColor,
         fitTextInDiv: fitTextInDiv,
         makeNoArtworksOptionBox: makeNoArtworksOptionBox,
         drawPushpins: drawPushpins,
@@ -2517,6 +2519,26 @@ TAG.Util.UI = (function () {
     function hexToB(h) { return parseInt((cutHex(h)).substring(4, 6), 16); }
     function cutHex(h) { return (h.charAt(0) === "#") ? h.substring(1, 7) : h; }
 
+    /**
+     * Take in a color (in '#abcdef' format) and an opacity (0-1) and return an rgba(..) string
+     * @method hexToRGBA
+     * @param {String} color       input color as a hex string
+     * @param {String} opac        input opacity
+     * @return {String}            'rgba(color.r, color.g, color.b, opac)'
+     */
+    function hexToRGBA(color, opac) {
+        var r, g, b;
+
+        color = color.replace(/\#/g, '');
+        color = color.substring(0, 6);
+
+        r = parseInt(color.substring(0, 2), 16);
+        g = parseInt(color.substring(2, 4), 16);
+        b = parseInt(color.substring(4, 6), 16);
+
+        return 'rgba(' + r + ',' + g + ',' + b + ',' + opac + ')';
+    }
+
     //Takes a RGB or RGBA color value as input and outputs the Hex color representation, without the '#' symbol in front
     function colorToHex(rgb) {
         var digits = rgb.match(/(rgb|rgba)\((\d+),\s*(\d+),\s*(\d+)\,*\s*((\d+\.\d+)|\d+)*\)$/);
@@ -2533,6 +2555,29 @@ TAG.Util.UI = (function () {
         else {
             return "000000";
         }
+    }
+
+    /**
+     * Take in a color and return a dimmed version of that color (divide rgb by k)
+     * @param {String} inColor      input color as a hex string
+     * @param {Number} k            dimming factor
+     * @return {String}             formatted as 'rbg(_,_,_)'
+     */
+    function dimColor(inColor, k) {
+        var r,
+            g,
+            b;
+
+        k = k || 3;
+
+        inColor = inColor.replace(/\#/g, '');
+        inColor = inColor.substring(0, 6);
+
+        r = Math.round(parseInt(inColor.substring(0, 2), 16) / k);
+        g = Math.round(parseInt(inColor.substring(2, 4), 16) / k);
+        b = Math.round(parseInt(inColor.substring(4, 6), 16) / k); 
+
+        return 'rgb(' + r + ',' + g+ ',' + b + ')';
     }
 
     //function called to fit the text (that is wrapped in a span) within a div element.

@@ -5,10 +5,11 @@
  * as a central area for the deepzoom image.
  * @class TAG.Layout.ArtworkViewer
  * @constructor
- * @param {Object} options        some options for the artwork viewer page
- * @return {Object}               some public methods
+ * @param {Object} options              some options for the artwork viewer page
+ * @param {HTML Element} container      the root container 
+ * @return {Object}                     some public methods
  */
-TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition) {
+TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options, exhibition) {
     "use strict";
 
     options = options || {}; // cut down on null checks later

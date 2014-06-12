@@ -32025,7 +32025,9 @@ TAG.Util.UI = (function () {
         hexToG: hexToG,
         hexToB: hexToB,
         hexToRGB: hexToRGB,
+        hexToRGBA: hexToRGBA,
         colorToHex: colorToHex,
+        dimColor: dimColor,
         fitTextInDiv: fitTextInDiv,
         makeNoArtworksOptionBox: makeNoArtworksOptionBox,
         drawPushpins: drawPushpins,
@@ -33046,6 +33048,26 @@ TAG.Util.UI = (function () {
     function hexToB(h) { return parseInt((cutHex(h)).substring(4, 6), 16); }
     function cutHex(h) { return (h.charAt(0) === "#") ? h.substring(1, 7) : h; }
 
+    /**
+     * Take in a color (in '#abcdef' format) and an opacity (0-1) and return an rgba(..) string
+     * @method hexToRGBA
+     * @param {String} color       input color as a hex string
+     * @param {String} opac        input opacity
+     * @return {String}            'rgba(color.r, color.g, color.b, opac)'
+     */
+    function hexToRGBA(color, opac) {
+        var r, g, b;
+
+        color = color.replace(/\#/g, '');
+        color = color.substring(0, 6);
+
+        r = parseInt(color.substring(0, 2), 16);
+        g = parseInt(color.substring(2, 4), 16);
+        b = parseInt(color.substring(4, 6), 16);
+
+        return 'rgba(' + r + ',' + g + ',' + b + ',' + opac + ')';
+    }
+
     //Takes a RGB or RGBA color value as input and outputs the Hex color representation, without the '#' symbol in front
     function colorToHex(rgb) {
         var digits = rgb.match(/(rgb|rgba)\((\d+),\s*(\d+),\s*(\d+)\,*\s*((\d+\.\d+)|\d+)*\)$/);
@@ -33062,6 +33084,29 @@ TAG.Util.UI = (function () {
         else {
             return "000000";
         }
+    }
+
+    /**
+     * Take in a color and return a dimmed version of that color (divide rgb by k)
+     * @param {String} inColor      input color as a hex string
+     * @param {Number} k            dimming factor
+     * @return {String}             formatted as 'rbg(_,_,_)'
+     */
+    function dimColor(inColor, k) {
+        var r,
+            g,
+            b;
+
+        k = k || 3;
+
+        inColor = inColor.replace(/\#/g, '');
+        inColor = inColor.substring(0, 6);
+
+        r = Math.round(parseInt(inColor.substring(0, 2), 16) / k);
+        g = Math.round(parseInt(inColor.substring(2, 4), 16) / k);
+        b = Math.round(parseInt(inColor.substring(4, 6), 16) / k); 
+
+        return 'rgb(' + r + ',' + g+ ',' + b + ')';
     }
 
     //function called to fit the text (that is wrapped in a span) within a div element.
@@ -38804,7 +38849,7 @@ TAG.Worktop.Database = (function () {
             body: ['Description']
         },
         main: {
-            url: ['Name', 'OverlayColor', 'OverlayTrans', 'Location', 'Background', 'Icon', 'IconColor'],
+            url: ['Name', 'OverlayColor', 'OverlayTrans', 'Location', 'Background', 'Icon', 'IconColor', 'BackgroundColor', 'BackgroundOpacity', 'PrimaryFontColor', 'SecondaryFontColor'],
             body: ['Info']
         }
     };
@@ -38864,6 +38909,11 @@ TAG.Worktop.Database = (function () {
         getMuseumOverlayTransparency: getMuseumOverlayTransparency,
         getLogoBackgroundColor: getLogoBackgroundColor,
 		getBaseFontSize: getBaseFontSize,
+        getBackgroundColor: getBackgroundColor,
+        getBackgroundOpacity: getBackgroundOpacity,
+        getPrimaryFontColor: getPrimaryFontColor,
+        getSecondaryFontColor: getSecondaryFontColor,
+        
 
         // NEW
 
@@ -39700,6 +39750,7 @@ TAG.Worktop.Database = (function () {
     }
 
     function reloadMain(callback) {
+        debugger;
         if (callback) {
             var doq;
             var name = "Main";
@@ -39763,14 +39814,9 @@ TAG.Worktop.Database = (function () {
         return _main.Metadata["OverlayTransparency"];
     }
 
-    function getPrimaryFontColor() {
-        return _main.Metadata["FontColor"] || "#eeeeee";
-    }
-
     function getMuseumLoc() {
         return _main.Metadata["MuseumLoc"];
     }
-
     function getMuseumInfo() {
         return _main.Metadata["MuseumInfo"];
     }
@@ -39778,6 +39824,18 @@ TAG.Worktop.Database = (function () {
 	function getBaseFontSize() {
 		return _main.Metadata["BaseFontSize"] || "1.77";
 	}
+
+    function getBackgroundColor() {
+        return _main.Metadata["BackgroundColor"] || '#000000';
+    }
+
+    function getPrimaryFontColor() {
+        return _main.Metadata["PrimaryFontColor"];
+    }
+
+    function getSecondaryFontColor() {
+        return _main.Metadata["SecondaryFontColor"];
+    }
 
     function getStartPageBackground() {
         return TAG.Worktop.Database.fixPath(_main.Metadata["BackgroundImage"]);
@@ -39789,6 +39847,11 @@ TAG.Worktop.Database = (function () {
 
     function getLogoBackgroundColor() {
         return _main.Metadata["IconColor"];
+    }
+
+    
+    function getBackgroundOpacity() {
+        return _main.Metadata["BackgroundOpacity"] || "75"
     }
 
     function getOverlayColor() {
@@ -42082,20 +42145,25 @@ TAG.Util.makeNamespace("TAG.Layout.StartPage");
 * @return {Object} that                 collection of public methods and properties
 */
 TAG.Layout.StartPage = function (options, startPageCallback) {
-    "use strict";
+    "use strict"; ////////////////////////////////////////////////
 
     options = TAG.Util.setToDefaults(options, TAG.Layout.StartPage.default_options);
-    
     options.tagContainer = $("#tagRoot");
 
     var root = TAG.Util.getHtmlAjax('StartPage.html'), // use AJAX to load html from .html file
         overlay = root.find('#overlay'),
+        primaryFont = root.find('.primaryFont'),
         serverTagBuffer = root.find('#serverTagBuffer'),
         serverSetUpContainer = root.find('#serverSetUpContainer'),
         authoringButtonContainer = root.find('#authoringButtonContainer'),
         authoringButtonBuffer = root.find('#authoringButtonBuffer'),
         serverURL,
         tagContainer;
+
+    var // constants for customization 
+        PRIMARY_FONT_COLOR,
+        SECONDARY_FONT_COLOR;
+
 
     TAG.Telemetry.register(overlay, 'click', 'start_to_collections');
 
@@ -42107,6 +42175,7 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
     tagContainer = options.tagContainer || $('body');
 
     testConnection();
+    //applyCustomization();
 
     /**
      * Test internet and server connections
@@ -42163,6 +42232,8 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
     * @param {Object} main     contains all image paths and museum info
     */
     function loadHelper(main) {
+        
+
         if (startPageCallback) {
             startPageCallback(root);
         }
@@ -42175,7 +42246,7 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         if(!allowAuthoringMode){
             $('#authoringButtonBuffer').remove();
         }
-
+        
         overlay.on('click', switchPage);
         
         setImagePaths(main);
@@ -42421,6 +42492,8 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
             overlayTransparency,
             imageBgColor,
             logo;
+            
+            
         // set image paths
         root.find('#expandImage').attr('src', tagPath+'images/icons/Left.png');
         root.find('#handGif').attr('src', tagPath+'images/RippleNewSmall.gif');
@@ -42534,10 +42607,18 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         handGif = root.find('#handGif');
 
         setUpMuseumInfo(main);
-
     }
 
-    
+    /**
+    * Applying Customization Changes
+    * @method applyCustomization
+    */
+    function applyCustomization() {
+        $(primaryFont).css({ 
+            'color': '#' + PRIMARY_FONT_COLOR,
+        });
+    }
+
     /**
     * Fills in all museum info including name and location
     * @method setUpMuseumInfo
@@ -42552,8 +42633,16 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
             tempLoc,
             museumInfoDiv,
             museumInfoSpan,
-            tempInfo;
-            
+            tempInfo,
+            primaryFontColor,
+            secondaryFontColor;
+        
+        primaryFontColor = main.Metadata["PrimaryFontColor"];
+        console.log("color set: " + primaryFontColor);
+        secondaryFontColor = main.Metadata["SecondaryFontColor"];
+        PRIMARY_FONT_COLOR = primaryFontColor;
+        SECONDARY_FONT_COLOR = secondaryFontColor; 
+        
         museumName = root.find('#museumName');
         museumNameSpan = root.find('#museumNameSpan');
         tempName = main.Metadata["MuseumName"];
@@ -42588,6 +42677,7 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
             // running in browser
             museumInfoSpan.html(Autolinker.link(tempInfo , {email: false, twitter: false}));
         }
+        applyCustomization();
     }
 
     /**Opens authoring mode password dialog
@@ -42632,10 +42722,11 @@ TAG.Util.makeNamespace("TAG.Layout.ArtworkViewer");
  * as a central area for the deepzoom image.
  * @class TAG.Layout.ArtworkViewer
  * @constructor
- * @param {Object} options        some options for the artwork viewer page
- * @return {Object}               some public methods
+ * @param {Object} options              some options for the artwork viewer page
+ * @param {HTML Element} container      the root container 
+ * @return {Object}                     some public methods
  */
-TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition) {
+TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options, exhibition) {
     "use strict";
 
     options = options || {}; // cut down on null checks later
@@ -43751,7 +43842,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
     "use strict";
 
     options = options || {}; // cut down on null checks later
-
+    
     var // DOM-related
         root             = TAG.Util.getHtmlAjax('NewCatalog.html'), // use AJAX to load html from .html file
         leftbar          = root.find('#leftbar'),                    // see .jade file to see where these fit in
@@ -43768,6 +43859,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         searchTxt        = root.find('#searchTxt'),
         loadingArea      = root.find('#loadingArea'),
         backbuttonIcon   = root.find('#catalogBackButton'),
+        backgroundDiv    = root.find('.background'),
+        primaryFont      = root.find('.primaryFont'),
+        secondaryFont    = root.find('.secondaryFont'),
 
         // input options
         scrollPos        = options.backScroll || 0,     // horizontal position within collection's catalog
@@ -43799,8 +43893,22 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         artistInfo,                     // artist tombstone info div
         yearInfo,                       // year tombstone info div
         justShowedArtwork,              // for telemetry; helps keep track of artwork tile clicks
-        currentTag;                     // current sort tag
+        currentTag,                     // current sort tag
 
+
+        // customization and styling
+        backgroundColor  = '#' + TAG.Worktop.Database.getBackgroundColor().replace(/\#/g, ''),
+        backgroundOpacity= TAG.Worktop.Database.getBackgroundOpacity(),
+        primaryFontColor = '#' + TAG.Worktop.Database.getPrimaryFontColor().replace(/\#/g, ''),
+        secondaryFontColor = '#' + TAG.Worktop.Database.getSecondaryFontColor().replace(/\#/g, ''),
+
+        // constants for customization
+        BACKGROUND_COLOR = backgroundColor,
+        BACKGROUND_OPACITY = parseInt(backgroundOpacity)/100,
+        PRIMARY_FONT_COLOR = primaryFontColor,
+        SECONDARY_FONT_COLOR = secondaryFontColor;
+
+        collectionHeader.addClass('primaryFont');
     // get things rolling
     init();
 
@@ -43865,6 +43973,23 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         });
 
         TAG.Worktop.Database.getExhibitions(getCollectionsHelper, null, getCollectionsHelper);
+        applyCustomization();
+    }
+
+    /**Applying all the relevant customization changes
+     * @method applyCustomization
+     */
+    function applyCustomization() {
+        $(backgroundDiv).css({
+           'background-color': TAG.Util.UI.hexToRGBA(BACKGROUND_COLOR, BACKGROUND_OPACITY)
+        });
+        
+        $(primaryFont).css({
+            'color': PRIMARY_FONT_COLOR
+        });
+        $(secondaryFont).css({
+            'color': SECONDARY_FONT_COLOR
+        });
     }
 
     /**
@@ -43938,6 +44063,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             descriptionTextDiv = root.find("#description-text"),
             imgContainerDiv = root.find("#img-container");
 
+        exhibitionNameDiv.addClass('primaryFont');
+        exhibitionNameDiv.css({ 'color': '#' + PRIMARY_FONT_COLOR });
         collectionArea.css("display", "none");
         collectionHeader.css("display", "none");
         displayarea.css({
@@ -43974,6 +44101,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         text = text.replace(/<br>/g, '').replace(/<br \/>/g, '');
 
         toAdd.addClass('collectionClickable');
+        toAdd.addClass('primaryFont');
         toAdd.attr({
             'flagClicked': 'false',
             'id': 'collection-' + collection.Identifier
@@ -43981,7 +44109,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
     
         toAdd.on('mousedown', function () {
             $(this).css('background-color', 'white');
-            titleBox.css('color', 'black');
+            titleBox.css('color', PRIMARY_FONT_COLOR);
         });
        
         toAdd.on('mouseleave', function () {
@@ -43989,9 +44117,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             if (elt.attr('flagClicked') === 'false') {
                 elt.css({
                     'background-color': 'transparent',
-                    'color': 'white'
+                    'color': PRIMARY_FONT_COLOR
                 });
-                titleBox.css('color', 'white');
+                titleBox.css('color', PRIMARY_FONT_COLOR);
             }             
         });
     
@@ -44003,6 +44131,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
         titleBox.attr('id' ,'collection-title-'+collection.Identifier);
         titleBox.addClass('collection-title');
+        titleBox.addClass('primaryFont');
         titleBox.html(title);
 
         toAdd.append(titleBox);
@@ -44029,13 +44158,13 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             }
 
             for (i = 0; i < collectionTitles.length; i++) {
-                collectionTitles[i].css({ 'background-color': 'transparent', 'color': 'white' });
+                collectionTitles[i].css({ 'background-color': 'transparent', 'color': PRIMARY_FONT_COLOR});
                 collectionTitles[i].data("selected", false);
                 collectionTitles[i].attr('flagClicked', 'false');
-                collectionTitles[i].children().css('color', 'white');
+                collectionTitles[i].children().css('color', PRIMARY_FONT_COLOR);
             }
             $('#collection-'+collection.Identifier).attr('flagClicked', 'true');
-            $('#collection-title-'+collection.Identifier).css('color', 'black');
+            $('#collection-title-'+collection.Identifier).css('color', PRIMARY_FONT_COLOR);
             currCollection = collection;
             currentArtwork = artwrk || null;
             loadCollection.call($('#collection-'+currCollection.Identifier), currCollection);
@@ -44083,6 +44212,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         // make title
         titlediv = $(document.createElement('div'));
         titlediv.attr('id', 'collection-name-div');
+        titlediv.addClass('primaryFont');
+        titlediv.css({ 'color': PRIMARY_FONT_COLOR });
         titlediv.text(TAG.Util.htmlEntityDecode(collection.Name));
 
         w = $(window).width() * 0.75 * 0.8;
@@ -44375,8 +44506,10 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             main.addClass("tile");
             tileImage.addClass('tileImage');
             artTitle.addClass('artTitle');
+            artTitle.addClass('primaryFont');
             artText.addClass('artText');
-
+            artText.addClass('primaryFont');
+            artText.css({ 'color': PRIMARY_FONT_COLOR });
             main.css({
                 'margin-left': Math.floor(i / 2) * 16.5 + 1 + '%', // TODO do this using w rather than 16.5%
                 'margin-top': (i % 2) * 12.25 + '%'
@@ -44632,8 +44765,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      * @param {String} tag    the name of the sort tag
      */
     function colorSortTags(tag) {
-        $('.rowButton').css('color', 'gray');
-        $('[tagName="'+tag+'"]').css('color', 'white');
+        var rgbDim = TAG.Util.UI.dimColor('#' + SECONDARY_FONT_COLOR);
+        $('.rowButton').css('color', rgbDim);
+        $('[tagName="'+tag+'"]').css('color', SECONDARY_FONT_COLOR);
     }
 
     /**
@@ -45499,7 +45633,7 @@ TAG.Util.makeNamespace("TAG.Authoring.SettingsView");
  */
 TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabelID) {
     "use strict";
-
+   
         
     var root = TAG.Util.getHtmlAjax('SettingsView.html'), //Get html from html file
 
@@ -45808,6 +45942,10 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
      * including the viewer, buttons, and settings container.
      * @method loadSplashScreen
      */
+     /*
+      * TODO: fatcor this to be loadCustomization(), so it is extensible to have previews
+      * for the collections and artwork viewer pages too.
+      */
     function loadSplashScreen() {
         prepareViewer(true);
         clearRight();
@@ -45838,6 +45976,11 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             info = "";
         }
         var logoColor = TAG.Worktop.Database.getLogoBackgroundColor();
+        var backgroundColor = TAG.Worktop.Database.getBackgroundColor();
+        var backgroundOpacity = TAG.Worktop.Database.getBackgroundOpacity();
+        var primaryFontColor = TAG.Worktop.Database.getPrimaryFontColor();
+        var secondaryFontColor = TAG.Worktop.Database.getSecondaryFontColor();
+        
 
         // Create inputs
         var alphaInput = createTextInput(Math.floor(alpha * 100), true);
@@ -45858,11 +46001,16 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                 $('#logo')[0].src = TAG.Worktop.Database.fixPath(url);
             });
         });
-        var overlayColorInput = createBGColorInput(overlayColor, '.infoDiv', function () { return alphaInput.val(); });
+        var overlayColorInput = createBGColorInput(overlayColor, '.infoDiv', null, function () { return alphaInput.val(); });
         var nameInput = createTextInput(TAG.Util.htmlEntityDecode(name), true, 40);
         var locInput = createTextInput(TAG.Util.htmlEntityDecode(loc), true, 45);
         var infoInput = createTextAreaInput(TAG.Util.htmlEntityDecode(info), true);
-        var logoColorInput = createBGColorInput(logoColor, '.logoContainer', function () { return 100; });
+        var logoColorInput = createBGColorInput(logoColor, '.logoContainer', null, function () { return 100; });
+        var backgroundColorInput = createBGColorInput(backgroundColor, '.background', null, function() { return backgroundOpacityInput.val(); });
+        var backgroundOpacityInput = createTextInput(backgroundOpacity, true);
+        var primaryFontColorInput = createBGColorInput(primaryFontColor, null, '.primaryFont', function() { return 100 });
+        var secondaryFontColorInput = createBGColorInput(secondaryFontColor, null, '.secondaryFont', function() { return 100 });
+    
 
         // Handle changes
         onChangeUpdateNum(alphaInput, 0, 100, function (num) {
@@ -45880,6 +46028,9 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         });
         onChangeUpdateText(locInput, '#subheading', 33);
         onChangeUpdateText(infoInput, '#museumInfo', 300);
+        onChangeUpdateNum(backgroundOpacityInput, 0, 100, function(num) {
+            updateBGColor('.background', backgroundColorInput.val(), num);
+        })
 
         var bgImage = createSetting('Background Image', bgImgInput);
         var overlayAlpha = createSetting('Overlay Transparency (0-100)', alphaInput);
@@ -45889,6 +46040,10 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         var museumInfo = createSetting('Museum Info', infoInput);
         var museumLogo = createSetting('Museum Logo', logoInput);
         var logoColorSetting = createSetting('Museum Logo Background Color', logoColorInput);
+        var backgroundColorSetting = createSetting('Background Color', backgroundColorInput);
+        var backgroundOpacitySetting = createSetting('Background Opacity (0-100)', backgroundOpacityInput);
+        var primaryFontColorSetting = createSetting('Primary Font Color', primaryFontColorInput);
+        var secondaryFontColorSetting = createSetting('Secondary Font Color', secondaryFontColorInput);
 
         settingsContainer.append(bgImage);
         settingsContainer.append(overlayColorSetting);
@@ -45898,6 +46053,10 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         settingsContainer.append(museumInfo);
         settingsContainer.append(museumLogo);
         settingsContainer.append(logoColorSetting);
+        settingsContainer.append(backgroundColorSetting);
+        settingsContainer.append(backgroundOpacitySetting);
+        settingsContainer.append(primaryFontColorSetting);
+        settingsContainer.append(secondaryFontColorSetting);
 
         // Save button
         var saveButton = createButton('Save Changes', function () {
@@ -45907,16 +46066,20 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             if (infoInput === undefined) {
                 infoInput = "";
             }
-            //save Splash screen and pass in inpts with following keys:
+            //save Splash screen and pass in inputs with following keys:
             saveSplashScreen({
-                alphaInput: alphaInput,                 //Overlay Transparency
-                overlayColorInput: overlayColorInput,   //Overlay Color
-                nameInput: nameInput,                   //Museum Name
-                locInput: locInput,                     //Museum Location
-                infoInput: infoInput,                   //Museum Info
-                logoColorInput: logoColorInput,         //Logo background color
-                bgImgInput: bgImgInput,                 //Background image
-                logoInput: logoInput,                   //Logo image
+                alphaInput: alphaInput,                             //Overlay Transparency
+                overlayColorInput: overlayColorInput,               //Overlay Color
+                nameInput: nameInput,                               //Museum Name
+                locInput: locInput,                                 //Museum Location
+                infoInput: infoInput,                               //Museum Info
+                logoColorInput: logoColorInput,                     //Logo background color
+                bgImgInput: bgImgInput,                             //Background image
+                logoInput: logoInput,                               //Logo image
+                backgroundColorInput: backgroundColorInput,         //Background Color
+                backgroundOpacityInput: backgroundOpacityInput,     //Background Opacity
+                primaryFontColorInput: primaryFontColorInput,       //Primary Font Color
+                secondaryFontColorInput: secondaryFontColorInput    //Secondary Font Color
             });
         }, {
             'margin-right': '3%',
@@ -45925,8 +46088,33 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             'margin-left': '.5%',
             'float': 'right'
         });
+        
+        // preview buttons
+        var previewStartPageButton = createButton('Splash Screen', previewStartPage, {
+            'margin-left': '2%',
+            'margin-top': '1%',
+            'margin-right': '0%',
+            'margin-bottom': '3%',
+        });
+
+        var previewCollectionsPageButton = createButton('Collections Page', previewCollectionsPage, {
+            'margin-left': '2%',
+            'margin-top': '1%',
+            'margin-right': '0%',
+            'margin-bottom': '3%',
+        });
+
+        var previewArtworkViewerButton = createButton('Artwork Viewer', previewArtworkViewer, {
+            'margin-left': '2%',
+            'margin-top': '1%',
+            'margin-right': '0%',
+            'margin-bottom': '3%',
+        });
 
         buttonContainer.append(saveButton);
+        buttonContainer.append(previewStartPageButton);
+        buttonContainer.append(previewCollectionsPageButton);
+        buttonContainer.append(previewArtworkViewerButton);
     }
 
     /**Saves the splash screen settings
@@ -45946,7 +46134,11 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         var logoColor = inputs.logoColorInput.val();
         var bgImg = inputs.bgImgInput.val();
         var logo = inputs.logoInput.val();
-      
+        var backgroundColor = inputs.backgroundColorInput.val();
+        var backgroundOpacity = inputs.backgroundOpacityInput.val();
+        var primaryFontColor = inputs.primaryFontColorInput.val();
+        var secondaryFontColor = inputs.secondaryFontColorInput.val();
+
         var options = {
             Name: name,
             OverlayColor: overlayColor,
@@ -45954,6 +46146,10 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             Location: loc,
             Info: info,
             IconColor: logoColor,
+            BackgroundColor: backgroundColor,
+            BackgroundOpacity: backgroundOpacity,
+            PrimaryFontColor: primaryFontColor,
+            SecondaryFontColor: secondaryFontColor,
         };
         if (bgImg) options.Background = bgImg;
         if (logo) options.Icon = logo;
@@ -46055,6 +46251,48 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                     inputs.msg.text('There was an error contacting the server.');
                 });
         }
+    }
+
+    // PREVIEWS OF SPLASH SCREEN, COLLECTIONS PAGE, ARTOWRK VIEWER FOR CUSTOMIZATION
+
+    /**Preview splash screen
+     * @method previewStartPage
+     */
+    function previewStartPage() {
+        // Load the start page, the callback adds it to the viewer when it's done loading
+        var startPage = TAG.Layout.StartPage(null, function(startPage) {
+            if(prevSelectedSetting && prevSelectedSetting != nav[NAV_TEXT.general.text]) {
+                return;
+            }
+            viewer.empty();
+            viewer.append(startPage);
+            preventClickthrough(viewer);
+        });
+    }
+
+    /**Preview collections page
+     * @method previewCollectionsPage
+     */
+    function previewCollectionsPage() {
+        // Load the collections page, the callback adds it to the viewer when it's done loading
+        var collectionsPage = TAG.Layout.CollectionsPage(null, null, viewer);
+        var croot = collectionsPage.getRoot();
+        $(croot).css({ 'z-index': '1' });
+        if(prevSelectedSetting && prevSelectedSetting != nav[NAV_TEXT.general.text]) {
+            return;
+        }
+        viewer.empty();
+        viewer.append(croot);
+        preventClickthrough(viewer);
+    }
+
+    /**Preview artwork viewer
+     * @method previewArtworkViewer
+     */
+    function previewArtworkViewer() {
+        // Load the artwork viewer, the callback adds it to the viewer when it's done loading
+        var artworkViewer = TAG.Layout.ArtworkViewer({ catalogState: {}, doq: artworkList[0] || null, split: 'L' }, viewer);
+        var aroot = artworkViewer.getRoot();
     }
 
     // Collection Functions:
@@ -48285,11 +48523,12 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
      * of all elements matching the jquery selector 'selector'.
      * @method creatBGColorInput 
      * @param color 
-     * @param selector                      jQuery selector for elements to be changed
+     * @param selectorBackground            jQuery selector for elements background to be changed
+     * @param selectorText                  jQuery selector for color of text in the element to be changed
      * @param {Function} getTransValue      returns a valid transparency value  
      * @return {Object} container           returns container holding new input
      */
-    function createBGColorInput(color, selector, getTransValue) {
+    function createBGColorInput(color, selectorBackground, selectorText, getTransValue) {
         if (color.indexOf('#') !== -1) {
             color = color.substring(1, color.length);
         }
@@ -48300,7 +48539,12 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         container.val(color);
         picker.fromString(color);
         picker.onImmediateChange = function () {
-            updateBGColor(selector, container.val(), getTransValue());
+            if(selectorText) {
+                updateTextColor(selectorText, container.val());
+            } 
+            if(selectorBackground) {
+                updateBGColor(selectorBackground, container.val(), getTransValue());
+            }
         };
         return container;
     }
@@ -48314,6 +48558,15 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
     function updateBGColor(selector, hex, trans) {
         $(selector).css('background-color', TAG.Util.UI.hexToRGB(hex) + trans / 100.0 + ')');
 
+    }
+
+    /**Sets the text color of text in the jQuery selector passed in
+     * @method updateTextColor
+     * @param {HTML element} selector          jQuery selector, the color of text inside the selector is changed
+     * @param {Hex Value} color                color passed in as a hex value
+     */
+    function updateTextColor(selector, color) {
+        $(selector).css({ 'color': '#' + color });
     }
 
     /**Prevent a container from being clicked on by added a div on top of it

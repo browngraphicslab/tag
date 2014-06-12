@@ -20,7 +20,7 @@
  */
 TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabelID) {
     "use strict";
-
+   
         
     var root = TAG.Util.getHtmlAjax('SettingsView.html'), //Get html from html file
 
@@ -329,6 +329,10 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
      * including the viewer, buttons, and settings container.
      * @method loadSplashScreen
      */
+     /*
+      * TODO: fatcor this to be loadCustomization(), so it is extensible to have previews
+      * for the collections and artwork viewer pages too.
+      */
     function loadSplashScreen() {
         prepareViewer(true);
         clearRight();
@@ -359,6 +363,11 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             info = "";
         }
         var logoColor = TAG.Worktop.Database.getLogoBackgroundColor();
+        var backgroundColor = TAG.Worktop.Database.getBackgroundColor();
+        var backgroundOpacity = TAG.Worktop.Database.getBackgroundOpacity();
+        var primaryFontColor = TAG.Worktop.Database.getPrimaryFontColor();
+        var secondaryFontColor = TAG.Worktop.Database.getSecondaryFontColor();
+        
 
         // Create inputs
         var alphaInput = createTextInput(Math.floor(alpha * 100), true);
@@ -379,11 +388,16 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                 $('#logo')[0].src = TAG.Worktop.Database.fixPath(url);
             });
         });
-        var overlayColorInput = createBGColorInput(overlayColor, '.infoDiv', function () { return alphaInput.val(); });
+        var overlayColorInput = createBGColorInput(overlayColor, '.infoDiv', null, function () { return alphaInput.val(); });
         var nameInput = createTextInput(TAG.Util.htmlEntityDecode(name), true, 40);
         var locInput = createTextInput(TAG.Util.htmlEntityDecode(loc), true, 45);
         var infoInput = createTextAreaInput(TAG.Util.htmlEntityDecode(info), true);
-        var logoColorInput = createBGColorInput(logoColor, '.logoContainer', function () { return 100; });
+        var logoColorInput = createBGColorInput(logoColor, '.logoContainer', null, function () { return 100; });
+        var backgroundColorInput = createBGColorInput(backgroundColor, '.background', null, function() { return backgroundOpacityInput.val(); });
+        var backgroundOpacityInput = createTextInput(backgroundOpacity, true);
+        var primaryFontColorInput = createBGColorInput(primaryFontColor, null, '.primaryFont', function() { return 100 });
+        var secondaryFontColorInput = createBGColorInput(secondaryFontColor, null, '.secondaryFont', function() { return 100 });
+    
 
         // Handle changes
         onChangeUpdateNum(alphaInput, 0, 100, function (num) {
@@ -401,6 +415,9 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         });
         onChangeUpdateText(locInput, '#subheading', 33);
         onChangeUpdateText(infoInput, '#museumInfo', 300);
+        onChangeUpdateNum(backgroundOpacityInput, 0, 100, function(num) {
+            updateBGColor('.background', backgroundColorInput.val(), num);
+        })
 
         var bgImage = createSetting('Background Image', bgImgInput);
         var overlayAlpha = createSetting('Overlay Transparency (0-100)', alphaInput);
@@ -410,6 +427,10 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         var museumInfo = createSetting('Museum Info', infoInput);
         var museumLogo = createSetting('Museum Logo', logoInput);
         var logoColorSetting = createSetting('Museum Logo Background Color', logoColorInput);
+        var backgroundColorSetting = createSetting('Background Color', backgroundColorInput);
+        var backgroundOpacitySetting = createSetting('Background Opacity (0-100)', backgroundOpacityInput);
+        var primaryFontColorSetting = createSetting('Primary Font Color', primaryFontColorInput);
+        var secondaryFontColorSetting = createSetting('Secondary Font Color', secondaryFontColorInput);
 
         settingsContainer.append(bgImage);
         settingsContainer.append(overlayColorSetting);
@@ -419,6 +440,10 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         settingsContainer.append(museumInfo);
         settingsContainer.append(museumLogo);
         settingsContainer.append(logoColorSetting);
+        settingsContainer.append(backgroundColorSetting);
+        settingsContainer.append(backgroundOpacitySetting);
+        settingsContainer.append(primaryFontColorSetting);
+        settingsContainer.append(secondaryFontColorSetting);
 
         // Save button
         var saveButton = createButton('Save Changes', function () {
@@ -428,16 +453,20 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             if (infoInput === undefined) {
                 infoInput = "";
             }
-            //save Splash screen and pass in inpts with following keys:
+            //save Splash screen and pass in inputs with following keys:
             saveSplashScreen({
-                alphaInput: alphaInput,                 //Overlay Transparency
-                overlayColorInput: overlayColorInput,   //Overlay Color
-                nameInput: nameInput,                   //Museum Name
-                locInput: locInput,                     //Museum Location
-                infoInput: infoInput,                   //Museum Info
-                logoColorInput: logoColorInput,         //Logo background color
-                bgImgInput: bgImgInput,                 //Background image
-                logoInput: logoInput,                   //Logo image
+                alphaInput: alphaInput,                             //Overlay Transparency
+                overlayColorInput: overlayColorInput,               //Overlay Color
+                nameInput: nameInput,                               //Museum Name
+                locInput: locInput,                                 //Museum Location
+                infoInput: infoInput,                               //Museum Info
+                logoColorInput: logoColorInput,                     //Logo background color
+                bgImgInput: bgImgInput,                             //Background image
+                logoInput: logoInput,                               //Logo image
+                backgroundColorInput: backgroundColorInput,         //Background Color
+                backgroundOpacityInput: backgroundOpacityInput,     //Background Opacity
+                primaryFontColorInput: primaryFontColorInput,       //Primary Font Color
+                secondaryFontColorInput: secondaryFontColorInput    //Secondary Font Color
             });
         }, {
             'margin-right': '3%',
@@ -446,8 +475,33 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             'margin-left': '.5%',
             'float': 'right'
         });
+        
+        // preview buttons
+        var previewStartPageButton = createButton('Splash Screen', previewStartPage, {
+            'margin-left': '2%',
+            'margin-top': '1%',
+            'margin-right': '0%',
+            'margin-bottom': '3%',
+        });
+
+        var previewCollectionsPageButton = createButton('Collections Page', previewCollectionsPage, {
+            'margin-left': '2%',
+            'margin-top': '1%',
+            'margin-right': '0%',
+            'margin-bottom': '3%',
+        });
+
+        var previewArtworkViewerButton = createButton('Artwork Viewer', previewArtworkViewer, {
+            'margin-left': '2%',
+            'margin-top': '1%',
+            'margin-right': '0%',
+            'margin-bottom': '3%',
+        });
 
         buttonContainer.append(saveButton);
+        buttonContainer.append(previewStartPageButton);
+        buttonContainer.append(previewCollectionsPageButton);
+        buttonContainer.append(previewArtworkViewerButton);
     }
 
     /**Saves the splash screen settings
@@ -467,7 +521,11 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         var logoColor = inputs.logoColorInput.val();
         var bgImg = inputs.bgImgInput.val();
         var logo = inputs.logoInput.val();
-      
+        var backgroundColor = inputs.backgroundColorInput.val();
+        var backgroundOpacity = inputs.backgroundOpacityInput.val();
+        var primaryFontColor = inputs.primaryFontColorInput.val();
+        var secondaryFontColor = inputs.secondaryFontColorInput.val();
+
         var options = {
             Name: name,
             OverlayColor: overlayColor,
@@ -475,6 +533,10 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             Location: loc,
             Info: info,
             IconColor: logoColor,
+            BackgroundColor: backgroundColor,
+            BackgroundOpacity: backgroundOpacity,
+            PrimaryFontColor: primaryFontColor,
+            SecondaryFontColor: secondaryFontColor,
         };
         if (bgImg) options.Background = bgImg;
         if (logo) options.Icon = logo;
@@ -576,6 +638,48 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                     inputs.msg.text('There was an error contacting the server.');
                 });
         }
+    }
+
+    // PREVIEWS OF SPLASH SCREEN, COLLECTIONS PAGE, ARTOWRK VIEWER FOR CUSTOMIZATION
+
+    /**Preview splash screen
+     * @method previewStartPage
+     */
+    function previewStartPage() {
+        // Load the start page, the callback adds it to the viewer when it's done loading
+        var startPage = TAG.Layout.StartPage(null, function(startPage) {
+            if(prevSelectedSetting && prevSelectedSetting != nav[NAV_TEXT.general.text]) {
+                return;
+            }
+            viewer.empty();
+            viewer.append(startPage);
+            preventClickthrough(viewer);
+        });
+    }
+
+    /**Preview collections page
+     * @method previewCollectionsPage
+     */
+    function previewCollectionsPage() {
+        // Load the collections page, the callback adds it to the viewer when it's done loading
+        var collectionsPage = TAG.Layout.CollectionsPage(null, null, viewer);
+        var croot = collectionsPage.getRoot();
+        $(croot).css({ 'z-index': '1' });
+        if(prevSelectedSetting && prevSelectedSetting != nav[NAV_TEXT.general.text]) {
+            return;
+        }
+        viewer.empty();
+        viewer.append(croot);
+        preventClickthrough(viewer);
+    }
+
+    /**Preview artwork viewer
+     * @method previewArtworkViewer
+     */
+    function previewArtworkViewer() {
+        // Load the artwork viewer, the callback adds it to the viewer when it's done loading
+        var artworkViewer = TAG.Layout.ArtworkViewer({ catalogState: {}, doq: artworkList[0] || null, split: 'L' }, viewer);
+        var aroot = artworkViewer.getRoot();
     }
 
     // Collection Functions:
@@ -2806,11 +2910,12 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
      * of all elements matching the jquery selector 'selector'.
      * @method creatBGColorInput 
      * @param color 
-     * @param selector                      jQuery selector for elements to be changed
+     * @param selectorBackground            jQuery selector for elements background to be changed
+     * @param selectorText                  jQuery selector for color of text in the element to be changed
      * @param {Function} getTransValue      returns a valid transparency value  
      * @return {Object} container           returns container holding new input
      */
-    function createBGColorInput(color, selector, getTransValue) {
+    function createBGColorInput(color, selectorBackground, selectorText, getTransValue) {
         if (color.indexOf('#') !== -1) {
             color = color.substring(1, color.length);
         }
@@ -2821,7 +2926,12 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         container.val(color);
         picker.fromString(color);
         picker.onImmediateChange = function () {
-            updateBGColor(selector, container.val(), getTransValue());
+            if(selectorText) {
+                updateTextColor(selectorText, container.val());
+            } 
+            if(selectorBackground) {
+                updateBGColor(selectorBackground, container.val(), getTransValue());
+            }
         };
         return container;
     }
@@ -2835,6 +2945,15 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
     function updateBGColor(selector, hex, trans) {
         $(selector).css('background-color', TAG.Util.UI.hexToRGB(hex) + trans / 100.0 + ')');
 
+    }
+
+    /**Sets the text color of text in the jQuery selector passed in
+     * @method updateTextColor
+     * @param {HTML element} selector          jQuery selector, the color of text inside the selector is changed
+     * @param {Hex Value} color                color passed in as a hex value
+     */
+    function updateTextColor(selector, color) {
+        $(selector).css({ 'color': '#' + color });
     }
 
     /**Prevent a container from being clicked on by added a div on top of it
