@@ -1422,12 +1422,12 @@
   margin-left: 6.95%;
   margin-top: 0.372%;
 }
-#setViewLeftBarContainer {
+#setViewMiddleBarContainer {
   width: 22%;
   height: 92%;
   float: left;
 }
-#setViewRoot .leftLabel {
+#setViewRoot .middleLabel {
   min-height: 20px;
   height: 8%;
   padding-left: 2%;
@@ -1438,7 +1438,7 @@
   overflow: hidden;
   position: relative;
 }
-#setViewRoot .leftLabel .labelText {
+#setViewRoot .middleLabel .labelText {
   font-size: 100%;
   color: #000;
   display: inline-block;
@@ -1499,11 +1499,11 @@
   border-style: solid;
   border-color: #a7b4ae;
 }
-#setViewLeftBar {
+#setViewMiddleBar {
   width: 100%;
   height: 92%;
 }
-#setViewLeftLabelContainer {
+#setViewMiddleLabelContainer {
   padding-left: 3.5%;
   padding-right: 20px;
   padding-bottom: 5%;
@@ -1511,7 +1511,7 @@
   height: 92%;
   overflow: auto;
 }
-#setViewLeftLoading {
+#setViewMiddleLoading {
   padding: 2%;
   height: 40px;
   margin-right: 3%;

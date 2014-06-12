@@ -2589,6 +2589,7 @@ TAG.Util.UI = (function () {
 
 
         okButton.onclick = function () {
+            console.log("here");
             $(overlay).fadeOut(500, function () { $(overlay).remove(); });
         };
 
