@@ -1339,6 +1339,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                     "color": "white"
                 });
                 holder.html(media.Name + "<br /><br />" + media.Metadata.Description);
+                holder.crossOrigin = "";
                 break;
         }
         (source && type !== 'text') && holder.attr('src', source);
@@ -1913,7 +1914,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             mediaElement.attr('src', TAG.Worktop.Database.fixPath(artwork.Metadata.Source));
             mediaElement[0].onerror = TAG.Util.videoErrorHandler(mediaElement, viewer);
         }
-
+        mediaElement.crossOrigin = "";
         // Create a progress circle
         var progressCircCSS = {
             'position': 'absolute',
