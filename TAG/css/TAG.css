@@ -822,8 +822,6 @@
 #newCatalogRoot #currentThumbnail {
   max-height: 100%;
   max-width: 100%;
-  width: 100%;
-  height: 100%;
 }
 #newCatalogRoot #descSpan {
   text-overflow: ellipsis;
@@ -837,9 +835,9 @@
   white-space: normal;
   word-wrap: break-word;
   position: absolute;
-  width: 80%;
-  height: 20%;
-  margin: 10%;
+  width: 90%;
+  height: 35%;
+  margin: 5%;
   bottom: 0;
 }
 #newCatalogRoot #displayarea {
@@ -932,10 +930,9 @@
   color: #fff;
   display: none;
   height: 16%;
-  left: 0%;
   overflow: hidden;
   position: absolute;
-  top: 84%;
+  left: 0;
   width: 100%;
 }
 #newCatalogRoot #explore-text {
@@ -1040,7 +1037,6 @@
   height: 90%;
   z-index: 10000;
   position: absolute;
-  left: 0;
   display: none;
 }
 #newCatalogRoot .tile {
@@ -1066,20 +1062,34 @@
   height: 3%;
   top: 45%;
   left: 2%;
-  background-color: #000;
 }
 #newCatalogRoot .timelineTick {
   position: absolute;
-  background-color: #000;
-  height: 500%;
-  top: -200%;
+  background-color: rgba(255,255,255,0.5);
+  width: 0.5%;
+  height: 100%;
+  top: 0%;
 }
-#newCatalogRoot .timelineTickLabel {
+#newCatalogRoot .timelineDateLabelEnds {
   position: absolute;
   height: 100%;
-  top: 100%;
-  left: -200%;
+  top: -200%;
+  left: -275%;
   color: #fff;
+}
+#newCatalogRoot .timelineDateLabel {
+  position: absolute;
+  height: 100%;
+  top: -100%;
+  color: #fff;
+}
+#newCatalogRoot .timelineEventCircle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: rgba(255,255,255,0.5);
+  border-radius: 10px;
+  top: -8px;
 }
 #newCatalogRoot #catalogDiv {
   height: 85%;
@@ -1100,8 +1110,10 @@
   line-height: 100%;
   margin: 5%;
   text-align: center;
-  overflow-x: none;
   text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 90%;
 }
 #newCatalogRoot .tourLabel {
   bottom: 0px;
