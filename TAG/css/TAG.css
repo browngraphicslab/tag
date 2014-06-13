@@ -786,11 +786,9 @@
   width: 100%;
 }
 #newCatalogRoot #backbuttonArea {
-  height: 5%;
-  left: 3.5%;
+  left: 1%;
   position: absolute;
-  top: 2.5%;
-  width: 15%;
+  width: 3%;
 }
 #newCatalogRoot	#bgimage {
   background-position: center;
@@ -800,20 +798,26 @@
   width: 100%;
   height: 100%;
 }
+#newCatalogRoot #bottomContainer {
+  background-color: rgba(0,0,0,0.4);
+  width: 100%;
+  height: 60%;
+  position: absolute;
+  bottom: 0;
+}
 #newCatalogRoot #catalogBackButton {
   display: block;
   height: auto;
   position: relative;
-  top: 30%;
-  width: 76.3%;
+  top: 0%;
+  width: 100%;
+  height: 100%;
 }
-#newCatalogRoot #contentdiv {
-  height: 80%;
-  left: 2%;
-  position: relative;
-  text-overflow: ellipsis;
-  top: 2.25%;
-  width: 94%;
+#newCatalogRoot #collectionDescription {
+  width: 90%;
+  height: 90%;
+  overflow-y: auto;
+  margin: 5%;
 }
 #newCatalogRoot #currentThumbnail {
   max-height: 100%;
@@ -827,28 +831,23 @@
 }
 #newCatalogRoot #description-text {
   color: #fff;
-  height: 90%;
-  left: 45%;
   overflow-x: hidden;
   overflow-y: auto;
-  padding-right: 2%;
-  position: absolute;
   text-overflow: ellipsis;
   white-space: normal;
-  width: 55%;
   word-wrap: break-word;
+  position: absolute;
+  width: 80%;
+  height: 20%;
+  margin: 10%;
+  bottom: 0;
 }
 #newCatalogRoot #displayarea {
-  height: 50%;
-  left: 25%;
+  background-color: rgba(0,0,0,0.2);
   position: absolute;
-  width: 75%;
-}
-#newCatalogRoot #displayareasub {
   left: 0%;
-  position: absolute;
-  width: 100%;
   height: 100%;
+  width: 25%;
 }
 #newCatalogRoot #displayHelp {
   background-color: rgba(0,0,0,0.5);
@@ -875,11 +874,12 @@
 }
 #newCatalogRoot #collectionArea {
   background-color: rgba(0,0,0,0.7);
-  height: 88%;
-  margin-left: 4%;
-  margin-top: 4%;
-  overflow: auto;
-  width: 82%;
+  height: 20%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  width: 92%;
+  position: absolute;
+  left: 6%;
 }
 #newCatalogRoot #collection-label {
   height: 7%;
@@ -897,16 +897,6 @@
   position: absolute;
   top: 0%;
   width: 98%;
-}
-#newCatalogRoot #collection-name-div {
-  display: inline-block;
-  overflow: hidden;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 96%;
-  z-index: 100;
-  margin-top: 5px;
 }
 #newCatalogRoot #collection-selection {
   border: solid transparent;
@@ -972,26 +962,24 @@
   width: auto;
 }
 #newCatalogRoot #img-container {
-  height: 91.5%;
+  width: 80%;
   position: absolute;
-  top: 0%;
-  width: 40%;
+  left: 10%;
 }
 #newCatalogRoot #info-text {
   display: inline-block;
-  float: left;
-  left: 0;
-  position: absolute;
+  float: top;
   top: 100%;
   width: 100%;
 }
-#newCatalogRoot #leftbar {
-  height: 45%;
+#newCatalogRoot #topBar {
+  height: 37.5%;
   position: absolute;
-  width: 25%;
+  width: 100%;
+  top: 2.5%;
   z-index: 2;
 }
-#newCatalogRoot #leftbar-header {
+#newCatalogRoot #topBar-header {
   height: 5%;
   margin-bottom: 15%;
   overflow: hide;
@@ -1012,11 +1000,11 @@
 }
 #newCatalogRoot #sortRow {
   background-color: rgba(0,0,0,0.5);
-  height: 12.5%;
+  height: 15%;
   position: relative;
   top: 0%;
   width: 100%;
-  z-index: 10000;
+  z-index: 1000;
 }
 #newCatalogRoot .rowButton {
   cursor: pointer;
@@ -1046,20 +1034,55 @@
   text-align: right;
   width: 25%;
 }
+#newCatalogRoot #selectedArtworkContainer {
+  background-color: rgba(0,0,0,0.85);
+  width: 25%;
+  height: 90%;
+  z-index: 10000;
+  position: absolute;
+  left: 0;
+  display: none;
+}
 #newCatalogRoot .tile {
   border: 1px solid rgba(0,0,0,0.85);
-  height: 48%;
+  height: 45%;
   position: absolute;
-  width: 16%;
+  width: 22%;
 }
 #newCatalogRoot .tileImage {
   position: absolute;
   width: 100%;
   height: 100%;
 }
-#newCatalogRoot #catalogDiv {
-  background-color: rgba(0,0,0,0.5);
+#newCatalogRoot #timelineArea {
+  position: absolute;
+  width: 100%;
+  height: 85%;
+  bottom: 0;
+}
+#newCatalogRoot .timeline {
+  position: absolute;
+  width: 96%;
+  height: 3%;
+  top: 45%;
+  left: 2%;
+  background-color: #000;
+}
+#newCatalogRoot .timelineTick {
+  position: absolute;
+  background-color: #000;
+  height: 500%;
+  top: -200%;
+}
+#newCatalogRoot .timelineTickLabel {
+  position: absolute;
   height: 100%;
+  top: 100%;
+  left: -200%;
+  color: #fff;
+}
+#newCatalogRoot #catalogDiv {
+  height: 85%;
   overflow-x: auto;
   overflow-y: hidden;
   position: relative;
@@ -1068,14 +1091,15 @@
   z-index: 49;
 }
 #newCatalogRoot #catalogDivContainer {
-  height: 42.5%;
   position: absolute;
-  top: 51%;
-  width: 100%;
+  right: 0;
+  height: 100%;
+  width: 75%;
 }
 #newCatalogRoot #titleSpan {
   line-height: 100%;
-  margin-bottom: 15px;
+  margin: 5%;
+  text-align: center;
   overflow-x: none;
   text-overflow: ellipsis;
 }

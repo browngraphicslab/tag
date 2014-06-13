@@ -43753,21 +43753,20 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
     options = options || {}; // cut down on null checks later
 
     var // DOM-related
-        root             = TAG.Util.getHtmlAjax('NewCatalog.html'), // use AJAX to load html from .html file
-        leftbar          = root.find('#leftbar'),                    // see .jade file to see where these fit in
-        displayarea      = root.find('#displayarea'),
-        displayareasub   = root.find('#displayareasub'),
-        collectionArea   = root.find('#collectionArea'),
-        leftbarHeader    = root.find('#leftbar-header'),
-        collectionHeader = root.find('#collectionHeader'),
-        bgimage          = root.find('#bgimage'),
-        catalogDiv       = root.find('#catalogDiv'),
-        typeButton       = root.find('#typeButton'),
-        sortRow          = root.find('#sortRow'),
-        searchInput      = root.find('#searchInput'),
-        searchTxt        = root.find('#searchTxt'),
-        loadingArea      = root.find('#loadingArea'),
-        backbuttonIcon   = root.find('#catalogBackButton'),
+        root                     = TAG.Util.getHtmlAjax('NewCatalog.html'), // use AJAX to load html from .html file
+        displayarea              = root.find('#displayarea'),
+        collectionArea           = root.find('#collectionArea'),
+        collectionHeader         = root.find('#collectionHeader'),
+        bgimage                  = root.find('#bgimage'),
+        catalogDiv               = root.find('#catalogDiv'),
+        typeButton               = root.find('#typeButton'),
+        sortRow                  = root.find('#sortRow'),
+        searchInput              = root.find('#searchInput'),
+        searchTxt                = root.find('#searchTxt'),
+        selectedArtworkContainer = root.find('#selectedArtworkContainer'),
+        timelineArea             = root.find('#timelineArea'),
+        loadingArea              = root.find('#loadingArea'),
+        backbuttonIcon           = root.find('#catalogBackButton'),
 
         // input options
         scrollPos        = options.backScroll || 0,     // horizontal position within collection's catalog
@@ -43883,89 +43882,40 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
     }
 
     /**
-     * Helper function to add collections to left bar
+     * Helper function to add collections to top bar
      * @method getCollectionsHelper
      */
     function getCollectionsHelper(collections) {
         var i,
-            privateState,
-            c,
-            artwrk;
-
-        numVisibleCollections = 0;
+            privateState,   // Is collection private?
+            c;
 
         for(i=0; i<collections.length; i++) {
             c = collections[i];
             privateState = c.Metadata.Private ? (/^true$/i).test(c.Metadata.Private) : false;
             if(!privateState && TAG.Util.localVisibility(c.Identifier)) {
-                if(numVisibleCollections) {
-                    bgimage.css('background-image', "url(" + FIX_PATH(c.Metadata.BackgroundImage) + ")");
-                }
                 toShowFirst = toShowFirst || c;
-                addCollection(c);
-                numVisibleCollections++;
+                addCollection(c, i);
             }
         }
 
+        // Load collection
         if (currCollection) {
             clickCollection(currCollection, scrollPos, currentArtwork)();
         } else if(toShowFirst) {
             loadFirstCollection();
         }
 
-        // Single collection UI; CSS modifications for the case when there is only one collection
-        if(numVisibleCollections === 1) {
-            enableSingleCollectionUI()
-        }
-
         loadingArea.hide();
-    }
-
-    /**
-     * When only a single collection exists, this function modifies
-     * the CSS to hide the list of collections and expand the
-     * description area.
-     *
-     * @method enableSingleCollectionUI
-     * @author Athyuttam Eleti and Emily Reif
-     */
-    function enableSingleCollectionUI() {
-
-        //Various divs to be manipulated
-        var exhibitionInfo = root.find("#collection-info"),
-            exhibitionNameDiv = root.find("#collection-name-div"),
-            contentDiv = root.find("#contentdiv"),
-            descriptionTextDiv = root.find("#description-text"),
-            imgContainerDiv = root.find("#img-container");
-
-        collectionArea.css("display", "none");
-        collectionHeader.css("display", "none");
-        displayarea.css({
-            "left": "0",
-            "width": "100%"
-        });
-
-        exhibitionInfo.css("width", "100%");
-        exhibitionNameDiv.css("width", "100%");
-        exhibitionInfo.append(contentDiv);
-        contentDiv.css({
-            'padding-left': '4.5%',
-            'width': '90%',
-            'left': '0',
-        });
-        imgContainerDiv.css('width', '30%');   
-        descriptionTextDiv.css({
-            'left': '38%',
-            'width': '62%'
-        });
     };
 
     /**
-     * Add a collection to the left bar
+     * Add a collection to the top bar
      * @method addCollection
-     * @param {doq} collection     the collection to add
+     * @param {doq} collection                the collection to add
+     * @param {number} collectionIndex        index of the collection out of total collections
      */
-    function addCollection(collection) {
+    function addCollection(collection, collectionIndex) {
         var title    = TAG.Util.htmlEntityDecode(collection.Name),
             toAdd    = $(document.createElement('div')),
             titleBox = $(document.createElement('div')),
@@ -43973,12 +43923,22 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
         text = text.replace(/<br>/g, '').replace(/<br \/>/g, '');
 
+        // General CSS stuff
         toAdd.addClass('collectionClickable');
         toAdd.attr({
             'flagClicked': 'false',
             'id': 'collection-' + collection.Identifier
         });
+
+        toAdd.css({
+            'display': 'inline-block',
+            'width': '33%',
+            'height' : '100%',
+            'position' : 'absolute',
+            'left' : collectionArea.width()*(.33)*(collectionIndex)
+        });
     
+        // Mouse handlers
         toAdd.on('mousedown', function () {
             $(this).css('background-color', 'white');
             titleBox.css('color', 'black');
@@ -43995,15 +43955,16 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             }             
         });
     
+        // Telemetry
         toAdd.on('click', clickCollection(collection));
         TAG.Telemetry.register(toAdd, 'click', 'collection_title', function(tobj) {
             tobj.collection_name = title;
             tobj.collection_guid = collection.Identifier;
         });
 
-        titleBox.attr('id' ,'collection-title-'+collection.Identifier);
-        titleBox.addClass('collection-title');
-        titleBox.html(title);
+        titleBox.attr('id' ,'collection-title-'+collection.Identifier)
+                .addClass('collection-title')
+                .html(title);
 
         toAdd.append(titleBox);
         collectionArea.append(toAdd);
@@ -44028,12 +43989,14 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 idleTimer.start();
             }
 
+            // Add artworks
             for (i = 0; i < collectionTitles.length; i++) {
-                collectionTitles[i].css({ 'background-color': 'transparent', 'color': 'white' });
-                collectionTitles[i].data("selected", false);
-                collectionTitles[i].attr('flagClicked', 'false');
-                collectionTitles[i].children().css('color', 'white');
-            }
+                collectionTitles[i].css({ 'background-color': 'transparent', 'color': 'white' })
+                                   .data("selected", false)
+                                   .attr('flagClicked', 'false')
+                                   .children().css('color', 'white');
+            };
+
             $('#collection-'+collection.Identifier).attr('flagClicked', 'true');
             $('#collection-title-'+collection.Identifier).css('color', 'black');
             currCollection = collection;
@@ -44055,135 +44018,48 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      *                             (it doesn't have a label in the exhib list)
      */
     function loadCollection(collection, isPrivate) {
-        var display,
+        var collectionInfo,
             w,
             str,
-            fontSize,
-            titlediv,
-            contentdiv,
-            exploreTabText,
-            exploreTab,
-            exploreIcon,
             progressCircCSS,
-            circle;
+            collectionDescription;
 
         searchTxt.text("");
 
         catalogDiv && catalogDiv.empty();
 
         if (collection.Metadata.BackgroundImage) {
-            bgimage.css('background-image', "url(" + FIX_PATH(collection.Metadata.BackgroundImage) + ")");
+           bgimage.css('background-image', "url(" + FIX_PATH(collection.Metadata.BackgroundImage) + ")");
         }
 
         !isPrivate && this.data("selected", true);
 
         // Remove current contents of display area
-        displayareasub.empty();
-
-        // make title
-        titlediv = $(document.createElement('div'));
-        titlediv.attr('id', 'collection-name-div');
-        titlediv.text(TAG.Util.htmlEntityDecode(collection.Name));
+        displayarea.empty();
 
         w = $(window).width() * 0.75 * 0.8;
 
-        // display contains description, thumbnails and view button
-        display = $(document.createElement('div'));
-        display.attr('id', 'collection-info');
-        displayareasub.append(display);
+        // hide selected artwork container
+        selectedArtworkContainer.css('display', 'none');
 
-        // TODO fix this
-        fontSize = TAG.Util.getMaxFontSizeEM(TAG.Util.htmlEntityDecode(collection.Name), 1.5, w, 0.2 * display.height(),0.2);
-        titlediv.css({ 'font-size': fontSize });
-        display.append(titlediv);
+        // display contains description, thumbnails and view button
+        collectionInfo = $(document.createElement('div'))
+            .attr('id', 'collection-info');
+        displayarea.append(collectionInfo);
 
         // Contains text
-        contentdiv = $(document.createElement('div'));
-        contentdiv.attr('id', 'contentdiv');
-        display.append(contentdiv);
-
-        imgDiv = $(document.createElement('div'));
-        imgDiv.attr('id', 'img-container');
-
-        currentThumbnail = $(document.createElement('img'));
-        currentThumbnail.attr('id', 'currentThumbnail');
-        currentThumbnail.attr('src', FIX_PATH(collection.Metadata.DescriptionImage1));
-        currentThumbnail.attr('thumbnail', FIX_PATH(collection.Metadata.DescriptionImage1));
-        currentThumbnail.on('click', switchPage);
-
-        TAG.Telemetry.register(currentThumbnail, 'click', '', function(tobj) {
-            if (!currentArtwork || !artworkSelected) {
-                return true; // abort
-            }
-            tobj.work_name = currentArtwork.Name;
-            tobj.work_guid = currentArtwork.Identifier;
-            tobj.ttype     = 'collection_to_' + getWorkType(currentArtwork); 
-        });
-        
-        exploreTabText = $(document.createElement('div'));
-        exploreTabText.attr('id','explore-text');
-        exploreTabText.css("font-size", 20 * BASE_FONT_SIZE / 30 + 'em');
-        exploreTabText.text("Explore");
-
-        exploreIcon = $(document.createElement('img'));
-        exploreIcon.attr('id', 'exploreIcon');
-        exploreIcon.attr('src', tagPath+'images/icons/ExploreIcon.svg');
-
-        exploreTab = $(document.createElement('div'));
-        exploreTab.attr('id', 'explore-tab');
-        exploreTab.on('click', switchPage);
-
-        exploreTab.append(exploreIcon);
-        exploreTab.append(exploreTabText);
-
-        imgDiv.append(currentThumbnail);
-        imgDiv.append(exploreTab);
-        contentdiv.append(imgDiv);
-        
-        moreInfo = $(document.createElement('div'));
-        moreInfo.attr('id', 'info-text');
-
-        artistInfo = $(document.createElement('div'));
-        artistInfo.attr('id', 'artistInfo');
-        artistInfo.css('font-size', 11 * BASE_FONT_SIZE / 30 + 'em');
-
-        yearInfo = $(document.createElement('div'));
-        yearInfo.attr('id', 'yearInfo');
-        yearInfo.css('font-size', 11 * BASE_FONT_SIZE / 30 + 'em');
-
-        moreInfo.append(artistInfo);
-        moreInfo.append(yearInfo);
-        imgDiv.append(moreInfo);
-
-        descriptiontext = $(document.createElement('div'));
-        descriptiontext.attr('id', 'description-text');
+        collectionDescription = $(document.createElement('div'))
+            .attr('id', 'collectionDescription');
 
         str = collection.Metadata.Description ? collection.Metadata.Description.replace(/\n\r?/g, '<br />') : "";
         
-        descriptiontext.css({
-            'height': '91.5%',
-            'width': '55%', 
-            'font-size': 0.2 * TAG.Util.getMaxFontSizeEM(str, 1.5, 0.55 * $(contentdiv).width(), 0.915 * $(contentdiv).height(), 0.1),
+        collectionDescription.css({
+            'font-size': 0.2 * TAG.Util.getMaxFontSizeEM(str, 1.5, 0.55 * $(displayarea).width(), 0.915 * $(displayarea).height(), 0.1),
         });
         
-        descriptiontext.html(Autolinker.link(str, {email: false, twitter: false}));
+        collectionDescription.html(Autolinker.link(str, {email: false, twitter: false}));
 
-        contentdiv.append(descriptiontext);
-
-        progressCircCSS = {
-            'position': 'absolute',
-            'float': 'left',
-            'left': '12%',
-            'z-index': '50',
-            'height': '20%',
-            'width': 'auto',
-            'top': '22%',
-        };
-        circle = TAG.Util.showProgressCircle(descriptiontext, progressCircCSS, '0px', '0px', false);
-
-        currentThumbnail.on('load', function () {
-            TAG.Util.removeProgressCircle(circle);
-        });
+        collectionInfo.append(collectionDescription);
 
         if (!isPrivate) {
             $(this).css({
@@ -44191,6 +44067,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 'color': 'black'
             });
         }
+
+
     }
 
     /**
@@ -44309,7 +44187,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
     function drawCatalog(artworks, tag, start, onSearch) {
         if (!currCollection) {
             return;
-        }
+        };
 
         if (start === 0) {
             loadQueue.clear();
@@ -44318,7 +44196,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             
         } else {
             drawHelper();
-        }
+        };
+
+        createTimeline(artworks);
 
         // helper function to perform the actual drawing (to make sure we deal with async correctly)
         function drawHelper() {
@@ -44336,12 +44216,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             minOfSort = sortedArtworks.min();
             currentWork = minOfSort ? minOfSort.artwork : null;
             i = start;
-            h = $(catalogDiv).height() * 0.48;
+            h = catalogDiv.height() * 0.48;
             w = h * 1.4;
 
             works = sortedArtworks.getContents();
             for (j = 0; j < works.length; j++) {
-                loadQueue.add(drawArtworkTile(works[j].artwork, tag, onSearch, i + j, w, h));
+                loadQueue.add(drawArtworkTile(works[j].artwork, tag, onSearch, i + j));
                 loadQueue.add(function () {
                     if(catalogDiv.width() <= scrollPos) {
                         catalogDiv.animate({
@@ -44360,10 +44240,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      * @param {String} tag          current sort tag
      * @param {Boolean} onSearch    whether this work is a match after searching
      * @param {Number} i            index into list of all works in this collection
-     * @param {Number} w            width of this tile
-     * @param {Number} h            height of this tile
      */
-    function drawArtworkTile(currentWork, tag, onSearch, i, w, h) {
+    function drawArtworkTile(currentWork, tag, onSearch, i) {
         return function () {
             var main      = $(document.createElement('div')),
                 artTitle  = $(document.createElement('div')),
@@ -44377,11 +44255,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             artTitle.addClass('artTitle');
             artText.addClass('artText');
 
-            main.css({
-                'margin-left': Math.floor(i / 2) * 16.5 + 1 + '%', // TODO do this using w rather than 16.5%
-                'margin-top': (i % 2) * 12.25 + '%'
-            });
-
             main.on('click', function () {
                 // if the idle timer hasn't started already, start it
                 if(!idleTimer) {
@@ -44389,21 +44262,17 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                     idleTimer.start();
                 }
 
-                if (currentThumbnail.attr('guid') === currentWork.Identifier) { // click twice to enter viewer
-                    switchPage();
-                } else {
-                    showArtwork(currentWork)();
-                    justShowedArtwork = true;
-                }
+                showArtwork(currentWork, main)();
+                justShowedArtwork = true;
             });
 
             TAG.Telemetry.register(main, 'click', '', function(tobj) {
                 var type;
-                if (currentThumbnail.attr('guid') === currentWork.Identifier && !justShowedArtwork) {
-                    tobj.ttype = 'collections_to_' + getWorkType(currentWork);
-                } else {
+                //if (currentThumbnail.attr('guid') === currentWork.Identifier && !justShowedArtwork) {
+                //    tobj.ttype = 'collections_to_' + getWorkType(currentWork);
+                //} else {
                     tobj.ttype = 'artwork_tile';
-                }
+                //}
                 tobj.artwork_name = currentWork.Name;
                 tobj.artwork_guid = currentWork.Identifier;
 
@@ -44439,30 +44308,127 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
             if (currentWork.Type === "Empty") {
                 tourLabel = $(document.createElement('img'))
-                tourLabel.addClass('tourLabel');
-                tourLabel.attr('src', tagPath+'images/icons/catalog_tour_icon.svg');
+                    .addClass('tourLabel')
+                    .attr('src', tagPath+'images/icons/catalog_tour_icon.svg');
                 main.append(tourLabel);
             } else if (currentWork.Metadata.Medium === "Video") {
-                videoLabel = $(document.createElement('img'));
-                videoLabel.addClass('videoLabel');
-                videoLabel.attr('src', tagPath+'images/icons/catalog_video_icon.svg');
+                videoLabel = $(document.createElement('img'))
+                    .addClass('videoLabel')
+                    .attr('src', tagPath+'images/icons/catalog_video_icon.svg');
                 main.append(videoLabel);
             }
             catalogDiv.append(main);
+
+            main.css({
+                'margin-left': Math.floor(i / 2) * (main.width() + 10), // TODO fix this margin-- currently hardcoded to create margin
+                'margin-top': (i % 2) * (main.height() + 10)
+            });
         };
     }
+
+    /**
+     * Creates a timeline
+     * @method createTimeline
+     * @param artworks    artworks to create the timeline for
+     */
+     function createTimeline(artworks) {
+        var tick,
+            i,
+            comparator,
+            valuation,
+            avlTree,
+            artNode,
+            minOfSort,
+            maxOfSort,
+            timeRange,
+            timeRangeIncrements,
+            timelineTick,
+            timelineTickLabel,
+            timeline = $(document.createElement('div'));
+
+        timelineArea.empty();
+
+        timeline.addClass('timeline');
+        timelineArea.append(timeline);
+
+        // If there are no artworks, return
+        if (!artworks || artworks.length === 0){
+            return;
+        }   
+
+        // Sort artworks by year to create a range of dates to use for the timeline
+        comparator = sortComparator('yearKey');
+        valuation  = sortValuation('yearKey');
+
+        avlTree = new AVLTree(comparator, valuation);
+        for (i = 0; i < artworks.length; i++) {
+            artNode = {
+                artwork: artworks[i],
+                yearKey: artworks[i].Type === 'Empty' ? '~~~~' : artworks[i].Metadata.Year // tours show up at end
+            };
+            avlTree.add(artNode);
+        };
+
+        // Get minimum of this search
+        minOfSort = avlTree.min();
+        maxOfSort = avlTree.max();
+        while (maxOfSort.yearKey === '~~~~'){
+            maxOfSort = avlTree.findPrevious(maxOfSort);
+        };
+
+        // Time range is difference between earliest and latest dates of artworks.
+        // increments are this range/10
+        timeRange = maxOfSort.yearKey - minOfSort.yearKey;
+        if (!isNaN(timeRange)) {
+            timeRangeIncrements = timeRange/10;
+        }
+
+        // Create ticks and labels with corresponding dates
+        for (i = 0; i < 11; i++) {
+            tick = $(document.createElement('div'));
+            tick.addClass('timelineTick');
+            tick.css({
+                'width' : timeline.height(),
+                'left' : i*10 + '%'
+            });
+
+            timelineTickLabel = $(document.createElement('div'));
+            timelineTickLabel.addClass('timelineTickLabel');
+
+            if (!isNaN(timeRange)) {
+                timelineTickLabel.text(parseInt(minOfSort.yearKey) + parseInt(timeRangeIncrements*i));
+            } else {
+                timelineTickLabel.text('date');
+            }
+
+            tick.append(timelineTickLabel);
+            timeline.append(tick);
+        };
+     }
 
     /**
      * Shows an artwork in the upper section; sets the current thumbnail to be the artwork's
      * and shows name, description, etc
      * @method showArtwork
      * @param {doq} artwork     the artwork doq to be shown
-     * 
+     * @param {html object}     the tile that shows the artwork 
+     *
      */
-    function showArtwork(artwork) {
+    function showArtwork(artwork, tile) {
         return function () {
             var titleSpan,
-                descSpan;
+                descSpan,
+                imgDiv,
+                currentThumbnail,
+                exploreTabText,
+                exploreTab,
+                exploreIcon,
+                moreInfo,
+                artistInfo,
+                yearInfo,
+                descriptiontext,
+                progressCircCSS,
+                circle;
 
             if(!artwork) {
                 return;
@@ -44470,7 +44436,74 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
             currentArtwork = artwork;
             artworkSelected = true;
-            $('#explore-tab').css('display', 'inline-block');
+               
+            // Div for larger description and thumbnail of selected artwork   
+            selectedArtworkContainer.css({
+                'top' : tile.offset().top - 2.5*tile.height(), //TODO: fix this
+                'left' : tile.offset().left - .75*tile.width(),
+                'display': 'inline'  
+            });
+            selectedArtworkContainer.empty();
+
+            // Title
+            titleSpan = $(document.createElement('div'))
+                        .text(TAG.Util.htmlEntityDecode(artwork.Name))
+                        .attr('id', 'titleSpan');
+            selectedArtworkContainer.append(titleSpan);
+
+            // Div for thumnail of selected artwork
+            imgDiv = $(document.createElement('div'))
+                .attr('id', 'img-container');
+
+            currentThumbnail = $(document.createElement('img'))
+                .attr('id', 'currentThumbnail')
+                .attr('src', artwork.Metadata.Thumbnail ? FIX_PATH(artwork.Metadata.Thumbnail) : (tagPath+'images/no_thumbnail.svg'))
+                .attr('guid', artwork.Identifier)
+                .on('click', switchPage);
+
+            imgDiv.append(currentThumbnail);
+
+            // Telemetry on artworks
+            TAG.Telemetry.register(currentThumbnail, 'click', '', function(tobj) {
+                if (!currentArtwork || !artworkSelected) {
+                    return true; // abort
+                }
+                tobj.work_name = currentArtwork.Name;
+                tobj.work_guid = currentArtwork.Identifier;
+                tobj.ttype     = 'collection_to_' + getWorkType(currentArtwork); 
+            });
+
+            // Explore tab text, tab, and icon (on thumbnail of selected artwork)
+            exploreTabText = $(document.createElement('div'))
+                .attr('id','explore-text')
+                .css("font-size", 20 * BASE_FONT_SIZE / 30 + 'em')
+                .text("Explore");
+
+            exploreIcon = $(document.createElement('img'))
+                .attr('id', 'exploreIcon')
+                .attr('src', tagPath+'images/icons/ExploreIcon.svg');
+
+            exploreTab = $(document.createElement('div'))
+                .attr('id', 'explore-tab')
+                .on('click', switchPage)
+                .css('display', 'inline-block');
+
+            exploreTab.append(exploreIcon)
+                .append(exploreTabText);
+            imgDiv.append(exploreTab);
+            selectedArtworkContainer.append(imgDiv);
+        
+            // Info beneath thumbnail of selected art
+            moreInfo = $(document.createElement('div'))
+                .attr('id', 'info-text');
+
+            artistInfo = $(document.createElement('div'))
+                .attr('id', 'artistInfo')
+                .css('font-size', 11 * BASE_FONT_SIZE / 30 + 'em');
+
+            yearInfo = $(document.createElement('div'))
+                .attr('id', 'yearInfo')
+                .css('font-size', 11 * BASE_FONT_SIZE / 30 + 'em');
 
             if (artwork.Type !== "Empty") {
                 artistInfo.text("Artist: " + (artwork.Metadata.Artist || "Unknown"));
@@ -44479,28 +44512,46 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 artistInfo.text("(Interactive Tour)" );
                 yearInfo.text(" " );
             }
-                
-            currentThumbnail.css('border', '1px solid rgba(0,0,0,0.5)')
-                .attr({
-                    src:  artwork.Metadata.Thumbnail ? FIX_PATH(artwork.Metadata.Thumbnail) : (tagPath+'images/no_thumbnail.svg'),
-                    guid: artwork.Identifier
-                });
 
+            moreInfo.append(artistInfo)
+                .append(yearInfo);
+            imgDiv.append(moreInfo);
+
+            //Description of artwork
+            descriptiontext = $(document.createElement('div'))
+                .attr('id', 'description-text');
+
+            descSpan = $(document.createElement('div'))
+                .attr('id', 'descSpan')
+                .html(Autolinker.link(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '', {email: false, twitter: false}));
+
+            descriptiontext.empty()
+                            .append(descSpan);  
+
+            selectedArtworkContainer.append(descriptiontext);
+
+            //Progress circle for loading
+            // TODO: is this showing up? Look into
+            progressCircCSS = {
+                'position': 'absolute',
+                'float': 'left',
+                'left': '12%',
+                'z-index': '50',
+                'height': '20%',
+                'width': 'auto',
+                'top': '22%',
+            };
+
+            circle = TAG.Util.showProgressCircle(descriptiontext, progressCircCSS, '0px', '0px', false);
+
+            currentThumbnail.on('load', function () {
+                TAG.Util.removeProgressCircle(circle);
+            });
+
+            // Hack to simulate double-click event
             setTimeout(function() {
                 currentThumbnail.attr('guid', '');
-            }, 400); // hack to simulate double-click event
-            
-            titleSpan = $(document.createElement('div'))
-                        .text(TAG.Util.htmlEntityDecode(artwork.Name))
-                        .attr('id', 'titleSpan');
-            
-            descSpan = $(document.createElement('div'))
-                        .attr('id', 'descSpan');
-            
-            descSpan.html(Autolinker.link(artwork.Metadata.Description ? artwork.Metadata.Description.replace(/\n/g, '<br />') : '', {email: false, twitter: false}));
-                            
-            descriptiontext.empty();
-            descriptiontext.append(titleSpan).append(descSpan);            
+            }, 400);
         };
     }
 
