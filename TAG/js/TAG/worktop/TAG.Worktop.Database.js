@@ -45,7 +45,7 @@ TAG.Worktop.Database = (function () {
             body: ['Description']
         },
         main: {
-            url: ['Name', 'OverlayColor', 'OverlayTrans', 'Location', 'Background', 'Icon', 'IconColor'],
+            url: ['Name', 'OverlayColor', 'OverlayTrans', 'Location', 'Background', 'Icon', 'IconColor', 'BackgroundColor', 'BackgroundOpacity', 'PrimaryFontColor', 'SecondaryFontColor'],
             body: ['Info']
         }
     };
@@ -105,6 +105,10 @@ TAG.Worktop.Database = (function () {
         getMuseumOverlayTransparency: getMuseumOverlayTransparency,
         getLogoBackgroundColor: getLogoBackgroundColor,
 		getBaseFontSize: getBaseFontSize,
+        getBackgroundColor: getBackgroundColor,
+        getBackgroundOpacity: getBackgroundOpacity,
+        getPrimaryFontColor: getPrimaryFontColor,
+        getSecondaryFontColor: getSecondaryFontColor,
 
         // NEW
 
@@ -1020,6 +1024,10 @@ TAG.Worktop.Database = (function () {
 		return _main.Metadata["BaseFontSize"] || "1.77";
 	}
 
+    function getFontFamily() {
+        return _main.Metadata["FontFamily"] || "Source Sans Pro";
+    }
+
     function getStartPageBackground() {
         return TAG.Worktop.Database.fixPath(_main.Metadata["BackgroundImage"]);
     }
@@ -1037,6 +1045,22 @@ TAG.Worktop.Database = (function () {
     }
     function getOverlayTransparency() {
         return _main.Metadata["OverlayTransparency"];
+    }
+
+    function getBackgroundColor() {
+        return _main.Metadata["BackgroundColor"] || '#000000';
+    }
+
+    function getBackgroundOpacity() {
+        return _main.Metadata["BackgroundOpacity"] || '0.75';
+    }
+
+    function getPrimaryFontColor() {
+        return _main.Metadata["PrimaryFontColor"] || '#FFFFFF';
+    }
+
+    function getSecondaryFontColor() {
+        return _main.Metadata["SecondaryFontColor"] || '#FFFFFF';
     }
 
     function getMainGuid() {

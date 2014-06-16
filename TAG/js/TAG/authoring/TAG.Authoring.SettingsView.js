@@ -359,6 +359,11 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             info = "";
         }
         var logoColor = TAG.Worktop.Database.getLogoBackgroundColor();
+        var backgroundColor = TAG.Worktop.Database.getBackgroundColor();
+        var backgroundOpacity = TAG.Worktop.Database.getBackgroundOpacity();
+        var primaryFontColor = TAG.Worktop.Database.getPrimaryFontColor();
+        var secondaryFontColor = TAG.Worktop.Database.getSecondaryFontColor();
+
 
         // Create inputs
         var alphaInput = createTextInput(Math.floor(alpha * 100), true);
@@ -384,6 +389,10 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         var locInput = createTextInput(TAG.Util.htmlEntityDecode(loc), true, 45);
         var infoInput = createTextAreaInput(TAG.Util.htmlEntityDecode(info), true);
         var logoColorInput = createBGColorInput(logoColor, '.logoContainer', function () { return 100; });
+        var backgroundColorInput = createBGColorInput(backgroundColor, '.background', function () { return backgroundOpacityInput.val(); });
+        var backgroundOpacityInput = createTextInput(backgroundOpacity, true, 3);
+        var primaryFontColorInput = createBGColorInput(primaryFontColor, '.primaryFont', function () { return 100; });
+        var secondaryFontColorInput = createBGColorInput(secondaryFontColor, '.secondaryFont', function () { return 100; });
 
         // Handle changes
         onChangeUpdateNum(alphaInput, 0, 100, function (num) {
@@ -410,6 +419,10 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         var museumInfo = createSetting('Museum Info', infoInput);
         var museumLogo = createSetting('Museum Logo', logoInput);
         var logoColorSetting = createSetting('Museum Logo Background Color', logoColorInput);
+        var backgroundColorSetting = createSetting('Background Color', backgroundColorInput);
+        var backgroundOpacitySetting = createSetting('Background Opacity (0-100)', backgroundOpacityInput);
+        var primaryFontColorSetting = createSetting('Primary Font Color', primaryFontColorInput);
+        var secondaryFontColorSetting = createSetting('Secondary Font Color', secondaryFontColorInput);
 
         settingsContainer.append(bgImage);
         settingsContainer.append(overlayColorSetting);
@@ -419,6 +432,10 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         settingsContainer.append(museumInfo);
         settingsContainer.append(museumLogo);
         settingsContainer.append(logoColorSetting);
+        settingsContainer.append(backgroundColorSetting);
+        settingsContainer.append(backgroundOpacitySetting);
+        settingsContainer.append(primaryFontColorSetting);
+        settingsContainer.append(secondaryFontColorSetting);
 
         // Save button
         var saveButton = createButton('Save Changes', function () {
@@ -438,6 +455,10 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                 logoColorInput: logoColorInput,         //Logo background color
                 bgImgInput: bgImgInput,                 //Background image
                 logoInput: logoInput,                   //Logo image
+                backgroundColorInput: backgroundColorInput,
+                backgroundOpacityInput: backgroundOpacityInput,
+                primaryFontColorInput: primaryFontColorInput,
+                secondaryFontColorInput: secondaryFontColorInput,
             });
         }, {
             'margin-right': '3%',
@@ -467,6 +488,10 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         var logoColor = inputs.logoColorInput.val();
         var bgImg = inputs.bgImgInput.val();
         var logo = inputs.logoInput.val();
+        var backgroundColor = inputs.backgroundColorInput.val();
+        var backgroundOpacity = inputs.backgroundOpacityInput.val();
+        var primaryFontColor = inputs.primaryFontColorInput.val();
+        var secondaryFontColor = inputs.secondaryFontColorInput.val();
       
         var options = {
             Name: name,
@@ -475,6 +500,10 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             Location: loc,
             Info: info,
             IconColor: logoColor,
+            BackgroundColor: backgroundColor,
+            BackgroundOpacity: backgroundOpacity,
+            PrimaryFontColor: primaryFontColor,
+            SecondaryFontColor: secondaryFontColor,
         };
         if (bgImg) options.Background = bgImg;
         if (logo) options.Icon = logo;
