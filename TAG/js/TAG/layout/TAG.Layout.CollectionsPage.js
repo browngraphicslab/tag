@@ -476,14 +476,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
          * @param {Array} contents     array of doq objects for each of the contents of this collection
          */
         function contentsHelper(contents) {
-            var noArtworksOptionBox;
-
-            if (!contents || !contents[0]) { // pops up box warning user there is no artwork in selected collection
-                noArtworksOptionBox = TAG.Util.UI.makeNoArtworksOptionBox();
-                root.append(noArtworksOptionBox);
-                $(noArtworksOptionBox).fadeIn(500);
-            }
-
             createArtTiles(contents);
             initSearch(contents);
             callback && callback();

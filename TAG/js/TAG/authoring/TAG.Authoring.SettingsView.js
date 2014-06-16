@@ -3,6 +3,7 @@
 /*  Creates a SettingsView, which is the first UI in authoring mode.  
  *  @class TAG.Authoring.SettingsView
  *  @constructor
+    TODO- change parameters to options object
  *  @param startView sets the starting setting.  This can be "Exhibitions", "Artworks", "Tours", 
  *       or "General Settings".  Undefined/null, etc. goes to General Settings.
  *       TODO: Use constants instead of strings
