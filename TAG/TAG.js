@@ -43754,11 +43754,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
     var // DOM-related
         root                     = TAG.Util.getHtmlAjax('NewCatalog.html'), // use AJAX to load html from .html file
-        displayarea              = root.find('#displayarea'),
+        infoDiv                  = root.find('#infoDiv'),
         collectionArea           = root.find('#collectionArea'),
         collectionHeader         = root.find('#collectionHeader'),
         bgimage                  = root.find('#bgimage'),
         catalogDiv               = root.find('#catalogDiv'),
+        infoTilesContainer       = root.find('#infoTilesContainer'),
         typeButton               = root.find('#typeButton'),
         sortRow                  = root.find('#sortRow'),
         searchInput              = root.find('#searchInput'),
@@ -44019,8 +44020,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      *                             (it doesn't have a label in the exhib list)
      */
     function loadCollection(collection, isPrivate) {
-        var collectionInfo,
-            w,
+        var w,
             str,
             progressCircCSS,
             collectionDescription;
@@ -44036,41 +44036,41 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         !isPrivate && this.data("selected", true);
 
         // Remove current contents of display area
-        displayarea.empty();
+        infoDiv.empty();
 
         w = $(window).width() * 0.75 * 0.8;
 
-        // hide selected artwork container
+        // Hide selected artwork container
         selectedArtworkContainer.css('display', 'none');
 
-        // display contains description, thumbnails and view button
-        collectionInfo = $(document.createElement('div'))
-            .attr('id', 'collection-info');
-        displayarea.append(collectionInfo);
-
+        // Display contains description, thumbnails and view button
         // Contains text
         collectionDescription = $(document.createElement('div'))
             .attr('id', 'collectionDescription');
-
         str = collection.Metadata.Description ? collection.Metadata.Description.replace(/\n\r?/g, '<br />') : "";
-        
         collectionDescription.css({
-            'font-size': 0.2 * TAG.Util.getMaxFontSizeEM(str, 1.5, 0.55 * $(displayarea).width(), 0.915 * $(displayarea).height(), 0.1),
+            'font-size': 0.2 * TAG.Util.getMaxFontSizeEM(str, 1.5, 0.55 * $(infoDiv).width(), 0.915 * $(infoDiv).height(), 0.1),
         });
-        
         collectionDescription.html(Autolinker.link(str, {email: false, twitter: false}));
+        infoDiv.append(collectionDescription);
 
-        collectionInfo.append(collectionDescription);
+        //If there's no description, change UI so that artwork tiles take up entire bottom area
+        if (!collection.Metadata.Description){
+            infoDiv.css('display', 'none'); // Hide description area
+            catalogDiv.css('width', '100%'); // make tile area fill entire bottom container
+        } else {
+            infoDiv.css('display', 'inline');
+            catalogDiv.css('width', '75%');
+        };
 
         if (!isPrivate) {
             $(this).css({
                 'background-color': 'rgb(255,255,255)',
                 'color': 'black'
             });
-        }
+        };
 
-
-    }
+    };
 
     /**
      * Helper function to load first collection
@@ -44320,10 +44320,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 main.append(videoLabel);
             }
             catalogDiv.append(main);
-
             main.css({
-                'left': Math.floor(i / 2) * (main.width() + 10), // TODO fix this margin-- currently hardcoded to create margin
-                'top': (i % 2) * (main.height() + 10)
+                'left': Math.floor(i / 2) * (main.width() + 10), 
+                'top': Math.floor(i % 2) * (main.height() + 10)
             });
         };
     }
@@ -44345,8 +44344,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             timeRange,
             timelineTick,
             tick,
-            timelineDateLabelFirst,
-            timelineDateLabelLast,
+            timelineDateLabel,
             timelineTicks = [],
             timeline = $(document.createElement('div')),
             positionOnTimeline,
@@ -44401,39 +44399,33 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         minDate = parseInt(minDate - timeRange/10);
         timeRange = maxDate - minDate;
 
-        // First tick
-        timelineDateLabelFirst = $(document.createElement('div'))
-            .addClass('timelineDateLabelEnds')
-            .text(minDate);
-        timelineTicks[0].append(timelineDateLabelFirst)
-            .css({
-                'height' : '300%',
-                'top' : '-100%'
-            });
-        // Last tick
-        timelineDateLabelLast = $(document.createElement('div'))
-            .addClass('timelineDateLabelEnds')
-            .text(maxDate);
-        timelineTicks[100].append(timelineDateLabelLast)
-            .css({
-                'height' : '300%',
-                'top' : '-100%'
-            });
+        // Make artwork event circles and dates
 
-        // Make artwork event circles
-         for (j = 0; j < artworks.length; j++){
-            if (!isNaN(artworks[j].Metadata.Year)){
-                positionOnTimeline = parseInt(100*(artworks[j].Metadata.Year - minDate)/timeRange);
-
+        var curr = avlTree.min()
+        while (avlTree.findNext(curr)){
+            if (!isNaN(curr.yearKey)){
+                positionOnTimeline = parseInt(100*(curr.yearKey - minDate)/timeRange);
                 eventCircle = $(document.createElement('div'));
                 eventCircle.addClass('timelineEventCircle')
                     .css('left', positionOnTimeline + '%')
-                    .on('click', showArtwork(artworks[j]));
+                    .on('click', showArtwork(curr.artwork));
                 timeline.append(eventCircle);
-                artworks[j].circle = eventCircle;
+                curr.artwork.circle = eventCircle;
                 timelineEventCircles.push(eventCircle);
+
+                timelineDateLabel = $(document.createElement('div'))
+                    .addClass('timelineDateLabel')
+                    .text(curr.yearKey);
+                eventCircle.append(timelineDateLabel);
+                eventCircle.timelineDateLabel = timelineDateLabel;
+
+                // If circles are too close together, don't add dates to both of them
+                if ((avlTree.findPrevious(curr)) && (eventCircle.position().left - avlTree.findPrevious(curr).artwork.circle.position().left) < eventCircle.width()*2){
+                    timelineDateLabel.css('visibility', 'hidden');
+                };
             };
-         };
+            curr = avlTree.findNext(curr);
+        }
      };
 
     /**
@@ -44441,7 +44433,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      * and shows name, description, etc
      * @method showArtwork
      * @param {doq} artwork     the artwork doq to be shown
-     * @param {html object}     the tile that shows the artwork 
      *
      */
     function showArtwork(artwork) {
@@ -44470,9 +44461,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             artworkSelected = true;
             // Div for larger description and thumbnail of selected artwork   
             selectedArtworkContainer.css({
-                'top' : catalogDiv.offset().top + artwork.tile.position().top/4 - 2.25*artwork.tile.height(), //TODO: fix this
-                'left' : catalogDiv.offset().left + artwork.tile.position().left - .75*artwork.tile.width(),
-                'display': 'inline'
+                'display': 'inline',
+                'top' : catalogDiv.position().top + artwork.tile.position().top/1.75 + artwork.tile.height()/2 - selectedArtworkContainer.height()/2,
+                'left' : catalogDiv.position().left + artwork.tile.position().left + artwork.tile.width()/2 - selectedArtworkContainer.width()/2
             });
             selectedArtworkContainer.empty();
 
@@ -44562,20 +44553,21 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             selectedArtworkContainer.append(descriptiontext);
 
             //Circle (with date) on timeline
-            for (i = 0; i < timelineEventCircles.length; i++) {
-                timelineEventCircles[i].empty()
-                    .css({
+            for (i = 0; i < timelineEventCircles.length; i++) { // Make sure all other circles are grayed-out and small
+                timelineEventCircles[i].css({
                         'height'           : '20px',
                         'width'            : '20px',
                         'background-color' : 'rgba(255, 255, 255, .5)',
                         'border-radius'    : '10px',
                         'top'              : '-8px'
                     });
+
+                if (timelineEventCircles[i].timelineDateLabel.shouldBeHidden === true){ // Make sure labels that aren't supposed to be shown are grayed out
+                    timelineEventCircles[i].timelineDateLabel.css('visibility', 'hidden');
+                }
             };
 
-            timelineDateLabel = $(document.createElement('div'))
-                .addClass('timelineDateLabel')
-                .text(artwork.Metadata.Year);
+            // Make current circle larger and white
             if (artwork.circle){
                 artwork.circle.css({
                     'height'           : '30px',
@@ -44584,7 +44576,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                     'border-radius'    : '15px',
                     'top'              : '-12px'
                     });
-                artwork.circle.append(timelineDateLabel);  
+                // Add label to current date
+                artwork.circle.timelineDateLabel.css({
+                    'visibility': 'visible',
+                    'color' : 'white'  
+                })
+                artwork.circle.timelineDateLabel.shouldBeHidden = true // If date is not one of the perminantly-there grayed out ones, mark it to be hidden again later when different artwork is selected
             };
 
 

@@ -41,14 +41,13 @@
 #newCatalogRoot	#bgimage
 	background-position center
 	background-size cover
-	opacity 0.45
+	opacity 0.40
 	position absolute
 	wh 100%
 
 #newCatalogRoot #bottomContainer
-	background-color rgba(0, 0, 0, 0.4)
 	width 100%
-	height 60%
+	height 70%
 	position absolute
 	bottom 0
 
@@ -61,13 +60,14 @@
 
 #newCatalogRoot #collectionDescription
 	width 90%
-	height 90%
+	height 95%
 	overflow-y auto
 	margin 5%
+	margin-top 0%
 
 #newCatalogRoot #currentThumbnail
-	max-height 100% 
-	max-width 100% 
+	wh 100%
+	border-radius 2%
 
 #newCatalogRoot #descSpan
 	text-overflow ellipsis
@@ -77,20 +77,18 @@
 	color white
 	overflow-x hidden
 	overflow-y auto
-	text-overflow ellipsis 
 	white-space normal
 	word-wrap break-word
 	position absolute
 	width 90%
-	height 35%
+	height 25%
 	margin 5%
 	bottom 0
 
-#newCatalogRoot #displayarea
-	background-color rgba(0,0,0,0.2)
+#newCatalogRoot #infoDiv
 	position absolute
 	left 0%
-	height 100%
+	height 90%
 	width 25%
 
 #newCatalogRoot #displayHelp
@@ -135,12 +133,6 @@
 	text-align center
 	width 45%   
 	font-size 1.7em
-
-#newCatalogRoot #collection-info 
-	height 96%
-	position absolute
-	top 0%
-	width 98%
 
 #newCatalogRoot #collection-selection
 	border solid transparent
@@ -205,9 +197,11 @@
 	width auto
 
 #newCatalogRoot #img-container
-	width 80%
+	width 90%
+	height 50%
 	position absolute
-	left 10%
+	top 10%
+	left 5%
 
 #newCatalogRoot #info-text
 	display inline-block
@@ -216,7 +210,7 @@
 	width 100% 
 
 #newCatalogRoot #topBar
-	height 37.5%
+	height 27.5%
 	position absolute
 	width 100%
 	top 2.5%
@@ -236,13 +230,12 @@
 	z-index 1000000
 
 #newCatalogRoot #overlay
-	background-color rgba(0,0,0,0.5)
+	background-color rgba(0, 0, 0, 0.7)
 	position absolute
 	wh 100%
 
 #newCatalogRoot #sortRow
-	background-color rgba(0, 0, 0, 0.5)
-	height 15%
+	height 10%
 	position relative
 	top 0%
 	width 100%
@@ -267,6 +260,8 @@
 	position relative
 	right 1%
 	z-index 100
+	border-radius 2%
+
 
 #newCatalogRoot #searchTxt
 	color white
@@ -277,22 +272,25 @@
 	width 25%
 
 #newCatalogRoot #selectedArtworkContainer
-	background-color rgba(0,0,0,0.85)
-	width 25%
-	height 90%
+	background-color rgba(0,0,0,0.65)
+	width 32%
+	height 85%
 	z-index 10000
 	position absolute
 	display none
+	border-radius 2%
 
 #newCatalogRoot .tile
 	border 1px solid rgba(0,0,0,0.85)
-	height 45%
 	position absolute
-	width 22% 
+	height 45%
+	width 33% 
+	border-radius 3%	
 
 #newCatalogRoot .tileImage
 	position absolute
 	wh 100%
+	border-radius 3%	
 
 #newCatalogRoot #timelineArea
 	position absolute
@@ -302,30 +300,22 @@
 
 #newCatalogRoot .timeline
 	position absolute
-	width 96%
+	width 100%
 	height 3%
 	top 45%
-	left 2%
 
 #newCatalogRoot .timelineTick
 	position absolute
 	background-color rgba(255, 255, 255, .5)
-	width .5%
+	width .3%
 	height 100%
 	top 0%
-
-#newCatalogRoot .timelineDateLabelEnds
-	position absolute
-	height 100%
-	top -200%
-	left -275%
-	color white
 
 #newCatalogRoot .timelineDateLabel
 	position absolute
 	height 100%
 	top -100%
-	color white
+	color rgba(255, 255, 255, .5)
 
 #newCatalogRoot .timelineEventCircle
 	position absolute
@@ -336,15 +326,16 @@
 
 
 #newCatalogRoot #catalogDiv
-	height 85%
+	height 90%
 	overflow-x auto
 	overflow-y hidden
-	position relative
-	top 0%
-	width 100%
+	position absolute
+	bottom 0
+	right 0
+	width 75%
 	z-index 49            
 
-#newCatalogRoot #catalogDivContainer
+#newCatalogRoot #infoTilesContainer
 	position absolute
 	right 0
 	height 100%
@@ -352,12 +343,13 @@
 
 #newCatalogRoot #titleSpan
 	line-height 100%
-	margin 5%
+	margin 2.5%
+	height 10%
 	text-align center
 	text-overflow ellipsis
 	overflow hidden
 	white-space nowrap
-	width 90%
+	width 95%
 
 
 #newCatalogRoot .tourLabel
