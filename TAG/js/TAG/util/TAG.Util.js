@@ -1498,7 +1498,6 @@ TAG.Util.UI = (function () {
         hexToRGB: hexToRGB,
         colorToHex: colorToHex,
         fitTextInDiv: fitTextInDiv,
-        makeNoArtworksOptionBox: makeNoArtworksOptionBox,
         drawPushpins: drawPushpins,
         addPushpinToLoc: addPushpinToLoc,
         getLocationList: getLocationList,
@@ -2557,47 +2556,6 @@ TAG.Util.UI = (function () {
         }
     }
 
-
-    //makes the "no artworks in selected exhibiton" dialog box, used in both exhibition view and authoring
-    function makeNoArtworksOptionBox() {
-        var overlay = blockInteractionOverlay();
-        var noArtworksOptionBox = document.createElement('div');
-        $(noArtworksOptionBox).addClass('noArtworksOptionBox');
-        $(noArtworksOptionBox).css({
-            'width': '45%',
-            'position': 'absolute',
-            'top': '40%',
-            'left': '25%',
-            'padding': '2% 2%',
-            'background-color': 'black',
-            'border': '3px double white',
-            'z-index': '10000',
-            'id': 'deleteOptionBox'
-        });
-        var noArtworksLabel = document.createElement('p');
-        $(noArtworksLabel).css({
-            'font-size': '150%',
-            'color': 'white'
-        });
-        $(noArtworksLabel).text('There are no artworks present in this collection.');
-
-        var okButton = document.createElement('button');
-        $(okButton).css({
-            'float': 'right'
-        });
-        $(okButton).text('OK');
-
-
-        okButton.onclick = function () {
-            console.log("here");
-            $(overlay).fadeOut(500, function () { $(overlay).remove(); });
-        };
-
-        $(noArtworksOptionBox).append(noArtworksLabel);
-        $(noArtworksOptionBox).append(okButton);
-        $(overlay).append(noArtworksOptionBox);
-        return overlay;
-    }
 
     //Creates Microsoft.Maps.Pushpin objects from the locObjects within the locationList object, and displays the pushpins on the map
     function drawPushpins(locationList, map) {
