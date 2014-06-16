@@ -515,7 +515,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                 settingsContainer.append(old);
                 settingsContainer.append(new1);
                 settingsContainer.append(new2);
-                settingsContainer.append(msg);
+               
 
                 //Hide or else unused div covers 'Old Password' line
                 buttonContainer.css('display', 'none');
@@ -532,6 +532,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                 saveButton.removeAttr('type');
                 var save = createSetting('', saveButton);
                 settingsContainer.append(save);
+                settingsContainer.append(msg);
             } else {
                 passwordChangeNotSupported();
             }
