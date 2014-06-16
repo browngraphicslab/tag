@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-06-10 */
+/*! RIN | http://research.microsoft.com/rin | 2014-06-11 */
 (function() {
     "use strict";
     var rin = window.rin || {};
@@ -1308,7 +1308,7 @@ window.rin = window.rin || {};
                             if (self.getState() === "ready") {
                                 self._updateViewportClip(self._viewer);
                                 //if (self.applyConstraints)
-                                    openedViewer.viewport.applyConstraints(true);
+                                openedViewer.viewport.applyConstraints(true);
                             }
                     }, true);
                     self.initTouch();

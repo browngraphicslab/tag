@@ -2589,6 +2589,7 @@ TAG.Util.UI = (function () {
 
 
         okButton.onclick = function () {
+            console.log("here");
             $(overlay).fadeOut(500, function () { $(overlay).remove(); });
         };
 
@@ -2748,6 +2749,7 @@ TAG.Util.UI = (function () {
             tabBanner,
             tab,
             i,
+            searchTab,
             pickerSearchBar,
             selectAllLabel,
             deselectAllLabel,
@@ -2785,6 +2787,7 @@ TAG.Util.UI = (function () {
             width: '70%',
             height: '60%',
             padding: '1%',
+            'padding-left': '2%',
             'background-color': 'black',
             'border': '3px double white',
             top: '19%',
@@ -2799,7 +2802,8 @@ TAG.Util.UI = (function () {
         pickerHeader.css({
             'width': '100%',
             'color': 'white',
-            'font-size': '200%',
+            'font-size': '150%',
+            'height': '8%',
             'margin-bottom': '10px'
         });
         picker.append(pickerHeader);
@@ -2809,7 +2813,7 @@ TAG.Util.UI = (function () {
             tabBanner = $(document.createElement('div'));
             tabBanner.css({
                 'width': '100%',
-                'height': '30px',
+                'height': '8%',
                 'left': '5%'
             });
             tabBanner.attr("id", "tabBanner");
@@ -2822,8 +2826,12 @@ TAG.Util.UI = (function () {
                 tab.attr('id', 'tab' + i);
                 tab.css({
                     'display': 'inline-block',
-                    'width': '20%',
-                    'height': '100%',
+                    'min-width': '20%',
+                    'width': 'auto',
+                    'padding-left': '2%',
+                    'padding-right': '2%',
+                    'padding-top': '1%',
+                    'height': '85%',
                     'color': 'white',
                     'border-top': '1px solid ' + ((i === 0) ? 'white' : 'black'),
                     'border-right': '1px solid ' + ((i === 0) ? 'white' : 'black'),
@@ -2847,16 +2855,27 @@ TAG.Util.UI = (function () {
                 'border-left': '1px solid black'
             });
             tab.text('_'); // suuuuuuuuper hacky; vertical positioning wasn't right... TODO
-            tabBanner.append(tab);
+            //tabBanner.append(tab);
         }
+
+        searchTab = $(document.createElement('div'));
+        searchTab.attr("id","searchTab");
+        searchTab.css({
+            'height': '8%',
+            'width': '100%',
+            'margin-top': '2%',
+            'top': '13%'
+        })
+
+        picker.append(searchTab);
 
         // search bar
         pickerSearchBar = $(document.createElement('input'));
         pickerSearchBar.attr('type', 'text');
         pickerSearchBar.css({
-            'margin-left': '3%',
-            'margin-top': '2%',
-            'width': '30%',
+            'margin-left': '1%',
+            'width': '20%',
+            'height': '55%',
         });
         pickerSearchBar.on('keyup', function (event) {
             event.stopPropagation();
@@ -2871,7 +2890,7 @@ TAG.Util.UI = (function () {
                 TAG.Util.searchData(pickerSearchBar.val(), '.compHolder', IGNORE_IN_SEARCH);
             }
         });
-        picker.append(pickerSearchBar);
+        searchTab.append(pickerSearchBar);
 
         // select all label
         selectAllLabel = $(document.createElement('div'));
@@ -2879,7 +2898,7 @@ TAG.Util.UI = (function () {
         selectAllLabel.css({
             'color': '#aaaaaa',
             'display': 'inline-block',
-            'margin-left': '30px'
+            'margin-left': '5%'
         });
         selectAllLabel.text('Select All');
         selectAllLabel.on('click', function () {
@@ -2900,7 +2919,7 @@ TAG.Util.UI = (function () {
                 }
             });
         }); // TODO
-        picker.append(selectAllLabel);
+        searchTab.append(selectAllLabel);
 
         // deselect all label
         deselectAllLabel = $(document.createElement('div'));
@@ -2908,7 +2927,7 @@ TAG.Util.UI = (function () {
         deselectAllLabel.css({
             'color': '#aaaaaa',
             'display': 'inline-block',
-            'margin-left': '30px'
+            'margin-left': '5%'
         });
         deselectAllLabel.text('Deselect All');
         deselectAllLabel.on('click', function () {
@@ -2930,7 +2949,7 @@ TAG.Util.UI = (function () {
                 }
             });
         }); // TODO
-        picker.append(deselectAllLabel);
+        searchTab.append(deselectAllLabel);
 
         // main thumbnail container
         mainContainer = $(document.createElement('div'));
@@ -2967,6 +2986,10 @@ TAG.Util.UI = (function () {
         confirmButton.css({
             'margin': '1%',
             'border': '1px solid white',
+            'color': 'white',
+            'padding-left': '1%',
+            'padding-right': '1%',
+            'background-color': 'black',
             'width': 'auto',
             'position': 'relative',
             'float': "right",
@@ -2982,6 +3005,10 @@ TAG.Util.UI = (function () {
             'margin': '1%',
             'border': '1px solid white',
             'width': 'auto',
+            'color': 'white',
+            'padding-left': '1%',
+            'padding-right': '1%',
+            'background-color': 'black',
             'position': 'relative',
             'float': "right",
             'margin-right': '3%'
@@ -3092,8 +3119,9 @@ TAG.Util.UI = (function () {
                     float: 'left',
                     background: isSelected ? '#999' : '#222',
                     width: '15%',
-                    height: '30%',
+                    height: '35%',
                     padding: '1%',
+                    //'padding-bottom': '0%',
                     margin: '1%',
                     'text-align': 'center',
                     border: '1px solid white',
@@ -3106,7 +3134,7 @@ TAG.Util.UI = (function () {
                 imgHolderDiv.addClass('compHolderDiv');
                 imgHolderDiv.css({
                     "position": 'relative',
-                    "height": "80%",
+                    "height": "75%",
                     "margin": "2%",
                     "width":"96%"
                 });
@@ -3178,11 +3206,13 @@ TAG.Util.UI = (function () {
                 compHolderText.text(name);
                 compHolderText.css({
                     'padding-left': '3%',
-                    'font-size': '110%',
-                    margin: '0% 2% 0% 2%',
-                    overflow: 'hidden',
+                    'font-size': '70%',
+                    //'margin' :'0% 2% 0% 2%',
+                    'overflow': 'hidden',
+                    //'overflow-y': 'visible',
                     'text-overflow': 'ellipsis',
-                    'white-space': 'nowrap'
+                    'white-space': 'nowrap',
+                    'height': '22%'
                 });
                 compHolder.append(compHolderText);
                 applyClick(compHolder); // binds handlers
