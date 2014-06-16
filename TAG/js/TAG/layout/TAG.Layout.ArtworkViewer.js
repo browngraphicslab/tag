@@ -398,6 +398,9 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             tobj.work_name = doq.Name;
             tobj.work_guid = doq.Identifier;
         });
+        
+
+        
 
         function goBack() {
             var collectionsPage;
@@ -559,7 +562,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
 
             // set max height of drawers to avoid expanding into minimap area
             maxHeight = Math.max(1, assetContainer.height() - currBottom- root.find(".drawerLabel").height()); //to account for the height of the drawerLabel of the current drawer.
-            console.log(currBottom);
+            
             root.find(".drawerContents").css({
                 "max-height": maxHeight + "px",
 

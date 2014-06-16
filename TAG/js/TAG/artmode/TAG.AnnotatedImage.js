@@ -660,6 +660,9 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 });
 
                 initMediaControls(mediaElt);
+                $mediaElt.on('error', function(){
+                    console.log("Here's an error ");
+                });
             }
         }
 
