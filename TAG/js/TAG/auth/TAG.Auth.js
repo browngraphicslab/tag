@@ -93,7 +93,7 @@ TAG.Auth = (function () {
             TAG.Worktop.Database.checkToken(TAG.AuthToken, onSuccess, showForm, showForm);
         } else showForm();
         function showForm() {
-            $('body').append(TAG.AuthOverlay);
+            $('#startPageRoot').append(TAG.AuthOverlay);
             TAG.AuthInput.val('');
             TAG.AuthOverlay.fadeIn(500);
             TAG.AuthInput.focus();
