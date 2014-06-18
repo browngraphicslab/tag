@@ -27,7 +27,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         selectedArtworkContainer = root.find('#selectedArtworkContainer'),
         timelineArea             = root.find('#timelineArea'),
         loadingArea              = root.find('#loadingArea'),
-        backbuttonIcon           = root.find('#catalogBackButton'),
 
         // input options
         scrollPos        = options.backScroll || 0,     // horizontal position within collection's catalog
@@ -37,7 +36,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         // misc initialized vars
         loadQueue            = TAG.Util.createQueue(),           // an async queue for artwork tile creation, etc
         artworkSelected      = false,                            // whether an artwork is selected
-        collectionTitles     = [],                               // array of collection title DOM elements
+        visibleCollections   = [],                               // array of collections that are visible and published
         firstLoad            = true,                             // TODO is this necessary? what is it doing?
         currentArtworks      = [],                               // array of artworks in current collection
         infoSource           = [],                               // array to hold sorting/searching information
@@ -52,7 +51,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         toShowFirst,                    // first collection to be shown (by default)
         toursIn,                        // tours in current collection
         currentThumbnail,               // img tag for current thumbnail image
-        numVisibleCollections,          // number of collections that are both published and visible
         imgDiv,                         // container for thumbnail image
         descriptiontext,                // description of current collection or artwork
         loadingArea,                    // container for progress circle
@@ -73,11 +71,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         var progressCircCSS,
             circle,
             oldSearchTerm;
-
-        // register back button with the telemetry service
-        TAG.Telemetry.register(backbuttonIcon, 'click', 'collections_to_start');
-
-        backbuttonIcon.attr('src', tagPath+'images/icons/Back.svg');
 
         idleTimer = null;
 
@@ -116,15 +109,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         searchInput.on('keyup', function (e) {
             doSearch();
         });
-
-        //handles changing the color when clicking/mousing over on the backButton
-        TAG.Util.UI.setUpBackButton(backbuttonIcon, function () {
-            backbuttonIcon.off('click');
-            idleTimer && idleTimer.kill();
-            idleTimer = null;
-            TAG.Layout.StartPage(null, TAG.Util.UI.slidePageRight, true);
-        });
-
         TAG.Worktop.Database.getExhibitions(getCollectionsHelper, null, getCollectionsHelper);
     }
 
@@ -146,24 +130,33 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
     /**
      * Helper function to add collections to top bar
      * @method getCollectionsHelper
+     * @param collections               list of collections to add to page
      */
     function getCollectionsHelper(collections) {
         var i,
             privateState,   // Is collection private?
-            c;
+            c,
+            j;
 
+        // Iterate through entire list of collections to to determine which are visible/not private/published.  Also set toShowFirst
         for(i=0; i<collections.length; i++) {
             c = collections[i];
             privateState = c.Metadata.Private ? (/^true$/i).test(c.Metadata.Private) : false;
             if(!privateState && TAG.Util.localVisibility(c.Identifier)) {
                 toShowFirst = toShowFirst || c;
-                addCollection(c, i);
+                visibleCollections.push(collections[i]);
             }
+        }
+
+        // Iterate through visible/not private/published collections, and set their prev and next values
+        for(i = 0; i < visibleCollections.length; i++) { 
+            visibleCollections[i].prevCollection = visibleCollections[i - 1] ? visibleCollections[i - 1] : visibleCollections[visibleCollections.length - 1];
+            visibleCollections[i].nextCollection = visibleCollections[i + 1] ? visibleCollections[i + 1] : visibleCollections[0];
         }
 
         // Load collection
         if (currCollection) {
-            clickCollection(currCollection, scrollPos, currentArtwork)();
+            showCollection(currCollection, privateState,  scrollPos, currentArtwork)();
         } else if(toShowFirst) {
             loadFirstCollection();
         }
@@ -172,100 +165,87 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
     };
 
     /**
-     * Add a collection to the top bar
-     * @method addCollection
-     * @param {doq} collection                the collection to add
-     * @param {number} collectionIndex        index of the collection out of total collections
-     */
-    function addCollection(collection, collectionIndex) {
-        var title    = TAG.Util.htmlEntityDecode(collection.Name),
-            toAdd    = $(document.createElement('div')),
-            titleBox = $(document.createElement('div')),
-            text     = collection.Metadata.Description ? TAG.Util.htmlEntityDecode(collection.Metadata.Description) : "";
-
-        text = text.replace(/<br>/g, '').replace(/<br \/>/g, '');
-
-        // General CSS stuff
-        toAdd.addClass('collectionClickable');
-        toAdd.attr({
-            'flagClicked': 'false',
-            'id': 'collection-' + collection.Identifier
-        });
-
-        toAdd.css({
-            'display': 'inline-block',
-            'width': '33%',
-            'height' : '100%',
-            'position' : 'absolute',
-            'left' : collectionArea.width()*(.33)*(collectionIndex)
-        });
-    
-        // Mouse handlers
-        toAdd.on('mousedown', function () {
-            $(this).css('background-color', 'white');
-            titleBox.css('color', 'black');
-        });
-       
-        toAdd.on('mouseleave', function () {
-            var elt = $(this);
-            if (elt.attr('flagClicked') === 'false') {
-                elt.css({
-                    'background-color': 'transparent',
-                    'color': 'white'
-                });
-                titleBox.css('color', 'white');
-            }             
-        });
-    
-        // Telemetry
-        toAdd.on('click', clickCollection(collection));
-        TAG.Telemetry.register(toAdd, 'click', 'collection_title', function(tobj) {
-            tobj.collection_name = title;
-            tobj.collection_guid = collection.Identifier;
-        });
-
-        titleBox.attr('id' ,'collection-title-'+collection.Identifier)
-                .addClass('collection-title')
-                .html(title);
-
-        toAdd.append(titleBox);
-        collectionArea.append(toAdd);
-
-        collectionTitles.push(toAdd);
-    }
-
-    /**
      * Click handler for collection title in left bar
-     * @method clickCollection
-     * @param {jQuery obj} elt       the element we're clicking
-     * @param {Number} sPos          if undefined, set scroll position to 0, otherwise, use this
-     * @param {doq} artwrk           if undefined, set currentArtwork to null, otherwise, use this
+     * @method showCollection
+     * @param {jQuery obj} collection     the element we're clicking
+     * @param {Boolean} isPrivate         a little bit of a hack to get private exhibits
+     *                                    to show in settings view.  When set to true it just ignores anything
+     *                                    that relies on 'this' since 'this' doesn't exist for a private exhibit
+     *                                    (it doesn't have a label in the exhib list)
+     * @param {Number} sPos               if undefined, set scroll position to 0, otherwise, use this
+     * @param {doq} artwrk                if undefined, set currentArtwork to null, otherwise, use this
      */
-    function clickCollection(collection, sPos, artwrk) {
+    function showCollection(collection, isPrivate, sPos, artwrk) {
         return function(evt) {
-            var i;
+            var i,
+                title             = TAG.Util.htmlEntityDecode(collection.Name),
+                nextTitle,
+                prevTitle,
+                mainCollection    = $(document.createElement('div')),
+                nextCollection    = $(document.createElement('div')),
+                prevCollection    = $(document.createElement('div')),
+                titleBox          = $(document.createElement('div')),
+                text              = collection.Metadata.Description ? TAG.Util.htmlEntityDecode(collection.Metadata.Description) : "";
 
             // if the idle timer hasn't started already, start it
-            if(!idleTimer && evt) { // clickCollection is called without an event to show the first collection
+            if(!idleTimer && evt) { // showCollection is called without an event to show the first collection
                 idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
                 idleTimer.start();
             }
 
-            // Add artworks
-            for (i = 0; i < collectionTitles.length; i++) {
-                collectionTitles[i].css({ 'background-color': 'transparent', 'color': 'white' })
-                                   .data("selected", false)
-                                   .attr('flagClicked', 'false')
-                                   .children().css('color', 'white');
-            };
+            console.log('is private: ' + collection.Metadata.Private);
 
+            // Add collection title
+            collectionArea.empty();
+            mainCollection.addClass('mainCollection')
+                          .attr({
+                            'id': 'collection-' + collection.Identifier,
+                           });
+
+            titleBox.attr('id' ,'collection-title-'+collection.Identifier)
+                    .addClass('collection-title')
+                    .html(title);
+
+            mainCollection.append(titleBox);
+            collectionArea.append(mainCollection);
+
+            // Add previous and next collection titles
+            if (collection.nextCollection){
+                nextTitle = TAG.Util.htmlEntityDecode(collection.nextCollection.Name)
+                nextCollection.addClass('nextPrevCollection')
+                              .attr({
+                                'id': 'collection-' + collection.nextCollection.Identifier
+                               })
+                              .html(nextTitle)
+                              .css({
+                                'width': (.95 * collectionArea.width() - mainCollection.width())/2,
+                                'right' : 0
+                              })
+                              .on('click', showCollection(collection.nextCollection, sPos, artwrk));
+
+                collectionArea.append(nextCollection);
+            };
+            if (collection.prevCollection){
+                prevTitle = TAG.Util.htmlEntityDecode(collection.prevCollection.Name)
+                prevCollection.addClass('nextPrevCollection')
+                              .attr({
+                                'id': 'collection-' + collection.prevCollection.Identifier
+                               })
+                              .html(prevTitle)
+                              .css({
+                                'width': (.95 * collectionArea.width() - mainCollection.width())/2,
+                                'left' : 0
+                              })
+                              .on('click', showCollection(collection.prevCollection, sPos, artwrk));
+                collectionArea.append(prevCollection);
+            };
             $('#collection-'+collection.Identifier).attr('flagClicked', 'true');
-            $('#collection-title-'+collection.Identifier).css('color', 'black');
+           // $('#collection-title-'+collection.Identifier).css('color', 'black');
             currCollection = collection;
             currentArtwork = artwrk || null;
-            loadCollection.call($('#collection-'+currCollection.Identifier), currCollection);
+            loadCollection.call($('#collection-'+ currCollection.Identifier), currCollection);
             scrollPos = sPos || 0;
-            showCollection(currCollection);
+            getCollectionContents(currCollection, showArtwork(currentArtwork));
         }
     }
 
@@ -325,8 +305,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
         if (!isPrivate) {
             $(this).css({
-                'background-color': 'rgb(255,255,255)',
-                'color': 'black'
+           //     'background-color': 'rgb(255,255,255)',
+           //     'color': 'black'
             });
         };
 
@@ -337,7 +317,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      * @method loadFirstCollection
      */
     function loadFirstCollection() {
-        clickCollection(toShowFirst)(); // first collection selected by default
+        showCollection(toShowFirst)(); // first collection selected by default
     }
 
     /**
@@ -1151,15 +1131,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             currentPage.obj  = artworkViewer;
         }
         root.css({ 'overflow-x': 'hidden' });
-    }
-
-    /**
-     * Show collection contents and display current artwork if there is one
-     * @method showCollection
-     * @param {doq} c         the relevant collection doq
-     */
-    function showCollection (c) {
-        getCollectionContents(c, showArtwork(currentArtwork));
     }
 
     /**

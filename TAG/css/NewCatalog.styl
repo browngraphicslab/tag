@@ -33,11 +33,6 @@
 	position absolute
 	width 100%
                 
-#newCatalogRoot #backbuttonArea
-	left 1%
-	position absolute
-	width 3%
-
 #newCatalogRoot	#bgimage
 	background-position center
 	background-size cover
@@ -50,13 +45,6 @@
 	height 70%
 	position absolute
 	bottom 0
-
-#newCatalogRoot #catalogBackButton
-	display block
-	height auto
-	position relative
-	top 0%
-	wh 100%
 
 #newCatalogRoot #collectionDescription
 	width 90%
@@ -115,10 +103,10 @@
 	width 60%
 
 #newCatalogRoot #collectionArea
-	background-color rgba(0, 0, 0, 0.7)	
-	height 20%
+	height 40%
 	overflow-x auto
 	overflow-y hidden
+	text-align center
 	width 92% 
 	position absolute
 	left 6%
@@ -146,14 +134,11 @@
 
 #newCatalogRoot .collection-title
 	display inline-block
-	height 100%
-	margin-left 5%
+	wh 100%
 	overflow hidden
 	text-overflow ellipsis
 	white-space nowrap
-	width 90%
 	font-size 1.1em
-	margin-top 2.15%
 
 #newCatalogRoot #exploreIcon
 	float right
@@ -209,11 +194,28 @@
 	top 100%        
 	width 100% 
 
-#newCatalogRoot #topBar
-	height 27.5%
+#newCatalogRoot .mainCollection
+	margin auto
+	display inline-block
+	height 100%
+	font-size 200%
+
+#newCatalogRoot .nextPrevCollection
+	font-size 150%
+	color rgba(255, 255, 255, .5)
 	position absolute
+	top 15%
+	height 50%
+	overflow hidden
+	text-align center
+	text-overflow ellipsis                
+	white-space nowrap
+
+#newCatalogRoot #topBar
+	height 30%
+	position absolute
+	top 0%
 	width 100%
-	top 2.5%
 	z-index 2
 
 #newCatalogRoot #topBar-header
@@ -295,7 +297,7 @@
 #newCatalogRoot #timelineArea
 	position absolute
 	width 100%
-	height 85%
+	height 60%
 	bottom 0
 
 #newCatalogRoot .timeline
@@ -350,7 +352,6 @@
 	overflow hidden
 	white-space nowrap
 	width 95%
-
 
 #newCatalogRoot .tourLabel
 	bottom 0px
