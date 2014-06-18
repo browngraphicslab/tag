@@ -20,12 +20,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         bgimage                  = root.find('#bgimage'),
         catalogDiv               = root.find('#catalogDiv'),
         infoTilesContainer       = root.find('#infoTilesContainer'),
-        typeButton               = root.find('#typeButton'),
         sortRow                  = root.find('#sortRow'),
         searchInput              = root.find('#searchInput'),
         searchTxt                = root.find('#searchTxt'),
         selectedArtworkContainer = root.find('#selectedArtworkContainer'),
         timelineArea             = root.find('#timelineArea'),
+        topBar                   = root.find('#topBar'),
         loadingArea              = root.find('#loadingArea'),
 
         // input options
@@ -136,7 +136,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         var i,
             privateState,   // Is collection private?
             c,
-            j;
+            j,
+            collectionDotHolder  = $(document.createElement('div')),
+            collectionDot;
 
         // Iterate through entire list of collections to to determine which are visible/not private/published.  Also set toShowFirst
         for(i=0; i<collections.length; i++) {
@@ -149,14 +151,25 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         }
 
         // Iterate through visible/not private/published collections, and set their prev and next values
+        // Also create a scroll dot for each (under main collection title)
+        collectionDotHolder.addClass('collectionDotHolder');
         for(i = 0; i < visibleCollections.length; i++) { 
             visibleCollections[i].prevCollection = visibleCollections[i - 1] ? visibleCollections[i - 1] : visibleCollections[visibleCollections.length - 1];
             visibleCollections[i].nextCollection = visibleCollections[i + 1] ? visibleCollections[i + 1] : visibleCollections[0];
+
+            collectionDot  = $(document.createElement('div'))
+                        .addClass('collectionDot')
+                        .on('click', showCollection(visibleCollections[i]));
+
+            collectionDotHolder.append(collectionDot);
+            topBar.append(collectionDotHolder);
+
+            visibleCollections[i].dot = collectionDot;
         }
 
         // Load collection
         if (currCollection) {
-            showCollection(currCollection, privateState,  scrollPos, currentArtwork)();
+            showCollection(currCollection, privateState,  scrollPos)();
         } else if(toShowFirst) {
             loadFirstCollection();
         }
@@ -193,7 +206,11 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 idleTimer.start();
             }
 
-            console.log('is private: ' + collection.Metadata.Private);
+            // Make collection dot white and others gray
+            for(i = 0; i < visibleCollections.length; i++) { 
+                visibleCollections[i].dot.css('background-color','rgb(170,170,170)');
+            };
+            collection.dot.css('background-color', 'white');
 
             // Add collection title
             collectionArea.empty();
@@ -545,8 +562,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 tileImage.css({ 'opacity': '1.0'});
                 main.css('border', '1px solid rgba(255, 255, 255, 0.5)');
             }
-            main.append(tileImage);
-            main.append(artTitle);
+            main.append(tileImage)
+                .append(artTitle);
 
             if (currentWork.Type === "Empty") {
                 tourLabel = $(document.createElement('img'))
@@ -702,7 +719,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             // Div for larger description and thumbnail of selected artwork   
             selectedArtworkContainer.css({
                 'display': 'inline',
-                'top' : catalogDiv.position().top + artwork.tile.position().top/1.75 + artwork.tile.height()/2 - selectedArtworkContainer.height()/2,
+                'top' : '5%',
                 'left' : catalogDiv.position().left + artwork.tile.position().left + artwork.tile.width()/2 - selectedArtworkContainer.width()/2
             });
             selectedArtworkContainer.empty();
@@ -824,6 +841,18 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 artwork.circle.timelineDateLabel.shouldBeHidden = true // If date is not one of the perminantly-there grayed out ones, mark it to be hidden again later when different artwork is selected
             };
 
+            // Set selectedArtwork to hide when anything else is clicked
+            // $(":not(#selectedArtworkContainer)").css('onmousedown', function() {
+            //     console.log('not (artworkcontainer) selected');
+            //     selectedArtworkContainer.css('display', 'none');
+            //     artwork.circle && artwork.circle.css({
+            //             'height'           : '20px',
+            //             'width'            : '20px',
+            //             'background-color' : 'rgba(255, 255, 255, .5)',
+            //             'border-radius'    : '10px',
+            //             'top'              : '-8px'
+            //     });
+            // });
 
             //Progress circle for loading
             // TODO: is this showing up? Look into
@@ -978,7 +1007,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      * @param {String} tag    the name of the sort tag
      */
     function colorSortTags(tag) {
-        $('.rowButton').css('color', 'gray');
+        $('.rowButton').css('color', 'rgb(170,170,170)');
         $('[tagName="'+tag+'"]').css('color', 'white');
     }
 

@@ -801,7 +801,7 @@
 }
 #newCatalogRoot #collectionDescription {
   width: 90%;
-  height: 95%;
+  height: 90%;
   overflow-y: auto;
   margin: 5%;
   margin-top: 0%;
@@ -858,12 +858,11 @@
 }
 #newCatalogRoot #collectionArea {
   height: 40%;
+  width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
   text-align: center;
-  width: 92%;
   position: absolute;
-  left: 6%;
 }
 #newCatalogRoot #collection-label {
   height: 7%;
@@ -894,6 +893,22 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 1.1em;
+  color: #fff;
+}
+#newCatalogRoot	.collectionDot {
+  width: 7px;
+  height: 7px;
+  display: inline-block;
+  background-color: #aaa;
+  margin: 3px;
+  border-radius: 50%;
+}
+#newCatalogRoot .collectionDotHolder {
+  height: 20%;
+  width: 100%;
+  text-align: center;
+  position: absolute;
+  top: 30%;
 }
 #newCatalogRoot #exploreIcon {
   float: right;
@@ -957,7 +972,7 @@
 }
 #newCatalogRoot .nextPrevCollection {
   font-size: 150%;
-  color: rgba(255,255,255,0.5);
+  color: #aaa;
   position: absolute;
   top: 15%;
   height: 50%;
@@ -1031,7 +1046,7 @@
 #newCatalogRoot #selectedArtworkContainer {
   background-color: rgba(0,0,0,0.65);
   width: 32%;
-  height: 85%;
+  height: 90%;
   z-index: 10000;
   position: absolute;
   display: none;
@@ -1040,8 +1055,8 @@
 #newCatalogRoot .tile {
   border: 1px solid rgba(0,0,0,0.85);
   position: absolute;
-  height: 45%;
-  width: 33%;
+  height: 42%;
+  width: 31%;
   border-radius: 3%;
 }
 #newCatalogRoot .tileImage {
@@ -1064,7 +1079,7 @@
 }
 #newCatalogRoot .timelineTick {
   position: absolute;
-  background-color: rgba(255,255,255,0.5);
+  background-color: #aaa;
   width: 0.3%;
   height: 100%;
   top: 0%;
@@ -1073,13 +1088,13 @@
   position: absolute;
   height: 100%;
   top: -100%;
-  color: rgba(255,255,255,0.5);
+  color: #aaa;
 }
 #newCatalogRoot .timelineEventCircle {
   position: absolute;
   width: 20px;
   height: 20px;
-  background-color: rgba(255,255,255,0.5);
+  background-color: rgba(250,250,250,0.5);
   border-radius: 10px;
   top: -8px;
 }
