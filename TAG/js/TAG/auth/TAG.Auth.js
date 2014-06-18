@@ -133,6 +133,40 @@ TAG.Auth = (function () {
                     TAG.AuthCancel.show();
                 });
             });
+            
+            //Enter can be pressed to submit the password form...
+            TAG.AuthInput.keypress(function(e){
+                if (e.which===13){
+                    TAG.AuthError.hide();
+                    TAG.AuthCircle.show();
+                    TAG.AuthSubmit.hide();
+                    TAG.AuthCancel.hide();
+                    checkPassword(TAG.AuthInput.val(), function () {
+                        TAG.AuthError.hide();
+                        TAG.AuthCircle.hide();
+                        TAG.AuthOverlay.remove();
+                        onSuccess();
+                
+                    }, function () {
+                
+                    TAG.AuthError.html('Invalid Password. Please try again...');
+                    TAG.AuthError.show();
+                    TAG.AuthCircle.hide();
+                    TAG.AuthSubmit.show();
+                    TAG.AuthCancel.show();
+                
+                   }, function () {
+               
+                    TAG.AuthError.html('There was an error contacting the server. Contact a server administrator if this error persists.');
+                    TAG.AuthError.show();
+                    TAG.AuthError.css({'bottom': '30%'});
+                    TAG.AuthCircle.hide();
+                    TAG.AuthSubmit.show();
+                    TAG.AuthCancel.show();
+                  
+                    });
+                }
+            });
         }
     }
 
@@ -218,6 +252,8 @@ TAG.Auth = (function () {
             'margin-top': '5%',
             'margin-bottom': '5%'
         });
+
+
 
         var errorMessage = $(document.createElement('div'));
         errorMessage.attr('id', 'errorMessage');
