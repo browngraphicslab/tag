@@ -1486,6 +1486,8 @@ TAG.Util.UI = (function () {
     var recentlyAssociated = []; // recently associated media
     var recentlyAssociatedGUIDs = []; // to more easily check if a media has been associated recently
     var tagContainerId = 'tagRoot'; // TODO more general
+    var globalKeyHandler = [];
+
 
     return {
         slidePageLeftSplit: slidePageLeftSplit,
@@ -1517,8 +1519,29 @@ TAG.Util.UI = (function () {
         createLine: createVertLine,
         createKeyframe: createKeyframe,
         createDisplay: createDisplay,
-        createTrack: createTrack
+        createTrack: createTrack,
+        getStack: getStack,
+        initKeyHandler: initKeyHandler,
+        
     };
+
+    initKeyHandler();
+
+    function initKeyHandler() {
+        window.addEventListener('keydown', function (event) {
+            //event.preventDefault();
+            //event.stopPropagation();
+            if(globalKeyHandler && globalKeyHandler[0] && globalKeyHandler[0][event.which]) {
+                globalKeyHandler[0][event.which]();
+                
+               // console.log("current stack; " + globalKeyHandler[0][event.which]);
+            }
+        });
+    }
+
+    function getStack() {
+        return globalKeyHandler;
+    }
 
     function createTrack(specs) {
         // TODO if necessary
@@ -2014,10 +2037,13 @@ TAG.Util.UI = (function () {
 
     // overlay that "absorbs" interactions with elements below it, used to isolate popup forms etc.
     function blockInteractionOverlay(opac) {
+
         opac = opac ? Math.max(Math.min(parseFloat(opac), 1), 0) : 0.6;
         var overlay = document.createElement('div');
         $(overlay).attr('id', 'blockInteractionOverlay');
+
         $(overlay).css({
+
             display: 'none',
             position: 'absolute',
             top: 0,
@@ -2027,6 +2053,7 @@ TAG.Util.UI = (function () {
             'background-color': 'rgba(0,0,0,'+opac+')',
             'z-index': '10000000'
         });
+        
         return overlay;
     }
 
@@ -2071,7 +2098,7 @@ TAG.Util.UI = (function () {
     // generate a popup message with specified text and button
     function popUpMessage(clickAction, message, buttonText, noFade, useHTML, onDialogClick) {
         var overlay = blockInteractionOverlay();
-
+        debugger;
         var confirmBox = document.createElement('div');
         var confirmBoxSpecs = TAG.Util.constrainAndPosition($(window).width(), $(window).height(),
            {
@@ -2083,6 +2110,8 @@ TAG.Util.UI = (function () {
                max_height: 200,
            });
 		var leftPos = ($('#tagRoot').width() - confirmBoxSpecs.width) * 0.5;
+        var currentKeyHandler = globalKeyHandler[0];
+
         $(confirmBox).css({
             //'height': '30%',
             //'width': '45%',
@@ -2170,6 +2199,17 @@ TAG.Util.UI = (function () {
             removeAll();
         };
 
+        function onEnter() {
+            if(clickAction) {
+                clickAction();
+            }
+            removeAll();
+            
+        }
+
+
+        globalKeyHandler[0] = { 13: onEnter, };
+
         function removeAll() {
             if (noFade) {
                 $(overlay).hide();
@@ -2177,6 +2217,7 @@ TAG.Util.UI = (function () {
             } else {
                 $(overlay).fadeOut(500, function () { $(overlay).remove(); });
             }
+            globalKeyHandler[0] = currentKeyHandler;
         }
 
         $(optionButtonDiv).append(confirmButton);
@@ -2188,11 +2229,20 @@ TAG.Util.UI = (function () {
         return overlay;
     }
 
+    
     // popup message to ask for user confirmation of an action e.g. deleting a tour
     function PopUpConfirmation(confirmAction, message, confirmButtonText, noFade, cancelAction, container) {
         var overlay = blockInteractionOverlay();
         container = container || window;
         var confirmBox = document.createElement('div');
+        //debugger;
+        var popUpHandler = {
+            13: doOnEnter,
+        }
+        var currKeyHandler = globalKeyHandler[0];
+        globalKeyHandler[0] = popUpHandler;
+        
+        
         var confirmBoxSpecs = TAG.Util.constrainAndPosition($(container).width(), $(container).height(),
             {
                 center_h: true,
@@ -2249,9 +2299,11 @@ TAG.Util.UI = (function () {
         });
         confirmButtonText = (!confirmButtonText || confirmButtonText === "") ? "Confirm" : confirmButtonText;
         $(confirmButton).text(confirmButtonText);
+        
         confirmButton.onclick = function () {
             removeAll();
             confirmAction();
+
         };
 
         var cancelButton = document.createElement('button');
@@ -2270,6 +2322,13 @@ TAG.Util.UI = (function () {
             cancelAction && cancelAction();
         }
 
+        
+        
+        function doOnEnter() {
+            removeAll();
+            confirmAction();
+        }
+
         function removeAll() {
             if (noFade) {
                 $(overlay).hide();
@@ -2277,6 +2336,7 @@ TAG.Util.UI = (function () {
             } else {
                 $(overlay).fadeOut(500, function () { $(overlay).remove(); });
             }
+            globalKeyHandler[0] = currKeyHandler;
         }
 
         $(optionButtonDiv).append(cancelButton);
@@ -2634,6 +2694,7 @@ TAG.Util.UI = (function () {
 
 
         okButton.onclick = function () {
+            console.log("here");
             $(overlay).fadeOut(500, function () { $(overlay).remove(); });
         };
 
@@ -2803,7 +2864,11 @@ TAG.Util.UI = (function () {
             removedComps = [], // components whose associations with target we will be removing
             origComps = [], // components that are already associated with target
             tabCache = [], // cached results from the server
-            loadQueue = TAG.Util.createQueue();
+            loadQueue = TAG.Util.createQueue(),
+            currentKeyHandler = globalKeyHandler[0];
+
+
+            globalKeyHandler[0] = { 13: onEnter ,};
 
         for (i = 0; i < tabs.length; i++) {
             tabCache.push({ cached: false, comps: [] });
@@ -3042,7 +3107,14 @@ TAG.Util.UI = (function () {
         confirmButton.on('click', function () {
             progressCirc = TAG.Util.showProgressCircle(optionButtonDiv, progressCSS);
             finalizeAssociations();
+            globalKeyHandler[0] = currentKeyHandler;
         });
+
+        function onEnter() {
+            progressCirc = TAG.Util.showProgressCircle(optionButtonDiv, progressCSS);
+            finalizeAssociations();
+            globalKeyHandler[0] = currentKeyHandler;
+        }
 
         var cancelButton = $(document.createElement('button'));
         cancelButton.css({
@@ -3060,6 +3132,7 @@ TAG.Util.UI = (function () {
         cancelButton.text('Cancel');
         cancelButton.on('click', function () {
             pickerOverlay.fadeOut(function () { pickerOverlay.empty(); pickerOverlay.remove(); }); //Josh L -- fix so the div actually fades out
+            globalKeyHandler[0] = currentKeyHandler;
         });
 
         optionButtonDiv.append(cancelButton);

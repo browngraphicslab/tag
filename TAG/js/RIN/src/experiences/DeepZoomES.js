@@ -183,7 +183,7 @@ window.rin = window.rin || {};
                             if (self.getState() === "ready") {
                                 self._updateViewportClip(self._viewer);
                                 //if (self.applyConstraints)
-                                    openedViewer.viewport.applyConstraints(true);
+                                openedViewer.viewport.applyConstraints(true);
                             }
                     }, true);
                     self.initTouch();

@@ -10,6 +10,9 @@ TAG.Auth = (function () {
         TAG.AuthInput = overlay.input;
         TAG.AuthError = overlay.error;
         TAG.AuthCircle = overlay.circle;
+        var successFunction;
+        var passwordDialogBox;
+        
     }
 
     return {
@@ -19,6 +22,35 @@ TAG.Auth = (function () {
         hashPass: hashPass,
         changePassword: changePassword,
     };
+
+    
+
+    function submitOnClick() {   // store the authoring mode password submit button's on click function
+                TAG.AuthError.hide();
+                TAG.AuthCircle.show();
+                TAG.AuthSubmit.hide();
+                TAG.AuthCancel.hide();
+                checkPassword(TAG.AuthInput.val(), function () {
+                    TAG.AuthError.hide();
+                    TAG.AuthCircle.hide();
+                    TAG.AuthOverlay.remove();
+                    successFunction();
+                }, function () {
+                    TAG.AuthError.html('Invalid Password. Please try again...');
+                    TAG.AuthError.show();
+                    TAG.AuthCircle.hide();
+                    TAG.AuthSubmit.show();
+                    TAG.AuthCancel.show();
+                }, function () {
+                    TAG.AuthError.html('There was an error contacting the server. Contact a server administrator if this error persists.');
+                    TAG.AuthError.show();
+                    TAG.AuthError.css({'bottom': '30%'});
+                    TAG.AuthCircle.hide();
+                    TAG.AuthSubmit.show();
+                    TAG.AuthCancel.show();
+                });
+            } 
+
 
     function getToken() {
         return TAG.AuthToken || null;
@@ -88,10 +120,22 @@ TAG.Auth = (function () {
         return false;
     }
 
+  
+
     function authenticate(onSuccess, onCancel) {
+        successFunction = onSuccess;
+        //TAG.Util.UI.getStack()[0] = { 13: submitOnClick, }
+
+        passwordDialogBox.on('keydown', function (evt) {
+            if(evt.which === 13) {
+                submitOnClick();
+            }
+        });
         if (TAG.AuthToken) {
             TAG.Worktop.Database.checkToken(TAG.AuthToken, onSuccess, showForm, showForm);
-        } else showForm();
+        } else { 
+            showForm(); 
+        }
         function showForm() {
             $('body').append(TAG.AuthOverlay);
             TAG.AuthInput.val('');
@@ -104,10 +148,14 @@ TAG.Auth = (function () {
                 TAG.AuthCircle.hide();
                 TAG.AuthOverlay.fadeOut(500, function () {
                     TAG.AuthOverlay.remove();
-                    if (onCancel)
+                    if (onCancel) {
                         onCancel();
+                    }
                 });
             });
+
+        
+
             TAG.AuthSubmit.click(function () {
                 TAG.AuthError.hide();
                 TAG.AuthCircle.show();
@@ -137,11 +185,13 @@ TAG.Auth = (function () {
     }
 
     function generateOverlay(onSuccess, onCancel) {
+       
+
         var overlay = $(document.createElement('div'));
         overlay.attr('id', 'loginOverlay');
         var loginDialog = $(document.createElement('div'));
         loginDialog.attr('id', 'loginDialog');
-
+        passwordDialogBox = loginDialog;
 
         ///
 
@@ -162,6 +212,7 @@ TAG.Auth = (function () {
             height: loginDialogSpecs.height + 'px',
         });
 
+        
         ///
 
 
@@ -241,6 +292,7 @@ TAG.Auth = (function () {
 
 
         submitButton.text('Submit');
+        
         var authFailed = function () {
             errorMessage.show();
             circle.hide();

@@ -45,7 +45,7 @@ TAG.Worktop.Database = (function () {
             body: ['Description']
         },
         main: {
-            url: ['Name', 'OverlayColor', 'OverlayTrans', 'Location', 'Background', 'Icon', 'IconColor', 'BackgroundColor', 'BackgroundOpacity', 'PrimaryFontColor', 'SecondaryFontColor'],
+            url: ['Name', 'OverlayColor', 'OverlayTrans', 'Location', 'Background', 'Icon', 'IconColor', 'BackgroundColor', 'BackgroundOpacity', 'PrimaryFontColor', 'SecondaryFontColor', 'FontFamily'],
             body: ['Info']
         }
     };
@@ -109,6 +109,7 @@ TAG.Worktop.Database = (function () {
         getBackgroundOpacity: getBackgroundOpacity,
         getPrimaryFontColor: getPrimaryFontColor,
         getSecondaryFontColor: getSecondaryFontColor,
+        getFontFamily: getFontFamily,
         
 
         // NEW
@@ -1055,6 +1056,10 @@ TAG.Worktop.Database = (function () {
     }
     function getOverlayTransparency() {
         return _main.Metadata["OverlayTransparency"];
+    }
+
+    function getFontFamily() {
+        return _main.Metadata["FontFamily"] || "Source Sans Pro";
     }
 
     function getMainGuid() {

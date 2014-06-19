@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>TAG.Layout.StartPage - Touch Art Gallery web application</title>
+    <title>TAG.Util.IdleTimer - Touch Art Gallery web application</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -102,7 +102,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>TAG.Layout.StartPage Class</h1>
+                        <h1>TAG.Util.IdleTimer Class</h1>
 <div class="box meta">
     
 
@@ -110,7 +110,7 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/TAG_js_TAG_layout_TAG.Layout.StartPage.js.html#l4"><code>TAG&#x2F;js&#x2F;TAG&#x2F;layout&#x2F;TAG.Layout.StartPage.js:4</code></a>
+            Defined in: <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l1"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:1</code></a>
         </div>
     
 
@@ -122,34 +122,19 @@
 
 
 <div class="box intro">
-    <p>The start page for TAG, which contains mueseum info, server preferences and credits.</p>
+    <p>TAG idle timer class. Wraps idle timer-related
+functions in a contained scope.</p>
 
 </div>
 
 
     <div class="constructor">
         <h2>Constructor</h2>
-        <div id="method_TAG.Layout.StartPage" class="method item">
-    <h3 class="name"><code>TAG.Layout.StartPage</code></h3>
+        <div id="method_TAG.Util.IdleTimer" class="method item">
+    <h3 class="name"><code>TAG.Util.IdleTimer</code></h3>
 
     
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>options</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>startPageCallback</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
+        <span class="paren">()</span>
     
 
     
@@ -181,7 +166,7 @@
             
         
         
-        <a href="../files/TAG_js_TAG_layout_TAG.Layout.StartPage.js.html#l4"><code>TAG&#x2F;js&#x2F;TAG&#x2F;layout&#x2F;TAG.Layout.StartPage.js:4</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l1"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:1</code></a>
         
         </p>
 
@@ -196,44 +181,6 @@
     </div>
 
     
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">options</code>
-                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
-                    
-
-                    
-
-                    <div class="param-description">
-                         
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">startPageCallback</code>
-                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
-                    
-
-                    
-
-                    <div class="param-description">
-                         
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
 
     
         <div class="returns">
@@ -244,7 +191,7 @@
                     
                         <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>:
                     
-                    <p>that                 collection of public methods and properties</p>
+                    <p>a couple public methods</p>
 
                 
             </div>
@@ -280,98 +227,98 @@
                     <ul class="index-list methods">
                         
                             <li class="index-item method">
-                                <a href="#method_enterAuthoringMode">enterAuthoringMode</a>
+                                <a href="#method_createIdleOverlay">createIdleOverlay</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_expandInfo">expandInfo</a>
+                                <a href="#method_defaultStageOne">defaultStageOne</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_fixText">fixText</a>
+                                <a href="#method_defaultStageTwo">defaultStageTwo</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_getBrowserVersion">getBrowserVersion</a>
+                                <a href="#method_fireS1">fireS1</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_getRoot">getRoot</a>
+                                <a href="#method_fireS2">fireS2</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_handleIncompatibleBrowser">handleIncompatibleBrowser</a>
+                                <a href="#method_isStopped">isStopped</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_initializeHandlers">initializeHandlers</a>
+                                <a href="#method_kill">kill</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_isBrowserCompatible">isBrowserCompatible</a>
+                                <a href="#method_removeIdleOverlay">removeIdleOverlay</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_loadHelper">loadHelper</a>
+                                <a href="#method_restart">restart</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_openDialog">openDialog</a>
+                                <a href="#method_restartIdleTimer">restartIdleTimer</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_setImagePaths">setImagePaths</a>
+                                <a href="#method_returnHome">returnHome</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_setUpCredits">setUpCredits</a>
+                                <a href="#method_start">start</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_setUpInfo">setUpInfo</a>
+                                <a href="#method_timerPair">timerPair</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_setUpMuseumInfo">setUpMuseumInfo</a>
+                                <a href="#method_TwoStageTimer">TwoStageTimer</a>
 
                                 
                                 
@@ -393,8 +340,8 @@
                 <h2 class="off-left">Methods</h2>
 
                 
-                    <div id="method_enterAuthoringMode" class="method item">
-    <h3 class="name"><code>enterAuthoringMode</code></h3>
+                    <div id="method_createIdleOverlay" class="method item">
+    <h3 class="name"><code>createIdleOverlay</code></h3>
 
     
         <span class="paren">()</span>
@@ -425,7 +372,7 @@
             
         
         
-        <a href="../files/TAG_js_TAG_layout_TAG.Layout.StartPage.js.html#l530"><code>TAG&#x2F;js&#x2F;TAG&#x2F;layout&#x2F;TAG.Layout.StartPage.js:530</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l166"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:166</code></a>
         
         </p>
 
@@ -436,150 +383,8 @@
     </div>
 
     <div class="description">
-        
-    </div>
-
-    
-
-    
-
-    
-</div>
-
-                
-                    <div id="method_expandInfo" class="method item">
-    <h3 class="name"><code>expandInfo</code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>event</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/TAG_js_TAG_layout_TAG.Layout.StartPage.js.html#l412"><code>TAG&#x2F;js&#x2F;TAG&#x2F;layout&#x2F;TAG.Layout.StartPage.js:412</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>animation of credits when user clicks</p>
-
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">event</code>
-                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the trigger event for animation, in this case a click</p>
-
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
-    
-
-    
-</div>
-
-                
-                    <div id="method_fixText" class="method item">
-    <h3 class="name"><code>fixText</code></h3>
-
-    
-        <span class="paren">()</span>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/TAG_js_TAG_layout_TAG.Layout.StartPage.js.html#l299"><code>TAG&#x2F;js&#x2F;TAG&#x2F;layout&#x2F;TAG.Layout.StartPage.js:299</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>adjusts the text to fit the screen size</p>
+        <p>Create default idle timer warning overlay -- default
+stage one callback</p>
 
     </div>
 
@@ -591,8 +396,8 @@
 </div>
 
                 
-                    <div id="method_getBrowserVersion" class="method item">
-    <h3 class="name"><code>getBrowserVersion</code></h3>
+                    <div id="method_defaultStageOne" class="method item">
+    <h3 class="name"><code>defaultStageOne</code></h3>
 
     
         <span class="paren">()</span>
@@ -600,7 +405,7 @@
 
     
         <span class="returns-inline">
-            <span class="type"></span>
+            <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
         </span>
     
 
@@ -627,7 +432,7 @@
             
         
         
-        <a href="../files/TAG_js_TAG_layout_TAG.Layout.StartPage.js.html#l207"><code>TAG&#x2F;js&#x2F;TAG&#x2F;layout&#x2F;TAG.Layout.StartPage.js:207</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l148"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:148</code></a>
         
         </p>
 
@@ -638,8 +443,7 @@
     </div>
 
     <div class="description">
-        <p>Finds the current browser version.
-Code from <a href="http://stackoverflow.com/questions/5916900/detect-version-of-browser">http://stackoverflow.com/questions/5916900/detect-version-of-browser</a></p>
+        <p>Create default stage one timerPair</p>
 
     </div>
 
@@ -652,7 +456,9 @@ Code from <a href="http://stackoverflow.com/questions/5916900/detect-version-of-
             <div class="returns-description">
                 
                     
-                    <p>Browser name followed by version e.g. &quot;Chrome 34.0.1847.116&quot;</p>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>:
+                    
+                    <p>default stage one pair</p>
 
                 
             </div>
@@ -663,8 +469,8 @@ Code from <a href="http://stackoverflow.com/questions/5916900/detect-version-of-
 </div>
 
                 
-                    <div id="method_getRoot" class="method item">
-    <h3 class="name"><code>getRoot</code></h3>
+                    <div id="method_defaultStageTwo" class="method item">
+    <h3 class="name"><code>defaultStageTwo</code></h3>
 
     
         <span class="paren">()</span>
@@ -672,7 +478,7 @@ Code from <a href="http://stackoverflow.com/questions/5916900/detect-version-of-
 
     
         <span class="returns-inline">
-            <span class="type"></span>
+            <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
         </span>
     
 
@@ -699,7 +505,7 @@ Code from <a href="http://stackoverflow.com/questions/5916900/detect-version-of-
             
         
         
-        <a href="../files/TAG_js_TAG_layout_TAG.Layout.StartPage.js.html#l540"><code>TAG&#x2F;js&#x2F;TAG&#x2F;layout&#x2F;TAG.Layout.StartPage.js:540</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l157"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:157</code></a>
         
         </p>
 
@@ -710,7 +516,8 @@ Code from <a href="http://stackoverflow.com/questions/5916900/detect-version-of-
     </div>
 
     <div class="description">
-        
+        <p>Create default stage two timerPair</p>
+
     </div>
 
     
@@ -722,7 +529,9 @@ Code from <a href="http://stackoverflow.com/questions/5916900/detect-version-of-
             <div class="returns-description">
                 
                     
-                    <p>the root of the splash screen DOM</p>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>:
+                    
+                    <p>default stage two pair</p>
 
                 
             </div>
@@ -733,8 +542,8 @@ Code from <a href="http://stackoverflow.com/questions/5916900/detect-version-of-
 </div>
 
                 
-                    <div id="method_handleIncompatibleBrowser" class="method item">
-    <h3 class="name"><code>handleIncompatibleBrowser</code></h3>
+                    <div id="method_fireS1" class="method item">
+    <h3 class="name"><code>fireS1</code></h3>
 
     
         <span class="paren">()</span>
@@ -765,7 +574,7 @@ Code from <a href="http://stackoverflow.com/questions/5916900/detect-version-of-
             
         
         
-        <a href="../files/TAG_js_TAG_layout_TAG.Layout.StartPage.js.html#l230"><code>TAG&#x2F;js&#x2F;TAG&#x2F;layout&#x2F;TAG.Layout.StartPage.js:230</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l108"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:108</code></a>
         
         </p>
 
@@ -776,9 +585,7 @@ Code from <a href="http://stackoverflow.com/questions/5916900/detect-version-of-
     </div>
 
     <div class="description">
-        <p>Displays a dialog box indicating that the user is using an
-incompatible browser. Points them to links to download the latest
-version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
+        <p>Private method to fire stage one timer</p>
 
     </div>
 
@@ -790,8 +597,8 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
 </div>
 
                 
-                    <div id="method_initializeHandlers" class="method item">
-    <h3 class="name"><code>initializeHandlers</code></h3>
+                    <div id="method_fireS2" class="method item">
+    <h3 class="name"><code>fireS2</code></h3>
 
     
         <span class="paren">()</span>
@@ -822,7 +629,7 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_layout_TAG.Layout.StartPage.js.html#l317"><code>TAG&#x2F;js&#x2F;TAG&#x2F;layout&#x2F;TAG.Layout.StartPage.js:317</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l117"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:117</code></a>
         
         </p>
 
@@ -833,7 +640,7 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
     </div>
 
     <div class="description">
-        <p>initializes the handlers for various &#39;click&#39; functions including setting up a server</p>
+        <p>Private method to fire stage two timer</p>
 
     </div>
 
@@ -845,8 +652,8 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
 </div>
 
                 
-                    <div id="method_isBrowserCompatible" class="method item">
-    <h3 class="name"><code>isBrowserCompatible</code></h3>
+                    <div id="method_isStopped" class="method item">
+    <h3 class="name"><code>isStopped</code></h3>
 
     
         <span class="paren">()</span>
@@ -854,7 +661,7 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
 
     
         <span class="returns-inline">
-            <span class="type"></span>
+            <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
         </span>
     
 
@@ -881,7 +688,7 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_layout_TAG.Layout.StartPage.js.html#l138"><code>TAG&#x2F;js&#x2F;TAG&#x2F;layout&#x2F;TAG.Layout.StartPage.js:138</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l61"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:61</code></a>
         
         </p>
 
@@ -892,7 +699,7 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
     </div>
 
     <div class="description">
-        <p>Checks if TAG is compatible with the current browser.</p>
+        <p>Returns whether or not the timer is stopped</p>
 
     </div>
 
@@ -905,7 +712,9 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
             <div class="returns-description">
                 
                     
-                    <p>true if the browser is compatible with TAG, false if it isn&#39;t</p>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>:
+                    
+                    <p>this._started</p>
 
                 
             </div>
@@ -916,97 +725,8 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
 </div>
 
                 
-                    <div id="method_loadHelper" class="method item">
-    <h3 class="name"><code>loadHelper</code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>main</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/TAG_js_TAG_layout_TAG.Layout.StartPage.js.html#l89"><code>TAG&#x2F;js&#x2F;TAG&#x2F;layout&#x2F;TAG.Layout.StartPage.js:89</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>sets up the entire visual layout and images of the splash screen</p>
-
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">main</code>
-                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>contains all image paths and museum info</p>
-
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
-    
-
-    
-</div>
-
-                
-                    <div id="method_openDialog" class="method item">
-    <h3 class="name"><code>openDialog</code></h3>
+                    <div id="method_kill" class="method item">
+    <h3 class="name"><code>kill</code></h3>
 
     
         <span class="paren">()</span>
@@ -1037,7 +757,7 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_layout_TAG.Layout.StartPage.js.html#l522"><code>TAG&#x2F;js&#x2F;TAG&#x2F;layout&#x2F;TAG.Layout.StartPage.js:522</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l50"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:50</code></a>
         
         </p>
 
@@ -1048,7 +768,8 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
     </div>
 
     <div class="description">
-        
+        <p>Kill the timer by stopping both timeouts and setting started to false</p>
+
     </div>
 
     
@@ -1059,97 +780,8 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
 </div>
 
                 
-                    <div id="method_setImagePaths" class="method item">
-    <h3 class="name"><code>setImagePaths</code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>main</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/TAG_js_TAG_layout_TAG.Layout.StartPage.js.html#l342"><code>TAG&#x2F;js&#x2F;TAG&#x2F;layout&#x2F;TAG.Layout.StartPage.js:342</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>gets the paths for all the images displayed on the splash screen</p>
-
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">main</code>
-                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>contains all the image links</p>
-
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
-    
-
-    
-</div>
-
-                
-                    <div id="method_setUpCredits" class="method item">
-    <h3 class="name"><code>setUpCredits</code></h3>
+                    <div id="method_removeIdleOverlay" class="method item">
+    <h3 class="name"><code>removeIdleOverlay</code></h3>
 
     
         <span class="paren">()</span>
@@ -1180,7 +812,7 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_layout_TAG.Layout.StartPage.js.html#l374"><code>TAG&#x2F;js&#x2F;TAG&#x2F;layout&#x2F;TAG.Layout.StartPage.js:374</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l243"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:243</code></a>
         
         </p>
 
@@ -1191,7 +823,7 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
     </div>
 
     <div class="description">
-        <p>Sets up the credits box with its content including text and images. Also includes function for animation of credits.</p>
+        <p>Remove the default warning overlay</p>
 
     </div>
 
@@ -1203,8 +835,229 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
 </div>
 
                 
-                    <div id="method_setUpInfo" class="method item">
-    <h3 class="name"><code>setUpInfo</code></h3>
+                    <div id="method_restart" class="method item">
+    <h3 class="name"><code>restart</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l70"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:70</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A general restart method -- clears timeouts and intervals and
+restarts stage one timeout</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_restartIdleTimer" class="method item">
+    <h3 class="name"><code>restartIdleTimer</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l265"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:265</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Restart the idle timer; this is a utility function and could be defined elsewhere</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_returnHome" class="method item">
+    <h3 class="name"><code>returnHome</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l251"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:251</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Returns to home page -- default stage two callback</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_start" class="method item">
+    <h3 class="name"><code>start</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l41"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:41</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Start the timer (the first stage)</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_timerPair" class="method item">
+    <h3 class="name"><code>timerPair</code></h3>
 
     
         <div class="args">
@@ -1212,7 +1065,13 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
             
                 <li class="arg">
                     
-                        <code>main</code>
+                        <code>duration</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>callback</code>
                     
                 </li>
             
@@ -1245,7 +1104,7 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_layout_TAG.Layout.StartPage.js.html#l447"><code>TAG&#x2F;js&#x2F;TAG&#x2F;layout&#x2F;TAG.Layout.StartPage.js:447</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l135"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:135</code></a>
         
         </p>
 
@@ -1256,7 +1115,7 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
     </div>
 
     <div class="description">
-        <p>sets up the info div which contains all the museum information</p>
+        <p>Create a timerPair object</p>
 
     </div>
 
@@ -1268,14 +1127,30 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
             
                 <li class="param">
                     
-                        <code class="param-name">main</code>
-                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+                        <code class="param-name">duration</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>contains all the museum information</p>
+                        <p>length of timer</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">callback</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function" class="crosslink external" target="_blank">Function</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>function to be called when timer expires</p>
 
                     </div>
 
@@ -1292,8 +1167,8 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
 </div>
 
                 
-                    <div id="method_setUpMuseumInfo" class="method item">
-    <h3 class="name"><code>setUpMuseumInfo</code></h3>
+                    <div id="method_TwoStageTimer" class="method item">
+    <h3 class="name"><code>TwoStageTimer</code></h3>
 
     
         <div class="args">
@@ -1301,7 +1176,13 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
             
                 <li class="arg">
                     
-                        <code>main</code>
+                        <code>stageOne</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>stageTwo</code>
                     
                 </li>
             
@@ -1334,7 +1215,7 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
             
         
         
-        <a href="../files/TAG_js_TAG_layout_TAG.Layout.StartPage.js.html#l470"><code>TAG&#x2F;js&#x2F;TAG&#x2F;layout&#x2F;TAG.Layout.StartPage.js:470</code></a>
+        <a href="../files/TAG_js_TAG_util_TAG.Util.IdleTimer.js.html#l15"><code>TAG&#x2F;js&#x2F;TAG&#x2F;util&#x2F;TAG.Util.IdleTimer.js:15</code></a>
         
         </p>
 
@@ -1345,7 +1226,13 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
     </div>
 
     <div class="description">
-        <p>Fills in all museum info including name and location</p>
+        <p>This two-stage timer takes in two duration-callback pairs. The stage one 
+callback is put on a timeout configured to the pre-specified duration
+which will tick down until the callback executes or until it is restarted. 
+Upon the stage one callback&#39;s execution, the stage two callback&#39;s timeout
+is then started. However, if the second callback&#39;s timeout is reset, it will 
+restart the entire timer back to stage one. Upon the second callback&#39;s 
+execution, the timer will sit idle until the reset method is invoked.</p>
 
     </div>
 
@@ -1357,14 +1244,30 @@ version of supported browsers such as IE, Chrome, Safari and Firefox.</p>
             
                 <li class="param">
                     
-                        <code class="param-name">main</code>
+                        <code class="param-name">stageOne</code>
                         <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>contains all the museum information</p>
+                        <p>the stage one timer pair (see timerPair helper function below)</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">stageTwo</code>
+                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the stage two timer pair</p>
 
                     </div>
 
