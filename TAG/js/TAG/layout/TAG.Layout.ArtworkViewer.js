@@ -561,7 +561,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
             }
 
             // set max height of drawers to avoid expanding into minimap area
-            maxHeight = Math.max(1, assetContainer.height() - currBottom); //to account for the height of the drawerLabel of the current drawer.
+            maxHeight = Math.max(1, assetContainer.height() - currBottom ); //to account for the height of the drawerLabel of the current drawer.
             
             root.find(".drawerContents").css({
                 "max-height": maxHeight + "px",
@@ -595,34 +595,26 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
 
         //Create minimapContainer...
         var minimapContainer = root.find('#minimapContainer');
-
+        console.log(info.offset().top);
         //if the #info div exceeds the half tthe length of the sidebar, the div's max-height is set to its default with an auto scroll property.
+        info.css({
+            'overflow-y' : 'auto',
+            'max-height' : sideBar.height()/2- info.offset().top+ 'px',
+
+        });
+
+        minimapContainer.css({
+            'bottom': '-10%',
+        });
+
+    
+    //when the #info div's size is not too large, the text inside metadata fields is made as much visible as possible
+        assetContainer.css({
+            'max-height': sideBarInfo.height()-info.height() + 'px',
+
+        });
+
         
-        if (info.height()>=sideBar.height()/2){
-            
-                info.css({
-                    'overflow-y' : 'auto',
-                    'max-height' : '5em',
-
-                });
-
-                minimapContainer.css({
-                    'bottom': '-10%',
-                });
-
-        }
-        //when the #info div's size is not too large, the text inside metadata fields is made as much visible as possible
-        else{
-            assetContainer.css({
-                'max-height': sideBarInfo.height()- 120 + 'px',
-
-            });
-
-            minimapContainer.css({
-                    'bottom': '-10%',
-            });
-
-        }
 
         sideBarSections.append(minimapContainer);
 
