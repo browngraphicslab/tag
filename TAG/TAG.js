@@ -32031,7 +32031,6 @@ TAG.Util.UI = (function () {
         colorToHex: colorToHex,
         dimColor: dimColor,
         fitTextInDiv: fitTextInDiv,
-        makeNoArtworksOptionBox: makeNoArtworksOptionBox,
         drawPushpins: drawPushpins,
         addPushpinToLoc: addPushpinToLoc,
         getLocationList: getLocationList,
@@ -33191,47 +33190,6 @@ TAG.Util.UI = (function () {
         }
     }
 
-
-    //makes the "no artworks in selected exhibiton" dialog box, used in both exhibition view and authoring
-    function makeNoArtworksOptionBox() {
-        var overlay = blockInteractionOverlay();
-        var noArtworksOptionBox = document.createElement('div');
-        $(noArtworksOptionBox).addClass('noArtworksOptionBox');
-        $(noArtworksOptionBox).css({
-            'width': '45%',
-            'position': 'absolute',
-            'top': '40%',
-            'left': '25%',
-            'padding': '2% 2%',
-            'background-color': 'black',
-            'border': '3px double white',
-            'z-index': '10000',
-            'id': 'deleteOptionBox'
-        });
-        var noArtworksLabel = document.createElement('p');
-        $(noArtworksLabel).css({
-            'font-size': '150%',
-            'color': 'white'
-        });
-        $(noArtworksLabel).text('There are no artworks present in this collection.');
-
-        var okButton = document.createElement('button');
-        $(okButton).css({
-            'float': 'right'
-        });
-        $(okButton).text('OK');
-
-
-        okButton.onclick = function () {
-            console.log("here");
-            $(overlay).fadeOut(500, function () { $(overlay).remove(); });
-        };
-
-        $(noArtworksOptionBox).append(noArtworksLabel);
-        $(noArtworksOptionBox).append(okButton);
-        $(overlay).append(noArtworksOptionBox);
-        return overlay;
-    }
 
     //Creates Microsoft.Maps.Pushpin objects from the locObjects within the locationList object, and displays the pushpins on the map
     function drawPushpins(locationList, map) {
@@ -41559,6 +41517,9 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
                 });
 
                 initMediaControls(mediaElt);
+                $mediaElt.on('error', function(){
+                    console.log("Here's an error ");
+                });
             }
         }
 
@@ -42064,7 +42025,7 @@ TAG.Auth = (function () {
             showForm(); 
         }
         function showForm() {
-            $('body').append(TAG.AuthOverlay);
+            $('#startPageRoot').append(TAG.AuthOverlay);
             TAG.AuthInput.val('');
             TAG.AuthOverlay.fadeIn(500);
             TAG.AuthInput.focus();
@@ -42108,6 +42069,40 @@ TAG.Auth = (function () {
                     TAG.AuthCancel.show();
                 });
             });
+            
+            //Enter can be pressed to submit the password form...
+            TAG.AuthInput.keypress(function(e){
+                if (e.which===13){
+                    TAG.AuthError.hide();
+                    TAG.AuthCircle.show();
+                    TAG.AuthSubmit.hide();
+                    TAG.AuthCancel.hide();
+                    checkPassword(TAG.AuthInput.val(), function () {
+                        TAG.AuthError.hide();
+                        TAG.AuthCircle.hide();
+                        TAG.AuthOverlay.remove();
+                        onSuccess();
+                
+                    }, function () {
+                
+                    TAG.AuthError.html('Invalid Password. Please try again...');
+                    TAG.AuthError.show();
+                    TAG.AuthCircle.hide();
+                    TAG.AuthSubmit.show();
+                    TAG.AuthCancel.show();
+                
+                   }, function () {
+               
+                    TAG.AuthError.html('There was an error contacting the server. Contact a server administrator if this error persists.');
+                    TAG.AuthError.show();
+                    TAG.AuthError.css({'bottom': '30%'});
+                    TAG.AuthCircle.hide();
+                    TAG.AuthSubmit.show();
+                    TAG.AuthCancel.show();
+                  
+                    });
+                }
+            });
         }
     }
 
@@ -42118,7 +42113,21 @@ TAG.Auth = (function () {
         overlay.attr('id', 'loginOverlay');
         var loginDialog = $(document.createElement('div'));
         loginDialog.attr('id', 'loginDialog');
+
         passwordDialogBox = loginDialog;
+
+
+        overlay.css({
+            display: 'none',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            'background-color': 'rgba(0,0,0,0.6)',
+            'z-index': 100000002,
+        });
+
 
         ///
 
@@ -42133,10 +42142,13 @@ TAG.Auth = (function () {
             max_height: 210,
         });
         loginDialog.css({
+            position: 'absolute',
             left: loginDialogSpecs.x + 'px',
             top: loginDialogSpecs.y + 'px',
             width: loginDialogSpecs.width + 'px',
             height: loginDialogSpecs.height + 'px',
+            border: '3px double white',
+            'background-color': 'black',
         });
 
         
@@ -42155,6 +42167,18 @@ TAG.Auth = (function () {
         overlay.append(loginDialog);
         var dialogTitle = $(document.createElement('div'));
         dialogTitle.attr('id', 'dialogTitle');
+        dialogTitle.css({
+
+            color: 'white',
+            'width': '80%',
+            'height': '15%',
+            'left': '10%',
+            'top': '12.5%',
+            //'font-size': '1.25em',
+            'position': 'relative',
+            'text-align': 'center',
+            //'overflow': 'hidden',
+        });
         dialogTitle.text('Please enter authoring mode password.');
 
         var passwdInput = $(document.createElement('input'));
@@ -42171,6 +42195,8 @@ TAG.Auth = (function () {
             'margin-top': '5%',
             'margin-bottom': '5%'
         });
+
+
 
         var errorMessage = $(document.createElement('div'));
         errorMessage.attr('id', 'errorMessage');
@@ -43251,6 +43277,9 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             tobj.work_name = doq.Name;
             tobj.work_guid = doq.Identifier;
         });
+        
+
+       
 
         function goBack() {
             var collectionsPage;
@@ -43411,8 +43440,8 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             }
 
             // set max height of drawers to avoid expanding into minimap area
-            maxHeight = Math.max(1, assetContainer.height() - currBottom- root.find(".drawerLabel").height()); //to account for the height of the drawerLabel of the current drawer.
-            console.log(currBottom);
+            maxHeight = Math.max(1, assetContainer.height() - currBottom ); //to account for the height of the drawerLabel of the current drawer.
+            
             root.find(".drawerContents").css({
                 "max-height": maxHeight + "px",
 
@@ -43445,6 +43474,26 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
 
         //Create minimapContainer...
         var minimapContainer = root.find('#minimapContainer');
+        console.log(info.offset().top);
+        //if the #info div exceeds the half tthe length of the sidebar, the div's max-height is set to its default with an auto scroll property.
+        info.css({
+            'overflow-y' : 'auto',
+            'max-height' : sideBar.height()/2- info.offset().top+ 'px',
+
+        });
+
+        minimapContainer.css({
+            'bottom': '-10%',
+        });
+
+    
+    //when the #info div's size is not too large, the text inside metadata fields is made as much visible as possible
+        assetContainer.css({
+            'max-height': sideBarInfo.height()-info.height() + 'px',
+
+        });
+
+        
 
         sideBarSections.append(minimapContainer);
 
@@ -43631,22 +43680,6 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
         }
         annotatedImage.addAnimateHandler(dzMoveHandler);
 
-        //condition to check for overlap of the assetscontainer with minimap. If they overlap, we restrict the height of #info div to its original max-height.
-        var overlap = !(assetContainer.right < minimapContainer.left || 
-                assetContainer.left > minimapContainer.right || 
-                assetContainer.bottom < minimapContainer.top || 
-                assetContainer.top > minimapContainer.bottom)
-
-        if (overlap) {
-        
-            info.css({
-
-                'overflow-y' : 'auto',
-                'max-height' : '5em',
-
-            });
-
-    }
         /*
          * END MINIMAP CODE
          ******************/
@@ -44485,14 +44518,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
          * @param {Array} contents     array of doq objects for each of the contents of this collection
          */
         function contentsHelper(contents) {
-            var noArtworksOptionBox;
-
-            if (!contents || !contents[0]) { // pops up box warning user there is no artwork in selected collection
-                noArtworksOptionBox = TAG.Util.UI.makeNoArtworksOptionBox();
-                root.append(noArtworksOptionBox);
-                $(noArtworksOptionBox).fadeIn(500);
-            }
-
             createArtTiles(contents);
             initSearch(contents);
             callback && callback();
@@ -45752,6 +45777,7 @@ TAG.Util.makeNamespace("TAG.Authoring.SettingsView");
 /*  Creates a SettingsView, which is the first UI in authoring mode.  
  *  @class TAG.Authoring.SettingsView
  *  @constructor
+    TODO- change parameters to options object
  *  @param startView sets the starting setting.  This can be "Exhibitions", "Artworks", "Tours", 
  *       or "General Settings".  Undefined/null, etc. goes to General Settings.
  *       TODO: Use constants instead of strings
@@ -46513,7 +46539,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                 settingsContainer.append(old);
                 settingsContainer.append(new1);
                 settingsContainer.append(new2);
-                settingsContainer.append(msg);
+               
 
                 //Hide or else unused div covers 'Old Password' line
                 buttonContainer.css('display', 'none');
@@ -46530,6 +46556,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                 saveButton.removeAttr('type');
                 var save = createSetting('', saveButton);
                 settingsContainer.append(save);
+                settingsContainer.append(msg);
             } else {
                 passwordChangeNotSupported();
             }

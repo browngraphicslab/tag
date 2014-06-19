@@ -399,6 +399,9 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             tobj.work_name = doq.Name;
             tobj.work_guid = doq.Identifier;
         });
+        
+
+       
 
         function goBack() {
             var collectionsPage;
@@ -559,8 +562,8 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             }
 
             // set max height of drawers to avoid expanding into minimap area
-            maxHeight = Math.max(1, assetContainer.height() - currBottom- root.find(".drawerLabel").height()); //to account for the height of the drawerLabel of the current drawer.
-            console.log(currBottom);
+            maxHeight = Math.max(1, assetContainer.height() - currBottom ); //to account for the height of the drawerLabel of the current drawer.
+            
             root.find(".drawerContents").css({
                 "max-height": maxHeight + "px",
 
@@ -593,6 +596,26 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
 
         //Create minimapContainer...
         var minimapContainer = root.find('#minimapContainer');
+        console.log(info.offset().top);
+        //if the #info div exceeds the half tthe length of the sidebar, the div's max-height is set to its default with an auto scroll property.
+        info.css({
+            'overflow-y' : 'auto',
+            'max-height' : sideBar.height()/2- info.offset().top+ 'px',
+
+        });
+
+        minimapContainer.css({
+            'bottom': '-10%',
+        });
+
+    
+    //when the #info div's size is not too large, the text inside metadata fields is made as much visible as possible
+        assetContainer.css({
+            'max-height': sideBarInfo.height()-info.height() + 'px',
+
+        });
+
+        
 
         sideBarSections.append(minimapContainer);
 
@@ -779,22 +802,6 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
         }
         annotatedImage.addAnimateHandler(dzMoveHandler);
 
-        //condition to check for overlap of the assetscontainer with minimap. If they overlap, we restrict the height of #info div to its original max-height.
-        var overlap = !(assetContainer.right < minimapContainer.left || 
-                assetContainer.left > minimapContainer.right || 
-                assetContainer.bottom < minimapContainer.top || 
-                assetContainer.top > minimapContainer.bottom)
-
-        if (overlap) {
-        
-            info.css({
-
-                'overflow-y' : 'auto',
-                'max-height' : '5em',
-
-            });
-
-    }
         /*
          * END MINIMAP CODE
          ******************/

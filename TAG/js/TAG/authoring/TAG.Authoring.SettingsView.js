@@ -3,6 +3,7 @@
 /*  Creates a SettingsView, which is the first UI in authoring mode.  
  *  @class TAG.Authoring.SettingsView
  *  @constructor
+    TODO- change parameters to options object
  *  @param startView sets the starting setting.  This can be "Exhibitions", "Artworks", "Tours", 
  *       or "General Settings".  Undefined/null, etc. goes to General Settings.
  *       TODO: Use constants instead of strings
@@ -764,7 +765,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                 settingsContainer.append(old);
                 settingsContainer.append(new1);
                 settingsContainer.append(new2);
-                settingsContainer.append(msg);
+               
 
                 //Hide or else unused div covers 'Old Password' line
                 buttonContainer.css('display', 'none');
@@ -781,6 +782,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                 saveButton.removeAttr('type');
                 var save = createSetting('', saveButton);
                 settingsContainer.append(save);
+                settingsContainer.append(msg);
             } else {
                 passwordChangeNotSupported();
             }
