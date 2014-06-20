@@ -785,45 +785,31 @@
   position: absolute;
   width: 100%;
 }
-#newCatalogRoot #backbuttonArea {
-  left: 1%;
-  position: absolute;
-  width: 3%;
-}
 #newCatalogRoot	#bgimage {
   background-position: center;
   background-size: cover;
-  opacity: 0.45;
+  opacity: 0.2;
   position: absolute;
   width: 100%;
   height: 100%;
 }
 #newCatalogRoot #bottomContainer {
-  background-color: rgba(0,0,0,0.4);
   width: 100%;
-  height: 60%;
+  height: 70%;
   position: absolute;
   bottom: 0;
-}
-#newCatalogRoot #catalogBackButton {
-  display: block;
-  height: auto;
-  position: relative;
-  top: 0%;
-  width: 100%;
-  height: 100%;
 }
 #newCatalogRoot #collectionDescription {
   width: 90%;
   height: 90%;
   overflow-y: auto;
   margin: 5%;
+  margin-top: 0%;
 }
 #newCatalogRoot #currentThumbnail {
-  max-height: 100%;
-  max-width: 100%;
   width: 100%;
   height: 100%;
+  border-radius: 2%;
 }
 #newCatalogRoot #descSpan {
   text-overflow: ellipsis;
@@ -833,17 +819,15 @@
   color: #fff;
   overflow-x: hidden;
   overflow-y: auto;
-  text-overflow: ellipsis;
   white-space: normal;
   word-wrap: break-word;
   position: absolute;
-  width: 80%;
-  height: 20%;
-  margin: 10%;
+  width: 90%;
+  height: 25%;
+  margin: 5%;
   bottom: 0;
 }
-#newCatalogRoot #displayarea {
-  background-color: rgba(0,0,0,0.2);
+#newCatalogRoot #infoDiv {
   position: absolute;
   left: 0%;
   height: 100%;
@@ -873,13 +857,12 @@
   width: 60%;
 }
 #newCatalogRoot #collectionArea {
-  background-color: rgba(0,0,0,0.7);
-  height: 20%;
+  height: 40%;
+  width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  width: 92%;
+  text-align: center;
   position: absolute;
-  left: 6%;
 }
 #newCatalogRoot #collection-label {
   height: 7%;
@@ -891,12 +874,6 @@
   text-align: center;
   width: 45%;
   font-size: 1.7em;
-}
-#newCatalogRoot #collection-info {
-  height: 96%;
-  position: absolute;
-  top: 0%;
-  width: 98%;
 }
 #newCatalogRoot #collection-selection {
   border: solid transparent;
@@ -910,14 +887,28 @@
 }
 #newCatalogRoot .collection-title {
   display: inline-block;
+  width: 100%;
   height: 100%;
-  margin-left: 5%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 90%;
   font-size: 1.1em;
-  margin-top: 2.15%;
+  color: #fff;
+}
+#newCatalogRoot	.collectionDot {
+  width: 7px;
+  height: 7px;
+  display: inline-block;
+  background-color: #aaa;
+  margin: 3px;
+  border-radius: 50%;
+}
+#newCatalogRoot .collectionDotHolder {
+  height: 20%;
+  width: 100%;
+  text-align: center;
+  position: absolute;
+  top: 30%;
 }
 #newCatalogRoot #exploreIcon {
   float: right;
@@ -932,10 +923,9 @@
   color: #fff;
   display: none;
   height: 16%;
-  left: 0%;
   overflow: hidden;
   position: absolute;
-  top: 84%;
+  left: 0;
   width: 100%;
 }
 #newCatalogRoot #explore-text {
@@ -962,9 +952,11 @@
   width: auto;
 }
 #newCatalogRoot #img-container {
-  width: 80%;
+  width: 90%;
+  height: 50%;
   position: absolute;
-  left: 10%;
+  top: 10%;
+  left: 5%;
 }
 #newCatalogRoot #info-text {
   display: inline-block;
@@ -972,11 +964,28 @@
   top: 100%;
   width: 100%;
 }
-#newCatalogRoot #topBar {
-  height: 37.5%;
+#newCatalogRoot .mainCollection {
+  margin: auto;
+  display: inline-block;
+  height: 100%;
+  font-size: 200%;
+}
+#newCatalogRoot .nextPrevCollection {
+  font-size: 150%;
+  color: #aaa;
   position: absolute;
+  top: 15%;
+  height: 50%;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#newCatalogRoot #topBar {
+  height: 30%;
+  position: absolute;
+  top: 0%;
   width: 100%;
-  top: 2.5%;
   z-index: 2;
 }
 #newCatalogRoot #topBar-header {
@@ -993,14 +1002,13 @@
   z-index: 1000000;
 }
 #newCatalogRoot #overlay {
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0,0,0,0.7);
   position: absolute;
   width: 100%;
   height: 100%;
 }
 #newCatalogRoot #sortRow {
-  background-color: rgba(0,0,0,0.5);
-  height: 15%;
+  height: 10%;
   position: relative;
   top: 0%;
   width: 100%;
@@ -1025,6 +1033,7 @@
   position: relative;
   right: 1%;
   z-index: 100;
+  border-radius: 2%;
 }
 #newCatalogRoot #searchTxt {
   color: #fff;
@@ -1035,62 +1044,71 @@
   width: 25%;
 }
 #newCatalogRoot #selectedArtworkContainer {
-  background-color: rgba(0,0,0,0.85);
-  width: 25%;
+  background-color: rgba(0,0,0,0.65);
+  width: 32%;
   height: 90%;
   z-index: 10000;
   position: absolute;
-  left: 0;
   display: none;
+  border-radius: 2%;
 }
 #newCatalogRoot .tile {
   border: 1px solid rgba(0,0,0,0.85);
-  height: 45%;
   position: absolute;
-  width: 22%;
+  height: 42%;
+  width: 20%;
+  border-radius: 3%;
 }
 #newCatalogRoot .tileImage {
   position: absolute;
   width: 100%;
   height: 100%;
+  border-radius: 3%;
 }
 #newCatalogRoot #timelineArea {
   position: absolute;
   width: 100%;
-  height: 85%;
+  height: 60%;
   bottom: 0;
 }
 #newCatalogRoot .timeline {
   position: absolute;
-  width: 96%;
+  width: 100%;
   height: 3%;
   top: 45%;
-  left: 2%;
-  background-color: #000;
 }
 #newCatalogRoot .timelineTick {
   position: absolute;
-  background-color: #000;
-  height: 500%;
-  top: -200%;
+  background-color: #aaa;
+  width: 0.3%;
+  height: 100%;
+  top: 0%;
 }
-#newCatalogRoot .timelineTickLabel {
+#newCatalogRoot .timelineDateLabel {
   position: absolute;
   height: 100%;
-  top: 100%;
-  left: -200%;
-  color: #fff;
+  top: -100%;
+  color: #aaa;
+}
+#newCatalogRoot .timelineEventCircle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: rgba(250,250,250,0.5);
+  border-radius: 10px;
+  top: -8px;
 }
 #newCatalogRoot #catalogDiv {
-  height: 85%;
+  height: 90%;
   overflow-x: auto;
   overflow-y: hidden;
-  position: relative;
-  top: 0%;
+  position: absolute;
+  bottom: 0;
+  right: 0;
   width: 100%;
   z-index: 49;
 }
-#newCatalogRoot #catalogDivContainer {
+#newCatalogRoot #infoTilesContainer {
   position: absolute;
   right: 0;
   height: 100%;
@@ -1098,10 +1116,13 @@
 }
 #newCatalogRoot #titleSpan {
   line-height: 100%;
-  margin: 5%;
+  margin: 2.5%;
+  height: 10%;
   text-align: center;
-  overflow-x: none;
   text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 95%;
 }
 #newCatalogRoot .tourLabel {
   bottom: 0px;
