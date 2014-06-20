@@ -43945,7 +43945,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
     /**
      * Shows collection and title
      * @method loadCollection
-     * @param {jQuery obj} collection     the element we're clicking
+     * @param {jQuery obj} collection     the element currently being clicked
      * @param {Number} sPos               if undefined, set scroll position to 0, otherwise, use this
      * @param {doq} artwrk                if undefined, set currentArtwork to null, otherwise, use this
      */
@@ -44246,7 +44246,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                     idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
                     idleTimer.start();
                 }
-
+                
                 showArtwork(currentWork)();
                 justShowedArtwork = true;
             });
@@ -44422,6 +44422,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      *
      */
     function showArtwork(artwork) {
+        
         return function () {
             var titleSpan,
                 descSpan,
@@ -44464,6 +44465,24 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             //             'top'              : '-8px'
             //     });
             // });
+
+
+            // Set selected artwork to hide when anything else is clicked
+            $(document).mouseup(function(e) {
+                var subject = $('#selectedArtworkContainer');
+                if(e.target.id != subject.attr('id') && !subject.has(e.target).length) {
+                    subject.css('display', 'none');
+                    artwork.circle && artwork.circle.css({
+                         'height'           : '20px',
+                         'width'            : '20px',
+                         'background-color' : 'rgba(255, 255, 255, .5)',
+                         'border-radius'    : '10px',
+                         'top'              : '-8px'
+                    });
+                }
+            });
+
+
 
             selectedArtworkContainer.empty();
 
