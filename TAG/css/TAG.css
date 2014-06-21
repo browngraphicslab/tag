@@ -1089,6 +1089,7 @@
   position: absolute;
   height: 100%;
   top: -100%;
+  white-space: nowrap;
   color: #aaa;
 }
 #newCatalogRoot .timelineEventCircle {

@@ -44335,6 +44335,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             timelineDateLabel,
             timelineTicks = [],
             timeline = $(document.createElement('div')),
+            yearText,
             positionOnTimeline,
             valuation;
 
@@ -44360,20 +44361,10 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
         // Sort artworks by year to create a range of dates to use for the timeline
         // This uses an AVLTree, the same sorting mechanism used to sort by tag
-        comparator = sortComparator('yearKey');
-        valuation  = sortValuation('yearKey');
-
-        avlTree = new AVLTree(comparator, valuation);
-        for (i = 0; i < artworks.length; i++) {
-            artNode = {
-                artwork: artworks[i],
-                yearKey: artworks[i].Type === 'Empty' ? '~~~~' : parseInt(artworks[i].Metadata.Year) // tours show up at end
-            };
-            avlTree.add(artNode);
-        };
+        avlTree = sortByYear(artworks);
 
         // Get minimum of this search
-        minDate = parseInt(avlTree.min().yearKey);
+        minDate = parseInt(avlTree.min().yearKey)
         maxDate = avlTree.max();
         while (maxDate.yearKey === '~~~~'){
             maxDate = avlTree.findPrevious(maxDate);
@@ -44400,17 +44391,26 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 curr.artwork.circle = eventCircle;
                 timelineEventCircles.push(eventCircle);
 
+                console.log(toString(curr.yearKey));
+                if (curr.yearKey<0){
+                    yearText = curr.yearKey.toString().replace(/-/g,'') + ' ' + 'BCE';
+                } else{
+                    yearText = curr.yearKey.toString();
+                }
+
                 timelineDateLabel = $(document.createElement('div'))
-                    .addClass('timelineDateLabel')
-                    .text(curr.yearKey);
+                    .text(yearText)
+                    .addClass('timelineDateLabel');
                 eventCircle.append(timelineDateLabel);
                 eventCircle.timelineDateLabel = timelineDateLabel;
 
                 // If circles are too close together, don't add dates to both of them
-                if ((avlTree.findPrevious(curr)) && (eventCircle.position().left - avlTree.findPrevious(curr).artwork.circle.position().left) < eventCircle.width()*2){
-                    timelineDateLabel.css('visibility', 'hidden');
-                };
-            };
+                if (avlTree.findPrevious(curr)&&avlTree.findPrevious(curr).artwork.circle){
+                    if ((avlTree.findPrevious(curr)) && (eventCircle.position().left - avlTree.findPrevious(curr).artwork.circle.position().left) < eventCircle.width()*2){
+                        timelineDateLabel.css('visibility', 'hidden');
+                    }
+                }
+            }
             curr = avlTree.findNext(curr);
         }
      };
@@ -44721,18 +44721,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             }
             return avlTree;
         } else if (tag === 'Year') {
-            comparator = sortComparator('yearKey');
-            valuation  = sortValuation('yearKey');
 
-            avlTree = new AVLTree(comparator, valuation);
-            for (i = 0; i < artworks.length; i++) {
-                artNode = {
-                    artwork: artworks[i],
-                    yearKey: artworks[i].Type === 'Empty' ? '~~~~' : parseInt(artworks[i].Metadata.Year) // tours show up at end
-                };
-                avlTree.add(artNode);
-            }
-            return avlTree;
+            return sortByYear(artworks);
+
         } else if (tag === 'Type') {
             comparator = sortComparator('typeKey', 'nameKey');
             valuation  = sortValuation('nameKey');
@@ -44750,6 +44741,47 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         }
         
         return null; // error case: falsy tag
+    }
+
+    /**Helper function for sorting artwork tiles and timeline markers
+     * @method sortByYear
+     * @param  {Object} artworks      list of artworks to sort
+     * @return {AVLTree} avlTree      sorted tree so order can be easily accessed
+    **/
+    function sortByYear(artworks){
+        var comparator,
+            valuation,
+            avlTree,
+            artNode,
+            yearKey,
+            i;
+        comparator = sortComparator('yearKey');
+        valuation  = sortValuation('yearKey');
+        avlTree = new AVLTree(comparator, valuation);
+        for (i = 0; i < artworks.length; i++) {
+            if (artworks[i].Metadata.Year) {
+                yearKey = artworks[i].Metadata.Year
+                yearKey = yearKey.replace(/ad/gi,'')
+                                 .replace(/( |\d)ce/gi,'')
+                                 .replace(/\s/g,'');
+                if (yearKey.search(/bce?/gi)>=0){
+                    yearKey = yearKey.replace(/bce?/gi,'');
+                    yearKey = "-" + yearKey;
+                }
+                yearKey = parseInt(yearKey);
+            }
+            if (!isNaN(yearKey)){
+                artNode = {
+                    artwork: artworks[i],
+                    //understand this empty string thing...
+                    yearKey: artworks[i].Type === 'Empty' ? '~~~~' : yearKey
+                    //yearKey: artworks[i].Type === 'Empty' ? '~~~~' : parseInt(artworks[i].Metadata.Year) // tours show up at end
+                    };
+                avlTree.add(artNode);
+            } 
+            //what happens to the guys not added to avl tree? sorted by another default?
+        }
+        return avlTree;
     }
 
     /** 
