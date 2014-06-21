@@ -44367,7 +44367,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         for (i = 0; i < artworks.length; i++) {
             artNode = {
                 artwork: artworks[i],
-                yearKey: artworks[i].Type === 'Empty' ? '~~~~' : artworks[i].Metadata.Year // tours show up at end
+                yearKey: artworks[i].Type === 'Empty' ? '~~~~' : parseInt(artworks[i].Metadata.Year) // tours show up at end
             };
             avlTree.add(artNode);
         };
@@ -44383,13 +44383,13 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         // Time range is difference between earliest and latest dates of artworks.
         //TODO: find a more effecient/logical ways to generate these numbers
         timeRange = maxDate - minDate;
-        maxDate   = parseInt(maxDate + timeRange/10);
-        minDate   = parseInt(minDate - timeRange/10);
+        maxDate   = parseInt(maxDate + timeRange/20);
+        minDate   = parseInt(minDate - timeRange/20);
         timeRange = maxDate - minDate;
 
         // Make artwork event circles and dates
         var curr = avlTree.min()
-        while (avlTree.findNext(curr)){
+        while (curr){
             if (!isNaN(curr.yearKey)){
                 positionOnTimeline = parseInt(100*(curr.yearKey - minDate)/timeRange);
                 eventCircle = $(document.createElement('div'));
@@ -44728,7 +44728,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             for (i = 0; i < artworks.length; i++) {
                 artNode = {
                     artwork: artworks[i],
-                    yearKey: artworks[i].Type === 'Empty' ? '~~~~' : artworks[i].Metadata.Year // tours show up at end
+                    yearKey: artworks[i].Type === 'Empty' ? '~~~~' : parseInt(artworks[i].Metadata.Year) // tours show up at end
                 };
                 avlTree.add(artNode);
             }
