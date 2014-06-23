@@ -1027,11 +1027,11 @@ TAG.Worktop.Database = (function () {
     }
 
     function getPrimaryFontColor() {
-        return _main.Metadata["PrimaryFontColor"];
+        return _main.Metadata["PrimaryFontColor"] || '#FFFFFF';
     }
 
     function getSecondaryFontColor() {
-        return _main.Metadata["SecondaryFontColor"];
+        return _main.Metadata["SecondaryFontColor"] || '#FFFFFF';
     }
 
     function getStartPageBackground() {
