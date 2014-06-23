@@ -1,29 +1,29 @@
 #newCatalogRoot
 	#overlay
 	#catalogDivContainer
-		#sortRow
-			#artistButton.rowButton(tagName="Artist")
+		#sortRow.background
+			#artistButton.rowButton(tagName="Artist").secondaryFont
 				|Artist
-			#titleButton.rowButton(tagName="Title")
+			#titleButton.rowButton(tagName="Title").secondaryFont
 				|Title
-			#yearButton.rowButton(tagName="Year")
+			#yearButton.rowButton(tagName="Year").secondaryFont
 				|Year
-			#typeButton.rowButton(tagName="Type")
+			#typeButton.rowButton(tagName="Type").secondaryFont
 				|Type
 			#searchFilter
 				input#searchInput(placeholder="Enter Keyword")
 				#searchTxt
-		#catalogDiv
+		#catalogDiv.background
 	#bgimage
 	#leftbar
 		#leftbar-header
 			#backbuttonArea
 				img#catalogBackButton
 			#collection-label
-				#collectionHeader
+				#collectionHeader.primaryFont
 					| Collections
-		#collectionArea
-	#displayarea
+		#collectionArea.background
+	#displayarea.primaryFont
 		#displayareasub
 	#loadingArea			
 	//- #feedbackContainer

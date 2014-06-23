@@ -1060,12 +1060,15 @@
 #newCatalogRoot #catalogDiv {
   background-color: rgba(0,0,0,0.5);
   height: 100%;
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: hidden;
   position: relative;
   top: 0%;
   width: 100%;
   z-index: 49;
+}
+#newCatalogRoot #catalogDiv:hover {
+  overflow-x: auto;
 }
 #newCatalogRoot #catalogDivContainer {
   height: 42.5%;
@@ -1422,12 +1425,12 @@
   margin-left: 6.95%;
   margin-top: 0.372%;
 }
-#setViewLeftBarContainer {
+#setViewMiddleBarContainer {
   width: 22%;
   height: 92%;
   float: left;
 }
-#setViewRoot .leftLabel {
+#setViewRoot .middleLabel {
   min-height: 20px;
   height: 8%;
   padding-left: 2%;
@@ -1438,7 +1441,7 @@
   overflow: hidden;
   position: relative;
 }
-#setViewRoot .leftLabel .labelText {
+#setViewRoot .middleLabel .labelText {
   font-size: 100%;
   color: #000;
   display: inline-block;
@@ -1499,11 +1502,11 @@
   border-style: solid;
   border-color: #a7b4ae;
 }
-#setViewLeftBar {
+#setViewMiddleBar {
   width: 100%;
   height: 92%;
 }
-#setViewLeftLabelContainer {
+#setViewMiddleLabelContainer {
   padding-left: 3.5%;
   padding-right: 20px;
   padding-bottom: 5%;
@@ -1511,7 +1514,7 @@
   height: 92%;
   overflow: auto;
 }
-#setViewLeftLoading {
+#setViewMiddleLoading {
   padding: 2%;
   height: 40px;
   margin-right: 3%;
@@ -1604,16 +1607,6 @@
   background-color: rgba(0,0,0,0.6);
   z-index: 1000000005;
 }
-#loginOverlay {
-  display: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.6);
-  z-index: 100000002;
-}
 .dialogBoxContainer {
   display: table-cell;
   text-align: center;
@@ -1630,26 +1623,12 @@
   background-color: #000;
   padding: 3%;
 }
-#loginOverlay #loginDialog {
-  position: absolute;
-  border: 3px double #fff;
-  background-color: #000;
-}
 .dialogBoxTitle {
   color: #fff;
   font-size: 1.3em;
   position: relative;
   text-align: center;
   margin: 0.3em auto;
-}
-#loginOVerlay #dialogTitle {
-  color: #fff;
-  width: 80%;
-  height: 15%;
-  left: 10%;
-  top: 12.5%;
-  position: relative;
-  text-align: center;
 }
 .dialogBox > p {
   color: #fff;

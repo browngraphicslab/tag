@@ -1,30 +1,137 @@
-﻿TAG.Util.makeNamespace("TAG.Layout.ArtworkViewer");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js - Touch Art Gallery web application</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../../TAG/images/WideLogo.scale-100.png" title="Touch Art Gallery web application"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 1.0.0</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/Autolinker.html">Autolinker</a></li>
+            
+                <li><a href="../classes/TAG.AnnotatedImage.html">TAG.AnnotatedImage</a></li>
+            
+                <li><a href="../classes/TAG.Layout.ArtworkViewer.html">TAG.Layout.ArtworkViewer</a></li>
+            
+                <li><a href="../classes/TAG.Layout.CollectionsPage.html">TAG.Layout.CollectionsPage</a></li>
+            
+                <li><a href="../classes/TAG.Layout.InternetFailurePage.js.html">TAG.Layout.InternetFailurePage.js</a></li>
+            
+                <li><a href="../classes/TAG.Layout.StartPage.html">TAG.Layout.StartPage</a></li>
+            
+                <li><a href="../classes/TAG.Layout.VideoPlayer.html">TAG.Layout.VideoPlayer</a></li>
+            
+                <li><a href="../classes/TAG.Util.Artwork.html">TAG.Util.Artwork</a></li>
+            
+                <li><a href="../classes/TAG.Util.IdleTimer.html">TAG.Util.IdleTimer</a></li>
+            
+                <li><a href="../classes/TAG_embed.html">TAG_embed</a></li>
+            
+                <li><a href="../classes/Telemetry.html">Telemetry</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+﻿TAG.Util.makeNamespace(&quot;TAG.Layout.ArtworkViewer&quot;);
 
 /**
  * The artwork viewer, which contains a sidebar with tools and thumbnails as well
  * as a central area for the deepzoom image.
  * @class TAG.Layout.ArtworkViewer
  * @constructor
- * @param {Object} options              some options for the artwork viewer page
- * @param {HTML Element} container      the root container 
- * @return {Object}                     some public methods
+ * @param {Object} options        some options for the artwork viewer page
+ * @return {Object}               some public methods
  */
-TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options, exhibition) {
-    "use strict";
+TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition) {
+    &quot;use strict&quot;;
 
     options = options || {}; // cut down on null checks later
 
     var // DOM-related
-        root                = TAG.Util.getHtmlAjax('Artmode.html'),
-        sideBar             = root.find('#sideBar'),
-        toggler             = root.find('#toggler'),
-        togglerImage        = root.find('#togglerImage'),
-        backButton          = root.find('#backButton'),
-        locHistoryDiv       = root.find('#locationHistoryDiv'),
-        info                = root.find('#info'),
-        locHistoryToggle    = root.find('#locationHistoryToggle'),
-        locHistory          = root.find('#locationHistory'),
-        locHistoryContainer = root.find('#locationHistoryContainer'),
+        root                = TAG.Util.getHtmlAjax(&#x27;Artmode.html&#x27;),
+        sideBar             = root.find(&#x27;#sideBar&#x27;),
+        toggler             = root.find(&#x27;#toggler&#x27;),
+        togglerImage        = root.find(&#x27;#togglerImage&#x27;),
+        backButton          = root.find(&#x27;#backButton&#x27;),
+        locHistoryDiv       = root.find(&#x27;#locationHistoryDiv&#x27;),
+        info                = root.find(&#x27;#info&#x27;),
+        locHistoryToggle    = root.find(&#x27;#locationHistoryToggle&#x27;),
+        locHistory          = root.find(&#x27;#locationHistory&#x27;),
+        locHistoryContainer = root.find(&#x27;#locationHistoryContainer&#x27;),
 
         // constants
         FIX_PATH = TAG.Worktop.Database.fixPath,
@@ -52,7 +159,7 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
         manipulate;                                 // Manipulation method
         
     // get things rolling if doq is defined (it better be)
-    doq && init();
+    doq &amp;&amp; init();
 
     return {
         getRoot: getRoot
@@ -71,16 +178,16 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
         idleTimer.start();
 
         // add script for displaying bing maps
-        head = document.getElementsByTagName('head').item(0);
-        script = document.createElement("script");
-        script.charset = "UTF-8";
-        script.type = "text/javascript";
-        script.src = "http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0";
+        head = document.getElementsByTagName(&#x27;head&#x27;).item(0);
+        script = document.createElement(&quot;script&quot;);
+        script.charset = &quot;UTF-8&quot;;
+        script.type = &quot;text/javascript&quot;;
+        script.src = &quot;http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0&quot;;
         head.appendChild(script);
 
-        meta = document.createElement('meta');
-        meta.httpEquiv = "Content-Type";
-        meta.content = "text/html; charset=utf-8";
+        meta = document.createElement(&#x27;meta&#x27;);
+        meta.httpEquiv = &quot;Content-Type&quot;;
+        meta.content = &quot;text/html; charset=utf-8&quot;;
         head.appendChild(meta);
 
         locationList = TAG.Util.UI.getLocationList(doq.Metadata);
@@ -91,7 +198,7 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             callback: function () {
                 associatedMedia = annotatedImage.getAssociatedMedia();
                 associatedMedia.guids.sort(function (a, b) {
-                    return associatedMedia[a].doq.Name.toLowerCase() < associatedMedia[b].doq.Name.toLowerCase() ? -1 : 1;
+                    return associatedMedia[a].doq.Name.toLowerCase() &lt; associatedMedia[b].doq.Name.toLowerCase() ? -1 : 1;
                 });
                 try { // TODO figure out why loadDoq sometimes causes a NetworkError (still happening?)
                     annotatedImage.openArtwork(doq);
@@ -112,9 +219,9 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
      * @method createSeadragonControls
      */
     function createSeadragonControls() {
-        var container        = root.find('#seadragonManipContainer'),
-            slideButton      = root.find('#seadragonManipSlideButton'),
-            tagRoot          = $('#tagRoot'),
+        var container        = root.find(&#x27;#seadragonManipContainer&#x27;),
+            slideButton      = root.find(&#x27;#seadragonManipSlideButton&#x27;),
+            tagRoot          = $(&#x27;#tagRoot&#x27;),
             CENTER_X         = tagRoot.width()/2,
             CENTER_Y         = tagRoot.height()/2,
             D_PAD_TOP        = 26,
@@ -126,43 +233,43 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             containerFocused = true,
             interval;
 
-        container.css('left', ($('#tagRoot').width() - 160) + "px"); // do this with 'right' instead
+        container.css(&#x27;left&#x27;, ($(&#x27;#tagRoot&#x27;).width() - 160) + &quot;px&quot;); // do this with &#x27;right&#x27; instead
 
-        slideButton.on('click', function () {
+        slideButton.on(&#x27;click&#x27;, function () {
             count = 1 - count;
             container.animate({
                 top: top
             });
             if (count === 0){
                 top = 0;
-                slideButton.html("Show Controls");
+                slideButton.html(&quot;Show Controls&quot;);
             } else {
                 top = -100;
-                slideButton.html('Hide Controls');
+                slideButton.html(&#x27;Hide Controls&#x27;);
             }   
         });
         
         container.append(slideButton);
-        container.append(createButton('leftControl',  tagPath+'images/icons/zoom_left.svg',  D_PAD_LEFT,    D_PAD_TOP+14));
-        container.append(createButton('upControl',    tagPath+'images/icons/zoom_up.svg',    D_PAD_LEFT+12, D_PAD_TOP+2));
-        container.append(createButton('rightControl', tagPath+'images/icons/zoom_right.svg', D_PAD_LEFT+41, D_PAD_TOP+14));
-        container.append(createButton('downControl',  tagPath+'images/icons/zoom_down.svg',  D_PAD_LEFT+12, D_PAD_TOP+43));
-        container.append(createButton('zinControl',   tagPath+'images/icons/zoom_plus.svg',  D_PAD_LEFT-40, D_PAD_TOP-6));
-        container.append(createButton('zoutControl',  tagPath+'images/icons/zoom_minus.svg', D_PAD_LEFT-40, D_PAD_TOP+34));
+        container.append(createButton(&#x27;leftControl&#x27;,  tagPath+&#x27;images/icons/zoom_left.svg&#x27;,  D_PAD_LEFT,    D_PAD_TOP+14));
+        container.append(createButton(&#x27;upControl&#x27;,    tagPath+&#x27;images/icons/zoom_up.svg&#x27;,    D_PAD_LEFT+12, D_PAD_TOP+2));
+        container.append(createButton(&#x27;rightControl&#x27;, tagPath+&#x27;images/icons/zoom_right.svg&#x27;, D_PAD_LEFT+41, D_PAD_TOP+14));
+        container.append(createButton(&#x27;downControl&#x27;,  tagPath+&#x27;images/icons/zoom_down.svg&#x27;,  D_PAD_LEFT+12, D_PAD_TOP+43));
+        container.append(createButton(&#x27;zinControl&#x27;,   tagPath+&#x27;images/icons/zoom_plus.svg&#x27;,  D_PAD_LEFT-40, D_PAD_TOP-6));
+        container.append(createButton(&#x27;zoutControl&#x27;,  tagPath+&#x27;images/icons/zoom_minus.svg&#x27;, D_PAD_LEFT-40, D_PAD_TOP+34));
 
         /////////////////////////// RAPID PROTOTYPING /////////////////////////////
 
-        var crossfadeSlider = $(document.createElement('input')).attr({
-            'id': 'crossfadeSlider',
-            'type': 'range',
-            'value': 1,
-            'min': 0,
-            'max': 1,
-            'step': 0.05
+        var crossfadeSlider = $(document.createElement(&#x27;input&#x27;)).attr({
+            &#x27;id&#x27;: &#x27;crossfadeSlider&#x27;,
+            &#x27;type&#x27;: &#x27;range&#x27;,
+            &#x27;value&#x27;: 1,
+            &#x27;min&#x27;: 0,
+            &#x27;max&#x27;: 1,
+            &#x27;step&#x27;: 0.05
         });
 
-        crossfadeSlider.on('change mousemove', function() {
-            $('.mediaOuterContainer').css('opacity', crossfadeSlider.val());
+        crossfadeSlider.on(&#x27;change mousemove&#x27;, function() {
+            $(&#x27;.mediaOuterContainer&#x27;).css(&#x27;opacity&#x27;, crossfadeSlider.val());
         });
         // container.append(crossfadeSlider);
 
@@ -174,13 +281,13 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
          * Create a seadragon control button
          * @method createButton
          * @param {String} id        the id for the new button
-         * @param {String} imgPath   the path to the button's image
+         * @param {String} imgPath   the path to the button&#x27;s image
          * @param {Number} left      css left property for button
          * @param {Number} top       css top property for button
          * @return {jQuery obj}      the button
          */
         function createButton(id, imgPath, left, top) {
-            var img = $(document.createElement('img'));
+            var img = $(document.createElement(&#x27;img&#x27;));
 
             img.attr({
                 src: imgPath,
@@ -188,16 +295,16 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             });
             
             img.css({
-                left: left + "px",
-                top:  top  + "px"
+                left: left + &quot;px&quot;,
+                top:  top  + &quot;px&quot;
             });
 
-            if (id === 'leftControl' || id === 'rightControl'){
-                img.addClass('seadragonManipButtonLR');
-            } else if (id === 'upControl'|| id === 'downControl'){
-                img.addClass('seadragonManipButtonUD');
-            } else if (id === 'zinControl'|| id === 'zoutControl'){
-                img.addClass('seadragonManipButtoninout');
+            if (id === &#x27;leftControl&#x27; || id === &#x27;rightControl&#x27;){
+                img.addClass(&#x27;seadragonManipButtonLR&#x27;);
+            } else if (id === &#x27;upControl&#x27;|| id === &#x27;downControl&#x27;){
+                img.addClass(&#x27;seadragonManipButtonUD&#x27;);
+            } else if (id === &#x27;zinControl&#x27;|| id === &#x27;zoutControl&#x27;){
+                img.addClass(&#x27;seadragonManipButtoninout&#x27;);
             }
 
             return img;
@@ -246,62 +353,62 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
                     y: annotatedImage.getMediaDimensions().height / 2
                 };
 
-            if (direction === 'left') {
+            if (direction === &#x27;left&#x27;) {
                 manipulate({pivot: pivot, translation: {x: -panDelta, y: 0}, scale: 1});
-            } else if (direction === 'up') {
+            } else if (direction === &#x27;up&#x27;) {
                 manipulate({pivot: pivot, translation: {x: 0, y: -panDelta}, scale: 1});
-            } else if (direction === 'right') {
+            } else if (direction === &#x27;right&#x27;) {
                 manipulate({pivot: pivot, translation: {x: panDelta, y: 0}, scale: 1});
-            } else if (direction === 'down') {
+            } else if (direction === &#x27;down&#x27;) {
                 manipulate({pivot: pivot, translation: {x: 0, y: panDelta}, scale: 1});
-            } else if (direction === 'in') {
+            } else if (direction === &#x27;in&#x27;) {
                 manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: zoomScale});
-            } else if (direction === 'out') {
+            } else if (direction === &#x27;out&#x27;) {
                 manipulate({pivot: pivot, translation: {x: 0, y: 0}, scale: 1/zoomScale});
             }   
         }
 
 
         // tabindex code is to allow key press controls (focus needs to be on the TAG container)
-        $('#tagContainer').attr("tabindex", -1);
-        $("[tabindex='-1']").focus();
-        $("[tabindex='-1']").css('outline', 'none');
-        $("[tabindex='-1']").on('click', function() {
-            $("[tabindex='-1']").focus();
+        $(&#x27;#tagContainer&#x27;).attr(&quot;tabindex&quot;, -1);
+        $(&quot;[tabindex=&#x27;-1&#x27;]&quot;).focus();
+        $(&quot;[tabindex=&#x27;-1&#x27;]&quot;).css(&#x27;outline&#x27;, &#x27;none&#x27;);
+        $(&quot;[tabindex=&#x27;-1&#x27;]&quot;).on(&#x27;click&#x27;, function() {
+            $(&quot;[tabindex=&#x27;-1&#x27;]&quot;).focus();
             containerFocused = true;
             annotatedImage.dzManipPreprocessing();     //Tell AnnotatedImage that the main artwork is active
         });
-        $("[tabindex='-1']").focus(function() {
+        $(&quot;[tabindex=&#x27;-1&#x27;]&quot;).focus(function() {
             containerFocused = true;
         });
-        $("[tabindex='-1']").focusout(function() {
+        $(&quot;[tabindex=&#x27;-1&#x27;]&quot;).focusout(function() {
             containerFocused = false;
         });
 
 
 
-        $(document).on('keydown', function(evt) {
+        $(document).on(&#x27;keydown&#x27;, function(evt) {
             if(containerFocused) {
                 switch(evt.which) {
                     case 37:
-                        keyHandler(evt, 'left');
+                        keyHandler(evt, &#x27;left&#x27;);
                         break;
                     case 38:
-                        keyHandler(evt, 'up');
+                        keyHandler(evt, &#x27;up&#x27;);
                         break;
                     case 39:
-                        keyHandler(evt, 'right');
+                        keyHandler(evt, &#x27;right&#x27;);
                         break;
                     case 40:
-                        keyHandler(evt, 'down');
+                        keyHandler(evt, &#x27;down&#x27;);
                         break;
                     case 187:
                     case 61:
-                        keyHandler(evt, 'in');
+                        keyHandler(evt, &#x27;in&#x27;);
                         break;
                     case 189:
                     case 173:
-                        keyHandler(evt, 'out');
+                        keyHandler(evt, &#x27;out&#x27;);
                         break;
                 }
             }
@@ -311,40 +418,40 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             clearInterval(interval);
         });
 
-        $('#seadragonManipContainer').on('click', function(evt) {
+        $(&#x27;#seadragonManipContainer&#x27;).on(&#x27;click&#x27;, function(evt) {
             evt.stopPropagation(); //Prevent the click going through to the main container
             evt.preventDefault();
             TAG.Util.IdleTimer.restartTimer();
         });
 
-        $('#leftControl').on('mousedown', function(evt) {
-            buttonHandler(evt, 'left');
+        $(&#x27;#leftControl&#x27;).on(&#x27;mousedown&#x27;, function(evt) {
+            buttonHandler(evt, &#x27;left&#x27;);
         });
-        $('#upControl').on('mousedown', function(evt) {
-            buttonHandler(evt, 'up');
+        $(&#x27;#upControl&#x27;).on(&#x27;mousedown&#x27;, function(evt) {
+            buttonHandler(evt, &#x27;up&#x27;);
         });
-        $('#rightControl').on('mousedown', function(evt) {
-            buttonHandler(evt, 'right');
+        $(&#x27;#rightControl&#x27;).on(&#x27;mousedown&#x27;, function(evt) {
+            buttonHandler(evt, &#x27;right&#x27;);
         });
-        $('#downControl').on('mousedown', function(evt) {
-            buttonHandler(evt, 'down');
+        $(&#x27;#downControl&#x27;).on(&#x27;mousedown&#x27;, function(evt) {
+            buttonHandler(evt, &#x27;down&#x27;);
         });
-        $('#zinControl').on('mousedown', function(evt) {
-            buttonHandler(evt, 'in');
+        $(&#x27;#zinControl&#x27;).on(&#x27;mousedown&#x27;, function(evt) {
+            buttonHandler(evt, &#x27;in&#x27;);
         });
-        $('#zoutControl').on('mousedown', function(evt) {
-            buttonHandler(evt, 'out');
+        $(&#x27;#zoutControl&#x27;).on(&#x27;mousedown&#x27;, function(evt) {
+            buttonHandler(evt, &#x27;out&#x27;);
         });
 
-        $('.seadragonManipButtonLR').on('mouseup mouseleave', function() {
+        $(&#x27;.seadragonManipButtonLR&#x27;).on(&#x27;mouseup mouseleave&#x27;, function() {
             clearInterval(interval);
         });
 
-        $('.seadragonManipButtonUD').on('mouseup mouseleave', function() {
+        $(&#x27;.seadragonManipButtonUD&#x27;).on(&#x27;mouseup mouseleave&#x27;, function() {
             clearInterval(interval);
         });
 
-        $('.seadragonManipButtoninout').on('mouseup mouseleave', function() {
+        $(&#x27;.seadragonManipButtoninout&#x27;).on(&#x27;mouseup mouseleave&#x27;, function() {
             clearInterval(interval);
         });
     }
@@ -354,13 +461,13 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
      * @method makeSidebar
      */
     function makeSidebar() {
-        var backBttnContainer = root.find("#backBttnContainer"),
-            sideBarSections   = root.find('#sideBarSections'),
-            sideBarInfo       = root.find('#sideBarInfo'),
-            infoTitle         = root.find('#infoTitle'),
-            infoArtist        = root.find('#infoArtist'),
-            infoYear          = root.find('#infoYear'),
-            assetContainer    = root.find('#assetContainer'),
+        var backBttnContainer = root.find(&quot;#backBttnContainer&quot;),
+            sideBarSections   = root.find(&#x27;#sideBarSections&#x27;),
+            sideBarInfo       = root.find(&#x27;#sideBarInfo&#x27;),
+            infoTitle         = root.find(&#x27;#infoTitle&#x27;),
+            infoArtist        = root.find(&#x27;#infoArtist&#x27;),
+            infoYear          = root.find(&#x27;#infoYear&#x27;),
+            assetContainer    = root.find(&#x27;#assetContainer&#x27;),
             isBarOpen         = true,
             currBottom        = 0,
             item,
@@ -377,38 +484,35 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
 
 
         
-        backButton.attr('src',tagPath+'images/icons/Back.svg');
-        togglerImage.attr("src", tagPath+'images/icons/Close.svg');
+        backButton.attr(&#x27;src&#x27;,tagPath+&#x27;images/icons/Back.svg&#x27;);
+        togglerImage.attr(&quot;src&quot;, tagPath+&#x27;images/icons/Close.svg&#x27;);
         infoTitle.text(doq.Name);
         infoArtist.text(doq.Metadata.Artist);
         infoYear.text(doq.Metadata.Year);
         
 
         // toggler to hide/show sidebar
-        toggler.on('click', function () {
+        toggler.on(&#x27;click&#x27;, function () {
             var opts = {};
-            opts.left = isBarOpen ? '-22%' : '0%'
+            opts.left = isBarOpen ? &#x27;-22%&#x27; : &#x27;0%&#x27;
             isBarOpen = !isBarOpen;
             sideBar.animate(opts, 1000, function () {
-                togglerImage.attr('src', tagPath + 'images/icons/' + (isBarOpen ? 'Close.svg' : 'Open.svg'));
+                togglerImage.attr(&#x27;src&#x27;, tagPath + &#x27;images/icons/&#x27; + (isBarOpen ? &#x27;Close.svg&#x27; : &#x27;Open.svg&#x27;));
             });
         });
 
         TAG.Util.UI.setUpBackButton(backButton, goBack);
-        TAG.Telemetry.register(backButton, 'click', 'artwork_to_collections', function(tobj) {
+        TAG.Telemetry.register(backButton, &#x27;click&#x27;, &#x27;artwork_to_collections&#x27;, function(tobj) {
             tobj.work_name = doq.Name;
             tobj.work_guid = doq.Identifier;
         });
-        
-
-       
 
         function goBack() {
             var collectionsPage;
-            backButton.off('click');
-            idleTimer && idleTimer.kill();
+            backButton.off(&#x27;click&#x27;);
+            idleTimer &amp;&amp; idleTimer.kill();
             idleTimer = null;
-            annotatedImage && annotatedImage.unload();
+            annotatedImage &amp;&amp; annotatedImage.unload();
             collectionsPage = new TAG.Layout.CollectionsPage({
                 backScroll:     prevScroll,
                 backArtwork:    doq,
@@ -426,9 +530,9 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             if(doq.Metadata.InfoFields.hasOwnProperty(item)) {
                 fieldTitle = item;
                 fieldValue = doq.Metadata.InfoFields[item];
-                infoCustom = $(document.createElement('div'));
-                infoCustom.addClass('infoCustom');
-                infoCustom.text(fieldTitle + ': ' + fieldValue);
+                infoCustom = $(document.createElement(&#x27;div&#x27;));
+                infoCustom.addClass(&#x27;infoCustom&#x27;);
+                infoCustom.text(fieldTitle + &#x27;: &#x27; + fieldValue);
                 infoCustom.appendTo(info);
             }
         }
@@ -438,23 +542,23 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
 
         // create drawers
         if (doq.Metadata.Description) {
-            descriptionDrawer = createDrawer("Description");
-            descriptionDrawer.contents.html(Autolinker.link(doq.Metadata.Description.replace(/\n/g, "<br />"), {email: false, twitter: false}));
+            descriptionDrawer = createDrawer(&quot;Description&quot;);
+            descriptionDrawer.contents.html(Autolinker.link(doq.Metadata.Description.replace(/\n/g, &quot;&lt;br /&gt;&quot;), {email: false, twitter: false}));
             assetContainer.append(descriptionDrawer);
             currBottom = descriptionDrawer.height();
         }
  
-        if (locationList.length > 0) {
+        if (locationList.length &gt; 0) {
             locHistoryButton = initlocationHistory();
             assetContainer.append(locHistoryButton);
             currBottom += locHistoryButton.height();
         } else {
-            $('#locationHistoryContainer').remove();
+            $(&#x27;#locationHistoryContainer&#x27;).remove();
         }
 
-        if (associatedMedia.guids.length > 0) {
-            mediaDrawer = createDrawer('Associated Media');
-            for(i=0; i<associatedMedia.guids.length; i++) {
+        if (associatedMedia.guids.length &gt; 0) {
+            mediaDrawer = createDrawer(&#x27;Associated Media&#x27;);
+            for(i=0; i&lt;associatedMedia.guids.length; i++) {
                 curr = associatedMedia[associatedMedia.guids[i]];
                 loadQueue.add(createMediaButton(mediaDrawer.contents, curr));
             }
@@ -465,7 +569,7 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
         /**
          * Creates a tour thumbnail button
          * @method createTourButton
-         * @param {jQuery obj} container     the element to which we'll append this button
+         * @param {jQuery obj} container     the element to which we&#x27;ll append this button
          * @param {doq} tour                 the tour doq
          */
         function createTourButton(container, tour) {
@@ -473,8 +577,8 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
                 container.append(TAG.Util.Artwork.createThumbnailButton({
                     title:       TAG.Util.htmlEntityDecode(tour.Name),
                     handler:     tourClicked(tour),
-                    buttonClass: 'tourButton',
-                    src:         (tour.Metadata.Thumbnail ? FIX_PATH(tour.Metadata.Thumbnail) : tagPath+'images/tour_icon.svg')
+                    buttonClass: &#x27;tourButton&#x27;,
+                    src:         (tour.Metadata.Thumbnail ? FIX_PATH(tour.Metadata.Thumbnail) : tagPath+&#x27;images/tour_icon.svg&#x27;)
                 }));
             }
         }
@@ -482,35 +586,35 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
         /**
          * Creates a thumbnail button for an associated media
          * @method createMediaButton
-         * @param {jQuery obj} container       the element to which we'll append the button
+         * @param {jQuery obj} container       the element to which we&#x27;ll append the button
          * @param {Object} media               an associated media object (from AnnotatedImage)
          */
         function createMediaButton(container, media) {
             return function() {
-                var src = '',
+                var src = &#x27;&#x27;,
                     metadata = media.doq.Metadata,
                     thumb = metadata.Thumbnail;
 
                 switch (metadata.ContentType) {
-                    case 'Audio':
-                        src = tagPath+'images/audio_icon.svg';
+                    case &#x27;Audio&#x27;:
+                        src = tagPath+&#x27;images/audio_icon.svg&#x27;;
                         break;
-                    case 'Video':
-                        src = (thumb && !thumb.match(/.mp4/)) ? FIX_PATH(thumb) : 'images/video_icon.svg';
+                    case &#x27;Video&#x27;:
+                        src = (thumb &amp;&amp; !thumb.match(/.mp4/)) ? FIX_PATH(thumb) : &#x27;images/video_icon.svg&#x27;;
                         break;
-                    case 'Image':
+                    case &#x27;Image&#x27;:
                         src = thumb ? FIX_PATH(thumb) : FIX_PATH(metadata.Source);
                         break;
                     default:
-                        src = tagPath + 'images/text_icon.svg';
+                        src = tagPath + &#x27;images/text_icon.svg&#x27;;
                         break;
                 }
 
                 container.append(TAG.Util.Artwork.createThumbnailButton({
                     title:       TAG.Util.htmlEntityDecode(media.doq.Name),
                     handler:     mediaClicked(media),
-                    buttonClass: 'mediaButton',
-                    buttonID:    'thumbnailButton-'+media.doq.Identifier,
+                    buttonClass: &#x27;mediaButton&#x27;,
+                    buttonID:    &#x27;thumbnailButton-&#x27;+media.doq.Identifier,
                     src:         src
                 }));
             }
@@ -524,7 +628,7 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
         function mediaClicked(media) {
             return function (evt) {
                 evt.stopPropagation();
-                locHistoryActive && toggleLocationPanel();
+                locHistoryActive &amp;&amp; toggleLocationPanel();
                 media.create(); // returns if already created
                 media.toggle();
                 TAG.Util.IdleTimer.restartTimer();
@@ -540,32 +644,32 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
 
             relatedTours = tours.filter(function (tour) {
                 var relatedArtworks;
-                if (!tour.Metadata || !tour.Metadata.RelatedArtworks || tour.Metadata.Private === "true") {
+                if (!tour.Metadata || !tour.Metadata.RelatedArtworks || tour.Metadata.Private === &quot;true&quot;) {
                     return false;
                 }
                 relatedArtworks = JSON.parse(tour.Metadata.RelatedArtworks);
                 if(!relatedArtworks || !relatedArtworks.length) {
                     return false;
                 }
-                return relatedArtworks.indexOf(doq.Identifier) >= 0;
+                return relatedArtworks.indexOf(doq.Identifier) &gt;= 0;
             });
 
-            if (relatedTours.length > 0) {
-                tourDrawer = createDrawer('Tours');
+            if (relatedTours.length &gt; 0) {
+                tourDrawer = createDrawer(&#x27;Tours&#x27;);
                 assetContainer.append(tourDrawer);
                 currBottom += tourDrawer.height();
 
-                tourDrawer.contents.text('');
-                for(i=0; i<relatedTours.length; i++) {
+                tourDrawer.contents.text(&#x27;&#x27;);
+                for(i=0; i&lt;relatedTours.length; i++) {
                     loadQueue.add(createTourButton(tourDrawer.contents, relatedTours[i]));
                 }
             }
 
             // set max height of drawers to avoid expanding into minimap area
-            maxHeight = Math.max(1, assetContainer.height() - currBottom ); //to account for the height of the drawerLabel of the current drawer.
-            
-            root.find(".drawerContents").css({
-                "max-height": maxHeight + "px",
+            maxHeight = Math.max(1, assetContainer.height() - currBottom- root.find(&quot;.drawerLabel&quot;).height()); //to account for the height of the drawerLabel of the current drawer.
+            console.log(currBottom);
+            root.find(&quot;.drawerContents&quot;).css({
+                &quot;max-height&quot;: maxHeight + &quot;px&quot;,
 
             });
         });
@@ -577,11 +681,11 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
                     prevInfo,
                     rinPlayer;
                 
-                idleTimer && idleTimer.kill();
+                idleTimer &amp;&amp; idleTimer.kill();
                 idleTimer = null;
 
                 annotatedImage.unload();
-                prevInfo = { artworkPrev: "artmode", prevScroll: prevScroll };
+                prevInfo = { artworkPrev: &quot;artmode&quot;, prevScroll: prevScroll };
                 rinData = JSON.parse(unescape(tour.Metadata.Content));
                 rinPlayer = new TAG.Layout.TourPlayer(rinData, prevCollection, prevInfo, options);
             
@@ -590,37 +694,17 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
         }
 
         /*************************************************************************
-         * MINIMAP CODE. bleveque: didn't rewrite this; separate issue
+         * MINIMAP CODE. bleveque: didn&#x27;t rewrite this; separate issue
          *                         if some variable names are off now, let me know
          */
 
         //Create minimapContainer...
-        var minimapContainer = root.find('#minimapContainer');
-        console.log(info.offset().top);
-        //if the #info div exceeds the half tthe length of the sidebar, the div's max-height is set to its default with an auto scroll property.
-        info.css({
-            'overflow-y' : 'auto',
-            'max-height' : sideBar.height()/2- info.offset().top+ 'px',
-
-        });
-
-        minimapContainer.css({
-            'bottom': '-10%',
-        });
-
-    
-    //when the #info div's size is not too large, the text inside metadata fields is made as much visible as possible
-        assetContainer.css({
-            'max-height': sideBarInfo.height()-info.height() + 'px',
-
-        });
-
-        
+        var minimapContainer = root.find(&#x27;#minimapContainer&#x27;);
 
         sideBarSections.append(minimapContainer);
 
         //A white rectangle for minimap to show the current shown area for artwork
-        var minimaprect = root.find('#minimaprect');
+        var minimaprect = root.find(&#x27;#minimaprect&#x27;);
 
         //Load deepzoom thumbnail. 
         var img = new Image();
@@ -638,8 +722,8 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             if (loaded) return;
             loaded = true;
             //load the artwork image
-            minimap = root.find('#minimap');
-            minimap.attr('src', TAG.Worktop.Database.fixPath(doq.URL));
+            minimap = root.find(&#x27;#minimap&#x27;);
+            minimap.attr(&#x27;src&#x27;, TAG.Worktop.Database.fixPath(doq.URL));
 
             //make the minimap not moveable. 
             minimap.mousedown(function () {
@@ -652,15 +736,15 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             var heightR = img.naturalHeight / $(minimapContainer).height();//the ratio between the height of image and the container.
             var widthR = img.naturalWidth / $(minimapContainer).width();//ratio between the width of image and the container.
             //make sure the whole image shown inside the container based on the longer one of height and width.
-            if (heightR > widthR) {
-                minimap.removeAttr("height");
-                minimap.removeAttr("width");
-                minimap.css({ "height": "100%" });
+            if (heightR &gt; widthR) {
+                minimap.removeAttr(&quot;height&quot;);
+                minimap.removeAttr(&quot;width&quot;);
+                minimap.css({ &quot;height&quot;: &quot;100%&quot; });
             }
             else {
-                minimap.removeAttr("height");
-                minimap.removeAttr("width");
-                minimap.css({ "width": "100%" });
+                minimap.removeAttr(&quot;height&quot;);
+                minimap.removeAttr(&quot;width&quot;);
+                minimap.css({ &quot;width&quot;: &quot;100%&quot; });
             }
 
             //make the image manipulatable. 
@@ -679,10 +763,10 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             var minimapt = (minimapContainer.height() / 2) - (minimap.height() / 2);
             var minimapl = (minimapContainer.width() / 2) - (minimap.width() / 2);
             minimaprect.css({
-                width: (minimapw - 1) + "px",
-                height: (minimaph - 1) + "px",
-                top: minimapt + "px",
-                left: (minimapl - 1) + "px"
+                width: (minimapw - 1) + &quot;px&quot;,
+                height: (minimaph - 1) + &quot;px&quot;,
+                top: minimapt + &quot;px&quot;,
+                left: (minimapl - 1) + &quot;px&quot;
             });
             /*********************/
         }
@@ -695,7 +779,7 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             var minimaph = minimap.height();
             var minimapw = minimap.width();
             var minimapt = minimap.position().top;
-            var minimapl = parseFloat(minimap.css('marginLeft'));
+            var minimapl = parseFloat(minimap.css(&#x27;marginLeft&#x27;));
 
             //find pivot and translation of manipulation event
             var px = evt.pivot.x;
@@ -739,7 +823,7 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             var minimaph = minimap.height();
             var minimapw = minimap.width();
             var minimapt = minimap.position().top;
-            var minimapl = parseFloat(minimap.css('marginLeft'));
+            var minimapl = parseFloat(minimap.css(&#x27;marginLeft&#x27;));
 
             var xPos = evt.position.x;
             var yPos = evt.position.y;
@@ -781,10 +865,10 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             var y = tl.y;
             var xp = br.x;
             var yp = br.y;
-            if (x < 0) x = 0;
-            if (y < 0) y = 0;
-            if (xp > 1) xp = 1;
-            if (yp > 1 / AR) yp = 1 / AR;
+            if (x &lt; 0) x = 0;
+            if (y &lt; 0) y = 0;
+            if (xp &gt; 1) xp = 1;
+            if (yp &gt; 1 / AR) yp = 1 / AR;
             y = y * AR;
             yp = yp * AR;
             yp = yp - y;
@@ -794,14 +878,30 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             xp = xp * minimapw;
             yp = yp * minimaph;
             minimaprect.css({
-                width: (xp-1) + "px",
-                height: (yp - 1) + "px",
-                top: y + "px",
-                left: (x-1) + "px"
+                width: (xp-1) + &quot;px&quot;,
+                height: (yp - 1) + &quot;px&quot;,
+                top: y + &quot;px&quot;,
+                left: (x-1) + &quot;px&quot;
             });
         }
         annotatedImage.addAnimateHandler(dzMoveHandler);
 
+        //condition to check for overlap of the assetscontainer with minimap. If they overlap, we restrict the height of #info div to its original max-height.
+        var overlap = !(assetContainer.right &lt; minimapContainer.left || 
+                assetContainer.left &gt; minimapContainer.right || 
+                assetContainer.bottom &lt; minimapContainer.top || 
+                assetContainer.top &gt; minimapContainer.bottom)
+
+        if (overlap) {
+        
+            info.css({
+
+                &#x27;overflow-y&#x27; : &#x27;auto&#x27;,
+                &#x27;max-height&#x27; : &#x27;5em&#x27;,
+
+            });
+
+    }
         /*
          * END MINIMAP CODE
          ******************/
@@ -810,7 +910,7 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
     /**
      * Create a drawer with a disclosure button used to display
      * hotspots, assets, tours. The returned jQuery object has
-     * a property called "contents" which should be used to add
+     * a property called &quot;contents&quot; which should be used to add
      * buttons or messages to the contents of the drawer.
      *
      * @param title, the display title for the drawer
@@ -822,29 +922,29 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             return;
         }
 
-        var locHistoryPanel      = root.find('#locationHistoryPanel'),
-            locHistoryToggleIcon = root.find('#locationHistoryToggleIcon'),
-            mapOverlay           = $(TAG.Util.UI.blockInteractionOverlay()).addClass('mapOverlay'),
-            overlayLabel         = $(document.createElement('label')),
-            lpContents           = $(document.createElement('div')).addClass('lpContents'),
-            lpTitle              = $(document.createElement('div')),
-            lpMapDiv             = $(document.createElement('div')).addClass('lpMapDiv'),
-            lpTextInfoDiv        = $(document.createElement('div')).addClass('lpTextInfoDiv'),
-            lpTextDiv            = $(document.createElement('div')).addClass("lpTextDiv"),
-            lpInfoDiv            = $(document.createElement('div')).addClass('lpInfoDiv');
+        var locHistoryPanel      = root.find(&#x27;#locationHistoryPanel&#x27;),
+            locHistoryToggleIcon = root.find(&#x27;#locationHistoryToggleIcon&#x27;),
+            mapOverlay           = $(TAG.Util.UI.blockInteractionOverlay()).addClass(&#x27;mapOverlay&#x27;),
+            overlayLabel         = $(document.createElement(&#x27;label&#x27;)),
+            lpContents           = $(document.createElement(&#x27;div&#x27;)).addClass(&#x27;lpContents&#x27;),
+            lpTitle              = $(document.createElement(&#x27;div&#x27;)),
+            lpMapDiv             = $(document.createElement(&#x27;div&#x27;)).addClass(&#x27;lpMapDiv&#x27;),
+            lpTextInfoDiv        = $(document.createElement(&#x27;div&#x27;)).addClass(&#x27;lpTextInfoDiv&#x27;),
+            lpTextDiv            = $(document.createElement(&#x27;div&#x27;)).addClass(&quot;lpTextDiv&quot;),
+            lpInfoDiv            = $(document.createElement(&#x27;div&#x27;)).addClass(&#x27;lpInfoDiv&#x27;);
 
-        overlayLabel.text('Map has no location history to display.');
-        overlayLabel.attr('id', 'mapOverlayLabel');
+        overlayLabel.text(&#x27;Map has no location history to display.&#x27;);
+        overlayLabel.attr(&#x27;id&#x27;, &#x27;mapOverlayLabel&#x27;);
         mapOverlay.append(overlayLabel);
 
         lpContents.append(mapOverlay);
         locHistoryPanel.append(lpContents);
 
-        lpTitle.attr('id', 'lpTitle');
-        lpTitle.text('Location History');
+        lpTitle.attr(&#x27;id&#x27;, &#x27;lpTitle&#x27;);
+        lpTitle.text(&#x27;Location History&#x27;);
         lpContents.append(lpTitle);
 
-        lpMapDiv.attr('id', 'lpMapDiv');
+        lpMapDiv.attr(&#x27;id&#x27;, &#x27;lpMapDiv&#x27;);
         lpContents.append(lpMapDiv);
 
         lpContents.append(lpTextInfoDiv);
@@ -852,15 +952,15 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
         lpTextInfoDiv.append(lpInfoDiv);
 
         locHistoryToggle.css({
-            left: '87.5%',
-            'border-bottom-right-radius': '10px',
-            'border-top-right-radius': '10px'
+            left: &#x27;87.5%&#x27;,
+            &#x27;border-bottom-right-radius&#x27;: &#x27;10px&#x27;,
+            &#x27;border-top-right-radius&#x27;: &#x27;10px&#x27;
         });
-        locHistoryToggleIcon.attr('src', tagPath+'images/icons/Close.svg');
+        locHistoryToggleIcon.attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/Close.svg&#x27;);
 
 
-        locHistoryToggle.on('click', toggleLocationPanel);
-        locHistoryContainer.on('click', histOnClick);
+        locHistoryToggle.on(&#x27;click&#x27;, toggleLocationPanel);
+        locHistoryContainer.on(&#x27;click&#x27;, histOnClick);
 
         /**
          * A callback function to populate the location history map after it has been created
@@ -868,12 +968,12 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
          */
         function prepMap () {
             var unselectedCSS = {
-                    'background-color': 'transparent',
-                    'color': 'white'
+                    &#x27;background-color&#x27;: &#x27;transparent&#x27;,
+                    &#x27;color&#x27;: &#x27;white&#x27;
                 },
                 selectedCSS = {
-                    'background-color': 'white',
-                    'color': 'black',
+                    &#x27;background-color&#x27;: &#x27;white&#x27;,
+                    &#x27;color&#x27;: &#x27;black&#x27;,
                 },
                 address,
                 date,
@@ -883,7 +983,7 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
                 pushpinOptions;
 
             /**
-             * Helper function to draw pushpin on location history map when a location's info
+             * Helper function to draw pushpin on location history map when a location&#x27;s info
              * box is clicked
              * @method drawPinHelper
              * @param {Object} e    event data related to a location
@@ -897,14 +997,14 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
 
                 TAG.Util.UI.drawPushpins(locationList, map);
 
-                lpInfoDiv.html($this.html() + "<br/>" + (e.data.info ? e.data.info : ''));
+                lpInfoDiv.html($this.html() + &quot;&lt;br/&gt;&quot; + (e.data.info ? e.data.info : &#x27;&#x27;));
 
-                $('img.removeButton').attr('src', tagPath+'images/icons/minus.svg');
-                $('img.editButton').attr('src', tagPath+'images/icons/edit.png');
-                $('div.locations').css(unselectedCSS);
+                $(&#x27;img.removeButton&#x27;).attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/minus.svg&#x27;);
+                $(&#x27;img.editButton&#x27;).attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/edit.png&#x27;);
+                $(&#x27;div.locations&#x27;).css(unselectedCSS);
 
-                $this.find('img.removeButton').attr('src', tagPath+'images/icons/minusB.svg');
-                $this.find('img.editButton').attr('src', tagPath+'images/icons/editB.png');
+                $this.find(&#x27;img.removeButton&#x27;).attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/minusB.svg&#x27;);
+                $this.find(&#x27;img.editButton&#x27;).attr(&#x27;src&#x27;, tagPath+&#x27;images/icons/editB.png&#x27;);
                 $this.css(selectedCSS);
 
                 if (e.data.resource.latitude) {
@@ -921,29 +1021,29 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
                 map.setView(viewOptions);
             }
 
-            for (i = 0; i < locationList.length; i++) {
+            for (i = 0; i &lt; locationList.length; i++) {
                 pushpinOptions = {
-                    text: '' + (i + 1),
-                    icon: tagPath+'images/icons/locationPin.png',
+                    text: &#x27;&#x27; + (i + 1),
+                    icon: tagPath+&#x27;images/icons/locationPin.png&#x27;,
                     width: 20,
                     height: 30
                 };
                 address = locationList[i].address;
-                date = '';
-                if (locationList[i].date && locationList[i].date.year) {
+                date = &#x27;&#x27;;
+                if (locationList[i].date &amp;&amp; locationList[i].date.year) {
                     year = locationList[i].date.year;
-                    if (year < 0) { // add BC to years that are less than 0
-                        year = Math.abs(year) + ' BC';
+                    if (year &lt; 0) { // add BC to years that are less than 0
+                        year = Math.abs(year) + &#x27; BC&#x27;;
                     }
                     date = year;
                 } else {
-                    date = '<i>Date Unspecified</i>';
+                    date = &#x27;&lt;i&gt;Date Unspecified&lt;/i&gt;&#x27;;
                 }
 
                 // create a box in the lower pane for each location
-                locBox = $(document.createElement('div'));
-                locBox.addClass('locations');
-                locBox.html((i + 1) + '. ' + address + ' - ' + date + '<br>');
+                locBox = $(document.createElement(&#x27;div&#x27;));
+                locBox.addClass(&#x27;locations&#x27;);
+                locBox.html((i + 1) + &#x27;. &#x27; + address + &#x27; - &#x27; + date + &#x27;&lt;br&gt;&#x27;);
 
                 lpTextDiv.append(locBox);
 
@@ -983,23 +1083,23 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
                 return;
             }
             if (locHistoryActive) {
-                locHistory.text('Location History');
-                locHistory.css('color', 'white');
+                locHistory.text(&#x27;Location History&#x27;);
+                locHistory.css(&#x27;color&#x27;, &#x27;white&#x27;);
                 locClosing = true;
                 locHistoryToggle.hide();
-                locHistoryDiv.hide("slide", { direction: 'left' }, 500, function(){
+                locHistoryDiv.hide(&quot;slide&quot;, { direction: &#x27;left&#x27; }, 500, function(){
                     toggler.show();
                     locClosing = false;
                 });
             } else {
-                locHistory.text('Location History');
+                locHistory.text(&#x27;Location History&#x27;);
                 locHistoryToggle.hide();
                 locOpening = true;
-                locHistoryDiv.show("slide", { direction: 'left' }, 500, function () {
+                locHistoryDiv.show(&quot;slide&quot;, { direction: &#x27;left&#x27; }, 500, function () {
                     locHistoryToggle.show();
                     locOpening = false;
                 });
-                locHistoryDiv.css('display', 'inline');
+                locHistoryDiv.css(&#x27;display&#x27;, &#x27;inline&#x27;);
                 toggler.hide();
             }
             locHistoryActive = !locHistoryActive;
@@ -1011,22 +1111,22 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
     }
 
     /**
-     * Create a drawer (e.g., for list of related tours or the artwork's description) 
+     * Create a drawer (e.g., for list of related tours or the artwork&#x27;s description) 
      * @param {String} title        title of the drawer
      * @return {jQuery obj}         the drawer
      */
     function createDrawer(title) {
-        var drawer          = $(document.createElement('div')).addClass('drawer'),
-            drawerHeader    = $(document.createElement('div')).addClass('drawerHeader'),
-            label           = $(document.createElement('div')).addClass('drawerLabel'),
-            toggleContainer = $(document.createElement('div')).addClass('drawerToggleContainer'),
-            toggle          = $(document.createElement('img')).addClass("drawerPlusToggle"),
-            drawerContents  = $(document.createElement('div')).addClass("drawerContents"),
+        var drawer          = $(document.createElement(&#x27;div&#x27;)).addClass(&#x27;drawer&#x27;),
+            drawerHeader    = $(document.createElement(&#x27;div&#x27;)).addClass(&#x27;drawerHeader&#x27;),
+            label           = $(document.createElement(&#x27;div&#x27;)).addClass(&#x27;drawerLabel&#x27;),
+            toggleContainer = $(document.createElement(&#x27;div&#x27;)).addClass(&#x27;drawerToggleContainer&#x27;),
+            toggle          = $(document.createElement(&#x27;img&#x27;)).addClass(&quot;drawerPlusToggle&quot;),
+            drawerContents  = $(document.createElement(&#x27;div&#x27;)).addClass(&quot;drawerContents&quot;),
             i;
        
         label.text(title);
         toggle.attr({
-            src: tagPath+'images/icons/plus.svg',
+            src: tagPath+&#x27;images/icons/plus.svg&#x27;,
             expanded: false
         });
 
@@ -1037,26 +1137,26 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
         drawer.append(drawerContents);
 
         //have the toggler icon minus when is is expanded, plus otherwise.
-        drawerHeader.on('click', function (evt) {
-            if (toggle.attr('expanded') !== 'true') {
-                $(".drawerPlusToggle").attr({
-                   src: tagPath+'images/icons/plus.svg',
+        drawerHeader.on(&#x27;click&#x27;, function (evt) {
+            if (toggle.attr(&#x27;expanded&#x27;) !== &#x27;true&#x27;) {
+                $(&quot;.drawerPlusToggle&quot;).attr({
+                   src: tagPath+&#x27;images/icons/plus.svg&#x27;,
                     expanded: false
                 });
 
-                $(".drawerContents").slideUp();
+                $(&quot;.drawerContents&quot;).slideUp();
 
                 toggle.attr({
-                    src: tagPath+'images/icons/minus.svg',
+                    src: tagPath+&#x27;images/icons/minus.svg&#x27;,
                     expanded: true
                 });
             } else {
                 toggle.attr({
-                    src: tagPath+'images/icons/plus.svg',
+                    src: tagPath+&#x27;images/icons/plus.svg&#x27;,
                     expanded: false
                 });
 
-                for(i=0; i<associatedMedia.guids.length; i++) {
+                for(i=0; i&lt;associatedMedia.guids.length; i++) {
                     if(associatedMedia[associatedMedia.guids[i]].isVisible()) {
                         associatedMedia[associatedMedia.guids[i]].hide();
                     }
@@ -1088,7 +1188,7 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             viewOptions;
 
         mapOptions = {
-            credentials:         "AkNHkEEn3eGC3msbfyjikl4yNwuy5Qt9oHKEnqh4BSqo5zGiMGOURNJALWUfhbmj",
+            credentials:         &quot;AkNHkEEn3eGC3msbfyjikl4yNwuy5Qt9oHKEnqh4BSqo5zGiMGOURNJALWUfhbmj&quot;,
             mapTypeID:           Microsoft.Maps.MapTypeId.road,
             showScalebar:        true,
             enableClickableLogo: false,
@@ -1103,10 +1203,10 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             mapTypeId: Microsoft.Maps.MapTypeId.road,
         };
         
-        map = new Microsoft.Maps.Map(document.getElementById('lpMapDiv'), mapOptions);
+        map = new Microsoft.Maps.Map(document.getElementById(&#x27;lpMapDiv&#x27;), mapOptions);
         map.setView(viewOptions);
 
-        callback && callback();
+        callback &amp;&amp; callback();
     }
 
 };
@@ -1114,6 +1214,26 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
 TAG.Layout.ArtworkViewer.default_options = {
     catalogState: {},
     doq: null,
-    split: 'L',
+    split: &#x27;L&#x27;,
 };
 
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

@@ -1486,6 +1486,8 @@ TAG.Util.UI = (function () {
     var recentlyAssociated = []; // recently associated media
     var recentlyAssociatedGUIDs = []; // to more easily check if a media has been associated recently
     var tagContainerId = 'tagRoot'; // TODO more general
+    var globalKeyHandler = [];
+
 
     return {
         slidePageLeftSplit: slidePageLeftSplit,
@@ -1496,9 +1498,10 @@ TAG.Util.UI = (function () {
         hexToG: hexToG,
         hexToB: hexToB,
         hexToRGB: hexToRGB,
+        hexToRGBA: hexToRGBA,
         colorToHex: colorToHex,
+        dimColor: dimColor,
         fitTextInDiv: fitTextInDiv,
-        makeNoArtworksOptionBox: makeNoArtworksOptionBox,
         drawPushpins: drawPushpins,
         addPushpinToLoc: addPushpinToLoc,
         getLocationList: getLocationList,
@@ -1515,8 +1518,29 @@ TAG.Util.UI = (function () {
         createLine: createVertLine,
         createKeyframe: createKeyframe,
         createDisplay: createDisplay,
-        createTrack: createTrack
+        createTrack: createTrack,
+        getStack: getStack,
+        initKeyHandler: initKeyHandler,
+        
     };
+
+    initKeyHandler();
+
+    function initKeyHandler() {
+        window.addEventListener('keydown', function (event) {
+            //event.preventDefault();
+            //event.stopPropagation();
+            if(globalKeyHandler && globalKeyHandler[0] && globalKeyHandler[0][event.which]) {
+                globalKeyHandler[0][event.which]();
+                
+               // console.log("current stack; " + globalKeyHandler[0][event.which]);
+            }
+        });
+    }
+
+    function getStack() {
+        return globalKeyHandler;
+    }
 
     function createTrack(specs) {
         // TODO if necessary
@@ -2012,10 +2036,13 @@ TAG.Util.UI = (function () {
 
     // overlay that "absorbs" interactions with elements below it, used to isolate popup forms etc.
     function blockInteractionOverlay(opac) {
+
         opac = opac ? Math.max(Math.min(parseFloat(opac), 1), 0) : 0.6;
         var overlay = document.createElement('div');
         $(overlay).attr('id', 'blockInteractionOverlay');
+
         $(overlay).css({
+
             display: 'none',
             position: 'absolute',
             top: 0,
@@ -2025,6 +2052,7 @@ TAG.Util.UI = (function () {
             'background-color': 'rgba(0,0,0,'+opac+')',
             'z-index': '10000000'
         });
+        
         return overlay;
     }
 
@@ -2069,7 +2097,7 @@ TAG.Util.UI = (function () {
     // generate a popup message with specified text and button
     function popUpMessage(clickAction, message, buttonText, noFade, useHTML, onDialogClick) {
         var overlay = blockInteractionOverlay();
-
+        debugger;
         var confirmBox = document.createElement('div');
         var confirmBoxSpecs = TAG.Util.constrainAndPosition($(window).width(), $(window).height(),
            {
@@ -2081,6 +2109,8 @@ TAG.Util.UI = (function () {
                max_height: 200,
            });
 		var leftPos = ($('#tagRoot').width() - confirmBoxSpecs.width) * 0.5;
+        var currentKeyHandler = globalKeyHandler[0];
+
         $(confirmBox).css({
             //'height': '30%',
             //'width': '45%',
@@ -2168,6 +2198,17 @@ TAG.Util.UI = (function () {
             removeAll();
         };
 
+        function onEnter() {
+            if(clickAction) {
+                clickAction();
+            }
+            removeAll();
+            
+        }
+
+
+        globalKeyHandler[0] = { 13: onEnter, };
+
         function removeAll() {
             if (noFade) {
                 $(overlay).hide();
@@ -2175,6 +2216,7 @@ TAG.Util.UI = (function () {
             } else {
                 $(overlay).fadeOut(500, function () { $(overlay).remove(); });
             }
+            globalKeyHandler[0] = currentKeyHandler;
         }
 
         $(optionButtonDiv).append(confirmButton);
@@ -2186,11 +2228,20 @@ TAG.Util.UI = (function () {
         return overlay;
     }
 
+    
     // popup message to ask for user confirmation of an action e.g. deleting a tour
     function PopUpConfirmation(confirmAction, message, confirmButtonText, noFade, cancelAction, container) {
         var overlay = blockInteractionOverlay();
         container = container || window;
         var confirmBox = document.createElement('div');
+        //debugger;
+        var popUpHandler = {
+            13: doOnEnter,
+        }
+        var currKeyHandler = globalKeyHandler[0];
+        globalKeyHandler[0] = popUpHandler;
+        
+        
         var confirmBoxSpecs = TAG.Util.constrainAndPosition($(container).width(), $(container).height(),
             {
                 center_h: true,
@@ -2247,9 +2298,11 @@ TAG.Util.UI = (function () {
         });
         confirmButtonText = (!confirmButtonText || confirmButtonText === "") ? "Confirm" : confirmButtonText;
         $(confirmButton).text(confirmButtonText);
+        
         confirmButton.onclick = function () {
             removeAll();
             confirmAction();
+
         };
 
         var cancelButton = document.createElement('button');
@@ -2268,6 +2321,13 @@ TAG.Util.UI = (function () {
             cancelAction && cancelAction();
         }
 
+        
+        
+        function doOnEnter() {
+            removeAll();
+            confirmAction();
+        }
+
         function removeAll() {
             if (noFade) {
                 $(overlay).hide();
@@ -2275,6 +2335,7 @@ TAG.Util.UI = (function () {
             } else {
                 $(overlay).fadeOut(500, function () { $(overlay).remove(); });
             }
+            globalKeyHandler[0] = currKeyHandler;
         }
 
         $(optionButtonDiv).append(cancelButton);
@@ -2517,6 +2578,26 @@ TAG.Util.UI = (function () {
     function hexToB(h) { return parseInt((cutHex(h)).substring(4, 6), 16); }
     function cutHex(h) { return (h.charAt(0) === "#") ? h.substring(1, 7) : h; }
 
+    /**
+     * Take in a color (in '#abcdef' format) and an opacity (0-1) and return an rgba(..) string
+     * @method hexToRGBA
+     * @param {String} color       input color as a hex string
+     * @param {String} opac        input opacity
+     * @return {String}            'rgba(color.r, color.g, color.b, opac)'
+     */
+    function hexToRGBA(color, opac) {
+        var r, g, b;
+
+        color = color.replace(/\#/g, '');
+        color = color.substring(0, 6);
+
+        r = parseInt(color.substring(0, 2), 16);
+        g = parseInt(color.substring(2, 4), 16);
+        b = parseInt(color.substring(4, 6), 16);
+
+        return 'rgba(' + r + ',' + g + ',' + b + ',' + opac + ')';
+    }
+
     //Takes a RGB or RGBA color value as input and outputs the Hex color representation, without the '#' symbol in front
     function colorToHex(rgb) {
         var digits = rgb.match(/(rgb|rgba)\((\d+),\s*(\d+),\s*(\d+)\,*\s*((\d+\.\d+)|\d+)*\)$/);
@@ -2533,6 +2614,29 @@ TAG.Util.UI = (function () {
         else {
             return "000000";
         }
+    }
+
+    /**
+     * Take in a color and return a dimmed version of that color (divide rgb by k)
+     * @param {String} inColor      input color as a hex string
+     * @param {Number} k            dimming factor
+     * @return {String}             formatted as 'rbg(_,_,_)'
+     */
+    function dimColor(inColor, k) {
+        var r,
+            g,
+            b;
+
+        k = k || 3;
+
+        inColor = inColor.replace(/\#/g, '');
+        inColor = inColor.substring(0, 6);
+
+        r = Math.round(parseInt(inColor.substring(0, 2), 16) / k);
+        g = Math.round(parseInt(inColor.substring(2, 4), 16) / k);
+        b = Math.round(parseInt(inColor.substring(4, 6), 16) / k); 
+
+        return 'rgb(' + r + ',' + g+ ',' + b + ')';
     }
 
     //function called to fit the text (that is wrapped in a span) within a div element.
@@ -2557,46 +2661,6 @@ TAG.Util.UI = (function () {
         }
     }
 
-
-    //makes the "no artworks in selected exhibiton" dialog box, used in both exhibition view and authoring
-    function makeNoArtworksOptionBox() {
-        var overlay = blockInteractionOverlay();
-        var noArtworksOptionBox = document.createElement('div');
-        $(noArtworksOptionBox).addClass('noArtworksOptionBox');
-        $(noArtworksOptionBox).css({
-            'width': '45%',
-            'position': 'absolute',
-            'top': '40%',
-            'left': '25%',
-            'padding': '2% 2%',
-            'background-color': 'black',
-            'border': '3px double white',
-            'z-index': '10000',
-            'id': 'deleteOptionBox'
-        });
-        var noArtworksLabel = document.createElement('p');
-        $(noArtworksLabel).css({
-            'font-size': '150%',
-            'color': 'white'
-        });
-        $(noArtworksLabel).text('There are no artworks present in this collection.');
-
-        var okButton = document.createElement('button');
-        $(okButton).css({
-            'float': 'right'
-        });
-        $(okButton).text('OK');
-
-
-        okButton.onclick = function () {
-            $(overlay).fadeOut(500, function () { $(overlay).remove(); });
-        };
-
-        $(noArtworksOptionBox).append(noArtworksLabel);
-        $(noArtworksOptionBox).append(okButton);
-        $(overlay).append(noArtworksOptionBox);
-        return overlay;
-    }
 
     //Creates Microsoft.Maps.Pushpin objects from the locObjects within the locationList object, and displays the pushpins on the map
     function drawPushpins(locationList, map) {
@@ -2758,7 +2822,11 @@ TAG.Util.UI = (function () {
             removedComps = [], // components whose associations with target we will be removing
             origComps = [], // components that are already associated with target
             tabCache = [], // cached results from the server
-            loadQueue = TAG.Util.createQueue();
+            loadQueue = TAG.Util.createQueue(),
+            currentKeyHandler = globalKeyHandler[0];
+
+
+            globalKeyHandler[0] = { 13: onEnter ,};
 
         for (i = 0; i < tabs.length; i++) {
             tabCache.push({ cached: false, comps: [] });
@@ -2997,7 +3065,14 @@ TAG.Util.UI = (function () {
         confirmButton.on('click', function () {
             progressCirc = TAG.Util.showProgressCircle(optionButtonDiv, progressCSS);
             finalizeAssociations();
+            globalKeyHandler[0] = currentKeyHandler;
         });
+
+        function onEnter() {
+            progressCirc = TAG.Util.showProgressCircle(optionButtonDiv, progressCSS);
+            finalizeAssociations();
+            globalKeyHandler[0] = currentKeyHandler;
+        }
 
         var cancelButton = $(document.createElement('button'));
         cancelButton.css({
@@ -3015,6 +3090,7 @@ TAG.Util.UI = (function () {
         cancelButton.text('Cancel');
         cancelButton.on('click', function () {
             pickerOverlay.fadeOut(function () { pickerOverlay.empty(); pickerOverlay.remove(); }); //Josh L -- fix so the div actually fades out
+            globalKeyHandler[0] = currentKeyHandler;
         });
 
         optionButtonDiv.append(cancelButton);

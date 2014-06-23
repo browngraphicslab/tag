@@ -11,20 +11,26 @@ TAG.Util.makeNamespace("TAG.Layout.StartPage");
 * @return {Object} that                 collection of public methods and properties
 */
 TAG.Layout.StartPage = function (options, startPageCallback) {
-    "use strict";
+    "use strict"; ////////////////////////////////////////////////
 
     options = TAG.Util.setToDefaults(options, TAG.Layout.StartPage.default_options);
-    
     options.tagContainer = $("#tagRoot");
 
     var root = TAG.Util.getHtmlAjax('StartPage.html'), // use AJAX to load html from .html file
         overlay = root.find('#overlay'),
+        primaryFont = root.find('.primaryFont'),
         serverTagBuffer = root.find('#serverTagBuffer'),
         serverSetUpContainer = root.find('#serverSetUpContainer'),
         authoringButtonContainer = root.find('#authoringButtonContainer'),
         authoringButtonBuffer = root.find('#authoringButtonBuffer'),
+        loginDialog = root.find('#loginDialog'),
         serverURL,
         tagContainer;
+
+        
+
+        
+        //TAG.Util.UI.initKeyHandler();
 
     TAG.Telemetry.register(overlay, 'click', 'start_to_collections');
 
@@ -36,6 +42,7 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
     tagContainer = options.tagContainer || $('body');
 
     testConnection();
+    //applyCustomization();
 
     /**
      * Test internet and server connections
@@ -92,6 +99,8 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
     * @param {Object} main     contains all image paths and museum info
     */
     function loadHelper(main) {
+        
+
         if (startPageCallback) {
             startPageCallback(root);
         }
@@ -104,7 +113,7 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         if(!allowAuthoringMode){
             $('#authoringButtonBuffer').remove();
         }
-
+        
         overlay.on('click', switchPage);
         
         setImagePaths(main);
@@ -350,6 +359,8 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
             overlayTransparency,
             imageBgColor,
             logo;
+            
+            
         // set image paths
         root.find('#expandImage').attr('src', tagPath+'images/icons/Left.png');
         root.find('#handGif').attr('src', tagPath+'images/RippleNewSmall.gif');
@@ -397,7 +408,7 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         infoExpanded = false; //used to expand/collapse info
         brownPeople = $(document.createElement('div'));
         brownPeople.attr('id', 'brownPeople');
-        brownPeople.text('Brown University \nAndy van Dam, Alex Hills, Yudi Fu, Karishma Bhatia, Gregory Chatzinoff, John Connuck, David Correa, Mohsan Elahi, Aisha Ferrazares, Jessica Fu, Kaijan Gao, Jessica Herron, Ardra Hren, Hak Rim Kim, Inna Komarovsky, Ryan Lester, Benjamin LeVeque, Josh Lewis, Jinqing Li, Jeffery Lu, Xiaoyi Mao, Ria Mirchandani, Julie Mond, Ben Most, Jonathan Poon, Dhruv Rawat, Jacob Rosenfeld, Anqi Wen, Dan Zhang, Libby Zorn');
+        brownPeople.text('Brown University \nHello');
 
         sponsoredText = $(document.createElement('label'));
         sponsoredText.attr('id', 'sponsoredText');
@@ -463,10 +474,16 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         handGif = root.find('#handGif');
 
         setUpMuseumInfo(main);
-
     }
 
-    
+    /**
+    * Applying Customization Changes
+    * @method applyCustomization
+    */
+    function applyCustomization() {
+        $(primaryFont).css({ 'color': PRIMARY_FONT_COLOR });
+    }
+
     /**
     * Fills in all museum info including name and location
     * @method setUpMuseumInfo
@@ -481,8 +498,13 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
             tempLoc,
             museumInfoDiv,
             museumInfoSpan,
-            tempInfo;
-            
+            tempInfo,
+            primaryFontColor,
+            secondaryFontColor;
+
+        
+        primaryFontColor = main.Metadata["PrimaryFontColor"];
+        secondaryFontColor = main.Metadata["SecondaryFontColor"];
         museumName = root.find('#museumName');
         museumNameSpan = root.find('#museumNameSpan');
         tempName = main.Metadata["MuseumName"];
@@ -517,6 +539,12 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
             // running in browser
             museumInfoSpan.html(Autolinker.link(tempInfo , {email: false, twitter: false}));
         }
+        
+        $(primaryFont).css({ 
+            'color': '#' + primaryFontColor,
+            'font-family': main.Metadata["FontFamily"]
+         });
+
     }
 
     /**Opens authoring mode password dialog
@@ -524,6 +552,11 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
      */
     function openDialog() {
         TAG.Auth.authenticate(enterAuthoringMode);
+        loginDialog.on('keydown', function(evt) {
+            if(evt.which === 13) {
+                alert('pressed');
+            }
+        })
         return;
     }
 
@@ -534,7 +567,7 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         overlay.on('click', function() {;});
         authoringButtonContainer.off('click');
         var authoringMode = new TAG.Authoring.SettingsView();
-        TAG.Util.UI.slidePageLeft(authoringMode.getRoot());
+        TAG.Util.UI.slidePageLeft(authoringMode.that.getRoot());
     }
  
     /**

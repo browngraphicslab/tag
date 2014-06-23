@@ -110,9 +110,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
                         }
                     }
                 }
-                player.loadData(tour, function () {
-                    
-                });
+                player.loadData(tour, function () {});
                 player.screenplayEnded.subscribe(function() { // at the end of a tour, go back to the collections view
                     setTimeout(goBack, 1000);
                 });
