@@ -573,6 +573,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             timeline = $(document.createElement('div')),
             yearText,
             positionOnTimeline,
+            prevNode,
+            circleOverlap =false,
+            labelOverlap= false,
             valuation;
 
         timelineArea.empty();
@@ -602,32 +605,33 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         // Get minimum of this search
         minDate = parseInt(avlTree.min().yearKey)
         maxDate = avlTree.max();
-        while (maxDate.yearKey === '~~~~'){
+        //console.log("maxyk" + avlTree.max().yearKey);
+
+        //Skip past tours and works with incompatible dates (set as Positive Infinity to show up at end of artworks list)
+        while (maxDate.yearKey === Number.POSITIVE_INFINITY){
             maxDate = avlTree.findPrevious(maxDate);
         };
         maxDate = parseInt(maxDate.yearKey);
 
         // Time range is difference between earliest and latest dates of artworks.
-        //TODO: find a more effecient/logical ways to generate these numbers
         timeRange = maxDate - minDate;
-        maxDate   = parseInt(maxDate + timeRange/20);
+        maxDate   = parseInt(maxDate + timeRange/20); //Shows about 5 ticks before first date and after last
         minDate   = parseInt(minDate - timeRange/20);
         timeRange = maxDate - minDate;
 
         // Make artwork event circles and dates
         var curr = avlTree.min()
-        while (curr){
+        while (curr&& curr.yearKey!==Number.POSITIVE_INFINITY){
             if (!isNaN(curr.yearKey)){
                 positionOnTimeline = parseInt(100*(curr.yearKey - minDate)/timeRange);
                 eventCircle = $(document.createElement('div'));
                 eventCircle.addClass('timelineEventCircle')
                     .css('left', positionOnTimeline + '%')
-                    .on('click', showArtwork(curr.artwork));
+                    .on('click', showArtwork(curr.artwork))
                 timeline.append(eventCircle);
-                curr.artwork.circle = eventCircle;
                 timelineEventCircles.push(eventCircle);
 
-                console.log(toString(curr.yearKey));
+                //Artworks before year 0 are automatically given the 'BCE' tag
                 if (curr.yearKey<0){
                     yearText = curr.yearKey.toString().replace(/-/g,'') + ' ' + 'BCE';
                 } else{
@@ -640,11 +644,32 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 eventCircle.append(timelineDateLabel);
                 eventCircle.timelineDateLabel = timelineDateLabel;
 
-                // If circles are too close together, don't add dates to both of them
+                curr.artwork.circle = eventCircle;
+
+                //Decide whether to initially display the label on the timeline 
                 if (avlTree.findPrevious(curr)&&avlTree.findPrevious(curr).artwork.circle){
-                    if ((avlTree.findPrevious(curr)) && (eventCircle.position().left - avlTree.findPrevious(curr).artwork.circle.position().left) < eventCircle.width()*2){
-                        timelineDateLabel.css('visibility', 'hidden');
+
+                    //Find the last visible timeline label
+                    prevNode = avlTree.findPrevious(curr);
+                    while ($(prevNode.artwork.circle.timelineDateLabel).css('visibility')!=='visible'){
+                        prevNode = avlTree.findPrevious(prevNode);
                     }
+
+                    //Check to see if the current circle is overlapping the circle of the last label (overlapping circles should only have 1 label)
+                    circleOverlap = Math.round(eventCircle.position().left) - Math.round(prevNode.artwork.circle.position().left) < $(eventCircle).width();
+
+                    //Check to see if the label of the current circle would overlap that of the previously labelled artwork, with a hard coded 2px buffer between dates for clarity
+                    labelOverlap = Math.round(prevNode.artwork.circle.position().left) + $(prevNode.artwork.circle.timelineDateLabel).width() + 2 > eventCircle.position().left;
+
+                    if (prevNode){
+                        if (prevNode.artwork.circle && !circleOverlap && !labelOverlap){
+                            timelineDateLabel.css('visibility', 'visible');
+                        }
+                        else{
+                            timelineDateLabel.css('visibility', 'hidden');
+                        }
+                    }
+                   
                 }
             }
             curr = avlTree.findNext(curr);
@@ -980,6 +1005,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
     }
 
     /**Helper function for sorting artwork tiles and timeline markers
+     * Also used to catch common non-integer input date forms and generate timeline 
+     * years for their display. 
      * @method sortByYear
      * @param  {Object} artworks      list of artworks to sort
      * @return {AVLTree} avlTree      sorted tree so order can be easily accessed
@@ -997,6 +1024,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         for (i = 0; i < artworks.length; i++) {
             if (artworks[i].Metadata.Year) {
                 yearKey = artworks[i].Metadata.Year
+                //Catches 'ad', 'bc', 'bce' case, spacing, and order insensitive
                 yearKey = yearKey.replace(/ad/gi,'')
                                  .replace(/( |\d)ce/gi,'')
                                  .replace(/\s/g,'');
@@ -1009,13 +1037,15 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             if (!isNaN(yearKey)){
                 artNode = {
                     artwork: artworks[i],
-                    //understand this empty string thing...
-                    yearKey: artworks[i].Type === 'Empty' ? '~~~~' : yearKey
-                    //yearKey: artworks[i].Type === 'Empty' ? '~~~~' : parseInt(artworks[i].Metadata.Year) // tours show up at end
+                    yearKey: artworks[i].Type === 'Empty' ? Number.POSITIVE_INFINITY : yearKey //Tours set to Infinity to show up at end of 'Year' sort
                     };
-                avlTree.add(artNode);
-            } 
-            //what happens to the guys not added to avl tree? sorted by another default?
+            } else{                        
+                artNode = {
+                    artwork: artworks[i],
+                    yearKey: Number.POSITIVE_INFINITY //Set unintelligible dates to Infinity to show up at end of 'Year' sort 
+                };
+            }
+            avlTree.add(artNode);
         }
         return avlTree;
     }
