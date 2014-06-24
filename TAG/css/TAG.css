@@ -902,6 +902,7 @@
   background-color: #aaa;
   margin: 3px;
   border-radius: 50%;
+  cursor: pointer;
 }
 #newCatalogRoot .collectionDotHolder {
   height: 20%;

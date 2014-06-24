@@ -43805,6 +43805,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         currentArtworks      = [],                               // array of artworks in current collection
         infoSource           = [],                               // array to hold sorting/searching information
         timelineEventCircles = [],                               // circles for timeline
+        artworkShown         = false,                            // whether an artwork pop-up is currently displayed
 
         // constants
         DEFAULT_TAG      = "Title",                                // default sort tag
@@ -44378,15 +44379,42 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         minDate   = parseInt(minDate - timeRange/20);
         timeRange = maxDate - minDate;
 
+
+
+
+
         // Make artwork event circles and dates
-        var curr = avlTree.min()
+        var curr = avlTree.min();
+        var art = curr.artwork;
+
         while (curr){
+
             if (!isNaN(curr.yearKey)){
                 positionOnTimeline = parseInt(100*(curr.yearKey - minDate)/timeRange);
                 eventCircle = $(document.createElement('div'));
+                //eventCircle.addClass('timelineEventCircle')
+                //    .css('left', positionOnTimeline + '%')
+                //    .on('click', showArtwork(curr.artwork));
+                
+                
                 eventCircle.addClass('timelineEventCircle')
                     .css('left', positionOnTimeline + '%')
-                    .on('click', showArtwork(curr.artwork));
+                    .on('click', function() {
+                        
+                        //console.log("currentnt: " + curr.artwork);
+                        console.log("art: " + art);
+                        if(artworkShown === true) {
+                            hideArtwork(art)();
+                            artworkShown = false;
+                        } else {
+                            showArtwork(art)();
+                            artworkShown = true;
+                        }
+                    });
+                    
+
+                
+
                 timeline.append(eventCircle);
                 curr.artwork.circle = eventCircle;
                 timelineEventCircles.push(eventCircle);
@@ -44411,9 +44439,34 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                     }
                 }
             }
+            debugger;
             curr = avlTree.findNext(curr);
+            if(curr) {
+               art = curr.artwork; 
+            }
         }
      };
+
+    /**
+     * Close the pop-up outset box of an artwork preview in the collections page
+     * @method hideArtwork
+     * @param {doq} artwork        the artwork doq to be hidden
+     */
+    function hideArtwork(artwork) {
+        return function() {
+            var sub = $('#selectedArtworkContainer');
+            sub.css('display', 'none');
+            artwork.circle && artwork.circle.css({
+                'height'           : '20px',
+                'width'            : '20px',
+                'background-color' : 'rgba(255, 255, 255, .5)',
+                'border-radius'    : '10px',
+                'top'              : '-8px'
+            });
+            artworkShown = false;
+        };
+    }
+
 
     /**
      * Shows an artwork as an outset box and shows name, description, etc
@@ -44446,6 +44499,10 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
             currentArtwork = artwork;
             artworkSelected = true;
+            artworkShown = true;
+            console.log("booleanTru: " + artworkShown);
+            
+            
             // Div for larger description and thumbnail of selected artwork   
             selectedArtworkContainer.css({
                 'display': 'inline',
@@ -44470,7 +44527,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             // Set selected artwork to hide when anything else is clicked
             $(document).mouseup(function(e) {
                 var subject = $('#selectedArtworkContainer');
-                if(e.target.id != subject.attr('id') && !subject.has(e.target).length) {
+                if(e.target.id != subject.attr('id') && !$(e.target).hasClass('timelineEventCircle') && !subject.has(e.target).length) {
                     subject.css('display', 'none');
                     artwork.circle && artwork.circle.css({
                          'height'           : '20px',
@@ -44479,6 +44536,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                          'border-radius'    : '10px',
                          'top'              : '-8px'
                     });
+                    artworkShown = false;
+                    console.log("booleanHere: " + artworkShown); 
                 }
             });
 
