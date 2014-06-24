@@ -258,7 +258,6 @@
 						//Jing: changed the math so that zooming in and out works in firefox and it 
 						//looks smoother now.
 						self._scaleImage(scale, pivot.x, pivot.y);
-						console.log("scale " + scale);
 					}
 				});
                 //Add the event listener for detecting interactions
@@ -625,13 +624,9 @@
 //					functions.onScroll(delta, pivot);
 //				}
 				var pivot = { x: evt.clientX - $element.offset().left, y: evt.clientY - $element.offset().top };
-                //console.log(evt.detail);
-                var delta = -evt.detail;
-                //console.log("delta caught " + delta);
-              
+                var delta = -evt.detail;              
 				if (delta < 0) var zoomScale = 12 / 1.1;
             	else var zoomScale = 1.1 * 12;
-				//console.log("delta processed " + delta);
                 evt.cancelBubble = true;
                 if (typeof functions.onScroll === "function") { 
                     functions.onScroll(delta, zoomScale, pivot);

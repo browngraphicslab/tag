@@ -42141,16 +42141,16 @@ TAG.Auth = (function () {
             max_width: 560,
             max_height: 210,
         });
+
         loginDialog.css({
             position: 'absolute',
-            left: loginDialogSpecs.x + 'px',
             top: loginDialogSpecs.y + 'px',
             width: loginDialogSpecs.width + 'px',
-            height: loginDialogSpecs.height + 'px',
+            height: loginDialogSpecs.height - 20+ 'px',
+            left: loginDialogSpecs.x - 75.5 + 'px',
             border: '3px double white',
             'background-color': 'black',
         });
-
         
         ///
 
@@ -42164,7 +42164,7 @@ TAG.Auth = (function () {
         //    'background-color': 'black',
         //    'padding': '2.5% 2.5%',
         //});
-        overlay.append(loginDialog);
+        overlay.append(loginDialog); 
         var dialogTitle = $(document.createElement('div'));
         dialogTitle.attr('id', 'dialogTitle');
         dialogTitle.css({
@@ -42220,7 +42220,7 @@ TAG.Auth = (function () {
             'display': 'block',
             'width': '80%',
             'left': '10%',
-            'bottom': '-10%'
+            'bottom': '0%'
         });
         var submitButton = $(document.createElement('button'));
         submitButton.css({
@@ -43474,11 +43474,11 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
 
         //Create minimapContainer...
         var minimapContainer = root.find('#minimapContainer');
-        console.log(info.offset().top);
+
         //if the #info div exceeds the half tthe length of the sidebar, the div's max-height is set to its default with an auto scroll property.
         info.css({
             'overflow-y' : 'auto',
-            'max-height' : sideBar.height()/2- info.offset().top+ 'px',
+            'max-height' : sideBar.height()/2- (info.offset().top - sideBar.offset().top)+ 'px',
 
         });
 
@@ -43489,7 +43489,7 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
     
     //when the #info div's size is not too large, the text inside metadata fields is made as much visible as possible
         assetContainer.css({
-            'max-height': sideBarInfo.height()-info.height() + 'px',
+            'max-height': sideBarInfo.height()-info.height()+ (info.offset().top - sideBar.offset().top) + 'px',
 
         });
 
