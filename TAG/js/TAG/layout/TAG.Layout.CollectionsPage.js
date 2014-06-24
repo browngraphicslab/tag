@@ -576,8 +576,11 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      * Creates a timeline
      * @method createTimeline
      * @param artworks    artworks to create the timeline for
+     * @param {Number} minDate     minimum date of timeline display- if zoomed this is pre-set, if not is the first artworks date and buffer is added
+     * @param {Number} maxDate     maximum date of timeline display- if zoomed this is pre-set, if not it is the last non-inifinity artwork date and buffer is added
+     * @param {Boolean} zoomed     whether the timeline in zoomed
+     * @param {AVLTree} avlTree    optional parameter if you have already created avlTree, if not artworks sorted by year
      */
-     //avlTree, minnod and maxnodare experimentations for zoom
      function createTimeline(artworks, minDate, maxDate, zoomed, avlTree) {
         var avlTree = avlTree ? avlTree : sortByYear(artworks),
             artNode,
@@ -705,8 +708,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             }
             curr = avlTree.findNext(curr);
         }
-     };
+    };
 
+    /** Zooms timeline to center on particular yearKey
+     * @methdd zoomTimeline
+     * @param  {Number} yearKey    yearKey of clicked artwork to zoom in on.
+     */
     function zoomTimeline(yearKey){
         var artworks = currentArtworks;
         //TO-DO: Programmatically determine appropriate buffer. 
