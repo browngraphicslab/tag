@@ -281,15 +281,13 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             'flagClicked': 'false',
             'id': 'collection-' + collection.Identifier
         });
-    
+        
         toAdd.on('mousedown', function () {
-            
             $(this).css('background-color', 'white');
             titleBox.css('color', 'black');
         });
        
         toAdd.on('mouseleave', function () {
-            
             var elt = $(this);
             if (elt.attr('flagClicked') === 'false') {
                 elt.css({
@@ -300,10 +298,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             } else {
                 titleBox.css('color', 'black');
             }
-
         });
         
-       
 
         toAdd.on('click', clickCollection(collection));
         TAG.Telemetry.register(toAdd, 'click', 'collection_title', function(tobj) {
@@ -318,7 +314,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
         toAdd.append(titleBox);
         collectionArea.append(toAdd);
-
         collectionTitles.push(toAdd);
     }
 
@@ -346,7 +341,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 collectionTitles[i].children().css('color', PRIMARY_FONT_COLOR);
             }
             $('#collection-'+collection.Identifier).attr('flagClicked', 'true');
-            $('#collection-title-'+collection.Identifier).css('color', PRIMARY_FONT_COLOR);
+            $('#collection-title-'+collection.Identifier).css('color', 'black');
             currCollection = collection;
             currentArtwork = artwrk || null;
             loadCollection.call($('#collection-'+currCollection.Identifier), currCollection);
