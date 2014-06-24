@@ -42141,16 +42141,16 @@ TAG.Auth = (function () {
             max_width: 560,
             max_height: 210,
         });
+        console.log($('#tagRoot').width() + " " + loginDialogSpecs.x);
         loginDialog.css({
             position: 'absolute',
-            left: loginDialogSpecs.x + 'px',
             top: loginDialogSpecs.y + 'px',
             width: loginDialogSpecs.width + 'px',
-            height: loginDialogSpecs.height + 'px',
+            height: loginDialogSpecs.height - 20+ 'px',
+            left: loginDialogSpecs.x - 75.5 + 'px',
             border: '3px double white',
             'background-color': 'black',
         });
-
         
         ///
 
@@ -42164,7 +42164,7 @@ TAG.Auth = (function () {
         //    'background-color': 'black',
         //    'padding': '2.5% 2.5%',
         //});
-        overlay.append(loginDialog);
+        overlay.append(loginDialog); 
         var dialogTitle = $(document.createElement('div'));
         dialogTitle.attr('id', 'dialogTitle');
         dialogTitle.css({
@@ -42220,7 +42220,7 @@ TAG.Auth = (function () {
             'display': 'block',
             'width': '80%',
             'left': '10%',
-            'bottom': '-10%'
+            'bottom': '0%'
         });
         var submitButton = $(document.createElement('button'));
         submitButton.css({
