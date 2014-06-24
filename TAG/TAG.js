@@ -43474,11 +43474,11 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
 
         //Create minimapContainer...
         var minimapContainer = root.find('#minimapContainer');
-        console.log(info.offset().top);
+
         //if the #info div exceeds the half tthe length of the sidebar, the div's max-height is set to its default with an auto scroll property.
         info.css({
             'overflow-y' : 'auto',
-            'max-height' : sideBar.height()/2- info.offset().top+ 'px',
+            'max-height' : sideBar.height()/2- (info.offset().top - sideBar.offset().top)+ 'px',
 
         });
 
@@ -43489,7 +43489,7 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
     
     //when the #info div's size is not too large, the text inside metadata fields is made as much visible as possible
         assetContainer.css({
-            'max-height': sideBarInfo.height()-info.height() + 'px',
+            'max-height': sideBarInfo.height()-info.height()+ (info.offset().top - sideBar.offset().top) + 'px',
 
         });
 
