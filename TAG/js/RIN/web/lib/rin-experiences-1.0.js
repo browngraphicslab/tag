@@ -1,4 +1,4 @@
-/*! RIN | http://research.microsoft.com/rin | 2014-06-11 */
+/*! RIN | http://research.microsoft.com/rin | 2014-06-23 */
 (function() {
     "use strict";
     var rin = window.rin || {};
@@ -269,7 +269,6 @@
 						//Jing: changed the math so that zooming in and out works in firefox and it 
 						//looks smoother now.
 						self._scaleImage(scale, pivot.x, pivot.y);
-						console.log("scale " + scale);
 					}
 				});
                 //Add the event listener for detecting interactions
@@ -636,13 +635,9 @@
 //					functions.onScroll(delta, pivot);
 //				}
 				var pivot = { x: evt.clientX - $element.offset().left, y: evt.clientY - $element.offset().top };
-                //console.log(evt.detail);
-                var delta = -evt.detail;
-                //console.log("delta caught " + delta);
-              
+                var delta = -evt.detail;              
 				if (delta < 0) var zoomScale = 12 / 1.1;
             	else var zoomScale = 1.1 * 12;
-				//console.log("delta processed " + delta);
                 evt.cancelBubble = true;
                 if (typeof functions.onScroll === "function") { 
                     functions.onScroll(delta, zoomScale, pivot);
@@ -1633,7 +1628,6 @@ window.rin = window.rin || {};
 				lastEvt = null;
 				lastTouched = evt.srcElement;
 				currentAccelId++;
-                console.log('DDddddddddfdfdfdadfasdfasdfasdfasdfasdfasdfasdf');
 				resetDir();
 				clearTimeout(timer);
 			}
@@ -1764,12 +1758,18 @@ window.rin = window.rin || {};
 
 			// scroll wheel
 			function processScroll(evt) {
-				var pivot = { x: evt.x - $element.offset().left, y: evt.y - $element.offset().top };
-				var delta = evt.wheelDelta;
-				if (evt.wheelDelta < 0) delta = 1.0 / 1.1;
-				else delta = 1.1;
+                var dragStart = evt.gesture.center;
+                var pivot     = { x: evt.x - $element.offset().left, y: evt.y - $element.offset().top };
+				var delta     = evt.wheelDelta;
+                if (delta < 0){
+                    delta = 1.0 / 1.1;
+                } else {
+                    delta = 1.1;
+                };
 				evt.cancelBubble = true;
-				if (typeof functions.onScroll === "function") functions.onScroll(delta, pivot);
+                if (typeof functions.onScroll === "function") { 
+                    functions.onScroll(delta, pivot);
+                }
 			}
 			
 			function processScrollFirefox(evt) {
@@ -1792,20 +1792,20 @@ window.rin = window.rin || {};
 //				if (typeof functions.onScroll === "function") { 
 //					functions.onScroll(delta, pivot);
 //				}
-				var pivot = { x: evt.clientX - $element.offset().left, y: evt.clientY - $element.offset().top };
-                //console.log(evt.detail);
-                var delta = -evt.detail;
-                console.log("delta captured " + delta);
-              
-				if (delta < 0) delta = 1.0 / 1.1;
-            	else delta = 1.1;
-				console.log("delta scrolled " + delta);
+                self._orchestrator.startInteractionMode();
+                var dragStart = evt.gesture.center;              
+				var pivot     = { x: evt.clientX - $element.offset().left, y: evt.clientY - $element.offset().top };
+                var delta     = - evt.detail;
+				if (delta < 0){
+                    delta = 1.0 / 1.1;
+                } else {
+                    delta = 1.1;
+                };
                 evt.cancelBubble = true;
                 if (typeof functions.onScroll === "function") { 
                     functions.onScroll(delta, pivot);
-                }
+                };
 			}
-
 
 			hammer.on('touch', processDown);
 			hammer.on('drag', function(evt){

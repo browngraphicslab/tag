@@ -1060,12 +1060,15 @@
 #newCatalogRoot #catalogDiv {
   background-color: rgba(0,0,0,0.5);
   height: 100%;
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: hidden;
   position: relative;
   top: 0%;
   width: 100%;
   z-index: 49;
+}
+#newCatalogRoot #catalogDiv:hover {
+  overflow-x: auto;
 }
 #newCatalogRoot #catalogDivContainer {
   height: 42.5%;

@@ -66,10 +66,13 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
 
         // customization and styling
-        backgroundColor  = '#' + TAG.Worktop.Database.getBackgroundColor().replace(/\#/g, ''),
+        //backgroundColor  = '#' + TAG.Worktop.Database.getBackgroundColor().replace(/\#/g, ''),
+        backgroundColor = TAG.Worktop.Database.getBackgroundColor(),
         backgroundOpacity= TAG.Worktop.Database.getBackgroundOpacity(),
-        primaryFontColor = '#' + TAG.Worktop.Database.getPrimaryFontColor().replace(/\#/g, ''),
-        secondaryFontColor = '#' + TAG.Worktop.Database.getSecondaryFontColor().replace(/\#/g, ''),
+        //primaryFontColor = '#' + TAG.Worktop.Database.getPrimaryFontColor().replace(/\#/g, ''),
+        //secondaryFontColor = '#' + TAG.Worktop.Database.getSecondaryFontColor().replace(/\#/g, ''),
+        primaryFontColor = TAG.Worktop.Database.getPrimaryFontColor(),
+        secondaryFontColor = TAG.Worktop.Database.getSecondaryFontColor(),
 
         // constants for customization
         BACKGROUND_COLOR = backgroundColor,
@@ -280,11 +283,13 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         });
     
         toAdd.on('mousedown', function () {
+            
             $(this).css('background-color', 'white');
-            titleBox.css('color', PRIMARY_FONT_COLOR);
+            titleBox.css('color', 'black');
         });
        
         toAdd.on('mouseleave', function () {
+            
             var elt = $(this);
             if (elt.attr('flagClicked') === 'false') {
                 elt.css({
@@ -292,9 +297,14 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                     'color': PRIMARY_FONT_COLOR
                 });
                 titleBox.css('color', PRIMARY_FONT_COLOR);
-            }             
+            } else {
+                titleBox.css('color', 'black');
+            }
+
         });
-    
+        
+       
+
         toAdd.on('click', clickCollection(collection));
         TAG.Telemetry.register(toAdd, 'click', 'collection_title', function(tobj) {
             tobj.collection_name = title;
