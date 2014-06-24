@@ -43,7 +43,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         timelineEventCircles = [],                               // circles for timeline
 
         // constants
-        DEFAULT_TAG      = "Title",                                // default sort tag
+        // TODO: If no timeline, default tag should be "Title"
+        DEFAULT_TAG      = "Year",                                // default sort tag
         BASE_FONT_SIZE   = TAG.Worktop.Database.getBaseFontSize(), // base font size for current font
         FIX_PATH         = TAG.Worktop.Database.fixPath,           // prepend server address to given path
 
@@ -406,6 +407,11 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      * @param {Boolean} onSearch  whether the list of artworks is a list of works matching a search term
      */
     function drawCatalog(artworks, tag, start, onSearch) {
+        var avlTree,
+            maxNode,
+            maxDate,
+            minDate;
+
         if (!currCollection) {
             return;
         };
@@ -418,7 +424,21 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             drawHelper();
         };
 
-        createTimeline(artworks);
+
+        //Sort the artworks by year and display a full timeline with min and max of entire collection. 
+        //TO-DO:  Factor this out so that it can be re-called when un-clicking an artwork dot/preview
+        avlTree = sortByYear(artworks);
+        maxNode = avlTree.max();
+
+        //Skip beofre tours and artworks with incompatible dates
+        while (maxNode.yearKey === Number.POSITIVE_INFINITY){
+            maxNode = avlTree.findPrevious(maxNode);
+        };
+        maxDate = parseInt(maxNode.yearKey);
+        minDate = parseInt(avlTree.min().yearKey);
+
+        createTimeline(artworks, minDate, maxDate, false, avlTree);
+
 
         // helper function to perform the actual drawing (to make sure we deal with async correctly)
         function drawHelper() {
@@ -513,7 +533,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             } else if (tag === 'Artist') {
                 artText.text(currentWork.Type === 'Empty' ? '(Interactive Tour)' : currentWork.Metadata.Artist);
             } else if (tag === 'Year') {
-                artText.text(currentWork.Type === 'Empty' ? '(Interactive Tour)' : currentWork.Metadata.Year);
+            //TO-DO: Decide if year shows up at all here (in parantheses, with comma, on another line, etc)    
+                artText.text(currentWork.Type === 'Empty' ? '(Interactive Tour)' :  TAG.Util.htmlEntityDecode(currentWork.Name) + ' (' + currentWork.Metadata.Year + ')');
             } else if (tag === 'Type') {
                 artText.text(TAG.Util.htmlEntityDecode(currentWork.Name));
             }
@@ -556,25 +577,25 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      * @method createTimeline
      * @param artworks    artworks to create the timeline for
      */
-     function createTimeline(artworks) {
-        var avlTree,
+     //avlTree, minnod and maxnodare experimentations for zoom
+     function createTimeline(artworks, minDate, maxDate, zoomed, avlTree) {
+        var avlTree = avlTree ? avlTree : sortByYear(artworks),
             artNode,
             comparator,
             eventCircle,
             i,
             j,
-            minDate,
-            maxDate,
             timeRange,
             timelineTick,
             tick,
             timelineDateLabel,
             timelineTicks = [],
             timeline = $(document.createElement('div')),
+            numTicks = 101, 
             yearText,
             positionOnTimeline,
             prevNode,
-            circleOverlap =false,
+            circleOverlap = false,
             labelOverlap= false,
             valuation;
 
@@ -587,48 +608,58 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             return;
         };
 
+        // Time range is difference between earliest and latest dates of artworks.
+        timeRange = maxDate - minDate;
+
+        //Experimenting for zoom extension
+
+        if (zoomed && timeRange<100) {
+                numTicks = (2*timeRange)+1;
+        }
+
         // Create ticks
-        for (i = 0; i < 101; i++) { 
+        for (i = 0; i < numTicks; i++) { 
             tick = $(document.createElement('div'));
             tick.addClass('timelineTick');
             tick.css({
-                'left' : i + '%'
+                'left' : i/(numTicks-1)*100 + '%'
             });
             timeline.append(tick);
             timelineTicks.push(tick);
         };
-
-        // Sort artworks by year to create a range of dates to use for the timeline
-        // This uses an AVLTree, the same sorting mechanism used to sort by tag
-        avlTree = sortByYear(artworks);
-
-        // Get minimum of this search
-        minDate = parseInt(avlTree.min().yearKey)
-        maxDate = avlTree.max();
-        //console.log("maxyk" + avlTree.max().yearKey);
-
-        //Skip past tours and works with incompatible dates (set as Positive Infinity to show up at end of artworks list)
-        while (maxDate.yearKey === Number.POSITIVE_INFINITY){
-            maxDate = avlTree.findPrevious(maxDate);
-        };
-        maxDate = parseInt(maxDate.yearKey);
-
-        // Time range is difference between earliest and latest dates of artworks.
-        timeRange = maxDate - minDate;
-        maxDate   = parseInt(maxDate + timeRange/20); //Shows about 5 ticks before first date and after last
-        minDate   = parseInt(minDate - timeRange/20);
-        timeRange = maxDate - minDate;
+        
+        if (!zoomed){
+            //Add buffer if zoomed all the way out
+            //TO-DO- how to calculate buffer if range is less than 20 years 
+            maxDate   = Math.round(maxDate + timeRange/20); //Shows about 5 ticks before first date and after last if range is over 20 years. 
+            minDate   = Math.round(minDate - timeRange/20);
+            timeRange = maxDate - minDate;
+        }
 
         // Make artwork event circles and dates
-        var curr = avlTree.min()
-        while (curr&& curr.yearKey!==Number.POSITIVE_INFINITY){
+        var curr = avlTree.min();
+
+        //Zoom:
+        if (zoomed){
+            while (Math.round(curr.yearKey) < minDate){
+                curr = avlTree.findNext(curr);
+            }
+        }
+
+        while (curr&& curr.yearKey!==Number.POSITIVE_INFINITY && curr.yearKey<=maxDate){
             if (!isNaN(curr.yearKey)){
                 positionOnTimeline = parseInt(100*(curr.yearKey - minDate)/timeRange);
                 eventCircle = $(document.createElement('div'));
                 eventCircle.addClass('timelineEventCircle')
                     .css('left', positionOnTimeline + '%')
                     .on('click', showArtwork(curr.artwork))
+
                 timeline.append(eventCircle);
+
+                //Shift circles left by half their width so they are centered on ticks
+                eventCircle.css('left', eventCircle.position().left - $(eventCircle).width()/2 + 'px');
+                eventCircle.yearKey = curr.yearKey;
+                
                 timelineEventCircles.push(eventCircle);
 
                 //Artworks before year 0 are automatically given the 'BCE' tag
@@ -675,6 +706,15 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             curr = avlTree.findNext(curr);
         }
      };
+
+    function zoomTimeline(yearKey){
+        var artworks = currentArtworks;
+        //TO-DO: Programmatically determine appropriate buffer. 
+        var buffer = 5;
+        var minDate = Math.round(yearKey - buffer);
+        var maxDate = Math.round(yearKey + buffer);
+        createTimeline(artworks, minDate, maxDate, true);
+    }; 
 
     /**
      * Shows an artwork as an outset box and shows name, description, etc
@@ -834,6 +874,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
             selectedArtworkContainer.append(descriptiontext);
 
+
             //Circle (with date) on timeline
             for (i = 0; i < timelineEventCircles.length; i++) { // Make sure all other circles are grayed-out and small
                 timelineEventCircles[i].css({
@@ -846,6 +887,10 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
                 if (timelineEventCircles[i].timelineDateLabel.shouldBeHidden === true){ // Make sure labels that aren't supposed to be shown are grayed out
                     timelineEventCircles[i].timelineDateLabel.css('visibility', 'hidden');
+                }
+
+                if ($(timelineEventCircles[i].timelineDateLabel).text()===artwork.circle.timelineDateLabel.text()){
+                    timelineEventCircles[i].timelineDateLabel.css('visibility','hidden');
                 }
             };
 
@@ -865,6 +910,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 })
                 artwork.circle.timelineDateLabel.shouldBeHidden = true // If date is not one of the perminantly-there grayed out ones, mark it to be hidden again later when different artwork is selected
             };
+
+            zoomTimeline(artwork.circle.yearKey);
 
             //Progress circle for loading
             // TODO: is this showing up? Look into
