@@ -253,7 +253,7 @@ TAG.Auth = (function () {
             max_width: 560,
             max_height: 210,
         });
-        console.log($('#tagRoot').width() + " " + loginDialogSpecs.x);
+
         loginDialog.css({
             position: 'absolute',
             top: loginDialogSpecs.y + 'px',
