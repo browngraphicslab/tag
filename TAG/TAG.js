@@ -44406,7 +44406,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
         // Make artwork event circles and dates
         var curr = avlTree.min();
-
+        var art = curr.artwork;
         //Zoom:
         if (zoomed){
             while (Math.round(curr.yearKey) < minDate){
@@ -44427,8 +44427,19 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 
                 eventCircle.addClass('timelineEventCircle')
                     .css('left', positionOnTimeline + '%')
-
-                    .on('click', showArtwork(curr.artwork));
+                    .on('click', (function(art) {
+                        return function() {
+                            
+                            if(artworkShown === true) {
+                                hideArtwork(art)();
+                                artworkShown = false;
+                            } else {
+                                showArtwork(art)();
+                                artworkShown  = true;
+                            } 
+                        }
+                        
+                    })(art));
                     
 
                 
@@ -44483,10 +44494,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                    
                 }
             }
-            debugger;
-            curr = avlTree.findNext(curr);
-
             
+            curr = avlTree.findNext(curr);
+            if(curr) { art = curr.artwork; }
         }
     }
     
