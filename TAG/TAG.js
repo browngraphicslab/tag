@@ -44341,8 +44341,11 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      * Creates a timeline
      * @method createTimeline
      * @param artworks    artworks to create the timeline for
+     * @param {Number} minDate     minimum date of timeline display- if zoomed this is pre-set, if not is the first artworks date and buffer is added
+     * @param {Number} maxDate     maximum date of timeline display- if zoomed this is pre-set, if not it is the last non-inifinity artwork date and buffer is added
+     * @param {Boolean} zoomed     whether the timeline in zoomed
+     * @param {AVLTree} avlTree    optional parameter if you have already created avlTree, if not artworks sorted by year
      */
-     //avlTree, minnod and maxnodare experimentations for zoom
      function createTimeline(artworks, minDate, maxDate, zoomed, avlTree) {
         var avlTree = avlTree ? avlTree : sortByYear(artworks),
             artNode,
@@ -44411,20 +44414,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             }
         }
 
-<<<<<<< HEAD
 
-
-
-
-        // Make artwork event circles and dates
-        var curr = avlTree.min();
-        var art = curr.artwork;
-
-        while (curr){
-
-=======
         while (curr&& curr.yearKey!==Number.POSITIVE_INFINITY && curr.yearKey<=maxDate){
->>>>>>> 30f5d51754e53053bff1a4c4501cb5b74c6733ca
+
             if (!isNaN(curr.yearKey)){
                 positionOnTimeline = parseInt(100*(curr.yearKey - minDate)/timeRange);
                 eventCircle = $(document.createElement('div'));
@@ -44435,25 +44427,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 
                 eventCircle.addClass('timelineEventCircle')
                     .css('left', positionOnTimeline + '%')
-<<<<<<< HEAD
-                    .on('click', function() {
-                        
-                        //console.log("currentnt: " + curr.artwork);
-                        console.log("art: " + art);
-                        if(artworkShown === true) {
-                            hideArtwork(art)();
-                            artworkShown = false;
-                        } else {
-                            showArtwork(art)();
-                            artworkShown = true;
-                        }
-                    });
+
+                    .on('click', showArtwork(curr.artwork));
                     
 
                 
-=======
-                    .on('click', showArtwork(curr.artwork))
->>>>>>> 30f5d51754e53053bff1a4c4501cb5b74c6733ca
+
 
                 timeline.append(eventCircle);
 
@@ -44506,12 +44485,16 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             }
             debugger;
             curr = avlTree.findNext(curr);
-            if(curr) {
-               art = curr.artwork; 
-            }
-        }
-     };
 
+            
+        }
+    }
+    
+
+    /** Zooms timeline to center on particular yearKey
+     * @methdd zoomTimeline
+     * @param  {Number} yearKey    yearKey of clicked artwork to zoom in on.
+     */
     function zoomTimeline(yearKey){
         var artworks = currentArtworks;
         //TO-DO: Programmatically determine appropriate buffer. 
