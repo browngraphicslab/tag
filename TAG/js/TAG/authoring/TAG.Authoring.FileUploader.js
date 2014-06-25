@@ -158,16 +158,16 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
                     var msg;
                     switch (type) {
                        case TAG.Authoring.FileUploadTypes.VideoArtwork:
-                           uriString = TAG.Worktop.Database.getSecureURL() + "/?Type=FileUploadVideoArtwork&Client=Windows&ReturnDoq=true&Token=" + TAG.Auth.getToken() + "&Extension=" + resumableFile.file.type.substr(1);
+                           uriString = TAG.Worktop.Database.getSecureURL() + "/?Type=FileUploadVideoArtwork&ReturnDoq=true&Token=" + TAG.Auth.getToken() + "&Extension=" + resumableFile.file.type.substr(1);
                            break;
                        case TAG.Authoring.FileUploadTypes.AssociatedMedia:
-                           uriString = TAG.Worktop.Database.getSecureURL() + "/?Type=FileUploadAssociatedMedia&Client=Windows&ReturnDoq=true&Token=" + TAG.Auth.getToken() + "&Extension=" + resumableFile.file.type.substr(1);
+                           uriString = TAG.Worktop.Database.getSecureURL() + "/?Type=FileUploadAssociatedMedia&ReturnDoq=true&Token=" + TAG.Auth.getToken() + "&Extension=" + resumableFile.file.type.substr(1);
                            break;
                        case TAG.Authoring.FileUploadTypes.Standard:
-                           uriString = TAG.Worktop.Database.getSecureURL() + "/?Type=FileUpload&Client=Windows&Token=" + TAG.Auth.getToken() + "&Extension=" + resumableFile.file.type.substr(1);
+                           uriString = TAG.Worktop.Database.getSecureURL() + "/?Type=FileUpload&&Token=" + TAG.Auth.getToken() + "&Extension=" + resumableFile.file.type.substr(1);
                            break;
                        case TAG.Authoring.FileUploadTypes.DeepZoom:
-                           uriString = TAG.Worktop.Database.getSecureURL() + "/?Type=FileUploadDeepzoom&Client=Windows&ReturnDoq=true&token=" + TAG.Auth.getToken() + "&Extension=" + resumableFile.file.type.substr(1);
+                           uriString = TAG.Worktop.Database.getSecureURL() + "/?Type=FileUploadDeepzoom&ReturnDoq=true&token=" + TAG.Auth.getToken() + "&Extension=" + resumableFile.file.type.substr(1);
                            break;
                     }
                     globalUriStrings.push(uriString);
