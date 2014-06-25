@@ -44429,7 +44429,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                     .css('left', positionOnTimeline + '%')
                     .on('click', (function(art) {
                         return function() {
-                            
                             if(artworkShown === true) {
                                 hideArtwork(art)();
                                 artworkShown = false;
@@ -44438,13 +44437,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                                 artworkShown  = true;
                             } 
                         }
-                        
                     })(art));
                     
-
-                
-
-
                 timeline.append(eventCircle);
 
                 //Shift circles left by half their width so they are centered on ticks
