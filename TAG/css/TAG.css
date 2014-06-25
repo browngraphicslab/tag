@@ -1048,7 +1048,7 @@
 }
 #newCatalogRoot .tile {
   border: 1px solid rgba(0,0,0,0.85);
-  height: 48%;
+  height: 52%;
   position: absolute;
   width: 16%;
 }
@@ -1105,24 +1105,19 @@
   width: 10px;
   height: 10px;
 }
-::-webkit-scrollbar:horizontal {
-  width: 15px;
-  height: 15px;
-  margin-bottom: -40%;
-}
 ::-webkit-scrollbar-track {
-  -webkit-box-shadow: inset 0 0 3px rgba(200,200,200,0.5);
+  -webkit-box-shadow: inset 0 0 2px rgba(200,200,200,0.5);
   background: transparent;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb {
   border-radius: 10px;
-  -webkit-box-shadow: inset 0 0 3px rgba(200,200,200,0);
+  -webkit-box-shadow: inset 0 0 2px rgba(200,200,200,0);
   background: transparent;
 }
 ::-webkit-scrollbar-thumb:hover {
   border-radius: 10px;
-  -webkit-box-shadow: inset 0 0 3px rgba(200,200,200,0);
+  -webkit-box-shadow: inset 0 0 2px rgba(200,200,200,0.5);
   background-color: rgba(255,255,255,0.5);
 }
 
