@@ -122,16 +122,18 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
         var clickedElement = $(document.createElement('div'));
         resumableUploader.assignBrowse(clickedElement);
         clickedElement.click();
+        console.log("If you're seeing this, the file picker should be open");
         resumableUploader.on('fileSuccess', function(resumableFile, message) {
             dataReaderLoads.push($.trim(message));
-            varsync bar = innerProgBar || innerProgressBar;
+            console.log("Message from the server: " + message);
+            var bar = innerProgBar || innerProgressBar;
             var percentComplete = resumableUploader.progress();
             bar.width(percentComplete * 90 + "%");
         });
         resumableUploader.on('complete', function(file) {
             
             //Should have a full fileUploadComplete function here
-            fileUploadComplete();
+            finishedUpload();
         })
         resumableUploader.on('fileAdded', function(resumableFile){
             //Set maximum size for the file
@@ -178,10 +180,10 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
                           $('body').append(fileUploadError);
                           $(fileUploadError).fadeIn(500);
                       } else {
-                            dataReaderLoads.push($.trim(resumableUploader.xhr.getResponseText()));
+                            
                             //start the upload here
                             resumableUploader.upload();
-                            addLocalCallback(files, localURLs)();
+                            addLocalCallback(globalFiles, localURLs)();
                             
                    }                    
 
@@ -251,6 +253,13 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
     }
 
     
+    function addLocalCallback(files, localUrls, uriStrings) {
+        return function () {
+            localCallback(files, localUrls, uriStrings);
+        };
+    }
+
+
     function addOverlay(elmt) {
         if ($("#uploadingOverlay").length === 0) {
             elmt.append(uploadingOverlay);
@@ -263,13 +272,6 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
     function removeOverlay() {
         uploadingOverlay.remove();
     }
-
-
-    //Is this a Windows API thing?
-    function error(err) {
-
-    }
-
 
     function finishedUpload() {
         removeOverlay();
@@ -319,6 +321,7 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
             $(fileUploadError).css('z-index', TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
             $('body').append(fileUploadError);
             $(fileUploadError).fadeIn(500);        
+        }
     }
 
 
@@ -326,11 +329,13 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
     function setMaxDuration(seconds) {
         maxDuration = seconds;
     }
+
     that.setMaxDuration = setMaxDuration;
 
     function setMinDuration(seconds) {
         minDuration = seconds;
     }
+
     that.setMinDuration = setMinDuration;
 
     //clickAction is what happens when the confirm button is clicked
