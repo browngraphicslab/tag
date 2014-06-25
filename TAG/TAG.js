@@ -44281,15 +44281,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             'id': 'collection-' + collection.Identifier
         });
         
-
         toAdd.on('mousedown', function () {
-            
             $(this).css('background-color', 'white');
             titleBox.css('color', 'black');
         });
        
         toAdd.on('mouseleave', function () {
-            
             var elt = $(this);
             if (elt.attr('flagClicked') === 'false') {
                 elt.css({
@@ -44300,7 +44297,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             } else {
                 titleBox.css('color', 'black');
             }
-
         });
         
 
@@ -44317,7 +44313,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
         toAdd.append(titleBox);
         collectionArea.append(toAdd);
-
         collectionTitles.push(toAdd);
     }
 
