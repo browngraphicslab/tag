@@ -90,7 +90,8 @@
             TAG_GLOBAL({
                 path: tagPath,
                 containerId: containerId,
-                serverIp: ip
+                serverIp: ip,
+                allowServerChange: true
             });
         });
 
