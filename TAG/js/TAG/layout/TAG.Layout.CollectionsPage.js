@@ -11,7 +11,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
     "use strict";
 
     options = options || {}; // cut down on null checks later
-
+    
     var // DOM-related
         root             = TAG.Util.getHtmlAjax('NewCatalog.html'), // use AJAX to load html from .html file
         leftbar          = root.find('#leftbar'),                    // see .jade file to see where these fit in
@@ -28,6 +28,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         searchTxt        = root.find('#searchTxt'),
         loadingArea      = root.find('#loadingArea'),
         backbuttonIcon   = root.find('#catalogBackButton'),
+        backgroundDiv    = root.find('.background'),
+        primaryFont      = root.find('.primaryFont'),
+        secondaryFont    = root.find('.secondaryFont'),
 
         // input options
         scrollPos        = options.backScroll || 0,     // horizontal position within collection's catalog
@@ -59,8 +62,26 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         artistInfo,                     // artist tombstone info div
         yearInfo,                       // year tombstone info div
         justShowedArtwork,              // for telemetry; helps keep track of artwork tile clicks
-        currentTag;                     // current sort tag
+        currentTag,                     // current sort tag
 
+
+        // customization and styling
+        //backgroundColor  = '#' + TAG.Worktop.Database.getBackgroundColor().replace(/\#/g, ''),
+        backgroundColor = TAG.Worktop.Database.getBackgroundColor(),
+        backgroundOpacity= TAG.Worktop.Database.getBackgroundOpacity(),
+        //primaryFontColor = '#' + TAG.Worktop.Database.getPrimaryFontColor().replace(/\#/g, ''),
+        //secondaryFontColor = '#' + TAG.Worktop.Database.getSecondaryFontColor().replace(/\#/g, ''),
+        primaryFontColor = TAG.Worktop.Database.getPrimaryFontColor(),
+        secondaryFontColor = TAG.Worktop.Database.getSecondaryFontColor(),
+
+        // constants for customization
+        BACKGROUND_COLOR = backgroundColor,
+        BACKGROUND_OPACITY = parseInt(backgroundOpacity)/100,
+        PRIMARY_FONT_COLOR = primaryFontColor,
+        SECONDARY_FONT_COLOR = secondaryFontColor,
+        FONT_FAMILY = TAG.Worktop.Database.getFontFamily();
+
+        collectionHeader.addClass('primaryFont');
     // get things rolling
     init();
 
@@ -125,6 +146,25 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         });
 
         TAG.Worktop.Database.getExhibitions(getCollectionsHelper, null, getCollectionsHelper);
+        applyCustomization();
+    }
+
+    /**Applying all the relevant customization changes
+     * @method applyCustomization
+     */
+    function applyCustomization() {
+        $(backgroundDiv).css({
+           'background-color': TAG.Util.UI.hexToRGBA(BACKGROUND_COLOR, BACKGROUND_OPACITY)
+        });
+        
+        $(primaryFont).css({
+            'color': PRIMARY_FONT_COLOR,
+            'font-family': FONT_FAMILY
+        });
+        $(secondaryFont).css({
+            'color': SECONDARY_FONT_COLOR,
+            'font-family': FONT_FAMILY
+        });
     }
 
     /**
@@ -198,6 +238,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             descriptionTextDiv = root.find("#description-text"),
             imgContainerDiv = root.find("#img-container");
 
+        exhibitionNameDiv.addClass('primaryFont');
+        exhibitionNameDiv.css({ 'color': '#' + PRIMARY_FONT_COLOR });
         collectionArea.css("display", "none");
         collectionHeader.css("display", "none");
         displayarea.css({
@@ -234,11 +276,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         text = text.replace(/<br>/g, '').replace(/<br \/>/g, '');
 
         toAdd.addClass('collectionClickable');
+        toAdd.addClass('primaryFont');
         toAdd.attr({
             'flagClicked': 'false',
             'id': 'collection-' + collection.Identifier
         });
-    
+        
         toAdd.on('mousedown', function () {
             $(this).css('background-color', 'white');
             titleBox.css('color', 'black');
@@ -249,12 +292,15 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             if (elt.attr('flagClicked') === 'false') {
                 elt.css({
                     'background-color': 'transparent',
-                    'color': 'white'
+                    'color': PRIMARY_FONT_COLOR
                 });
-                titleBox.css('color', 'white');
-            }             
+                titleBox.css('color', PRIMARY_FONT_COLOR);
+            } else {
+                titleBox.css('color', 'black');
+            }
         });
-    
+        
+
         toAdd.on('click', clickCollection(collection));
         TAG.Telemetry.register(toAdd, 'click', 'collection_title', function(tobj) {
             tobj.collection_name = title;
@@ -263,11 +309,11 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
         titleBox.attr('id' ,'collection-title-'+collection.Identifier);
         titleBox.addClass('collection-title');
+        titleBox.addClass('primaryFont');
         titleBox.html(title);
 
         toAdd.append(titleBox);
         collectionArea.append(toAdd);
-
         collectionTitles.push(toAdd);
     }
 
@@ -289,10 +335,10 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             }
 
             for (i = 0; i < collectionTitles.length; i++) {
-                collectionTitles[i].css({ 'background-color': 'transparent', 'color': 'white' });
+                collectionTitles[i].css({ 'background-color': 'transparent', 'color': PRIMARY_FONT_COLOR});
                 collectionTitles[i].data("selected", false);
                 collectionTitles[i].attr('flagClicked', 'false');
-                collectionTitles[i].children().css('color', 'white');
+                collectionTitles[i].children().css('color', PRIMARY_FONT_COLOR);
             }
             $('#collection-'+collection.Identifier).attr('flagClicked', 'true');
             $('#collection-title-'+collection.Identifier).css('color', 'black');
@@ -343,6 +389,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         // make title
         titlediv = $(document.createElement('div'));
         titlediv.attr('id', 'collection-name-div');
+        titlediv.addClass('primaryFont');
+        titlediv.css({ 'color': PRIMARY_FONT_COLOR });
         titlediv.text(TAG.Util.htmlEntityDecode(collection.Name));
 
         w = $(window).width() * 0.75 * 0.8;
@@ -627,8 +675,10 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             main.addClass("tile");
             tileImage.addClass('tileImage');
             artTitle.addClass('artTitle');
+            artTitle.addClass('primaryFont');
             artText.addClass('artText');
-
+            artText.addClass('primaryFont');
+            artText.css({ 'color': PRIMARY_FONT_COLOR });
             main.css({
                 'margin-left': Math.floor(i / 2) * 16.5 + 1 + '%', // TODO do this using w rather than 16.5%
                 'margin-top': (i % 2) * 12.25 + '%'
@@ -884,8 +934,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      * @param {String} tag    the name of the sort tag
      */
     function colorSortTags(tag) {
-        $('.rowButton').css('color', 'gray');
-        $('[tagName="'+tag+'"]').css('color', 'white');
+        var rgbDim = TAG.Util.UI.dimColor('#' + SECONDARY_FONT_COLOR);
+        $('.rowButton').css('color', rgbDim);
+        $('[tagName="'+tag+'"]').css('color', SECONDARY_FONT_COLOR);
     }
 
     /**

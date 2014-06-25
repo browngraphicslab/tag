@@ -5,10 +5,11 @@
  * as a central area for the deepzoom image.
  * @class TAG.Layout.ArtworkViewer
  * @constructor
- * @param {Object} options        some options for the artwork viewer page
- * @return {Object}               some public methods
+ * @param {Object} options              some options for the artwork viewer page
+ * @param {HTML Element} container      the root container 
+ * @return {Object}                     some public methods
  */
-TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition) {
+TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options, exhibition) {
     "use strict";
 
     options = options || {}; // cut down on null checks later
@@ -595,11 +596,11 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
 
         //Create minimapContainer...
         var minimapContainer = root.find('#minimapContainer');
-        console.log(info.offset().top);
+
         //if the #info div exceeds the half tthe length of the sidebar, the div's max-height is set to its default with an auto scroll property.
         info.css({
             'overflow-y' : 'auto',
-            'max-height' : sideBar.height()/2- info.offset().top+ 'px',
+            'max-height' : sideBar.height()/2- (info.offset().top - sideBar.offset().top)+ 'px',
 
         });
 
@@ -610,7 +611,7 @@ TAG.Layout.ArtworkViewer = function (options) { // prevInfo, options, exhibition
     
     //when the #info div's size is not too large, the text inside metadata fields is made as much visible as possible
         assetContainer.css({
-            'max-height': sideBarInfo.height()-info.height() + 'px',
+            'max-height': sideBarInfo.height()-info.height()+ (info.offset().top - sideBar.offset().top) + 'px',
 
         });
 
