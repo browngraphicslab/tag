@@ -31,7 +31,7 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
     var removeVals;
     var maxFileSize = 50 * 1024 * 1024;
     var maxDeepZoomFileSize = 250 * 1024 * 1024;
-    var localURLs = [];
+    var localURLs = ;
 
 
 
@@ -69,10 +69,13 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
     })();
 
     (function uploadFile() {
+        //Actual uploader object
         var resumableUploader = new Resumable({
             target: TAG.Worktop.Database.getSecureURL(),        //Check that this works
             maxFiles: 10000,
             query: function(resumableFile) {                    //Does it need to execute? New resumable objects for each?
+
+                //Changing Type parameters in the query
                 switch(type) {
                     case TAG.Authoring.FileUploadTypes.VideoArtwork:
                         return {
@@ -120,24 +123,30 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
 
             }
         });
+        //Invisible element to fire click event for the Resumable object and open the file picker
         var clickedElement = $(document.createElement('div'));
         resumableUploader.assignBrowse(clickedElement);
         clickedElement.click();
         console.log("If you're seeing this, the file picker should be open");
+
         resumableUploader.on('fileSuccess', function(resumableFile, message) {
+            //Gets back the relative path of the uploaded file on the server
             dataReaderLoads.push($.trim(message));
             console.log("Message from the server: " + message);
+
+            //TODO progress bar
             var bar = innerProgBar || innerProgressBar;
             var percentComplete = resumableUploader.progress();
-            bar.width(percentComplete * 90 + "%");
+            bar.width(percentComplete * 100 + "%"); // * 90 or * 100?
         });
-        resumableUploader.on('complete', function(file) {
+        resumableUploader.on('complete', function(file) {   //Entire upload operation is complete
             finishedUpload();
         })
         resumableUploader.on('fileAdded', function(resumableFile){
             //Set maximum size for the file
             var maxSize;
             globalFilesArray.push(resumableFile.file);
+
             switch (type) {
             case TAG.Authoring.FileUploadTypes.VideoArtwork:
             case TAG.Authoring.FileUploadTypes.AssociatedMedia:
@@ -148,10 +157,11 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
                maxSize = maxDeepZoomFileSize;
                break;
             }
+
             size = resumableFile.size;
             if(size < maxSize) {
                 checkDuration(resumableFile, 
-                function(){         //good
+                function(){         //good i.e. the duration is within limits
                     var localURL;
                     var uriString;
                     globalFiles.push(resumableFile.file);
@@ -173,23 +183,23 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
                            break;
                     }
                     globalUriStrings.push(uriString);
+
                     if (typeof (msg = localCallback([resumableFile.file], [localURL], [uriString])) === 'string') {
                             //TODO when does this ever return a string anyway? Is this necessary at all?
                           fileUploadError = uploadErrorAlert(null, msg, null);
+                          console.log("There was an error from the localCallback: " + msg);
                           $(fileUploadError).css('z-index', TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
                           $('body').append(fileUploadError);
                           $(fileUploadError).fadeIn(500);
-                      } else {
-                            
+                      } else { 
                             //start the upload here
                             resumableUploader.upload();
-                            addLocalCallback(globalFiles, localURLs)();
-                            
                    }                    
 
                 });
-            } else {
-                resumableUploader.removeFile(resumableFile);
+            } else {    //Size > maxSize
+                resumableUploader.removeFile(resumableFile);    //Remove the file from the upload operation
+                console.log("The file was too large");
                 largeFiles += ("<br />" + resumableFile.name);
                 fileUploadError = uploadErrorAlert(null, "The selected file(s) exceeded the 50MB file limit and could not be uploaded.", null);
                 $(fileUploadError).css('z-index', TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
@@ -200,6 +210,7 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
         });
 
     })();
+
     //Check the duration of media files
     function checkDuration(resumableFile, good) {
         if (resumableFile.file.type === '.mp4') {
@@ -273,9 +284,11 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
         uploadingOverlay.remove();
     }
 
+    
     function finishedUpload() {
         removeOverlay();
         finishedCallback(dataReaderLoads);
+        addLocalCallback(globalFiles, localURLs)();
         var msg = "", str, mins, secs;
         var longFilesExist = false;
         var i;
