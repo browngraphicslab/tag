@@ -2038,12 +2038,12 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                     artworkAssociations.push([]);
                     file = files[i];
                     localURL = localURLs[i];
-                    if (file.tType.match(/image/)) {
+                    if (file.type.match(/image/)) {
                         contentType = 'Image';
                     } else if (file.type.match(/video/)) {
-                        type = 'Video';
+                        contentType = 'Video';
                     } else if (file.type.match(/audio/)) {
-                        type = 'Audio';
+                        contentType = 'Audio';
                     }
                     uniqueUrls.push(localURL);
                     mediaMetadata.push({

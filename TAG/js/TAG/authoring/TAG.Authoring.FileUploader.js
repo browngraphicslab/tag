@@ -31,6 +31,7 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
     var removeVals;
     var maxFileSize = 50 * 1024 * 1024;
     var maxDeepZoomFileSize = 250 * 1024 * 1024;
+    var localURLs = [];
 
 
 
@@ -131,8 +132,6 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
             bar.width(percentComplete * 90 + "%");
         });
         resumableUploader.on('complete', function(file) {
-            
-            //Should have a full fileUploadComplete function here
             finishedUpload();
         })
         resumableUploader.on('fileAdded', function(resumableFile){
@@ -157,6 +156,7 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
                     var uriString;
                     globalFiles.push(resumableFile.file);
                     localURL = window.URL.createObjectURL(resumableFile.file);
+                    localURLs.push(localURL);
                     var msg;
                     switch (type) {
                        case TAG.Authoring.FileUploadTypes.VideoArtwork:
