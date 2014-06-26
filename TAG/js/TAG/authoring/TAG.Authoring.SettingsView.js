@@ -2038,16 +2038,16 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                     artworkAssociations.push([]);
                     file = files[i];
                     localURL = localURLs[i];
-                    if (file.contentType.match(/image/)) {
+                    if (file.tType.match(/image/)) {
                         contentType = 'Image';
-                    } else if (file.contentType.match(/video/)) {
-                        contentType = 'Video';
-                    } else if (file.contentType.match(/audio/)) {
-                        contentType = 'Audio';
+                    } else if (file.type.match(/video/)) {
+                        type = 'Video';
+                    } else if (file.type.match(/audio/)) {
+                        type = 'Audio';
                     }
                     uniqueUrls.push(localURL);
                     mediaMetadata.push({
-                        'title': file.displayName,
+                        'title': file.name,
                         'contentType': contentType,
                         'localUrl': localURL,
                         'assetType': 'Asset',
@@ -3474,12 +3474,12 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             function (files, localURLs) {
                 fileArray = files;
                 for (i = 0; i < files.length; i++) {
-                    names.push(files[i].displayName);
-                    if (files[i].contentType.match(/image/)) {
+                    names.push(files[i].name);
+                    if (files[i].type.match(/image/)) {
                         contentTypes.push('Image');
-                    } else if (files[i].contentType.match(/video/)) {
+                    } else if (files[i].type.match(/video/)) {
                         contentTypes.push('Video');
-                    } else if (files[i].contentType.match(/audio/)) {
+                    } else if (files[i].type.match(/audio/)) {
                         contentTypes.push('Audio');
                     }
                 }
