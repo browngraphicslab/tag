@@ -30575,6 +30575,7 @@ TAG.Util = (function () {
         videoErrorHandler: videoErrorHandler,
         getHtmlAjax: getHtmlAjax,
         localVisibility: localVisibility
+
     };
 
     /* 
@@ -32050,15 +32051,16 @@ TAG.Util.UI = (function () {
         createTrack: createTrack,
         getStack: getStack,
         initKeyHandler: initKeyHandler,
+
         
     };
 
-    initKeyHandler();
+    //initKeyHandler();
 
     function initKeyHandler() {
         window.addEventListener('keydown', function (event) {
-            //event.preventDefault();
-            //event.stopPropagation();
+            event.preventDefault();
+            event.stopPropagation();
             if(globalKeyHandler && globalKeyHandler[0] && globalKeyHandler[0][event.which]) {
                 globalKeyHandler[0][event.which]();
                 
@@ -33006,6 +33008,7 @@ TAG.Util.UI = (function () {
      */
     // towards left
     function slidePageLeft(newpage, callback) {
+        debugger;
         var outgoingDone = false;
         var incomingDone = false;
         var tagContainer = $('#tagRoot');
@@ -41913,7 +41916,7 @@ TAG.Auth = (function () {
 
     
 
-    function submitOnClick() {   // store the authoring mode password submit button's on click function
+    /*function submitOnClick() {   // store the authoring mode password submit button's on click function
                 TAG.AuthError.hide();
                 TAG.AuthCircle.show();
                 TAG.AuthSubmit.hide();
@@ -41937,7 +41940,7 @@ TAG.Auth = (function () {
                     TAG.AuthSubmit.show();
                     TAG.AuthCancel.show();
                 });
-            } 
+            } */
 
 
     function getToken() {
@@ -42014,11 +42017,11 @@ TAG.Auth = (function () {
         successFunction = onSuccess;
         //TAG.Util.UI.getStack()[0] = { 13: submitOnClick, }
 
-        passwordDialogBox.on('keydown', function (evt) {
-            if(evt.which === 13) {
-                submitOnClick();
-            }
-        });
+        //passwordDialogBox.on('keydown', function (evt) {
+         //   if(evt.which === 13) {
+        //        submitOnClick();
+        //    }
+        //});
         if (TAG.AuthToken) {
             TAG.Worktop.Database.checkToken(TAG.AuthToken, onSuccess, showForm, showForm);
         } else { 
@@ -42045,6 +42048,7 @@ TAG.Auth = (function () {
         
 
             TAG.AuthSubmit.click(function () {
+                
                 TAG.AuthError.hide();
                 TAG.AuthCircle.show();
                 TAG.AuthSubmit.hide();
@@ -42072,7 +42076,9 @@ TAG.Auth = (function () {
             
             //Enter can be pressed to submit the password form...
             TAG.AuthInput.keypress(function(e){
+
                 if (e.which===13){
+                    debugger;
                     TAG.AuthError.hide();
                     TAG.AuthCircle.show();
                     TAG.AuthSubmit.hide();
@@ -42841,12 +42847,8 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
      */
     function openDialog() {
         TAG.Auth.authenticate(enterAuthoringMode);
-        loginDialog.on('keydown', function(evt) {
-            if(evt.which === 13) {
-                alert('pressed');
-            }
-        })
-        return;
+        
+        //return;
     }
 
     /**Loads authoring mode Settings View
@@ -43400,9 +43402,11 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
          * @param {Object} media       the associated media object (from AnnotatedImage)
          */
         function mediaClicked(media) {
+            var toggleFunction = toggleLocationPanel;
             return function (evt) {
                 evt.stopPropagation();
-                locHistoryActive && toggleLocationPanel();
+                locHistoryActive = true;
+                toggleFunction();
                 media.create(); // returns if already created
                 media.toggle();
                 TAG.Util.IdleTimer.restartTimer();
@@ -43854,6 +43858,7 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
          * @method toggleLocationPanel
         */
         function toggleLocationPanel() {
+            
             if (locationList.length === 0) {
                 return;
             }
@@ -45861,12 +45866,12 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         getRoot: getRoot,
     },
 
-    settingsViewKeyHandler = {
-        13: enterKeyHandlerSettingsView,
-        46: deleteKeyHandlerSettingsView,
-        40: downKeyHandlerSettingsView,
-        38: upKeyHandlerSettingsView,
-    },
+    //settingsViewKeyHandler = {
+    //    13: enterKeyHandlerSettingsView,
+    //    46: deleteKeyHandlerSettingsView,
+    //    40: downKeyHandlerSettingsView,
+    //    38: upKeyHandlerSettingsView,
+    //},
     
         prevSelectedSetting,
         prevSelectedMiddleLabel,
@@ -45906,8 +45911,8 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         inFeedbackView = false;
 
         //window.addEventListener('keydown', keyHandler),
-        TAG.Util.UI.initKeyHandler();
-        TAG.Util.UI.getStack()[0] = settingsViewKeyHandler;
+        //TAG.Util.UI.initKeyHandler();
+        //TAG.Util.UI.getStack()[0] = settingsViewKeyHandler;
     loadHelper();
     if (callback) {
         callback(that);
@@ -45918,6 +45923,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
      */
     function enterKeyHandlerSettingsView() {
         if ($("input, textarea").is(":focus")) {
+            debugger;
             return;
         } else {
             if (inCollectionsView) { manageCollection(currentList[currentIndex]);  }

@@ -522,9 +522,11 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
          * @param {Object} media       the associated media object (from AnnotatedImage)
          */
         function mediaClicked(media) {
+            var toggleFunction = toggleLocationPanel;
             return function (evt) {
                 evt.stopPropagation();
-                locHistoryActive && toggleLocationPanel();
+                locHistoryActive = true;
+                toggleFunction();
                 media.create(); // returns if already created
                 media.toggle();
                 TAG.Util.IdleTimer.restartTimer();
@@ -976,6 +978,7 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
          * @method toggleLocationPanel
         */
         function toggleLocationPanel() {
+            
             if (locationList.length === 0) {
                 return;
             }

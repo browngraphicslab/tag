@@ -1066,6 +1066,10 @@
   top: 0%;
   width: 100%;
   z-index: 49;
+  scrollbar-base-color: #fff;
+  scrollbar-track-color: #000;
+  scrollbar-arrow-color: #fff;
+  scrollbar-base-height: 10px;
 }
 #newCatalogRoot #catalogDivContainer {
   height: 42.5%;

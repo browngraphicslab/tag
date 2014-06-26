@@ -46,6 +46,7 @@ TAG.Util = (function () {
         videoErrorHandler: videoErrorHandler,
         getHtmlAjax: getHtmlAjax,
         localVisibility: localVisibility
+
     };
 
     /* 
@@ -1521,15 +1522,16 @@ TAG.Util.UI = (function () {
         createTrack: createTrack,
         getStack: getStack,
         initKeyHandler: initKeyHandler,
+
         
     };
 
-    initKeyHandler();
+    //initKeyHandler();
 
     function initKeyHandler() {
         window.addEventListener('keydown', function (event) {
-            //event.preventDefault();
-            //event.stopPropagation();
+            event.preventDefault();
+            event.stopPropagation();
             if(globalKeyHandler && globalKeyHandler[0] && globalKeyHandler[0][event.which]) {
                 globalKeyHandler[0][event.which]();
                 
@@ -2477,6 +2479,7 @@ TAG.Util.UI = (function () {
      */
     // towards left
     function slidePageLeft(newpage, callback) {
+        debugger;
         var outgoingDone = false;
         var incomingDone = false;
         var tagContainer = $('#tagRoot');

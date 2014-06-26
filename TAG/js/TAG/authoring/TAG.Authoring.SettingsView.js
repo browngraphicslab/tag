@@ -82,12 +82,12 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         getRoot: getRoot,
     },
 
-    settingsViewKeyHandler = {
-        13: enterKeyHandlerSettingsView,
-        46: deleteKeyHandlerSettingsView,
-        40: downKeyHandlerSettingsView,
-        38: upKeyHandlerSettingsView,
-    },
+    //settingsViewKeyHandler = {
+    //    13: enterKeyHandlerSettingsView,
+    //    46: deleteKeyHandlerSettingsView,
+    //    40: downKeyHandlerSettingsView,
+    //    38: upKeyHandlerSettingsView,
+    //},
     
         prevSelectedSetting,
         prevSelectedMiddleLabel,
@@ -127,8 +127,8 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         inFeedbackView = false;
 
         //window.addEventListener('keydown', keyHandler),
-        TAG.Util.UI.initKeyHandler();
-        TAG.Util.UI.getStack()[0] = settingsViewKeyHandler;
+        //TAG.Util.UI.initKeyHandler();
+        //TAG.Util.UI.getStack()[0] = settingsViewKeyHandler;
     loadHelper();
     if (callback) {
         callback(that);
@@ -139,6 +139,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
      */
     function enterKeyHandlerSettingsView() {
         if ($("input, textarea").is(":focus")) {
+            debugger;
             return;
         } else {
             if (inCollectionsView) { manageCollection(currentList[currentIndex]);  }
