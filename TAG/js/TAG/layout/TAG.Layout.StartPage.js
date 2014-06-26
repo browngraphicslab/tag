@@ -552,12 +552,8 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
      */
     function openDialog() {
         TAG.Auth.authenticate(enterAuthoringMode);
-        loginDialog.on('keydown', function(evt) {
-            if(evt.which === 13) {
-                alert('pressed');
-            }
-        })
-        return;
+        
+        //return;
     }
 
     /**Loads authoring mode Settings View

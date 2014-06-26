@@ -25,7 +25,7 @@ TAG.Auth = (function () {
 
     
 
-    function submitOnClick() {   // store the authoring mode password submit button's on click function
+    /*function submitOnClick() {   // store the authoring mode password submit button's on click function
                 TAG.AuthError.hide();
                 TAG.AuthCircle.show();
                 TAG.AuthSubmit.hide();
@@ -49,7 +49,7 @@ TAG.Auth = (function () {
                     TAG.AuthSubmit.show();
                     TAG.AuthCancel.show();
                 });
-            } 
+            } */
 
 
     function getToken() {
@@ -126,11 +126,11 @@ TAG.Auth = (function () {
         successFunction = onSuccess;
         //TAG.Util.UI.getStack()[0] = { 13: submitOnClick, }
 
-        passwordDialogBox.on('keydown', function (evt) {
-            if(evt.which === 13) {
-                submitOnClick();
-            }
-        });
+        //passwordDialogBox.on('keydown', function (evt) {
+         //   if(evt.which === 13) {
+        //        submitOnClick();
+        //    }
+        //});
         if (TAG.AuthToken) {
             TAG.Worktop.Database.checkToken(TAG.AuthToken, onSuccess, showForm, showForm);
         } else { 
@@ -157,6 +157,7 @@ TAG.Auth = (function () {
         
 
             TAG.AuthSubmit.click(function () {
+                
                 TAG.AuthError.hide();
                 TAG.AuthCircle.show();
                 TAG.AuthSubmit.hide();
@@ -184,7 +185,9 @@ TAG.Auth = (function () {
             
             //Enter can be pressed to submit the password form...
             TAG.AuthInput.keypress(function(e){
+
                 if (e.which===13){
+                    debugger;
                     TAG.AuthError.hide();
                     TAG.AuthCircle.show();
                     TAG.AuthSubmit.hide();
