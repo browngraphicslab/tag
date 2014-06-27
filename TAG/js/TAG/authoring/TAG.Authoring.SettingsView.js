@@ -82,12 +82,12 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         getRoot: getRoot,
     },
 
-    //settingsViewKeyHandler = {
-    //    13: enterKeyHandlerSettingsView,
-    //    46: deleteKeyHandlerSettingsView,
-    //    40: downKeyHandlerSettingsView,
-    //    38: upKeyHandlerSettingsView,
-    //},
+    settingsViewKeyHandler = {
+        13: enterKeyHandlerSettingsView,
+        46: deleteKeyHandlerSettingsView,
+        40: downKeyHandlerSettingsView,
+        38: upKeyHandlerSettingsView,
+    },
     
         prevSelectedSetting,
         prevSelectedMiddleLabel,
@@ -127,8 +127,8 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         inFeedbackView = false;
 
         //window.addEventListener('keydown', keyHandler),
-        //TAG.Util.UI.initKeyHandler();
-        //TAG.Util.UI.getStack()[0] = settingsViewKeyHandler;
+        TAG.Util.UI.initKeyHandler();
+        TAG.Util.UI.getStack()[0] = settingsViewKeyHandler;
     loadHelper();
     if (callback) {
         callback(that);
@@ -138,10 +138,8 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
      * @ method enterKeyHandlerSettingsView
      */
     function enterKeyHandlerSettingsView() {
-        if ($("input, textarea").is(":focus")) {
-            debugger;
-            return;
-        } else {
+        if (!$("input, textarea").is(":focus")) {
+           
             if (inCollectionsView) { manageCollection(currentList[currentIndex]);  }
             if (inArtworkView) { editArtwork(currentList[currentIndex]);  }
             if (inAssociatedView) { assocToArtworks(currentList[currentIndex]); }
@@ -154,9 +152,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
      * @ method deleteKeyHandlerSettingsView
      */
     function deleteKeyHandlerSettingsView() {
-        if ($("input, textarea").is(":focus")) {
-            return;
-        } else {
+        if (!$("input, textarea").is(":focus")) {
             deleteType(toDelete);
         }
     }
@@ -165,10 +161,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
      * @ method upKeyHandlerSettingsView
      */
     function upKeyHandlerSettingsView() {
-        if ($("input, textarea").is(":focus")) {
-            return;
-        } else {
-            debugger;
+        if (!$("input, textarea").is(":focus")) {
             if (prevSelectedMiddleLabel && prevSelectedMiddleLabel === currentSelected) {
                 if (currentSelected.prev()) {
                     if (currentIndex > 0) {
@@ -177,29 +170,35 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                         currentSelected = currentSelected.prev();
                         prevSelectedMiddleLabel = currentSelected;
                         currentIndex--;
+                        
 
-                        if (inCollectionsView) { loadExhibition(currentList[currentIndex]); }
-                        if (inArtworkView) { loadArtwork(currentList[currentIndex]); }
-                        if (inAssociatedView) { loadAssocMedia(currentList[currentIndex]); }
-                        if (inToursView) { loadTour(currentList[currentIndex]); }
-                        if (inFeedbackView) {loadFeedback(currentList[currentIndex]); }
+                        if (inCollectionsView) { 
+                            loadExhibition(currentList[currentIndex]); 
+                        }
+                        if (inArtworkView) { 
+                            loadArtwork(currentList[currentIndex]); 
+                        }
+                        if (inAssociatedView) { 
+                            loadAssocMedia(currentList[currentIndex]); 
+                        }
+                        if (inToursView) { 
+                            loadTour(currentList[currentIndex]); 
+                        }
+                        if (inFeedbackView) {
+                            loadFeedback(currentList[currentIndex]); 
+                        }
                     }
                 }
             }
         }
-        console.log("current label :  " + currentSelected.text());
-        console.log("prevSelectedMiddleLabel: " + prevSelectedMiddleLabel.text());
-        console.log('\n');
     }
 
     /**Handles the down arrow key press on the SettingsViewPage
      * @method downKeyHandlerSettingsView
      */
     function downKeyHandlerSettingsView() {
-        if ($("input, textarea").is(":focus")) {
-            return;
-        } else {
-            debugger;
+        
+        if (!$("input, textarea").is(":focus")) {
             if (prevSelectedMiddleLabel && prevSelectedMiddleLabel === currentSelected) {
                 if (currentSelected.next()) {
                     if(currentIndex < (currentList.length - 1)) {
@@ -208,93 +207,27 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                         currentSelected = currentSelected.next();
                         prevSelectedMiddleLabel = currentSelected;
                         currentIndex++;
-                                
-                        if (inCollectionsView) { loadExhibition(currentList[currentIndex]); }
-                        if (inArtworkView) { loadArtwork(currentList[currentIndex]); }
-                        if (inAssociatedView) { loadAssocMedia(currentList[currentIndex]); }
-                        if (inToursView) { loadTour(currentList[currentIndex]); }
-                        if (inFeedbackView) { loadFeedback(currentList[currentIndex]); }
+                        
+                        if (inCollectionsView) { 
+                            loadExhibition(currentList[currentIndex]); 
+                        }
+                        if (inArtworkView) { 
+                            loadArtwork(currentList[currentIndex]); 
+                        }
+                        if (inAssociatedView) { 
+                            loadAssocMedia(currentList[currentIndex]); }
+                        if (inToursView) { loadTour(currentList[currentIndex]); 
+                        }
+                        if (inFeedbackView) { 
+                            loadFeedback(currentList[currentIndex]); 
+                        }
                     }
                 }
             }
         }
-        console.log("current label :  " + currentSelected.text());
-        console.log("prevSelectedMiddleLabel: " + prevSelectedMiddleLabel.text());
-        console.log('\n');
     }
 
-
-    /**Key handler for key press events
-     * @method keyHandler
-     * @param {event} event     key press event
-     */
-    ///function keyHandler(event) {
-    //    if(globalKeyHandler && globalKeyHandler[event.which]) {
-    //        globalKeyHandler[event.which]();
-    //    }
-        /*event.cancelBubble = true;
-        event.stopPropagation();
-        switch(event.which || event.keyCode) {
-            case 46:    //Delete key
-                deleteType(toDelete);
-                break;
-           
-            case 13:    //Enter key
-                if ($("input, textarea").is(":focus")) {
-                    return;
-                } else {
-                    if (inCollectionsView) { manageCollection(currentList[currentIndex]); return; }
-                    else if (inArtworkView) { editArtwork(currentList[currentIndex]); return; }
-                    else if (inAssociatedView) { assocToArtworks(currentList[currentIndex]); return; }
-                    else if (inToursView) { editTour(currentList[currentIndex]); return; }
-                    else if (inFeedbackView) { deleteFeedback(currentList[currentIndex]); return; }
-                    else { return; }
-                }
-                break;
-            case 40:    //Down arrow key
-                
-                if (prevSelectedMiddleLabel && prevSelectedMiddleLabel === currentSelected) {
-                    if (currentSelected.next()) {
-                        if(currentIndex < (currentList.length - 1)) {
-                            resetLabels('.middleLabel');
-                            selectLabel(currentSelected.next());
-                            currentSelected = currentSelected.next();
-                            prevSelectedMiddleLabel = currentSelected;
-                            currentIndex++;
-                            
-                            if (inCollectionsView) { loadExhibition(currentList[currentIndex]); }
-                            if (inArtworkView) { loadArtwork(currentList[currentIndex]); }
-                            if (inAssociatedView) { loadTour(currentList[currentIndex]); }
-                            if (inToursView) { loadTour(currentList[currentIndex]); }
-                            if (inFeedbackView) { loadFeedback(currentList[currentIndex]); }
-                        }
-                    }
-                }
-                break;
-            case 38:    //Up arrow key
-                if (prevSelectedMiddleLabel && prevSelectedMiddleLabel === currentSelected) {
-                    if (currentSelected.prev()) {
-                        if (currentIndex > 0) {
-                            resetLabels('.middleLabel');
-                            selectLabel(currentSelected.prev());
-                            currentSelected = currentSelected.prev();
-                            prevSelectedMiddleLabel = currentSelected;
-                            currentIndex--;
-
-                            if (inCollectionsView) { loadExhibition(currentList[currentIndex]); }
-                            if (inArtworkView) { loadArtwork(currentList[currentIndex]); }
-                            if (inAssociatedView) { loadTour(currentList[currentIndex]); }
-                            if (inToursView) { loadTour(currentList[currentIndex]); }
-                            if (inFeedbackView) {loadFeedback(currentList[currentIndex]); }
-                        }
-                    }
-                }
-                break;
-            default:
-                return;
-        }*/
-        
-    //}
+   
 
     /**
      * Helper function to set up UI elements and switch to first view
@@ -328,6 +261,8 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                     TAG.Util.UI.slidePageRight(page);
                 });
             }
+            TAG.Util.UI.getStack()[0] = null;
+            
         });
 
         var topBarLabel = root.find('#setViewTopBarLabel');
@@ -472,8 +407,9 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             resetLabels('.navContainer');
             selectLabel(container);
             // Do the onclick function
-            if (onclick)
+            if (onclick) {
                 onclick();
+            }
             prevSelectedSetting = container;
         });
 
@@ -899,14 +835,22 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
 
         // Make an async call to get the list of exhibitions
         TAG.Worktop.Database.getExhibitions(function (result) {
-            if (cancel) return;
+            if (cancel) {
+                return;
+            } 
             sortAZ(result);
             currentList = result;
+            currentIndex = 0;
+            
             $.each(result, function (i, val) {
-                if (cancel) return;
+                if (cancel) { 
+                    return;
+                }
                 // Add each label as a separate function in the queue so they don't lock up the UI
                 middleQueue.add(function () {
-                    if (cancel) return;
+                    if (cancel) {
+                        return;
+                    }
                     if (prevSelectedSetting && prevSelectedSetting !== nav[NAV_TEXT.exhib.text]) {
                         return;
                     }
@@ -917,6 +861,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                         // Select the first one or the specified id
                         middleLoading.before(selectLabel(label = createMiddleLabel(val.Name, null, function () {
                             loadExhibition(val);
+                            currentIndex = i;
                         }, val.Identifier), true));
 
                         // Scroll to the selected label if the user hasn't already scrolled somewhere
@@ -931,7 +876,11 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                     } else {
                         middleLoading.before(label = createMiddleLabel(val.Name, null, function () {
                             loadExhibition(val);
+                            currentIndex = i;
+                            //console.log("exhibitionIndex: " + currentIndex);
                         }, val.Identifier));
+                        //prevSelectedMiddleLabel = label;
+                        //currentSelected = prevSelectedMiddleLabel;
                     }
                     // Hide the label if it doesn't match the current search criteria
                     if (!TAG.Util.searchString(val.Name, searchbar.val())) {
@@ -946,6 +895,34 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         });
         cancelLastSetting = function () { cancel = true; };
     }
+
+
+    /**Editing collections by adding/removing artworks
+     * @method manageCollection
+     * @param {doq} exhibition      the current collection to be edited
+     */
+     function manageCollection(exhibition) {
+        TAG.Util.UI.createAssociationPicker(root, "Add and Remove Artworks in this Collection",
+                { comp: exhibition, type: 'exhib' },
+                'exhib', [{
+                    name: 'All Artworks',
+                    getObjs: TAG.Worktop.Database.getArtworksAndTours,
+                }, {
+                    name: 'Artworks in this Collection',
+                    getObjs: TAG.Worktop.Database.getArtworksIn,
+                    args: [exhibition.Identifier]
+                }], {
+                    getObjs: TAG.Worktop.Database.getArtworksIn,
+                    args: [exhibition.Identifier]
+                }, function () {
+                    prepareNextView(true, "New", createExhibition);
+                    clearRight();
+                    prepareViewer(true);
+                    loadExhibitionsView(exhibition.Identifier);
+                });
+     }
+
+
 
     /**Set up the right side for a collection
      * @method loadExhibition
@@ -1224,6 +1201,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             if (cancel) return;
             sortAZ(result);
             currentList = result;
+            currentIndex = 0;
             $.each(result, function (i, val) {
                 if (cancel) return false;
                 // Add each label as a separate function to the queue so the UI doesn't lock up
@@ -1238,8 +1216,11 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                         // Select the first one
                         middleLoading.before(selectLabel(label = createMiddleLabel(val.Name, null, function () {
                             loadTour(val);
+                            currentIndex = i;
+
                         }, val.Identifier, false, function () {
                             editTour(val);
+                            
                         }), true));
 
                         // Scroll to the selected label if the user hasn't already scrolled somewhere
@@ -1251,17 +1232,19 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                         
                         prevSelectedMiddleLabel = label;
                         currentSelected = prevSelectedMiddleLabel;
-
-                        //console.log("labell " + currentSelected.text());
                         loadTour(val);
                     } else {
 
                         middleLoading.before(label = createMiddleLabel(val.Name, null, function () {
                             loadTour(val);
+                            currentIndex = i;
+                            //console.log("tourIndex: " + currentIndex);
                         }, val.Identifier, false, function () {
                             editTour(val);
+                            
                         }));
-                        
+                        //prevSelectedMiddleLabel = label;
+                        //currentSelected = prevSelectedMiddleLabel;
                     }
                     // Hide if it doesn't match search criteria
                     if (!TAG.Util.searchString(val.Name, searchbar.val())) {
@@ -1455,7 +1438,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         middleQueue.clear();
         rightQueue.clear();
         setTimeout(function () {
-            debugger;
+            
             var toureditor = new TAG.Layout.TourAuthoringNew(tour, function () {
                 TAG.Util.UI.slidePageLeft(toureditor.getRoot());
             });
@@ -1572,6 +1555,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             if (cancel) return;
             sortAZ(result);
             currentList = result;
+            currentIndex = 0;
             console.log('media in hand');
             if (result[0] && result[0].Metadata) {
                 $.each(result, function (i, val) {
@@ -1603,6 +1587,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                             // Select the first one
                             middleLoading.before(selectLabel(label = createMiddleLabel(val.Name, imagesrc, function () {
                                 loadAssocMedia(val);
+                                currentIndex = i;
                             }, val.Identifier, false), true));
 
                             // Scroll to the selected label if the user hasn't already scrolled somewhere
@@ -1618,7 +1603,11 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                         } else {
                             middleLoading.before(label = createMiddleLabel(val.Name, imagesrc, function () {
                                 loadAssocMedia(val);
+                                currentIndex = i;
+                                //console.log("mediaIndex: " + currentIndex);
                             }, val.Identifier, false));
+                            //prevSelectedMiddleLabel = label;
+                            //currentSelected = prevSelectedMiddleLabel;
                         }
                         // Hide if it doesn't match search criteria
                         if (!TAG.Util.searchString(val.Name, searchbar.val())) {
@@ -2211,6 +2200,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             if (cancel) return;
             sortAZ(result);
             currentList = result;
+            currentIndex = 0;
             artworkList = result;
             if (result[0] && result[0].Metadata) {
                 $.each(result, function (i, val) {
@@ -2239,8 +2229,8 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                             ((id && val.Identifier === id) || (!id && i === 0))) {
                             // Select the first one
                             middleLoading.before(selectLabel(label = createMiddleLabel(val.Name, imagesrc, function () {
+                                currentIndex = i;
                                 loadArtwork(val);
-
                             }, val.Identifier, false, function () {
                                 editArtwork(val);
                             }, true, val.Extension), true));
@@ -2258,9 +2248,14 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                         } else {
                             middleLoading.before(label = createMiddleLabel(val.Name, imagesrc, function () {
                                 loadArtwork(val);
+                                currentIndex = i;
+                                //console.log("artworkIndex: " + currentIndex);
                             }, val.Identifier, false, function () {
                                 editArtwork(val);
+                                
                             }, true, val.Extension));
+                            //prevSelectedMiddleLabel = label;
+                            //currentSelected = prevSelectedMiddleLabel;
                         }
                         // Hide if it doesn't match search criteria
                         if (!TAG.Util.searchString(val.Name, searchbar.val())) {
@@ -2549,7 +2544,8 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         middleQueue.clear();
         rightQueue.clear();
         setTimeout(function () {
-            TAG.Util.UI.slidePageLeft(new TAG.Layout.ArtworkEditor(artwork).getRoot());
+            console.log("functions:   " + new TAG.Layout.ArtworkEditor(artwork) + " " + artwork /*+ " " + new TAG.Layout.ArtworkEditor(artwork).getRoot()*/);
+            TAG.Util.UI.slidePageLeft(new TAG.Layout.ArtworkEditor(artwork).this.getRoot());
         }, 1);
     }
 
@@ -2632,6 +2628,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             if (cancel) return;
             sortDate(result);
             currentList = result;
+            currentIndex = 0;
             $.each(result, function (i, val) {
                 if (cancel) return false;
                 // Add each label as a separate function to the queue so the UI doesn't lock up
@@ -2647,6 +2644,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                         // Select the first one
                         middleLoading.before(selectLabel(label = createMiddleLabel(text, null, function () {
                             loadFeedback(val);
+                            currentIndex = i;
                         }, val.Identifier, true)));
 
                         // Scroll to the selected label if the user hasn't already scrolled somewhere
@@ -2662,7 +2660,11 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                     } else {
                         middleLoading.before(label = createMiddleLabel(text, null, function () {
                             loadFeedback(val);
+                            currentIndex = i;
+                            //console.log("feedbackIndex: " + currentIndex);
                         }, val.Identifier, true));
+                        //prevSelectedMiddleLabel = label;
+                        //currentSelected = prevSelectedMiddleLabel;
                     }
                     // Hide if it doesn't match search criteria
                     if (!TAG.Util.searchString(text, searchbar.val())) {
@@ -2816,34 +2818,31 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         }
 
         container.mousedown(function () {
-
             container.css({
                 'background': HIGHLIGHT
             });
         });
         container.mouseup(function () {
-           
-            container.css({
-                
+           container.css({
                 'background': 'transparent'
             });
         });
         container.mouseleave(function () {
-            
             container.css({
-                
                 'background': 'transparent'
             });
         });
         container.click(function () {
-            if (prevSelectedMiddleLabel == container)
-                 {return;}
+            if (prevSelectedMiddleLabel == container) {
+                return;
+            }
             resetLabels('.middleLabel');
             selectLabel(container, !noexpand);
-            if (onclick)
+            if (onclick) {
                 onclick();
+            }
             prevSelectedMiddleLabel = container;
-            currentSelected = prevSelectedMiddleLabel;
+            currentSelected = container;
         });
         if (onDoubleClick) {
             container.dblclick(onDoubleClick);
@@ -3025,22 +3024,28 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
      * @param {Object} selector     class of labels to reset
      */
     function resetLabels(selector) {
+        
         $(selector).css('background', 'transparent');
         $.each($(selector), function (i, current) {
-
-            if ($(current).attr('disabled') === 'disabled')
+            
+            if ($(current).attr('disabled') === 'disabled') {
                 return;
+            }
+            
             $(current).mousedown(function () {
+                
                 $(current).css({
                     'background': HIGHLIGHT
                 });
             });
             $(current).mouseup(function () {
+                
                 $(current).css({
                     'background': 'transparent'
                 });
             });
             $(current).mouseleave(function () {
+                
                 $(current).css({
                     'background': 'transparent'
                 });
@@ -3051,13 +3056,14 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
     /**Select a label by unbinding mouse events and highlighting
      * @method selectLabel
      * @param {Object} label    label to select
-     * @param {Boolean} expand  if label expands when selected   
+     * @param {Boolean} expand  if label expands when selected 
+     * @param {Integer} index   index of the selected label in it's relvant list.  
      * @return {Object} label   selected label   
      */
     function selectLabel(label, expand) {
         label.css('background', HIGHLIGHT);
         label.unbind('mousedown').unbind('mouseleave').unbind('mouseup');
-
+        
         if (expand) {
             label.css('height', '');
             label.children('div').css('white-space', '');

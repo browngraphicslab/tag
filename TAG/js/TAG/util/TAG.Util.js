@@ -1522,20 +1522,17 @@ TAG.Util.UI = (function () {
         createTrack: createTrack,
         getStack: getStack,
         initKeyHandler: initKeyHandler,
-
-        
     };
 
     //initKeyHandler();
 
     function initKeyHandler() {
         window.addEventListener('keydown', function (event) {
-            event.preventDefault();
-            event.stopPropagation();
+            //event.preventDefault();
+            //event.stopPropagation();
             if(globalKeyHandler && globalKeyHandler[0] && globalKeyHandler[0][event.which]) {
                 globalKeyHandler[0][event.which]();
-                
-               // console.log("current stack; " + globalKeyHandler[0][event.which]);
+                // console.log("current stack; " + globalKeyHandler[0][event.which]);
             }
         });
     }
@@ -1672,7 +1669,7 @@ TAG.Util.UI = (function () {
         var old_ip = localStorage.ip;
         var tagContainer = $('#tagRoot');
         serverDialogOverlay.attr('id', 'serverDialogOverlay');
-        // debugger;
+        
         serverDialogOverlay.css({
             display: 'block',
             position: 'absolute',
@@ -2099,7 +2096,6 @@ TAG.Util.UI = (function () {
     // generate a popup message with specified text and button
     function popUpMessage(clickAction, message, buttonText, noFade, useHTML, onDialogClick) {
         var overlay = blockInteractionOverlay();
-        debugger;
         var confirmBox = document.createElement('div');
         var confirmBoxSpecs = TAG.Util.constrainAndPosition($(window).width(), $(window).height(),
            {
@@ -2195,8 +2191,9 @@ TAG.Util.UI = (function () {
         buttonText = (!buttonText || buttonText === "") ? "OK" : buttonText;
         $(confirmButton).text(buttonText);
         confirmButton.onclick = function () {
-            if (clickAction)
+            if (clickAction) {
                 clickAction();
+            }
             removeAll();
         };
 
@@ -2207,7 +2204,6 @@ TAG.Util.UI = (function () {
             removeAll();
             
         }
-
 
         globalKeyHandler[0] = { 13: onEnter, };
 
@@ -2236,8 +2232,7 @@ TAG.Util.UI = (function () {
         var overlay = blockInteractionOverlay();
         container = container || window;
         var confirmBox = document.createElement('div');
-        //debugger;
-        var popUpHandler = {
+        convar popUpHandler = {
             13: doOnEnter,
         }
         var currKeyHandler = globalKeyHandler[0];
@@ -2479,7 +2474,7 @@ TAG.Util.UI = (function () {
      */
     // towards left
     function slidePageLeft(newpage, callback) {
-        debugger;
+        
         var outgoingDone = false;
         var incomingDone = false;
         var tagContainer = $('#tagRoot');
@@ -2826,9 +2821,8 @@ TAG.Util.UI = (function () {
             origComps = [], // components that are already associated with target
             tabCache = [], // cached results from the server
             loadQueue = TAG.Util.createQueue(),
+
             currentKeyHandler = globalKeyHandler[0];
-
-
             globalKeyHandler[0] = { 13: onEnter ,};
 
         for (i = 0; i < tabs.length; i++) {
@@ -3071,6 +3065,9 @@ TAG.Util.UI = (function () {
             globalKeyHandler[0] = currentKeyHandler;
         });
 
+        /**Saves changes for pressing enter key
+         * @method onEnter
+         */
         function onEnter() {
             progressCirc = TAG.Util.showProgressCircle(optionButtonDiv, progressCSS);
             finalizeAssociations();
@@ -3092,7 +3089,10 @@ TAG.Util.UI = (function () {
         });
         cancelButton.text('Cancel');
         cancelButton.on('click', function () {
-            pickerOverlay.fadeOut(function () { pickerOverlay.empty(); pickerOverlay.remove(); }); //Josh L -- fix so the div actually fades out
+            pickerOverlay.fadeOut(function () { 
+                pickerOverlay.empty(); 
+                pickerOverlay.remove(); 
+            }); //Josh L -- fix so the div actually fades out
             globalKeyHandler[0] = currentKeyHandler;
         });
 
