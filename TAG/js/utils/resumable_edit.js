@@ -41,6 +41,7 @@
       fileParameterName:'file',
       throttleProgressCallbacks:0.5,
       query:{},
+      fileTypes: '*',
       headers:{},
       preprocess:null,
       method:'octet', //originally used to be 'multipart'
@@ -729,6 +730,10 @@
         } else {
           input = document.createElement('input');
           input.setAttribute('type', 'file');
+          var customQuery = $.getOpt('fileTypes'); 
+          if(typeof customQuery == 'function') customQuery = customQuery($.fileObj, $);
+          input.setAttribute('accept', customQuery);
+
           input.style.display = 'none';
           domNode.addEventListener('click', function(){
             input.style.opacity = 0;

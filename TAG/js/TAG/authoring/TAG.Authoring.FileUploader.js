@@ -32,6 +32,7 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
     var maxFileSize = 50 * 1024 * 1024;
     var maxDeepZoomFileSize = 250 * 1024 * 1024;
     var localURLs = [];
+    var resumableUploader;
 
 
 
@@ -70,9 +71,24 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
 
     (function uploadFile() {
         //Actual uploader object
-        var resumableUploader = new Resumable({
+        resumableUploader = new Resumable({
             target: TAG.Worktop.Database.getSecureURL(),        //Check that this works
             maxFiles: 10000,
+            fileTypes: function(resumableFile) {
+                switch(type) {
+                    case TAG.Authoring.FileUploadTypes.VideoArtwork:
+                        return 'video/mp4';
+                    break;
+                    case TAG.Authoring.FileUploadTypes.AssociatedMedia: 
+                        return 'video/mp4, audio/mp3, image/jpeg';
+                    break;
+                    case TAG.Authoring.FileUploadTypes.DeepZoom:
+                        return 'video/mp4, image/jpeg';
+                    break;
+                    default: 
+                        return '*'; 
+                }
+            },
             query: function(resumableFile) {                    //Does it need to execute? New resumable objects for each?
 
                 //Changing Type parameters in the query
@@ -83,7 +99,7 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
                             ReturnDoq: true,
                             Token: TAG.Auth.getToken(),
                             Extension: resumableFile.file.type.substr(1),
-                            AnotherType: resumableUpload
+                            AnotherType: resumableUpload,
                         }
                     break;
                     case TAG.Authoring.FileUploadTypes.AssociatedMedia:
