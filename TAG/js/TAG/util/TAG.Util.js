@@ -2232,7 +2232,7 @@ TAG.Util.UI = (function () {
         var overlay = blockInteractionOverlay();
         container = container || window;
         var confirmBox = document.createElement('div');
-        convar popUpHandler = {
+        var popUpHandler = {
             13: doOnEnter,
         }
         var currKeyHandler = globalKeyHandler[0];
