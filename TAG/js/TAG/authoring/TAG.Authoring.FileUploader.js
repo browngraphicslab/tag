@@ -31,7 +31,7 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
     var removeVals;
     var maxFileSize = 50 * 1024 * 1024;
     var maxDeepZoomFileSize = 250 * 1024 * 1024;
-    var localURLs = ;
+    var localURLs = [];
 
 
 
@@ -263,7 +263,9 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
         }
     }
 
-    
+    /**
+     * Local callback
+     */
     function addLocalCallback(files, localUrls, uriStrings) {
         return function () {
             localCallback(files, localUrls, uriStrings);
@@ -284,7 +286,7 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
         uploadingOverlay.remove();
     }
 
-    
+
     function finishedUpload() {
         removeOverlay();
         finishedCallback(dataReaderLoads);
