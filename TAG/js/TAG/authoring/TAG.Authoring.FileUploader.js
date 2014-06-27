@@ -28,7 +28,7 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
     var longFiles = [];
     var shortFiles = [];
     var fileUploadError;
-    var removeVals;
+    var removeVals = [];
     var maxFileSize = 50 * 1024 * 1024;
     var maxDeepZoomFileSize = 250 * 1024 * 1024;
     var localURLs = [];
@@ -104,17 +104,24 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
                     case TAG.Authoring.FileUploadTypes.DeepZoom:
                         if(resumableFile.file.type.match(/video/)) {
                             return {
-                            Type: 'FileUploadVideoArtwork',
-                            ReturnDoq: true,
-                            Token: TAG.Auth.getToken(),
-                            Extension: resumableFile.file.type.substr(1)
+                                Type: 'FileUploadVideoArtwork',
+                                ReturnDoq: true,
+                                Token: TAG.Auth.getToken(),
+                                Extension: resumableFile.file.type.substr(1)
+                            }
+                        } else if(resumableFile.file.type.match(/audio/)) {
+                            return {
+                                Type: 'FileUploadAudioArtwork',
+                                ReturnDoq: true,
+                                Token: TAG.Auth.getToken(),
+                                Extension: resumableFile.file.type.substr(1)
                             }
                         } else {
                             return {
-                            Type: 'FileUploadDeepzoom',
-                            ReturnDoq: true,
-                            Token: TAG.Auth.getToken(),
-                            Extension: resumableFile.file.type.substr(1)
+                                Type: 'FileUploadDeepzoom',
+                                ReturnDoq: true,
+                                Token: TAG.Auth.getToken(),
+                                Extension: resumableFile.file.type.substr(1)
                             }
                         }                       
                     break;
@@ -213,7 +220,7 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
 
     //Check the duration of media files
     function checkDuration(resumableFile, good) {
-        if (resumableFile.file.type === '.mp4') {
+        if (resumableFile.file.type.match(/video/)) {
             // Get video properties. Any better way of doing this?
             var videoElement = $(document.createElement('video'));
             videoElement.attr('preload', 'metadata');   //Instead of waiting for whole video to load, just load metadata
@@ -236,7 +243,7 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
             });
 
             
-        } else if (resumableFile.file.type === '.mp3') {
+        } else if (resumableFile.file.type.match(/audio/)) {
             // Get audio properties. Again, better way of doing this?
             var audioElement = $(document.createElement('audio'));
             audioElement.attr('preload', 'metadata');   //Instead of waiting for whole video to load, just load metadata
