@@ -111,7 +111,7 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
                             }
                         } else {
                             return {
-                            Type: 'FileUploadDeepZoom',
+                            Type: 'FileUploadDeepzoom',
                             ReturnDoq: true,
                             Token: TAG.Auth.getToken(),
                             Extension: resumableFile.file.type.substr(1)
