@@ -2514,7 +2514,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                     videoElement.attr('src', videoURL);
                     videoElement.on('loadedmetadata', function() {
                         var dur = this.duration;
-                        durations.push(duration);
+                        durations.push(dur);
                         updateDoq(j);
                     });
                 } else {
