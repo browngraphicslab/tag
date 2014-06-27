@@ -104,24 +104,17 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
                     case TAG.Authoring.FileUploadTypes.DeepZoom:
                         if(resumableFile.file.type.match(/video/)) {
                             return {
-                                Type: 'FileUploadVideoArtwork',
-                                ReturnDoq: true,
-                                Token: TAG.Auth.getToken(),
-                                Extension: resumableFile.file.type.substr(1)
-                            }
-                        } else if(resumableFile.file.type.match(/audio/)) {
-                            return {
-                                Type: 'FileUploadAudioArtwork',
-                                ReturnDoq: true,
-                                Token: TAG.Auth.getToken(),
-                                Extension: resumableFile.file.type.substr(1)
+                            Type: 'FileUploadVideoArtwork',
+                            ReturnDoq: true,
+                            Token: TAG.Auth.getToken(),
+                            Extension: resumableFile.file.type.substr(1)
                             }
                         } else {
                             return {
-                                Type: 'FileUploadDeepzoom',
-                                ReturnDoq: true,
-                                Token: TAG.Auth.getToken(),
-                                Extension: resumableFile.file.type.substr(1)
+                            Type: 'FileUploadDeepzoom',
+                            ReturnDoq: true,
+                            Token: TAG.Auth.getToken(),
+                            Extension: resumableFile.file.type.substr(1)
                             }
                         }                       
                     break;
