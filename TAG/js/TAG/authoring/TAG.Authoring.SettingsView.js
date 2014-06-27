@@ -2508,11 +2508,14 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
 
             function durationHelper(j) {
                 if (contentTypes[j] === 'Video') {
-                    files[j].properties.getVideoPropertiesAsync().done(function (VideoProperties) {
-                        durations.push(VideoProperties.duration / 1000); // duration in seconds
+                    var videoElement = $(document.createElement('video'));
+                    videoElement.attr('preload', 'metadata');   //Instead of waiting for whole video to load, just load metadata
+                    var videoURL = URL.createObjectURL(files[j]);
+                    videoElement.attr('src', videoURL);
+                    videoElement.on('loadedmetadata', function() {
+                        var dur = this.duration;
+                        durations.push(duration);
                         updateDoq(j);
-                    }, function (err) {
-                        console.log(err);
                     });
                 } else {
                     durations.push(null);
