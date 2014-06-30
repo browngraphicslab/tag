@@ -84,6 +84,7 @@ var TAG_embed = function(tagInput) {
 	frame.style.height = height + 'px';
 	frame.style.position = 'relative';
 	frame.style.border = '0px';
+	frame.style.overflow = 'hidden';
 	frameInnerContainer.appendChild(frame);
     
     // write out html of iframe document

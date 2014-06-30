@@ -28,10 +28,6 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         tagContainer;
 
         
-
-        
-        //TAG.Util.UI.initKeyHandler();
-
     TAG.Telemetry.register(overlay, 'click', 'start_to_collections');
 
     if (localStorage.ip && localStorage.ip.indexOf(':') !== -1) {
@@ -481,7 +477,10 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
     * @method applyCustomization
     */
     function applyCustomization() {
-        $(primaryFont).css({ 'color': PRIMARY_FONT_COLOR });
+        $(primaryFont).css({ 
+            'color': PRIMARY_FONT_COLOR,
+            'font-family': 'Pacifico'
+        });
     }
 
     /**
@@ -543,6 +542,7 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         $(primaryFont).css({ 
             'color': '#' + primaryFontColor,
             'font-family': main.Metadata["FontFamily"]
+            
          });
 
     }
@@ -552,12 +552,8 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
      */
     function openDialog() {
         TAG.Auth.authenticate(enterAuthoringMode);
-        loginDialog.on('keydown', function(evt) {
-            if(evt.which === 13) {
-                alert('pressed');
-            }
-        })
-        return;
+        
+        //return;
     }
 
     /**Loads authoring mode Settings View
