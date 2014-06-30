@@ -84,6 +84,10 @@ module.exports = function(grunt) {
 					'TAG/js/TAG/layout/TAG.Layout.MetroSplitscreenMessage.js',
 					'TAG/js/TAG/layout/TAG.Layout.TourPlayer.js',
 					'TAG/js/TAG/layout/TAG.Layout.VideoPlayer.js',
+					'TAG/js/TAG/layout/TAG.Layout.ArtworkEditor.js',
+					'TAG/js/TAG/layout/TAG.Layout.TourAuthoringNew.js',
+					
+
 
 					'TAG/js/TAG/authoring/TAG.Authoring.SettingsView.js',
 					'TAG/js/TAG/authoring/TAG.Authoring.ButtonGroup.js',

@@ -2543,8 +2543,8 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         middleQueue.clear();
         rightQueue.clear();
         setTimeout(function () {
-            console.log("functions:   " + new TAG.Layout.ArtworkEditor(artwork) + " " + artwork /*+ " " + new TAG.Layout.ArtworkEditor(artwork).getRoot()*/);
-            TAG.Util.UI.slidePageLeft(new TAG.Layout.ArtworkEditor(artwork).this.getRoot());
+            //console.log("functions:   " + new TAG.Layout.ArtworkEditor(artwork) + " " + artwork /*+ " " + new TAG.Layout.ArtworkEditor(artwork).getRoot()*/);
+            TAG.Util.UI.slidePageLeft((TAG.Layout.ArtworkEditor(artwork)).getRoot());
         }, 1);
     }
 
