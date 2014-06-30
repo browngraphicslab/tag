@@ -625,7 +625,7 @@ TAG.Util = (function () {
         return currSize;
     }
 
-    //Shouldn't be public anymore, this is primarially used by makeManipulatable
+    //Shouldn't be public anymore, this is primarily used by makeManipulatable
     function getGestureRecognizer() {
         var gr = new Windows.UI.Input.GestureRecognizer();
         gr.gestureSettings = Windows.UI.Input.GestureSettings.manipulationRotate |

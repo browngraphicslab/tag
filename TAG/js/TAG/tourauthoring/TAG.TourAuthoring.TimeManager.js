@@ -14,9 +14,10 @@ TAG.TourAuthoring.TimeManager = function (spec, my) {
 
     var that = {};
 
-    //////////
-    // PRIVATE
-    // DOM elements
+    //////////////////
+    //   PRIVATE    //
+    // DOM elements //
+    //////////////////
     spec = spec || {};
     var player = null, // Holds interval during playback
         // Initial time settings

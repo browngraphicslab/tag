@@ -11,7 +11,7 @@ TAG.Util.makeNamespace("TAG.AnnotatedImage");
 
 TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shouldNotLoadHotspots) {
     "use strict";
-
+    
 
     var // input options
         root     = options.root,           // root of the artwork viewing page
@@ -23,6 +23,7 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
         FIX_PATH = TAG.Worktop.Database.fixPath,   // prepend server address to given path
 
         // misc initialized variables
+
         artworkName     = doq.Name,        // artwork's title
         associatedMedia = { guids: [] },   // object of associated media objects for this artwork, keyed by media GUID;
                                            //   also contains an array of GUIDs for cleaner iteration
@@ -261,7 +262,8 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
     /**
      * Retrieves associated media from server and stores them in the
      * associatedMedia array.
-     * @method {Function} callback    function to call after loading associated media
+     * @method loadAssociatedMedia
+     * @param {Function} callback    function to call after loading associated media
      */
     function loadAssociatedMedia(callback) {
         var done = 0,
@@ -1024,7 +1026,8 @@ TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shou
             toggle:              toggleMediaObject,
             createMediaElements: createMediaElements,
             isVisible:           isVisible,
-            mediaManipPreprocessing: mediaManipPreprocessing
+            mediaManipPreprocessing: mediaManipPreprocessing,
+            loadAssociatedMedia: loadAssociatedMedia
         };
     }
 };
