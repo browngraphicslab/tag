@@ -1492,9 +1492,11 @@
   padding-right: 2%;
 }
 #setViewRoot button {
+  border-style: solid;
   border-color: #000;
   color: #000;
   border-width: thin;
+  background: transparent;
 }
 #setViewNewButton {
   float: right;
