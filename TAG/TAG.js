@@ -32761,7 +32761,7 @@ TAG.Util.UI = (function () {
         var overlay = blockInteractionOverlay();
         container = container || window;
         var confirmBox = document.createElement('div');
-        convar popUpHandler = {
+        var popUpHandler = {
             13: doOnEnter,
         }
         var currKeyHandler = globalKeyHandler[0];
@@ -42317,10 +42317,6 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         tagContainer;
 
         
-
-        
-        //TAG.Util.UI.initKeyHandler();
-
     TAG.Telemetry.register(overlay, 'click', 'start_to_collections');
 
     if (localStorage.ip && localStorage.ip.indexOf(':') !== -1) {
@@ -42770,7 +42766,10 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
     * @method applyCustomization
     */
     function applyCustomization() {
-        $(primaryFont).css({ 'color': PRIMARY_FONT_COLOR });
+        $(primaryFont).css({ 
+            'color': PRIMARY_FONT_COLOR,
+            'font-family': 'Pacifico'
+        });
     }
 
     /**
@@ -42832,6 +42831,7 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
         $(primaryFont).css({ 
             'color': '#' + primaryFontColor,
             'font-family': main.Metadata["FontFamily"]
+            
          });
 
     }
@@ -44156,7 +44156,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         });
         
         $(primaryFont).css({
-            'color': PRIMARY_FONT_COLOR,
+            'color': TAG.Worktop.Database.getPrimaryFontColor(),
             'font-family': FONT_FAMILY
         });
         $(secondaryFont).css({
@@ -44730,9 +44730,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             if (!onSearch && searchInput.val() !== '') {
                 tileImage.css({ 'opacity': '0.3' });
                 main.css('border', '1px solid black');
+                artTitle.css("color", TAG.Util.UI.dimColor('#' + SECONDARY_FONT_COLOR));
             } else if (onSearch) {
                 tileImage.css({ 'opacity': '1.0'});
                 main.css('border', '1px solid rgba(255, 255, 255, 0.5)');
+                artTitle.css("color", SECONDARY_FONT_COLOR);
+                console.log(SECONDARY_FONT_COLOR);
             }
             main.append(tileImage);
             main.append(artTitle);
@@ -45917,7 +45920,6 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
      */
     function enterKeyHandlerSettingsView() {
         if (!$("input, textarea").is(":focus")) {
-           
             if (inCollectionsView) { manageCollection(currentList[currentIndex]);  }
             if (inArtworkView) { editArtwork(currentList[currentIndex]);  }
             if (inAssociatedView) { assocToArtworks(currentList[currentIndex]); }
@@ -46292,7 +46294,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         var backgroundOpacityInput = createTextInput(backgroundOpacity, true);
         var primaryFontColorInput = createBGColorInput(primaryFontColor, null, '.primaryFont', function() { return 100; });
         var secondaryFontColorInput = createBGColorInput(secondaryFontColor, null, '.secondaryFont', function() { return 100; });
-        var fontFamilyInput = createSelectInput(['Arial', 'Georgia', 'Comic Sans MS']);
+        var fontFamilyInput = createSelectInput(['Arial', 'Calibri', 'Comic Sans MS', 'Courier New', 'Franklin Gothic', 'Lobster', 'Pacifico', 'Raavi', 'Segoe Print', 'Segoe UI Light', 'Source Sans Pro', 'Times New Roman', 'Trebuchet MS', 'Verdana']);
         
 
         // Handle changes

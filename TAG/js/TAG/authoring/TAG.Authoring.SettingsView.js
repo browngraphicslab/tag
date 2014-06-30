@@ -139,7 +139,6 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
      */
     function enterKeyHandlerSettingsView() {
         if (!$("input, textarea").is(":focus")) {
-           
             if (inCollectionsView) { manageCollection(currentList[currentIndex]);  }
             if (inArtworkView) { editArtwork(currentList[currentIndex]);  }
             if (inAssociatedView) { assocToArtworks(currentList[currentIndex]); }
@@ -514,7 +513,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         var backgroundOpacityInput = createTextInput(backgroundOpacity, true);
         var primaryFontColorInput = createBGColorInput(primaryFontColor, null, '.primaryFont', function() { return 100; });
         var secondaryFontColorInput = createBGColorInput(secondaryFontColor, null, '.secondaryFont', function() { return 100; });
-        var fontFamilyInput = createSelectInput(['Arial', 'Georgia', 'Comic Sans MS']);
+        var fontFamilyInput = createSelectInput(['Arial', 'Calibri', 'Comic Sans MS', 'Courier New', 'Franklin Gothic', 'Lobster', 'Pacifico', 'Raavi', 'Segoe Print', 'Segoe UI Light', 'Source Sans Pro', 'Times New Roman', 'Trebuchet MS', 'Verdana']);
         
 
         // Handle changes

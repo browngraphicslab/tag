@@ -158,7 +158,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         });
         
         $(primaryFont).css({
-            'color': PRIMARY_FONT_COLOR,
+            'color': TAG.Worktop.Database.getPrimaryFontColor(),
             'font-family': FONT_FAMILY
         });
         $(secondaryFont).css({
@@ -732,9 +732,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             if (!onSearch && searchInput.val() !== '') {
                 tileImage.css({ 'opacity': '0.3' });
                 main.css('border', '1px solid black');
+                artTitle.css("color", TAG.Util.UI.dimColor('#' + SECONDARY_FONT_COLOR));
             } else if (onSearch) {
                 tileImage.css({ 'opacity': '1.0'});
                 main.css('border', '1px solid rgba(255, 255, 255, 0.5)');
+                artTitle.css("color", SECONDARY_FONT_COLOR);
+                console.log(SECONDARY_FONT_COLOR);
             }
             main.append(tileImage);
             main.append(artTitle);
