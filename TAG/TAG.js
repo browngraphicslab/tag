@@ -43805,7 +43805,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         currentArtworks      = [],                               // array of artworks in current collection
         infoSource           = [],                               // array to hold sorting/searching information
         timelineEventCircles = [],                               // circles for timeline
-        timelineTicks          = [],                             // timeline ticks
+        timelineTicks        = [],                               // timeline ticks
         artworkShown         = false,                            // whether an artwork pop-up is currently displayed
 
         // constants
@@ -44362,50 +44362,46 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         prepTimelineArea(minDate, maxDate);
         prepTimelineCircles(avlTree, minDate, maxDate);
 
-    /**Helper function to prepare timeline area including 'ticks'
-     * @method prepTimelineArea
-     * @param  {Integer} minDate          minimum artwork date
-     * @param  {Integer} maxDate          maximum artwork date
-     * @param  {Integer} numTicks         optional specification for number of timeline ticks
-     * @return {Object}  timeline         div representing timeline ticks 
-     */
-    function prepTimelineArea(minDate, maxDate, numTicks){
-        var timeline = $(document.createElement('div')),
-            i,
-            //TO-DO: constrain so numTicks can never be greater than 101
-            numTicks = numTicks ? numTicks : 101,
-            tick;
+        /**Helper function to prepare timeline area including 'ticks'
+        * @method prepTimelineArea
+        * @param  {Integer} minDate          minimum artwork date
+        * @param  {Integer} maxDate          maximum artwork date
+        * @param  {Integer} numTicks         optional specification for number of timeline ticks
+        * @return {Object}  timeline         div representing timeline ticks 
+        */
+        function prepTimelineArea(minDate, maxDate, numTicks){
+            var timeline = $(document.createElement('div')),
+                i,
+                //TO-DO: constrain so numTicks can never be greater than 101
+                numTicks = numTicks ? numTicks : 101,
+                tick;
 
-        timelineArea.empty();
-        timeline.addClass('timeline');
-        timelineArea.append(timeline);
+            timelineArea.empty();
+            timeline.addClass('timeline');
+            timelineArea.append(timeline);
 
-        //Create ticks
-        for (i = 0; i < numTicks; i++) { 
-            tick = $(document.createElement('div'));
-            tick.addClass('timelineTick');
-            tick.css({
-                'left' : i/(numTicks-1)*100 + '%'
-            });
-            //Save ticks left position for zooming 
-            tick.leftPosition = tick.position().left;
-            timeline.append(tick);
-            timelineTicks.push(tick);
+            //Create ticks
+            for (i = 0; i < numTicks; i++) { 
+                tick = $(document.createElement('div'));
+                tick.addClass('timelineTick');
+                tick.css({
+                    'left' : i/(numTicks-1)*100 + '%'
+                });
+                //Save ticks left position for zooming 
+                tick.leftPosition = tick.position().left;
+                timeline.append(tick);
+                timelineTicks.push(tick);
+            };
+            return timeline;
         };
-        return timeline;
-    };
 
-       
-    };
-
-    
-    /**Helper function to prepare and append the timeline event circles
-     * @method prepTimelineCircles
-     * @param  {AVLTree} avlTree        avlTree for access to artworks in year order
-     * @param  {Number}  minDate        minimum date of artworks in collection
-     * @param  {Number}  maxDate        maximum date of artworks in collection
-     */
-    function prepTimelineCircles(avlTree, minDate, maxDate){
+        /**Helper function to prepare and append the timeline event circles
+        * @method prepTimelineCircles
+        * @param  {AVLTree} avlTree        avlTree for access to artworks in year order
+        * @param  {Number}  minDate        minimum date of artworks in collection
+        * @param  {Number}  maxDate        maximum date of artworks in collection
+        */
+        function prepTimelineCircles(avlTree, minDate, maxDate){
             var curr,
                 timeRange,
                 art,
@@ -44418,71 +44414,71 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 circleOverlap,
                 labelOverlap;
 
-        timeRange = maxDate - minDate;
+            timeRange = maxDate - minDate;
 
-        timelineCircleArea.addClass('timelineCircleArea');
-        timelineArea.append(timelineCircleArea);
+            timelineCircleArea.addClass('timelineCircleArea');
+            timelineArea.append(timelineCircleArea);
 
-        curr = avlTree.min();
-        art = curr.artwork;
+            curr = avlTree.min();
+            art = curr.artwork;
        
-        while (curr&& curr.yearKey!==Number.POSITIVE_INFINITY){
-            if (!isNaN(curr.yearKey)){
-                positionOnTimeline = parseInt(100*(curr.yearKey - minDate)/timeRange);
+            while (curr&& curr.yearKey!==Number.POSITIVE_INFINITY){
+                console.log(curr);
+                if (!isNaN(curr.yearKey)){
+                    positionOnTimeline = parseInt(100*(curr.yearKey - minDate)/timeRange);
 
-                //Create and append event circle
-                eventCircle = $(document.createElement('div'));
-                eventCircle.addClass('timelineEventCircle')
-                    .css('left', positionOnTimeline + '%')
-                    .on('click', (function(art) {
-                         return function() {
-                            if (artworkShown === true && currentArtwork === art) {
-                                zoomTimeline(null, minDate, maxDate);
-                                hideArtwork(art)();
-                                artworkShown = false;
-                            } else {
-                                //TO-DO: make panning happen at first too if it makes sense 
-                                //panTimeline(art.circle, minDate, maxDate);
-                                zoomTimeline(art.circle.yearKey, fullMinDisplayDate, fullMaxDisplayDate);
-                                showArtwork(art)();
-                                artworkShown  = true;
-                            } 
-                         }      
-                     })(art));
-                timelineCircleArea.append(eventCircle);
+                    //Create and append event circle
+                    eventCircle = $(document.createElement('div'));                
+                    eventCircle.addClass('timelineEventCircle')
+                                .css('left', positionOnTimeline + '%')
+                                .on('click', (function(art) {
+                                    return function() {
+                                    if (artworkShown === true && currentArtwork === art) {
+                                        zoomTimeline(null, minDate, maxDate);
+                                        hideArtwork(art)();
+                                        artworkShown = false;
+                                    } else {
+                                    //TO-DO: make panning happen at first too if it makes sense 
+                                    //panTimeline(art.circle, minDate, maxDate);
+                                    zoomTimeline(art.circle.yearKey, fullMinDisplayDate, fullMaxDisplayDate);
+                                    showArtwork(art)();
+                                    artworkShown  = true;
+                                } 
+                            }      
+                        })(art));
+                    timelineCircleArea.append(eventCircle);
 
-                //Shift circle left by half its width so appears centered on ticks
-                eventCircle.css('left', eventCircle.position().left - $(eventCircle).width()/2 + 'px');
-                //timelineCirclePositions.push(Math.round(eventCircle.position().left));
+                    //Shift circles left by half their width so they are centered on ticks
+                    eventCircle.css('left', eventCircle.position().left - $(eventCircle).width()/2 + 'px');
 
-                //Artworks before year 0 are automatically given the 'BCE' tag
-                if (curr.yearKey<0){
-                    yearText = curr.yearKey.toString().replace(/-/g,'') + ' ' + 'BCE';
-                } else{
-                    yearText = curr.yearKey.toString();
-                }
+                    //Artworks before year 0 are automatically given the 'BCE' tag
+                    if (curr.yearKey<0){
+                        yearText = curr.yearKey.toString().replace(/-/g,'') + ' ' + 'BCE';
+                    } else{
+                        yearText = curr.yearKey.toString();
+                    }
 
-                //Create and append timeline date labels
-                timelineDateLabel = $(document.createElement('div'))
-                    .text(yearText)
-                    .addClass('timelineDateLabel');
-                eventCircle.append(timelineDateLabel);
+                    //Create and append timeline date labels
+                    timelineDateLabel = $(document.createElement('div'))
+                            .text(yearText)
+                            .addClass('timelineDateLabel');
+                    eventCircle.append(timelineDateLabel);
 
-                //Information for zooming:
-                //TO-DO: make sure eventCircle isn't given any unneccessary pieces of info
-                eventCircle.leftPosition = eventCircle.position().left;
-                eventCircle.yearKey = curr.yearKey;
-                eventCircle.originalPosition = eventCircle.position().left;
-                eventCircle.timelineDateLabel = timelineDateLabel;
-                eventCircle.labelwidth = $(timelineDateLabel).width();
-                eventCircle.artwork = art;
+                    //Information for zooming:
+                    //TO-DO: make sure eventCircle isn't given any unneccessary pieces of info
+                    eventCircle.leftPosition = eventCircle.position().left;
+                    eventCircle.yearKey = curr.yearKey;
+                    eventCircle.originalPosition = eventCircle.position().left;
+                    eventCircle.timelineDateLabel = timelineDateLabel;
+                    eventCircle.labelwidth = $(timelineDateLabel).width();
+                    eventCircle.artwork = art;
                 
-                timelineEventCircles.push(eventCircle);
-                curr.artwork.circle = eventCircle;
+                    timelineEventCircles.push(eventCircle);
+                    curr.artwork.circle = eventCircle;
 
-                //Decide whether to display labels:
-                if (avlTree.findPrevious(curr)&&avlTree.findPrevious(curr).artwork.circle){
-                    prevNode = avlTree.findPrevious(curr);
+                    //Decide whether to display labels:
+                    if (avlTree.findPrevious(curr)&&avlTree.findPrevious(curr).artwork.circle){
+                        prevNode = avlTree.findPrevious(curr);
                     //Find the previous visible timeline label:
                     while (avlTree.findPrevious(prevNode) && $(prevNode.artwork.circle.timelineDateLabel).css('visibility')!=='visible'){
                         prevNode = avlTree.findPrevious(prevNode);
@@ -44503,6 +44499,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             if(curr) { art = curr.artwork; }
         }
     };
+    };
+
 
     /** Zooms timeline to center on particular yearKey
      * @methdd zoomTimeline
@@ -44785,6 +44783,27 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             artworkShown = false;
         };
     }
+
+    /**
+     * Close the pop-up outset box of an artwork preview in the collections page
+     * @method hideArtwork
+     * @param {doq} artwork        the artwork doq to be hidden
+     */
+    function hideArtwork(artwork) {
+        return function() {
+            var sub = $('#selectedArtworkContainer');
+            sub.css('display', 'none');
+            artwork.circle && artwork.circle.css({
+                'height'           : '20px',
+                'width'            : '20px',
+                'background-color' : 'rgba(255, 255, 255, .5)',
+                'border-radius'    : '10px',
+                'top'              : '-8px'
+            });
+            artworkShown = false;
+        };
+    }
+
 
     /**
      * Shows an artwork as an outset box and shows name, description, etc
