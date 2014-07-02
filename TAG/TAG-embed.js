@@ -117,12 +117,7 @@ var TAG_embed = function(tagInput) {
                     </style> \
                 </head> \
                 <body> \
-                	<style> \
-                	* { \
-                		overflow: hidden; \
-                	} \
-                	</style> \
-                    <div id="tagContainer" style="background:#222222;margin-left:16px; margin-top:9px; width:'+(width-32)+'px; height:'+(height-18)+'px;"> \
+                    <div id="tagContainer" style="background:#222222;margin-left:16px; margin-top:0px; width:'+(width-32)+'px; height:'+(height-18)+'px;"> \
                     </div> \
                 </body> \
                 </html>';
