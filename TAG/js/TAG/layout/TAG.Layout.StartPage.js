@@ -552,8 +552,10 @@ TAG.Layout.StartPage = function (options, startPageCallback) {
      */
     function openDialog() {
         TAG.Auth.authenticate(enterAuthoringMode);
-        
-        //return;
+
+        if(localStorage.ip === 'tagtestserver.cloudapp.net') {
+            $('#password').attr('value', 'Test1234');
+        }
     }
 
     /**Loads authoring mode Settings View
