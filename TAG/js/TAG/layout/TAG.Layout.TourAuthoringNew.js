@@ -166,6 +166,7 @@ TAG.Layout.TourAuthoringNew = function (tourobj, onLoadCallback) {
     */
     (function initBackend() {
         // Start by initializing all the parts
+
         timeManager = TAG.TourAuthoring.TimeManager();
         undoManager = TAG.TourAuthoring.UndoManager();
         viewer = TAG.TourAuthoring.Viewer({

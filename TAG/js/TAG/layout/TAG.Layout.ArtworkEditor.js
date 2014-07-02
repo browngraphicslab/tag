@@ -97,7 +97,12 @@ TAG.Layout.ArtworkEditor = function (artwork) {
 
         //creates deep zoom image
         if (artwork) {
-            zoomimage = new TAG.AnnotatedImage(root, artwork, false, function () {
+            console.log("artwork: " + artwork);
+            zoomimage = new TAG.AnnotatedImage({ 
+                root: root, 
+                doq: artwork, 
+                split: false, 
+                callback: function () {
                 if (!(zoomimage.openArtwork(artwork))) {
                     var popup = TAG.Util.UI.popUpMessage(function () {
                         TAG.Authoring.NewSettingsView("Artworks", function (settingsView) {
@@ -118,7 +123,8 @@ TAG.Layout.ArtworkEditor = function (artwork) {
                 createCustomFields();
                 root.append(topbar);
                 root.append(mainPanel);
-            }, true);
+            }, 
+            noMedia: true });
         } else {
             //var hotspots = zoomimage.getHotspots();
 
@@ -470,7 +476,7 @@ TAG.Layout.ArtworkEditor = function (artwork) {
     function createMediaList(container) {
         container = container || $('.assetContainer');
         container.empty();
-        zoomimage.loadHotspots();
+        zoomimage.getAssociatedMedia();
         TAG.Worktop.Database.getAssocMediaTo(artwork.Identifier, mediaSuccess, function () {
             // TODO
             console.log("error in createMediaList");
