@@ -40870,9 +40870,7 @@ TAG.Util.makeNamespace("TAG.AnnotatedImage");
 
 TAG.AnnotatedImage = function (options) { // rootElt, doq, split, callback, shouldNotLoadHotspots) {
     "use strict";
-    console.log("options: " +  options.root);
-    console.log("options: " + options.doq);
-    console.log("options: " + options.callback);
+    
 
     var // input options
         root     = options.root,           // root of the artwork viewing page
@@ -81028,7 +81026,8 @@ TAG.TESTS = (function () {
             TAG_GLOBAL({
                 path: tagPath,
                 containerId: containerId,
-                serverIp: ip
+                serverIp: ip,
+                allowServerChange: true
             });
         });
 
