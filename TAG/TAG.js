@@ -43818,6 +43818,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         FIX_PATH         = TAG.Worktop.Database.fixPath,           // prepend server address to given path
         MAX_YEAR         = (new Date()).getFullYear(),              // Maximum display year for the timeline is current year
         EVENT_CIRCLE_WIDTH = 20,                                   // pixel width of event circles
+        LEFT_SHIFT         = 9,                                    // pixel shift of timeline event circles to center on ticks 
 
         // misc uninitialized vars
         fullMinDisplayDate,             // minimum display date of full timeline
@@ -44460,7 +44461,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                     timelineCircleArea.append(eventCircle);
 
                     //Shift circles left by half their width so they are centered on ticks
-                    eventCircle.css('left', eventCircle.position().left - $(eventCircle).width()/2 + 'px');
+                    eventCircle.css('left', eventCircle.position().left - LEFT_SHIFT + 'px');
 
                     //Artworks before year 0 are automatically given the 'BCE' tag
                     if (curr.yearKey<0){
@@ -44608,14 +44609,16 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             if (yearKey===null){
                 finalTickPositions[k] = parseInt((k/100)*$(timeline).width());
             }
-            else if (k>=firstTickIndex && k<= firstTickIndex+timeRange){
+            else { //if (k>=firstTickIndex && k<= firstTickIndex+timeRange){
                 fractionOnTimeline = i/(numTicks-1);
                 positionOnTimeline = parseInt(fractionOnTimeline*$(timeline).width());
                 finalTickPositions[k] = positionOnTimeline;
                 i++;
-            }
-            else {
-                timelineTicks[k].css({'visibility': "hidden"});
+            //}
+            //else {
+            //if (k<firstTickIndex || k> firstTickIndex+timeRange+1){
+                //timelineTicks[k].css({'visibility': "hidden"});
+            //}
             }
         }
 
@@ -44636,7 +44639,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         //Add in extra ticks for scaling at small time ranges
         if (timeRange<5){
             for (k=0;k<timelineTicks.length; k++){
-                if (timelineTicks[k].css('visibility')!=='hidden'){
+                if (k>=firstTickIndex&&k<=firstTickIndex+timeRange){
                     scaleTick = $(document.createElement('div'));
                     scaleTick.addClass('timelineTick');
                     scaleTick.css({left: timelineTicks[k].leftPosition + $(timeline).width()/timeRange/2});
@@ -44661,7 +44664,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             } else{
                 fractionOnTimeline = (timelineEventCircles[k].yearKey - minDisplayDate)/timeRange;
                 positionOnTimeline = parseInt(fractionOnTimeline*$(timeline).width());
-                positionOnTimeline = positionOnTimeline - 10;
+                positionOnTimeline = positionOnTimeline - LEFT_SHIFT;
                 finalCirclePositions[k] = positionOnTimeline;
             } 
         }
@@ -44731,6 +44734,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                                             }      
                                         })(art));
         }
+
     }; 
 
     /* Pans timeline to specific yearKey while maintaining current zoom level
