@@ -256,7 +256,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             collectionArea.append(mainCollection);
 
             // Add previous and next collection titles
-            if (collection.nextCollectionIndex){
+            if (collection.nextCollectionIndex!==null){
                 nextTitle = TAG.Util.htmlEntityDecode(visibleCollections[collection.nextCollectionIndex].Name)
                 nextCollection.addClass('nextPrevCollection')
                               .attr({
@@ -268,10 +268,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                                 'right' : 0
                               })
                               .on('click', loadCollection(visibleCollections[collection.nextCollectionIndex], sPos, artwrk));
-
                 collectionArea.append(nextCollection);
             };
-            if (collection.prevCollectionIndex){
+            if (collection.prevCollectionIndex!==null){
                 prevTitle = TAG.Util.htmlEntityDecode(visibleCollections[collection.prevCollectionIndex].Name)
                 prevCollection.addClass('nextPrevCollection')
                               .attr({
