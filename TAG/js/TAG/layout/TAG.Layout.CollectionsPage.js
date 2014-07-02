@@ -145,6 +145,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             privateState,   // Is collection private?
             c,
             j,
+            lastCollectionIndex,
+            firstCollectionIndex,
             collectionDotHolder = $(document.createElement('div')),
             collectionDot;
 
@@ -161,10 +163,17 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         // Iterate through visible/not private/published collections, and set their prev and next values
         // Also create a scroll dot for each (under main collection title)
         collectionDotHolder.addClass('collectionDotHolder');
-        for(i = 0; i < visibleCollections.length; i++) { 
-            visibleCollections[i].prevCollection = visibleCollections[i - 1] ? visibleCollections[i - 1] : visibleCollections[visibleCollections.length - 1];
-            visibleCollections[i].nextCollection = visibleCollections[i + 1] ? visibleCollections[i + 1] : visibleCollections[0];
-
+        for(i = 0; i < visibleCollections.length; i++) {
+            if(visibleCollections.length<=2){ 
+                lastCollectionIndex = null;
+                firstCollectionIndex = null;
+            } else {
+                lastCollectionIndex = visibleCollections.length - 1;
+                firstCollectionIndex = 0;
+            }
+            visibleCollections[i].prevCollectionIndex = visibleCollections[i - 1] ? i - 1 : lastCollectionIndex;
+            visibleCollections[i].nextCollectionIndex = visibleCollections[i + 1] ? i + 1 : firstCollectionIndex;
+           
             collectionDot  = $(document.createElement('div'))
                         .addClass('collectionDot')
                         .on('click', loadCollection(visibleCollections[i]));
@@ -223,7 +232,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                bgimage.css('background-image', "url(" + FIX_PATH(collection.Metadata.BackgroundImage) + ")");
             }
 
-            // Make collection dot white and others gray
+            //Make collection dot white and others gray
             for(i = 0; i < visibleCollections.length; i++) { 
                 visibleCollections[i].dot.css('background-color','rgb(170,170,170)');
             };
@@ -244,33 +253,34 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             collectionArea.append(mainCollection);
 
             // Add previous and next collection titles
-            if (collection.nextCollection){
-                nextTitle = TAG.Util.htmlEntityDecode(collection.nextCollection.Name)
+            if (collection.nextCollectionIndex){
+                nextTitle = TAG.Util.htmlEntityDecode(visibleCollections[collection.nextCollectionIndex].Name)
                 nextCollection.addClass('nextPrevCollection')
                               .attr({
-                                'id': 'collection-' + collection.nextCollection.Identifier
+                                'id': 'collection-' + visibleCollections[collection.nextCollectionIndex].Identifier
                                })
                               .html(nextTitle)
                               .css({
                                 'width': (.95 * collectionArea.width() - mainCollection.width())/2,
                                 'right' : 0
                               })
-                              .on('click', loadCollection(collection.nextCollection, sPos, artwrk));
+                              .on('click', loadCollection(visibleCollections[collection.nextCollectionIndex], sPos, artwrk));
 
                 collectionArea.append(nextCollection);
             };
-            if (collection.prevCollection){
-                prevTitle = TAG.Util.htmlEntityDecode(collection.prevCollection.Name)
+            if (collection.prevCollectionIndex){
+                prevTitle = TAG.Util.htmlEntityDecode(visibleCollections[collection.prevCollectionIndex].Name)
                 prevCollection.addClass('nextPrevCollection')
                               .attr({
-                                'id': 'collection-' + collection.prevCollection.Identifier
+                                //'id': 'collection-' + collection.prevCollection.Identifier
+                                'id': 'collection-' + visibleCollections[collection.prevCollectionIndex].Identifier
                                })
                               .html(prevTitle)
                               .css({
                                 'width': (.95 * collectionArea.width() - mainCollection.width())/2,
                                 'left' : 0
                               })
-                              .on('click', loadCollection(collection.prevCollection, sPos, artwrk));
+                              .on('click', loadCollection(visibleCollections[collection.prevCollectionIndex], sPos, artwrk));
                 collectionArea.append(prevCollection);
             };
 
@@ -659,7 +669,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             art = curr.artwork;
        
             while (curr&& curr.yearKey!==Number.POSITIVE_INFINITY){
-                console.log(curr);
                 if (!isNaN(curr.yearKey)){
                     positionOnTimeline = parseInt(100*(curr.yearKey - minDate)/timeRange);
 
