@@ -44551,7 +44551,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             labelwidth,
             art;
 
-        if (yearKey){
+        if (yearKey!==null){
 
             initTimeRange = maxDisplayDate - minDisplayDate;
             //TO-DO: add condition for if initTimeRange is 0. 
@@ -44560,8 +44560,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             beforeDiff = Math.round(yearKey - minDisplayDate);
             afterDiff = Math.round(maxDisplayDate - yearKey);
             //Scale correctly if already zoomed in and clicking on first dot
-            //TO-DO: add buffer for first dot, see if that solves extreme-value issue in test collection
-            beforeDiff === 0 ? buffer = afterDiff: buffer = Math.min(beforeDiff, afterDiff);
+            beforeDiff === 0 ? buffer= Math.max(afterDiff,1) : buffer = Math.min(beforeDiff, afterDiff);
             //If zoomed in to last marker, add a 1 year buffer for clear display
             afterDiff === 0 ? buffer = 1 : buffer = Math.min(buffer, afterDiff);
             minDisplayDate = Math.round(yearKey- buffer);
@@ -44606,7 +44605,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         i=0;
         for (k=0; k<timelineTicks.length;k++){
             timelineTicks[k].css({'visibility': 'visible'});
-            if (!yearKey){
+            if (yearKey===null){
                 finalTickPositions[k] = parseInt((k/100)*$(timeline).width());
             }
             else if (k>=firstTickIndex && k<= firstTickIndex+timeRange){
@@ -44657,7 +44656,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         //Calculate final positions for timeline circles:
         for (k=0; k<timelineEventCircles.length; k++){
             //zooming back out:
-            if (!yearKey){
+            if (yearKey===null){
                 finalCirclePositions[k] = timelineEventCircles[k].originalPosition;
             } else{
                 fractionOnTimeline = (timelineEventCircles[k].yearKey - minDisplayDate)/timeRange;
