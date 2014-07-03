@@ -139,7 +139,6 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
      */
     function enterKeyHandlerSettingsView() {
         if ($("input, textarea").is(":focus")) {
-            debugger;
             return;
         } else {
             if (inCollectionsView) { manageCollection(currentList[currentIndex]);  }
@@ -168,7 +167,6 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         if ($("input, textarea").is(":focus")) {
             return;
         } else {
-            debugger;
             if (prevSelectedMiddleLabel && prevSelectedMiddleLabel === currentSelected) {
                 if (currentSelected.prev()) {
                     if (currentIndex > 0) {
@@ -199,7 +197,6 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         if ($("input, textarea").is(":focus")) {
             return;
         } else {
-            debugger;
             if (prevSelectedMiddleLabel && prevSelectedMiddleLabel === currentSelected) {
                 if (currentSelected.next()) {
                     if(currentIndex < (currentList.length - 1)) {
@@ -1964,18 +1961,24 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
 
             function durationHelper(j) {
                 if (contentTypes[j] === 'Video') {
-                    files[j].properties.getVideoPropertiesAsync().done(function (VideoProperties) {
-                        durations.push(VideoProperties.duration / 1000); // duration in seconds
+                    var videoElement = $(document.createElement('video'));
+                    videoElement.attr('preload', 'metadata');   //Instead of waiting for whole video to load, just load metadata
+                    var videoURL = URL.createObjectURL(files[j]);
+                    videoElement.attr('src', videoURL);
+                    videoElement.on('loadedmetadata', function() {
+                        var dur = this.duration;
+                        durations.push(dur);
                         updateDoq(j);
-                    }, function (err) {
-                        console.log(err);
                     });
                 } else if (contentTypes[j] === 'Audio') {
-                    files[j].properties.getMusicPropertiesAsync().done(function (MusicProperties) {
-                        durations.push(MusicProperties.duration / 1000); // duration in seconds
+                    var audioElement = $(document.createElement('audio'));
+                    audioElement.attr('preload', 'metadata');   //Instead of waiting for whole audio to load, just load metadata
+                    var audioURL = URL.createObjectURL(files[j]);
+                    audioElement.attr('src', audioURL);
+                    audioElement.on('loadedmetadata', function() {
+                        var dur = this.duration;
+                        durations.push(dur);
                         updateDoq(j);
-                    }, function (error) {
-                        console.log(error);
                     });
                 } else {
                     durations.push(null);
@@ -2487,15 +2490,22 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
      * @method createArtwork
      */
     function createArtwork() {
+        
         uploadFile(TAG.Authoring.FileUploadTypes.DeepZoom, function (urls, names, contentTypes, files) {
+            console.log("The size of urls is " + urls.length);
+            console.log("Creating artwork");
             var check, i, url, name, done=0, total=urls.length, durations=[];
             prepareNextView(false);
             clearRight();
             prepareViewer(true);
-
+            if(!total) {
+                loadArtView();
+            }
             function incrDone() {
+
                 done++;
-                if (done >= total) {
+                if (done >= total || !total) {
+                    middleLoading.hide();
                     loadArtView();
                 } else {
                     durationHelper(done);
@@ -2532,12 +2542,17 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                     console.log("error in uploading: " + error.message);
                     return;
                 }
+                console.log("DurationHelper:");
+                console.log("files[j].name: " + files[j].name);
+                console.log("names[j: " + names[j]);
+                console.log("urls[j]: " + urls[j]);
                 var ops = { Name: names[j] };
                 if (durations[j]) {
                     ops.Duration = durations[j];
                 }
                 TAG.Worktop.Database.changeArtwork(newDoq.Identifier, ops, incrDone, TAG.Util.multiFnHandler(authError, incrDone), TAG.Util.multiFnHandler(conflict(newDoq, "Update", incrDone)), error(incrDone));
             }
+
 
         }, true, ['.jpg', '.png', '.gif', '.tif', '.tiff', '.mp4']);
     }
@@ -3469,14 +3484,14 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
      * @param filter    
      */
     function uploadFile(type, callback, multiple, filter) {
-        var names = [], locals = [], contentTypes = [], fileArray, i;
+        var names = [], locals = [], contentTypes = [], fileArray = [], i, urlArray = [];
         TAG.Authoring.FileUploader( // remember, this is a multi-file upload
             root,
             type,
             // local callback - get filename
             function (files, localURLs) {
-                fileArray = files;
                 for (i = 0; i < files.length; i++) {
+                    fileArray.push(files[i]);
                     names.push(files[i].name);
                     if (files[i].type.match(/image/)) {
                         contentTypes.push('Image');
@@ -3494,7 +3509,13 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                     names = [names];
                 }
                 for (i = 0; i < urls.length; i++) {
-                    console.log("urls[" + i + "] = " + urls[i] + ", names[" + i + "] = " + names[i]);
+                    console.log("trying that new URL thing");
+                    urlArray.push(urls[i]);
+                    //console.log("urls[" + i + "] = " + urls[i] + ", names[" + i + "] = " + names[i]);
+                }
+
+                for (var i = 0; i < names.length; i++) {
+                    console.log("The files being passed through names: " + names[i]);
                 }
                 callback(urls, names, contentTypes, fileArray);
             },

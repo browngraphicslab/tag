@@ -33,13 +33,18 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
     var maxDeepZoomFileSize = 250 * 1024 * 1024;
     var localURLs = [];
     var resumableUploader;
+    var localURL;
+    var uriString;
+    var filesAdded = 0;
+    var filesCompleted = 0;
+    var successfulUploads = false;
 
 
 
     //Basic HTML initialization
     (function init() {
         var uploadOverlayText = $(document.createElement('label')),
-            progressIcon = $(document.createElement('img')),
+            //progressIcon = $(document.createElement('img')),
             progressBar = $(document.createElement('div'));
 
         // Progress / spinner wheel overlay to display while uploading
@@ -48,12 +53,12 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
 
         uploadOverlayText.css({ 'color': 'white', 'width': '10%', 'height': '5%', 'top': '38%', 'left': '40%', 'position': 'relative', 'font-size': '250%' });
         uploadOverlayText.text('Uploading file(s). Please wait.');
-
+        /*
         progressIcon.css({
-            'position': 'relative', 'top': '50%', 'left': '14%'
+          //  'position': 'relative', 'top': '50%', 'left': '14%'
         });
         progressIcon.attr('src', 'images/icons/progress-circle.gif');
-
+        */
         progressBar.css({
             'position': 'relative', 'top': '42%', 'left': '45%', 'border-style': 'solid', 'border-color': 'white', 'width': '10%', 'height': '2%'
         });
@@ -70,6 +75,7 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
     })();
 
     (function uploadFile() {
+        addOverlay();
         //Actual uploader object
         resumableUploader = new Resumable({
             target: TAG.Worktop.Database.getSecureURL(),        //Check that this works
@@ -147,19 +153,28 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
 
         resumableUploader.on('fileSuccess', function(resumableFile, message) {
             //Gets back the relative path of the uploaded file on the server
+            globalFiles.push(resumableFile.file);
             dataReaderLoads.push($.trim(message));
-            console.log("Message from the server: " + message);
-
+            console.log("fileSuccess! The file added was " + resumableFile.file.name);
+            addLocalCallback([resumableFile.file], [localURL], [uriString])();            
+            filesCompleted++;
+            successfulUploads = true;
             //TODO progress bar
             var bar = innerProgBar || innerProgressBar;
             var percentComplete = resumableUploader.progress();
-            bar.width(percentComplete * 100 + "%"); // * 90 or * 100?
+            bar.width(percentComplete * 90 + "%"); // * 90 or * 100?
         });
         resumableUploader.on('complete', function(file) {   //Entire upload operation is complete
+            console.log("COMPLETE");
             finishedUpload();
-        })
+        });
+
+
+
         resumableUploader.on('fileAdded', function(resumableFile){
             //Set maximum size for the file
+            addOverlay(root);
+            filesAdded++;
             var maxSize;
             globalFilesArray.push(resumableFile.file);
 
@@ -173,14 +188,12 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
                maxSize = maxDeepZoomFileSize;
                break;
             }
-
             size = resumableFile.size;
+
             if(size < maxSize) {
                 checkDuration(resumableFile, 
                 function(){         //good i.e. the duration is within limits
-                    var localURL;
-                    var uriString;
-                    globalFiles.push(resumableFile.file);
+                    
                     localURL = window.URL.createObjectURL(resumableFile.file);
                     localURLs.push(localURL);
                     var msg;
@@ -198,38 +211,57 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
                            uriString = TAG.Worktop.Database.getSecureURL() + "/?Type=FileUploadDeepzoom&ReturnDoq=true&token=" + TAG.Auth.getToken() + "&Extension=" + resumableFile.file.type.substr(1);
                            break;
                     }
+                    console.log("The file about to be uploaded is " + resumableFile.file.name);
                     globalUriStrings.push(uriString);
+                    resumableUploader.upload();
+                    
+                }, function() {     //long
+                    removeVals.push(resumableFile.file);
+                    resumableUploader.removeFile(resumableFile);
+                    longFiles.push(resumableFile.file);
+                    filesCompleted++;
+                    checkCompleted();
 
-                    if (typeof (msg = localCallback([resumableFile.file], [localURL], [uriString])) === 'string') {
-                            //TODO when does this ever return a string anyway? Is this necessary at all?
-                          fileUploadError = uploadErrorAlert(null, msg, null);
-                          console.log("There was an error from the localCallback: " + msg);
-                          $(fileUploadError).css('z-index', TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
-                          $('body').append(fileUploadError);
-                          $(fileUploadError).fadeIn(500);
-                      } else { 
-                            //start the upload here
-                            resumableUploader.upload();
-                   }                    
-
+                }, function() {     //short
+                    removeVals.push(resumableFile.file);
+                    shortFiles.push(resumableFile.file);
+                    resumableUploader.removeFile(resumableFile);
+                    filesCompleted++;
+                    checkCompleted();
                 });
             } else {    //Size > maxSize
                 resumableUploader.removeFile(resumableFile);    //Remove the file from the upload operation
-                console.log("The file was too large");
-                largeFiles += ("<br />" + resumableFile.name);
+                console.log("Too big!");
+                largeFiles += ("<br />" + resumableFile.file.name);
+                filesCompleted++;
+                checkCompleted();
+               
+                /*
                 fileUploadError = uploadErrorAlert(null, "The selected file(s) exceeded the 50MB file limit and could not be uploaded.", null);
                 $(fileUploadError).css('z-index', TAG.TourAuthoring.Constants.aboveRinZIndex + 1000);
                 $('body').append(fileUploadError);
                 $(fileUploadError).fadeIn(500);
+                */
             }
             //More error handlers required here?
         });
 
     })();
-
+    function checkCompleted() {
+        
+        if(filesCompleted === filesAdded && !successfulUploads) {
+            addLocalCallback([], [], [])();
+            finishedUpload();
+        }
+        
+        
+    }
     //Check the duration of media files
-    function checkDuration(resumableFile, good) {
+    function checkDuration(resumableFile, good, long, short) {
+
+        console.log("Passing through checkDuration for" + resumableFile.file.name);
         if (resumableFile.file.type.match(/video/)) {
+            console.log("checking the video properties for " + resumableFile.file.name);
             // Get video properties. Any better way of doing this?
             var videoElement = $(document.createElement('video'));
             videoElement.attr('preload', 'metadata');   //Instead of waiting for whole video to load, just load metadata
@@ -238,14 +270,12 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
             videoElement.on('loadedmetadata', function() {
                 var dur = this.duration;
                 if (dur > maxDuration) {
-                    removeVals.push(resumableFile.file);
-                    resumableUploader.removeFile(resumableFile);
-                    longFiles.push(resumableFile.file);
+                    console.log(resumableFile.file.name + " was too long");
+                    long();
                 } else if (dur < minDuration) {
-                    removeVals.push(resumableFile.file);
-                    shortFiles.push(resumableFile.file);
-                    resumableUploader.removeFile(resumableFile);
+                    short();
                 } else {
+                    console.log("The duration" + "for" + resumableFile.file + " is " + dur);
                     good();
                 }
                 
@@ -261,13 +291,9 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
             audioElement.on('loadedmetadata', function() {
                 var dur = this.duration;
                 if (dur > maxDuration) {
-                    removeVals.push(resumableFile.file);                    
-                    longFiles.push(resumableFile.file);
-                    resumableUploader.removeFile(resumableFile);
+                    long();
                 } else if (dur < minDuration) {
-                    removeVals.push(resumableFile.file);
-                    shortFiles.push(resumableFile.file);
-                    resumableUploader.removeFile(resumableFile);
+                    short();
                 } else {
                     good();
                 }
@@ -304,14 +330,16 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
 
 
     function finishedUpload() {
+        console.log("Called finishedUpload");
         removeOverlay();
+        addLocalCallback(globalFiles, localURLs, globalUriStrings)();
         finishedCallback(dataReaderLoads);
-        addLocalCallback(globalFiles, localURLs)();
+
         var msg = "", str, mins, secs;
         var longFilesExist = false;
         var i;
         if (largeFiles !== "") {
-            msg = "The following file(s) exceeded the 50MB file limit:" + largeFiles;
+            msg = "The following file(s) exceeded the 50MB file limit:" + largeFiles + "<br />";
         }
         if (longFiles.length) {
             longFilesExist = true;
