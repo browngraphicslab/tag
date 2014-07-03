@@ -41,6 +41,10 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
 
     backButton.on('click', goBack);
 
+    if(INPUT_TOUR_DATA) {
+        backButton.remove();
+    }
+
     function goBack () {
         console.log('player: '+player);
 

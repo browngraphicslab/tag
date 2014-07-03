@@ -3724,3 +3724,13 @@ if (!Math.constrain) {
         return Math.min(max, Math.max(min, num));
     };
 }
+
+/**
+ * Defining a to-two-decimal-places function in Math
+ * @method Math.twoDecPlaces
+ * @param {Number} x             the number to convert to two decimal places
+ * @return {Number}              x chopped at two decimal places
+ */
+Math.twoDecPlaces = function (x) {
+    return Math.floor(x * 100) / 100;
+};

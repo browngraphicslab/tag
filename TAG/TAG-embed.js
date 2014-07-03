@@ -14,6 +14,7 @@
  * @param {property} allowAuthoringMode	 if a button should be shown on splash screen to allow entering into authoring mode
  * @param {property} hiddenCollections   a list of collection IDs for published collections to be hidden
  * @param {property} idleDuration        the duration of TAG's idle timer
+ * @param {property} tourData            if you want to load directly to a tour, set this to that tour's JSON (stringified or not)
  * 
  */
 
@@ -34,6 +35,7 @@ var TAG_embed = function(tagInput) {
         width = tagInput.width,
         height = tagInput.height,
         idleDuration = tagInput.idleDuration || 0,
+        tourData = (typeof(tagInput.tourData) === 'string') ? tagInput.tourData : JSON.stringify(tagInput.tourData),
         container,
         frame,
         frameDoc,
@@ -105,7 +107,8 @@ var TAG_embed = function(tagInput) {
                                 serverIp:"'+ip+'", \
                                 allowServerChange:'+allowServerChange+', \
                                 allowAuthoringMode: '+allowAuthoringMode+', \
-                                idleDuration:'+idleDuration+' \
+                                idleDuration:'+idleDuration+', \
+                                tourData:'+tourData+' \
                             }); \
                         }; \
                     </script> \
