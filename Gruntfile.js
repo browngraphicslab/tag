@@ -11,7 +11,7 @@ module.exports = function(grunt) {
 					        \n 		  allowAuthoringMode = tagInput.allowAuthoringMode, \
 					        \n        idleDuration      = tagInput.idleDuration, \
 					        \n        currentPage       = {}, // name and obj properties \
-					        \n        INPUT_TOUR_DATA   = tagInput.tourData, // to load to a tour \
+					        \n        INPUT_TOUR_ID     = tagInput.tourId, // to load to a tour \
 					        \n        idleTimer; \n\n',
 				footer: '};'
 			},

@@ -170,20 +170,27 @@
         });
 
         // if the user specified the tourData API parameter, load into the corresponding tour
-        if(INPUT_TOUR_DATA) {
+        if(INPUT_TOUR_ID) {
             currentPage.name = TAG.Util.Constants.pages.START_PAGE;
             currentPage.obj  = null;
 
             TAG.Layout.StartPage(null, function (page) {
-                var rinPlayer = TAG.Layout.TourPlayer(INPUT_TOUR_DATA, null, {}, null, null);
+                TAG.Worktop.Database.getDoq(INPUT_TOUR_ID, function(tour) {
+                    var tourData = JSON.parse(unescape(tour.Metadata.Content)),
+                        rinPlayer = TAG.Layout.TourPlayer(tourData, null, {}, null, tour);
 
-                tagContainer.css('overflow', 'hidden');
+                    tagContainer.css('overflow', 'hidden');
 
-                tagContainer.append(rinPlayer.getRoot());
-                rinPlayer.startPlayback();
+                    tagContainer.append(rinPlayer.getRoot());
+                    rinPlayer.startPlayback();
 
-                currentPage.name = TAG.Util.Constants.pages.TOUR_PLAYER;
-                currentPage.obj  = rinPlayer;
+                    currentPage.name = TAG.Util.Constants.pages.TOUR_PLAYER;
+                    currentPage.obj  = rinPlayer;
+                }, function() {
+                    // TODO error handling
+                }, function() {
+                    // TODO cache error handling
+                });
             });
         } else { // otherwise, load to start page
             currentPage.name = TAG.Util.Constants.pages.START_PAGE;

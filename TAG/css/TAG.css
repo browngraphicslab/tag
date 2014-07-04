@@ -1280,6 +1280,30 @@
   height: 8%;
   z-index: 100000000;
 }
+#tourRoot #bigPlayButton {
+  cursor: pointer;
+  display: inline-block;
+  left: 40%;
+  opacity: 0.8;
+  position: absolute;
+  top: 35%;
+  width: 20%;
+}
+#tourRoot #bigThumbnail {
+  height: 100%;
+  left: 0%;
+  position: absolute;
+  top: 0%;
+  width: 100%;
+}
+#tourRoot #bigThumbnailContainer {
+  background-color: #222;
+  display: none;
+  height: 100%;
+  position: absolute;
+  top: 0%;
+  width: 100%;
+}
 #tourRoot #overlayOnRoot {
   background-color: #f00;
   height: auto;

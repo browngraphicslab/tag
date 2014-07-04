@@ -24,7 +24,10 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
         rinPlayer = root.find('#rinPlayer'),
         backButtonContainer = root.find('#backButtonContainer'),
         backButton = root.find('#backButton'),
-        overlayOnRoot = root.find('#overlayOnRoot');
+        overlayOnRoot = root.find('#overlayOnRoot'),
+        bigThumbnailContainer = root.find('#bigThumbnailContainer'),
+        bigThumbnail = root.find('#bigThumbnail'),
+        bigPlayButton = root.find('#bigPlayButton');
 
     // UNCOMMENT IF WE WANT IDLE TIMER IN TOUR PLAYER
     // idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
@@ -41,8 +44,32 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
 
     backButton.on('click', goBack);
 
-    if(INPUT_TOUR_DATA) {
-        backButton.remove();
+    if(INPUT_TOUR_ID) {
+        backButtonContainer.remove();
+        if(tourObj && tourObj.Metadata && tourObj.Metadata.Thumbnail) {
+            bigThumbnail.attr('src', TAG.Worktop.Database.fixPath(tourObj.Metadata.Thumbnail));
+            bigPlayButton.attr('src', tagPath + 'images/icons/Play.svg');
+            bigThumbnailContainer.css('display', 'block');
+
+            bigPlayButton.on('click', startTour);
+            bigThumbnail.on('click', startTour);
+        }
+    }
+
+    /**
+     * Simulate a click on the RIN play button. Used by tour embedding code.
+     * 
+     * bleveque: I wrote, but strongly dislike, this. I would prefer to
+     * call the click handler directly rather than fake a click event. The handler for 
+     * the play button is somewhere in the RIN code; instead of digging
+     * for it, calling it, and making sure that it also changes the button
+     * element, I decided to do this and wait for ITE to make everything better. 
+     *
+     * @method startTour
+     */
+    function startTour() {
+        bigThumbnailContainer.remove();
+        $('.rin_PlayPauseContainer').find('input').trigger('click');
     }
 
     function goBack () {
@@ -104,7 +131,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
         },
         startPlayback: function () { // need to call this to ensure the tour will play when you exit and re-enter a tour, since sliding functionality and audio playback don't cooperate
             rin.processAll(null, tagPath+'js/RIN/web').then(function () {
-                var options = 'systemRootUrl='+tagPath+'js/RIN/web/&autoplay=true&loop=false';
+                var options = 'systemRootUrl='+tagPath+'js/RIN/web/&autoplay='+(INPUT_TOUR_ID ? 'false' : 'true')+'&loop=false';
                 // create player
                 player = rin.createPlayerControl(rinPlayer[0], options);
                 for (var key in tour.resources) {
@@ -115,7 +142,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
                     }
                 }
                 player.loadData(tour, function () {});
-                if(!INPUT_TOUR_DATA) {
+                if(!INPUT_TOUR_ID) {
                     player.screenplayEnded.subscribe(function() { // at the end of a tour, go back to the collections view
                         setTimeout(goBack, 1000);
                     });

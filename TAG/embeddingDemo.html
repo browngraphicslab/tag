@@ -23,12 +23,28 @@
 				idleDuration: 120000,
 				allowServerChange: true,
 				allowAuthoringMode: true,
-				tourData: null // use tourData if you want to load directly to the Night Watch tour
+				tourId: null // use tourData if you want to load directly to the Night Watch tour
+			});
+
+			TAG_embed({
+				path: '',
+				containerId: 'tagContainer2',
+				serverIp: 'browntagserver.com',
+				width: '1000px',
+				height: '500px',
+				hiddenCollections: [
+					// 'e53b2104-7a2b-432e-81c8-31a14f00f9ce' // Getty Museum collection is hidden
+				],
+				idleDuration: 120000,
+				allowServerChange: true,
+				allowAuthoringMode: true,
+				tourId: "3a4e3a92-3048-48b8-88a2-b22b821766ff" // use tourData if you want to load directly to the Night Watch tour
 			});
 		}
 	</script>
 </head>
 <body style="height:2000px;width:1500px;">
 	<div id='tagContainer' style='margin-left:100px;margin-top:50px;'></div>
+	<div id='tagContainer2' style='margin-left:100px;margin-top:50px;'></div>
 </body>
 </html>
