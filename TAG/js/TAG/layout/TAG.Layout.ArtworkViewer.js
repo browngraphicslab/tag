@@ -522,11 +522,11 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
          * @param {Object} media       the associated media object (from AnnotatedImage)
          */
         function mediaClicked(media) {
-            var toggleFunction = toggleLocationPanel;
+            //var toggleFunction = toggleLocationPanel;
             return function (evt) {
                 evt.stopPropagation();
                 locHistoryActive = true;
-                toggleFunction();
+                toggleLocationPanel();
                 media.create(); // returns if already created
                 media.toggle();
                 TAG.Util.IdleTimer.restartTimer();
@@ -599,7 +599,7 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
         //Create minimapContainer...
         var minimapContainer = root.find('#minimapContainer');
 
-        //if the #info div exceeds the half tthe length of the sidebar, the div's max-height is set to its default with an auto scroll property.
+        //if the #info div exceeds the half the length of the sidebar, the div's max-height is set to its default with an auto scroll property.
         info.css({
             'overflow-y' : 'auto',
             'max-height' : sideBar.height()/2- (info.offset().top - sideBar.offset().top)+ 'px',

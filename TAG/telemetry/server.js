@@ -8,7 +8,7 @@
 	// node modules
 	var http  = require('http'),
 	    fs    = require('fs'),
-	    // mysql = require('db-mysql'),
+	    Connection = require('tedious').Connection,
 	    qs    = require('querystring');
 
 	// some constants
@@ -19,6 +19,7 @@
 	    READ_DATA = readTDataFromFile,
 	    LOG_FILE_PATH = 'telemetry_log.txt';
 
+	
 	// create server
 	http.createServer(function (request, response) {
 		switch(request.method.toLowerCase()) {
@@ -41,6 +42,45 @@
 	 * @param {Object} request      the http request sent to the server
 	 * @param {Object} response     a response object we'll write to and return
 	 */
+
+	 var config = {
+		userName: 'telemetry',
+		password: 'telemetrydb',
+		server : '127.0.0.1',
+
+		options: {}
+	};
+
+    var connection = new Connection(config);
+    connection.on("connect", function(err){
+        if (err){
+        	console.log(err);
+        }
+        else {
+        	executeStatement();
+        }
+    });
+
+    var Request = require('tedious').Request;
+
+    function executeStatement(){
+    	request = new Request("select 41, 'hello world'", function(err, rowCount){
+    		if (err){
+    			console.log(err);
+    		}
+    		else {
+    			console.log(rowCount + ' rows');
+    		}
+    	});
+
+    	request.on('row', function(columns){
+    		columns.forEach(function(column){
+    			console.log(column.value);
+
+    		});
+    	});
+    	connection.execSql(request);
+    }
 	function handlePost(request, response) {
 		var requestBody = '',
 			parsedBody,
