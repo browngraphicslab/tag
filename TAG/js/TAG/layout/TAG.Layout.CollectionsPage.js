@@ -257,7 +257,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             collectionArea.append(mainCollection);
 
             // Add previous and next collection titles
-            if (collection.nextCollectionIndex!==null){
+            if (collection.nextCollectionIndex||collection.nextCollectionIndex===0){
                 nextTitle = TAG.Util.htmlEntityDecode(visibleCollections[collection.nextCollectionIndex].Name)
                 nextCollection.addClass('nextPrevCollection')
                               .attr({
@@ -271,7 +271,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                               .on('click', loadCollection(visibleCollections[collection.nextCollectionIndex], sPos, artwrk));
                 collectionArea.append(nextCollection);
             };
-            if (collection.prevCollectionIndex!==null){
+            if (collection.prevCollectionIndex||collection.prevCollectionIndex===0){
                 prevTitle = TAG.Util.htmlEntityDecode(visibleCollections[collection.prevCollectionIndex].Name)
                 prevCollection.addClass('nextPrevCollection')
                               .attr({
@@ -788,7 +788,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             labelwidth,
             art;
 
-        if (yearKey!==null){
+        console.log(yearKey);
+        console.log(yearKey===0);
+
+        if (yearKey===0||yearKey){
+
+            console.log("here");
 
             initTimeRange = maxDisplayDate - minDisplayDate;
             //TO-DO: add condition for if initTimeRange is 0. 
