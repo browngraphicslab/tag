@@ -799,8 +799,14 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             afterDiff = Math.round(maxDisplayDate - yearKey);
             //Scale correctly if already zoomed in and clicking on first dot
             beforeDiff === 0 ? buffer= Math.max(afterDiff,1) : buffer = Math.min(beforeDiff, afterDiff);
+            //Don't allow minimum display date to be less than 1 year before full minimum display date
+            if (minDisplayDate-buffer<fullMinDisplayDate){
+                buffer = 1;
+            }
+            console.log("buffer: " + buffer);
             //If zoomed in to last marker, add a 1 year buffer for clear display
             afterDiff === 0 ? buffer = 1 : buffer = Math.min(buffer, afterDiff);
+            console.log("buffer: " + buffer);
             minDisplayDate = Math.round(yearKey- buffer);
             maxDisplayDate = Math.round(yearKey + buffer);
             timeRange = maxDisplayDate - minDisplayDate;
