@@ -219,7 +219,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 titleBox          = $(document.createElement('div')),
                 collectionDescription = $(document.createElement('div')),
                 str,
-                tileDivWidth,
                 text              = collection.Metadata.Description ? TAG.Util.htmlEntityDecode(collection.Metadata.Description) : "";
 
             // if the idle timer hasn't started already, start it
@@ -483,7 +482,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 });
             }
             tileDiv.css({'left': infoDiv.width()});
-            console.log("infoDiv.width()" + infoDiv.width());
             if (infoDiv.width()===0){
                 tileDiv.css({'margin-left':'2%'});
             } else{
@@ -759,6 +757,10 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                             timelineDateLabel.css('visibility', 'visible');
                     } else{
                         timelineDateLabel.css('visibility', 'hidden');
+                    }
+                    if (curr.yearKey === fullMaxDisplayDate){
+                        timelineDateLabel.css('visibility','visible');
+                        $(artworkCircles[prevNode.artwork.Identifier].timelineDateLabel).css('visibility','hidden');
                     } 
                 }
             }
@@ -819,9 +821,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             //Scale correctly if already zoomed in and clicking on first dot
             beforeDiff === 0 ? buffer= Math.max(afterDiff,1) : buffer = Math.min(beforeDiff, afterDiff);
             //Don't allow minimum display date to be less than 1 year before full minimum display date
-            if (minDisplayDate-buffer<fullMinDisplayDate){
-                buffer = 1;
-            }
+            //if (minDisplayDate-buffer<fullMinDisplayDate){
+                //buffer = 1;
+            //}
             //If zoomed in to last marker, add a 1 year buffer for clear display
             afterDiff === 0 ? buffer = 1 : buffer = Math.min(buffer, afterDiff);
             minDisplayDate = Math.round(yearKey- buffer);
@@ -968,7 +970,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                         timelineEventCircles[i].timelineDateLabel.css('visibility', 'visible');
                     } else{
                     timelineEventCircles[i].timelineDateLabel.css('visibility', 'hidden');
+                    if (timelineEventCircles[i].yearKey === fullMaxDisplayDate){
+                        timelineEventCircles[i].timelineDateLabel.css('visibility', 'visible');
+                        timelineEventCircles[j].timelineDateLabel.css('visibility', 'hidden');
                     }
+                    }
+                    
                 }
                 timelineEventCircles[i].append(timelineEventCircles[i].timelineDateLabel);
         }
