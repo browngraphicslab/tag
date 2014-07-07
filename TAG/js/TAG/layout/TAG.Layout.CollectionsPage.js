@@ -15,6 +15,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
     var // DOM-related
         root                     = TAG.Util.getHtmlAjax('NewCatalog.html'), // use AJAX to load html from .html file
         infoDiv                  = root.find('#infoDiv'),
+        tileDiv                  = root.find('#tileDiv'),
         collectionArea           = root.find('#collectionArea'),
         collectionHeader         = root.find('#collectionHeader'),
         bgimage                  = root.find('#bgimage'),
@@ -45,6 +46,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         infoSource           = [],                               // array to hold sorting/searching information
         timelineEventCircles = [],                               // circles for timeline
         timelineTicks        = [],                               // timeline ticks
+        tileDivHeight        = 0,                                // Height of tile div (before scroll bar added, should equal hieght of catalogDiv)
         artworkShown         = false,                            // whether an artwork pop-up is currently displayed
 
         // constants
@@ -217,6 +219,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 titleBox          = $(document.createElement('div')),
                 collectionDescription = $(document.createElement('div')),
                 str,
+                tileDivWidth,
                 text              = collection.Metadata.Description ? TAG.Util.htmlEntityDecode(collection.Metadata.Description) : "";
 
             // if the idle timer hasn't started already, start it
@@ -297,9 +300,13 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 'font-size': 0.2 * TAG.Util.getMaxFontSizeEM(str, 1.5, 0.55 * $(infoDiv).width(), 0.915 * $(infoDiv).height(), 0.1),
             });
             collectionDescription.html(Autolinker.link(str, {email: false, twitter: false}));
+            tileDiv.empty();
+            catalogDiv.append(tileDiv);
             infoDiv.empty();
             infoDiv.append(collectionDescription);
             catalogDiv.append(infoDiv);
+            
+
 
             //If there's no description, change UI so that artwork tiles take up entire bottom area
             collection.Metadata.Description ? infoDiv.css('width', '25%') : infoDiv.css('width', '0');
@@ -461,18 +468,28 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             timelineEventCircles = [];
             timelineTicks = [],
             initTimeline(artworks);
+            tileDiv.empty();
+            tileDivHeight = tileDiv.height();
 
             works = sortedArtworks.getContents();
             for (j = 0; j < works.length; j++) {
                 loadQueue.add(drawArtworkTile(works[j].artwork, tag, onSearch, i + j));
                 loadQueue.add(function () {
-                    if(catalogDiv.width() <= scrollPos) {
-                        catalogDiv.animate({
+                    if(tileDiv.width() <= scrollPos) {
+                        tileDiv.animate({
                             scrollLeft: scrollPos
                         }, 0);
                     }
                 });
             }
+            tileDiv.css({'left': infoDiv.width()});
+            console.log("infoDiv.width()" + infoDiv.width());
+            if (infoDiv.width()===0){
+                tileDiv.css({'margin-left':'2%'});
+            } else{
+                tileDiv.css({'margin-left':'0%'});
+            }
+            catalogDiv.append(tileDiv);
         }
     }
 
@@ -566,10 +583,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 main.append(videoLabel);
             }
 
-            // Align tile so that it follows the grid pattern we want
-            catalogDiv.append(main);
+            tileDiv.append(main);
+            //base height off original tileDivHeight (or else changes when scroll bar added on 6th tile)
+            main.css({'height': (0.42) * tileDivHeight});
+             // Align tile so that it follows the grid pattern we want
             main.css({
-                'left': Math.floor(i / 2) * (main.width() + 10) + infoDiv.width(), 
+                'left': Math.floor(i / 2) * (main.width() + 10), 
                 'top' : Math.floor(i % 2) * (main.height() + 10)
             });
         };
@@ -803,10 +822,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             if (minDisplayDate-buffer<fullMinDisplayDate){
                 buffer = 1;
             }
-            console.log("buffer: " + buffer);
             //If zoomed in to last marker, add a 1 year buffer for clear display
             afterDiff === 0 ? buffer = 1 : buffer = Math.min(buffer, afterDiff);
-            console.log("buffer: " + buffer);
             minDisplayDate = Math.round(yearKey- buffer);
             maxDisplayDate = Math.round(yearKey + buffer);
             timeRange = maxDisplayDate - minDisplayDate;
