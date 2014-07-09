@@ -44743,7 +44743,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 }
                 timelineEventCircles[i].append(timelineEventCircles[i].timelineDateLabel);
         }
-
+        
         //Re-add on-click functions (they don't seem to stick around) TO-DO: define this somewhere else or pass in (factor out)
         for (k=0; k<timelineEventCircles.length; k++){
             art = timelineEventCircles[k].artwork;
@@ -44828,27 +44828,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             artworkShown = false;
         };
     }
-
-    /**
-     * Close the pop-up outset box of an artwork preview in the collections page
-     * @method hideArtwork
-     * @param {doq} artwork        the artwork doq to be hidden
-     */
-    function hideArtwork(artwork) {
-        return function() {
-            var sub = $('#selectedArtworkContainer');
-            sub.css('display', 'none');
-            artworkCircles[artwork.Identifier] && artworkCircles[artwork.Identifier].css({
-                'height'           : '20px',
-                'width'            : '20px',
-                'background-color' : 'rgba(255, 255, 255, .5)',
-                'border-radius'    : '10px',
-                'top'              : '-8px'
-            });
-            artworkShown = false;
-        };
-    }
-
 
     /**
      * Shows an artwork as an outset box and shows name, description, etc
