@@ -135,7 +135,10 @@ module.exports = function(grunt) {
 		uglify: {
 			my_target: {
 				files: {
-					'TAG/TAG-min.js': ['TAG/TAG.js']
+					'TAG/TAG-min.js': [
+						'TAG/TAG-embed.js',
+						'TAG/TAG.js'
+						]
 				}
 			}
 		},

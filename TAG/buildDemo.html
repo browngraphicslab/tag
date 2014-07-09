@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>TAG Embedded Demo</title>
+	<script src='TAG-min.js'></script>
+	<script>
+		window.onload = load;
+
+		function load() {
+		    
+			TAG({
+				path: '',
+				containerId: 'tagContainer',
+				serverIp: 'browntagserver.com',
+				width: '1000px',
+				height: '500px',
+				hiddenCollections: [
+					'e53b2104-7a2b-432e-81c8-31a14f00f9ce' // Getty Museum collection is hidden
+				],
+				idleDuration: 120000,
+				allowServerChange: true,
+				allowAuthoringMode: true,
+				tourId: null
+			});
+		}
+	</script>
+</head>
+<body style="height:2000px;width:1500px;">
+	<div id='tagContainer' style='margin-left:100px;margin-top:50px;'></div>
+</body>
+</html>
