@@ -1,0 +1,75 @@
+#!/bin/sh
+
+echo ""
+printf "Cloning http://github.com/browngraphicslab/tag in 3..."
+sleep 1
+printf "\rCloning http://github.com/browngraphicslab/tag in 2..."
+sleep 1
+printf "\rCloning http://github.com/browngraphicslab/tag in 1..."
+sleep 1
+printf "\rCloning http://github.com/browngraphicslab/tag...            \n"
+echo ""
+
+DATE=$(date +%y%m%d%H%M%Y%S)
+CHECKOUT_DIR="TAG_CHECKOUT_"$DATE
+BUILD_DIR="TAG_BUILD_"$DATE
+git clone http://github.com/browngraphicslab/tag.git $CHECKOUT_DIR
+cd $CHECKOUT_DIR
+
+echo ""
+printf "Running npm install in 3..."
+sleep 1
+printf "\rRunning npm install in 2..."
+sleep 1
+printf "\rRunning npm install in 1..."
+sleep 1
+printf "\rRunning npm install...           \n"
+echo ""
+
+npm install
+
+echo ""
+printf "Running grunt and grunt uglify in 3..."
+sleep 1
+printf "\rRunning grunt and grunt uglify in 2..."
+sleep 1
+printf "\rRunning grunt and grunt uglify in 1..."
+sleep 1
+printf "\rRunning grunt and grunt uglify...           \n"
+echo ""
+
+grunt
+
+echo ""
+echo "NOTE: uglify can take a while..."
+echo ""
+
+grunt uglify
+
+echo ""
+printf "Fiddling with files in 3..."
+sleep 1
+printf "\rFiddling with files in 2..."
+sleep 1
+printf "\rFiddling with files in 1..."
+sleep 1
+printf "\rFiddling with files...           \n"
+echo ""
+
+cd ..
+mkdir $BUILD_DIR
+mv $CHECKOUT_DIR"/TAG" $BUILD_DIR
+rm -rf $CHECKOUT_DIR
+cd $BUILD_DIR
+mkdir css
+mkdir js
+mv TAG/css/TAG.css css
+mv TAG/js/RIN js
+mv TAG/js/tagInk.js js
+mv TAG/js/raphael.js js
+mv TAG/images .
+mv TAG/fonts .
+mv TAG/html .
+mv TAG/embeddingDemo.html .
+mv TAG/TAG-min.js .
+rm -rf TAG
