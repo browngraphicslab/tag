@@ -130,8 +130,7 @@
         var TAGSCRIPTS = [                                    // scripts to load
                 'js/raphael.js',
                 'js/tagInk.js',
-                'js/RIN/web/lib/rin-core-1.0.js',
-                'js/Autolinker.js-master/dist/Autolinker.js'
+                'js/RIN/web/lib/rin-core-1.0.js'
             ],
             i,                                                // index
             oHead,                                            // head element
