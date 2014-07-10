@@ -9,8 +9,8 @@ var tagInk = function (canvId, html_elt) {
     "use strict";
 
     // set up the Raphael paper/canvas
-    var that = {};
-    var canvid = canvId,
+    var that = {},
+        canvid = canvId,
         html_elt = (html_elt) ? html_elt : $("#" + canvid)[0],
         domelement = $(html_elt),
         textElt,
