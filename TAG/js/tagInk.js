@@ -1,5 +1,5 @@
 ﻿/**
- * Back-end for ink drawing. Instance created in InkES. In InkES, we need them to follow artworks.
+ * Back-end for ink drawing. Instance created in InkES.
  * Uses the RaphaelJS library for svg manipulation.
  * @param canvId        the id of the div to which we'll assign the Raphael canvas.
  * @param html_elt      in the case that the div above is not in the dom yet, send in a variable for its html element.
