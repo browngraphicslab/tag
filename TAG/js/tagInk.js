@@ -25,7 +25,7 @@ var tagInk = function (canvId, html_elt) {
     };
 
     // brush variables
-    var penColor = "#000000",
+    var penColor = "#000000", // a different comment here!
         penOpacity = 1.0,
         penWidth = 4,
         eraserWidth = 5,
