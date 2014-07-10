@@ -12,7 +12,8 @@ TAG.Layout.InternetFailure.lastOverlay = {};
  * Internet failure page, which appears when TAG detects a loss of internet.
  * @class TAG.Layout.InternetFailurePage.js
  * @constructor
- * @param errorType   
+ * @param errorType // finish documenting
+ * @param detach
  */
 TAG.Layout.InternetFailurePage = function (errorType, detach) {
     "use strict";
