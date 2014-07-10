@@ -16,6 +16,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
     var artworkPrev;
     var prevScroll = 0;
 	var prevExhib = exhibition;
+    var ispagetoload = pageToLoad && (pageToLoad.pagename === 'tour');
 
     var tagContainer = $('#tagRoot');
 
@@ -44,8 +45,13 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
 
     backButton.on('click', goBack);
 
-    if(INPUT_TOUR_ID) {
-        backButtonContainer.remove();
+    if(ispagetoload) {
+        pageToLoad.pagename = '';
+        if(pageToLoad.onlytour) {
+            backButtonContainer.remove();
+        } else {
+            backButtonContainer.css('display', 'none');
+        }
         if(tourObj && tourObj.Metadata && tourObj.Metadata.Thumbnail) {
             bigThumbnail.attr('src', TAG.Worktop.Database.fixPath(tourObj.Metadata.Thumbnail));
             bigPlayButton.attr('src', tagPath + 'images/icons/Play.svg');
@@ -70,6 +76,9 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
     function startTour() {
         bigThumbnailContainer.remove();
         $('.rin_PlayPauseContainer').find('input').trigger('click');
+        if(!pageToLoad.onlytour) {
+            backButtonContainer.css('display', 'block');
+        }
     }
 
     function goBack () {
@@ -131,7 +140,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
         },
         startPlayback: function () { // need to call this to ensure the tour will play when you exit and re-enter a tour, since sliding functionality and audio playback don't cooperate
             rin.processAll(null, tagPath+'js/RIN/web').then(function () {
-                var options = 'systemRootUrl='+tagPath+'js/RIN/web/&autoplay='+(INPUT_TOUR_ID ? 'false' : 'true')+'&loop=false';
+                var options = 'systemRootUrl='+tagPath+'js/RIN/web/&autoplay='+(ispagetoload ? 'false' : 'true')+'&loop=false';
                 // create player
                 player = rin.createPlayerControl(rinPlayer[0], options);
                 for (var key in tour.resources) {
@@ -142,7 +151,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
                     }
                 }
                 player.loadData(tour, function () {});
-                if(!INPUT_TOUR_ID) {
+                if(!ispagetoload) {
                     player.screenplayEnded.subscribe(function() { // at the end of a tour, go back to the collections view
                         setTimeout(goBack, 1000);
                     });

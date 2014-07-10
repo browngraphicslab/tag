@@ -14,7 +14,6 @@
  * @param {property} allowAuthoringMode	 if a button should be shown on splash screen to allow entering into authoring mode
  * @param {property} hiddenCollections   a list of collection IDs for published collections to be hidden
  * @param {property} idleDuration        the duration of TAG's idle timer
- * @param {property} tourId              if you want to load directly to a tour, set this to that tour's JSON (stringified or not)
  * @param {property} useTAGjs            specify this if you'd prefer to use TAG.js rather than TAG-min.js in the iframe doc
  * 
  */
@@ -36,15 +35,16 @@ var TAG = function(tagInput) {
         width = tagInput.width,
         height = tagInput.height,
         idleDuration = tagInput.idleDuration || 0,
-        tourId = tagInput.tourId,
         useTAGjs = tagInput.useTAGjs,
+ 		interpretURLParams = tagInput.interpretURLParams,
         container,
         frame,
         frameDoc,
         htmlStr,
         tempImage,
         frameContainer,
-        frameInnerContainer;
+        frameInnerContainer,
+   		pageToLoad = {};
     
     if (typeof tagPath !== 'string') {
         console.log('specify a string path to the directory containing TAG');
@@ -89,6 +89,57 @@ var TAG = function(tagInput) {
 	frame.style.position = 'relative';
 	frame.style.border = '0px';
 	frameInnerContainer.appendChild(frame);
+
+	if(interpretURLParams) {
+		pageToLoad = parseQueryParams();
+	}
+
+	/**
+	 * Parses page url for a specific TAG page to load
+	 * @method parseQueryParams
+	 * @return {Object}              the tag params found
+	 */
+	function parseQueryParams() {
+		var url     = window.location.href,       // url of host site
+			param,                                // param
+			ret     = {};                         // will return this
+
+		param = url.match(/tagpagename=[a-zA-Z]+/);
+
+		if(param && param.length > 0) {
+			ret.pagename = param[0].split(/=/)[1];
+			switch(ret.pagename) {
+				case 'collections':
+					param = url.match(/tagcollectionid=[a-f0-9\-]+/);
+					if(param && param.length > 0) {
+						ret.collectionid = param[0].split(/=/)[1];
+						param = url.match(/tagartworkid=[a-f0-9\-]+/);
+						if(param && param.length > 0) {
+							ret.artworkid = param[0].split(/=/)[1];
+						}
+						return ret;
+					}
+					break;
+				case 'artwork':
+				case 'video':
+					param = url.match(/tagguid=[a-f0-9\-]+/);
+					if(param && param.length > 0) {
+						ret.guid = param[0].split(/=/)[1];
+						return ret;
+					}
+					break;
+				case 'tour':
+					param = url.match(/tagguid=[a-f0-9\-]+/);
+					if(param && param.length > 0) {
+						ret.guid = param[0].split(/=/)[1];
+						ret.onlytour = url.match(/tagonlytour=true/) ? true : false;
+						return ret;
+					}
+					break;
+			}
+		}
+		return null;
+	}
     
     // write out html of iframe document
     // ideally, we could just put demo.html as the src of the iframe, but
@@ -110,7 +161,7 @@ var TAG = function(tagInput) {
                                 allowServerChange:'+allowServerChange+', \
                                 allowAuthoringMode: '+allowAuthoringMode+', \
                                 idleDuration:'+idleDuration+', \
-                                tourId:'+(tourId ? ('"'+tourId+'"') : 'null') +' \
+                                pageToLoad:'+JSON.stringify(pageToLoad)+' \
                             }); \
                         }; \
                     </script> \

@@ -5,6 +5,11 @@
 	<script src='TAG-embed.js'></script>
 	<!-- <script src='js/jquery-1.10.2.min.js'></script> -->
 	<script>
+		// TOUR TEST:       http://localhost:8888/tag2/TAG/embeddingDemo.html#tagpagename=tour&tagguid=3a4e3a92-3048-48b8-88a2-b22b821766ff&tagonlytour=true
+		// COLLECTION TEST: http://localhost:8888/tag2/TAG/embeddingDemo.html#tagpagename=collections&tagcollectionid=2519863f-e32b-4bf3-aee2-1ed7db06b530&tagartworkid=fa1e04a8-b90f-41a4-8110-5e229f11335f
+		// ARTWORK TEST:    http://localhost:8888/tag2/TAG/embeddingDemo.html#tagpagename=artwork&tagguid=e64ac9b9-d71b-4ace-ada1-71dcdcf404dc
+		// VIDEO TEST:      http://localhost:8888/tag2/TAG/embeddingDemo.html#tagpagename=video&tagguid=49089f56-6f0b-4993-ba02-f0eeb8c29216
+
 		window.onload = load;
 
 		function load() {
@@ -21,29 +26,13 @@
 				idleDuration: 120000,
 				allowServerChange: true,
 				allowAuthoringMode: true,
-				tourId: null, // use tourData if you want to load directly to the Night Watch tour
-				useTAGjs: true
+				useTAGjs: true,           // uses TAG.js rather than TAG-min.js (easier for testing)
+				interpretURLParams: true  // if loading-related query parameters can be effectively specified in the url
 			});
-
-			// TAG({
-			// 	path: '',
-			// 	containerId: 'tagContainer2',
-			// 	serverIp: 'browntagserver.com',
-			// 	width: '1000px',
-			// 	height: '500px',
-			// 	hiddenCollections: [
-			// 		// 'e53b2104-7a2b-432e-81c8-31a14f00f9ce' // Getty Museum collection is hidden
-			// 	],
-			// 	idleDuration: 120000,
-			// 	allowServerChange: true,
-			// 	allowAuthoringMode: true,
-			// 	tourId: "3a4e3a92-3048-48b8-88a2-b22b821766ff" // use tourData if you want to load directly to the Night Watch tour
-			// });
 		}
 	</script>
 </head>
 <body style="height:2000px;width:1500px;">
 	<div id='tagContainer' style='margin-left:100px;margin-top:50px;'></div>
-	<!-- <div id='tagContainer2' style='margin-left:100px;margin-top:50px;'></div> -->
 </body>
 </html>
