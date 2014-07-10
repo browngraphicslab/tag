@@ -1,6 +1,0 @@
-[{
-    "collection": {
-        "items": {
-        }
-    }
-}]
