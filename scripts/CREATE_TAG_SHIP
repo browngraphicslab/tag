@@ -1,5 +1,38 @@
 #!/bin/sh
 
+################
+# 
+#  This unix script should be run in a directory in which you want
+#  to create a ship version of TAG (you might want to copy the
+#  script out of the tag/scripts directory). It won't work on
+#  Windows.
+# 
+#  To run, use:
+# 
+#     $ ./CREATE_TAG_SHIP
+# 
+#  and let it run for a while. It does the following:
+# 
+#   1. clones the web app repo, changes directory into clone
+#   2. runs 'npm install'
+#   3. runs 'grunt' and 'grunt uglify' to generate TAG-min.js
+#   4. moves the necessary files/directories out of the clone
+#      into a build directory called TAG_SHIP_{date}
+# 
+#  The "necessary files" mentioned in (4) above are:
+# 
+#     TAG-min.js
+#     buildDemo.html      (for experimentation)
+#     css/TAG.css
+#     js/raphael.js
+#     js/tagInk.js
+#     js/RIN
+#     images
+#     fonts
+#     html
+#
+################
+
 echo ""
 printf "Cloning http://github.com/browngraphicslab/tag in 3..."
 sleep 1
@@ -11,10 +44,10 @@ printf "\rCloning http://github.com/browngraphicslab/tag...            \n"
 echo ""
 
 DATE=$(date +%y%m%d%H%M%Y%S)
-CHECKOUT_DIR="TAG_CHECKOUT_"$DATE
-BUILD_DIR="TAG_BUILD_"$DATE
-git clone http://github.com/browngraphicslab/tag.git $CHECKOUT_DIR
-cd $CHECKOUT_DIR
+CLONE_DIR="TAG_CHECKOUT_"$DATE
+SHIP_DIR="TAG_SHIP_"$DATE
+git clone http://github.com/browngraphicslab/tag.git $CLONE_DIR
+cd $CLONE_DIR
 
 echo ""
 printf "Running npm install in 3..."
@@ -57,10 +90,10 @@ printf "\rFiddling with files...           \n"
 echo ""
 
 cd ..
-mkdir $BUILD_DIR
-mv $CHECKOUT_DIR"/TAG" $BUILD_DIR
-rm -rf $CHECKOUT_DIR
-cd $BUILD_DIR
+mkdir $SHIP_DIR
+mv $CLONE_DIR"/TAG" $SHIP_DIR
+rm -rf $CLONE_DIR
+cd $SHIP_DIR
 mkdir css
 mkdir js
 mv TAG/css/TAG.css css
@@ -70,6 +103,6 @@ mv TAG/js/raphael.js js
 mv TAG/images .
 mv TAG/fonts .
 mv TAG/html .
-mv TAG/embeddingDemo.html .
+mv TAG/shipDemo.html demo.html
 mv TAG/TAG-min.js .
 rm -rf TAG
