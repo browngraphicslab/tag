@@ -254,9 +254,9 @@ TAG.Auth = (function () {
         loginDialog.css({
             position: 'absolute',
             top: loginDialogSpecs.y + 'px',
-            width: loginDialogSpecs.width + 'px',
+            width: loginDialogSpecs.width-50 + 'px',
             height: loginDialogSpecs.height - 20+ 'px',
-            left: loginDialogSpecs.x - 75.5 + 'px',
+            left: loginDialogSpecs.x - 60 + 'px',
             border: '3px double white',
             'background-color': 'black',
         });
@@ -327,7 +327,7 @@ TAG.Auth = (function () {
             //'margin-top': '10px',
             'position': 'relative',
             'display': 'block',
-            'width': '80%',
+            'width': '70%',
             'left': '10%',
             'bottom': '0%'
         });
@@ -338,7 +338,7 @@ TAG.Auth = (function () {
             'width': 'auto',
             'position': 'relative',
             'margin-top': '1%',
-            'margin-left': '-2%',
+            'margin-left': '5%',
             'display': 'inline-block',
         });
         var circle = $(document.createElement('img'));
@@ -373,7 +373,7 @@ TAG.Auth = (function () {
             'position': 'relative',
             'margin-top': '1%',
             'float': "right",
-            'margin-right': '-2%',
+            'margin-right': '-6%',
             'display': 'inline-block',
     });
         cancelButton.text('Cancel');
