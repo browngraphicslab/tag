@@ -15,6 +15,7 @@
  * @param {property} hiddenCollections   a list of collection IDs for published collections to be hidden
  * @param {property} idleDuration        the duration of TAG's idle timer
  * @param {property} tourId              if you want to load directly to a tour, set this to that tour's JSON (stringified or not)
+ * @param {property} useTAGjs            specify this if you'd prefer to use TAG.js rather than TAG-min.js in the iframe doc
  * 
  */
 
@@ -36,6 +37,7 @@ var TAG = function(tagInput) {
         height = tagInput.height,
         idleDuration = tagInput.idleDuration || 0,
         tourId = tagInput.tourId,
+        useTAGjs = tagInput.useTAGjs,
         container,
         frame,
         frameDoc,
@@ -98,7 +100,7 @@ var TAG = function(tagInput) {
                 <head> \
                     <meta charset="utf-8" /> \
                     <title>Touch Art Gallery</title> \
-                    <script src="'+tagPath+'TAG.js"></script> \
+                    <script src="'+tagPath+''+(useTAGjs ? 'TAG.js' : 'TAG-min.js')+'"></script> \
                     <script> \
                         window.onload = function() { \
                             TAG_GLOBAL({ \
