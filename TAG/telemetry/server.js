@@ -44,7 +44,7 @@
 	 */
 
 	 var config = {
-		userName: 'telemetry',
+		userName: 'sa',
 		password: 'telemetrydb',
 		server : '127.0.0.1',
 
@@ -64,7 +64,7 @@
     var Request = require('tedious').Request;
 
     function executeStatement(){
-    	request = new Request("select 41, 'hello world'", function(err, rowCount){
+    	request = new Request("CREATE DATABASE telemetrydb", function(err, rowCount){
     		if (err){
     			console.log(err);
     		}
@@ -81,6 +81,9 @@
     	});
     	connection.execSql(request);
     }
+
+    
+    
 	function handlePost(request, response) {
 		var requestBody = '',
 			parsedBody,
