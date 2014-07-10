@@ -1,16 +1,18 @@
 ﻿/**
- * Back-end for ink drawing. Instance created in InkES. In InkES, we need them to follow artworks.
+ * Library for tour annotation drawing. Instance created in InkES.
  * Uses the RaphaelJS library for svg manipulation.
- * @param canvId        the id of the div to which we'll assign the Raphael canvas.
- * @param html_elt      in the case that the div above is not in the dom yet, send in a variable for its html element.
+ * @class tagInk
+ * @constructor
+ * @param {String} canvId            the id of the div to which we'll assign the Raphael canvas.
+ * @param {HTML element} html_elt    in the case that the div above is not in the dom yet, send in a variable for its html element.
  */
 
 var tagInk = function (canvId, html_elt) {
     "use strict";
 
     // set up the Raphael paper/canvas
-    var that = {};
-    var canvid = canvId,
+    var that = {},
+        canvid = canvId,
         html_elt = (html_elt) ? html_elt : $("#" + canvid)[0],
         domelement = $(html_elt),
         textElt,
@@ -25,7 +27,7 @@ var tagInk = function (canvId, html_elt) {
     };
 
     // brush variables
-    var penColor = "#000000",
+    var penColor = "#000000", // a comment here
         penOpacity = 1.0,
         penWidth = 4,
         eraserWidth = 5,

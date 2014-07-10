@@ -68,6 +68,7 @@ module.exports = function(grunt) {
 					'TAG/js/TAG/util/TAG.Util.js',
 					'TAG/js/html2canvas/html2canvas.js',
 					'TAG/js/utils/jquery.livequery.js',
+					'TAG/js/Autolinker.js-master/dist/Autolinker.js',
 
 					'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.Constants.js',
 					'TAG/js/TAG/util/TAG.Util.Constants.js',
@@ -135,7 +136,10 @@ module.exports = function(grunt) {
 		uglify: {
 			my_target: {
 				files: {
-					'TAG/TAG-min.js': ['TAG/TAG.js']
+					'TAG/TAG-min.js': [
+						'TAG/TAG-embed.js',
+						'TAG/TAG.js'
+						]
 				}
 			}
 		},
@@ -232,7 +236,7 @@ module.exports = function(grunt) {
 				'TAG/js/TAG/util/TAG.Util.js',
 				'TAG/js/html2canvas/html2canvas.js',
 				'TAG/js/utils/jquery.livequery.js',
-
+				'TAG/js/Autolinker.js-master/dist/Autolinker.js',
 				
 				'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.Constants.js',
 				'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.TimeManager.js',
