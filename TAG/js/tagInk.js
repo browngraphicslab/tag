@@ -1,8 +1,10 @@
 ﻿/**
- * Back-end for ink drawing. Instance created in InkES.
+ * Library for tour annotation drawing. Instance created in InkES.
  * Uses the RaphaelJS library for svg manipulation.
- * @param canvId        the id of the div to which we'll assign the Raphael canvas.
- * @param html_elt      in the case that the div above is not in the dom yet, send in a variable for its html element.
+ * @class tagInk
+ * @constructor
+ * @param {String} canvId            the id of the div to which we'll assign the Raphael canvas.
+ * @param {HTML element} html_elt    in the case that the div above is not in the dom yet, send in a variable for its html element.
  */
 
 var tagInk = function (canvId, html_elt) {
