@@ -57,6 +57,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         MAX_YEAR         = (new Date()).getFullYear(),              // Maximum display year for the timeline is current year
         EVENT_CIRCLE_WIDTH = 20,                                   // pixel width of event circles
         LEFT_SHIFT         = 9,                                    // pixel shift of timeline event circles to center on ticks 
+        TILE_BUFFER        = 10,                                   // number of pixels between artwork tiles
 
         // misc uninitialized vars
         fullMinDisplayDate,             // minimum display date of full timeline
@@ -521,7 +522,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                     idleTimer.start();
                 }
                 //TO-DO add panning here 
-                zoomTimeline(parseYear(currentWork), fullMinDisplayDate, fullMaxDisplayDate);
+                zoomTimeline(parseYear(currentWork), fullMinDisplayDate, fullMaxDisplayDate, 400);
                 showArtwork(currentWork)();
                 justShowedArtwork = true;
             });
@@ -586,8 +587,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             main.css({'height': (0.42) * tileDivHeight});
              // Align tile so that it follows the grid pattern we want
             main.css({
-                'left': Math.floor(i / 2) * (main.width() + 10), 
-                'top' : Math.floor(i % 2) * (main.height() + 10)
+                'left': Math.floor(i / 2) * (main.width() + TILE_BUFFER), 
+                'top' : Math.floor(i % 2) * (main.height() + TILE_BUFFER)
             });
         };
     }
@@ -699,13 +700,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                                 .on('click', (function(art) {
                                     return function() {
                                     if (artworkShown === true && currentArtwork === art) {
-                                        zoomTimeline(null, minDate, maxDate);
                                         hideArtwork(art)();
                                         artworkShown = false;
                                     } else {
                                     //TO-DO: make panning happen at first too if it makes sense 
                                     //panTimeline(art.circle, minDate, maxDate);
-                                    zoomTimeline(artworkCircles[art.Identifier].yearKey, fullMinDisplayDate, fullMaxDisplayDate);
+                                    zoomTimeline(artworkCircles[art.Identifier].yearKey, fullMinDisplayDate, fullMaxDisplayDate, 400);
                                     showArtwork(art)();
                                     artworkShown  = true;
                                 } 
@@ -776,9 +776,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      * @param  {Number} yearKey          yearKey of clicked artwork to zoom in on.
      * @param  {Number} minDisplayDate   minimum date on timeline before (additional) zoom 
      * @param  {Number} maxDisplayDate   maximum date on timeline before (additional) zoom
-     * @param  {Boolean} panning         whether we are panning (sticking on same zoom level)
+     * @param  {Number} duration         duration of zoom animation
      */
-    function zoomTimeline(yearKey, minDisplayDate, maxDisplayDate, panning){
+    function zoomTimeline(yearKey, minDisplayDate, maxDisplayDate, duration){
         var initTimeRange,
             initPercentOnTimeline,
             beforeDiff,
@@ -884,15 +884,13 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             }
         }
 
-        //TO-DO: wrapping for panning (can use 'panning' parameter if useful, if not get rid of)
-
         //Append and move the ticks that we are using- others should zoom off accordingly
         for (k=0; k<timelineTicks.length; k++){
             timelineTicks[k].css({left:timelineTicks[k].leftPosition});
             timeline.append(timelineTicks[k]);
             $(timelineTicks[k]).animate({
                 left: finalTickPositions[k] + 'px'},
-                400, function(){
+                duration, function(){
                 timeline.append(timelineTicks[k]);
             });
             timelineTicks[k].leftPosition = finalTickPositions[k];
@@ -936,7 +934,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 timelineCircleArea.append(timelineEventCircles[i]);
                 $(timelineEventCircles[i]).animate({
                     left: finalCirclePositions[i] + 'px'},
-                    400, function(){
+                    duration, function(){
                     timelineCircleArea.append(timelineEventCircles[i]);
                 });
                 timelineEventCircles[i].leftPosition = finalCirclePositions[i];
@@ -986,12 +984,11 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             timelineEventCircles[k].on('click', (function(art) {
                                             return function() {
                                                 if (artworkShown === true && currentArtwork === art) {
-                                                    zoomTimeline(null, fullMinDisplayDate, fullMaxDisplayDate);
                                                     hideArtwork(art)();
                                                     artworkShown = false;
                                                 } else {
                                                     if (timelineCircleArea.overlapping){
-                                                        zoomTimeline(artworkCircles[art.Identifier].yearKey, minDisplayDate, maxDisplayDate);
+                                                        zoomTimeline(artworkCircles[art.Identifier].yearKey, minDisplayDate, maxDisplayDate, 400);
                                                     } else {
                                                         panTimeline(artworkCircles[art.Identifier].yearKey, minDisplayDate, maxDisplayDate);
                                                     }
@@ -1016,7 +1013,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         half = Math.round(timeRange/2);
         yearKey - half < fullMinDisplayDate ? minDisplayDate = minDisplayDate : minDisplayDate = yearKey - half;
         yearKey + half > fullMaxDisplayDate ? maxDisplayDate = maxDisplayDate : maxDisplayDate = yearKey + half;
-        zoomTimeline(yearKey, minDisplayDate, maxDisplayDate, true);
+        zoomTimeline(yearKey, minDisplayDate, maxDisplayDate, 400);
     }
 
     /* Helper function to determine if two event circles are overlapping
@@ -1061,6 +1058,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             artworkCircles[artwork.Identifier].timelineDateLabel.css({
                 'color' : 'rgb(170,170,170)'  
             });
+            zoomTimeline(null, fullMinDisplayDate, fullMaxDisplayDate, 800);
+            $(catalogDiv).stop(true,false);
+            $(catalogDiv).animate({scrollLeft: 0}, 1000);
             artworkShown = false;
         };
     }
@@ -1074,7 +1074,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
     function showArtwork(artwork) {
         
         return function () {
-            var titleSpan,
+            var shift,
+                leftOffset,
+                titleSpan,
                 descSpan,
                 imgDiv,
                 currentThumbnail,
@@ -1098,37 +1100,36 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             artworkSelected = true;
             artworkShown = true;
 
-            // Div for larger description and thumbnail of selected artwork   
-            selectedArtworkContainer.css({
-                'display': 'inline',
-                'top' : '5%',
-                'left' : catalogDiv.position().left + artworkTiles[artwork.Identifier].position().left + artworkTiles[artwork.Identifier].width()/2 - selectedArtworkContainer.width()/2
+            //scroll catalogDiv to center the current artwork
+            $(catalogDiv).stop(true,false);
+            $(catalogDiv).animate({
+                scrollLeft: artworkTiles[artwork.Identifier].position().left - root.width()/2 + $(infoDiv).width() + artworkTiles[artwork.Identifier].width()/2 - TILE_BUFFER
+                },400, function(){
+                    //center selectedArtworkContainer over current artwork thumbnail
+                    shift = (selectedArtworkContainer.width()-artworkTiles[artwork.Identifier].width())/2;
+                    leftOffset = artworkTiles[artwork.Identifier].position().left + $(infoDiv).width()- $(catalogDiv).scrollLeft();
+                    //if artwork tile at beginning of window
+                    if (leftOffset < shift){
+                        shift = 0;
+                    }
+                    //if artwork tile at end of window
+                    if (leftOffset + artworkTiles[artwork.Identifier].width() + TILE_BUFFER>root.width()){
+                        shift = shift * 2;
+                    }
+                    selectedArtworkContainer.css({
+                        'display': 'inline',
+                        'top' : '5%',
+                        'left' : leftOffset - shift
+                    });
             });
 
-
             // Set selected artwork to hide when anything else is clicked
-            //TO-DO: factor out parts that are same as 'hideArtwork'
             $(document).mouseup(function(e) {
                 var subject = $('#selectedArtworkContainer');
                 if (e.target.id != subject.attr('id') && !$(e.target).hasClass('timelineEventCircle') && !subject.has(e.target).length) {
-                    subject.css('display', 'none');
-                    artworkCircles[artwork.Identifier] && artworkCircles[artwork.Identifier].css({
-                         'height'           : '20px',
-                         'width'            : '20px',
-                         'background-color' : 'rgba(255, 255, 255, .5)',
-                         'border-radius'    : '10px',
-                         'top'              : '-8px'
-                    });
-                    artworkCircles[artwork.Identifier] && artworkCircles[artwork.Identifier].timelineDateLabel.css({
-                        //TO-DO- decide if should be visible//'visibility': 'visible',
-                        'color' : 'rgb(170,170,170)'  
-                    });
-                    zoomTimeline(null, fullMinDisplayDate, fullMaxDisplayDate);
-                    artworkShown = false;
+                    hideArtwork(artwork)();
                 }
             });
-
-
 
             selectedArtworkContainer.empty();
 
