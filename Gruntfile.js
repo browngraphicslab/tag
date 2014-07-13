@@ -4,14 +4,15 @@ module.exports = function(grunt) {
 			options: {
 				separator: '\n;\n',
 				banner: 'var TAG_GLOBAL = function(tagInput) { \
-					        \n    var tagPath           = tagInput.path, \
-					        \n        containerId       = tagInput.containerId, \
-					        \n        ip                = tagInput.serverIp, \
-					        \n        allowServerChange = tagInput.allowServerChange, \
+					        \n    var tagPath            = tagInput.path, \
+					        \n        containerId        = tagInput.containerId, \
+					        \n        ip                 = tagInput.serverIp, \
+					        \n        allowServerChange  = tagInput.allowServerChange, \
 					        \n 		  allowAuthoringMode = tagInput.allowAuthoringMode, \
-					        \n        idleDuration      = tagInput.idleDuration, \
-					        \n        currentPage       = {}, // name and obj properties \
-					        \n        pageToLoad        = tagInput.pageToLoad || {}, // a specific page to load \
+					        \n        idleDuration       = tagInput.idleDuration, \
+					        \n        currentPage        = {}, // name and obj properties \
+					        \n        interpretURLParams = tagInput.interpretURLParams, \
+					        \n        pageToLoad, \
 					        \n        idleTimer; \n\n',
 				footer: '};'
 			},

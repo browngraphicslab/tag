@@ -31,7 +31,12 @@
             console.log('no containerId specified, or the containerId does not match an element');
             return; // no TAG for you
         }
-        localStorage.ip = ip || localStorage.ip || 'browntagserver.com';
+
+        if(interpretURLParams) {
+            pageToLoad = parseQueryParams();
+        }
+
+        localStorage.ip = pageToLoad.tagserver || ip || localStorage.ip || 'browntagserver.com';
 
         positioning = container.css('position');
         if(positioning !== 'relative' && positioning !== 'absolute') {
@@ -122,6 +127,58 @@
     }
 
     /**
+     * Parses page url for a specific TAG page to load
+     * @method parseQueryParams
+     * @return {Object}              the tag params found
+     */
+    function parseQueryParams() {
+        var url     = window.location.href,       // url of host site
+            param,                                // param
+            ret     = {};                         // will return this
+
+        param = url.match(/tagserver=[^\&]*/);
+        if(param && param.length > 0) {
+            ret.tagserver = param[0].split(/=/)[1];
+        }
+
+        param = url.match(/tagpagename=[a-zA-Z]+/);
+
+        if(param && param.length > 0) {
+            ret.pagename = param[0].split(/=/)[1];
+            switch(ret.pagename) {
+                case 'collections':
+                    param = url.match(/tagcollectionid=[a-f0-9\-]+/);
+                    if(param && param.length > 0) {
+                        ret.collectionid = param[0].split(/=/)[1];
+                        param = url.match(/tagartworkid=[a-f0-9\-]+/);
+                        if(param && param.length > 0) {
+                            ret.artworkid = param[0].split(/=/)[1];
+                        }
+                        return ret;
+                    }
+                    break;
+                case 'artwork':
+                case 'video':
+                    param = url.match(/tagguid=[a-f0-9\-]+/);
+                    if(param && param.length > 0) {
+                        ret.guid = param[0].split(/=/)[1];
+                        return ret;
+                    }
+                    break;
+                case 'tour':
+                    param = url.match(/tagguid=[a-f0-9\-]+/);
+                    if(param && param.length > 0) {
+                        ret.guid = param[0].split(/=/)[1];
+                        ret.onlytour = url.match(/tagonlytour=true/) ? true : false;
+                        return ret;
+                    }
+                    break;
+            }
+        }
+        return ret;
+    }
+
+    /**
      * Initialize TAG; load some scripts into the <head> element,
      * load StartPage (or TourPlayer if specified in the API call).
      * @method init
@@ -136,8 +193,7 @@
             oHead,                                            // head element
             oScript,                                          // script element
             oCss,                                             // link element
-            tagContainer,                                     // div containing TAG
-
+            tagContainer;                                     // div containing TAG
 
         tagPath = tagPath || '';
         if(tagPath.length > 0 && tagPath[tagPath.length - 1] !== '/') {

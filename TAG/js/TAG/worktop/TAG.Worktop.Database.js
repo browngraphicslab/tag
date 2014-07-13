@@ -1059,7 +1059,7 @@ TAG.Worktop.Database = (function () {
     }
 
     function getFontFamily() {
-        return _main.Metadata["FontFamily"] || "Source Sans Pro";
+        return _main.Metadata["FontFamily"] || "sourceSans";
     }
 
     function getMainGuid() {
