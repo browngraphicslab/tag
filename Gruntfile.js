@@ -12,7 +12,7 @@ module.exports = function(grunt) {
 					        \n        idleDuration       = tagInput.idleDuration, \
 					        \n        currentPage        = {}, // name and obj properties \
 					        \n        urlToParse         = tagInput.urlToParse, \
-					        \n        pageToLoad, \
+					        \n        pageToLoad         = {}, \
 					        \n        idleTimer; \n\n',
 				footer: '};'
 			},
