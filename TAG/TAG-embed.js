@@ -36,15 +36,14 @@ var TAG = function(tagInput) {
         height = tagInput.height,
         idleDuration = tagInput.idleDuration || 0,
         useTAGjs = tagInput.useTAGjs,
- 		interpretURLParams = tagInput.interpretURLParams,
+   		urlToParse = window.location.href,
         container,
         frame,
         frameDoc,
         htmlStr,
         tempImage,
         frameContainer,
-        frameInnerContainer,
-   		pageToLoad = {};
+        frameInnerContainer;
     
     if (typeof tagPath !== 'string') {
         console.log('specify a string path to the directory containing TAG');
@@ -110,7 +109,7 @@ var TAG = function(tagInput) {
                                 allowServerChange:'+allowServerChange+', \
                                 allowAuthoringMode: '+allowAuthoringMode+', \
                                 idleDuration:'+idleDuration+', \
-                                interpretURLParams:'+interpretURLParams+' \
+                                urlToParse:"'+urlToParse+'" \
                             }); \
                         }; \
                     </script> \

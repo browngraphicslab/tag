@@ -11,7 +11,7 @@ module.exports = function(grunt) {
 					        \n 		  allowAuthoringMode = tagInput.allowAuthoringMode, \
 					        \n        idleDuration       = tagInput.idleDuration, \
 					        \n        currentPage        = {}, // name and obj properties \
-					        \n        interpretURLParams = tagInput.interpretURLParams, \
+					        \n        urlToParse         = tagInput.urlToParse, \
 					        \n        pageToLoad, \
 					        \n        idleTimer; \n\n',
 				footer: '};'

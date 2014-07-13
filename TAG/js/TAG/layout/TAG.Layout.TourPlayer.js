@@ -25,6 +25,8 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
         rinPlayer = root.find('#rinPlayer'),
         backButtonContainer = root.find('#backButtonContainer'),
         backButton = root.find('#backButton'),
+        linkButtonContainer = root.find('#linkContainer'),
+        linkButton = root.find('#linkButton'),
         overlayOnRoot = root.find('#overlayOnRoot'),
         bigThumbnailContainer = root.find('#bigThumbnailContainer'),
         bigThumbnail = root.find('#bigThumbnail'),
@@ -35,6 +37,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
     // idleTimer.start();
 
     backButton.attr('src', tagPath+'images/icons/Back.svg');
+    linkButton.attr('src', tagPath+'images/brown.png');
     //clicked effect for back button
     backButton.on('mousedown', function(){
         TAG.Util.UI.cgBackColor("backButton", backButton, false);
@@ -45,12 +48,27 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
 
     backButton.on('click', goBack);
 
+    linkButton.on('click', function() {
+        var linkOverlay = TAG.Util.UI.showPageLink(urlToParse, {
+            tagpagename: 'tour',
+            tagguid: tourObj.Identifier,
+            tagonlytour: false
+        });
+
+        root.append(linkOverlay);
+        linkOverlay.fadeIn(500, function() {
+            linkOverlay.find('.linkDialogInput').select();
+        });
+    });
+
     if(ispagetoload) {
         pageToLoad.pagename = '';
         if(pageToLoad.onlytour) {
             backButtonContainer.remove();
+            linkButtonContainer.remove();
         } else {
             backButtonContainer.css('display', 'none');
+            linkButtonContainer.css('display', 'none');
         }
         if(tourObj && tourObj.Metadata && tourObj.Metadata.Thumbnail) {
             bigThumbnail.attr('src', TAG.Worktop.Database.fixPath(tourObj.Metadata.Thumbnail));
@@ -78,6 +96,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
         $('.rin_PlayPauseContainer').find('input').trigger('click');
         if(!pageToLoad.onlytour) {
             backButtonContainer.css('display', 'block');
+            linkButtonContainer.css('display', 'block');
         }
     }
 

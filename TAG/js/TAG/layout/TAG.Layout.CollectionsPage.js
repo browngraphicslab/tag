@@ -28,6 +28,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         searchTxt        = root.find('#searchTxt'),
         loadingArea      = root.find('#loadingArea'),
         backbuttonIcon   = root.find('#catalogBackButton'),
+        linkButton       = root.find('#linkButton'),
         backgroundDiv    = root.find('.background'),
         primaryFont      = root.find('.primaryFont'),
         secondaryFont    = root.find('.secondaryFont'),
@@ -99,6 +100,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
         backbuttonIcon.attr('src', tagPath+'images/icons/Back.svg');
 
+        linkButton.attr('src', tagPath+'images/brown.png');
+
         idleTimer = null;
 
         progressCircCSS = {
@@ -143,6 +146,19 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             idleTimer && idleTimer.kill();
             idleTimer = null;
             TAG.Layout.StartPage(null, TAG.Util.UI.slidePageRight, true);
+        });
+
+        linkButton.on('click', function() {
+            var linkOverlay = TAG.Util.UI.showPageLink(urlToParse, {
+                tagpagename: 'collections',
+                tagcollectionid: currCollection.Identifier,
+                tagartworkid: currentArtwork ? currentArtwork.Identifier : ''
+            });
+
+            root.append(linkOverlay);
+            linkOverlay.fadeIn(500, function() {
+                linkOverlay.find('.linkDialogInput').select();
+            });
         });
 
         TAG.Worktop.Database.getExhibitions(getCollectionsHelper, null, getCollectionsHelper);

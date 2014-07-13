@@ -295,8 +295,22 @@
   margin: 4% 4% 1% 4%;
 }
 #artmodeRoot #backButton {
+  cursor: pointer;
   width: 100%;
   height: 100%;
+}
+#artmodeRoot #linkButton {
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+#artmodeRoot #linkContainer {
+  position: absolute;
+  left: 18%;
+  width: 13%;
+  height: 5%;
+  top: 0%;
+  margin: 4% 4% 1% 4%;
 }
 #artmodeRoot .thumbnailButtonContainer {
   display: table;
@@ -801,6 +815,7 @@
   height: 100%;
 }
 #newCatalogRoot #catalogBackButton {
+  cursor: pointer;
   display: block;
   height: auto;
   position: relative;
@@ -997,6 +1012,21 @@
   overflow: hide;
   width: 100%;
 }
+#newCatalogRoot #linkButton {
+  cursor: pointer;
+  display: block;
+  height: auto;
+  position: relative;
+  top: 30%;
+  width: 76.3%;
+}
+#newCatalogRoot #linkContainer {
+  height: 5%;
+  left: 20%;
+  position: absolute;
+  top: 2.5%;
+  width: 15%;
+}
 #newCatalogRoot #loadingArea {
   background-color: rgba(0,0,0,0.7);
   height: 100%;
@@ -1135,12 +1165,13 @@
   overflow-x: hidden;
 }
 #VideoPlayerRoot #backButton {
-  width: 60%;
+  cursor: pointer;
+  width: 100%;
   height: auto;
 }
 #VideoPlayerRoot #backButtonContainer {
   position: absolute;
-  width: 5%;
+  width: 3%;
   top: 20%;
   left: 1%;
 }
@@ -1160,6 +1191,17 @@
   vertical-align: top;
   top: 17.6%;
   margin-left: 75%;
+}
+#VideoPlayerRoot #linkButton {
+  cursor: pointer;
+  width: 60%;
+  height: auto;
+}
+#VideoPlayerRoot #linkContainer {
+  position: absolute;
+  width: 5%;
+  top: 20%;
+  left: 5%;
 }
 #VideoPlayerRoot #overlayOnRoot {
   position: absolute;
@@ -1268,6 +1310,7 @@
   height: 100%;
 }
 #tourRoot #backButton {
+  cursor: pointer;
   width: 3%;
   position: absolute;
   z-index: 100000000;
@@ -1302,6 +1345,20 @@
   height: 100%;
   position: absolute;
   top: 0%;
+  width: 100%;
+}
+#tourRoot #linkButton {
+  cursor: pointer;
+  position: absolute;
+  left: 4%;
+  width: 3%;
+  z-index: 100000000;
+}
+#tourRoot #linkContainer {
+  height: 8%;
+  left: 0.88%;
+  position: absolute;
+  top: 2.5%;
   width: 100%;
 }
 #tourRoot #overlayOnRoot {
@@ -1390,6 +1447,7 @@
   height: 40px;
   position: relative;
 }
+width 100%,
 #tagRoot .annotatedImageMediaDescription {
   position: relative;
   left: 5%;
@@ -1431,6 +1489,7 @@
   background-color: #3f3735;
 }
 #setViewBackButton {
+  cursor: pointer;
   height: 63%;
   margin-left: 1.2%;
   width: auto;

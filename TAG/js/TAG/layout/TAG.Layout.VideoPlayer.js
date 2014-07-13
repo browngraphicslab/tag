@@ -42,7 +42,8 @@ TAG.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         source = TAG.Worktop.Database.fixPath(videoSrc.Metadata.Source),
         sourceWithoutExtension = source.substring(0, source.lastIndexOf('.')),
         currentTimeDisplay = root.find('#currentTimeDisplay'),
-        backButton = root.find('#backButton');
+        backButton = root.find('#backButton'),
+        linkButton = root.find('#linkButton');
 
     // UNCOMMENT IF WE WANT IDLE TIMER IN Video PLAYER
     // idleTimer = TAG.Util.IdleTimer.TwoStageTimer();
@@ -66,6 +67,7 @@ TAG.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         // idleTimer = null;
 
         var backInfo = { backArtwork: videoSrc, backScroll: prevScroll };
+
         var collectionsPage = TAG.Layout.CollectionsPage({
             backScroll: prevScroll,
             backArtwork: videoSrc,
@@ -75,10 +77,10 @@ TAG.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         // collectionsPage.getRoot().css({ 'overflow-x': 'hidden' }); // TODO should be default in .styl file
         TAG.Util.UI.slidePageRightSplit(root, collectionsPage.getRoot(), function () {
             artworkPrev = "catalog";
-            var selectedExhib = $('#collection-' + prevExhib.Identifier);
-            selectedExhib.attr('flagClicked', 'true');
-            selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
-            $(selectedExhib[0].firstChild).css({'color': 'black'});
+            // var selectedExhib = $('#collection-' + collection.Identifier);
+            // selectedExhib.attr('flagClicked', 'true');
+            // selectedExhib.css({ 'background-color': 'white', 'color': 'black' });
+            // $(selectedExhib[0].firstChild).css({'color': 'black'});
         });
 
         currentPage.name = TAG.Util.Constants.pages.COLLECTIONS_PAGE;
@@ -278,6 +280,19 @@ TAG.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
         });
 
         backButton.on('click', goBack);
+
+        linkButton.attr('src', tagPath + 'images/brown.png');
+        linkButton.on('click', function() {
+            var linkOverlay = TAG.Util.UI.showPageLink(urlToParse, {
+                tagpagename: 'video',
+                tagguid: videoSrc.Identifier
+            });
+
+            root.append(linkOverlay);
+            linkOverlay.fadeIn(500, function() {
+                linkOverlay.find('.linkDialogInput').select();
+            });
+        });
     }
 
     /**

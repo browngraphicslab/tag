@@ -3,22 +3,25 @@
 TOPBAR_BGCOLOR = rgb(63,55,53)
 TOPBAR_HEIGHT = 8%
 SEEKBAR_TOP=44%
+
 subtract(a,b)
 	a - b
 
 divide(a,b)
 	a / b
+
 #VideoPlayerRoot
 	wh 100%
 	overflow-x hidden	
 
 #VideoPlayerRoot #backButton
-	width 60%
+	cursor pointer
+	width 100%
 	height auto
 
 #VideoPlayerRoot #backButtonContainer
 	position absolute
-	width 5%
+	width 3%
 	top 20%
 	left 1%
 
@@ -29,7 +32,6 @@ divide(a,b)
 	top 92%
 	position absolute
 
-
 #VideoPlayerRoot #currentTimeDisplay
 	width 5%
 	height 80%
@@ -39,6 +41,17 @@ divide(a,b)
 	vertical-align top
 	top divide(SEEKBAR_TOP,2.5)
 	margin-left 75%
+
+#VideoPlayerRoot #linkButton
+	cursor pointer
+	width 60%
+	height auto
+
+#VideoPlayerRoot #linkContainer
+	position absolute
+	width 5%
+	top 20%
+	left 5%
 
 #VideoPlayerRoot #overlayOnRoot
 	position absolute

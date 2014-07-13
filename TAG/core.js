@@ -32,7 +32,7 @@
             return; // no TAG for you
         }
 
-        if(interpretURLParams) {
+        if(urlToParse) {
             pageToLoad = parseQueryParams();
         }
 
@@ -132,7 +132,7 @@
      * @return {Object}              the tag params found
      */
     function parseQueryParams() {
-        var url     = window.location.href,       // url of host site
+        var url     = urlToParse,                 // url of host site
             param,                                // param
             ret     = {};                         // will return this
 
