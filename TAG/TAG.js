@@ -44598,14 +44598,15 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             afterDiff = Math.round(maxDisplayDate - yearKey);
             //Scale correctly if already zoomed in and clicking on first dot
             beforeDiff === 0 ? buffer= Math.max(afterDiff,1) : buffer = Math.min(beforeDiff, afterDiff);
-            //Don't allow minimum display date to be less than 1 year before full minimum display date
-            //if (minDisplayDate-buffer<fullMinDisplayDate){
-                //buffer = 1;
-            //}
             //If zoomed in to last marker, add a 1 year buffer for clear display
             afterDiff === 0 ? buffer = 1 : buffer = Math.min(buffer, afterDiff);
             minDisplayDate = Math.round(yearKey- buffer);
             maxDisplayDate = Math.round(yearKey + buffer);
+            //Don't allow minimum display date to be less than 1 year before full minimum display date
+            if (minDisplayDate<fullMinDisplayDate){
+                minDisplayDate = fullMinDisplayDate-1;
+                maxDisplayDate = yearKey +1
+            }
             timeRange = maxDisplayDate - minDisplayDate;
 
             //If less than 100 years each tick is a year. 
