@@ -319,7 +319,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             infoDiv.empty();
             infoDiv.append(collectionDescription);
             catalogDiv.append(infoDiv);
-            
+            timelineArea.empty();
 
 
             //If there's no description, change UI so that artwork tiles take up entire bottom area
@@ -480,7 +480,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             w = h * 1.4;
 
             timelineEventCircles = [];
-            timelineTicks = [],
+            timelineTicks = [];
             initTimeline(artworks);
             tileDiv.empty();
             tileDivHeight = tileDiv.height();
@@ -657,7 +657,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 numTicks = numTicks ? numTicks : 101,
                 tick;
 
-            timelineArea.empty();
             timeline.addClass('timeline');
             timelineArea.append(timeline);
 
