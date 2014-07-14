@@ -44300,8 +44300,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                     idleTimer.start();
                 }
                 //TO-DO add panning here 
-                zoomTimeline(parseYear(currentWork), fullMinDisplayDate, fullMaxDisplayDate, 400);
                 showArtwork(currentWork)();
+                zoomTimeline(parseYear(currentWork), fullMinDisplayDate, fullMaxDisplayDate, 400);
                 justShowedArtwork = true;
             });
 
@@ -44587,7 +44587,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             labelwidth,
             art;
 
-
         if (yearKey===0||yearKey){
 
             initTimeRange = maxDisplayDate - minDisplayDate;
@@ -44746,11 +44745,15 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                     if (!areOverlapping(position1, position2)&&!labelsAreOverlapping(position1, position2, labelwidth)){
                         timelineEventCircles[i].timelineDateLabel.css('visibility', 'visible');
                     } else{
-                    timelineEventCircles[i].timelineDateLabel.css('visibility', 'hidden');
-                    if (timelineEventCircles[i].yearKey === fullMaxDisplayDate){
-                        timelineEventCircles[i].timelineDateLabel.css('visibility', 'visible');
-                        timelineEventCircles[j].timelineDateLabel.css('visibility', 'hidden');
-                    }
+                        if (timelineEventCircles[i].yearKey!== yearKey){
+                            timelineEventCircles[i].timelineDateLabel.css('visibility', 'hidden');
+                        } else{
+                            console.log("labelyearkey" + timelineEventCircles[i].yearKey);
+                        }
+                        if (timelineEventCircles[i].yearKey === fullMaxDisplayDate){
+                            timelineEventCircles[i].timelineDateLabel.css('visibility', 'visible');
+                            timelineEventCircles[j].timelineDateLabel.css('visibility', 'hidden');
+                        }
                     }
                     
                 }
@@ -44824,6 +44827,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
       * @param {doq} artwork        the artwork doq to be hidden
       */
     function hideArtwork(artwork) {
+        console.log('hidingartwork');
         return function() {
             var sub = $('#selectedArtworkContainer');
             sub.css('display', 'none');
@@ -44851,7 +44855,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      *
      */
     function showArtwork(artwork) {
-        
+      
         return function () {
             var shift,
                 leftOffset,
@@ -44901,12 +44905,14 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                         'left' : leftOffset - shift
                     });
             });
-
+    
             // Set selected artwork to hide when anything else is clicked
             $(document).mouseup(function(e) {
                 var subject = $('#selectedArtworkContainer');
-                if (e.target.id != subject.attr('id') && !$(e.target).hasClass('timelineEventCircle') && !subject.has(e.target).length) {
-                    hideArtwork(artwork)();
+                if (e.target.id != subject.attr('id') && !$(e.target).hasClass('tileImage') &&!$(e.target).hasClass('timelineEventCircle') && !subject.has(e.target).length) {
+                    console.log("mouseupfn");
+                    console.log(e.target);
+                        hideArtwork(artwork)();
                 }
             });
 
