@@ -1366,6 +1366,10 @@
 }
 #tagRoot button {
   cursor: pointer;
+  background-color: #000;
+  color: #fff;
+  padding-left: 15px;
+  padding-right: 15px;
 }
 #tagRoot #annotatedImageAssetCanvas {
   overflow-x: hidden;

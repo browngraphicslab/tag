@@ -333,7 +333,6 @@ TAG.Auth = (function () {
         });
         var submitButton = $(document.createElement('button'));
         submitButton.css({
-            'padding': '1%',
             'border': '1px solid white',
             'width': 'auto',
             'position': 'relative',
@@ -367,7 +366,6 @@ TAG.Auth = (function () {
         var cancelButton = $(document.createElement('button'));
         cancelButton.attr('type', 'button');
         cancelButton.css({
-            'padding': '1%',
             'border': '1px solid white',
             'width': 'auto',
             'position': 'relative',
