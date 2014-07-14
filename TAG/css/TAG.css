@@ -916,6 +916,19 @@
   position: absolute;
   top: 30%;
 }
+#newCatalogRoot .arrowArea {
+  display: inline-block;
+  top: 0%;
+  height: 100%;
+  width: 5%;
+  position: absolute;
+}
+#newCatalogRoot .arrow {
+  position: absolute;
+  top: 23%;
+  left: 34%;
+  height: 20px;
+}
 #newCatalogRoot #exploreIcon {
   float: right;
   height: 50%;
@@ -977,15 +990,18 @@
   font-size: 200%;
 }
 #newCatalogRoot .nextPrevCollection {
+  display: inline-block;
   font-size: 150%;
   color: #aaa;
-  position: absolute;
-  top: 15%;
+  position: relative;
+  top: -35%;
   height: 50%;
   overflow: hidden;
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
+  padding-left: 2%;
+  padding-right: 2%;
 }
 #newCatalogRoot #topBar {
   height: 30%;

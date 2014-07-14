@@ -17,6 +17,10 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         infoDiv                  = root.find('#infoDiv'),
         tileDiv                  = root.find('#tileDiv'),
         collectionArea           = root.find('#collectionArea'),
+        backArrowArea            = root.find('#backArrowArea'),
+        backArrow                = root.find('#backArrow'),
+        nextArrowArea            = root.find('#nextArrowArea'),
+        nextArrow                = root.find('#nextArrow'),
         collectionHeader         = root.find('#collectionHeader'),
         bgimage                  = root.find('#bgimage'),
         catalogDiv               = root.find('#catalogDiv'),
@@ -257,38 +261,48 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                     .html(title);
 
             mainCollection.append(titleBox);
-            collectionArea.append(mainCollection);
-
+            
             // Add previous and next collection titles
+            if (collection.prevCollectionIndex||collection.prevCollectionIndex===0){
+                prevTitle = TAG.Util.htmlEntityDecode(visibleCollections[collection.prevCollectionIndex].Name)
+                backArrowArea.addClass('arrowArea');
+                backArrowArea.css('left', '0%')
+                             .on('click',loadCollection(visibleCollections[collection.prevCollectionIndex], sPos, artwrk));
+                collectionArea.append(backArrowArea);
+                backArrow.attr('src', tagPath + 'images/icons/Close.svg');
+                backArrow.addClass('arrow');
+                prevCollection.addClass('nextPrevCollection')
+                              .attr({
+                                'id': 'collection-' + visibleCollections[collection.prevCollectionIndex].Identifier
+                               })
+                              .html(prevTitle)
+                              .on('click', loadCollection(visibleCollections[collection.prevCollectionIndex], sPos, artwrk));
+                collectionArea.append(prevCollection);
+            };
+            collectionArea.append(mainCollection);
+            if (prevCollection){
+                prevCollection.css('width', (.95 * collectionArea.width() - mainCollection.width())/2 - backArrowArea.width());
+            }
             if (collection.nextCollectionIndex||collection.nextCollectionIndex===0){
                 nextTitle = TAG.Util.htmlEntityDecode(visibleCollections[collection.nextCollectionIndex].Name)
+                nextArrowArea.addClass('arrowArea');
+                nextArrowArea.css('right', '0%')
+                             .on('click', loadCollection(visibleCollections[collection.nextCollectionIndex], sPos, artwrk));
+                collectionArea.append(nextArrowArea);
+                nextArrow.attr('src', tagPath + 'images/icons/Open.svg');
+                nextArrow.addClass('arrow');
                 nextCollection.addClass('nextPrevCollection')
                               .attr({
                                 'id': 'collection-' + visibleCollections[collection.nextCollectionIndex].Identifier
                                })
                               .html(nextTitle)
                               .css({
-                                'width': (.95 * collectionArea.width() - mainCollection.width())/2,
-                                'right' : 0
+                                'width': (.95 * collectionArea.width() - mainCollection.width())/2 - nextArrowArea.width(),
                               })
                               .on('click', loadCollection(visibleCollections[collection.nextCollectionIndex], sPos, artwrk));
                 collectionArea.append(nextCollection);
             };
-            if (collection.prevCollectionIndex||collection.prevCollectionIndex===0){
-                prevTitle = TAG.Util.htmlEntityDecode(visibleCollections[collection.prevCollectionIndex].Name)
-                prevCollection.addClass('nextPrevCollection')
-                              .attr({
-                                //'id': 'collection-' + collection.prevCollection.Identifier
-                                'id': 'collection-' + visibleCollections[collection.prevCollectionIndex].Identifier
-                               })
-                              .html(prevTitle)
-                              .css({
-                                'width': (.95 * collectionArea.width() - mainCollection.width())/2,
-                                'left' : 0
-                              })
-                              .on('click', loadCollection(visibleCollections[collection.prevCollectionIndex], sPos, artwrk));
-                collectionArea.append(prevCollection);
-            };
+
 
             // Hide selected artwork container, as nothing is selected yet
             selectedArtworkContainer.css('display', 'none');
