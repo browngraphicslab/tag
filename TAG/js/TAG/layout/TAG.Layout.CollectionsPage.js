@@ -980,9 +980,10 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                     if (!areOverlapping(position1, position2)&&!labelsAreOverlapping(position1, position2, labelwidth)){
                         timelineEventCircles[i].timelineDateLabel.css('visibility', 'visible');
                     } else{
-                        if (timelineEventCircles[i].yearKey!== yearKey){
-                            timelineEventCircles[i].timelineDateLabel.css('visibility', 'hidden');
-                        } 
+                        timelineEventCircles[i].timelineDateLabel.css('visibility', 'hidden');
+                        if (timelineEventCircles[i].yearKey=== yearKey && !fullOverlap){
+                            timelineEventCircles[i].timelineDateLabel.css('visibility','visible');
+                        }
                         if (timelineEventCircles[i].yearKey === fullMaxDisplayDate){
                             timelineEventCircles[i].timelineDateLabel.css('visibility', 'visible');
                             timelineEventCircles[j].timelineDateLabel.css('visibility', 'hidden');
