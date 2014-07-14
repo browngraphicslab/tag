@@ -526,12 +526,13 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
             return function (evt) {
                 evt.stopPropagation();
                 locHistoryActive = true;
-                toggleLocationPanel();
+                
                 media.create(); // returns if already created
                 media.toggle();
                 TAG.Util.IdleTimer.restartTimer();
                 media.mediaManipPreprocessing();                    //Set the newly opened media as active for manipulation
                 media.pauseReset();
+                toggleLocationPanel();
             };
         }
 

@@ -51,36 +51,36 @@
 		options: {}
 	};
 
-    var connection = new Connection(config);
-    connection.on("connect", function(err){
-        if (err){
-        	console.log(err);
-        }
-        else {
-        	executeStatement();
-        }
-    });
+    // var connection = new Connection(config);
+    // connection.on("connect", function(err){
+    //     if (err){
+    //     	console.log(err);
+    //     }
+    //     else {
+    //     	executeStatement();
+    //     }
+    // });
 
     var Request = require('tedious').Request;
 
-    function executeStatement(){
-    	request = new Request("CREATE DATABASE telemetrydb", function(err, rowCount){
-    		if (err){
-    			console.log(err);
-    		}
-    		else {
-    			console.log(rowCount + ' rows');
-    		}
-    	});
+    // function executeStatement(){
+    // 	request = new Request("CREATE DATABASE telemetrydb", function(err, rowCount){
+    // 		if (err){
+    // 			console.log(err);
+    // 		}
+    // 		else {
+    // 			console.log(rowCount + ' rows');
+    // 		}
+    // 	});
 
-    	request.on('row', function(columns){
-    		columns.forEach(function(column){
-    			console.log(column.value);
+    // 	request.on('row', function(columns){
+    // 		columns.forEach(function(column){
+    // 			console.log(column.value);
 
-    		});
-    	});
-    	connection.execSql(request);
-    }
+    // 		});
+    // 	});
+    // 	connection.execSql(request);
+    // }
 
     
     
@@ -109,14 +109,36 @@
 
 			parsedBody = JSON.parse(requestBody); // parse body to js object
 
+		
 			for(i=0; i<parsedBody.length; i++) {
 				tobj = parsedBody[i];
-				tdata = {};
-				for(key in tobj) {
-					if(tobj.hasOwnProperty(key)) {
-						tdata[key] = tobj[key] || NOT_AVAIL;
-					}
-				}
+                var connection = new Connection(config);
+			    connection.on("connect", function(err){
+			        if (err){
+			        	console.log(err);
+			        }
+			        else {
+			        	var request = new Request("INSERT INTO tmetrytable1 VALUES (12,123,878)",function(err, rowCount){
+			    		if (err){
+			    			console.log(err);
+			    		}
+			    		else {
+			    			console.log(rowCount + ' rows');
+			    		}
+			    	    });
+
+				    	request.on('row', function(columns){
+				    		columns.forEach(function(column){
+				    			console.log(column.value);
+
+				    		});
+				    	});
+				    	connection.execSql(request);
+			        }
+			    });
+                
+                
+				
 				// tdata = {
 				// 	time_stamp: tobj.time_stamp || NOT_AVAIL,                   // milliseconds since 1970
 				// 	type:       tobj.ttype      || NOT_AVAIL,                   // type of telemetry request
