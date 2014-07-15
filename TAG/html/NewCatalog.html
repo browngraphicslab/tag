@@ -1,31 +1,33 @@
 
-<div id="newCatalogRoot"><link href='http://fonts.googleapis.com/css?family=Lobster|Shadows+Into+Light|Open+Sans+Condensed:300|Indie+Flower|Pacifico&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+<div id="newCatalogRoot">
   <div id="overlay"></div>
-  <div id="catalogDivContainer">
-    <div id="sortRow" class="background">
-      <div id="artistButton" tagName="Artist" class="rowButton secondaryFont">Artist</div>
-      <div id="titleButton" tagName="Title" class="rowButton secondaryFont">Title</div>
-      <div id="yearButton" tagName="Year" class="rowButton secondaryFont">Year</div>
-      <div id="typeButton" tagName="Type" class="rowButton secondaryFont">Type</div>
-      <div id="searchFilter">
-        <input id="searchInput" placeholder="Enter Keyword"/>
-        <div id="searchTxt"></div>
-      </div>
-    </div>
-    <div id="catalogDiv" class="background"></div>
-  </div>
   <div id="bgimage"></div>
-  <div id="leftbar">
-    <div id="leftbar-header">
-      <div id="backbuttonArea"><img id="catalogBackButton"/></div>
-      <div id="collection-label">
-        <div id="collectionHeader" class="primaryFont">Collections</div>
-      </div>
+  <div id="topBar">
+    <div id="collectionArea">
+      <div id="backArrowArea"><img id="backArrow"/></div>
+      <div id="nextArrowArea"><img id="nextArrow"/></div>
     </div>
-    <div id="collectionArea" class="background"></div>
+    <div id="timelineArea"></div>
   </div>
-  <div id="displayarea" class="primaryFont">
-    <div id="displayareasub"></div>
+  <div id="bottomContainer">
+    <div id="catalogDivContainer">
+      <div id="sortRow" class="background">
+        <div id="yearButton" tagName="Year" class="rowButton">Year</div>
+        <div id="titleButton" tagName="Title" class="rowButton">Title</div>
+        <div id="artistButton" tagName="Artist" class="rowButton">Artist</div>
+        <div id="typeButton" tagName="Type" class="rowButton">Type</div>
+        <div id="searchFilter">
+          <input id="searchInput" placeholder="Enter Keyword"/>
+          <div id="searchTxt"></div>
+        </div>
+      </div>
+      <div id="catalogDiv" class="background"></div>
+    </div>
+    <div id="displayarea">
+      <div id="infoDiv"></div>
+      <div id="tileDiv"></div>
+    </div>
+    <div id="selectedArtworkContainer"></div>
   </div>
   <div id="loadingArea">			</div>
 </div>
