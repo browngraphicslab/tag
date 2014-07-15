@@ -69,13 +69,12 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
 
         progressBar.append(innerProgressBar);
         uploadingOverlay.append(uploadOverlayText);
-        uploadingOverlay.append(progressBar);
-        uploadingOverlay.hide();
+        uploadingOverlay.append(progressBar);    
         root.append(uploadingOverlay);
+        removeOverlay();
     })();
 
     (function uploadFile() {
-        addOverlay();
         //Actual uploader object
         resumableUploader = new Resumable({
             target: TAG.Worktop.Database.getSecureURL(),        //Check that this works
@@ -160,24 +159,24 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
             filesCompleted++;
             successfulUploads = true;
             //TODO progress bar
-            var bar = innerProgBar || innerProgressBar;
-            var percentComplete = resumableUploader.progress();
-            bar.width(percentComplete * 90 + "%"); // * 90 or * 100?
         });
         resumableUploader.on('complete', function(file) {   //Entire upload operation is complete
             console.log("COMPLETE");
             finishedUpload();
+            removeOverlay();
         });
 
-
+        resumableUploader.on('fileProgress', function(resumableFile) {
+            var percentComplete = resumableUploader.progress();
+            innerProgressBar.width(percentComplete * 90 + "%"); // * 90 or * 100?
+        });
 
         resumableUploader.on('fileAdded', function(resumableFile){
-            //Set maximum size for the file
-            addOverlay(root);
+            addOverlay();
             filesAdded++;
             var maxSize;
             globalFilesArray.push(resumableFile.file);
-
+            //Set maximum size for the file
             switch (type) {
             case TAG.Authoring.FileUploadTypes.VideoArtwork:
             case TAG.Authoring.FileUploadTypes.AssociatedMedia:
@@ -316,16 +315,14 @@ TAG.Authoring.FileUploader = function (root, type,  localCallback, finishedCallb
 
 
     function addOverlay(elmt) {
-        if ($("#uploadingOverlay").length === 0) {
-            elmt.append(uploadingOverlay);
-        }
+        uploadingOverlay.show();
     }
 
     /**
      * Totally remove the overlay from the DOM / destroy
      */
     function removeOverlay() {
-        uploadingOverlay.remove();
+        uploadingOverlay.hide();
     }
 
 
