@@ -303,8 +303,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
         toAdd.on('click', clickCollection(collection));
         TAG.Telemetry.register(toAdd, 'click', 'collection_title', function(tobj) {
-            tobj.collection_name = title;
-            tobj.collection_guid = collection.Identifier;
+            tobj.custom_1 = title;
+            tobj.custom_2 = collection.Identifier;
         });
 
         titleBox.attr('id' ,'collection-title-'+collection.Identifier);
@@ -423,8 +423,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             if (!currentArtwork || !artworkSelected) {
                 return true; // abort
             }
-            tobj.work_name = currentArtwork.Name;
-            tobj.work_guid = currentArtwork.Identifier;
+            tobj.custom_1 = currentArtwork.Name;
+            tobj.custom_2 = currentArtwork.Identifier;
             tobj.ttype     = 'collection_to_' + getWorkType(currentArtwork); 
         });
         
@@ -706,8 +706,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 } else {
                     tobj.ttype = 'artwork_tile';
                 }
-                tobj.artwork_name = currentWork.Name;
-                tobj.artwork_guid = currentWork.Identifier;
+                tobj.custom_1 = currentWork.Name;
+                tobj.custom_2 = currentWork.Identifier;
 
                 justShowedArtwork = false;
             });
