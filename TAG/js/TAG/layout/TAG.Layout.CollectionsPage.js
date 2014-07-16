@@ -211,74 +211,11 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
     };
 
     /**
-<<<<<<< HEAD
-     * Add a collection to the left bar
-     * @method addCollection
-     * @param {doq} collection     the collection to add
-     */
-    function addCollection(collection) {
-        var title    = TAG.Util.htmlEntityDecode(collection.Name),
-            toAdd    = $(document.createElement('div')),
-            titleBox = $(document.createElement('div')),
-            text     = collection.Metadata.Description ? TAG.Util.htmlEntityDecode(collection.Metadata.Description) : "";
-
-        text = text.replace(/<br>/g, '').replace(/<br \/>/g, '');
-
-        toAdd.addClass('collectionClickable');
-        toAdd.addClass('primaryFont');
-        toAdd.attr({
-            'flagClicked': 'false',
-            'id': 'collection-' + collection.Identifier
-        });
-        
-        toAdd.on('mousedown', function () {
-            $(this).css('background-color', 'white');
-            titleBox.css('color', 'black');
-        });
-       
-        toAdd.on('mouseleave', function () {
-            var elt = $(this);
-            if (elt.attr('flagClicked') === 'false') {
-                elt.css({
-                    'background-color': 'transparent',
-                    'color': PRIMARY_FONT_COLOR
-                });
-                titleBox.css('color', PRIMARY_FONT_COLOR);
-            } else {
-                titleBox.css('color', 'black');
-            }
-        });
-        
-
-        toAdd.on('click', clickCollection(collection));
-        TAG.Telemetry.register(toAdd, 'click', 'collection_title', function(tobj) {
-            tobj.custom_1 = title;
-            tobj.custom_2 = collection.Identifier;
-        });
-
-        titleBox.attr('id' ,'collection-title-'+collection.Identifier);
-        titleBox.addClass('collection-title');
-        titleBox.addClass('primaryFont');
-        titleBox.html(title);
-
-        toAdd.append(titleBox);
-        collectionArea.append(toAdd);
-        collectionTitles.push(toAdd);
-    }
-
-    /**
-     * Click handler for collection title in left bar
-     * @method clickCollection
-     * @param {jQuery obj} elt       the element we're clicking
-     * @param {Number} sPos          if undefined, set scroll position to 0, otherwise, use this
-     * @param {doq} artwrk           if undefined, set currentArtwork to null, otherwise, use this
-=======
      * Shows collection and title
      * @method loadCollection
      * @param {jQuery obj} collection     the element currently being clicked
      * @param {Number} sPos               if undefined, set scroll position to 0, otherwise, use this
      * @param {doq} artwrk                if undefined, set currentArtwork to null, otherwise, use this
->>>>>>> 7d4a6a59f9632637bb4f22abbeb2ffbe7593e6d6
      */
     function loadCollection(collection, sPos, artwrk) {
         return function(evt) {
@@ -310,24 +247,11 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             if (collection.Metadata.BackgroundImage) {
                bgimage.css('background-image', "url(" + FIX_PATH(collection.Metadata.BackgroundImage) + ")");
             }
-<<<<<<< HEAD
-            tobj.custom_1 = currentArtwork.Name;
-            tobj.custom_2 = currentArtwork.Identifier;
-            tobj.ttype     = 'collection_to_' + getWorkType(currentArtwork); 
-        });
-        
-        exploreTabText = $(document.createElement('div'));
-        exploreTabText.attr('id','explore-text');
-        exploreTabText.css("font-size", 20 * BASE_FONT_SIZE / 30 + 'em');
-        exploreTabText.text("Explore");
-=======
->>>>>>> 7d4a6a59f9632637bb4f22abbeb2ffbe7593e6d6
 
             //Make collection dot white and others gray
             for(i = 0; i < visibleCollections.length; i++) { 
                 collectionDots[visibleCollections[i].Identifier].css('background-color','rgb(170,170,170)');
             }
-            console.log("collectionDots" + collectionDots);
             collectionDots[collection.Identifier].css('background-color', 'white');
 
             // Add collection title
@@ -358,8 +282,17 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                                })
                               .html(prevTitle)
                               .on('click', loadCollection(visibleCollections[collection.prevCollectionIndex], sPos, artwrk));
+                TAG.Telemetry.register(backArrowArea, 'click', 'collection_title', function(tobj){
+                    tobj.custom_1 = prevTitle;
+                    tobj.custom_2 = visibleCollections[collection.prevCollectionIndex].Identifier;
+                });
+                TAG.Telemetry.register(prevCollection, 'click', 'collection_title', function(tobj){
+                    tobj.custom_1 = prevTitle;
+                    tobj.custom_2 = visibleCollections[collection.prevCollectionIndex].Identifier;
+                });
                 collectionArea.append(prevCollection);
             };
+
             collectionArea.append(mainCollection);
             if (prevCollection){
                 prevCollection.css('width', (.95 * collectionArea.width() - mainCollection.width())/2 - backArrowArea.width());
@@ -381,6 +314,14 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                                 'width': (.95 * collectionArea.width() - mainCollection.width())/2 - nextArrowArea.width(),
                               })
                               .on('click', loadCollection(visibleCollections[collection.nextCollectionIndex], sPos, artwrk));
+                TAG.Telemetry.register(nextArrowArea, 'click', 'collection_title', function(tobj){
+                    tobj.custom_1 = nextTitle;
+                    tobj.custom_2 = visibleCollections[collection.nextCollectionIndex].Identifier;
+                });
+                TAG.Telemetry.register(nextCollection, 'click', 'collection_title', function(tobj){
+                    tobj.custom_1 = nextTitle;
+                    tobj.custom_2 = visibleCollections[collection.nextCollectionIndex].Identifier;
+                });
                 collectionArea.append(nextCollection);
             };
 
@@ -635,16 +576,11 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 //    tobj.ttype = 'collections_to_' + getWorkType(currentWork);
                 //} else {
                     tobj.ttype = 'artwork_tile';
-<<<<<<< HEAD
-                }
+                //}
+                //tobj.artwork_name = currentWork.Name;
+                //tobj.artwork_guid = currentWork.Identifier;
                 tobj.custom_1 = currentWork.Name;
                 tobj.custom_2 = currentWork.Identifier;
-=======
-                //}
-                tobj.artwork_name = currentWork.Name;
-                tobj.artwork_guid = currentWork.Identifier;
->>>>>>> 7d4a6a59f9632637bb4f22abbeb2ffbe7593e6d6
-
                 justShowedArtwork = false;
             });
 
@@ -1271,8 +1207,10 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 if (!currentArtwork || !artworkSelected) {
                     return true; // abort
                 }
-                tobj.work_name = currentArtwork.Name;
-                tobj.work_guid = currentArtwork.Identifier;
+                //tobj.work_name = currentArtwork.Name;
+                //tobj.work_guid = currentArtwork.Identifier;
+                tobj.custom_1 = currentArtwork.Name;
+                tobj.custom_2 = currentArtwork.Identifier;
                 tobj.ttype     = 'collection_to_' + getWorkType(currentArtwork); 
             });
 
