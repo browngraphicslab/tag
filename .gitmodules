@@ -1,0 +1,3 @@
+[submodule "tagcore"]
+	path = tagcore
+	url = http://github.com/browngraphicslab/TAG-Core.git
