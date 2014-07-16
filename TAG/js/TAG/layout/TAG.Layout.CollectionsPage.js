@@ -197,14 +197,13 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
         // Load collection
         if (currCollection) {
-            console.log("Identifier" + currCollection.Identifier);
             loadCollection(currCollection, scrollPos)();
-        } else if(toShowFirst) {
+        } else if (toShowFirst) {
             loadFirstCollection();
         }
 
         loadingArea.hide();
-    };
+    }
 
     /**
      * Shows collection and title
@@ -248,7 +247,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             for(i = 0; i < visibleCollections.length; i++) { 
                 collectionDots[visibleCollections[i].Identifier].css('background-color','rgb(170,170,170)');
             }
-            console.log("collectionDots" + collectionDots);
             collectionDots[collection.Identifier].css('background-color', 'white');
 
             // Add collection title
@@ -333,7 +331,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             scrollPos = sPos || 0;
             getCollectionContents(currCollection, showArtwork(currentArtwork));
         }
-    };
+    }
 
     /**
      * Helper function to load first collection
@@ -341,7 +339,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      */
     function loadFirstCollection() {
         loadCollection(toShowFirst)(); // first collection selected by default
-    };
+    }
 
     /**
      * Get contents (artworks, videos, tours) in the specified collection and make catalog
@@ -370,7 +368,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             initSearch(contents);
             callback && callback();
         }
-    };
+    }
 
     /**
      * Store the search strings for each artwork/tour
@@ -396,7 +394,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 "keys": info.toLowerCase()
             });
         }
-    };
+    }
 
     /**
      * Search collection using string in search input box
@@ -426,7 +424,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
         drawCatalog(matchedArts, currentTag, 0, true);
         drawCatalog(unmatchedArts, currentTag, matchedArts.length, false);
-    };
+    }
 
     /**
      * Create tiles for each artwork/tour in a collection
@@ -438,7 +436,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         currentTag = DEFAULT_TAG;
         colorSortTags(currentTag);
         drawCatalog(currentArtworks, currentTag, 0);
-    };
+    }
 
     /**
      * Draw the collection catalog
@@ -452,7 +450,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
         if (!currCollection) {
             return;
-        };
+        }
 
         if (start === 0) {
             loadQueue.clear();
@@ -460,7 +458,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             
         } else {
             drawHelper();
-        };
+        }
 
         // helper function to perform the actual drawing (to make sure we deal with async correctly)
         function drawHelper() {
