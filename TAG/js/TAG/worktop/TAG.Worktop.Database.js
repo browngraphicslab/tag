@@ -572,6 +572,7 @@ TAG.Worktop.Database = (function () {
             Img1: Desc image 1 URL
             Img2: Desc image 2 URL (unused)
             Private: Exhibition private state (boolean)
+            Timeline: Timeline shown state (boolean)
             Description: Exhibition description
             AddIDs: Comma separated list of artwork IDs to add to the exhibition
             RemoveIDs: Comma separated list of artwork IDs to remove from the exhibition

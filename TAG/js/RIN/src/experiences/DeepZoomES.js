@@ -84,6 +84,10 @@ window.rin = window.rin || {};
             self._orchestrator.onESEvent(rin.contracts.esEventIds.interactionActivatedEventId, null);
             //self._userInterfaceControl.focus();
         });
+        $(this._userInterfaceControl).bind("DOMMouseScroll", function(e) {
+            console.log("*************************************")
+            self._orchestrator.startInteractionMode();
+        });
 
         // Handle key events for panning
         this._userInterfaceControl.addEventListener('keydown', function (e) {
@@ -672,7 +676,6 @@ window.rin = window.rin || {};
 //				if (typeof functions.onScroll === "function") { 
 //					functions.onScroll(delta, pivot);
 //				}
-                self._orchestrator.startInteractionMode();
                 var dragStart = evt.gesture.center;              
 				var pivot     = { x: evt.clientX - $element.offset().left, y: evt.clientY - $element.offset().top };
                 var delta     = - evt.detail;
