@@ -1083,7 +1083,6 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                 var options = {
                     backCollection : exhibition
                 };
-                //var exhibView = new TAG.Layout.CollectionsPage(null, exhibition, viewer);
                 var exhibView = new TAG.Layout.CollectionsPage(options);
                 var exroot = exhibView.getRoot();
                 $(exroot).css('z-index','-1'); // otherwise, you can use the search box and sorting tabs!
