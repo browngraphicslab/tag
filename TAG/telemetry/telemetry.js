@@ -44,7 +44,12 @@ TAG.Telemetry = (function() {
 					browser:    bversion,
 					platform:   platform,
 					time_stamp: date.getTime(),
-					time_human: date.toString()
+					time_human: date.toString(),
+					custom_1: null,
+					custom_2: null,
+					custom_3: null,
+					custom_4: null,
+					custom_5: null
 				},
 				ret = true;
 

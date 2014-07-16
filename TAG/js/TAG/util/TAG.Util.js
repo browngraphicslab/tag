@@ -1750,8 +1750,8 @@ TAG.Util.UI = (function () {
             if(evt.which !== 13) {
                 return true;
             }
-            tobj.old_address = localStorage.ip;
-            tobj.new_address = serverDialogInput.val();
+            tobj.custom_3 = localStorage.ip;
+            tobj.custom_4 = serverDialogInput.val();
         });
 
         var serverDialogContact = $(document.createElement('div'));
@@ -1864,8 +1864,8 @@ TAG.Util.UI = (function () {
         serverSaveButton.on('click', saveClick);
 
         TAG.Telemetry.register(serverSaveButton, 'click', 'change_server', function(tobj, evt) {
-            tobj.old_address = localStorage.ip;
-            tobj.new_address = serverDialogInput.val();
+            tobj.custom_3 = localStorage.ip;
+            tobj.custom_4 = serverDialogInput.val();
         });
 
         var serverCircle = $(document.createElement('img'));
