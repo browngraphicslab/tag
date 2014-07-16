@@ -23,6 +23,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         nextArrow                = root.find('#nextArrow'),
         collectionHeader         = root.find('#collectionHeader'),
         bgimage                  = root.find('#bgimage'),
+        bottomContainer          = root.find('#bottomContainer'),
         catalogDiv               = root.find('#catalogDiv'),
         infoTilesContainer       = root.find('#infoTilesContainer'),
         sortRow                  = root.find('#sortRow'),
@@ -37,7 +38,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         scrollPos        = options.backScroll || 0,     // horizontal position within collection's catalog
         currCollection   = options.backCollection,      // the currently selected collection
         currentArtwork   = options.backArtwork,         // the currently selected artwork
-
+        
         // misc initialized vars
         loadQueue            = TAG.Util.createQueue(),           // an async queue for artwork tile creation, etc
         artworkSelected      = false,                            // whether an artwork is selected
@@ -52,16 +53,18 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         timelineTicks        = [],                               // timeline ticks
         tileDivHeight        = 0,                                // Height of tile div (before scroll bar added, should equal hieght of catalogDiv)
         artworkShown         = false,                            // whether an artwork pop-up is currently displayed
+        timelineShown        = true,                            // whether current collection has a timeline
+
 
         // constants
-        // TO-DO: If no timeline, default tag should be "Title"
-        DEFAULT_TAG      = "Year",                                 // default sort tag
         BASE_FONT_SIZE   = TAG.Worktop.Database.getBaseFontSize(), // base font size for current font
         FIX_PATH         = TAG.Worktop.Database.fixPath,           // prepend server address to given path
         MAX_YEAR         = (new Date()).getFullYear(),              // Maximum display year for the timeline is current year
         EVENT_CIRCLE_WIDTH = 20,                                   // pixel width of event circles
         LEFT_SHIFT         = 9,                                    // pixel shift of timeline event circles to center on ticks 
         TILE_BUFFER        = 10,                                   // number of pixels between artwork tiles
+        TILE_HEIGHT_RATIO  = 200,                                    //ratio between width and height of artwork tiles
+        TILE_WIDTH_RATIO   = 255, 
 
         // misc uninitialized vars
         fullMinDisplayDate,             // minimum display date of full timeline
@@ -76,6 +79,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         artistInfo,                     // artist tombstone info div
         yearInfo,                       // year tombstone info div
         justShowedArtwork,              // for telemetry; helps keep track of artwork tile clicks
+        defaultTag,                     // default sort tag
         currentTag;                     // current sort tag
 
     // get things rolling
@@ -327,6 +331,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             //If there's no description, change UI so that artwork tiles take up entire bottom area
             collection.Metadata.Description ? infoDiv.css('width', '25%') : infoDiv.css('width', '0');
 
+            //TO-DO: add in 
+            //timelineShown = collection.Metadata.Timeline;
+
             currCollection = collection;
             currentArtwork = artwrk || null;
             //loadCollection.call($('#collection-'+ currCollection.Identifier), currCollection);
@@ -435,7 +442,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
      */
     function createArtTiles(artworks) {
         currentArtworks = artworks;
-        currentTag = DEFAULT_TAG;
+        timelineShown ? currentTag = "Year" : currentTag = "Title";
         colorSortTags(currentTag);
         drawCatalog(currentArtworks, currentTag, 0);
     };
@@ -483,7 +490,11 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
             timelineEventCircles = [];
             timelineTicks = [];
-            initTimeline(artworks);
+            if (timelineShown){   
+                initTimeline(artworks);
+            } else {
+                bottomContainer.css('height', '85%');
+            }  
             tileDiv.empty();
             tileDivHeight = tileDiv.height();
 
@@ -600,7 +611,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
             tileDiv.append(main);
             //base height off original tileDivHeight (or else changes when scroll bar added on 6th tile)
+            var tileHeight = (0.42) * tileDivHeight;
             main.css({'height': (0.42) * tileDivHeight});
+            main.css({'width': (tileHeight/TILE_HEIGHT_RATIO)*TILE_WIDTH_RATIO});
              // Align tile so that it follows the grid pattern we want
             main.css({
                 'left': Math.floor(i / 2) * (main.width() + TILE_BUFFER), 

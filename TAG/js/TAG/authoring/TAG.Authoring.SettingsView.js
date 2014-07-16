@@ -825,7 +825,6 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         prepareNextView(true, "New", createExhibition);
         clearRight();
         prepareViewer(true);
-
         inCollectionsView = true;
         inArtworkView = false;
         inAssociatedView = false;
@@ -970,6 +969,42 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         var pubPrivDiv = $(document.createElement('div'));
         pubPrivDiv.append(privateInput).append(publicInput);
 
+        //TO-DO: add in on server side from TAG.Worktop.Database.js changeExhibition() 
+        var timelineShown;
+        if (exhibition.Metadata.Timeline){
+            timelineShown = (/^true$/i).test(exhibition.Metadata.Timeline); 
+        } else {
+            timelineShown = false;
+        }
+        var showTimeline = createButton('Show Timeline', function(){
+            timelineShown = true;
+            showTimeline.css('background-color', 'white');
+            hideTimeline.css('background-color','');
+        }, {
+            'min-height': '0px',
+            'margin-right': '4%',
+            'width':'48%',
+            'padding-left': '10px',
+            'padding-right': '10px'
+        });
+        showTimeline.attr('class','settingButton');
+        var hideTimeline = createButton('Hide Timeline', function(){
+            timelineShown = false;
+            hideTimeline.css('background-color','white');
+            showTimeline.css('background-color','');
+            }, {
+            'min-height': '0px',
+            'width': '48%'
+        });
+        hideTimeline.attr('class','settingButton');
+        if (timelineShown){
+            showTimeline.css('background-color','white');
+        }else{
+            hideTimeline.css('background-color','white');
+        }
+        var timelineOptionsDiv = $(document.createElement('div'));
+        timelineOptionsDiv.append(showTimeline).append(hideTimeline);
+
         var nameInput = createTextInput(TAG.Util.htmlEntityDecode(exhibition.Name), 'Collection name', 40);
         var descInput = createTextAreaInput(TAG.Util.htmlEntityDecode(exhibition.Metadata.Description), false);
         var bgInput = createButton('Change Background Image', function () {
@@ -1009,12 +1044,14 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         var desc = createSetting('Collection Description', descInput);
         var bg = createSetting('Collection Background Image', bgInput);
         var preview = createSetting('Collection Preview Image', previewInput);
+        var timeline = createSetting('Change Timeline Setting', timelineOptionsDiv);
 
         settingsContainer.append(privateSetting);
         settingsContainer.append(name);
         settingsContainer.append(desc);
         settingsContainer.append(bg);
         settingsContainer.append(preview);
+        settingsContainer.append(timeline);
 
         // Buttons
         var saveButton = createButton('Save Changes', function () {
@@ -1027,6 +1064,7 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
                 descInput: descInput,        //Collection description
                 bgInput: bgInput,            //Collection background image
                 previewInput: previewInput,  //Collection preview image
+                timelineInput: timelineShown,  //to-do make sure default is shown
             });
         }, {
             'margin-right': '3%',
@@ -1130,11 +1168,13 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
         var bg = inputs.bgInput.val();
         var preview = inputs.previewInput.val();
         var priv = inputs.privateInput;
+        var timeline = inputs.timelineShown;
 
         var options = {
             Name: name,
             Private: priv,
             Description: desc,
+            Timeline: timeline,
         }
 
         if (bg)
