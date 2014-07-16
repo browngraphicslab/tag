@@ -893,7 +893,7 @@
   text-overflow: ellipsis;
   word-wrap: break-word;
 }
-#newCatalogRoot #description-text {
+#newCatalogRoot #descText {
   color: #fff;
   overflow-x: hidden;
   overflow-y: auto;
@@ -936,17 +936,17 @@
   top: 25%;
   width: auto;
 }
-#newCatalogRoot #explore-tab {
+#newCatalogRoot #exploreTab {
   background-color: rgba(0,0,0,0.4);
   color: #fff;
-  display: none;
+  display: inline-block;
   height: 16%;
   overflow: hidden;
   position: absolute;
   left: 0;
   width: 100%;
 }
-#newCatalogRoot #explore-text {
+#newCatalogRoot #exploreText {
   float: right;
   margin-right: 3%;
   position: relative;
@@ -969,7 +969,7 @@
   vertical-align: middle;
   width: auto;
 }
-#newCatalogRoot #img-container {
+#newCatalogRoot #imgDiv {
   width: 90%;
   height: 50%;
   position: absolute;
@@ -982,7 +982,7 @@
   height: 100%;
   width: 25%;
 }
-#newCatalogRoot #info-text {
+#newCatalogRoot #infoText {
   display: inline-block;
   float: top;
   top: 100%;
@@ -1066,6 +1066,7 @@
 #newCatalogRoot #selectedArtworkContainer {
   background-color: rgba(0,0,0,0.65);
   width: 32%;
+  top: 5%;
   height: 90%;
   z-index: 10000;
   position: absolute;

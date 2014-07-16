@@ -1174,7 +1174,8 @@ TAG.Authoring.SettingsView = function (startView, callback, backPage, startLabel
             Name: name,
             Private: priv,
             Description: desc,
-            Timeline: timeline,
+            //TO-DO: add in once valid request parameter
+            //Timeline: timeline,
         }
 
         if (bg)
