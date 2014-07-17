@@ -79,7 +79,7 @@ module.exports = function(grunt) {
 					'TAG/js/TAG/worktop/TAG.Worktop.Database.js',
 					'TAG/js/TAG/artmode/TAG.AnnotatedImage.js',
 					'TAG/js/TAG/auth/TAG.Auth.js',
-					'TAG/js/TAG/layout/TAG.Layout.StartPage.js',
+					'tagcore/js/TAG/layout/TAG.Layout.StartPage.js', // in tagcore
 					'TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js',
 					'TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js',
 					'TAG/js/TAG/layout/TAG.Layout.InternetFailurePage.js',
@@ -151,7 +151,7 @@ module.exports = function(grunt) {
 				files: {
 					'TAG/css/TAG.css': [
 						'TAG/css/common.styl',
-						'TAG/css/StartPage.styl',
+						'tagcore/css/StartPage.styl', // in tagcore
 						'TAG/css/InternetFailurePage.styl',
 						'TAG/css/Artmode.styl',
 						'TAG/css/NewCatalog.styl',
@@ -170,7 +170,7 @@ module.exports = function(grunt) {
 					pretty: true
 				},
 				files: {
-					'TAG/html/StartPage.html': 'TAG/html/StartPage.jade',
+					'tagcore/html/StartPage.html': 'tagcore/html/StartPage.jade', // in tagcore
 					'TAG/html/InternetFailurePage.html': 'TAG/html/InternetFailurePage.jade',
 					'TAG/html/Artmode.html': 'TAG/html/Artmode.jade',
 					'TAG/html/NewCatalog.html': 'TAG/html/NewCatalog.jade',
@@ -274,7 +274,7 @@ module.exports = function(grunt) {
 				'TAG/js/TAG/artmode/TAG.AnnotatedImage.js',
 				'TAG/js/TAG/auth/TAG.Auth.js',
 				
-				'TAG/js/TAG/layout/TAG.Layout.StartPage.js',
+				'tagcore/js/TAG/layout/TAG.Layout.StartPage.js', // in tagcore
 				'TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js',
 				'TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js',
 				'TAG/js/TAG/layout/TAG.Layout.InternetFailurePage.js',

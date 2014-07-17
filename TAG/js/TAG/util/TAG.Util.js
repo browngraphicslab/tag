@@ -1434,7 +1434,7 @@ TAG.Util = (function () {
         $.ajax({
             async: false,
             cache: false,
-            url: tagPath+"html/"+path,
+            url: path.match(/\//) ? path : tagPath+"html/"+path,
             success: function (data) {
                 ret = $(data);
             },
