@@ -65,7 +65,7 @@ module.exports = function(grunt) {
 					'TAG/js/utils/doubleLinkedList.js',
 					'TAG/js/utils/hashtable.js',
 					'TAG/js/d3/d3.v2.js',
-					'TAG/js/TAG/util/TAG.Util.js',
+					'tagcore/js/TAG/util/TAG.Util.js', // tagcore now
 					'TAG/js/html2canvas/html2canvas.js',
 					'TAG/js/utils/jquery.livequery.js',
 					'TAG/js/Autolinker.js-master/dist/Autolinker.js',
@@ -233,7 +233,7 @@ module.exports = function(grunt) {
 				'TAG/js/utils/doubleLinkedList.js',
 				'TAG/js/utils/hashtable.js',
 				'TAG/js/d3/d3.v2.js',
-				'TAG/js/TAG/util/TAG.Util.js',
+				'tagcore/js/TAG/util/TAG.Util.js', // tagcore now
 				'TAG/js/html2canvas/html2canvas.js',
 				'TAG/js/utils/jquery.livequery.js',
 				'TAG/js/Autolinker.js-master/dist/Autolinker.js',
