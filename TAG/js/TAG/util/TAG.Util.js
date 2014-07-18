@@ -30,6 +30,7 @@ TAG.Util = (function () {
         createDoubleEndedPQ: createDoubleEndedPQ,
         replaceSVGImg: replaceSVGImg,
         getMaxFontSizeEM: getMaxFontSizeEM,
+        getMaxFontSize: getMaxFontSize,
         encodeXML: encodeXML,
         constrainAndPosition: constrainAndPosition,
         getFieldValueFromMetadata: getFieldValueFromMetadata,
@@ -46,8 +47,9 @@ TAG.Util = (function () {
         htmlEntityDecode: htmlEntityDecode,
         videoErrorHandler: videoErrorHandler,
         getHtmlAjax: getHtmlAjax,
-        localVisibility: localVisibility
-
+        localVisibility: localVisibility,
+        dimColor: dimColor,
+        hexToRGBA: hexToRGBA
     };
 
     /* 
@@ -384,8 +386,7 @@ TAG.Util = (function () {
         if (string)
             return string.replace(/\n/g, '<br>').
                 replace(/&/g, '&amp;').
-                replace(/</g, '&lt;').
-                replace(/>/g, '&gt;').
+                replace(/<(.|\n)*?>/g, '').
                 replace(/\'/g, '&apos;').
                 replace(/\"/g, '&quot;');
         else return "";
@@ -620,6 +621,38 @@ TAG.Util = (function () {
         testDiv.remove();
         return currSize + 'em';
     }
+
+    /**
+     *  get max font size without em
+     * @method getMaxFontSize
+     * @param {String} text       TODO FINISH DOCUMENTATION
+     */
+    function getMaxFontSize(text, minFontSize, maxWidth, maxHeight, step) {
+        var testDiv = $(document.createElement('div'));
+        step = step || 0.1;
+        var currSize = minFontSize;
+
+        testDiv.css({
+            'position': 'absolute',
+            'visibility': 'hidden',
+            'height': 'auto',
+            'width': 'auto',
+            'font-size': minFontSize + 'em',
+        });
+        testDiv.text(text);
+        $('body').append(testDiv);
+
+        if (testDiv.width() >= maxWidth || testDiv.height() >= maxHeight) {
+            return minFontSize;
+        }
+
+        while (testDiv.width() < maxWidth && testDiv.height() < maxHeight) {
+            currSize += step;
+            testDiv.css('font-size', currSize + 'em');
+        }
+        testDiv.remove();
+        return currSize;
+    }
 	
 	/*
 		Gets the maximum font size without em.
@@ -680,6 +713,11 @@ TAG.Util = (function () {
     //environment that metro apps run in) by default never retrieves a new xml document, even if the server's
     //version is new. This fixes that.
     function makeXmlRequest(url) {
+
+        if(!url) {
+            return;
+        }
+
         var request = new XMLHttpRequest();
         request.open("GET", url, false);
         request.send(null);
@@ -785,7 +823,7 @@ TAG.Util = (function () {
             hold_timeout: 600,
             tap_max_distance: 15,
             doubletap_distance: 17,
-            doubletap_interval: 200,
+            doubletap_interval: 400,
             swipe: false
         });
 
@@ -1412,11 +1450,15 @@ TAG.Util = (function () {
     }
 
     function htmlEntityEncode(str) {
-        return str ? $('<div />').text(escape(str)).html() : '';
+        return str ? $('<div />').text(encodeURIComponent(str).html()) : '';
     }
 
     function htmlEntityDecode(str) {
-        return str ? unescape($('<div />').html(str).text()) : '';
+        try {
+            return str ? decodeURIComponent($('<div />').html(str).text()) : '';
+        } catch (e) {
+            return str ? unescape($('<div />').html(str).text()) : '';
+        }
     }
 
     // sets up error handler for a video element
@@ -1508,6 +1550,48 @@ TAG.Util = (function () {
         localStorage.invisibleCollectionsTAG = JSON.stringify(tempList);
     }
 
+    /**
+     * Take in a color and return a dimmed version of that color (divide rgb by k)
+     * @param {String} inColor      input color as a hex string
+     * @param {Number} k            dimming factor
+     * @return {String}             formatted as 'rbg(_,_,_)'
+     */
+    function dimColor(inColor, k) {
+        var r,
+            g,
+            b;
+
+        k = k || 3;
+
+        inColor = inColor.replace(/\#/g, '');
+        inColor = inColor.substring(0, 6);
+
+        r = Math.round(parseInt(inColor.substring(0, 2), 16) / k);
+        g = Math.round(parseInt(inColor.substring(2, 4), 16) / k);
+        b = Math.round(parseInt(inColor.substring(4, 6), 16) / k);
+
+        return 'rgb(' + r + ',' + g+ ',' + b + ')';
+    }
+
+    /**
+     * Take in a color (in '#abcdef' format) and an opacity (0-1) and return an rgba(..) string
+     * @param {String} color       input color as a hex string
+     * @param {String} opac        input opacity
+     * @return {String}            'rgba(color.r, color.g, color.b, opac)'
+     */
+    function hexToRGBA(color, opac) {
+        var r, g, b;
+
+        color = color.replace(/\#/g, '');
+        color = color.substring(0, 6);
+
+        r = parseInt(color.substring(0, 2), 16);
+        g = parseInt(color.substring(2, 4), 16);
+        b = parseInt(color.substring(4, 6), 16);
+
+        return 'rgba(' + r + ',' + g + ',' + b + ',' + opac + ')';
+    }
+
 })();
 
 /**
@@ -1556,20 +1640,25 @@ TAG.Util.UI = (function () {
         createTrack: createTrack,
         getStack: getStack,
         initKeyHandler: initKeyHandler,
+        keyHandler: keyHandler
     };
 
     //initKeyHandler();
 
     function initKeyHandler() {
-        window.addEventListener('keydown', function (event) {
-            //event.preventDefault();
-            //event.stopPropagation();
-            if(globalKeyHandler && globalKeyHandler[0] && globalKeyHandler[0][event.which]) {
-                globalKeyHandler[0][event.which]();
-                // console.log("current stack; " + globalKeyHandler[0][event.which]);
-            }
-        });
+        window.focus();
+        window.addEventListener('keydown', keyHandler);
     }
+
+    /**The key handling event function
+     * @method keyHandler
+     * @param {Event} event     // the event triggered on key presses
+     */
+    function keyHandler(event) {
+        if (globalKeyHandler && globalKeyHandler[0] && globalKeyHandler[0][event.which]) {
+            globalKeyHandler[0][event.which]();
+        }
+      }
 
     function getStack() {
         return globalKeyHandler;
@@ -2262,7 +2351,7 @@ TAG.Util.UI = (function () {
 
     
     // popup message to ask for user confirmation of an action e.g. deleting a tour
-    function PopUpConfirmation(confirmAction, message, confirmButtonText, noFade, cancelAction, container) {
+    function PopUpConfirmation(confirmAction, message, confirmButtonText, noFade, cancelAction, container, onkeydown) {
         var overlay = blockInteractionOverlay();
         container = container || window;
         var confirmBox = document.createElement('div');
@@ -2333,8 +2422,15 @@ TAG.Util.UI = (function () {
         confirmButton.onclick = function () {
             removeAll();
             confirmAction();
-
         };
+
+        confirmButton.onkeydown = function (event) {
+            switch (event.which) {
+                case 13: // enter key
+                    removeAll();
+                    confirmAction();
+            }
+        }
 
         var cancelButton = document.createElement('button');
         $(cancelButton).css({
@@ -2857,7 +2953,7 @@ TAG.Util.UI = (function () {
             loadQueue = TAG.Util.createQueue(),
 
             currentKeyHandler = globalKeyHandler[0];
-            globalKeyHandler[0] = { 13: onEnter ,};
+            globalKeyHandler[0] = { 13: onEnter };
 
         for (i = 0; i < tabs.length; i++) {
             tabCache.push({ cached: false, comps: [] });
@@ -3220,7 +3316,9 @@ TAG.Util.UI = (function () {
                     'guid': comp.Identifier,
                     'name': comp.Name,
                     'duration': comp.Metadata.Duration,
-                    'comp': comp
+                    'comp': comp,
+                    'year': comp.Metadata.Year,
+                    'artist': comp.Metadata.Artist
                 });
                 var isSelected = (origComps.indexOf(comp.Identifier) >= 0);//selectedArtworksUrls[compArray[i].Metadata.Source] ? true : false;
                 if (isSelected) {
@@ -3280,14 +3378,33 @@ TAG.Util.UI = (function () {
                 else {//text associated media without any media...
                     compHolderImage.attr('src', tagPath+'images/text_icon.svg');
                 }
+
+                // if (compHolderImage.height() / compHolderImage.width() > 1) {
+                //     compHolderImage.css({
+                //         'width': 'auto',
+                //         'height': '100%',
+                //     });
+                // } else {
+                //     compHolderImage.css({
+                //         'height': 'auto',
+                //         'width': '100%',
+                //     });
+                // }
+
                 compHolderImage.css({
-                    'width': '100%',
-                    'height': '100%',
+                    'max-height': '100%',
+                    'position': 'absolute',
+                    // 'left': '0',
+                    // 'right': '0',
+                    // 'top': '0',
+                    'bottom': '0',
+                    'margin': 'auto',
                     'max-width': '100%',
-                    'max-height': '100%'
+                    width: 'auto',
+                    height: 'auto'
                 });
-                compHolderImage.removeAttr('width');
-                compHolderImage.removeAttr('height');
+                // compHolderImage.removeAttr('width');
+                // compHolderImage.removeAttr('height');
                 imgHolderDiv.append(compHolderImage);
 
                 if (shouldAppendTII) {
