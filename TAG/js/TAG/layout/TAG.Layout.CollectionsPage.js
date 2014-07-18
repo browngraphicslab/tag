@@ -62,6 +62,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         infoSource           = [],                               // array to hold sorting/searching information
         timelineEventCircles = [],                               // circles for timeline
         timelineTicks        = [],                               // timeline ticks
+        scaleTicks           = [],                               // timeline scale ticks
+        scaleTicksAppended   = false,                            // if scale ticks have been appended
         tileDivHeight        = 0,                                // Height of tile div (before scroll bar added, should equal hieght of catalogDiv)
         artworkShown         = false,                            // whether an artwork pop-up is currently displayed
         timelineShown        = true,                            // whether current collection has a timeline
@@ -80,6 +82,10 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         // misc uninitialized vars
         fullMinDisplayDate,             // minimum display date of full timeline
         fullMaxDisplayDate,             // maximum display date of full timeline
+        initTimelineWidth,              // initial width of timeline
+        initTimelineLeft,               // initial left position of timeline
+        currentTimeline,                // currently displayed timeline
+        currTimelineCircleArea,         // current timeline circle area
         toShowFirst,                    // first collection to be shown (by default)
         toursIn,                        // tours in current collection
         currentThumbnail,               // img tag for current thumbnail image
@@ -516,6 +522,13 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
             timelineEventCircles = [];
             timelineTicks = [];
+            scaleTicks = [];
+            if (currentTimeline){
+                currentTimeline.stop(true, true);
+            }
+            if (currTimelineCircleArea){
+                currTimelineCircleArea.stop(true,true);
+            }
             if (timelineShown){   
                 initTimeline(artworks);
             } else {
@@ -681,9 +694,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         fullMinDisplayDate = minDate;
 
         //TO-DO: calculate and pass in numTicks based on number of years
-        
-        prepTimelineArea(minDate, maxDate);
-        prepTimelineCircles(avlTree, minDate, maxDate);
+        currentTimeline = prepTimelineArea(minDate, maxDate);
+        currTimelineCircleArea = prepTimelineCircles(avlTree, minDate, maxDate);
 
         /**Helper function to prepare timeline area including 'ticks'
         * @method prepTimelineArea
@@ -695,7 +707,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         function prepTimelineArea(minDate, maxDate, numTicks){
             var timeline = $(document.createElement('div')),
                 i,
-                //TO-DO: constrain so numTicks can never be greater than 101
                 numTicks = numTicks ? numTicks : 101,
                 tick;
 
@@ -709,11 +720,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 tick.css({
                     'left' : i/(numTicks-1)*100 + '%'
                 });
-                //Save ticks left position for zooming 
-                tick.leftPosition = tick.position().left;
                 timeline.append(tick);
                 timelineTicks.push(tick);
             }
+
+            initTimelineWidth = timeline.width();
+            initTimelineLeft = timeline.position().left;
             return timeline;
         }
 
@@ -745,8 +757,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             art = curr.artwork;
        
             while (curr&& curr.yearKey!==Number.POSITIVE_INFINITY){
+                //console.log("here");
                 if (!isNaN(curr.yearKey)){
-                    positionOnTimeline = parseInt(100*(curr.yearKey - minDate)/timeRange);
+                    positionOnTimeline = 100*(curr.yearKey - minDate)/timeRange;
 
                     //Create and append event circle
                     eventCircle = $(document.createElement('div'));                
@@ -769,7 +782,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                     timelineCircleArea.append(eventCircle);
 
                     //Shift circles left by half their width so they are centered on ticks
-                    eventCircle.css('left', eventCircle.position().left - LEFT_SHIFT + 'px');
+                    //TO-DO: add this back in so that it works with new animations (all relative positioning)
+                    //eventCircle.css('left', eventCircle.position().left - LEFT_SHIFT + 'px');
 
                     //Artworks before year 0 are automatically given the 'BCE' tag
                     if (curr.yearKey<0){
@@ -784,15 +798,10 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                             .addClass('timelineDateLabel');
                     eventCircle.append(timelineDateLabel);
 
-                    //Information for zooming:
-                    //TO-DO: make sure eventCircle isn't given any unneccessary pieces of info
-                    eventCircle.leftPosition = eventCircle.position().left;
                     eventCircle.yearKey = curr.yearKey;
-                    eventCircle.originalPosition = eventCircle.position().left;
                     eventCircle.timelineDateLabel = timelineDateLabel;
                     eventCircle.labelwidth = timelineDateLabel.width();
-                    eventCircle.artwork = art;
-                
+                    eventCircle.artwork = art;                    
                     timelineEventCircles.push(eventCircle);
                     artworkCircles[curr.artwork.Identifier] = eventCircle;
 
@@ -812,55 +821,55 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                             timelineDateLabel.css('visibility', 'visible');
                         } else{
                             timelineDateLabel.css('visibility', 'hidden');
-                        }
-                        if (curr.yearKey === fullMaxDisplayDate){
-                            timelineDateLabel.css('visibility','visible');
-                            if (circleOverlap){
-                                artworkCircles[prevNode.artwork.Identifier].timelineDateLabel.css('visibility','hidden');
-                            }
+                            if (curr.yearKey === fullMaxDisplayDate){
+                                timelineDateLabel.css('visibility','visible');
+                                if (circleOverlap){
+                                    artworkCircles[prevNode.artwork.Identifier].timelineDateLabel.css('visibility','hidden');
+                                }
+                            }               
                         } 
                     }
                 }
-            curr = avlTree.findNext(curr);
-            if(curr) { 
-                art = curr.artwork; 
+                curr = avlTree.findNext(curr);
+                if(curr) { art = curr.artwork; }
             }
-        }
-    };
+            return timelineCircleArea;
+        };
     };
 
 
     /** Zooms timeline to center on particular yearKey
      * @methdd zoomTimeline
-     * @param  {Number} yearKey          yearKey of clicked artwork to zoom in on.
+     * @param  {Number} yearKey          yearKey of clicked artwork to zoom in on. (if null, zooms back out to initial state)
      * @param  {Number} minDisplayDate   minimum date on timeline before (additional) zoom 
      * @param  {Number} maxDisplayDate   maximum date on timeline before (additional) zoom
      * @param  {Number} duration         duration of zoom animation
      */
     function zoomTimeline(yearKey, minDisplayDate, maxDisplayDate, duration){
         var initTimeRange,
+            width,
+            left,
+            originalScale,
+            newScale,
             initPercentOnTimeline,
+            initTickSpacing,
+            newTickSpacing,
+            lastTickSpacing,
+            finalFirstTickPosition,
+            leftOffset,
+            shift,
             beforeDiff,
             afterDiff,
             buffer,
-            minDisplayDate,
-            maxDisplayDate,
+            lastTimeRange,
             timeRange,
-            tickPercent,
-            yearKeyTickIndex = 0,
-            minPositionDistance = Number.MAX_VALUE,
-            firstTickIndex = 0,
-            positionDifference,
+            firstTickPercentOnTimeline,
             numTicks=101,
             i,
             k,
             j,
-            timeline,
-            finalTickPositions,
             scaleTick,
-            fractionOnTimeline,
             positionOnTimeline,
-            timelineCircleArea,
             first = true,
             fullOverlap,
             position1,
@@ -870,10 +879,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
         if (yearKey===0||yearKey){
 
-            initTimeRange = maxDisplayDate - minDisplayDate;
-            //TO-DO: add condition for if initTimeRange is 0. 
-            initPercentOnTimeline = parseInt(100*(yearKey - minDisplayDate)/initTimeRange);
+            lastTimeRange = maxDisplayDate - minDisplayDate;
 
+            //Calculate new min and max display date. 
             beforeDiff = Math.round(yearKey - minDisplayDate);
             afterDiff = Math.round(maxDisplayDate - yearKey);
             //Scale correctly if already zoomed in and clicking on first dot
@@ -896,138 +904,109 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
         }
 
-        //TO-DO: sync up animation (have it occur for both ticks and circles in one call), try css3 annimations for comparison
+        //Info for zooming calculations
+        initTimeRange = fullMaxDisplayDate - fullMinDisplayDate;
+        if (initTimeRange===0){
+            initPercentOnTimeline = 0;
+        } else { 
+            initPercentOnTimeline = parseInt(100*(yearKey - fullMinDisplayDate)/initTimeRange);
+        }
+        firstTickPercentOnTimeline = parseInt(100*(minDisplayDate - fullMinDisplayDate)/initTimeRange);
+        originalScale = initTimeRange/100;
+        initTickSpacing = initTimelineWidth/100;
+        lastTickSpacing = currentTimeline.width()/(numTicks-1);
         
-        timelineArea.empty();
-        timeline = $(document.createElement('div'));
-        timeline.addClass('timeline');
-        timelineArea.append(timeline);
+        //Caculate new left position and width of timeline and timelineCircleArea (may be a better way to do some of these calculations)
+        if (yearKey===null){
+            width = initTimelineWidth;
+            left = initTimelineLeft;
+        } else {
+            if (timeRange<100){
+                newTickSpacing = lastTickSpacing*(lastTimeRange/timeRange);
+            } else {
+                newScale = timeRange/100;
+                newTickSpacing = initTickSpacing*(originalScale/newScale);
+            }   
+                width = newTickSpacing*100;
+                positionOnTimeline = ((yearKey - fullMinDisplayDate)/initTimeRange)*width;
+                finalFirstTickPosition = ((firstTickPercentOnTimeline)*width)/100;
+                //TO-DO: leftOffset is still a bit off (probably because finalFirstTickPosition is not exactly at the edge of the window)
+                leftOffset = positionOnTimeline - finalFirstTickPosition;
+                shift = leftOffset - root.width()/2;
+                left = initTimelineLeft - (firstTickPercentOnTimeline*newTickSpacing)-shift;
+        }
 
-        //Figure out tick index of first tick displayed and yearKey's tick
-        if (initTimeRange>=100){
-            yearKeyTickIndex = initPercentOnTimeline;
-        }else {
-            //TO-DO: put in print lines here and check for calculation erros
-            for (i=0; i<timelineTicks.length; i++){
-                if (timelineTicks[i].css('visibility')!=='hidden'){
-                    tickPercent = Math.round(100*timelineTicks[i].leftPosition/$(timeline).width());
-                    positionDifference = Math.abs(tickPercent - initPercentOnTimeline);
-                    if (positionDifference<minPositionDistance){
-                        minPositionDistance = positionDifference;
-                        yearKeyTickIndex = i;
+
+        if (scaleTicksAppended&&newTickSpacing<initTickSpacing*20||!yearKey){
+            for (k=0;k<scaleTicks.length;k++){
+                scaleTicks[k].remove();
+            }
+            scaleTicks = [];
+            scaleTicksAppended = false;
+        }
+
+        currentTimeline.stop(true,false);
+        currentTimeline.animate({
+            left: left + 'px',
+            width: width + 'px'},
+            duration, function(){
+                if (newTickSpacing>initTickSpacing*20&&yearKey){
+                    for (k=0; k<timelineTicks.length; k++){
+                        //TO-DO add more scale ticks once zoomed in far 
+                        scaleTick = $(document.createElement('div'));
+                        scaleTick.addClass('timelineTick');
+                        var scaleTickPercent = (timelineTicks[k].position().left + newTickSpacing/2)/width*100;
+                        scaleTick.css({
+                            left: scaleTickPercent + '%',
+                            // For testing: 
+                            //'background-color' : 'red'
+                        });
+                        currentTimeline.append(scaleTick);
+                        scaleTicks.push(scaleTick);
                     }
-                }
-            }
-            firstTickIndex = yearKeyTickIndex - timeRange/2;   
-        }
-
-        finalTickPositions = [];
-        
-        //Calculate final positions for timeline ticks:
-        i=0;
-        for (k=0; k<timelineTicks.length;k++){
-            timelineTicks[k].css({'visibility': 'visible'});
-            if (yearKey===null){
-                finalTickPositions[k] = parseInt((k/100)*$(timeline).width());
-            }
-            else { //if (k>=firstTickIndex && k<= firstTickIndex+timeRange){
-                fractionOnTimeline = i/(numTicks-1);
-                positionOnTimeline = parseInt(fractionOnTimeline*$(timeline).width());
-                finalTickPositions[k] = positionOnTimeline;
-                i++;
-            //}
-            //else {
-            //if (k<firstTickIndex || k> firstTickIndex+timeRange+1){
-                //timelineTicks[k].css({'visibility': "hidden"});
-            //}
-            }
-        }
-
-        //Append and move the ticks that we are using- others should zoom off accordingly
-        for (k=0; k<timelineTicks.length; k++){
-            timelineTicks[k].css({left:timelineTicks[k].leftPosition});
-            timeline.append(timelineTicks[k]);
-            $(timelineTicks[k]).animate({
-                left: finalTickPositions[k] + 'px'},
-                duration, function(){
-                timeline.append(timelineTicks[k]);
-            });
-            timelineTicks[k].leftPosition = finalTickPositions[k];
-        }
-
-        //Add in extra ticks for scaling at small time ranges
-        if (timeRange<5){
-            for (k=0;k<timelineTicks.length; k++){
-                if (k>=firstTickIndex&&k<=firstTickIndex+timeRange){
-                    scaleTick = $(document.createElement('div'));
-                    scaleTick.addClass('timelineTick');
-                    scaleTick.css({left: timelineTicks[k].leftPosition + $(timeline).width()/timeRange/2});
-                    timeline.append(scaleTick);
-                }
-            }
-        }
-
-        timelineCircleArea = $(document.createElement('div'));
-        timelineCircleArea.addClass('timelineCircleArea');
-        timelineArea.append(timelineCircleArea);
-        timelineCircleArea.overlapping = false;
-
-        
-        var finalCirclePositions = [];
-
-        //Calculate final positions for timeline circles:
-        for (k=0; k<timelineEventCircles.length; k++){
-            //zooming back out:
-            if (yearKey===null){
-                finalCirclePositions[k] = timelineEventCircles[k].originalPosition;
-            } else{
-                fractionOnTimeline = (timelineEventCircles[k].yearKey - minDisplayDate)/timeRange;
-                positionOnTimeline = parseInt(fractionOnTimeline*$(timeline).width());
-                positionOnTimeline = positionOnTimeline - LEFT_SHIFT;
-                finalCirclePositions[k] = positionOnTimeline;
-            } 
-        }
-        
-        for (i=0; i<timelineEventCircles.length; i++){
-                timelineEventCircles[i].css('left', timelineEventCircles[i].leftPosition);
-                timelineCircleArea.append(timelineEventCircles[i]);
-                $(timelineEventCircles[i]).animate({
-                    left: finalCirclePositions[i] + 'px'},
-                    duration, function(){
-                    timelineCircleArea.append(timelineEventCircles[i]);
-                });
-                timelineEventCircles[i].leftPosition = finalCirclePositions[i];
-                //First label displayed is always visible:
+                    scaleTicksAppended = true;
+                } 
+        });
+    
+        currTimelineCircleArea.overlapping = false;
+        currTimelineCircleArea.stop(true, false);
+        currTimelineCircleArea.animate({
+            left: left + 'px',
+            width: width + 'px'},
+            duration, function(){
+                for (i=0; i<timelineEventCircles.length; i++){
                 if (first){
                     timelineEventCircles[i].timelineDateLabel.css('visibility', 'visible');
                 }
                 if (timelineEventCircles[i].yearKey>=minDisplayDate && timelineEventCircles[i].yearKey<=maxDisplayDate){
                     first = false;
                 }
+
                 //Check for any overlaps:
                 j = i-1;
-                if (j>=0 && timelineEventCircles[j].yearKey>=minDisplayDate){
-                    position1 = timelineEventCircles[j].leftPosition;
-                    position2 = timelineEventCircles[i]. leftPosition;
-                    labelwidth = timelineEventCircles[j].labelwidth;
+                if (j>=0 && timelineEventCircles[j].yearKey>=minDisplayDate && timelineEventCircles[i].yearKey<=maxDisplayDate){
+                    position1 = timelineEventCircles[j].position().left;
+                    position2 = timelineEventCircles[i].position().left;
+                    labelwidth = timelineEventCircles[j].timelineDateLabel.width();
                     fullOverlap = position1 === position2; 
                     if (!fullOverlap && (areOverlapping(position1, position2)||labelsAreOverlapping(position1,position2,labelwidth))){
-                        timelineCircleArea.overlapping = true;
+                        currTimelineCircleArea.overlapping = true;
                     } 
                 }
+                
                 //Decide whether to display labels:
                 while (j>0 && timelineEventCircles[j].timelineDateLabel.css('visibility')!=='visible' && timelineEventCircles[j].yearKey>= minDisplayDate){
                     j = j-1;
                 }
                 if (j>=0 && !first && timelineEventCircles[j].yearKey>= minDisplayDate){
-                    position1 = timelineEventCircles[j].leftPosition;
-                    position2 = timelineEventCircles[i]. leftPosition;
-                    labelwidth = timelineEventCircles[j].labelwidth;
+                    position1 = timelineEventCircles[j].position().left;
+                    position2 = timelineEventCircles[i].position().left;
+                    labelwidth = timelineEventCircles[j].timelineDateLabel.width();
                     if (!areOverlapping(position1, position2)&&!labelsAreOverlapping(position1, position2, labelwidth)){
                         timelineEventCircles[i].timelineDateLabel.css('visibility', 'visible');
                     } else{
                         timelineEventCircles[i].timelineDateLabel.css('visibility', 'hidden');
-                        if (timelineEventCircles[i].yearKey=== yearKey && !fullOverlap){
+                        if (timelineEventCircles[i].yearKey === yearKey && !fullOverlap){
                             timelineEventCircles[i].timelineDateLabel.css('visibility','visible');
                         }
                         if (timelineEventCircles[i].yearKey === fullMaxDisplayDate){
@@ -1035,22 +1014,20 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                             timelineEventCircles[j].timelineDateLabel.css('visibility', 'hidden');
                         }
                     }
-                    
                 }
-                timelineEventCircles[i].append(timelineEventCircles[i].timelineDateLabel);
-        }
-        
-        //Re-add on-click functions (they don't seem to stick around) TO-DO: define this somewhere else or pass in (factor out)
-        for (k=0; k<timelineEventCircles.length; k++){
-            art = timelineEventCircles[k].artwork;
-            timelineEventCircles[k].on('click', (function(art) {
+
+                //Re-add on-click functions
+                timelineEventCircles[i].unbind();
+                art = timelineEventCircles[i].artwork;
+                timelineEventCircles[i].on('click', (function(art) {
                                             return function() {
                                                 if (artworkShown === true && currentArtwork === art) {
+                                                    zoomTimeline(null, fullMinDisplayDate, fullMaxDisplayDate);
                                                     hideArtwork(art)();
                                                     artworkShown = false;
                                                 } else {
-                                                    if (timelineCircleArea.overlapping){
-                                                        zoomTimeline(artworkCircles[art.Identifier].yearKey, minDisplayDate, maxDisplayDate, 400);
+                                                    if (currTimelineCircleArea.overlapping){
+                                                        zoomTimeline(artworkCircles[art.Identifier].yearKey, minDisplayDate, maxDisplayDate);
                                                     } else {
                                                         panTimeline(artworkCircles[art.Identifier].yearKey, minDisplayDate, maxDisplayDate);
                                                     }
@@ -1059,11 +1036,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                                                 } 
                                             }      
                                         })(art));
-        }
-
+         
+                };
+        }); 
     }; 
 
-    /* Pans timeline to specific yearKey while maintaining current zoom level
+    /* Pans timeline to specific yearKey while maintaining current zoom level.
      * @param  {Number} yearKey         yearKey of circle/artwork to pan to
      * @param  {Number} minDisplayDate  minimum display date of timeline before panning
      * @param  {Number} maxDisplayDate  maximum display date of timeline before panning
@@ -1071,10 +1049,12 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
     function panTimeline(yearKey, minDisplayDate, maxDisplayDate){
         var timeRange,
             half;
+        console.log("panning");
         timeRange = maxDisplayDate - minDisplayDate;
         half = Math.round(timeRange/2);
         yearKey - half < fullMinDisplayDate ? minDisplayDate = minDisplayDate : minDisplayDate = yearKey - half;
         yearKey + half > fullMaxDisplayDate ? maxDisplayDate = maxDisplayDate : maxDisplayDate = yearKey + half;
+        //force zoomTimeline() to maintain same zoom level by passing in desired min and max date. 
         zoomTimeline(yearKey, minDisplayDate, maxDisplayDate, 400);
     }
 
