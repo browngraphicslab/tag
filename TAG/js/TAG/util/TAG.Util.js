@@ -21,6 +21,7 @@ TAG.Util = (function () {
         encodeText: encodeText,
         disableDrag: disableDrag,
         getFontSize: getFontSize,
+        parseDateToYear : parseDateToYear,
         showLoading: showLoading,
         hideLoading: hideLoading,
         removeProgressCircle: removeProgressCircle,
@@ -397,6 +398,39 @@ TAG.Util = (function () {
                 clearInterval(loadedInterval);
             }
         });
+    }
+
+    /* Get an integer year from date metadata
+     * @method parseDateToYear
+     * @param {String} dateString      string representing date metadata
+     * @return {Integer} year          integer year
+     */
+    function parseDateToYear(dateString){
+        var neg = false,
+            cent,
+            year; 
+        if (dateString){
+            //Catches 'ad', 'bc', 'bce' case, spacing, and order insensitive
+            if (dateString.search(/bce?/i)>=0){
+                neg = true;
+                dateString = dateString.replace(/bce?/gi,'');
+            }
+            dateString = dateString.replace(/ad/gi,'')
+                                   .replace(/ce(?!n)/gi,'')
+                                   .replace(/\s/g,'');
+            //Catch 'century', 'c', and 'c.' and return mid year of that century (17th c --> 1650)
+            if (dateString.search(/c.?/i)>=0 || dateString.search(/century/i)>=0){
+                dateString.replace(/[a-z]\w/gi,'')
+                          .replace(/c.?/gi, '')
+                cent = parseInt(dateString) - 1 ;
+                dateString = cent.toString() + '50';
+            }
+            if (neg){
+                dateString = "-" + dateString;  
+            }
+            year = parseInt(dateString);
+            return year;
+        }
     }
 
     // Replace SVG img with inline SVG

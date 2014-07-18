@@ -589,7 +589,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 }
                 //TO-DO add panning here 
                 showArtwork(currentWork)();
-                zoomTimeline(parseYear(currentWork), fullMinDisplayDate, fullMaxDisplayDate, 400);
+                console.log(TAG.Util.parseDateToYear(currentWork.Metadata.Year));
+                zoomTimeline(TAG.Util.parseDateToYear(currentWork.Metadata.Year), fullMinDisplayDate, fullMaxDisplayDate, 400);
                 justShowedArtwork = true;
             });
 
@@ -1391,21 +1392,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         valuation  = sortValuation('yearKey');
         avlTree = new AVLTree(comparator, valuation);
         for (i = 0; i < artworks.length; i++) {
-            yearKey = parseYear(artworks[i]);
-            /**
-            if (artworks[i].Metadata.Year) {
-                yearKey = artworks[i].Metadata.Year
-                //Catches 'ad', 'bc', 'bce' case, spacing, and order insensitive
-                yearKey = yearKey.replace(/ad/gi,'')
-                                 .replace(/( |\d)ce/gi,'')
-                                 .replace(/\s/g,'');
-                if (yearKey.search(/bce?/gi)>=0){
-                    yearKey = yearKey.replace(/bce?/gi,'');
-                    yearKey = "-" + yearKey;
-                }
-                yearKey = parseInt(yearKey);
-            }
-            **/
+            yearKey = TAG.Util.parseDateToYear(artworks[i].Metadata.Year);
             if (!isNaN(yearKey)){
                 artNode = {
                     artwork: artworks[i],
@@ -1422,22 +1409,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         return avlTree;
     }
 
-    function parseYear(artwork){
-        var yearKey;
-        if (artwork.Metadata.Year) {
-            yearKey = artwork.Metadata.Year
-            //Catches 'ad', 'bc', 'bce' case, spacing, and order insensitive
-            yearKey = yearKey.replace(/ad/gi,'')
-                             .replace(/( |\d)ce/gi,'')
-                             .replace(/\s/g,'');
-            if (yearKey.search(/bce?/gi)>=0){
-                yearKey = yearKey.replace(/bce?/gi,'');
-                yearKey = "-" + yearKey;
-            }
-            yearKey = parseInt(yearKey);
-        }
-        return yearKey
-    }
     /** 
      * Set the colors of the sort tags
      * @method colorSortTags
