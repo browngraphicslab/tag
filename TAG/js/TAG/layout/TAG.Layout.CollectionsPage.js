@@ -589,7 +589,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 }
                 //TO-DO add panning here 
                 showArtwork(currentWork)();
-                console.log(TAG.Util.parseDateToYear(currentWork.Metadata.Year));
                 zoomTimeline(TAG.Util.parseDateToYear(currentWork.Metadata.Year), fullMinDisplayDate, fullMaxDisplayDate, 400);
                 justShowedArtwork = true;
             });
@@ -758,7 +757,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             art = curr.artwork;
        
             while (curr&& curr.yearKey!==Number.POSITIVE_INFINITY){
-                //console.log("here");
                 if (!isNaN(curr.yearKey)){
                     positionOnTimeline = 100*(curr.yearKey - minDate)/timeRange;
 
@@ -1050,7 +1048,6 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
     function panTimeline(yearKey, minDisplayDate, maxDisplayDate){
         var timeRange,
             half;
-        console.log("panning");
         timeRange = maxDisplayDate - minDisplayDate;
         half = Math.round(timeRange/2);
         yearKey - half < fullMinDisplayDate ? minDisplayDate = minDisplayDate : minDisplayDate = yearKey - half;
@@ -1091,18 +1088,21 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
         return function() {
             var sub = $('#selectedArtworkContainer');
             sub.css('display', 'none');
-            artworkCircles[artwork.Identifier] && artworkCircles[artwork.Identifier].css({
-                'height'           : '20px',
-                'width'            : '20px',
-                'background-color' : 'rgba(255, 255, 255, .5)',
-                'border-radius'    : '10px',
-                'top'              : '-8px'
-            });
-            artworkCircles[artwork.Identifier].timelineDateLabel && artworkCircles[artwork.Identifier].timelineDateLabel.css({
-                'color' : 'rgb(170,170,170)'  
-            });
+            if (artworkCircles[artwork.Identifier]){
+                artworkCircles[artwork.Identifier].css({
+                    'height'           : '20px',
+                    'width'            : '20px',
+                    'background-color' : 'rgba(255, 255, 255, .5)',
+                    'border-radius'    : '10px',
+                    'top'              : '-8px'
+                });
+                artworkCircles[artwork.Identifier].timelineDateLabel && artworkCircles[artwork.Identifier].timelineDateLabel.css({
+                    'color' : 'rgb(170,170,170)'  
+                });
+            }
             zoomTimeline(null, fullMinDisplayDate, fullMaxDisplayDate, 800);
             catalogDiv.stop(true,false);
+            console.log("here");
             catalogDiv.animate({scrollLeft: 0}, 1000);
             artworkShown = false;
         };
@@ -1165,9 +1165,9 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
             $(document).mouseup(function(e) {
                 var subject = selectedArtworkContainer;
                 if (e.target.id != subject.attr('id') && !$(e.target).hasClass('tileImage') &&!$(e.target).hasClass('timelineEventCircle') && !subject.has(e.target).length) {
-                    console.log("mouseupfn");
-                    console.log(e.target);
+                    if (artworkShown){
                         hideArtwork(artwork)();
+                    }
                 }
             });
 
