@@ -65,7 +65,7 @@ module.exports = function(grunt) {
 					'TAG/js/utils/doubleLinkedList.js',
 					'TAG/js/utils/hashtable.js',
 					'TAG/js/d3/d3.v2.js',
-					'tagcore/js/TAG/util/TAG.Util.js', // tagcore now
+					'tagcore/js/TAG/util/TAG.Util.js', // TAGCORE
 					'TAG/js/html2canvas/html2canvas.js',
 					'TAG/js/utils/jquery.livequery.js',
 					'TAG/js/Autolinker.js-master/dist/Autolinker.js',
@@ -74,12 +74,12 @@ module.exports = function(grunt) {
 					'TAG/js/TAG/util/TAG.Util.Constants.js',
 					'TAG/js/TAG/util/TAG.Util.Splitscreen.js',
 					'TAG/js/TAG/util/TAG.Util.IdleTimer.js',
-					'TAG/js/TAG/worktop/Worktop.Database.js',
-					'TAG/js/TAG/worktop/Worktop.Doq.js',
-					'TAG/js/TAG/worktop/TAG.Worktop.Database.js',
+					'tagcore/js/TAG/worktop/Worktop.Database.js',  // TAGCORE
+					'tagcore/js/TAG/worktop/Worktop.Doq.js',       // TAGCORE
+					'tagcore/js/TAG/worktop/TAG.Worktop.Database.js', // TAGCORE
 					'TAG/js/TAG/artmode/TAG.AnnotatedImage.js',
 					'TAG/js/TAG/auth/TAG.Auth.js',
-					'tagcore/js/TAG/layout/TAG.Layout.StartPage.js', // in tagcore
+					'tagcore/js/TAG/layout/TAG.Layout.StartPage.js', // TAGCORE
 					'TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js',
 					'TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js',
 					'TAG/js/TAG/layout/TAG.Layout.InternetFailurePage.js',
@@ -268,13 +268,13 @@ module.exports = function(grunt) {
 				'TAG/js/TAG/util/TAG.Util.Constants.js',
 				'TAG/js/TAG/util/TAG.Util.Splitscreen.js',
 				'TAG/js/TAG/util/TAG.Util.IdleTimer.js',
-				'TAG/js/TAG/worktop/Worktop.Database.js',
-				'TAG/js/TAG/worktop/Worktop.Doq.js',
-				'TAG/js/TAG/worktop/TAG.Worktop.Database.js',
+				'tagcore/js/TAG/worktop/Worktop.Database.js', // TAGCORE
+				'tagcore/js/TAG/worktop/Worktop.Doq.js',      // TAGCORE    
+				'tagcore/js/TAG/worktop/TAG.Worktop.Database.js', // TAGCORE
 				'TAG/js/TAG/artmode/TAG.AnnotatedImage.js',
 				'TAG/js/TAG/auth/TAG.Auth.js',
 				
-				'tagcore/js/TAG/layout/TAG.Layout.StartPage.js', // in tagcore
+				'tagcore/js/TAG/layout/TAG.Layout.StartPage.js', // TAGCORE
 				'TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js',
 				'TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js',
 				'TAG/js/TAG/layout/TAG.Layout.InternetFailurePage.js',
