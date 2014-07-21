@@ -281,7 +281,7 @@ TAG.Layout.VideoPlayer = function (videoSrc, collection, prevInfo) {
 
         backButton.on('click', goBack);
 
-        linkButton.attr('src', tagPath + 'images/brown.png');
+        linkButton.attr('src', tagPath + 'images/link.svg');
         linkButton.on('click', function() {
             var linkOverlay = TAG.Util.UI.showPageLink(urlToParse, {
                 tagpagename: 'video',

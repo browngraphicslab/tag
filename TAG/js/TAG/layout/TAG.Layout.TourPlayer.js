@@ -37,7 +37,7 @@ TAG.Layout.TourPlayer = function (tour, exhibition, prevInfo, artmodeOptions, to
     // idleTimer.start();
 
     backButton.attr('src', tagPath+'images/icons/Back.svg');
-    linkButton.attr('src', tagPath+'images/brown.png');
+    linkButton.attr('src', tagPath+'images/link.svg');
     //clicked effect for back button
     backButton.on('mousedown', function(){
         TAG.Util.UI.cgBackColor("backButton", backButton, false);

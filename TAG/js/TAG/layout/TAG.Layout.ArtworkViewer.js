@@ -379,7 +379,7 @@ TAG.Layout.ArtworkViewer = function (options, container) { // prevInfo, options,
 
         
         backButton.attr('src',tagPath+'images/icons/Back.svg');
-        linkButton.attr('src', tagPath+'images/brown.png');
+        linkButton.attr('src', tagPath+'images/link.svg');
         togglerImage.attr("src", tagPath+'images/icons/Close.svg');
         infoTitle.text(doq.Name);
         infoArtist.text(doq.Metadata.Artist);

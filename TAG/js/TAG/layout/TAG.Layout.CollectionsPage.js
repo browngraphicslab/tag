@@ -100,7 +100,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
 
         backbuttonIcon.attr('src', tagPath+'images/icons/Back.svg');
 
-        linkButton.attr('src', tagPath+'images/brown.png');
+        linkButton.attr('src', tagPath+'images/link.svg');
 
         idleTimer = null;
 
