@@ -307,7 +307,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                               .html(prevTitle)
                               .on('click', function(){
                                             return function(){
-                                                loadCollection(visibleCollections[collection.nextCollectionIndex], sPos, artwrk)();
+                                                loadCollection(visibleCollections[collection.prevCollectionIndex], sPos, artwrk)();
                                                 currentTag = null;
                                             }
                                         }());
