@@ -1178,7 +1178,7 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                             .on('click', switchPage);
 
             // Telemetry on artworks
-            TAG.Telemetry.register(currentThumbnail, 'click', '', function(tobj) {
+            TAG.Telemetry.register($("#currentThumbnail,#exploreTab"), 'click', '', function(tobj) {
                 if (!currentArtwork || !artworkSelected) {
                     return true; // abort
                 }
