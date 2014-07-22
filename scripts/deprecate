@@ -1,0 +1,18 @@
+#!/bin/sh
+
+####################################################
+#                                                  #
+# Git moves the input file to DEPRECATED.<oldname> #
+#                                                  #
+####################################################
+
+DEP='DEPRECATED.'                             # for printing info
+ARR=' --> '
+
+if [ "$#" -ne 1 ]; then                       # input validation
+    echo "Usage: deprecate <file/directory>"
+    exit 1
+else
+	echo $1$ARR$DEP$1                         # prints some info
+    git mv $1 $DEP$1                          # calls 'git mv'
+fi

@@ -1265,8 +1265,8 @@ TAG.Layout.CollectionsPage = function (options) { // backInfo, backExhibition, c
                 currentThumbnail.addClass('currentThumbnail')
                                 .attr('src', artwork.Metadata.Thumbnail ? FIX_PATH(artwork.Metadata.Thumbnail) : (tagPath+'images/no_thumbnail.svg'))
                                 .on('click', switchPage(artwork));
-                TAG.Telemetry.register(currentThumbnail, 'click', '', function(tobj) {
-                    if (!currentArtwork || !artworkSelected) {
+                TAG.Telemetry.register($("#currentThumbnail,#exploreTab") 'click', '', function(tobj) {
+                    if (!artwork || !artworkSelected) {
                         return true; // abort
                     }
                     tobj.custom_1 = artwork.Name;

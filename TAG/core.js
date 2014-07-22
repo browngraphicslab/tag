@@ -128,9 +128,9 @@
      */
     function init() {
         var TAGSCRIPTS = [                                    // scripts to load
-                'js/raphael.js',
-                'js/tagInk.js',
-                'js/RIN/web/lib/rin-core-1.0.js'
+                '../tagcore/js/raphael.js',
+                '../tagcore/js/tagInk.js',
+                '../tagcore/js/RIN/web/lib/rin-core-1.0.js'
             ],
             i,                                                // index
             oHead,                                            // head element
