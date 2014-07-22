@@ -77,15 +77,15 @@ module.exports = function(grunt) {
 					'tagcore/js/TAG/worktop/Worktop.Database.js',            // TAGCORE
 					'tagcore/js/TAG/worktop/Worktop.Doq.js',                 // TAGCORE
 					'tagcore/js/TAG/worktop/TAG.Worktop.Database.js',        // TAGCORE
-					'TAG/js/TAG/artmode/TAG.AnnotatedImage.js',
+					'tagcore/js/TAG/artmode/TAG.AnnotatedImage.js',
 					'tagcore/js/TAG/auth/TAG.Auth.js',                       // TAGCORE
 					'tagcore/js/TAG/layout/TAG.Layout.StartPage.js',         // TAGCORE
-					'TAG/js/TAG/layout/TAG.Layout.ArtworkViewer.js',
+					'tagcore/js/TAG/layout/TAG.Layout.ArtworkViewer.js',
 					'TAG/js/TAG/layout/TAG.Layout.CollectionsPage.js',
-					'TAG/js/TAG/layout/TAG.Layout.InternetFailurePage.js',
+					'tagcore/js/TAG/layout/TAG.Layout.InternetFailurePage.js',
 					'TAG/js/TAG/layout/TAG.Layout.MetroSplitscreenMessage.js',
-					'TAG/js/TAG/layout/TAG.Layout.TourPlayer.js',
-					'TAG/js/TAG/layout/TAG.Layout.VideoPlayer.js',
+					'tagcore/js/TAG/layout/TAG.Layout.TourPlayer.js',
+					'tagcore/js/TAG/layout/TAG.Layout.VideoPlayer.js',
 					'TAG/js/TAG/layout/TAG.Layout.ArtworkEditor.js',
 					'TAG/js/TAG/layout/TAG.Layout.TourAuthoringNew.js',
 					
