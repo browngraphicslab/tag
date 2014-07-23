@@ -95,12 +95,14 @@ var TAG = function(tagInput) {
     // we need TAG to load with the correct width/height, so the developer would
     // need to edit demo.html anytime the width changes
 
+    // TODO merging: change TAG.js path
+
     htmlStr =  '<!DOCTYPE html> \
                 <html> \
                 <head> \
                     <meta charset="utf-8" /> \
                     <title>Touch Art Gallery</title> \
-                    <script src="'+tagPath+''+(useTAGjs ? 'TAG.js' : 'TAG-min.js')+'"></script> \
+                    <script src="'+tagPath+''+(useTAGjs ? 'js/TAG.js' : 'TAG-min.js')+'"></script> \
                     <script> \
                         window.onload = function() { \
                             TAG_GLOBAL({ \

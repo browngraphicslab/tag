@@ -156,7 +156,7 @@
         // load stylesheet
         oCss = document.createElement("link");
         oCss.rel = "stylesheet";
-        oCss.href = tagPath+"css/TAG.css";
+        oCss.href = tagPath+"../tagcore/css/TAG.css"; // TODO merging
         oHead.appendChild(oCss);
 
         tagContainer = $('#tagRoot');
