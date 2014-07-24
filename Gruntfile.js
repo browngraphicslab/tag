@@ -139,11 +139,11 @@ var JSSRC = [
 		'tagcore/js/popcorn.min.js',                               // TAGCORE
 		'tagcore/js/popcorn.capture.js',                           // TAGCORE
 
-		'tagcore/telemetry/telemetry.js',                          // TAGCORE
+		'tagcore/js/tests.js',                          // TAGCORE
 		
-		'tagcore/js/tests.js',                                     // TAGCORE
+		'tagcore/js/core.js',                                     // TAGCORE
 		
-		'tagcore/js/core.js'                                       // TAGCORE
+		'tagcore/telemetry/telemetry.js'                                      // TAGCORE
 	],
 	WATCH = JSSRC.slice(); // WATCH will be a superset of JSSRC
 
@@ -167,7 +167,7 @@ module.exports = function(grunt) {
 					        \n        idleDuration       = tagInput.idleDuration, \
 					        \n        currentPage        = {}, // name and obj properties \
 					        \n        INPUT_TOUR_ID      = tagInput.tourId, // to load to a tour \
-					        \n        telemetry_session_ID = null, \
+					        \n        TELEMETRY_SESSION_ID = null, \
 					        \n        idleTimer; \n\n',
 				footer: '};'
 			},
