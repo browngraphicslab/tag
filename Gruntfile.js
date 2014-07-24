@@ -104,33 +104,33 @@ var JSSRC = [
 		'tagcore/js/TAG/layout/TAG.Layout.MetroSplitscreenMessage.js', // TAGCORE
 		'tagcore/js/TAG/layout/TAG.Layout.TourPlayer.js',              // TAGCORE
 		'tagcore/js/TAG/layout/TAG.Layout.VideoPlayer.js',             // TAGCORE
-		'TAG/js/TAG/layout/TAG.Layout.ArtworkEditor.js',
-		'TAG/js/TAG/layout/TAG.Layout.TourAuthoringNew.js',
+		'tagcore/js/TAG/layout/TAG.Layout.ArtworkEditor.js',
+		'tagcore/js/TAG/layout/TAG.Layout.TourAuthoringNew.js',
 
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.Constants.js',          // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.TimeManager.js',        // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.UndoManager.js',        // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.ArtworkTrack.js',       // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.AudioTrack.js',         // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.Viewer.js',             // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.ArtworkTrack.js',       // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.Command.js',            // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.ComponentControls.js',  // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.Display.js',            // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.EditorMenu.js',         // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.ImageTrack.js',         // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.InkablePart.js',        // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.InkAuthoring.js',       // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.InkController.js',      // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.InkTrack.js',           // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.Keyframe.js',           // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.PlaybackControl.js',    // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.Tests.js',              // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.Timeline.js',           // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.TopMenu.js',            // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.TourOptions.js',        // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.Track.js',              // TAGCORE -- need to move from win8
-		'TAG/js/TAG/tourauthoring/TAG.TourAuthoring.VideoTrack.js',         // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.Constants.js',          // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.TimeManager.js',        // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.UndoManager.js',        // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.ArtworkTrack.js',       // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.AudioTrack.js',         // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.Viewer.js',             // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.ArtworkTrack.js',       // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.Command.js',            // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.ComponentControls.js',  // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.Display.js',            // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.EditorMenu.js',         // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.ImageTrack.js',         // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.InkablePart.js',        // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.InkAuthoring.js',       // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.InkController.js',      // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.InkTrack.js',           // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.Keyframe.js',           // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.PlaybackControl.js',    // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.Tests.js',              // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.Timeline.js',           // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.TopMenu.js',            // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.TourOptions.js',        // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.Track.js',              // TAGCORE -- need to move from win8
+		'tagcore/js/TAG/tourauthoring/TAG.TourAuthoring.VideoTrack.js',         // TAGCORE -- need to move from win8
 
 		'tagcore/js/TAG/authoring/TAG.Authoring.SettingsView.js',  // TAGCORE
 		'tagcore/js/TAG/authoring/TAG.Authoring.FileUploader.js',  // TAGCORE
