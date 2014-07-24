@@ -167,6 +167,7 @@ module.exports = function(grunt) {
 					        \n        idleDuration       = tagInput.idleDuration, \
 					        \n        currentPage        = {}, // name and obj properties \
 					        \n        INPUT_TOUR_ID      = tagInput.tourId, // to load to a tour \
+					        \n        telemetry_session_ID = null, \
 					        \n        idleTimer; \n\n',
 				footer: '};'
 			},
