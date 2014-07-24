@@ -1,14 +1,14 @@
 /**
- * This gruntfile contains only a task to minify TAG. The node
- * package used to do this is called "uglify," and it minifies
- * by doing things like renaming variables to only one character
- * and eliminating extra whitespace.
+ * This file takes care of minifying TAG.js. It uses a node
+ * package called 'uglify' to do this; uglify minifies files
+ * by doing things like changing variable names to single
+ * characters and eliminating unnecessary whitespace.
  * 
  * To run, type
  *
  *    $ grunt
  *
- * from the command line. The output will be TAG/TAG-min.js.
+ * The output will be TAG/TAG-min.js.
  */
 
 module.exports = function(grunt) {
