@@ -4,7 +4,6 @@
 	<title>TAG Embedded Demo</title>
 	<link rel='stylesheet' href='webappdemo_css.css' />
 	<script src='TAG-embed.js'></script>
-	<script src='jquery-1.10.2.min.js'></script>
 	<script>
 		window.onload = load;
 
@@ -22,26 +21,6 @@
 				allowServerChange: true,
 				useTAGjs: true
 			});
-
-			
-
-            /*
-		    // do not let scroll events bubble out of tag container
-		    // when the mouse is in the container
-			var frameDiv = document.getElementById('frameContainer'),
-		        numEvents = 0;
-		    //frameDiv.innerHTML = 0;
-			frameDiv.addEventListener('mousewheel', function (evt) {
-			    //frameDiv.innerHTML = ++numEvents;
-			    evt.stopPropagation();
-			    evt.preventDefault();
-			});
-			frameDiv.addEventListener('DOMMouseScroll', function (evt) {
-			    //frameDiv.innerHTML = ++numEvents;
-			    evt.stopPropagation();
-			    evt.preventDefault();
-			});*/
-		    
 		}
 	</script>
 </head>

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-################
+################ TODO merge (fix this to be compatible with codebase merge)
 # 
 #  This unix script should be run in a directory in which you want
 #  to create a ship version of TAG (you might want to copy the
