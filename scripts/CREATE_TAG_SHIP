@@ -1,11 +1,11 @@
 #!/bin/sh
 
-################
+################ TODO merge (fix this to be compatible with codebase merge)
 # 
 #  This unix script should be run in a directory in which you want
-#  to create a ship version of TAG (you might want to copy the
-#  script out of the tag/scripts directory). It won't work on
-#  Windows.
+#  to create a ship version of TAG. It won't work on
+#  Windows, and it probably won't work if you don't have git set up to 
+#  clone without asking for your git username and password.
 # 
 #  To run, use:
 # 
@@ -47,7 +47,20 @@ DATE=$(date +%y%m%d%H%M%Y%S)
 CLONE_DIR="TAG_CHECKOUT_"$DATE
 SHIP_DIR="TAG_SHIP_"$DATE
 git clone http://github.com/browngraphicslab/tag.git $CLONE_DIR
-cd $CLONE_DIR
+cd $CLONE_DIR # in tag clone
+
+echo ""
+printf "Setting up tagcore submodule in 3..."
+sleep 1
+printf "\rSetting up tagcore submodule in 2..."
+sleep 1
+printf "\rSetting up tagcore submodule in 1..."
+sleep 1
+printf "\rSetting up tagcore submodule...            \n"
+echo ""
+
+git submodule init
+git submodule update
 
 echo ""
 printf "Running npm install in 3..."
@@ -56,9 +69,11 @@ printf "\rRunning npm install in 2..."
 sleep 1
 printf "\rRunning npm install in 1..."
 sleep 1
-printf "\rRunning npm install...           \n"
+printf "\rRunning npm install (in both tag and tagcore)...           \n"
 echo ""
 
+npm install
+cd tagcore # in tagcore submodule
 npm install
 
 echo ""
@@ -77,7 +92,8 @@ echo ""
 echo "NOTE: uglify can take a while..."
 echo ""
 
-grunt uglify
+cd .. # in tag clone
+grunt
 
 echo ""
 printf "Fiddling with files in 3..."
@@ -89,20 +105,18 @@ sleep 1
 printf "\rFiddling with files...           \n"
 echo ""
 
-cd ..
+cd .. # in parent of tag clone
 mkdir $SHIP_DIR
-mv $CLONE_DIR"/TAG" $SHIP_DIR
+mkdir $SHIP_DIR"/css"
+mkdir $SHIP_DIR"/js"
+mv $CLONE_DIR"/tagcore/css/TAG.css" $SHIP_DIR"/css"
+mv $CLONE_DIR"/tagcore/js/RIN" $SHIP_DIR"/js"
+mv $CLONE_DIR"/tagcore/js/tagInk.js" $SHIP_DIR"/js"
+mv $CLONE_DIR"/tagcore/js/raphael.js" $SHIP_DIR"/js"
+mv $CLONE_DIR"/tagcore/images" $SHIP_DIR
+mv $CLONE_DIR"/tagcore/fonts" $SHIP_DIR
+mv $CLONE_DIR"/tagcore/html" $SHIP_DIR
+mv $CLONE_DIR"/TAG/shipDemo.html" $SHIP_DIR"/demo.html"
+mv $CLONE_DIR"/TAG/TAG-min.js" $SHIP_DIR
+
 rm -rf $CLONE_DIR
-cd $SHIP_DIR
-mkdir css
-mkdir js
-mv TAG/css/TAG.css css
-mv TAG/js/RIN js
-mv TAG/js/tagInk.js js
-mv TAG/js/raphael.js js
-mv TAG/images .
-mv TAG/fonts .
-mv TAG/html .
-mv TAG/shipDemo.html demo.html
-mv TAG/TAG-min.js .
-rm -rf TAG

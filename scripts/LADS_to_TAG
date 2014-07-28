@@ -1,7 +1,0 @@
-TAG='TAG'
-for f in LADS*
-do
-	NOLADS=${f#LADS}
-	echo $f
-	git mv $f $TAG$NOLADS
-done
