@@ -36,15 +36,17 @@ var TAG = function(tagInput) {
         width = tagInput.width,
         height = tagInput.height,
         idleDuration = tagInput.idleDuration || 0,
-        tourId = tagInput.tourId,
+        interpretURLParams = tagInput.interpretURLParams,
         useTAGjs = tagInput.useTAGjs,
+        urlToParse = window.location.href,
         container,
         frame,
         frameDoc,
         htmlStr,
         tempImage,
         frameContainer,
-        frameInnerContainer;
+        frameInnerContainer,
+   		pageToLoad = {};
     
     if (typeof tagPath !== 'string') {
         console.log('specify a string path to the directory containing TAG');
@@ -112,7 +114,7 @@ var TAG = function(tagInput) {
                                 allowServerChange:'+allowServerChange+', \
                                 allowAuthoringMode: '+allowAuthoringMode+', \
                                 idleDuration:'+idleDuration+', \
-                                tourId:'+(tourId ? ('"'+tourId+'"') : 'null') +' \
+                                urlToParse:"'+urlToParse+'" \
                             }); \
                         }; \
                     </script> \
