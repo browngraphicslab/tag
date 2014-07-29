@@ -36,9 +36,10 @@ var TAG = function(tagInput) {
         width = tagInput.width,
         height = tagInput.height,
         idleDuration = tagInput.idleDuration || 0,
-        interpretURLParams = tagInput.interpretURLParams,
+        interpretURLParams = (tagInput.interpretURLParams === false) ? false : true,
         useTAGjs = tagInput.useTAGjs,
-        urlToParse = window.location.href,
+        urlToLoad = tagInput.urlToLoad || '',
+        urlToParse = interpretURLParams ? window.location.href : '',
         container,
         frame,
         frameDoc,
@@ -114,7 +115,8 @@ var TAG = function(tagInput) {
                                 allowServerChange:'+allowServerChange+', \
                                 allowAuthoringMode: '+allowAuthoringMode+', \
                                 idleDuration:'+idleDuration+', \
-                                urlToParse:"'+urlToParse+'" \
+                                urlToParse:"'+urlToParse+'", \
+                                urlToLoad:"'+urlToLoad+'" \
                             }); \
                         }; \
                     </script> \
