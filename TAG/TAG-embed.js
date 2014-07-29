@@ -28,7 +28,7 @@ var TAG = function(tagInput) {
 
     // embed iframe in $('#'+tagContainerId)
     var tagPath = tagInput.path || '',
-        tagContainerId = tagInput.containerId,
+        tagContainerId = tagInput.containerId || 'tagContainer',
         ip = tagInput.serverIp,
         hiddenCollections = tagInput.hiddenCollections || [],
         allowServerChange = tagInput.allowServerChange,
