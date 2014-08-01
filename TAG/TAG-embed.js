@@ -28,7 +28,7 @@ var TAG = function(tagInput) {
 
     // embed iframe in $('#'+tagContainerId)
     var tagPath = tagInput.path || '',
-        tagContainerId = tagInput.containerId,
+        tagContainerId = tagInput.containerId || 'tagContainer',
         ip = tagInput.serverIp,
         hiddenCollections = tagInput.hiddenCollections || [],
         allowServerChange = tagInput.allowServerChange,
@@ -36,9 +36,10 @@ var TAG = function(tagInput) {
         width = tagInput.width,
         height = tagInput.height,
         idleDuration = tagInput.idleDuration || 0,
-        interpretURLParams = tagInput.interpretURLParams,
+        interpretURLParams = (tagInput.interpretURLParams === false) ? false : true,
         useTAGjs = tagInput.useTAGjs,
-        urlToParse = window.location.href,
+        urlToLoad = tagInput.urlToLoad || '',
+        urlToParse = interpretURLParams ? window.location.href : '',
         container,
         frame,
         frameDoc,
@@ -114,7 +115,8 @@ var TAG = function(tagInput) {
                                 allowServerChange:'+allowServerChange+', \
                                 allowAuthoringMode: '+allowAuthoringMode+', \
                                 idleDuration:'+idleDuration+', \
-                                urlToParse:"'+urlToParse+'" \
+                                urlToParse:"'+urlToParse+'", \
+                                urlToLoad:"'+urlToLoad+'" \
                             }); \
                         }; \
                     </script> \
@@ -143,7 +145,9 @@ var TAG = function(tagInput) {
 
     var scrollTop = 0,
         scrollLeft = 0,
-        bodyLeft = 0;
+        bodyLeft = 0,
+        bodyHeight = $('body').css('height'),
+        bodyOverflow = $('body').css('overflow');
 
     $frameDiv.on('mouseenter', function(evt) {
         var origLeft, newLeft, tbodyLeft;
@@ -156,6 +160,8 @@ var TAG = function(tagInput) {
         origLeft = $(container).offset().left;
 
         $('body').css({
+        	'height': '100%',
+        	'overflow': 'hidden',
             'position': 'fixed',
             'margin-top': (-scrollTop)+'px',
         });
@@ -171,6 +177,8 @@ var TAG = function(tagInput) {
 
     $frameDiv.on('mouseleave', function() {
         $('body').css({
+        	'height': bodyHeight,
+        	'overflow': bodyOverflow,
             'position': 'static',
             'margin-top': '0px',
             'margin-left': bodyLeft+'px'
