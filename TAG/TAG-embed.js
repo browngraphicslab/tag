@@ -162,7 +162,7 @@ var TAG = function(tagInput) {
         $('body').css({
         	'height': '100%',
         	'overflow': 'hidden',
-            //'position': 'fixed',
+            'position': 'absolute',
             'margin-top': (-scrollTop)+'px',
         });
 
