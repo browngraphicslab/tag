@@ -150,19 +150,26 @@ var TAG = function(tagInput) {
         bodyOverflow = $('body').css('overflow');
 
 
+    var forceWIndowScrollX = -1;
     var forceWindowScrollY = -1;
 	$(window).scroll(function(event) {
+		if(forceWindowScrollX != -1 && window.scrollX != forceWindowScrollX) {
+	    	$(window).scrollLeft(forceWindowScrollX);    
+	  	}
 		if(forceWindowScrollY != -1 && window.scrollY != forceWindowScrollY) {
 	    	$(window).scrollTop(forceWindowScrollY);    
 	  	}
 	});
 
-	$(frameDiv).mouseenter(function() {
+	$(frameDiv).hover(function() {
+		if(forceWindowScrollX == -1) {
+	    	forceWindowScrollX = $(window).scrollLeft();
+	  	}
 		if(forceWindowScrollY == -1) {
 	    	forceWindowScrollY = $(window).scrollTop();
 	  	}
-	});
-	$(frameDiv).mouseleave(function() {
+	}, function() {
+	  	forceWindowScrollX = -1;
 	  	forceWindowScrollY = -1;
 	});
         /*
