@@ -150,7 +150,7 @@ var TAG = function(tagInput) {
         bodyOverflow = $('body').css('overflow');
 
 
-    var forceWIndowScrollX = -1;
+    var forceWindowScrollX = -1;
     var forceWindowScrollY = -1;
 	$(window).scroll(function(event) {
 		if(forceWindowScrollX != -1 && window.scrollX != forceWindowScrollX) {
