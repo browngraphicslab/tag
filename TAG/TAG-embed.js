@@ -149,6 +149,31 @@ var TAG = function(tagInput) {
         bodyHeight = $('body').css('height'),
         bodyOverflow = $('body').css('overflow');
 
+
+    var forceWindowScrollX = -1;
+    var forceWindowScrollY = -1;
+	$(window).scroll(function(event) {
+		if(forceWindowScrollX != -1 && window.scrollX != forceWindowScrollX) {
+	    	$(window).scrollLeft(forceWindowScrollX);    
+	  	}
+		if(forceWindowScrollY != -1 && window.scrollY != forceWindowScrollY) {
+	    	$(window).scrollTop(forceWindowScrollY);    
+	  	}
+	});
+
+	$(frameDiv).hover(function() {
+		if(forceWindowScrollX == -1) {
+	    	forceWindowScrollX = $(window).scrollLeft();
+	  	}
+		if(forceWindowScrollY == -1) {
+	    	forceWindowScrollY = $(window).scrollTop();
+	  	}
+	}, function() {
+	  	forceWindowScrollX = -1;
+	  	forceWindowScrollY = -1;
+	});
+        /*
+
     $frameDiv.on('mouseenter', function(evt) {
         var origLeft, newLeft, tbodyLeft;
 
@@ -160,10 +185,10 @@ var TAG = function(tagInput) {
         origLeft = $(container).offset().left;
 
         $('body').css({
-        	'height': '100%',
+        	'height': window.innerHeight+'px',
         	'overflow': 'hidden',
-            'position': 'absolute',
-            'margin-top': (-scrollTop)+'px',
+            'position': 'absolute'
+            //'margin-top': (-scrollTop)+'px',
         });
 
         newLeft = $(container).offset().left;
@@ -180,11 +205,12 @@ var TAG = function(tagInput) {
         	'height': bodyHeight,
         	'overflow': bodyOverflow,
             'position': 'static',
-            'margin-top': '0px',
+            //'margin-top': '0px',
             'margin-left': bodyLeft+'px'
         });
 
-        $(document).scrollTop(scrollTop);
+        //$(document).scrollTop(scrollTop);
         $(document).scrollLeft(scrollLeft);
     });
+*/
 };
