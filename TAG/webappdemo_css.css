@@ -33,9 +33,8 @@ h1 {
 }
 
 #tagContainer {
-	margin: auto;
+	margin: 5%;
 	height: 603px;
 	width: 1072px;
 	text-align: center;
-	margin: 1em auto 3em auto;
 }
