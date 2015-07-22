@@ -16,15 +16,7 @@
 
 /* CSS */
 body {
-	background-color: #49495C;
-}
-
-h1 {
-	font-size: 3em;
-	margin: 0.5em auto;
-	text-align: center;
-	font-weight: 400;
-	color: white;
+	background-color: #000000;
 }
 
 #cpContainer {
@@ -33,7 +25,8 @@ h1 {
 }
 
 #tagContainer {
-	margin: 5%;
+	margin-left: 3%;
+	margin-top: 1% ;
 	height: 603px;
 	width: 1072px;
 	text-align: center;
